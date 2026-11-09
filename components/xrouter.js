@@ -1,3 +1,5 @@
+import { createXRouterURLStateHost } from './xrouter-url-state.js';
+
 import { xtendState } from './xtend-state.js';
 
 const XROUTER_IMPORT_POLICY_CONTRACT = 'xtend.security.xrouter-import-policy.v1';
@@ -713,6 +715,8 @@ class XRouter extends HTMLElement {
 
   attributeChangedCallback(name, oldValue, newValue) {
     if (name === 'mode') {
+      this._urlStateHost?.dispose(); this._urlStateHost = null;
+      window.removeEventListener('popstate', this._urlStatePop);
       this._mode = newValue || 'hash';
     }
     if (name === 'reuse-component') {
@@ -789,6 +793,9 @@ class XRouter extends HTMLElement {
   }
 
   disconnectedCallback() {
+    this._urlStateHost?.dispose();
+    this._urlStateHost = null;
+    window.removeEventListener('popstate', this._urlStatePop);
     this._routerReady = false;
     this.removeAttribute('data-xrouter-ready');
     if (this._mode === 'history') {
@@ -804,6 +811,27 @@ class XRouter extends HTMLElement {
     }
     this._clearScrollBoundaryChecks();
     this._restoreScrollRestoration();
+  }
+
+  /** Bind the current route to a booted Maraca Model with an explicit public URL policy. */
+  connectURLState(runtime, codec) {
+    if (this.pageClient) throw new TypeError('The page client owns this route; use its route host.');
+    this._urlStateHost?.dispose();
+    window.removeEventListener('popstate', this._urlStatePop);
+    this._urlStatePath = this._getCurrentPath().split('?')[0];
+    this._urlStateUnrelatedQuery = codec.withToken(this._getCurrentPath().split('?').slice(1).join('?'), null);
+    this._urlStateCodec = codec;
+    const host = createXRouterURLStateHost({ runtime, codec, windowTarget: window, mode: this._mode,
+      isOwnerCurrent: () => this.isConnected && this._urlStateHost === host,
+      onError: error => this.dispatchEvent(new CustomEvent('navigation-error', { detail: { error } })) });
+    this._urlStateHost = host;
+    this._urlStatePop = () => this._handleNavigation();
+    if (this._mode === 'hash') window.addEventListener('popstate', this._urlStatePop);
+    host.navigate('initialize');
+    return Object.freeze({ ...host, dispose: () => {
+      if (this._urlStateHost === host) { this._urlStateHost = null; window.removeEventListener('popstate', this._urlStatePop); }
+      return host.dispose();
+    } });
   }
 
   _getCurrentPath() {
@@ -2138,6 +2166,13 @@ class XRouter extends HTMLElement {
     if (this.pageClient) return; // Preserve SSR content on initial load and popstate.
     const navigationGeneration = ++this._navigationGeneration;
     const raw = this._getCurrentPath();
+    if (this._urlStateHost) {
+      if (raw.split('?')[0] === this._urlStatePath && this._urlStateCodec.withToken(raw.split('?').slice(1).join('?'), null) === this._urlStateUnrelatedQuery) {
+        try { return await this._urlStateHost.navigate('traverse'); } catch (_) { return { status: 'error' }; }
+      }
+      this._urlStateHost.dispose(); this._urlStateHost = null;
+      window.removeEventListener('popstate', this._urlStatePop);
+    }
     const { path, query, queryObj } = this._parsePathAndQuery(raw);
     const match = this._matchRoute(path);
     this._outlet.setAttribute('aria-busy', 'true');

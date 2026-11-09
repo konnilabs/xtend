@@ -14,3 +14,12 @@ const invalid: Snapshot={...snapshot,state:'private',command:'execute'};
 // @ts-expect-error Opaque object data is not a URL scalar.
 const privateValue: Snapshot={...snapshot,entries:[{declarationId:'x',keys:[],values:{profile:{secret:'no'}}}]};
 void invalid;void privateValue;contract.dispose();
+
+import * as codec from '@ccslabs/xtend/xtensions/url-state';
+import { createMaracaPlanRuntime } from '@ccslabs/xtend-maraca/plan-runtime';
+import { createXRouterURLStateHost } from '../../components/xrouter-url-state.js';
+const runtime=createMaracaPlanRuntime({root:document.body,plan:{},urlStatePolicy:policy,urlStateRuntime:codec});
+const owner=createXRouterURLStateHost({runtime,codec,windowTarget:window});
+void owner.navigate('initialize');void owner.publish('checkpoint');void owner.reset();void owner.retry();
+// @ts-expect-error URL restore accepts an opaque token, not Model write paths.
+void runtime.restoreURLState({state:'private',path:[]},{navigationId:'n',signal:new AbortController().signal,isCurrent:()=>true});

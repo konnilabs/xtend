@@ -1,5 +1,6 @@
 import type { RmtJobHandle } from '../xtendrmt/rmt-kernel-scheduler.js';
 import type { MaracaAbortBoundary, MaracaPresentationToken } from './abort-boundary';
+import type * as URLState from '@ccslabs/xtend/xtensions/url-state';
 import type * as XTensionBindings from '@ccslabs/xtend/xtensions/state-binding';
 export { createMaracaAbortBoundary } from './abort-boundary';
 export type { MaracaAbortBoundary, MaracaPresentationToken, MaracaSuperseded } from './abort-boundary';
@@ -16,7 +17,7 @@ import type {
 } from '../components/xsurfacemanager-controller.js';
 
 export interface MaracaPlanRuntimeSnapshot {
-  readonly schema: 'xtend.maraca.plan-runtime.v6';
+  readonly schema: 'xtend.maraca.plan-runtime.v7';
   readonly phase: 'created' | 'booting' | 'ready' | 'failed' | 'disposed';
   readonly generation: number;
   readonly renderCount: number;
@@ -212,8 +213,10 @@ export interface MaracaFastPassResult {
   readonly intents?: readonly { readonly kind: 'navigation' | 'focus' | 'close'; readonly value: string; readonly scope: string }[];
 }
 
+export interface MaracaURLStateLifetime { readonly navigationId: string; readonly signal: AbortSignal; isCurrent(): boolean }
+export interface MaracaURLRestoreResult { readonly status: 'restored' | 'deferred' | 'pending-view' | 'superseded'; readonly plan?: URLState.RestorePlan }
 export interface MaracaPlanRuntime {
-  readonly schema: 'xtend.maraca.plan-runtime.v6';
+  readonly schema: 'xtend.maraca.plan-runtime.v7';
   readonly model: RmtModelReader;
   /** @deprecated Use model. Removed in 0.7. */
   readonly stateRuntime: RmtModelReader;
@@ -221,6 +224,8 @@ export interface MaracaPlanRuntime {
   readonly actionRuntime: MaracaLegacyActionRuntime;
   boot(): Promise<MaracaPlanRuntimeSnapshot>;
   dispatchCommand(command: string | MaracaCommand, payload?: unknown, metadata?: Record<string, unknown>, lifetime?: XTensionBindings.XTensionBindingCommandLifetime): Promise<MaracaCommandResult>;
+  restoreURLState(token: string | null, lifetime: MaracaURLStateLifetime): Promise<MaracaURLRestoreResult>;
+  publishURLState(options: { cause?: URLState.HistoryProposal['cause']; currentToken: string | null; lifetime: MaracaURLStateLifetime; write(proposal: URLState.HistoryProposal): void }): Promise<{ status: 'published' | 'superseded'; mode?: URLState.HistoryProposal['mode'] }>;
   getXTensionBindings(): readonly { readonly surface: string; readonly hostSurface: string; readonly instance: XTensionBindings.XTensionBoundInstance }[];
   /** Also drains asynchronous foreign-root cleanup after dispose(). */
   /** Drains the current command queue, host deliveries and retiring foreign roots. */
@@ -255,6 +260,8 @@ export interface MaracaHydrationContext extends Record<string, unknown> {
 }
 
 export interface MaracaPlanRuntimeOptions {
+  readonly urlStatePolicy?: URLState.Policy;
+  readonly urlStateRuntime?: typeof URLState;
   xtensionBindingsRuntime?: Pick<typeof XTensionBindings, 'validateStateBindingArtifact' | 'materializeStateBindingArtifact' | 'createXTensionStateRegistry'>;
   createXTensionHost?(context: XTensionBindings.XTensionBindingHostContext & {
     readonly container: Element; readonly surface: string; readonly hostSurface: string; readonly binding: XTensionBindings.XTensionStateBinding;
@@ -360,7 +367,7 @@ export interface MaracaPlanRuntimeOptions {
   moduleUrls?: string[];
 }
 
-export declare const PLAN_RUNTIME_SCHEMA: 'xtend.maraca.plan-runtime.v6';
+export declare const PLAN_RUNTIME_SCHEMA: 'xtend.maraca.plan-runtime.v7';
 export declare const LEGACY_PLAN_RUNTIME_SCHEMA: 'xtend.maraca.plan-runtime.v3';
 export declare function createMaracaPlanRuntime(options: MaracaPlanRuntimeOptions): MaracaPlanRuntime;
 export declare function bootMaracaPlan(options: MaracaPlanRuntimeOptions): Promise<MaracaPlanRuntime>;

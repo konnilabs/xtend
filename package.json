@@ -1001,6 +1001,10 @@
       "types": "./tools/xtensions/state-binding.d.ts",
       "default": "./tools/xtensions/state-binding.js"
     },
+    "./xtensions/url-state": {
+      "types": "./tools/xtensions/url-state.d.ts",
+      "default": "./tools/xtensions/url-state.js"
+    },
     "./xtensions/vue-runtime-adapter": {
       "types": "./tools/xtensions/vue-runtime-adapter.d.ts",
       "default": "./tools/xtensions/vue-runtime-adapter.js"
@@ -15632,7 +15636,7 @@
       "packageDryRunArtifact": ".xtend-test-results/xtend-pack-dry-run.json",
       "packageExportSurfaceArtifact": ".xtend-test-results/xtend-package-export-surface-lock.json",
       "packageExportLockReportArtifact": ".xtend-test-results/xtend-package-export-lock-report.json",
-      "expectedExportCount": 211,
+      "expectedExportCount": 212,
       "localGateRequiresNpmPackExecution": false,
       "artifactRequiredForRc1": true,
       "nextWorkpackage": "WP-E13-13",
@@ -15657,8 +15661,8 @@
       "localGate": "node scripts/run_xtend_tests.js type-exports --json",
       "packageScript": "npm run test:type-exports",
       "reportArtifact": ".xtend-test-results/xtend-type-exports-report.json",
-      "expectedExportCount": 211,
-      "lockedExportFingerprint": "d54e84d640476e46386fdcee3eb3273a9f2103bb3a80e066cc2b7117c48e4a58",
+      "expectedExportCount": 212,
+      "lockedExportFingerprint": "cc95ac4c5a1f907c0269321f47acd1d67a69d1067139e86aff2329a99af47f43",
       "p0Exports": [
         ".",
         "./loader",

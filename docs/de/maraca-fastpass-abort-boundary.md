@@ -94,7 +94,7 @@ Gemeinsames Prewarming darf Module und gültige Daten weiter in den Cache laden.
 
 Das native Beispiel liegt in `demos/xtendrmt/maraca-fastpass/`. `maraca-responsiveness` prüft die neuen Verträge deterministisch; `rmt-kernel-scheduler` hält Host-Callbacks gezielt zurück. Ergänzend prüfen die Maraca-Integrity-Fixture und Browser-Gegenchecks sichtbare Shell-Reaktionen. Gemessene Zeiten gelten für die jeweilige Testumgebung, nicht als universelles Latenzversprechen.
 
-Die aktuelle öffentliche Runtime verwendet `xtend.maraca.plan-runtime.v6`; v3/v4/v5 bleiben Legacy-Verträge. A02.2 ergänzt versionierte XTension-Bindungen, eine gemeinsame Action-/Props-Abschlussgrenze und Cleanup fremder Framework-Roots. Der Presentation-Adapter bleibt bei `xtend.rmt.presentation-effect-adapter.v2`. Schemaänderungen erhalten Major-Versionen; der unveränderte Classic-AST und das veröffentlichte RMT-v2-Dokumentschema behalten ihre Versionen. Der zusätzliche FastPass-Authoring-Vertrag liegt in `xtend-maraca/fastpass.schema.json`.
+Die aktuelle öffentliche Runtime verwendet `xtend.maraca.plan-runtime.v7`; v3/v4/v5/v6 bleiben Legacy-Verträge. A02.2 ergänzt versionierte XTension-Bindungen, eine gemeinsame Action-/Props-Abschlussgrenze und Cleanup fremder Framework-Roots. Der Presentation-Adapter bleibt bei `xtend.rmt.presentation-effect-adapter.v2`. Schemaänderungen erhalten Major-Versionen; der unveränderte Classic-AST und das veröffentlichte RMT-v2-Dokumentschema behalten ihre Versionen. Der zusätzliche FastPass-Authoring-Vertrag liegt in `xtend-maraca/fastpass.schema.json`.
 
 ## Weiterführend
 

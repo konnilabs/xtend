@@ -430,7 +430,12 @@
       "$_buildThemeContext": "Ln",
       "$_clearAppliedThemeVariables": "Nn",
       "$_applyThemeVariables": "Vn",
-      "$_applyExternalTheme": "$n"
+      "$_applyExternalTheme": "$n",
+      "$_urlStateHost": "In",
+      "$_urlStatePop": "qn",
+      "$_urlStatePath": "Kn",
+      "$_urlStateUnrelatedQuery": "Un",
+      "$_urlStateCodec": "Fn"
     }
   }
 }

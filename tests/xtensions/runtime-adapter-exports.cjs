@@ -16,6 +16,10 @@ function runExportChecks() {
   assert.deepEqual(Object.keys(binding).sort(), ['XTENSION_STATE_BINDING_API_VERSION', 'XTENSION_STATE_BINDING_ARTIFACT_SCHEMA', 'XTENSION_STATE_BINDING_SCHEMA', 'createXTensionStateRegistry', 'materializeStateBindingArtifact', 'validateStateBinding', 'validateStateBindingArtifact']);
   assert.equal(require('@ccslabs/xtend-compiler/xtensions/state-binding').createXTensionStateRegistry, binding.createXTensionStateRegistry);
   all[bindingName] = Object.entries(binding).map(([key, value]) => [key, typeof value]).sort();
+  const url = require('@ccslabs/xtend/xtensions/url-state');
+  assert.equal(url.API_VERSION, '1.0.0');
+  assert.equal(require('@ccslabs/xtend-compiler/xtensions/url-state').createURLStateContract, url.createURLStateContract);
+  all['@ccslabs/xtend/xtensions/url-state'] = Object.entries(url).map(([key,value]) => [key,typeof value]).sort();
   for (const framework of ['react', 'vue']) {
     const title = framework[0].toUpperCase() + framework.slice(1);
     for (const kind of ['host', 'runtime']) {

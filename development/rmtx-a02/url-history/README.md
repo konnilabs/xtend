@@ -1,6 +1,6 @@
-# A02.5.1 – URL-/History-Vertrag
+# A02.5 – URL-/History-Vertrag und Router-/Maraca-Anbindung
 
-Stand: 2026-11-09. Dieser Vertrag legt die URL-Semantik für adressierte XTension-State-Slices fest. Die [ausführbare Referenz](reference.js) und ihre [Typen](reference.d.ts) liegen ausschließlich im Entwicklungsbereich. **Produktive Router-/Maraca-Anbindung folgt in A02.5.2.** RMTX und XTensions 2.0 bleiben für 0.9.0 `preparing`. Der Vertrag entscheidet keine RMTX-Quellsyntax.
+Stand: 2026-11-09. Dieser Vertrag legt die URL-Semantik für adressierte XTension-State-Slices fest. A02.5.1 enthält den Vertrag und die [Referenzfassade](reference.js). **A02.5.2 implementiert die produktive Anbindung; Nutzung und Nachweise stehen in Abschnitt 9.** RMTX und XTensions 2.0 bleiben für 0.9.0 `preparing`. Der Vertrag entscheidet keine RMTX-Quellsyntax.
 
 ## 1. Zuständigkeiten und Versionen
 
@@ -16,7 +16,7 @@ Der RMT Model besitzt den Zustand und ist der einzige Writer. XTend State projiz
 | History-Vorschlag | `xtend.xtensions.url-history-proposal.v1` | [Schema](history-proposal.v1.schema.json) |
 | Entwicklungsreferenz-API | `1.0.0` | [Implementierung](reference.js), [Deklaration](reference.d.ts) |
 
-Alle vier Datenformate sind geschlossen. Die JSON-Schemata beschreiben Struktur und globale Grenzen; die Referenz prüft zusätzlich Policy, Typen, Adressdomänen, Model-Ziele und Lebensdauer. Neue Schema-Majors werden abgewiesen. Änderungen an einem dieser Verträge benötigen eine neue Major-Schema-ID nach den geltenden Regeln. Bestehende Bindungs-, Compiler-, Maraca- und Classic-AST-Verträge ändern sich in diesem Abschnitt nicht; ihre Versionen bleiben erhalten.
+Alle vier Datenformate sind geschlossen. Die JSON-Schemata beschreiben Struktur und globale Grenzen; die Referenz prüft zusätzlich Policy, Typen, Adressdomänen, Model-Ziele und Lebensdauer. Neue Schema-Majors werden abgewiesen. Änderungen an einem dieser Verträge benötigen eine neue Major-Schema-ID nach den geltenden Regeln. A02.5.1 änderte keine bestehenden Produktionsverträge. A02.5.2 versioniert die erweiterten Maraca-APIs separat; Abschnitt 9 nennt die aktuellen Versionen.
 
 ## 2. Explizite Freigabe und Standardwerte
 
@@ -56,7 +56,7 @@ Decoding verlangt Bytegleichheit mit der erneuten kanonischen Kodierung. Unbekan
 
 Die Referenz implementiert Schritt 4 ausschließlich für den vorhandenen **synchronen atomaren RMT-Model-Port außerhalb Maracas**. Sie bündelt die geänderten Model-Roots in einem Port-Aufruf; die komplette ursprüngliche Momentaufnahme und Operationen bleiben privat. Der sichtbare Plan enthält keine Schreibpfade oder privaten Root-Werte. Nur originale, intern versiegelte, aktuelle Pläne können einmalig ausgeführt werden; JSON-Kopien erhalten keine Autorität. Asynchrone Ports gehören nicht zu dieser Referenz-API.
 
-Dies ist kein produktiver Bypass der Maraca-Action-Kette. A02.5.2 muss einen ausdrücklichen Restore-Eingang in deren Transaktions-/Commit-Lebensdauer integrieren und dessen API-/Schemaänderungen versionieren. Die bestehenden SSR-Snapshot-/Adoption-Ports werden dafür nicht wiederverwendet: Deren vollständige Snapshot-Autorität ist für öffentliche URL-Felder zu weitreichend. SSR/Adoption bleibt A05.
+Dies ist kein produktiver Bypass der Maraca-Action-Kette. A02.5.2 integriert den ausdrücklichen Restore-Eingang in deren Transaktions-/Commit-Lebensdauer mit neuen API-/Schema-Versionen (Abschnitt 9). Die bestehenden SSR-Snapshot-/Adoption-Ports werden dafür nicht wiederverwendet: Deren vollständige Snapshot-Autorität ist für öffentliche URL-Felder zu weitreichend. SSR/Adoption bleibt A05.
 
 ## 6. History-Regeln
 
@@ -92,4 +92,49 @@ node development/rmtx-a02/url-history/inspect.cjs --check
 
 Vier zusätzliche tatsächliche Runtime-Fälle prüfen in jsdom und Chromium drei React-Roots, die Model-Transaktion und XTend-State-Projektion, typisierte Schlüssel, View-Freigabe, ungültige/deferred Tokens und Traversal-Standards. Sie verwenden den synchronen Model-Referenzpfad und beweisen noch keine Router-/Maraca-Integration. Die bestehenden Runtime-Gates verlangen nun 141 Akzeptanzfälle je Umgebung sowie weiterhin 88 Compiler-/Versionsprüfungen.
 
-**A02.5.2:** Router-/Route-Host-Eingang samt Hash-/History-Modus und Back/Forward anbinden; Restore als versionierten vertrauenswürdigen Maraca-Commit ausführen; Navigationsabbruch und gemeinsame Model-/View-/Props-Barriere verkabeln; URL-Schreiben, Reset und Herkunftsschutz in realen Routennavigationen testen. Erst dieser Nachweis schließt den URL-/History-Teil von A02 ab. A03–A06 bleiben eigenständige offene Arbeitspakete.
+Dieser ursprüngliche Referenzstand wird durch die produktive A02.5.2-Anbindung in Abschnitt 9 ergänzt. A03–A06 bleiben eigenständige offene Arbeitspakete.
+
+## 9. A02.5.2 – produktive Anbindung
+
+A02.5.2 übernimmt den v1-Codec samt geschlossenen Schemata bytegleich nach `tools/xtensions/url-state.js` und `tools/xtensions/url-state-contracts/`. Root- und Compilerpaket exportieren `./xtensions/url-state` mit Typen. `reference.js` bleibt die kompatible Entwicklungsfassade; die 70 bisherigen Vertragsprüfungen führen jetzt die gemeinsame Implementierung aus.
+
+Die neuen verwalteten Ports sind `MaracaPlanRuntime.restoreURLState(token, lifetime)` und `publishURLState({ cause, currentToken, lifetime, write })`. Runtime v7 und Browser-API `5.0.0`/Composition-Root v5 versionieren diese Erweiterung. Die unveränderte Runtime-v6-Deklaration und die Browser-v4-Deklaration sind archiviert. Policy-/State-/Restore-/History-Daten bleiben v1; Classic-AST, Compiler, Sidecar und Build-Konfiguration erhalten keine neuen Felder.
+
+`urlStatePolicy` und `urlStateRuntime` werden vom vertrauenswürdigen Anwendungshost als Boot-Optionen injiziert. Weder Token noch Bindungsdaten können diese Ports, den History-Writer oder Commands auswählen. Ohne installierte Policy weist der Restore-Eingang Aufrufe ab. Der reservierte Restore-Eingang ist kein normaler Action-Name und lässt sich nicht durch einen Command-Payload mit `modelOperations` ersetzen.
+
+Der Restore wird in dieselbe Maraca-Command-Warteschlange wie Actions und Stream-Patches eingereiht. Planung und vollständige Validierung erfolgen unmittelbar vor der synchronen Model-Transaktion im Kernel-Action-Job. Nur der intern versiegelte Plan erzeugt Operationen für `transactionState`. Das Ergebnis durchläuft den bestehenden State-Change-/View-Commit, Presence-/Repeat-Reconciliation, State-Projektion und die Props-Lieferung. Metadaten kennzeichnen die Herkunft als `xtension-url-restore`. Ein `unchanged`-Restore bestätigt dieselbe Grenze ohne Model-Transaktion; ein `deferred`-Restore schreibt nichts. Es gibt keinen Post-Commit-Action-Effekt aus URL-Daten.
+
+Der Host besitzt eine opake Navigations-ID, `AbortSignal` und synchrones `isCurrent()`. Neue Navigation widerruft die vorherige sofort, auch wenn deren Restore noch hinter einer Action wartet. Nach bereits erfolgtem Model-Commit wird ein Navigationswechsel nicht als Rollback ausgegeben; er sperrt weitere View-/History-Autorität. Runtime-Dispose widerruft die versiegelte URL-Sitzung. History benötigt eine aktuelle Model-/View-Momentaufnahme, unveränderte Shell-Lebensdauer und aktive Roots mit übereinstimmenden gewünschten/gelieferten Props-Revisionen. Suspendierte Hosts blockieren Veröffentlichung bis zum tatsächlichen Resume. Ein Restore meldet in diesem Fall `pending-view` statt `restored`: Nach Resume bestätigt `retry()` die Model-/View-/Props-Grenze erneut; ein noch ausstehender Reset wird mit `reset()` erneut abgeschlossen. Retry behält die ursprüngliche Herkunft (Initialisierung, Traversal oder Reset); es gibt keinen automatischen History-Echo nach Resume. Die Prüfung wartet nur auf Props-Arbeit, nicht auf Intents hinter dem eigenen Command-Slot; dadurch entsteht kein Warteschlangenzyklus.
+
+### Nutzung mit x-router
+
+```js
+import * as urlStateRuntime from '@ccslabs/xtend/xtensions/url-state';
+import '@ccslabs/xtend/components/xrouter';
+
+// Bundler-Anwendung; composition und policy stammen aus dem vertrauenswürdigen Host.
+await composition.boot({
+  root, xtensionBindingsRuntime, createXTensionHost,
+  urlStateRuntime, urlStatePolicy: policy
+});
+const urlHost = document.querySelector('x-router')
+  .connectURLState(composition.facade, urlStateRuntime);
+await urlHost.whenIdle();
+
+await composition.facade.dispatchCommand('groups.replace', { groups });
+await urlHost.publish('commit');     // Laufende Eingabe: replace.
+// Nach einem ausdrücklich gewählten semantischen Schritt:
+await urlHost.publish('checkpoint'); // Nur bei geändertem Token: push.
+```
+
+`connectURLState` bindet die aktuell dargestellte Route an die bereits gebootete Model-Sitzung. Initialisierung stellt URL-Werte beziehungsweise Policy-Standards wieder her. State-only-Query-Navigation derselben Route erhält den bestehenden RMT-/Framework-Baum. Änderungen an Route oder anderen aktiven Query-Feldern lösen die Bindung und durchlaufen die normale Router-Navigation. Eine neue Seite bindet ihre eigene gebootete Model-Sitzung. Bei einem Page-Client muss dessen ausdrücklicher Route-Host verwendet werden. Disconnect, Ersatzbindung und Moduswechsel widerrufen die alte Bindung.
+
+Ein ausdrücklicher Route-Host kann `createXRouterURLStateHost` aus `components/xrouter-url-state.js` verwenden. `listen: true` übernimmt native `popstate`-/`hashchange`-Benachrichtigungen für diese eine Route; ein bereits vorhandener Router/Docs-Routencontroller verwendet `listen: false` und delegiert seine Navigationen mit `navigate('traverse')`. Es darf genau einen History-Owner für dieselbe Route geben. Doppelte Hash-/Popstate-Benachrichtigungen derselben Navigation werden zusammengeführt. Der Owner hält den bestehenden `history.state`, Pfad, Fragment und unbeteiligte Query-Bytes. Ein leerer expliziter Hash-Query behält `?`, damit kein äußerer Token versehentlich aktiv wird.
+
+`urlHost.publish()` ist ausdrücklich; Model-Benachrichtigungen, URL-Restore und Props erzeugen keine URL-Schreiboperation. Deshalb muss die Anwendung nach einem gewünschten gewöhnlichen Commit oder Checkpoint veröffentlichen. `urlHost.retry()` berechnet nach deklarierter Datenankunft einen neuen Restore für die aktuelle URL; es gibt keinen automatischen Fetch/Retry. `urlHost.reset()` verwirft ungültige URL-Daten ausdrücklich, stellt Standards wieder her und entfernt erst nach View-/Props-Abschluss die reservierten Parameter. Fehler erscheinen über `navigation-error` beim x-router beziehungsweise `onError` und die abgewiesene Promise des ausdrücklichen Hosts. Tokens werden dabei nicht als Diagnoseinhalt ausgegeben.
+
+### Nachweise und Grenze
+
+[`integration-inspect.cjs`](integration-inspect.cjs) prüft die unveränderten Wire-Schemata und bindet produktive Quellen, versionierte Ports und verpflichtende Testquellen an [SHA-256-Nachweise](integration-evidence.json). Er ist Teil desselben blockierenden Releasevorbereitungs-Gates. Die Ausführung der Framework-/Browser-Integration bleibt Aufgabe der tatsächlichen Runtime-Gates: 17 neue A02.5.2-Fälle, insgesamt 158 Fälle je jsdom-/Chromium-Umgebung und 88 Compilerprüfungen. Gepackte Root-/Compiler-Consumer prüfen die neue API einschließlich ihrer Schema-Abhängigkeiten. Browser-Composition und echte x-router-Delegation werden ebenfalls ausgeführt.
+
+Damit ist der vertikale A02-Pfad einschließlich URL-/History-Anbindung umgesetzt. Kooperative Kernel-Auslieferung (A03), automatische Provider-/Build-/Host-Kette (A04), SSR/Adoption (A05) und RMTX-Syntax (A06) bleiben separate Arbeitspakete. Beide 0.9-Features bleiben bis zur vollständigen Abnahme `preparing`.

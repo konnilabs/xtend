@@ -282,6 +282,7 @@ export interface XRouteElement extends HTMLElement {
 }
 
 export interface XRouterElement extends HTMLElement {
+  connectURLState(runtime: Pick<import('../xtend-maraca/plan-runtime').MaracaPlanRuntime,'restoreURLState' | 'publishURLState'>, codec: typeof import('../tools/xtensions/url-state')): import('./xrouter-url-state').XRouterURLStateHost;
   /** Connect before attachment; the started page client owns links and history. */
   pageClient?: { visit(url: string): Promise<unknown> } | null;
   registerRoutes(routes?: XRouterRmtRouteRecord[] | { routes: XRouterRmtRouteRecord[] }, options?: { replace?: boolean; adapterId?: string; source?: string; render?: boolean }): XRouterRoutesRegisteredDetail;

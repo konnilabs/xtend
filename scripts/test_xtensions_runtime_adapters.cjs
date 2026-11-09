@@ -38,7 +38,8 @@ async function main() {
     try {
       const page = await instance.newPage();
       const errors = []; page.on('pageerror', (error) => errors.push(error.message));
-      await page.setContent('<!doctype html><html><body></body></html>');
+      await page.route('http://xtend.test/**', route => route.fulfill({ contentType: 'text/html', body: '<!doctype html><html><body></body></html>' }));
+      await page.goto('http://xtend.test/xtensions-test');
       await page.addScriptTag({ content: bundle.outputFiles[0].text });
       report = await page.evaluate(() => window.runAcceptance());
       const actualExports = await page.evaluate(() => window.runtimeExports);
@@ -49,7 +50,7 @@ async function main() {
     } finally { await instance.close(); }
   } else {
     const { JSDOM } = peers('jsdom');
-    const dom = new JSDOM('<!doctype html><html><body></body></html>', { pretendToBeVisual: true });
+    const dom = new JSDOM('<!doctype html><html><body></body></html>', { pretendToBeVisual: true, url: 'http://xtend.test/xtensions-test' });
     for (const key of ['window', 'document', 'Node', 'Element', 'HTMLElement', 'SVGElement', 'navigator', 'MutationObserver', 'Event', 'CustomEvent']) Object.defineProperty(globalThis, key, { configurable: true, value: dom.window[key] });
     try {
       report = await require('../tests/xtensions/runtime-adapter-acceptance').runRuntimeAcceptance({ React: peers('react'),

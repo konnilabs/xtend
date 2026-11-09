@@ -17,7 +17,7 @@ async function inspect() {
     if(process.argv.includes('--write'))fs.writeFileSync(file,text);
     if(process.argv.includes('--check'))assert.equal(fs.readFileSync(file,'utf8'),text,'URL/History contract drift: '+name);
   }
-  console.log(`A02.5.1: ${result.checks} URL/History contract checks; production integration pending.`);
+  console.log(`A02.5.1: ${result.checks} URL/History contract checks; A02.5.2 integration is checked separately.`);
   return {result,report};
 }
 if(require.main===module)inspect().catch(error=>{console.error(error);process.exitCode=1;});

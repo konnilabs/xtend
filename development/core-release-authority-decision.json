@@ -4,8 +4,8 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "31686f067c1c67ab1ac68dcb4f79faf275e47b2e878fb89ba3c8a61954b344b1",
-  "sourceMembershipSha256": "c107d62b72ac718bd579e54d2ca97016f5c87b0c02fbd83a3de68a8c2611b8dd",
+  "inventorySha256": "06b65c57858828b2978d502823265f585e83674cc95b7427776833a9d801e00b",
+  "sourceMembershipSha256": "599ab5a310d30212e2421f9a7cc0b338510e5aff368e3608faac1939fc9fb48c",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
@@ -549,7 +549,7 @@
         },
         {
           "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
-          "sha256": "84c44f7c97a3b950361b3b565ce12aff8dfc111b1f568462287039ae765a1923"
+          "sha256": "ad3fba8c4198fdab89fbb53e3fd5f09fd38e569c3740916370a476b6bfdda23e"
         },
         {
           "path": "development/rmtx-a01/README.md",
@@ -561,7 +561,7 @@
         },
         {
           "path": "development/rmtx-a01/inventory.json",
-          "sha256": "c2d99a6ab75541ffe4a39be4ef9c267844560094fe1a4825fa62234dfadf6c18"
+          "sha256": "cc4ed49a357b62501257bc6a90f6769a277fb3f25447e04f85976a14e0dbc195"
         },
         {
           "path": "docs/de/rmt-vnext-authoring.md",
@@ -573,11 +573,11 @@
         },
         {
           "path": "docs/generated/search/en.fulltext.json",
-          "sha256": "1a1637bfaf28b6b30ec3342fa1c932e89e90b8de79d1e83ebe78bdbb9367aaea"
+          "sha256": "90ae03980e558a0765a05eef047b47c14f7b4ef7d699f88e8c50cc849beb9d1e"
         },
         {
           "path": "package.json",
-          "sha256": "43d49d160e1821d19173e7bca6a9a67950e3be038273e13c124d4dbbf81cf83f"
+          "sha256": "f283ce93ebd740ec01d9ef1951e779ecbf7a33889db2b06544837203c7174195"
         },
         {
           "path": "scripts/generate_rmt_classic_contract.js",
@@ -974,5 +974,104 @@
     "publicationGuardRetired": false,
     "freshCommittedCaptureRequired": true,
     "rationale": "A02.5.1 scoped URL/History contract review: development-only v1 policy, state, restore-plan and history-proposal, plus non-authoritative reference/test observations and source positions. No production contract changes; existing authority/released hashes are preserved. Router/Maraca integration and feature/publication acceptance remain pending. See development/rmtx-a02/url-history/README.md."
+  },
+  "a0252RouterMaracaReview": {
+    "format": 1,
+    "date": "2026-11-09",
+    "status": "reviewed-unreleased-router-maraca-integration",
+    "stage": "A02.5.2",
+    "contract": "development/rmtx-a02/url-history/README.md",
+    "newSchemaIds": [
+      "xtend.maraca.browser-composition-root.v5",
+      "xtend.maraca.plan-runtime.v7",
+      "xtend.router.url-state-host.v1"
+    ],
+    "firstProductionAuthorityPromotions": [
+      {
+        "schemaId": "xtend.xtensions.url-history-proposal.v1",
+        "firstProductionAuthority": [
+          "sha256:745e82fa27454b9359cf219abcc96810eb5a15bfd088a73773676d214adc1a13",
+          "sha256:8e1a3f672d97ad9ec4a21c7a19957343880eb2b54e9b6f94ce8b1bcfbe70484f"
+        ],
+        "baselineHash": "sha256:ce41e84f422dca6e15f4190a435bde59c47d45bbc749942772ef50d6f490334a"
+      },
+      {
+        "schemaId": "xtend.xtensions.url-state-policy.v1",
+        "firstProductionAuthority": [
+          "sha256:94e947040d8fbef5e13a7abb3e3b1881c40c9cead5ae7bcfca766e13bfddbdaf",
+          "sha256:c4dabd6ea7072bb382a4f8ce9ec954a2c6026231a356f872dcf42476b54dd416"
+        ],
+        "baselineHash": "sha256:d2a880695f6774d09802ee1f0320dc2b423454f79dfbe944c4eb7f4b1f7ec8d1"
+      },
+      {
+        "schemaId": "xtend.xtensions.url-state-restore-plan.v1",
+        "firstProductionAuthority": [
+          "sha256:3c84c200950f46bc72fdfe134af0dc7e531cc89c9401a8f1452cc619bbd30e33",
+          "sha256:8c1bc08bad86b89d0dff42696d1fa7d27534def97c407e9f7d63bed1bdd0a45c"
+        ],
+        "baselineHash": "sha256:8e831e289a31aada330e9efc9fc58f942c5dfed8a8467b121647a2dd8a2c447e"
+      },
+      {
+        "schemaId": "xtend.xtensions.url-state.v1",
+        "firstProductionAuthority": [
+          "sha256:14f8e9f2d4b9be1f71357a7649158604e099c9284548f625a69b90577ee1f82d"
+        ],
+        "baselineHash": "sha256:4bdc80bfe8a5c82e0661545a4648ef74b4fcc7189374fe1dc68e4c70420fb347"
+      }
+    ],
+    "scopedSchemaIds": [
+      "xtend.a11y.contrast-policy.v1",
+      "xtend.a11y.motion-contrast-policy.v1",
+      "xtend.a11y.motion-policy.v1",
+      "xtend.a11y.profile.v1",
+      "xtend.a11y.screenreader-signals.v1",
+      "xtend.component.contract.v2",
+      "xtend.component.lifecycle-telemetry.v1",
+      "xtend.component.navigation-routing-snapshot.v1",
+      "xtend.component.navigation-routing-ux-profile.v1",
+      "xtend.layout-stability.v1",
+      "xtend.maraca.action-runtime-compat.v1",
+      "xtend.maraca.browser-composition-root.v1",
+      "xtend.maraca.browser-composition-root.v4",
+      "xtend.maraca.browser-composition-root.v5",
+      "xtend.maraca.component-command-result.v1",
+      "xtend.maraca.plan-runtime.v3",
+      "xtend.maraca.plan-runtime.v6",
+      "xtend.maraca.plan-runtime.v7",
+      "xtend.maraca.post-commit-context.v1",
+      "xtend.maraca.state-transaction.v1",
+      "xtend.performance.component-profile.v1",
+      "xtend.rmt.command.v1",
+      "xtend.rmt.component-command.v1",
+      "xtend.rmt.component-contract.v1",
+      "xtend.rmt.model-command-port.v1",
+      "xtend.rmt.model-reader.v1",
+      "xtend.rmt.stream-patch-commit.v1",
+      "xtend.router.adoption-pending-release.v1",
+      "xtend.router.closed-navigation-overlays.v1",
+      "xtend.router.document-meta.v1",
+      "xtend.router.navigation-capability.v1",
+      "xtend.router.route-adoption.v1",
+      "xtend.router.route-hydration.v1",
+      "xtend.router.scroll-boundary.v1",
+      "xtend.router.scroll-intent.v1",
+      "xtend.router.skeleton-loader.v1",
+      "xtend.router.url-state-host.v1",
+      "xtend.security.xrouter-import-policy.v1",
+      "xtend.xtensions.url-history-proposal.v1",
+      "xtend.xtensions.url-state-policy.v1",
+      "xtend.xtensions.url-state-restore-plan.v1",
+      "xtend.xtensions.url-state.v1"
+    ],
+    "wireFormatsChanged": false,
+    "contractChecks": 70,
+    "integrationCases": 17,
+    "runtimeCasesPerEnvironment": 158,
+    "compilerChecks": 88,
+    "productionIntegration": true,
+    "acceptedForRelease": false,
+    "publicationGuardRetired": false,
+    "freshCommittedCaptureRequired": true,
+    "rationale": "A02.5.2 scoped Router/Maraca integration review: new runtime v7/browser root v5 and route-host v1; four byte-identical URL v1 formats gain their first production formal/type authority. Other differences are source/archive/generated-mirror provenance or non-authoritative expression inference for open transaction metadata. Every unrelated authority/released hash remains unchanged. Feature acceptance, initial-candidate publication guard and fresh committed CI evidence remain separate."
   }
 }

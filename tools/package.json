@@ -34,6 +34,8 @@
     "xtensions/vue-runtime-adapter.*",
     "xtensions/runtime-host-controller.*",
     "xtensions/state-binding*.*",
+    "xtensions/url-state.*",
+    "xtensions/url-state-contracts",
     "xtensions/cooperative-resource-scope.*",
     "xtensions/react-runtime-boundary.js",
     "xtensions/vue-runtime-boundary.js",
@@ -142,6 +144,10 @@
     "./xtensions/state-binding": {
       "types": "./xtensions/state-binding.d.ts",
       "default": "./xtensions/state-binding.js"
+    },
+    "./xtensions/url-state": {
+      "types": "./xtensions/url-state.d.ts",
+      "default": "./xtensions/url-state.js"
     },
     "./xtensions/vue-runtime-adapter": {
       "types": "./xtensions/vue-runtime-adapter.d.ts",

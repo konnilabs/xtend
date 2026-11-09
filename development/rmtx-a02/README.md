@@ -1,6 +1,6 @@
 # A02 – Instanzadressen, kontrollierte State-Slices und Intents
 
-Stand: 2026-11-09. **A02.1, der statische Compiler-/Maraca-Pfad A02.2, bedingte Hosts in A02.3 und wiederholte Hosts in A02.4 sind implementiert; A02.5.1 ergänzt den URL-/History-Vertrag mit Entwicklungsreferenz. A02 bleibt in Arbeit.** RMTX und XTensions 2.0 bleiben im Releaseumfang 0.9.0 auf `preparing`.
+Stand: 2026-11-09. **A02.1, der statische Compiler-/Maraca-Pfad A02.2, bedingte Hosts in A02.3 und wiederholte Hosts in A02.4 sind implementiert; A02.5.1 definiert den URL-Vertrag; A02.5.2 implementiert die Router-/Maraca-Anbindung. Der vertikale A02-Pfad ist damit umgesetzt.** RMTX und XTensions 2.0 bleiben im Releaseumfang 0.9.0 auf `preparing`.
 
 Die [Bestandsaufnahme](../XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md) fordert für X02/X03 einen gemeinsamen Pfad durch Model, State-Projektion, Props und Rückkanal. Dieser erste Schritt nutzt die vorhandenen Model- und Runtime-Host-Ports. Er führt keine neue RMTX-Quellsyntax und keine Erweiterung des geschlossenen [Classic-AST-Vertrags](../rmtx-a01/compiler-contract.md) ein.
 
@@ -102,16 +102,16 @@ Geänderte Schema-Verträge erhalten gemäß der bestehenden Major-only-Schemare
 | Gemeinsame Legacy-Compiler-API | bisher ohne API-Marker | API `1.1.0` für den zusätzlich exportierten Orchestrierungs-Backendbuilder; unveränderte vNext-Compile-Ergebnisform v1 |
 | Maraca-Buildplan | `xtend.maraca.build-plan.v2`, `xtend.maraca.build-plan.v3` | `xtend.maraca.build-plan.v4` |
 | Maraca-Build-Konfiguration | `xtend.maraca.build-config.v1` | `xtend.maraca.build-config.v4`; v1 ohne Bindungen, v2 mit Sidecar v1 und v3 mit Sidecar v1/v2 bleiben lesbar |
-| Maraca-Plan-Runtime | `xtend.maraca.plan-runtime.v3` | `xtend.maraca.plan-runtime.v6` |
-| Browser-Composition / Fassade | `xtend.maraca.browser-composition-root.v2`, `xtend.maraca.browser-composition-root.v3` | `xtend.maraca.browser-composition-root.v4`, API `4.0.0` |
+| Maraca-Plan-Runtime | `xtend.maraca.plan-runtime.v3` | `xtend.maraca.plan-runtime.v7` |
+| Browser-Composition / Fassade | `xtend.maraca.browser-composition-root.v2`, `xtend.maraca.browser-composition-root.v3` | `xtend.maraca.browser-composition-root.v5`, API `5.0.0` |
 | Asynchrone Runtime-Hosts | zuvor generischer Legacy-Host-Identifier | `xtend.xtensions.runtime-host-controller.v2`, API `2.0.0`, frameworkbezogene Runtime-Adapter v2 |
 | State-Binding-Registry | A02.1 API | API `2.0.0`; v1 bleibt geschlossen lesbar, v2 ergänzt Schlüsselpfade und vertrauenswürdige Intent-Schlüsselfelder |
 | Bindungsdaten | `xtend.xtensions.state-binding.v1` | `xtend.xtensions.state-binding.v2` |
 | Bindungs-Sidecar | `xtend.xtensions.state-binding-artifact.v1`, `xtend.xtensions.state-binding-artifact.v2` | `xtend.xtensions.state-binding-artifact.v3` mit Wiederholungsketten; ältere Verträge bleiben geschlossen |
-| URL-Freigabe / State / Restore-Plan / History-Vorschlag | neue eigenständige Entwicklungsverträge | jeweils Schema v1, Referenz-API `1.0.0`; [Details](url-history/README.md) |
+| URL-Freigabe / State / Restore-Plan / History-Vorschlag | neue eigenständige Entwicklungsverträge | jeweils Schema v1, produktive URL-API `1.0.0`; [Details](url-history/README.md) |
 | Runtime-Akzeptanzbericht | `xtend.xtensions.runtime-acceptance-report.v1` ohne Compiler-Nachweise | `xtend.xtensions.runtime-acceptance-report.v2` |
 
-Der statische Sidecar v1 bleibt lesbar und weist `presence` weiterhin ab. Sidecar v2 trägt die bedingte Instanziierung; v3 ergänzt Wiederholungen. Der unveränderte Classic-AST-Eingangsvertrag bleibt `1.0.0`; sein geschlossenes Schema wird nicht umnummeriert oder still erweitert. Lifecycle-/Event-Envelope und Presentation-Adapter behalten ihre unveränderten Verträge. Die veröffentlichte [v3-API-Deklaration](../../xtend-maraca/plan-runtime.v3.d.ts) bleibt als unveränderter Legacy-Nachweis erhalten; die [v4-Deklaration](../../xtend-maraca/plan-runtime.v4.d.ts) bleibt ebenfalls archiviert. Die [v5-Deklaration](../../xtend-maraca/plan-runtime.v5.d.ts) bleibt ebenfalls archiviert; aktuelle Runtime-Instanzen melden v6. Neue v2-Runtime-Hosts dürfen nicht durch Legacy-getaggte Adapter ersetzt werden.
+Der statische Sidecar v1 bleibt lesbar und weist `presence` weiterhin ab. Sidecar v2 trägt die bedingte Instanziierung; v3 ergänzt Wiederholungen. Der unveränderte Classic-AST-Eingangsvertrag bleibt `1.0.0`; sein geschlossenes Schema wird nicht umnummeriert oder still erweitert. Lifecycle-/Event-Envelope und Presentation-Adapter behalten ihre unveränderten Verträge. Die veröffentlichte [v3-API-Deklaration](../../xtend-maraca/plan-runtime.v3.d.ts) bleibt als unveränderter Legacy-Nachweis erhalten; die [v4-Deklaration](../../xtend-maraca/plan-runtime.v4.d.ts) bleibt ebenfalls archiviert. Die [v5-Deklaration](../../xtend-maraca/plan-runtime.v5.d.ts) bleibt ebenfalls archiviert; aktuelle Runtime-Instanzen melden v7. Neue v2-Runtime-Hosts dürfen nicht durch Legacy-getaggte Adapter ersetzt werden.
 
 ## 9. A02.3 – bedingte Host-Lebensdauern
 
@@ -159,12 +159,18 @@ Entfernen entzieht Callback-/Command-Autorität am Model-Commit und unmountet vo
 
 Der [normative Vertrag](url-history/README.md) definiert ausdrückliche öffentliche Freigaben, versionierte Standardwerte, einen kanonischen Codec für logische typisierte Instanzadressen, atomare Wiederherstellung und History-Regeln. Fehlende gültige Model-Schlüssel vertagen den gesamten Restore; verborgene vorhandene Instanzen bleiben adressierbar. Private Felder, Model-Pfade und Host-Inkarnationen gelangen nicht in den Token. Der bestehende Router beziehungsweise Route-Host bleibt einziger URL-/History-Writer.
 
-Vier neue geschlossene Schemaformate beginnen bei v1; die ausführbare Entwicklungsreferenz trägt API `1.0.0`. Sie prüft Pläne und History-Vorschläge gegen aktuelle Navigation, Model und vertrauenswürdigen View-Abschluss. Ihr synchroner Model-Port ist ein Entwicklungsnachweis außerhalb der Maraca-Action-Kette. **Produktive Integration ist noch offen.** Bestehende Produktions-APIs/-Schemata ändern sich dadurch nicht.
+Vier neue geschlossene Schemaformate beginnen bei v1; die ausführbare Entwicklungsreferenz trägt API `1.0.0`. Sie prüft Pläne und History-Vorschläge gegen aktuelle Navigation, Model und vertrauenswürdigen View-Abschluss. Ihr synchroner Model-Port ist ein Entwicklungsnachweis außerhalb der Maraca-Action-Kette. **Dieser Stand von A02.5.1 wurde anschließend durch A02.5.2 ergänzt (Abschnitt 12).** Bestehende Produktions-APIs/-Schemata ändern sich dadurch nicht.
 
 [Nachweise](url-history/evidence.json) und [Beispiele](url-history/examples.v1.json) werden im Releasevorbereitungs-Gate mit 70 Vertragsprüfungen geprüft. Vier weitere Fälle mit echten React-Roots in beiden Runtime-Umgebungen ergeben aktuell **141 Akzeptanzfälle je Umgebung**; die 88 Compiler-/Versionsprüfungen bleiben erhalten. Der Referenznachweis behauptet keine Router-Ausführung.
 
-## 12. Noch offen
+## 12. A02.5.2 – produktive Router-/Maraca-Anbindung
 
-A02.5.2 muss den Vertrag mit dem Router und einem versionierten Maraca-Restore-Eingang verbinden: reale Hash-/History-Navigation, Back/Forward, Herkunftsschutz, Reset und Navigationsabbruch einschließlich gemeinsamer Model-/View-/Props-Barriere. Erst danach ist der URL-/History-Teil von A02 vollständig implementiert.
+Der [Integrationsvertrag](url-history/README.md#9-a0252--produktive-anbindung) beschreibt die produktiven Ports und Nutzung. Der URL-Codec ist unter `./xtensions/url-state` in Root- und Compilerpaket verfügbar. Maraca übernimmt Restore in seine Command-Warteschlange, atomare Model-Transaktion und gemeinsame View-/Props-Grenze. `x-router.connectURLState()` beziehungsweise ein ausdrücklicher Route-Host besitzt Navigation und History. Veröffentlichungen sind explizite `commit`-/`checkpoint`-Aufrufe; Model-Benachrichtigungen schreiben keine URL.
+
+Runtime v7 und Browser-API `5.0.0`/Root v5 versionieren die neuen Ports. Die vollständige v6-Deklaration bleibt [archiviert](../../xtend-maraca/plan-runtime.v6.d.ts). Die vier v1-URL-Datenformate wurden bytegleich in produktive Schemaquellen übernommen; ihre ursprüngliche Entwicklungsreferenz bleibt eine kompatible Fassade. Compiler/AST/Buildplan/Sidecar erhalten dadurch keine neuen Datenfelder.
+
+17 verbindliche Integrationsfälle prüfen echte History-/Hash-Navigation, Back/Forward, eine Model-Transaktion bis zu State und React, Query-/Fragment-Erhalt, Reset, fehlende Schlüssel mit explizitem Retry, überholte Navigation, wartende Props, Suspend/Resume, Intent-/History-Warteschlangen, echte x-router-Delegation und fehlende Autorität. Insgesamt laufen 158 Akzeptanzfälle pro Umgebung sowie weiterhin 88 Compilerprüfungen. [Integrationsnachweise](url-history/integration-evidence.json) binden den Stand an Quellen; die vollständigen Framework-Gates bleiben zusätzlich erforderlich. Diese A02-Nachweise erteilen keine 0.9-Feature-Abnahme.
+
+## 13. Weitere Arbeitspakete
 
 Reale Microkernel-Auslieferung und Capabilities folgen in A03, die automatische Provider-/Build-/Host-Kette in A04 und SSR/Adoption/Restore in A05. Die endgültige RMTX-Quellsyntax bleibt A06 vorbehalten. Beide großen 0.9-Features bleiben bis zu ihren vollständigen Abnahmen `preparing`.

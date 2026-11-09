@@ -65,3 +65,7 @@ All seven existing helpers are explicitly classified as P1 Node helper APIs with
 | `./schema-inventory` | Scanner/ownership/authority verification is executable public migration infrastructure. | Existing explicit runtime/types conditions retained. |
 
 The exact ordered-key fingerprint, expected count, classification and each helper runtime/type target are checked independently. Unreviewed keys, same-count substitutions, wrong existing targets/types, reordered keys and stale metadata fail validation. These classification changes do not accept any schema inventory or governance proposal.
+
+## A02.5.2 URL-state runtime (2026-11-09)
+
+The current contract is exactly 212 ordered export keys, SHA-256 `cc95ac4c5a1f907c0269321f47acd1d67a69d1067139e86aff2329a99af47f43`. The additive `./xtensions/url-state` entry has matching runtime and types targets in the root and compiler packages. Existing ordered keys and targets are preserved; the same strict addition/substitution/order/type checks apply. The 211-key record above is historical.

@@ -3,7 +3,7 @@ import { createMaracaFastPass } from './fastpass.mjs';
 export { createMaracaAbortBoundary } from './abort-boundary.mjs';
 
 const LEGACY_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v3';
-const PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v6';
+const PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v7';
 const DOM_COMMIT_SCHEMA = 'xtend.rmt.dom-commit-result.v1';
 const DOM_COMMIT_EVENT = 'xtend-maraca:dom-commit';
 const SYSTEM_REFRESH_COMMAND = 'xtend.system.refresh';
@@ -178,6 +178,16 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       throw new TypeError('Conditional XTension hosts require client rendering; adoption requires the separate restore contract.');
     }
   }
+  const urlCodec = options.urlStateRuntime;
+  if (options.urlStatePolicy && (!bindingArtifact || urlCodec?.API_VERSION !== '1.0.0' || typeof urlCodec.createURLStateContract !== 'function')) {
+    throw new TypeError('URL state requires bindings and the explicit v1 URL-state runtime port.');
+  }
+  const urlState = options.urlStatePolicy ? urlCodec.createURLStateContract(options.urlStatePolicy, { program: artifact, bindings: options.plan.xtensionBindings }) : null;
+  let urlViewSnapshot = null, urlViewEpoch = -1;
+  const markURLView = current => {
+    urlViewSnapshot = current && urlState ? urlCodec.canonical(modelSnapshot()?.states) : null;
+    urlViewEpoch = shellEpoch;
+  };
   let xtensionRegistry = null, xtensionDisposal = null, xtensionsClosed = false;
   const boundXTensions = [];
   const boundXTensionSurfaces = new Set(bindingArtifact?.bindings.map((entry) => entry.surface) || []);
@@ -1236,6 +1246,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       operation: metadata.transactionOperation || 'maraca.command.transaction',
       action: commandId,
       reducerCount: reducers.length,
+      ...(commandId === 'xtend.system.url-restore' ? { source: 'xtension-url-restore', navigationId: metadata.navigationId } : {}),
       correlationId: metadata.correlationId || ''
     };
     const previousSnapshot = runtimes.state.modelReader && typeof runtimes.state.modelReader.snapshot === 'function'
@@ -2066,6 +2077,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     notifyModelSubscribers(stateEvent);
     if (currentPresentation()) await mountPresentXTensions();
     if (xtensionRegistry) await xtensionRegistry.flush();
+    markURLView(currentPresentation());
     publish('command', {
       command: prepared.commandId,
       status: prepared.result && prepared.result.status || (prepared.blocked ? 'blocked' : 'success')
@@ -2076,6 +2088,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   async function dispatchCommandNow(command, payload = {}, metadata = {}, commandShellEpoch = shellEpoch, lifetime) {
     if (phase !== 'ready') throw new Error('Maraca plan runtime is not booted.');
     if (lifetime && (lifetime.signal.aborted || !lifetime.isCurrent())) return { status: 'superseded' };
+    urlViewSnapshot = null;
     const commandRecord = typeof command === 'string' ? null : asRecord(command);
     const commandId = typeof command === 'string'
       ? command
@@ -2141,6 +2154,76 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     return queued;
   }
 
+  // This ingress joins the same queue, Model transaction and View/Props barrier as Actions.
+  // The URL grants generate only data operations; no URL field can choose a Command.
+  function restoreURLState(token, lifetime) {
+    const epoch = shellEpoch;
+    const current = () => phase === 'ready' && shellEpoch === epoch && lifetime?.signal && !lifetime.signal.aborted && lifetime.isCurrent?.() === true;
+    const queued = commandQueue.then(async () => {
+      if (!urlState) throw new TypeError('No URL-state policy is installed.');
+      if (!current()) return { status: 'superseded' };
+      const commandGeneration = generation;
+      urlViewSnapshot = null;
+      const metadata = { source: 'xtension-url-restore', navigationId: lifetime.navigationId, operation: 'maraca.url-state.restore' };
+      let transaction, plan;
+      const guard = captureCommandPresentationGuard();
+      const prepared = await scheduleWork('action', () => {
+        if (!current()) return null;
+        plan = urlState.planRestore(token, modelSnapshot(), { navigationId: lifetime.navigationId });
+        if (plan.status === 'deferred') return null;
+        const stateBuffer = { events: [] }; activeStateBuffer = stateBuffer;
+        try {
+          urlState.applyRestore(plan, { modelReader, modelCommandPort: {
+            schema: 'xtend.rmt.model-command-port.v1',
+            apply(operations) { transaction = transactionState([], 'xtend.system.url-restore', {}, { modelOperations: operations }, metadata, null); }
+          } }, { ...lifetime, navigationId: () => lifetime.navigationId, isCurrent: current });
+          if (!transaction) {
+            const snapshot = modelSnapshot();
+            transaction = { previous: snapshot, next: snapshot, patchPlan: planStatePatch(snapshot, snapshot), metadata, event: null };
+          }
+          return { presentationGuard: () => current() && guard(), commandShellEpoch: epoch, commandId: 'xtend.system.url-restore',
+            payload: {}, reducers: [], result: { status: 'success', source: 'xtension-url-restore' }, actionSucceeded: false,
+            transaction, stateEvents: stateBuffer.events, transition: null, validationStage: null };
+        } finally { if (activeStateBuffer === stateBuffer) activeStateBuffer = null; }
+      }, metadata);
+      if (!prepared) return { status: current() && plan?.status === 'deferred' ? 'deferred' : 'superseded', ...(plan ? { plan } : {}) };
+      await scheduleWork('state-change', () => commitCommand(prepared, metadata, commandGeneration), metadata);
+      return { status: !current() ? 'superseded' : hasCurrentURLView() ? 'restored' : 'pending-view', plan };
+    });
+    commandQueue = queued.then(() => undefined, () => undefined);
+    return raceDisposed(queued);
+  }
+
+  function hasCurrentURLView(snapshot = modelSnapshot()) {
+    return urlViewSnapshot !== null && urlViewEpoch === shellEpoch && urlViewSnapshot === urlCodec.canonical(snapshot.states)
+      && boundXTensions.every(({ instance }) => {
+        const state = instance.snapshot();
+        return state.phase === 'active' && state.desiredRevision === state.deliveredRevision;
+      });
+  }
+
+  function publishURLState({ cause = 'commit', currentToken, lifetime, write }) {
+    const queued = commandQueue.then(async () => {
+      if (!urlState) throw new TypeError('No URL-state policy is installed.');
+      if (xtensionRegistry) await xtensionRegistry.flush();
+      const isCurrent = () => phase === 'ready' && !!lifetime?.signal && lifetime.isCurrent?.() === true && !lifetime.signal.aborted;
+      if (!isCurrent()) return { status: 'superseded' };
+      if (typeof write !== 'function') throw new TypeError('The trusted route owner must supply a synchronous History writer.');
+      const snapshot = modelSnapshot();
+      const proposal = urlState.proposeHistory(snapshot, { cause, currentToken, navigationId: lifetime.navigationId });
+      const allowed = urlState.checkHistory(proposal, snapshot, { ...lifetime, navigationId: () => lifetime.navigationId, isCurrent,
+        isViewCommitted: () => hasCurrentURLView(snapshot) });
+      // No await between the lifetime/View check and the owner-controlled write.
+      if (allowed) {
+        const result = write(proposal);
+        if (result && typeof result.then === 'function') throw new TypeError('History writer must be synchronous.');
+      }
+      return { status: 'published', mode: proposal.mode };
+    });
+    commandQueue = queued.then(() => undefined, () => undefined);
+    return raceDisposed(queued);
+  }
+
   async function dispatchStreamPatchNow(patchInput, metadata = {}, streamShellEpoch = shellEpoch) {
     if (phase !== 'ready') throw new Error('Maraca plan runtime is not booted.');
     if (!runtimes.app
@@ -2171,6 +2254,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       publish('stream-patch', { result: rejected, metadata: streamMetadata });
       return immutableClone(rejected, null);
     }
+    urlViewSnapshot = null;
     const streamGeneration = generation;
     const currentPresentation = () => phase !== 'disposed' && generation === streamGeneration && shellEpoch === streamShellEpoch;
     const result = await scheduleWork('state-change', async () => {
@@ -2245,6 +2329,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       notifyModelSubscribers(stateEvent);
       if (currentPresentation()) await mountPresentXTensions();
       if (xtensionRegistry) await xtensionRegistry.flush();
+      markURLView(currentPresentation());
       return immutableClone({
         ...asRecord(applied),
         transaction: {
@@ -2365,6 +2450,8 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
 
   async function renderView(metadata = {}) {
     if (phase === 'disposed') throw new Error('Disposed Maraca plan runtimes cannot render.');
+    const renderEpoch = shellEpoch;
+    urlViewSnapshot = null;
     const performRender = async () => {
       const stateSnapshot = runtimes.state.snapshot();
       await retireAbsentXTensions(stateSnapshot);
@@ -2385,6 +2472,8 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         operation: metadata.operation || 'maraca.render',
         correlationId: metadata.correlationId || ''
       });
+      if (xtensionRegistry) await xtensionRegistry.flush();
+      markURLView(phase !== 'disposed' && renderEpoch === shellEpoch);
       return immutableClone(lastCommit, {});
     };
     return phase === 'ready'
@@ -3262,6 +3351,8 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   function dispose() {
     if (phase === 'disposed') return false;
     phase = 'disposed';
+    urlState?.dispose();
+    urlViewSnapshot = null;
     generation += 1;
     presentationBoundary.dispose();
     fastPass.dispose();
@@ -3285,6 +3376,8 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     schema: PLAN_RUNTIME_SCHEMA,
     boot,
     dispatchCommand,
+    restoreURLState,
+    publishURLState,
     getXTensionBindings: () => Object.freeze([...boundXTensions]),
     async whenXTensionsIdle() {
       let pending;

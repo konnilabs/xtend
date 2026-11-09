@@ -123,7 +123,7 @@ function runDocContentChecks(context, rootDir) {
       'dispatchFastPass(', 'fastPassActions', 'user-blocking',
       'capture()', 'isCurrent(token)', 'invalidate(reason)', 'dispose()',
       'scheduleCommit(', 'superseded', 'metadata.surfaces',
-      'xtend.maraca.plan-runtime.v6', 'xtend.rmt.presentation-effect-adapter.v2'
+      'xtend.maraca.plan-runtime.v7', 'xtend.rmt.presentation-effect-adapter.v2'
     ], `${locale} responsiveness guide`);
     const reference = readText(`docs/${locale}/rmt-reference-actions-events.md`, rootDir);
     const example = [...reference.matchAll(/```rmt\n([\s\S]*?)```/g)]

@@ -30,6 +30,9 @@ async function runXTensionsConsumerPackageSuite({ rootDir } = {}) {
         const entry=manifest.exports[`./xtensions/${framework}-runtime-adapter`];
         for(const condition of ['types','default'])assert(fs.existsSync(path.join(target,entry[condition])),`${pack.name} packs ${framework} ${condition} target`);
       }
+      const urlEntry=manifest.exports['./xtensions/url-state'];
+      for(const condition of ['types','default'])assert(fs.existsSync(path.join(target,urlEntry[condition])),`${pack.name} packs URL-state ${condition} target`);
+      assert.equal(require(path.join(target,urlEntry.default)).API_VERSION,'1.0.0','packed URL runtime includes its schema dependencies');
       const bindingEntry=manifest.exports['./xtensions/state-binding'];
       for(const condition of ['types','default'])assert(fs.existsSync(path.join(target,bindingEntry[condition])),`${pack.name} packs state binding ${condition} target`);
       context.pass(`${pack.name}: actual npm tarball contains the reviewed runtime targets and no framework dependencies`);

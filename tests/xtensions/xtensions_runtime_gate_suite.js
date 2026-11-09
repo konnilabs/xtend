@@ -22,12 +22,13 @@ function runXTensionsRuntimeGate({ rootDir, browser = false } = {}) {
     const output = npmCommand(['run',browser ? 'test:xtensions-runtime:browser' : 'test:xtensions-runtime','--','--report',artifact],{cwd:rootDir,env,encoding:'utf8',timeout:90000,maxBuffer:16*1024*1024});
     console.log(output);
     const report = JSON.parse(fs.readFileSync(artifact,'utf8'));
-    context.assert(report.ok === true && report.failed.length === 0 && report.passed.length >= 141,'Complete real adapter acceptance, including compiled A02.2 state bindings and retained safeguards, passes');
+    context.assert(report.ok === true && report.failed.length === 0 && report.passed.length >= 158,'Complete real adapter acceptance, including compiled A02.2 state bindings and retained safeguards, passes');
     context.assert(report.passed.filter((name) => name.startsWith('A02:')).length >= 12,'A02 executes the two-instance, typed intent and lifecycle reference in the actual environment');
     context.assert(report.passed.filter((name) => name.startsWith('A02.2:')).length >= 9,'Compiled Classic/Maraca state binding reference and lifecycle guards execute in the actual environment');
     context.assert(report.passed.filter((name) => name.startsWith('A02.3:')).length >= 11,'Conditional host lifetimes, cleanup ordering, stale intents and failure guards execute in the actual environment');
     context.assert(report.passed.filter(name => name.startsWith('A02.4:')).length >= 15,'Nested repeated hosts, typed keys, scoped props, trusted intent keys, composition and cancellation are mandatory');
     context.assert(report.passed.filter(name => name.startsWith('A02.5:')).length >= 4,'URL contract reference verifies atomic Model/State/React delivery, deferred/rejected input and History ownership');
+    context.assert(report.passed.filter(name => name.startsWith('A02.5.2:')).length >= 17,'Real route ownership, Maraca restore, Back/Forward, reset, deferred keys and cancellation are mandatory');
     context.assert(report.schema === 'xtend.xtensions.runtime-acceptance-report.v2','Extended compiler evidence uses the new report version');
     context.assert(report.schema !== report.exports.legacyAcceptanceReportSchema,'Legacy acceptance reports cannot stand in for current feature evidence');
     context.assert(report.compilerChecks?.ok === true && report.compilerChecks.checks >= 88,'Source/AST/transport parity, explicit versions and negative compiler artifact guards are mandatory');

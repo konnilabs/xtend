@@ -2,7 +2,7 @@ import type { MaracaPlanRuntime, MaracaPlanRuntimeOptions, MaracaPlanRuntimeSnap
 
 export const COMPONENT_COMMAND_SCHEMA: 'xtend.rmt.component-command.v1';
 export const COMPONENT_COMMAND_RESULT_SCHEMA: 'xtend.maraca.component-command-result.v1';
-export const MARACA_BROWSER_API_VERSION: '4.0.0';
+export const MARACA_BROWSER_API_VERSION: '5.0.0';
 export const LEGACY_BROWSER_COMPOSITION_SCHEMA: 'xtend.maraca.browser-composition-root.v1';
 
 export interface MaracaBrowserFacade {
@@ -15,6 +15,8 @@ export interface MaracaBrowserFacade {
   dispatchCommand(command: string | Readonly<Record<string, unknown>>, payload?: unknown, metadata?: Readonly<Record<string, unknown>>): Promise<unknown>;
   dispatchFastPass: MaracaPlanRuntime['dispatchFastPass'];
   getSurfaceBoundary: MaracaPlanRuntime['getSurfaceBoundary'];
+  restoreURLState: MaracaPlanRuntime['restoreURLState'];
+  publishURLState: MaracaPlanRuntime['publishURLState'];
   getXTensionBindings: MaracaPlanRuntime['getXTensionBindings'];
   whenXTensionsIdle: MaracaPlanRuntime['whenXTensionsIdle'];
   dispatchStreamPatch(patch: Readonly<Record<string, unknown>>, metadata?: Readonly<Record<string, unknown>>): Promise<unknown>;
@@ -27,7 +29,7 @@ export interface MaracaBrowserFacade {
 
 export interface MaracaBrowserCompositionRoot {
   readonly apiVersion: string;
-  readonly schema: 'xtend.maraca.browser-composition-root.v4';
+  readonly schema: 'xtend.maraca.browser-composition-root.v5';
   readonly config: Readonly<Record<string, unknown>>;
   readonly facade: MaracaBrowserFacade;
   boot(options?: Readonly<Record<string, unknown>>): ReturnType<MaracaBrowserFacade['boot']>;

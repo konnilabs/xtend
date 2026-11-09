@@ -166,7 +166,7 @@
     },
     {
       "file": "xtend-maraca/plan-runtime.mjs",
-      "sha256": "2644cba904e1021ceff1200e2d2604f0e956c86fec951f50fedbb2c18e318983"
+      "sha256": "2bdeae9bbbc351460b657689d3808f3e7bfe2b6f35e46faeaf6412b41a1a4e05"
     },
     {
       "file": "xtendrmt/contracts/portable-render.v2.json",
@@ -12654,7 +12654,7 @@
         },
         {
           "name": "PLAN_RUNTIME_SCHEMA",
-          "value": "xtend.maraca.plan-runtime.v6",
+          "value": "xtend.maraca.plan-runtime.v7",
           "file": "xtend-maraca/plan-runtime.mjs",
           "line": 6,
           "symbol": "<anonymous>"

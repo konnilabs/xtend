@@ -46,6 +46,7 @@ async function runCompiledStateBindingAcceptance({ React, ReactDOM, document, te
   }
   await require('./repeated-state-binding-acceptance').runRepeatedStateBindingAcceptance({ React, ReactDOM, document, test, check, equal, fixture, plan: repeatedPlan, modules, bindingRuntime, xtendState, within, rejected, deferred });
   await require('./url-history-acceptance').runURLHistoryAcceptance({ React, ReactDOM, document, test, check, equal, plan: repeatedPlan, modules, bindingRuntime, xtendState });
+  await require('./url-state-maraca-acceptance').runURLStateMaracaAcceptance({ React, ReactDOM, document, test, check, equal, fixture, plan: repeatedPlan, modules, xtendState, deferred, rejected, within });
   const filter = (query, activeId = null) => ({ filter: { query, selection: { activeId } } });
 
   await test('A02.3: invalid presence and unsupported adoption reject before host authority exists', async () => {
@@ -247,7 +248,8 @@ async function runCompiledStateBindingAcceptance({ React, ReactDOM, document, te
     });
     const hosts = [];
     try {
-      const bootOptions = { root, stateProjectionTarget: xtendState, xtensionBindingsRuntime: bindingRuntime,
+      const urlCodec = require('@ccslabs/xtend/xtensions/url-state');
+      const bootOptions = { root, urlStateRuntime: urlCodec, urlStatePolicy: { schema:'xtend.xtensions.url-state-policy.v1',id:'static-views',version:1,documentId:'filter-example',exposure:'public-url',fields:[{id:'left-query',surface:'filter.left',prop:'query',default:''},{id:'right-query',surface:'filter.right',prop:'query',default:''}],limits:{tokenBytes:4096,entries:32,valueBytes:512,instances:128} }, stateProjectionTarget: xtendState, xtensionBindingsRuntime: bindingRuntime,
         createXTensionHost(context) {
           const host = createReactRuntimeAdapter({ ...context, component: createFilterPanel(React), peers: { React, ReactDOM }, policy: { events: context.events } });
           hosts.push(host); return host;
@@ -255,10 +257,14 @@ async function runCompiledStateBindingAcceptance({ React, ReactDOM, document, te
       const facade = await composition.boot(bootOptions);
       // boot returns a snapshot; operations live on the composition facade.
       check(!!facade && composition.facade.getXTensionBindings().length === 2, 'composition exposes compiled bindings');
-      equal(composition.schema, 'xtend.maraca.browser-composition-root.v4', 'composition has a distinct current schema');
-      equal(composition.facade.apiVersion, '4.0.0', 'browser API version differs from Legacy');
+      equal(composition.schema, 'xtend.maraca.browser-composition-root.v5', 'composition has a distinct current schema');
+      equal(composition.facade.apiVersion, '5.0.0', 'browser API version differs from Legacy');
+      const lifetime={navigationId:'composition-n1',signal:new AbortController().signal,isCurrent:()=>true};
+      equal((await composition.facade.restoreURLState(null,lifetime)).status,'restored','browser composition transports URL policy and restore port');
       await composition.facade.dispatchCommand('filter.right.replace', filter('composition', 'right'));
       equal(root.querySelectorAll('output')[1].textContent, 'composition:right', 'browser composition uses the same Action/props barrier');
+      let published=false;await composition.facade.publishURLState({cause:'checkpoint',currentToken:null,lifetime,write(proposal){published=proposal.mode==='push'&&proposal.token.startsWith('1.');}});
+      check(published,'composition transports the synchronous owner publication seam');
       composition.dispose(); composition.dispose(); await composition.facade.whenXTensionsIdle();
       check(hosts.every((host) => host.snapshot().disposed), 'composition drain waits for foreign roots');
       await composition.boot(bootOptions);
@@ -270,7 +276,7 @@ async function runCompiledStateBindingAcceptance({ React, ReactDOM, document, te
     const f = fixture();
     try {
       await f.runtime.boot(); const bindings = f.runtime.getXTensionBindings();
-      equal(f.runtime.schema, 'xtend.maraca.plan-runtime.v6', 'extended API has its own schema version');
+      equal(f.runtime.schema, 'xtend.maraca.plan-runtime.v7', 'extended API has its own schema version');
       equal(bindings.length, 2, 'compiled artifact creates exactly two instances');
       const inputs = [...f.root.querySelectorAll('input')], commands = [], changes = [];
       const stopState = f.runtime.model.subscribe((event) => changes.push(event));
