@@ -4,8 +4,8 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "17b89c780944f71080a0e1c69f8c5fa4e846b3bdfb15b025f2dddc5badf29ff2",
-  "sourceMembershipSha256": "ea006ea47cfc4dd24479c2197a8462b816634e8f25de93767a07ca5271c3daa1",
+  "inventorySha256": "ee0f24f9530f80ab005b8ee45e1582b48c269b72cfb4cb57513f3263602bf70b",
+  "sourceMembershipSha256": "bc1209cdc3e981ec3f74ed71cdc2ab3a42f90d7c71ca3ccd6b225ec06b7b7b1d",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
@@ -549,7 +549,7 @@
         },
         {
           "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
-          "sha256": "6d8a00bcff5d63d80745f31b38fdd67b5e996bac107aa7ea4644bfa4c2912b8a"
+          "sha256": "480e1968758fc62e07153e1eb864c23fec31d1fa7b8901b5d531d23462b517ef"
         },
         {
           "path": "development/rmtx-a01/README.md",
@@ -561,7 +561,7 @@
         },
         {
           "path": "development/rmtx-a01/inventory.json",
-          "sha256": "38c6d08d426512551bff62a7e75347dc5197ffe37089decf3ff801d226d36650"
+          "sha256": "d609daebb5473a50c56a24dd3df5857c4a4accf1564b4223e0129f6528f01980"
         },
         {
           "path": "docs/de/rmt-vnext-authoring.md",
@@ -573,7 +573,7 @@
         },
         {
           "path": "docs/generated/search/en.fulltext.json",
-          "sha256": "5d602157f288d6360389e9a7606de3dfb4fa4655cca6650be82c188654827387"
+          "sha256": "7c05c18229c24f2b8ef31eaf2cf3936f669aad4aadd27eb256220357b9bff6c4"
         },
         {
           "path": "package.json",
@@ -1113,5 +1113,43 @@
     "publicationGuardRetired": false,
     "freshCommittedCaptureRequired": true,
     "rationale": "A03.1 scoped explicit Kernel/Fabric review: new v3 host and React/Vue factory contracts, v1 capability and owned-work snapshots; real kernel admission, named cooperative grants, current host policy, yielding and cancellation require Fabric and preserve immediate cleanup. Registry API 2.1 accepts version-matched v2/v3 suppliers. Every existing authoritative/released set and Native Kernel ABI is unchanged; other findings are source/generated/fixture provenance or non-authoritative expression inference. Full A03/0.9 feature acceptance and publication remain pending."
+  },
+  "a032SurfaceKernelResourceGraphReview": {
+    "format": 1,
+    "date": "2026-11-09",
+    "status": "reviewed-unreleased-surface-kernel-resource-binding",
+    "stage": "A03.2",
+    "a03Complete": false,
+    "contract": "development/rmtx-a03/resource-graph.md",
+    "newSchemaIds": [
+      "xtend.xtensions.react-runtime-adapter.v4",
+      "xtend.xtensions.resource-graph-binding.v1",
+      "xtend.xtensions.runtime-host-controller.v4",
+      "xtend.xtensions.vue-runtime-adapter.v4"
+    ],
+    "scopedSchemaIds": [
+      "xtend.epic18.rmt-surface-resource-graph-runtime.v2",
+      "xtend.surface.controller.v2",
+      "xtend.xtensions.react-runtime-adapter.v4",
+      "xtend.xtensions.resource-graph-binding.v1",
+      "xtend.xtensions.runtime-host-controller.v4",
+      "xtend.xtensions.state-binding.v2",
+      "xtend.xtensions.vue-runtime-adapter.v4"
+    ],
+    "fabricRequired": true,
+    "graphHostApiVersion": "4.0.0",
+    "registryApiVersion": "2.2.0",
+    "nativeKernelAbiChanged": false,
+    "surfaceGraphAbiChanged": false,
+    "surfaceControllerAbiChanged": false,
+    "legacyV2V3Retained": true,
+    "contractChecks": 19,
+    "integrationCases": 32,
+    "runtimeCasesPerEnvironment": 216,
+    "compilerChecks": 88,
+    "acceptedForRelease": false,
+    "publicationGuardRetired": false,
+    "freshCommittedCaptureRequired": true,
+    "rationale": "A03.2 scoped Surface/Kernel resource review: explicit v4 graph hosts own one native kernel resource and one generation-bound Surface subscription. Immediate Fabric-observed revocation, staged controlled props, queued resume, terminal cleanup and graph-inclusive idle barriers are verified with real frameworks and compiled keyed Maraca hosts. Registry API 2.2 accepts version-matched v2/v3/v4 suppliers. Native Kernel, Surface Graph and Surface Controller ABIs and every preexisting authoritative/released fingerprint remain unchanged. Automatic provider composition and remaining A03/0.9 acceptance stay pending."
   }
 }

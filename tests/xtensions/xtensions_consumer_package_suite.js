@@ -48,6 +48,9 @@ const peers=createRequire(process.env.XTENSIONS_TEST_PEERS+'/package.json');
  await import('@ccslabs/xtend');
  const {createRmtStateSelectorRuntime}=await import('@ccslabs/xtend/rmt/state-selector-runtime');
  const {createRmtKernelScheduler}=await import('@ccslabs/xtend/rmt/kernel-scheduler');
+ const {createRmtCore}=await import('@ccslabs/xtend/rmt');
+ const {createRmtSurfaceResourceGraphRuntime}=await import('@ccslabs/xtend/rmt/surface-resource-graph-runtime');
+ const {createSurfaceController}=await import('@ccslabs/xtend/components/xsurfacemanager-controller.js');
  const {createXtendFabric}=require('@ccslabs/xtend/fabric');
  const {JSDOM}=peers('jsdom');const dom=new JSDOM('<!doctype html><body></body>',{pretendToBeVisual:true});
  for(const key of ['window','document','Node','Element','HTMLElement','SVGElement','navigator','MutationObserver'])Object.defineProperty(globalThis,key,{configurable:true,value:dom.window[key]});
@@ -86,7 +89,16 @@ const peers=createRequire(process.env.XTENSIONS_TEST_PEERS+'/package.json');
    const kernel=api['create'+title+'KernelRuntimeAdapter']({container,component:kernelComponent,peers:framework==='react'?{React,ReactDOM}:{Vue},fabric,kernelWork:{scheduler,rootId:'packed',scope:pkg+':'+framework,work:{scan:{lane:'background'}}}});
    assert.equal(kernel.schema,'xtend.xtensions.runtime-host-controller.v3');assert.equal((await kernel.mount(container,{title:'kernel packed'})).ok,true);
    const task=capabilities.work.schedule('scan',context=>context.isCurrent());assert.equal(await task.result,true);assert.equal(scheduler.getJob(task.jobId).status,'completed');
-   assert(fabric.getFibers().some(fiber=>fiber.metadata.kernelJobId===task.jobId));await kernel.unmount();scheduler.dispose();assert.equal(container.childNodes.length,0);container.remove();
+   assert(fabric.getFibers().some(fiber=>fiber.metadata.kernelJobId===task.jobId));await kernel.unmount();
+   const engine=createRmtCore({scheduler,documentTarget:document,windowTarget:window}).rmt;engine.mountRoot('packed-owned',document.body);
+   const controller=createSurfaceController({fabric}),graph=createRmtSurfaceResourceGraphRuntime({surfaces:[{id:'packed-panel',initialState:'open'}],surfaceController:controller,strict:true});graph.materialize();
+   const owned=api['create'+title+'KernelRuntimeAdapter']({container,component:kernelComponent,peers:framework==='react'?{React,ReactDOM}:{Vue},fabric,
+    kernelWork:{scheduler,rootId:'packed-owned',scope:pkg+':'+framework,work:{scan:{lane:'background'}}},resourceGraph:{kernel:engine,surfaceGraph:graph,surfaceController:controller,surfaceId:'packed-panel'}});
+   assert.equal(owned.apiVersion,'4.0.0');assert.equal((await owned.mount(container,{title:'graph packed'})).ok,true);assert.equal(engine.listResources().length,1);
+   graph.closeSurface('packed-panel');assert(owned.snapshot().suspended);assert.equal((await owned.update({type:'props.update',props:{title:'staged packed'}})).ok,true);
+   await graph.openSurface('packed-panel');await owned.whenIdle();assert.equal(container.textContent,'staged packed');
+   assert.equal(await capabilities.work.schedule('scan',context=>context.isCurrent()).result,true);
+   await owned.unmount();assert.equal(engine.listResources().length,0);graph.dispose();controller.dispose();engine.disposeRoot('packed-owned');scheduler.dispose();assert.equal(container.childNodes.length,0);container.remove();
   }
  }finally{dom.window.close();}
  console.log('Packed root/compiler factories render with explicitly injected external peers; missing peers and unsafe payloads are rejected.');

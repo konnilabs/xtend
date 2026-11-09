@@ -17833,6 +17833,24 @@
       ],
       "status": "reviewed-distinct-observations",
       "type": "same-id-multiple-shapes"
+    },
+    {
+      "baseline": "scoped-a032-surface-kernel-resources",
+      "baselineAccepted": true,
+      "confidence": "medium",
+      "origin": "scanner",
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A03.2 scoped Surface/Kernel resource review: explicit v4 graph hosts own one native kernel resource and one generation-bound Surface subscription. Immediate Fabric-observed revocation, staged controlled props, queued resume, terminal cleanup and graph-inclusive idle barriers are verified with real frameworks and compiled keyed Maraca hosts. Registry API 2.2 accepts version-matched v2/v3/v4 suppliers. Native Kernel, Surface Graph and Surface Controller ABIs and every preexisting authoritative/released fingerprint remain unchanged. Automatic provider composition and remaining A03/0.9 acceptance stay pending."
+      },
+      "reviewId": "polymorphic-093c1f7117b5",
+      "schemaIds": [
+        "xtend.xtensions.resource-graph-binding.v1"
+      ],
+      "status": "reviewed-distinct-observations",
+      "type": "same-id-multiple-shapes"
     }
   ],
   "entries": [
@@ -238592,6 +238610,21 @@
               "path": "xtendrmt/rmt-surface-resource-graph-runtime.d.ts"
             }
           ]
+        },
+        {
+          "application": "XTensions",
+          "interfaceReferences": [
+            {
+              "path": "tools/xtensions/resource-graph-binding.js",
+              "symbol": null,
+              "type": "repo-symbol"
+            }
+          ],
+          "role": "reference",
+          "sourcePaths": [
+            "tools/xtensions/resource-graph-binding.js"
+          ],
+          "visibility": "internal"
         }
       ],
       "version": 2
@@ -774558,7 +774591,7 @@
           },
           {
             "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
-            "sha256": "6d8a00bcff5d63d80745f31b38fdd67b5e996bac107aa7ea4644bfa4c2912b8a"
+            "sha256": "480e1968758fc62e07153e1eb864c23fec31d1fa7b8901b5d531d23462b517ef"
           },
           {
             "path": "development/rmtx-a01/README.md",
@@ -774570,7 +774603,7 @@
           },
           {
             "path": "development/rmtx-a01/inventory.json",
-            "sha256": "38c6d08d426512551bff62a7e75347dc5197ffe37089decf3ff801d226d36650"
+            "sha256": "d609daebb5473a50c56a24dd3df5857c4a4accf1564b4223e0129f6528f01980"
           },
           {
             "path": "docs/de/rmt-vnext-authoring.md",
@@ -774582,7 +774615,7 @@
           },
           {
             "path": "docs/generated/search/en.fulltext.json",
-            "sha256": "5d602157f288d6360389e9a7606de3dfb4fa4655cca6650be82c188654827387"
+            "sha256": "7c05c18229c24f2b8ef31eaf2cf3936f669aad4aadd27eb256220357b9bff6c4"
           },
           {
             "path": "package.json",
@@ -840942,6 +840975,21 @@
               "path": "xtendrmt/rmt-runtime.browser.js"
             }
           ]
+        },
+        {
+          "application": "XTensions",
+          "interfaceReferences": [
+            {
+              "path": "tools/xtensions/resource-graph-binding.js",
+              "symbol": null,
+              "type": "repo-symbol"
+            }
+          ],
+          "role": "reference",
+          "sourcePaths": [
+            "tools/xtensions/resource-graph-binding.js"
+          ],
+          "visibility": "internal"
         }
       ],
       "version": 2
@@ -937460,10 +937508,10 @@
       ],
       "lifecycle": {
         "rollout": "planned",
-        "status": "active"
+        "status": "deprecated"
       },
       "releasedFingerprintSetHash": null,
-      "replacedBy": null,
+      "replacedBy": "xtend.xtensions.react-runtime-adapter.v4",
       "schemaId": "xtend.xtensions.react-runtime-adapter.v3",
       "shapeFingerprints": [],
       "shapePolicy": {
@@ -937512,7 +937560,82 @@
           "visibility": "internal"
         }
       ],
-      "version": 3
+      "version": 3,
+      "replacementDecision": {
+        "compatibility": "Calls without resourceGraph retain the supported v3 adapter, API 3.0.0 and declaration. The v4 contract is opt-in; existing authority and released fingerprint sets remain unchanged.",
+        "rationale": "The explicit A03.2 resourceGraph overload selects the separately versioned v4 adapter contract."
+      }
+    },
+    {
+      "aliasOf": null,
+      "canonicalDefinition": {
+        "definitionType": "typescript-declaration",
+        "path": "tools/xtensions/react-runtime-adapter.d.ts",
+        "role": "reference",
+        "symbol": null,
+        "visibility": "internal"
+      },
+      "description": "Unreleased A03.2 graph-bound XTension host contract. Explicit native kernel resource ownership, concrete Surface generation, immediate revocation, retained controlled delivery and lifecycle idle completion. Real React/Vue and Maraca gates do not grant full A03 or 0.9 feature acceptance.",
+      "descriptionStatus": "curated",
+      "familyId": "xtend.xtensions.react-runtime-adapter",
+      "kinds": [
+        "identifier-only"
+      ],
+      "lifecycle": {
+        "rollout": "planned",
+        "status": "active"
+      },
+      "releasedFingerprintSetHash": null,
+      "replacedBy": null,
+      "schemaId": "xtend.xtensions.react-runtime-adapter.v4",
+      "shapeFingerprints": [],
+      "shapePolicy": {
+        "acceptedFingerprints": [],
+        "authoritativeFingerprints": [],
+        "decision": "reviewed-a032-surface-kernel-resources",
+        "mode": "unresolved",
+        "rationale": "A03.2 scoped Surface/Kernel resource review: explicit v4 graph hosts own one native kernel resource and one generation-bound Surface subscription. Immediate Fabric-observed revocation, staged controlled props, queued resume, terminal cleanup and graph-inclusive idle barriers are verified with real frameworks and compiled keyed Maraca hosts. Registry API 2.2 accepts version-matched v2/v3/v4 suppliers. Native Kernel, Surface Graph and Surface Controller ABIs and every preexisting authoritative/released fingerprint remain unchanged. Automatic provider composition and remaining A03/0.9 acceptance stay pending.",
+        "releasedFingerprintSetHash": null
+      },
+      "status": "active",
+      "usages": [
+        {
+          "application": "XTend Tests: Types",
+          "interfaceReferences": [
+            {
+              "path": "tests/types/xtensions_resource_graph.mts",
+              "symbol": null,
+              "type": "repo-symbol"
+            }
+          ],
+          "role": "assertion",
+          "sourcePaths": [
+            "tests/types/xtensions_resource_graph.mts"
+          ],
+          "visibility": "test"
+        },
+        {
+          "application": "XTensions",
+          "interfaceReferences": [
+            {
+              "module": "@ccslabs/xtend-compiler/xtensions/react-runtime-adapter",
+              "path": "tools/xtensions/react-runtime-adapter.d.ts",
+              "type": "package-export"
+            },
+            {
+              "module": "@ccslabs/xtend/xtensions/react-runtime-adapter",
+              "path": "tools/xtensions/react-runtime-adapter.d.ts",
+              "type": "package-export"
+            }
+          ],
+          "role": "reference",
+          "sourcePaths": [
+            "tools/xtensions/react-runtime-adapter.d.ts"
+          ],
+          "visibility": "internal"
+        }
+      ],
+      "version": 4
     },
     {
       "aliasOf": null,
@@ -941832,6 +941955,292 @@
     {
       "aliasOf": null,
       "canonicalDefinition": {
+        "definitionType": "object-shape",
+        "path": "tools/xtensions/resource-graph-binding.js",
+        "role": "producer",
+        "symbol": null,
+        "visibility": "internal"
+      },
+      "description": "Unreleased A03.2 graph-bound XTension host contract. Explicit native kernel resource ownership, concrete Surface generation, immediate revocation, retained controlled delivery and lifecycle idle completion. Real React/Vue and Maraca gates do not grant full A03 or 0.9 feature acceptance.",
+      "descriptionStatus": "curated",
+      "familyId": "xtend.xtensions.resource-graph-binding",
+      "kinds": [
+        "event-id",
+        "runtime-discriminator"
+      ],
+      "lifecycle": {
+        "rollout": "planned",
+        "status": "active"
+      },
+      "releasedFingerprintSetHash": "sha256:485c4ed63ff9e61da47707bd707ea6cb386898b2c82b5969650d8f9f431bdb4f",
+      "replacedBy": null,
+      "schemaId": "xtend.xtensions.resource-graph-binding.v1",
+      "shapeFingerprints": [
+        {
+          "authoritative": false,
+          "completeness": "partial",
+          "evidence": [
+            {
+              "authoritative": false,
+              "completeness": "partial",
+              "path": "tools/xtensions/resource-graph-binding.js",
+              "symbol": "snapshot",
+              "type": "runtime-observation"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "hash": "sha256:8a4a7b1e1dd1cc2ab3baa5eedc6162d01458deb3864edc6b5efdd30eefeb2ace",
+          "shape": {
+            "fieldCount": 7,
+            "fields": [
+              "attached",
+              "resourceId",
+              "rootId",
+              "scope",
+              "state",
+              "surfaceGeneration",
+              "surfaceId"
+            ],
+            "normalized": {
+              "fields": {
+                "attached": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "!!handle"
+                  }
+                },
+                "resourceId": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "rootId": {
+                  "optional": false,
+                  "type": {
+                    "unresolvedReference": "rootId"
+                  }
+                },
+                "scope": {
+                  "optional": false,
+                  "type": {
+                    "unresolvedReference": "scope"
+                  }
+                },
+                "state": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "surfaceGeneration": {
+                  "optional": false,
+                  "type": "null"
+                },
+                "surfaceId": {
+                  "optional": false,
+                  "type": {
+                    "unresolvedReference": "surfaceId"
+                  }
+                }
+              }
+            },
+            "signature": "attached:{\"unresolved\":\"!!handle\"}|resourceId:string|rootId:{\"unresolvedReference\":\"rootId\"}|scope:{\"unresolvedReference\":\"scope\"}|state:string|surfaceGeneration:null|surfaceId:{\"unresolvedReference\":\"surfaceId\"}"
+          },
+          "sourcePaths": [
+            "tools/xtensions/resource-graph-binding.js"
+          ],
+          "symbols": [
+            "snapshot"
+          ]
+        },
+        {
+          "authoritative": true,
+          "completeness": "complete",
+          "evidence": [
+            {
+              "authoritative": true,
+              "completeness": "complete",
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "RuntimeResourceGraphBindingSnapshot",
+              "type": "declared-type"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "hash": "sha256:f2ceecf04c9f2cdfc7e5cf303c52e3791a499330c9cca23a76c594ce4a7a8366",
+          "shape": {
+            "fieldCount": 7,
+            "fields": [
+              "attached",
+              "resourceId",
+              "rootId",
+              "scope",
+              "state",
+              "surfaceGeneration",
+              "surfaceId"
+            ],
+            "normalized": {
+              "fields": {
+                "attached": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "resourceId": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "rootId": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "scope": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "state": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "literal": "active"
+                      },
+                      {
+                        "literal": "detached"
+                      },
+                      {
+                        "literal": "disposed"
+                      },
+                      {
+                        "literal": "suspended"
+                      }
+                    ]
+                  }
+                },
+                "surfaceGeneration": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      "number",
+                      {
+                        "literal": null
+                      }
+                    ]
+                  }
+                },
+                "surfaceId": {
+                  "optional": false,
+                  "type": "string"
+                }
+              }
+            },
+            "signature": "attached:boolean|resourceId:string|rootId:string|scope:string|state:union<literal<\"active\">|literal<\"detached\">|literal<\"disposed\">|literal<\"suspended\">>|surfaceGeneration:union<number|literal<null>>|surfaceId:string"
+          },
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "symbols": [
+            "RuntimeResourceGraphBindingSnapshot"
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "acceptedFingerprints": [
+          "sha256:8a4a7b1e1dd1cc2ab3baa5eedc6162d01458deb3864edc6b5efdd30eefeb2ace",
+          "sha256:f2ceecf04c9f2cdfc7e5cf303c52e3791a499330c9cca23a76c594ce4a7a8366"
+        ],
+        "authoritativeFingerprints": [
+          "sha256:f2ceecf04c9f2cdfc7e5cf303c52e3791a499330c9cca23a76c594ce4a7a8366"
+        ],
+        "decision": "reviewed-a032-surface-kernel-resources",
+        "mode": "polymorphic",
+        "rationale": "A03.2 scoped Surface/Kernel resource review: explicit v4 graph hosts own one native kernel resource and one generation-bound Surface subscription. Immediate Fabric-observed revocation, staged controlled props, queued resume, terminal cleanup and graph-inclusive idle barriers are verified with real frameworks and compiled keyed Maraca hosts. Registry API 2.2 accepts version-matched v2/v3/v4 suppliers. Native Kernel, Surface Graph and Surface Controller ABIs and every preexisting authoritative/released fingerprint remain unchanged. Automatic provider composition and remaining A03/0.9 acceptance stay pending.",
+        "releasedFingerprintSetHash": "sha256:485c4ed63ff9e61da47707bd707ea6cb386898b2c82b5969650d8f9f431bdb4f"
+      },
+      "status": "active",
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "interfaceReferences": [
+            {
+              "path": "development/rmtx-a01/inventory.json",
+              "pointer": "/",
+              "type": "json-pointer"
+            }
+          ],
+          "role": "documentation",
+          "sourcePaths": [
+            "development/rmtx-a01/inventory.json",
+            "development/rmtx-a03/resource-graph.md"
+          ],
+          "visibility": "docs"
+        },
+        {
+          "application": "XTend Tests: Types",
+          "interfaceReferences": [
+            {
+              "path": "tests/types/xtensions_resource_graph.mts",
+              "symbol": null,
+              "type": "repo-symbol"
+            }
+          ],
+          "role": "assertion",
+          "sourcePaths": [
+            "tests/types/xtensions_resource_graph.mts"
+          ],
+          "visibility": "test"
+        },
+        {
+          "application": "XTend Tests: Xtensions",
+          "interfaceReferences": [
+            {
+              "path": "tests/xtensions/resource-graph-acceptance.js",
+              "symbol": null,
+              "type": "repo-symbol"
+            }
+          ],
+          "role": "assertion",
+          "sourcePaths": [
+            "tests/xtensions/resource-graph-acceptance.js"
+          ],
+          "visibility": "test"
+        },
+        {
+          "application": "XTensions",
+          "interfaceReferences": [
+            {
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "RuntimeResourceGraphBindingSnapshot",
+              "type": "symbol"
+            }
+          ],
+          "role": "definition",
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "visibility": "internal"
+        },
+        {
+          "application": "XTensions",
+          "interfaceReferences": [
+            {
+              "path": "tools/xtensions/resource-graph-binding.js",
+              "symbol": "snapshot",
+              "type": "symbol"
+            }
+          ],
+          "role": "producer",
+          "sourcePaths": [
+            "tools/xtensions/resource-graph-binding.js",
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "visibility": "internal"
+        }
+      ],
+      "version": 1
+    },
+    {
+      "aliasOf": null,
+      "canonicalDefinition": {
         "path": "tests/xtensions/xtensions_resume_adapter_suite.js",
         "symbol": "runXTensionsResumeAdapterSuite",
         "definitionType": "identifier-reference",
@@ -946018,10 +946427,10 @@
       ],
       "lifecycle": {
         "rollout": "planned",
-        "status": "active"
+        "status": "deprecated"
       },
       "releasedFingerprintSetHash": "sha256:527b17ea2dcb969b00777e14a92eecf681fdea6c8a21eba5c25af772be01210e",
-      "replacedBy": null,
+      "replacedBy": "xtend.xtensions.runtime-host-controller.v4",
       "schemaId": "xtend.xtensions.runtime-host-controller.v3",
       "shapeFingerprints": [
         {
@@ -946272,7 +946681,287 @@
           "visibility": "internal"
         }
       ],
-      "version": 3
+      "version": 3,
+      "replacementDecision": {
+        "compatibility": "Existing kernel factory calls without resourceGraph retain API 3.0.0 and the complete v3 declaration. Direct v2 factories remain supported. No implicit graph is created; every preexisting authority/released fingerprint is preserved.",
+        "rationale": "A03.2 adds an explicit resourceGraph overload with a separately versioned v4 host, owned kernel resource and concrete Surface lifetime."
+      }
+    },
+    {
+      "aliasOf": null,
+      "canonicalDefinition": {
+        "definitionType": "constant",
+        "path": "tools/xtensions/runtime-host-controller.js",
+        "role": "definition",
+        "symbol": "GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA",
+        "visibility": "internal"
+      },
+      "description": "Unreleased A03.2 graph-bound XTension host contract. Explicit native kernel resource ownership, concrete Surface generation, immediate revocation, retained controlled delivery and lifecycle idle completion. Real React/Vue and Maraca gates do not grant full A03 or 0.9 feature acceptance.",
+      "descriptionStatus": "curated",
+      "familyId": "xtend.xtensions.runtime-host-controller",
+      "kinds": [
+        "identifier-only"
+      ],
+      "lifecycle": {
+        "rollout": "planned",
+        "status": "active"
+      },
+      "releasedFingerprintSetHash": "sha256:cdf6e38fa64efc5a6371d958fa1fc7d11f7e811aee11c8e2eac2074d7391c03e",
+      "replacedBy": null,
+      "schemaId": "xtend.xtensions.runtime-host-controller.v4",
+      "shapeFingerprints": [
+        {
+          "authoritative": true,
+          "completeness": "complete",
+          "evidence": [
+            {
+              "authoritative": true,
+              "completeness": "complete",
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "GraphRuntimeHostController",
+              "type": "declared-type"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "hash": "sha256:b43a8d1b924d55ab9ae218237967256f6fb1a5483e63a5ff8c57ccd4dd2c869f",
+          "shape": {
+            "fieldCount": 16,
+            "fields": [
+              "adapterSchema",
+              "apiVersion",
+              "emit",
+              "framework",
+              "getCapabilities",
+              "getCleanupRecords",
+              "getEventRecords",
+              "getLifecycleRecords",
+              "mount",
+              "reportError",
+              "resume",
+              "snapshot",
+              "suspend",
+              "unmount",
+              "update",
+              "whenIdle"
+            ],
+            "normalized": {
+              "fields": {
+                "adapterSchema": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "apiVersion": {
+                  "optional": false,
+                  "type": {
+                    "literal": "4.0.0"
+                  }
+                },
+                "emit": {
+                  "optional": false,
+                  "type": {
+                    "indexedAccess": {
+                      "index": {
+                        "literal": "emit"
+                      },
+                      "object": {
+                        "fields": {
+                          "emit": {
+                            "optional": false,
+                            "type": "function"
+                          },
+                          "resources": {
+                            "optional": false,
+                            "type": {
+                              "fields": {
+                                "register": {
+                                  "optional": false,
+                                  "type": "function"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "framework": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "literal": "react"
+                      },
+                      {
+                        "literal": "vue"
+                      }
+                    ]
+                  }
+                },
+                "getCapabilities": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "getCleanupRecords": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "getEventRecords": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "getLifecycleRecords": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "mount": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "reportError": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "resume": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "snapshot": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "suspend": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "unmount": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "update": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "whenIdle": {
+                  "optional": false,
+                  "type": "function"
+                }
+              }
+            },
+            "signature": "adapterSchema:string|apiVersion:literal<\"4.0.0\">|emit:{\"indexedAccess\":{\"index\":{\"literal\":\"emit\"},\"object\":{\"fields\":{\"emit\":{\"optional\":false,\"type\":\"function\"},\"resources\":{\"optional\":false,\"type\":{\"fields\":{\"register\":{\"optional\":false,\"type\":\"function\"}}}}}}}}|framework:union<literal<\"react\">|literal<\"vue\">>|getCapabilities:function|getCleanupRecords:function|getEventRecords:function|getLifecycleRecords:function|mount:function|reportError:function|resume:function|snapshot:function|suspend:function|unmount:function|update:function|whenIdle:function"
+          },
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "symbols": [
+            "GraphRuntimeHostController"
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "acceptedFingerprints": [
+          "sha256:b43a8d1b924d55ab9ae218237967256f6fb1a5483e63a5ff8c57ccd4dd2c869f"
+        ],
+        "authoritativeFingerprints": [
+          "sha256:b43a8d1b924d55ab9ae218237967256f6fb1a5483e63a5ff8c57ccd4dd2c869f"
+        ],
+        "decision": "reviewed-a032-surface-kernel-resources",
+        "mode": "single",
+        "rationale": "A03.2 scoped Surface/Kernel resource review: explicit v4 graph hosts own one native kernel resource and one generation-bound Surface subscription. Immediate Fabric-observed revocation, staged controlled props, queued resume, terminal cleanup and graph-inclusive idle barriers are verified with real frameworks and compiled keyed Maraca hosts. Registry API 2.2 accepts version-matched v2/v3/v4 suppliers. Native Kernel, Surface Graph and Surface Controller ABIs and every preexisting authoritative/released fingerprint remain unchanged. Automatic provider composition and remaining A03/0.9 acceptance stay pending.",
+        "releasedFingerprintSetHash": "sha256:cdf6e38fa64efc5a6371d958fa1fc7d11f7e811aee11c8e2eac2074d7391c03e"
+      },
+      "status": "active",
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "interfaceReferences": [
+            {
+              "path": "development/rmtx-a03/resource-graph.md",
+              "symbol": null,
+              "type": "repo-symbol"
+            }
+          ],
+          "role": "documentation",
+          "sourcePaths": [
+            "development/rmtx-a03/resource-graph.md"
+          ],
+          "visibility": "docs"
+        },
+        {
+          "application": "XTend Tests: Types",
+          "interfaceReferences": [
+            {
+              "path": "tests/types/xtensions_resource_graph.mts",
+              "symbol": null,
+              "type": "repo-symbol"
+            }
+          ],
+          "role": "assertion",
+          "sourcePaths": [
+            "tests/types/xtensions_resource_graph.mts"
+          ],
+          "visibility": "test"
+        },
+        {
+          "application": "XTend Tests: Xtensions",
+          "interfaceReferences": [
+            {
+              "path": "tests/xtensions/resource-graph-acceptance.js",
+              "symbol": null,
+              "type": "repo-symbol"
+            }
+          ],
+          "role": "assertion",
+          "sourcePaths": [
+            "tests/xtensions/resource-graph-acceptance.js"
+          ],
+          "visibility": "test"
+        },
+        {
+          "application": "XTensions",
+          "interfaceReferences": [
+            {
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA",
+              "type": "symbol"
+            },
+            {
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "GraphRuntimeHostController",
+              "type": "symbol"
+            },
+            {
+              "path": "tools/xtensions/runtime-host-controller.js",
+              "symbol": "GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA",
+              "type": "symbol"
+            }
+          ],
+          "role": "definition",
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts",
+            "tools/xtensions/runtime-host-controller.js"
+          ],
+          "visibility": "internal"
+        },
+        {
+          "application": "XTensions",
+          "interfaceReferences": [
+            {
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": null,
+              "type": "repo-symbol"
+            }
+          ],
+          "role": "reference",
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "visibility": "internal"
+        }
+      ],
+      "version": 4
     },
     {
       "aliasOf": null,
@@ -958092,7 +958781,8 @@
           "role": "assertion",
           "visibility": "test",
           "sourcePaths": [
-            "tests/types/xtensions_kernel_runtime.mts"
+            "tests/types/xtensions_kernel_runtime.mts",
+            "tests/types/xtensions_resource_graph.mts"
           ],
           "interfaceReferences": [
             {
@@ -979209,10 +979899,10 @@
       ],
       "lifecycle": {
         "rollout": "planned",
-        "status": "active"
+        "status": "deprecated"
       },
       "releasedFingerprintSetHash": null,
-      "replacedBy": null,
+      "replacedBy": "xtend.xtensions.vue-runtime-adapter.v4",
       "schemaId": "xtend.xtensions.vue-runtime-adapter.v3",
       "shapeFingerprints": [],
       "shapePolicy": {
@@ -979261,7 +979951,67 @@
           "visibility": "internal"
         }
       ],
-      "version": 3
+      "version": 3,
+      "replacementDecision": {
+        "compatibility": "Calls without resourceGraph retain the supported v3 adapter, API 3.0.0 and declaration. The v4 contract is opt-in; existing authority and released fingerprint sets remain unchanged.",
+        "rationale": "The explicit A03.2 resourceGraph overload selects the separately versioned v4 adapter contract."
+      }
+    },
+    {
+      "aliasOf": null,
+      "canonicalDefinition": {
+        "definitionType": "typescript-declaration",
+        "path": "tools/xtensions/vue-runtime-adapter.d.ts",
+        "role": "reference",
+        "symbol": null,
+        "visibility": "internal"
+      },
+      "description": "Unreleased A03.2 graph-bound XTension host contract. Explicit native kernel resource ownership, concrete Surface generation, immediate revocation, retained controlled delivery and lifecycle idle completion. Real React/Vue and Maraca gates do not grant full A03 or 0.9 feature acceptance.",
+      "descriptionStatus": "curated",
+      "familyId": "xtend.xtensions.vue-runtime-adapter",
+      "kinds": [
+        "identifier-only"
+      ],
+      "lifecycle": {
+        "rollout": "planned",
+        "status": "active"
+      },
+      "releasedFingerprintSetHash": null,
+      "replacedBy": null,
+      "schemaId": "xtend.xtensions.vue-runtime-adapter.v4",
+      "shapeFingerprints": [],
+      "shapePolicy": {
+        "acceptedFingerprints": [],
+        "authoritativeFingerprints": [],
+        "decision": "reviewed-a032-surface-kernel-resources",
+        "mode": "unresolved",
+        "rationale": "A03.2 scoped Surface/Kernel resource review: explicit v4 graph hosts own one native kernel resource and one generation-bound Surface subscription. Immediate Fabric-observed revocation, staged controlled props, queued resume, terminal cleanup and graph-inclusive idle barriers are verified with real frameworks and compiled keyed Maraca hosts. Registry API 2.2 accepts version-matched v2/v3/v4 suppliers. Native Kernel, Surface Graph and Surface Controller ABIs and every preexisting authoritative/released fingerprint remain unchanged. Automatic provider composition and remaining A03/0.9 acceptance stay pending.",
+        "releasedFingerprintSetHash": null
+      },
+      "status": "active",
+      "usages": [
+        {
+          "application": "XTensions",
+          "interfaceReferences": [
+            {
+              "module": "@ccslabs/xtend-compiler/xtensions/vue-runtime-adapter",
+              "path": "tools/xtensions/vue-runtime-adapter.d.ts",
+              "type": "package-export"
+            },
+            {
+              "module": "@ccslabs/xtend/xtensions/vue-runtime-adapter",
+              "path": "tools/xtensions/vue-runtime-adapter.d.ts",
+              "type": "package-export"
+            }
+          ],
+          "role": "reference",
+          "sourcePaths": [
+            "tools/xtensions/vue-runtime-adapter.d.ts"
+          ],
+          "visibility": "internal"
+        }
+      ],
+      "version": 4
     },
     {
       "aliasOf": null,
@@ -1016252,19 +1017002,28 @@
       ]
     },
     {
-      "activeSchemaId": "xtend.xtensions.react-runtime-adapter.v3",
-      "currentVersion": 3,
+      "activeSchemaId": "xtend.xtensions.react-runtime-adapter.v4",
+      "currentVersion": 4,
       "familyId": "xtend.xtensions.react-runtime-adapter",
       "tombstones": [],
       "versions": [
         {
           "lifecycle": {
             "rollout": "planned",
-            "status": "active"
+            "status": "deprecated"
           },
           "releasedFingerprintSetHash": null,
           "schemaId": "xtend.xtensions.react-runtime-adapter.v3",
           "version": 3
+        },
+        {
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": null,
+          "schemaId": "xtend.xtensions.react-runtime-adapter.v4",
+          "version": 4
         }
       ]
     },
@@ -1016435,6 +1017194,23 @@
             "status": "active"
           },
           "releasedFingerprintSetHash": null
+        }
+      ]
+    },
+    {
+      "activeSchemaId": "xtend.xtensions.resource-graph-binding.v1",
+      "currentVersion": 1,
+      "familyId": "xtend.xtensions.resource-graph-binding",
+      "tombstones": [],
+      "versions": [
+        {
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": "sha256:485c4ed63ff9e61da47707bd707ea6cb386898b2c82b5969650d8f9f431bdb4f",
+          "schemaId": "xtend.xtensions.resource-graph-binding.v1",
+          "version": 1
         }
       ]
     },
@@ -1016669,8 +1017445,8 @@
       ]
     },
     {
-      "activeSchemaId": "xtend.xtensions.runtime-host-controller.v3",
-      "currentVersion": 3,
+      "activeSchemaId": "xtend.xtensions.runtime-host-controller.v4",
+      "currentVersion": 4,
       "familyId": "xtend.xtensions.runtime-host-controller",
       "tombstones": [],
       "versions": [
@@ -1016686,11 +1017462,20 @@
         {
           "lifecycle": {
             "rollout": "planned",
-            "status": "active"
+            "status": "deprecated"
           },
           "releasedFingerprintSetHash": "sha256:527b17ea2dcb969b00777e14a92eecf681fdea6c8a21eba5c25af772be01210e",
           "schemaId": "xtend.xtensions.runtime-host-controller.v3",
           "version": 3
+        },
+        {
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": "sha256:cdf6e38fa64efc5a6371d958fa1fc7d11f7e811aee11c8e2eac2074d7391c03e",
+          "schemaId": "xtend.xtensions.runtime-host-controller.v4",
+          "version": 4
         }
       ]
     },
@@ -1017895,19 +1018680,28 @@
       ]
     },
     {
-      "activeSchemaId": "xtend.xtensions.vue-runtime-adapter.v3",
-      "currentVersion": 3,
+      "activeSchemaId": "xtend.xtensions.vue-runtime-adapter.v4",
+      "currentVersion": 4,
       "familyId": "xtend.xtensions.vue-runtime-adapter",
       "tombstones": [],
       "versions": [
         {
           "lifecycle": {
             "rollout": "planned",
-            "status": "active"
+            "status": "deprecated"
           },
           "releasedFingerprintSetHash": null,
           "schemaId": "xtend.xtensions.vue-runtime-adapter.v3",
           "version": 3
+        },
+        {
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": null,
+          "schemaId": "xtend.xtensions.vue-runtime-adapter.v4",
+          "version": 4
         }
       ]
     },

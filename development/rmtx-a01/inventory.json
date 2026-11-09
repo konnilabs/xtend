@@ -158,7 +158,7 @@
     },
     {
       "file": "tools/xtensions/runtime-host-controller.d.ts",
-      "sha256": "688b3c0238110bacae903625c42c45110318aeffb98b1f6ededb7c3da69c11bd"
+      "sha256": "3d6c4d71c1f848361e4a6daab58709db410f6693cdb4ae71214ab75923a3788a"
     },
     {
       "file": "tools/xtensions/signal-bridge-contract.d.ts",
@@ -12294,6 +12294,290 @@
           ],
           "file": "tools/xtensions/runtime-host-controller.d.ts",
           "line": 128,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RuntimeKernelResourcePort",
+          "fields": [
+            {
+              "name": "hasRoot",
+              "optional": false,
+              "type": "boolean",
+              "declaration": "hasRoot(rootId: string): boolean;"
+            },
+            {
+              "name": "getRootElement",
+              "optional": false,
+              "type": "unknown",
+              "declaration": "getRootElement(rootId: string): unknown;"
+            },
+            {
+              "name": "getScheduler",
+              "optional": false,
+              "type": "RuntimeKernelSchedulerPort",
+              "declaration": "getScheduler(): RuntimeKernelSchedulerPort;"
+            },
+            {
+              "name": "listResources",
+              "optional": false,
+              "type": "readonly { id: string }[]",
+              "declaration": "listResources(rootId: string): readonly { id: string }[];"
+            },
+            {
+              "name": "attachResource",
+              "optional": false,
+              "type": "unknown",
+              "declaration": "attachResource(rootId: string, resourceId: string, value: unknown, options: Record<string, unknown>): unknown;"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 152,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RuntimeSurfaceGraphPort",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "string",
+              "declaration": "readonly schema: string;"
+            },
+            {
+              "name": "getSurface",
+              "optional": false,
+              "type": "{ id: string } | null",
+              "declaration": "getSurface(id: string): { id: string } | null;"
+            },
+            {
+              "name": "getSnapshot",
+              "optional": false,
+              "type": "{ disposed: boolean }",
+              "declaration": "getSnapshot(): { disposed: boolean };"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 159,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RuntimeSurfaceControllerPort",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "string",
+              "declaration": "readonly schema: string;"
+            },
+            {
+              "name": "readSnapshot",
+              "optional": false,
+              "type": "{ surfaces: readonly { id: string; status: string; generation?: number; minimized?: boolean; collapsed?: boolean }[] }",
+              "declaration": "readSnapshot(options?: Record<string, unknown>): { surfaces: readonly { id: string; status: string; generation?: number; minimized?: boolean; collapsed?: boolean }[] };"
+            },
+            {
+              "name": "subscribe",
+              "optional": false,
+              "type": "() => void",
+              "declaration": "subscribe(listener: (snapshot: ReturnType<RuntimeSurfaceControllerPort['readSnapshot']>) => void): () => void;"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 165,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "GraphRuntimeHostOptions",
+          "fields": [
+            {
+              "name": "resourceGraph",
+              "optional": false,
+              "type": "{ readonly kernel: RuntimeKernelResourcePort; readonly surfaceGraph: RuntimeSurfaceGraphPort;\n    readonly surfaceController: RuntimeSurfaceControllerPort; readonly surfaceId: string }",
+              "declaration": "readonly resourceGraph: { readonly kernel: RuntimeKernelResourcePort; readonly surfaceGraph: RuntimeSurfaceGraphPort;\n    readonly surfaceController: RuntimeSurfaceControllerPort; readonly surfaceId: string };"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 171,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RuntimeResourceGraphBindingSnapshot",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "'xtend.xtensions.resource-graph-binding.v1'",
+              "declaration": "readonly schema: 'xtend.xtensions.resource-graph-binding.v1';"
+            },
+            {
+              "name": "rootId",
+              "optional": false,
+              "type": "string",
+              "declaration": "readonly rootId: string;"
+            },
+            {
+              "name": "scope",
+              "optional": false,
+              "type": "string",
+              "declaration": "readonly scope: string;"
+            },
+            {
+              "name": "resourceId",
+              "optional": false,
+              "type": "string",
+              "declaration": "readonly resourceId: string;"
+            },
+            {
+              "name": "surfaceId",
+              "optional": false,
+              "type": "string",
+              "declaration": "readonly surfaceId: string;"
+            },
+            {
+              "name": "surfaceGeneration",
+              "optional": false,
+              "type": "number | null",
+              "declaration": "readonly surfaceGeneration: number | null;"
+            },
+            {
+              "name": "state",
+              "optional": false,
+              "type": "'detached' | 'active' | 'suspended' | 'disposed'",
+              "declaration": "readonly state: 'detached' | 'active' | 'suspended' | 'disposed';"
+            },
+            {
+              "name": "attached",
+              "optional": false,
+              "type": "boolean",
+              "declaration": "readonly attached: boolean;"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 175,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "GraphRuntimeHostSnapshot",
+          "fields": [
+            {
+              "name": "resourceGraph",
+              "optional": false,
+              "type": "RuntimeResourceGraphBindingSnapshot",
+              "declaration": "readonly resourceGraph: RuntimeResourceGraphBindingSnapshot;"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 180,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "GraphRuntimeHostController",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "typeof GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA",
+              "declaration": "readonly schema: typeof GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA;"
+            },
+            {
+              "name": "apiVersion",
+              "optional": false,
+              "type": "'4.0.0'",
+              "declaration": "readonly apiVersion: '4.0.0';"
+            },
+            {
+              "name": "adapterSchema",
+              "optional": false,
+              "type": "string",
+              "declaration": "readonly adapterSchema: string;"
+            },
+            {
+              "name": "framework",
+              "optional": false,
+              "type": "'react' | 'vue'",
+              "declaration": "readonly framework: 'react' | 'vue';"
+            },
+            {
+              "name": "mount",
+              "optional": false,
+              "type": "Promise<RuntimeHostResult>",
+              "declaration": "mount(target?: Element, props?: RuntimeProps, options?: { lane?: string }): Promise<RuntimeHostResult>;"
+            },
+            {
+              "name": "update",
+              "optional": false,
+              "type": "Promise<RuntimeHostResult>",
+              "declaration": "update(signal: { props?: RuntimeProps; payload?: RuntimeProps; updateAdapter?: 'applyPropsUpdate'; type?: 'props.update' }): Promise<RuntimeHostResult>;"
+            },
+            {
+              "name": "suspend",
+              "optional": false,
+              "type": "Promise<RuntimeHostResult>",
+              "declaration": "suspend(reason?: string): Promise<RuntimeHostResult>;"
+            },
+            {
+              "name": "resume",
+              "optional": false,
+              "type": "Promise<RuntimeHostResult>",
+              "declaration": "resume(reason?: string, options?: { props: RuntimeProps }): Promise<RuntimeHostResult>;"
+            },
+            {
+              "name": "unmount",
+              "optional": false,
+              "type": "Promise<RuntimeHostResult>",
+              "declaration": "unmount(reason?: string): Promise<RuntimeHostResult>;"
+            },
+            {
+              "name": "reportError",
+              "optional": false,
+              "type": "RuntimeHostResult",
+              "declaration": "reportError(error: unknown, metadata?: { phase?: string }): RuntimeHostResult;"
+            },
+            {
+              "name": "emit",
+              "optional": false,
+              "type": "ComponentCapabilities['emit']",
+              "declaration": "emit: ComponentCapabilities['emit'];"
+            },
+            {
+              "name": "getCapabilities",
+              "optional": false,
+              "type": "RuntimeKernelCapabilities",
+              "declaration": "getCapabilities(): RuntimeKernelCapabilities;"
+            },
+            {
+              "name": "snapshot",
+              "optional": false,
+              "type": "GraphRuntimeHostSnapshot",
+              "declaration": "snapshot(): GraphRuntimeHostSnapshot;"
+            },
+            {
+              "name": "whenIdle",
+              "optional": false,
+              "type": "Promise<GraphRuntimeHostSnapshot>",
+              "declaration": "whenIdle(): Promise<GraphRuntimeHostSnapshot>;"
+            },
+            {
+              "name": "getLifecycleRecords",
+              "optional": false,
+              "type": "XTensionLifecycleRecord[]",
+              "declaration": "getLifecycleRecords(): XTensionLifecycleRecord[];"
+            },
+            {
+              "name": "getCleanupRecords",
+              "optional": false,
+              "type": "HostResourceCleanupRecord[]",
+              "declaration": "getCleanupRecords(): HostResourceCleanupRecord[];"
+            },
+            {
+              "name": "getEventRecords",
+              "optional": false,
+              "type": "XTensionsSurfaceEvent[]",
+              "declaration": "getEventRecords(): XTensionsSurfaceEvent[];"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 183,
           "symbol": "<anonymous>"
         }
       ],

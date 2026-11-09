@@ -146,3 +146,60 @@ export interface KernelRuntimeHostController {
   getCleanupRecords(): HostResourceCleanupRecord[];
   getEventRecords(): XTensionsSurfaceEvent[];
 }
+
+/** A03.2: explicit graph binding selects a separate v4 host contract. */
+export const GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA: 'xtend.xtensions.runtime-host-controller.v4';
+export interface RuntimeKernelResourcePort {
+  hasRoot(rootId: string): boolean;
+  getRootElement(rootId: string): unknown;
+  getScheduler(): RuntimeKernelSchedulerPort;
+  listResources(rootId: string): readonly { id: string }[];
+  attachResource(rootId: string, resourceId: string, value: unknown, options: Record<string, unknown>): unknown;
+}
+export interface RuntimeSurfaceGraphPort {
+  /** Structural consumer view; construction checks the exact Surface Graph v2 brand. */
+  readonly schema: string;
+  getSurface(id: string): { id: string } | null;
+  getSnapshot(): { disposed: boolean };
+}
+export interface RuntimeSurfaceControllerPort {
+  /** Structural consumer view; construction checks the exact Surface Controller v2 brand. */
+  readonly schema: string;
+  readSnapshot(options?: Record<string, unknown>): { surfaces: readonly { id: string; status: string; generation?: number; minimized?: boolean; collapsed?: boolean }[] };
+  subscribe(listener: (snapshot: ReturnType<RuntimeSurfaceControllerPort['readSnapshot']>) => void): () => void;
+}
+export interface GraphRuntimeHostOptions extends KernelRuntimeHostOptions {
+  readonly resourceGraph: { readonly kernel: RuntimeKernelResourcePort; readonly surfaceGraph: RuntimeSurfaceGraphPort;
+    readonly surfaceController: RuntimeSurfaceControllerPort; readonly surfaceId: string };
+}
+export interface RuntimeResourceGraphBindingSnapshot {
+  readonly schema: 'xtend.xtensions.resource-graph-binding.v1';
+  readonly rootId: string; readonly scope: string; readonly resourceId: string; readonly surfaceId: string;
+  readonly surfaceGeneration: number | null; readonly state: 'detached' | 'active' | 'suspended' | 'disposed'; readonly attached: boolean;
+}
+export interface GraphRuntimeHostSnapshot extends KernelRuntimeHostSnapshot {
+  readonly resourceGraph: RuntimeResourceGraphBindingSnapshot;
+}
+export interface GraphRuntimeHostController {
+  readonly schema: typeof GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA;
+  /** SemVer metadata; the schema discriminator identifies the contract major. */
+  readonly apiVersion: '4.0.0';
+  readonly adapterSchema: string;
+  readonly framework: 'react' | 'vue';
+  mount(target?: Element, props?: RuntimeProps, options?: { lane?: string }): Promise<RuntimeHostResult>;
+  /** Full props replacement. Vue requires applyPropsUpdate or type props.update. */
+  update(signal: { props?: RuntimeProps; payload?: RuntimeProps; updateAdapter?: 'applyPropsUpdate'; type?: 'props.update' }): Promise<RuntimeHostResult>;
+  suspend(reason?: string): Promise<RuntimeHostResult>;
+  /** Optional full replacement is committed while suspended, before resources restart. */
+  resume(reason?: string, options?: { props: RuntimeProps }): Promise<RuntimeHostResult>;
+  unmount(reason?: string): Promise<RuntimeHostResult>;
+  reportError(error: unknown, metadata?: { phase?: string }): RuntimeHostResult;
+  emit: ComponentCapabilities['emit'];
+  getCapabilities(): RuntimeKernelCapabilities;
+  snapshot(): GraphRuntimeHostSnapshot;
+  /** Includes graph-triggered lifecycle delivery and terminal cleanup, not named business work. */
+  whenIdle(): Promise<GraphRuntimeHostSnapshot>;
+  getLifecycleRecords(): XTensionLifecycleRecord[];
+  getCleanupRecords(): HostResourceCleanupRecord[];
+  getEventRecords(): XTensionsSurfaceEvent[];
+}

@@ -1,7 +1,7 @@
 {
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "17b89c780944f71080a0e1c69f8c5fa4e846b3bdfb15b025f2dddc5badf29ff2",
+  "inventorySha256": "ee0f24f9530f80ab005b8ee45e1582b48c269b72cfb4cb57513f3263602bf70b",
   "productivePaths": [
     ".codex",
     ".comments/XScaler ATC.png.xml",
@@ -1149,7 +1149,10 @@
     "development/rmtx-a02/url-history/state.v1.schema.json",
     "development/rmtx-a03/README.md",
     "development/rmtx-a03/evidence.json",
+    "development/rmtx-a03/graph-evidence.json",
+    "development/rmtx-a03/graph-inspect.cjs",
     "development/rmtx-a03/inspect.cjs",
+    "development/rmtx-a03/resource-graph.md",
     "docs/.htaccess",
     "docs/assets/rmt-stack-topography.svg",
     "docs/de/README.md",
@@ -2796,6 +2799,7 @@
     "tests/types/vendor_type_exports_suite.js",
     "tests/types/xtensions_compiled_bindings.mts",
     "tests/types/xtensions_kernel_runtime.mts",
+    "tests/types/xtensions_resource_graph.mts",
     "tests/types/xtensions_runtime_adapters.ts",
     "tests/types/xtensions_url_history_contract.mts",
     "tests/utils/README.md",
@@ -2816,6 +2820,8 @@
     "tests/xtensions/maraca_xtensions_suite.js",
     "tests/xtensions/repeated-state-binding-acceptance.js",
     "tests/xtensions/repeated-state-binding-compiler.cjs",
+    "tests/xtensions/resource-graph-acceptance.js",
+    "tests/xtensions/resource-graph-maraca-acceptance.js",
     "tests/xtensions/runtime-adapter-acceptance.js",
     "tests/xtensions/runtime-adapter-exports.cjs",
     "tests/xtensions/runtime-peers/package-lock.json",
@@ -3123,6 +3129,7 @@
     "tools/xtensions/react-runtime-boundary.js",
     "tools/xtensions/registry-package-strategy.d.ts",
     "tools/xtensions/registry-package-strategy.js",
+    "tools/xtensions/resource-graph-binding.js",
     "tools/xtensions/resume-adapter-contract.d.ts",
     "tools/xtensions/resume-adapter-contract.js",
     "tools/xtensions/runtime-capability-registry.d.ts",
@@ -3566,7 +3573,7 @@
     "xtendrmt/rmt-surface-transition-runtime.js",
     "xtendrmt/rmt.schema.json"
   ],
-  "authorityDecisionSha256": "9fdc3d6f2627e241b50a522db86ab1daa11fd427f0dae2a02cf02182bfbdf2eb",
+  "authorityDecisionSha256": "aac342dd28243bdcfd871a28b64ac049258884f5c3ba3677dc1378d18178da6f",
   "note": "No union filtering or Core schema acceptance is inferred. Missing/pending exact projection blocks Core CI evidence and release preparation. Initial Candidate authority retirement remains a separate source guard.",
   "coreCandidateAuthoritySha256": "8fc57e4eb96a3a6fd0155234f06cc4b95879fc9d492fdaad8171e26345e4f865"
 }

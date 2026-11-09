@@ -5,7 +5,9 @@
 const { createLifecycleRecord, normalizeHostControllerResult } = require('./host-controller-contract');
 const RUNTIME_HOST_CONTROLLER_SCHEMA = 'xtend.xtensions.runtime-host-controller.v2';
 const KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA = 'xtend.xtensions.runtime-host-controller.v3';
+const GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA = 'xtend.xtensions.runtime-host-controller.v4';
 const { createKernelWorkScope } = require('./kernel-work-scope');
+const { createResourceGraphBinding } = require('./resource-graph-binding');
 const { createHostResourceCleanupRecord } = require('./host-resource-cleanup-record');
 const { createSurfaceEvent } = require('./signal-bridge-contract');
 const { createCooperativeResourceScope } = require('./cooperative-resource-scope');
@@ -64,6 +66,8 @@ function peerVersionMatches(version, range) {
 // Retained-instance/Fabric lifecycle extracted from xtend-tests src/controller.js.
 // Loading is single-flight and disposal invalidates work both before and after await.
 function createRuntimeHostController(options, driver) {
+  const graphEnabled = Object.hasOwn(options, 'resourceGraph');
+  if (graphEnabled && driver.kernel !== true) throw new TypeError('Resource graph binding requires a kernel adapter.');
   const framework = driver.framework;
   const ids = Object.freeze({ hostId: options.hostId || `${framework}-host`,
     surfaceId: options.surfaceId || `surface.${framework}`, xtensionId: options.xtensionId || options.id || `xtension.${framework}` });
@@ -92,6 +96,7 @@ function createRuntimeHostController(options, driver) {
   let phase = 'idle', disposed = false, suspended = false, instance = null, props = {};
   let pendingMount = null, disposal = null, queue = Promise.resolve(), sequence = 0, generation = 0;
   let runtimeVersions = null, tearingDown = false, teardownPromise = null, fatalError = null;
+  let graph = null, surfaceBlocked = false, surfaceNeedsResume = false, surfaceEpoch = 0;
   const abort = new AbortController();
   const cancelled = new Promise((resolve) => abort.signal.addEventListener('abort', () => resolve({ cancelled: true }), { once: true }));
   function diagnostic(error, operation) {
@@ -113,9 +118,14 @@ function createRuntimeHostController(options, driver) {
       if (!next || typeof next.run !== 'function') throw new TypeError('Fabric boundary must implement run.');
       kernelBoundaries.set(metadata.kernelLane, next);
     }
-    return kernelBoundaries.get(metadata.kernelLane).run(operation, action, metadata);
+    const binding = graph?.snapshot();
+    return kernelBoundaries.get(metadata.kernelLane).run(operation, action, binding
+      ? { ...metadata, kernelResourceId: binding.resourceId, owningSurfaceId: binding.surfaceId, owningSurfaceGeneration: binding.surfaceGeneration } : metadata);
   };
-  const kernel = driver.kernel === true ? createKernelWorkScope(options.kernelWork, { ...ids, framework }, (error,name) => diagnostic(error,`work:${name}`), runKernelBoundary, name => permit(`work:${name}`,props), () => { if (!disposed) api.unmount('kernel-cancelled'); }) : null;
+  const kernel = driver.kernel === true ? createKernelWorkScope(options.kernelWork, { ...ids, framework,
+    ...(graphEnabled ? { kernelResourceId: `xtension:${options.kernelWork?.scope}`, owningSurfaceId: options.resourceGraph?.surfaceId } : {}) },
+    (error,name) => diagnostic(error,`work:${name}`), runKernelBoundary,
+    name => { graph?.assertCurrent(); permit(`work:${name}`,props); }, () => { if (!disposed) api.unmount('kernel-cancelled'); }) : null;
   function result(operation, status = 'ok', details = {}, errors = []) {
     const lifecycleRecord = createLifecycleRecord(operation, status === 'policy-blocked' ? 'surface:blocked' : status === 'failed' || status === 'degraded' ? 'surface:error' : null,
       { ...clockOptions, status, phase, sequence: ++sequence, payload: details, diagnostics: errors });
@@ -125,7 +135,7 @@ function createRuntimeHostController(options, driver) {
   }
   function run(operation, action) {
     const invoke = () => boundary ? boundary.run(operation, action) : action();
-    const work = () => disposed && kernel ? result(operation, 'skipped', { reason: 'disposed-before-kernel-delivery' }) : kernel ? kernel.runLifecycle(operation, action) : invoke();
+    const work = () => disposed && kernel ? result(operation, 'skipped', { reason: 'disposed-before-kernel-delivery' }) : kernel ? kernel.runLifecycle(operation, () => { graph?.assertCurrent(); return action(); }) : invoke();
     const promise = queue.then(work).catch(async (error) => {
       if (kernel && disposed && error.code !== 'rmt.scheduler.panic_blocked') return result(operation, 'skipped', { reason: 'kernel-lifetime-ended' });
       const entry = diagnostic(error, operation);
@@ -184,9 +194,45 @@ function createRuntimeHostController(options, driver) {
     resources.beginShutdown();
     return teardownPromise;
   }
+  function resumeHost(reason, next, fromSurface = false, expectedEpoch = surfaceEpoch) {
+    return run('resume', async () => {
+      if (disposed || !instance) return result('resume', 'failed', { reason: 'not-mounted' });
+      if (fromSurface && (surfaceBlocked || suspended || expectedEpoch !== surfaceEpoch)) return result('resume', 'skipped', { reason: 'surface-resume-superseded' });
+      if (!suspended && !surfaceNeedsResume) return result('resume', 'skipped');
+      if (next) permit('update', next);
+      permit('resume', next || props);
+      if (surfaceBlocked) {
+        if (next) props = next;
+        suspended = false;
+        return result('resume', 'ok', { reason: String(reason), deferred: 'surface-inactive' });
+      }
+      const token = generation, epoch = surfaceEpoch;
+      kernel?.beginResume();
+      try {
+        if (next || surfaceNeedsResume) {
+          const before = diagnostics.length, replacement = next || props;
+          const rendered = await Promise.race([Promise.resolve(instance.render(replacement)).then(() => ({ done: true })), cancelled]);
+          if (fatalError) throw fatalError;
+          if (rendered.cancelled || disposed) { await teardown(); return result('resume', 'skipped', { reason: 'disposed-during-resume' }); }
+          if (diagnostics.length !== before) throw new Error('Framework render failed.');
+          props = replacement;
+        }
+        if (surfaceBlocked || epoch !== surfaceEpoch) return result('resume', 'skipped', { reason: 'surface-resume-superseded' });
+        if (!startResources(token)) { await teardown(); return result('resume', 'skipped', { reason: 'disposed-during-resume' }); }
+        if (surfaceBlocked || epoch !== surfaceEpoch) return result('resume', 'skipped', { reason: 'surface-resume-superseded' });
+        suspended = false; surfaceNeedsResume = false; phase = 'active';
+        kernel?.activate();
+        return result('resume', 'ok', { reason: String(reason) });
+      } catch (error) {
+        const entry = diagnostic(error, 'resume');
+        await api.unmount('resume-failure');
+        return result('resume', 'failed', {}, [entry]);
+      }
+    });
+  }
   const api = {
-    schema: kernel ? KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA : RUNTIME_HOST_CONTROLLER_SCHEMA,
-    apiVersion: kernel ? '3.0.0' : '2.0.0', adapterSchema: `xtend.xtensions.${framework}-runtime-adapter.v${kernel ? 3 : 2}`, framework,
+    schema: graphEnabled ? GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA : kernel ? KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA : RUNTIME_HOST_CONTROLLER_SCHEMA,
+    apiVersion: graphEnabled ? '4.0.0' : kernel ? '3.0.0' : '2.0.0', adapterSchema: `xtend.xtensions.${framework}-runtime-adapter.v${graphEnabled ? 4 : kernel ? 3 : 2}`, framework,
     mount(target = container, initialProps = {}, mountOptions = {}) {
       if (disposed) return Promise.resolve(result('mount', 'failed', { reason: 'already-destroyed' }));
       if (target !== container) return Promise.resolve(result('mount', 'policy-blocked', { reason: 'host-container-mismatch' }));
@@ -200,6 +246,7 @@ function createRuntimeHostController(options, driver) {
         if (!boundaryPolicy.ok) throw Object.assign(new Error('Runtime provider boundary rejected.'), { diagnostics: boundaryPolicy.diagnostics });
         nextProps = dataProps(initialProps);
         permit('mount', nextProps);
+        graph?.attach();
       } catch (error) { return Promise.resolve(result('mount', 'policy-blocked', {}, error.diagnostics || [diagnostic(error, 'mount')])); }
       owners.set(container, api);
       const token = ++generation;
@@ -228,10 +275,10 @@ function createRuntimeHostController(options, driver) {
           if (fatalError) throw fatalError;
           if (rendered.cancelled || disposed || generation !== token) { await teardown(); return result('mount', 'skipped', { reason: 'disposed-during-mount' }); }
           if (diagnostics.length !== before) throw new Error('Framework render failed.');
-          if (!startResources(token)) { await teardown(); return result('mount', 'skipped', { reason: 'disposed-during-mount' }); }
+          if (!surfaceBlocked && !startResources(token)) { await teardown(); return result('mount', 'skipped', { reason: 'disposed-during-mount' }); }
           props = nextProps;
-          phase = 'ready';
-          kernel?.activate();
+          phase = surfaceBlocked ? 'suspended' : 'ready';
+          if (!surfaceBlocked) kernel?.activate();
           return result('mount');
         } catch (error) {
           const entry = diagnostic(error, 'mount');
@@ -254,13 +301,14 @@ function createRuntimeHostController(options, driver) {
       return run('update', async () => {
         if (disposed || !instance) return result('update', 'failed', { reason: 'not-mounted' });
         if (suspended) return result('update', 'skipped', { reason: 'suspended' });
+        if (surfaceBlocked) { props = next; return result('update', 'ok', { deferred: 'surface-inactive' }); }
         const before = diagnostics.length;
         try {
           const rendered = await Promise.race([Promise.resolve(instance.render(next)).then(() => ({ done: true })), cancelled]);
           if (fatalError) throw fatalError;
           if (rendered.cancelled || disposed) { await teardown(); return result('update', 'skipped', { reason: 'disposed-during-update' }); }
           if (diagnostics.length !== before) throw new Error('Framework render failed.');
-          props = next; phase = 'active'; return result('update');
+          props = next; phase = surfaceBlocked ? 'suspended' : 'active'; return result('update');
         } catch (error) {
           const entry = diagnostic(error, 'update');
           await api.unmount('update-failure');
@@ -288,32 +336,7 @@ function createRuntimeHostController(options, driver) {
         if (Object.keys(options).some((key) => key !== 'props')) throw new TypeError('Resume accepts only replacement props.');
         if (Object.hasOwn(options, 'props')) next = dataProps(options.props);
       } catch (error) { return Promise.resolve(result('resume', 'policy-blocked', {}, error.diagnostics || [diagnostic(error, 'resume')])); }
-      return run('resume', async () => {
-        if (disposed || !instance) return result('resume', 'failed', { reason: 'not-mounted' });
-        if (!suspended) return result('resume', 'skipped');
-        if (next) permit('update', next);
-        permit('resume', next || props);
-        const token = generation;
-        kernel?.beginResume();
-        try {
-          if (next) {
-            const before = diagnostics.length;
-            const rendered = await Promise.race([Promise.resolve(instance.render(next)).then(() => ({ done: true })), cancelled]);
-            if (fatalError) throw fatalError;
-            if (rendered.cancelled || disposed) { await teardown(); return result('resume', 'skipped', { reason: 'disposed-during-resume' }); }
-            if (diagnostics.length !== before) throw new Error('Framework render failed.');
-            props = next;
-          }
-          if (!startResources(token)) { await teardown(); return result('resume', 'skipped', { reason: 'disposed-during-resume' }); }
-          suspended = false; phase = 'active';
-          kernel?.activate();
-          return result('resume', 'ok', { reason: String(reason) });
-        } catch (error) {
-          const entry = diagnostic(error, 'resume');
-          await api.unmount('resume-failure');
-          return result('resume', 'failed', {}, [entry]);
-        }
-      });
+      return resumeHost(reason, next);
     },
     reportError(error, metadata = {}) {
       if (disposed) return result('reportError', 'skipped', { reason: 'already-destroyed' });
@@ -326,6 +349,7 @@ function createRuntimeHostController(options, driver) {
     unmount(reason = 'host-dispose') {
       if (disposal) return disposal;
       disposed = true; generation += 1; phase = 'destroying';
+      try { graph?.dispose(reason); } catch (error) { diagnostic(error, 'cleanup:resource-graph'); }
       kernel?.dispose();
       // Never queue terminal cleanup behind an unresolved render or loader.
       disposal = Promise.resolve().then(() => {
@@ -347,7 +371,7 @@ function createRuntimeHostController(options, driver) {
     emit(event = {}) {
       try {
         inspectData(event);
-        if (disposed || suspended || !instance || !['ready', 'active'].includes(phase)) throw new Error('Events require an active mounted instance.');
+        if (disposed || suspended || surfaceBlocked || !instance || !['ready', 'active'].includes(phase)) throw new Error('Events require an active mounted instance.');
         if (Object.keys(event).some((key) => !['type', 'name', 'payload'].includes(key))) throw new Error('Event input cannot supply policy or source authority.');
         const name = event.type || event.name;
         if (!Object.hasOwn(events, name)) throw new Error('Event is not granted by the host.');
@@ -361,14 +385,44 @@ function createRuntimeHostController(options, driver) {
         return clone(normalized);
       } catch (error) { return { ok: false, diagnostics: error.diagnostics || [diagnostic(error, 'emit')] }; }
     },
-    snapshot() { return clone({ ...ids, framework, phase, mounted: !!instance, suspended, disposed, props,
-      runtimeVersions, resources: resources.snapshot(), diagnostics, ...(kernel ? { capabilities: kernel.capabilities, kernelWork: kernel.snapshot() } : {}) }); },
+    snapshot() { return clone({ ...ids, framework, phase, mounted: !!instance, suspended: suspended || surfaceBlocked, disposed, props,
+      runtimeVersions, resources: resources.snapshot(), diagnostics, ...(kernel ? { capabilities: kernel.capabilities, kernelWork: kernel.snapshot() } : {}), ...(graph ? { resourceGraph: graph.snapshot() } : {}) }); },
     getLifecycleRecords: () => clone(records),
     getCleanupRecords: () => clone(cleanupRecords),
     getEventRecords: () => clone(eventRecords)
   };
   if (kernel) api.getCapabilities = () => kernel.capabilities;
+  if (graphEnabled) api.whenIdle = async () => {
+    let pending;
+    do { pending = queue; await pending; } while (queue !== pending);
+    if (disposal) await disposal;
+    return api.snapshot();
+  };
+  if (graphEnabled) graph = createResourceGraphBinding(options.resourceGraph, options.kernelWork, container, { ...ids, framework }, {
+    destroy: reason => { if (!disposed) api.unmount(reason); },
+    pause() {
+      if (disposed) return;
+      surfaceBlocked = true; surfaceNeedsResume = true; surfaceEpoch++;
+      kernel.suspend();
+      let stopped = false;
+      const stop = () => { if (!stopped) { stopped = true; resources.stop(); } };
+      try {
+        const projection = boundary.run('suspend', stop, { source: 'surface-resource-graph', ...graph.snapshot() });
+        // Instrumentation must never defer the synchronous Surface revocation.
+        stop();
+        Promise.resolve(projection).catch(error => diagnostic(error, 'surface-suspend'));
+      } catch (error) { stop(); diagnostic(error, 'surface-suspend'); }
+      // A partially delivered mount cannot establish a new root after Surface exit.
+      if (pendingMount) { api.unmount('surface-left-during-mount'); return; }
+      if (instance) phase = 'suspended';
+    },
+    resume(reason) {
+      if (disposed) return;
+      surfaceBlocked = false; surfaceEpoch++;
+      if (instance && !pendingMount && !suspended && surfaceNeedsResume) resumeHost(reason, undefined, true).catch(error => diagnostic(error, 'surface-resume'));
+    }
+  });
   const facade = Object.freeze({ emit: api.emit, resources: Object.freeze({ register: resources.register }), ...(kernel ? { work: kernel.work } : {}) });
   return Object.freeze(api);
 }
-module.exports = { RUNTIME_HOST_CONTROLLER_SCHEMA, KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA, createRuntimeHostController };
+module.exports = { RUNTIME_HOST_CONTROLLER_SCHEMA, KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA, GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA, createRuntimeHostController };

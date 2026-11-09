@@ -22,7 +22,7 @@ function runXTensionsRuntimeGate({ rootDir, browser = false } = {}) {
     const output = npmCommand(['run',browser ? 'test:xtensions-runtime:browser' : 'test:xtensions-runtime','--','--report',artifact],{cwd:rootDir,env,encoding:'utf8',timeout:90000,maxBuffer:16*1024*1024});
     console.log(output);
     const report = JSON.parse(fs.readFileSync(artifact,'utf8'));
-    context.assert(report.ok === true && report.failed.length === 0 && report.passed.length >= 184,'Complete real adapter acceptance, including compiled A02.2 state bindings and retained safeguards, passes');
+    context.assert(report.ok === true && report.failed.length === 0 && report.passed.length >= 216,'Complete real adapter acceptance, including compiled A02.2 state bindings and retained safeguards, passes');
     context.assert(report.passed.filter((name) => name.startsWith('A02:')).length >= 12,'A02 executes the two-instance, typed intent and lifecycle reference in the actual environment');
     context.assert(report.passed.filter((name) => name.startsWith('A02.2:')).length >= 9,'Compiled Classic/Maraca state binding reference and lifecycle guards execute in the actual environment');
     context.assert(report.passed.filter((name) => name.startsWith('A02.3:')).length >= 11,'Conditional host lifetimes, cleanup ordering, stale intents and failure guards execute in the actual environment');
@@ -30,6 +30,7 @@ function runXTensionsRuntimeGate({ rootDir, browser = false } = {}) {
     context.assert(report.passed.filter(name => name.startsWith('A02.5:')).length >= 4,'URL contract reference verifies atomic Model/State/React delivery, deferred/rejected input and History ownership');
     context.assert(report.passed.filter(name => name.startsWith('A02.5.2:')).length >= 17,'Real route ownership, Maraca restore, Back/Forward, reset, deferred keys and cancellation are mandatory');
     context.assert(report.passed.filter(name => name.startsWith('A03.1:')).length >= 26,'Real Kernel queue/yield/cancellation and mandatory Fabric delivery execute for React/Vue and compiled Maraca hosts');
+    context.assert(report.passed.filter(name => name.startsWith('A03.2:')).length >= 32,'Real Surface and kernel resource ownership, synchronous revocation, retained props and keyed Maraca integration are mandatory');
     context.assert(report.schema === 'xtend.xtensions.runtime-acceptance-report.v2','Extended compiler evidence uses the new report version');
     context.assert(report.schema !== report.exports.legacyAcceptanceReportSchema,'Legacy acceptance reports cannot stand in for current feature evidence');
     context.assert(report.compilerChecks?.ok === true && report.compilerChecks.checks >= 88,'Source/AST/transport parity, explicit versions and negative compiler artifact guards are mandatory');
@@ -39,7 +40,7 @@ function runXTensionsRuntimeGate({ rootDir, browser = false } = {}) {
     context.assert(report.exports.legacySynchronousContracts && report.exports.declarationExportParity && report.exports.browserConditionParity,'Legacy, declaration and condition contracts pass');
     if (browser) context.assert(Boolean(report.browser) && report.exports.actualBrowserParity && report.pageErrors.length === 0,'Real browser export parity and page errors are verified');
     if (!browser) {
-      const typing=spawnSync(process.execPath,[path.join(rootDir,'node_modules/typescript/bin/tsc'),'--strict','--noEmit','--skipLibCheck','--lib','es2022,dom','--module','node16','--moduleResolution','node16','tests/types/xtensions_runtime_adapters.ts','tests/types/xtensions_compiled_bindings.mts','tests/types/xtensions_url_history_contract.mts','tests/types/xtensions_kernel_runtime.mts'],{cwd:rootDir,encoding:'utf8',timeout:60000});
+      const typing=spawnSync(process.execPath,[path.join(rootDir,'node_modules/typescript/bin/tsc'),'--strict','--noEmit','--skipLibCheck','--lib','es2022,dom','--module','node16','--moduleResolution','node16','tests/types/xtensions_runtime_adapters.ts','tests/types/xtensions_compiled_bindings.mts','tests/types/xtensions_url_history_contract.mts','tests/types/xtensions_kernel_runtime.mts','tests/types/xtensions_resource_graph.mts'],{cwd:rootDir,encoding:'utf8',timeout:60000});
       context.assert(!typing.error && typing.status===0,`Actual Runtime public declarations and Fabric consumer compile strictly: ${typing.stderr || typing.stdout || typing.error || ''}`);
     }
 

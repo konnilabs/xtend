@@ -1,6 +1,6 @@
 # A03 – Tatsächliche Orchestrierungsgranularität
 
-Stand: 2026-11-09. **A03.1 ist implementiert; A03 bleibt in Arbeit.** Dieser erste Abschnitt verbindet echte XTension-Hosts und ausdrücklich deklarierte kooperative Arbeit mit dem RMT-Microkernel. Fabric ist für diesen neuen Pfad verbindlich. RMTX und XTensions 2.0 bleiben für 0.9.0 `preparing`.
+Stand: 2026-11-09. **A03.1 und A03.2 sind implementiert; A03 bleibt in Arbeit.** Dieser erste Abschnitt verbindet echte XTension-Hosts und ausdrücklich deklarierte kooperative Arbeit mit dem RMT-Microkernel. Fabric ist für diesen neuen Pfad verbindlich. RMTX und XTensions 2.0 bleiben für 0.9.0 `preparing`.
 
 ## 1. Ausführungsweg und Eigentümer
 
@@ -81,7 +81,7 @@ Die realen React-/Vue-Tests zeigen ausdrücklich, dass frameworklokaler State au
 
 `snapshot().kernelWork` verwendet `xtend.xtensions.kernel-work-scope.v1`: Phase, Generation, noch gehaltene Jobs und die letzten 32 abgeschlossenen Job-Datensätze. Aufträge anderer Hosts oder des gemeinsamen Anwendungskernels werden nicht gecancelt. Der Scheduler bleibt Eigentum des Anwendungshosts.
 
-## 4. Versionen und A02-Anbindung
+## 4. A03.1-Verträge und aktuelle A02-Anbindung
 
 | Vertrag | Stand |
 | --- | --- |
@@ -89,21 +89,21 @@ Die realen React-/Vue-Tests zeigen ausdrücklich, dass frameworklokaler State au
 | Neue Kernel-Factories | API `3.0.0`, Host `xtend.xtensions.runtime-host-controller.v3`, Adapter `xtend.xtensions.react-runtime-adapter.v3` beziehungsweise `xtend.xtensions.vue-runtime-adapter.v3` |
 | Capability-Bericht | Neues Schema `xtend.xtensions.runtime-capabilities.v1` |
 | Scope-Aufzeichnung | Neues Schema `xtend.xtensions.kernel-work-scope.v1` |
-| Bindungs-Registry | API `2.1.0`: akzeptiert jetzt versionstreue v2- oder v3-Host-Ports |
+| Bindungs-Registry | API `2.2.0`: akzeptiert versionstreue v2-, v3- und v4-Host-Ports |
 | Bindungsdaten / Sidecar / Compiler / Classic-AST | Unveränderte Datenformen v2 / v3 / API 4.0.0 / 1.0.0 |
 
-Die bisherigen Factory-Namen erzeugen weiterhin ausdrücklich direkte v2-Hosts; die neuen Namen verlangen die v3-Ports. Der Paket-Export-Lock bleibt bei 212 geordneten Einstiegsschlüsseln; die Value-Exports der beiden bestehenden Runtime-Adaptermodule werden additiv erweitert. TypeScript deklariert die neue Factory und den neuen v3-Host separat. Maracas bestehender Factory-Port akzeptiert nun den kompatiblen zusätzlichen Host-Typ über Registry API 2.1; es gibt keine neuen serialisierten Maraca-Planfelder oder Runtime-Mitglieder.
+Die bisherigen Factory-Namen erzeugen weiterhin ausdrücklich direkte v2-Hosts; die neuen Namen verlangen die v3-Ports. Der Paket-Export-Lock bleibt bei 212 geordneten Einstiegsschlüsseln; die Value-Exports der beiden bestehenden Runtime-Adaptermodule werden additiv erweitert. TypeScript deklariert die neue Factory und den neuen v3-Host separat. Maracas bestehender Factory-Port akzeptiert nun den kompatiblen zusätzlichen Host-Typ über Registry API 2.2; es gibt keine neuen serialisierten Maraca-Planfelder oder Runtime-Mitglieder.
 
 Der Integrationsnachweis verwendet das tatsächlich kompilierte A02.4-Programm: drei keyed React-Hosts am gemeinsamen Maraca-Scheduler, dieselben Fabric-/Kernel-Scopes, echte Actions und Model-/XTend-State-/Props-Auslieferung. Entfernen eines Schlüssels cancelt dessen Arbeit. Ein später wieder hinzugefügter gleicher Schlüssel erhält einen neuen Host und kann alte Callbacks nicht übernehmen. Die Auswahl der v3-Factory und das Setzen ihrer Scope-/Grant-Daten erfolgen bisher ausdrücklich im Anwendungshost.
 
-## 5. Verbindliche Nachweise
+## 5. A03.1-Nachweise
 
 [`inspect.cjs`](inspect.cjs) führt 20 Framework-unabhängige Vertragsprüfungen mit echtem RMT-Scheduler und Fabric aus. Er prüft Grants, Versionen, tatsächliches Yielding, Job-/Fabric-Korrelation sowie Suspend-/Dispose-Fences und bindet Quellen/Typen an [SHA-256-Nachweise](evidence.json). `frameworkExecutionInPreparationCheck: false` trennt diese Prüfung von der eigentlichen Framework-Abnahme. Der blockierende Releasevorbereitungs-Gate führt ihn mit `--check` aus.
 
-Die Runtime-Gates verlangen zusätzlich **26 A03.1-Fälle** in jsdom und Chromium: React und Vue, echte Queue-Zulassung vor Fabric, asynchrone Mount-/Props-Abschlüsse, freigegebene Arbeit, höhere Priorität beim Yield, Scope-/Policy-Prüfungen, Cancellation, Panic-/Cleanup, autonome Framework-Grenzen und kompilierte Maraca-Hosts. Insgesamt sind **184 Akzeptanzfälle pro Umgebung** sowie weiterhin 88 Compilerprüfungen erforderlich. Gepackte Root-/Compiler-Consumer führen beide v3-Factories einschließlich ihrer privaten Scope-Abhängigkeiten aus; Node-/Browser-Exports und strikte Typen werden geprüft.
+Die A03.1-Abnahme umfasst **26 A03.1-Fälle** in jsdom und Chromium: React und Vue, echte Queue-Zulassung vor Fabric, asynchrone Mount-/Props-Abschlüsse, freigegebene Arbeit, höhere Priorität beim Yield, Scope-/Policy-Prüfungen, Cancellation, Panic-/Cleanup, autonome Framework-Grenzen und kompilierte Maraca-Hosts. Dieser Abschnitt liefert **184 Basisfälle pro Umgebung** sowie 88 Compilerprüfungen. Der aktuelle Gesamtumfang mit A03.2 folgt in Abschnitt 6. Gepackte Root-/Compiler-Consumer führen beide v3-Factories einschließlich ihrer privaten Scope-Abhängigkeiten aus; Node-/Browser-Exports und strikte Typen werden geprüft.
 
-## 6. Nächste A03-Abschnitte
+## 6. A03.2 und nächste Abschnitte
 
-A03.1 liefert den ersten expliziten Kernel-/Fabric-Pfad. A03 bleibt offen für die systematische Anbindung konkreter Hosts an den Surface-/Kernel-Ressourcengraphen, Druck-/Budgetstrategien und weitergehende Fähigkeitsverhandlung pro Adapter. Insbesondere gibt es bisher kein implizites Coalescing, keine automatische Wiederaufnahme abgebrochener Arbeit und keine Steuerung beliebiger Framework-Interna.
+A03.1 liefert den ersten expliziten Kernel-/Fabric-Pfad. [A03.2](resource-graph.md) verbindet konkrete Hosts mit dem Surface-/Kernel-Ressourcengraphen über den expliziten API-4.0.0-Overload und Registry 2.2.0. Der aktuelle Gesamt-Gate verlangt 216 Runtime-Fälle pro Umgebung, davon 32 für A03.2. A03 bleibt offen für Druck-/Budgetstrategien und weitergehende Fähigkeitsverhandlung pro Adapter. Insbesondere gibt es bisher kein implizites Coalescing, keine automatische Wiederaufnahme abgebrochener Arbeit und keine Steuerung beliebiger Framework-Interna.
 
 Automatische Manifest-/Provider-/Build-/Host-Verkettung folgt A04, SSR/Adoption A05 und RMTX-Syntax/DX A06. Dieser Entwicklungsnachweis ersetzt keine vollständige 0.9-Feature-Abnahme.

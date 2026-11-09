@@ -10,7 +10,7 @@
 | RMTX | Backend prepared; syntax and frontend pending | Parser/lowering, editor, mixed projects, browser/SSR |
 | XTensions 2.0 | State/Actions, conditional/repeated hosts and URL/history; kernel adapters started | Further kernel integration, provider/host chain and SSR/resume pending |
 
-A03.1 adds kernel adapter API 3.0.0 with mandatory Fabric boundaries. See the [contract and evidence](../../development/rmtx-a03/README.md). URL/history uses the router and Maraca: runtime v7, browser API 5.0.0, registry 2.1.0. Classic AST: 1.0.0.
+A03.2 adds Surface/kernel resource binding (host API 4.0.0) with mandatory Fabric. See the [contract and evidence](../../development/rmtx-a03/README.md). URL/history uses the router and Maraca: runtime v7, browser API 5.0.0, registry 2.2.0. Classic AST: 1.0.0.
 
 ## Release checks
 
