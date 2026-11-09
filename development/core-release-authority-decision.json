@@ -4,8 +4,8 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "1da87b406cc3fe1f4a5efc0e61e3c74ef118e722aa13911c64f948520fcfd7bc",
-  "sourceMembershipSha256": "9a5dc5c8856517f039f4ca485f0d50a87f2d138f0a2a54e4e5624e1ac3ed8ba7",
+  "inventorySha256": "31686f067c1c67ab1ac68dcb4f79faf275e47b2e878fb89ba3c8a61954b344b1",
+  "sourceMembershipSha256": "c107d62b72ac718bd579e54d2ca97016f5c87b0c02fbd83a3de68a8c2611b8dd",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
@@ -549,7 +549,7 @@
         },
         {
           "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
-          "sha256": "c507284390293a4f658d48c6772dfaef443d63c26b0dfd3310d87128b96ae4ad"
+          "sha256": "84c44f7c97a3b950361b3b565ce12aff8dfc111b1f568462287039ae765a1923"
         },
         {
           "path": "development/rmtx-a01/README.md",
@@ -573,7 +573,7 @@
         },
         {
           "path": "docs/generated/search/en.fulltext.json",
-          "sha256": "e8efcdb484039592b1c328a042a82bb543303d52c192c745817f6477d1469f4f"
+          "sha256": "1a1637bfaf28b6b30ec3342fa1c932e89e90b8de79d1e83ebe78bdbb9367aaea"
         },
         {
           "path": "package.json",
@@ -944,5 +944,35 @@
     "publicationGuardRetired": false,
     "acceptedForRelease": false,
     "freshCommittedCaptureRequired": true
+  },
+  "a025URLHistoryContractReview": {
+    "format": 1,
+    "date": "2026-11-09",
+    "status": "reviewed-unreleased-development-contract-reference",
+    "stage": "A02.5.1",
+    "contract": "development/rmtx-a02/url-history/README.md",
+    "apiVersion": "1.0.0",
+    "newSchemaIds": [
+      "xtend.xtensions.url-history-proposal.v1",
+      "xtend.xtensions.url-state-policy.v1",
+      "xtend.xtensions.url-state-restore-plan.v1",
+      "xtend.xtensions.url-state.v1"
+    ],
+    "scopedSchemaIds": [
+      "xtend.rmt.model-command-port.v1",
+      "xtend.xtensions.state-binding.v2",
+      "xtend.xtensions.url-history-proposal.v1",
+      "xtend.xtensions.url-state-policy.v1",
+      "xtend.xtensions.url-state-restore-plan.v1",
+      "xtend.xtensions.url-state.v1"
+    ],
+    "contractChecks": 70,
+    "runtimeCasesPerEnvironment": 141,
+    "compilerChecks": 88,
+    "productionIntegration": false,
+    "acceptedForRelease": false,
+    "publicationGuardRetired": false,
+    "freshCommittedCaptureRequired": true,
+    "rationale": "A02.5.1 scoped URL/History contract review: development-only v1 policy, state, restore-plan and history-proposal, plus non-authoritative reference/test observations and source positions. No production contract changes; existing authority/released hashes are preserved. Router/Maraca integration and feature/publication acceptance remain pending. See development/rmtx-a02/url-history/README.md."
   }
 }

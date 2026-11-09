@@ -17648,6 +17648,78 @@
       "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
       "recommendation": "Confirm that the variants are intentional before adding another shape.",
       "baseline": "scoped-a024-repeated-hosts"
+    },
+    {
+      "baseline": "scoped-a025-url-history-contract",
+      "baselineAccepted": true,
+      "confidence": "medium",
+      "origin": "scanner",
+      "rationale": "Static analysis observes 3 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A02.5.1 scoped URL/History contract review: development-only v1 policy, state, restore-plan and history-proposal, plus non-authoritative reference/test observations and source positions. No production contract changes; existing authority/released hashes are preserved. Router/Maraca integration and feature/publication acceptance remain pending. See development/rmtx-a02/url-history/README.md."
+      },
+      "reviewId": "polymorphic-48d8c58255a9",
+      "schemaIds": [
+        "xtend.xtensions.url-state-policy.v1"
+      ],
+      "status": "reviewed-distinct-observations",
+      "type": "same-id-multiple-shapes"
+    },
+    {
+      "baseline": "scoped-a025-url-history-contract",
+      "baselineAccepted": true,
+      "confidence": "medium",
+      "origin": "scanner",
+      "rationale": "Static analysis observes 3 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A02.5.1 scoped URL/History contract review: development-only v1 policy, state, restore-plan and history-proposal, plus non-authoritative reference/test observations and source positions. No production contract changes; existing authority/released hashes are preserved. Router/Maraca integration and feature/publication acceptance remain pending. See development/rmtx-a02/url-history/README.md."
+      },
+      "reviewId": "polymorphic-6404b0b5cb9a",
+      "schemaIds": [
+        "xtend.xtensions.url-history-proposal.v1"
+      ],
+      "status": "reviewed-distinct-observations",
+      "type": "same-id-multiple-shapes"
+    },
+    {
+      "baseline": "scoped-a025-url-history-contract",
+      "baselineAccepted": true,
+      "confidence": "medium",
+      "origin": "scanner",
+      "rationale": "Static analysis observes 3 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A02.5.1 scoped URL/History contract review: development-only v1 policy, state, restore-plan and history-proposal, plus non-authoritative reference/test observations and source positions. No production contract changes; existing authority/released hashes are preserved. Router/Maraca integration and feature/publication acceptance remain pending. See development/rmtx-a02/url-history/README.md."
+      },
+      "reviewId": "polymorphic-a50492392c35",
+      "schemaIds": [
+        "xtend.xtensions.url-state-restore-plan.v1"
+      ],
+      "status": "reviewed-distinct-observations",
+      "type": "same-id-multiple-shapes"
+    },
+    {
+      "baseline": "scoped-a025-url-history-contract",
+      "baselineAccepted": true,
+      "confidence": "medium",
+      "origin": "scanner",
+      "rationale": "Static analysis observes 6 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A02.5.1 scoped URL/History contract review: development-only v1 policy, state, restore-plan and history-proposal, plus non-authoritative reference/test observations and source positions. No production contract changes; existing authority/released hashes are preserved. Router/Maraca integration and feature/publication acceptance remain pending. See development/rmtx-a02/url-history/README.md."
+      },
+      "reviewId": "polymorphic-c24c54d50f0f",
+      "schemaIds": [
+        "xtend.xtensions.url-state.v1"
+      ],
+      "status": "reviewed-distinct-observations",
+      "type": "same-id-multiple-shapes"
     }
   ],
   "entries": [
@@ -678510,8 +678582,9 @@
           "sha256:1dcf9cfe984a48c11ac0deee2f8a2143e9726c9b4cb34fd7ccde2699e9dfbe7a"
         ],
         "mode": "single",
-        "rationale": "One statically comparable shape is accepted by the initial repository audit.",
-        "releasedFingerprintSetHash": "sha256:5f4fdd0a6b52613cdae7c3f26406ac31bf7fb5b0dac583eb787a7b3c80e1b467"
+        "rationale": "A02.5.1 scoped URL/History contract review: development-only v1 policy, state, restore-plan and history-proposal, plus non-authoritative reference/test observations and source positions. No production contract changes; existing authority/released hashes are preserved. Router/Maraca integration and feature/publication acceptance remain pending. See development/rmtx-a02/url-history/README.md.",
+        "releasedFingerprintSetHash": "sha256:5f4fdd0a6b52613cdae7c3f26406ac31bf7fb5b0dac583eb787a7b3c80e1b467",
+        "decision": "reviewed-a025-url-history-contract"
       },
       "status": "active",
       "usages": [
@@ -678520,7 +678593,9 @@
           "role": "documentation",
           "visibility": "docs",
           "sourcePaths": [
-            "development/rmtx-a01/inventory.json"
+            "development/rmtx-a01/inventory.json",
+            "development/rmtx-a02/url-history/reference.d.ts",
+            "development/rmtx-a02/url-history/reference.js"
           ],
           "interfaceReferences": [
             {
@@ -772966,7 +773041,7 @@
           },
           {
             "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
-            "sha256": "c507284390293a4f658d48c6772dfaef443d63c26b0dfd3310d87128b96ae4ad"
+            "sha256": "84c44f7c97a3b950361b3b565ce12aff8dfc111b1f568462287039ae765a1923"
           },
           {
             "path": "development/rmtx-a01/README.md",
@@ -772990,7 +773065,7 @@
           },
           {
             "path": "docs/generated/search/en.fulltext.json",
-            "sha256": "e8efcdb484039592b1c328a042a82bb543303d52c192c745817f6477d1469f4f"
+            "sha256": "1a1637bfaf28b6b30ec3342fa1c932e89e90b8de79d1e83ebe78bdbb9367aaea"
           },
           {
             "path": "package.json",
@@ -954678,6 +954753,116 @@
           "authoritative": false
         },
         {
+          "hash": "sha256:22989e89d053b65bd620937dff2beec511ace686387357006eda589576e779bb",
+          "shape": {
+            "fieldCount": 3,
+            "fields": [
+              "address",
+              "intents",
+              "props"
+            ],
+            "signature": "address:{declarationId:string,documentId:{\"unresolved\":\"b.documentId\"},keys:array<number|string>}|intents:{}|props:{query:{path:array<>,state:string,type:string}}",
+            "normalized": {
+              "fields": {
+                "address": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "declarationId": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "documentId": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "b.documentId"
+                        }
+                      },
+                      "keys": {
+                        "optional": false,
+                        "type": {
+                          "array": [
+                            "number",
+                            "string"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                },
+                "intents": {
+                  "optional": false,
+                  "type": {
+                    "fields": {}
+                  }
+                },
+                "props": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "query": {
+                        "optional": false,
+                        "type": {
+                          "fields": {
+                            "path": {
+                              "optional": false,
+                              "type": {
+                                "array": []
+                              }
+                            },
+                            "state": {
+                              "optional": false,
+                              "type": "string"
+                            },
+                            "type": {
+                              "optional": false,
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "tests/xtensions/url-history-contract-checks.cjs"
+          ],
+          "symbols": [
+            "runURLHistoryContractChecks"
+          ],
+          "evidence": [
+            {
+              "type": "test",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "tests/xtensions/url-history-contract-checks.cjs",
+              "symbol": "runURLHistoryContractChecks"
+            }
+          ],
+          "evidenceTypes": [
+            "test"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
+          "authoritative": false,
+          "completeness": "complete",
+          "evidence": [
+            {
+              "authoritative": false,
+              "completeness": "complete",
+              "path": "development/rmtx-a02/repeated-bindings.v3.json",
+              "symbol": "/bindings/0/binding",
+              "type": "docs"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
+          ],
           "hash": "sha256:c867b2b779ee938a798b982fab008b7f01d5178af850b090005b7af4e3e9eca5",
           "shape": {
             "fieldCount": 3,
@@ -954686,7 +954871,6 @@
               "intents",
               "props"
             ],
-            "signature": "address:{declarationId:string,documentId:string,keys:array<>}|intents:{change:{command:string,fields:{query:{type:string}},keyFields:{filterId:{index:number,type:string},groupId:{index:number,type:string}},payloadSchema:string}}|props:{activeId:{nullable:boolean,path:array<string|{repeat:number}>,state:string,type:string},query:{path:array<string|{repeat:number}>,state:string,type:string}}",
             "normalized": {
               "fields": {
                 "address": {
@@ -954861,40 +955045,28 @@
                   }
                 }
               }
-            }
+            },
+            "signature": "address:{declarationId:string,documentId:string,keys:array<>}|intents:{change:{command:string,fields:{query:{type:string}},keyFields:{filterId:{index:number,type:string},groupId:{index:number,type:string}},payloadSchema:string}}|props:{activeId:{nullable:boolean,path:array<string|{repeat:number}>,state:string,type:string},query:{path:array<string|{repeat:number}>,state:string,type:string}}"
           },
           "sourcePaths": [
             "development/rmtx-a02/repeated-bindings.v3.json"
           ],
           "symbols": [
             "/bindings/0/binding"
-          ],
-          "evidence": [
-            {
-              "type": "docs",
-              "completeness": "complete",
-              "authoritative": false,
-              "path": "development/rmtx-a02/repeated-bindings.v3.json",
-              "symbol": "/bindings/0/binding"
-            }
-          ],
-          "evidenceTypes": [
-            "docs"
-          ],
-          "completeness": "complete",
-          "authoritative": false
+          ]
         }
       ],
       "shapePolicy": {
         "acceptedFingerprints": [
           "sha256:104a1ef527bf1ee3f10b97321626453d8f58d97a20bade17aad3a4bd5eada703",
           "sha256:216978edcc012d3489808fe11b50d50c342c67d7b84e4deacd0168d118a48ba4",
+          "sha256:22989e89d053b65bd620937dff2beec511ace686387357006eda589576e779bb",
           "sha256:c867b2b779ee938a798b982fab008b7f01d5178af850b090005b7af4e3e9eca5"
         ],
         "authoritativeFingerprints": [],
-        "decision": "reviewed-a024-repeated-hosts",
+        "decision": "reviewed-a025-url-history-contract",
         "mode": "polymorphic",
-        "rationale": "Scoped A02.4 review: nested repeated hosts and keyed bindings use new major schemas; legacy input shapes stay closed, every pre-existing authority and release hash stays unchanged. Other differences are generated mirrors, archived declarations or non-authoritative reference observations. See development/rmtx-a02/README.md sections 8-10.",
+        "rationale": "A02.5.1 scoped URL/History contract review: development-only v1 policy, state, restore-plan and history-proposal, plus non-authoritative reference/test observations and source positions. No production contract changes; existing authority/released hashes are preserved. Router/Maraca integration and feature/publication acceptance remain pending. See development/rmtx-a02/url-history/README.md.",
         "releasedFingerprintSetHash": null
       },
       "status": "active",
@@ -954932,61 +955104,91 @@
           ]
         },
         {
-          "application": "XTensions",
-          "role": "definition",
-          "visibility": "internal",
+          "application": "XTend Tests: Xtensions",
+          "role": "producer",
+          "visibility": "test",
           "sourcePaths": [
-            "tools/xtensions/state-binding-contract.js",
-            "tools/xtensions/state-binding.d.ts"
+            "tests/xtensions/url-history-contract-checks.cjs"
           ],
           "interfaceReferences": [
             {
-              "type": "package-export",
-              "path": "tools/xtensions/state-binding.d.ts",
-              "module": "@ccslabs/xtend-compiler/xtensions/state-binding"
-            },
-            {
-              "type": "package-export",
-              "module": "@ccslabs/xtend/xtensions/state-binding",
-              "path": "tools/xtensions/state-binding.d.ts"
-            },
-            {
               "type": "symbol",
-              "path": "tools/xtensions/state-binding-contract.js",
-              "symbol": "XTENSION_STATE_BINDING_SCHEMA"
-            },
+              "path": "tests/xtensions/url-history-contract-checks.cjs",
+              "symbol": "runURLHistoryContractChecks"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Xtensions",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/xtensions/url-history-contract-checks.cjs"
+          ],
+          "interfaceReferences": [
             {
-              "type": "symbol",
-              "path": "tools/xtensions/state-binding.d.ts",
-              "symbol": "XTENSION_STATE_BINDING_SCHEMA"
-            },
-            {
-              "type": "symbol",
-              "path": "tools/xtensions/state-binding.d.ts",
-              "symbol": "XTensionKeyedStateBinding"
+              "type": "repo-symbol",
+              "path": "tests/xtensions/url-history-contract-checks.cjs",
+              "symbol": null
             }
           ]
         },
         {
           "application": "XTensions",
+          "interfaceReferences": [
+            {
+              "module": "@ccslabs/xtend-compiler/xtensions/state-binding",
+              "path": "tools/xtensions/state-binding.d.ts",
+              "type": "package-export"
+            },
+            {
+              "module": "@ccslabs/xtend/xtensions/state-binding",
+              "path": "tools/xtensions/state-binding.d.ts",
+              "type": "package-export"
+            },
+            {
+              "path": "tools/xtensions/state-binding-contract.js",
+              "symbol": "XTENSION_STATE_BINDING_SCHEMA",
+              "type": "symbol"
+            },
+            {
+              "path": "tools/xtensions/state-binding.d.ts",
+              "symbol": "XTENSION_STATE_BINDING_SCHEMA",
+              "type": "symbol"
+            },
+            {
+              "path": "tools/xtensions/state-binding.d.ts",
+              "symbol": "XTensionKeyedStateBinding",
+              "type": "symbol"
+            }
+          ],
+          "role": "definition",
+          "sourcePaths": [
+            "tools/xtensions/state-binding-contract.js",
+            "tools/xtensions/state-binding.d.ts"
+          ],
+          "visibility": "internal"
+        },
+        {
+          "application": "XTensions",
+          "interfaceReferences": [
+            {
+              "module": "@ccslabs/xtend-compiler/xtensions/state-binding",
+              "path": "tools/xtensions/state-binding.d.ts",
+              "type": "package-export"
+            },
+            {
+              "module": "@ccslabs/xtend/xtensions/state-binding",
+              "path": "tools/xtensions/state-binding.d.ts",
+              "type": "package-export"
+            }
+          ],
           "role": "reference",
-          "visibility": "internal",
           "sourcePaths": [
             "tools/xtensions/state-binding-artifact.js",
             "tools/xtensions/state-binding.d.ts"
           ],
-          "interfaceReferences": [
-            {
-              "type": "package-export",
-              "path": "tools/xtensions/state-binding.d.ts",
-              "module": "@ccslabs/xtend-compiler/xtensions/state-binding"
-            },
-            {
-              "type": "package-export",
-              "path": "tools/xtensions/state-binding.d.ts",
-              "module": "@ccslabs/xtend/xtensions/state-binding"
-            }
-          ]
+          "visibility": "internal"
         }
       ],
       "version": 2
@@ -964817,6 +965019,2942 @@
               "symbol": null
             }
           ]
+        }
+      ],
+      "version": 1
+    },
+    {
+      "aliasOf": null,
+      "canonicalDefinition": {
+        "definitionType": "json-schema",
+        "path": "development/rmtx-a02/url-history/history-proposal.v1.schema.json",
+        "role": "definition",
+        "symbol": null,
+        "visibility": "docs"
+      },
+      "description": "Unreleased A02.5.1 development URL/History contract and executable reference. Explicit public scalar grants, logical typed addresses, canonical default deltas and atomic restore/History phase rules. No production integration or feature/publication acceptance.",
+      "descriptionStatus": "curated",
+      "familyId": "xtend.xtensions.url-history-proposal",
+      "kinds": [
+        "json-schema"
+      ],
+      "lifecycle": {
+        "rollout": "planned",
+        "status": "active"
+      },
+      "releasedFingerprintSetHash": null,
+      "replacedBy": null,
+      "schemaId": "xtend.xtensions.url-history-proposal.v1",
+      "shapeFingerprints": [
+        {
+          "authoritative": false,
+          "completeness": "complete",
+          "evidence": [
+            {
+              "authoritative": false,
+              "completeness": "complete",
+              "path": "development/rmtx-a02/url-history/history-proposal.v1.schema.json",
+              "symbol": null,
+              "type": "docs"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
+          ],
+          "hash": "sha256:745e82fa27454b9359cf219abcc96810eb5a15bfd088a73773676d214adc1a13",
+          "shape": {
+            "fieldCount": 1,
+            "fields": [
+              "$formalSchema"
+            ],
+            "normalized": {
+              "fields": {
+                "$formalSchema": {
+                  "optional": false,
+                  "type": {
+                    "$schema": "http://json-schema.org/draft-07/schema#",
+                    "additionalProperties": false,
+                    "definitions": {
+                      "address": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "declarationId": {
+                            "$ref": "#/definitions/name"
+                          },
+                          "keys": {
+                            "items": {
+                              "$ref": "#/definitions/key"
+                            },
+                            "maxItems": 32,
+                            "type": "array"
+                          }
+                        },
+                        "required": [
+                          "declarationId",
+                          "keys"
+                        ],
+                        "type": "object"
+                      },
+                      "field": {
+                        "not": {
+                          "enum": [
+                            "__proto__",
+                            "constructor",
+                            "prototype"
+                          ]
+                        },
+                        "pattern": "^[A-Za-z][A-Za-z0-9._-]{0,63}$",
+                        "type": "string"
+                      },
+                      "key": {
+                        "anyOf": [
+                          {
+                            "maxLength": 256,
+                            "minLength": 1,
+                            "not": {
+                              "enum": [
+                                "__proto__",
+                                "constructor",
+                                "prototype"
+                              ]
+                            },
+                            "pattern": "^\\S(?:[\\s\\S]*\\S)?$",
+                            "type": "string"
+                          },
+                          {
+                            "maximum": 9007199254740991,
+                            "minimum": 0,
+                            "type": "integer"
+                          }
+                        ]
+                      },
+                      "name": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "not": {
+                          "enum": [
+                            "__proto__",
+                            "constructor",
+                            "prototype"
+                          ]
+                        },
+                        "pattern": "^\\S(?:[\\s\\S]*\\S)?$",
+                        "type": "string"
+                      },
+                      "scalar": {
+                        "type": [
+                          "boolean",
+                          "null",
+                          "number",
+                          "string"
+                        ]
+                      }
+                    },
+                    "properties": {
+                      "cause": {
+                        "enum": [
+                          "checkpoint",
+                          "commit",
+                          "initialize",
+                          "reset",
+                          "traverse"
+                        ]
+                      },
+                      "documentId": {
+                        "$ref": "#/definitions/name"
+                      },
+                      "mode": {
+                        "enum": [
+                          "none",
+                          "push",
+                          "replace"
+                        ]
+                      },
+                      "navigationId": {
+                        "$ref": "#/definitions/name"
+                      },
+                      "parameter": {
+                        "const": "xtend-state"
+                      },
+                      "policyId": {
+                        "$ref": "#/definitions/name"
+                      },
+                      "policyVersion": {
+                        "maximum": 2147483647,
+                        "minimum": 1,
+                        "type": "integer"
+                      },
+                      "schema": {
+                        "const": "xtend.xtensions.url-history-proposal.v1"
+                      },
+                      "token": {
+                        "anyOf": [
+                          {
+                            "maxLength": 8192,
+                            "pattern": "^1\\.[A-Za-z0-9_-]+$",
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "cause",
+                      "documentId",
+                      "mode",
+                      "navigationId",
+                      "parameter",
+                      "policyId",
+                      "policyVersion",
+                      "schema",
+                      "token"
+                    ],
+                    "type": "object"
+                  }
+                }
+              },
+              "formalSchema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "additionalProperties": false,
+                "definitions": {
+                  "address": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "declarationId": {
+                        "$ref": "#/definitions/name"
+                      },
+                      "keys": {
+                        "items": {
+                          "$ref": "#/definitions/key"
+                        },
+                        "maxItems": 32,
+                        "type": "array"
+                      }
+                    },
+                    "required": [
+                      "declarationId",
+                      "keys"
+                    ],
+                    "type": "object"
+                  },
+                  "field": {
+                    "not": {
+                      "enum": [
+                        "__proto__",
+                        "constructor",
+                        "prototype"
+                      ]
+                    },
+                    "pattern": "^[A-Za-z][A-Za-z0-9._-]{0,63}$",
+                    "type": "string"
+                  },
+                  "key": {
+                    "anyOf": [
+                      {
+                        "maxLength": 256,
+                        "minLength": 1,
+                        "not": {
+                          "enum": [
+                            "__proto__",
+                            "constructor",
+                            "prototype"
+                          ]
+                        },
+                        "pattern": "^\\S(?:[\\s\\S]*\\S)?$",
+                        "type": "string"
+                      },
+                      {
+                        "maximum": 9007199254740991,
+                        "minimum": 0,
+                        "type": "integer"
+                      }
+                    ]
+                  },
+                  "name": {
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "not": {
+                      "enum": [
+                        "__proto__",
+                        "constructor",
+                        "prototype"
+                      ]
+                    },
+                    "pattern": "^\\S(?:[\\s\\S]*\\S)?$",
+                    "type": "string"
+                  },
+                  "scalar": {
+                    "type": [
+                      "boolean",
+                      "null",
+                      "number",
+                      "string"
+                    ]
+                  }
+                },
+                "properties": {
+                  "cause": {
+                    "enum": [
+                      "checkpoint",
+                      "commit",
+                      "initialize",
+                      "reset",
+                      "traverse"
+                    ]
+                  },
+                  "documentId": {
+                    "$ref": "#/definitions/name"
+                  },
+                  "mode": {
+                    "enum": [
+                      "none",
+                      "push",
+                      "replace"
+                    ]
+                  },
+                  "navigationId": {
+                    "$ref": "#/definitions/name"
+                  },
+                  "parameter": {
+                    "const": "xtend-state"
+                  },
+                  "policyId": {
+                    "$ref": "#/definitions/name"
+                  },
+                  "policyVersion": {
+                    "maximum": 2147483647,
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "schema": {
+                    "const": "xtend.xtensions.url-history-proposal.v1"
+                  },
+                  "token": {
+                    "anyOf": [
+                      {
+                        "maxLength": 8192,
+                        "pattern": "^1\\.[A-Za-z0-9_-]+$",
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "cause",
+                  "documentId",
+                  "mode",
+                  "navigationId",
+                  "parameter",
+                  "policyId",
+                  "policyVersion",
+                  "schema",
+                  "token"
+                ],
+                "type": "object"
+              }
+            },
+            "signature": "$formalSchema:{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"additionalProperties\":false,\"definitions\":{\"address\":{\"additionalProperties\":false,\"properties\":{\"declarationId\":{\"$ref\":\"#/definitions/name\"},\"keys\":{\"items\":{\"$ref\":\"#/definitions/key\"},\"maxItems\":32,\"type\":\"array\"}},\"required\":[\"declarationId\",\"keys\"],\"type\":\"object\"},\"field\":{\"not\":{\"enum\":[\"__proto__\",\"constructor\",\"prototype\"]},\"pattern\":\"^[A-Za-z][A-Za-z0-9._-]{0,63}$\",\"type\":\"string\"},\"key\":{\"anyOf\":[{\"maxLength\":256,\"minLength\":1,\"not\":{\"enum\":[\"__proto__\",\"constructor\",\"prototype\"]},\"pattern\":\"^\\\\S(?:[\\\\s\\\\S]*\\\\S)?$\",\"type\":\"string\"},{\"maximum\":9007199254740991,\"minimum\":0,\"type\":\"integer\"}]},\"name\":{\"maxLength\":128,\"minLength\":1,\"not\":{\"enum\":[\"__proto__\",\"constructor\",\"prototype\"]},\"pattern\":\"^\\\\S(?:[\\\\s\\\\S]*\\\\S)?$\",\"type\":\"string\"},\"scalar\":{\"type\":[\"boolean\",\"null\",\"number\",\"string\"]}},\"properties\":{\"cause\":{\"enum\":[\"checkpoint\",\"commit\",\"initialize\",\"reset\",\"traverse\"]},\"documentId\":{\"$ref\":\"#/definitions/name\"},\"mode\":{\"enum\":[\"none\",\"push\",\"replace\"]},\"navigationId\":{\"$ref\":\"#/definitions/name\"},\"parameter\":{\"const\":\"xtend-state\"},\"policyId\":{\"$ref\":\"#/definitions/name\"},\"policyVersion\":{\"maximum\":2147483647,\"minimum\":1,\"type\":\"integer\"},\"schema\":{\"const\":\"xtend.xtensions.url-history-proposal.v1\"},\"token\":{\"anyOf\":[{\"maxLength\":8192,\"pattern\":\"^1\\\\.[A-Za-z0-9_-]+$\",\"type\":\"string\"},{\"type\":\"null\"}]}},\"required\":[\"cause\",\"documentId\",\"mode\",\"navigationId\",\"parameter\",\"policyId\",\"policyVersion\",\"schema\",\"token\"],\"type\":\"object\"}"
+          },
+          "sourcePaths": [
+            "development/rmtx-a02/url-history/history-proposal.v1.schema.json"
+          ],
+          "symbols": []
+        },
+        {
+          "authoritative": false,
+          "completeness": "complete",
+          "evidence": [
+            {
+              "authoritative": false,
+              "completeness": "complete",
+              "path": "development/rmtx-a02/url-history/reference.d.ts",
+              "symbol": "HistoryProposal",
+              "type": "docs"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
+          ],
+          "hash": "sha256:8e1a3f672d97ad9ec4a21c7a19957343880eb2b54e9b6f94ce8b1bcfbe70484f",
+          "shape": {
+            "fieldCount": 8,
+            "fields": [
+              "cause",
+              "documentId",
+              "mode",
+              "navigationId",
+              "parameter",
+              "policyId",
+              "policyVersion",
+              "token"
+            ],
+            "normalized": {
+              "fields": {
+                "cause": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "literal": "checkpoint"
+                      },
+                      {
+                        "literal": "commit"
+                      },
+                      {
+                        "literal": "initialize"
+                      },
+                      {
+                        "literal": "reset"
+                      },
+                      {
+                        "literal": "traverse"
+                      }
+                    ]
+                  }
+                },
+                "documentId": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "mode": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "literal": "none"
+                      },
+                      {
+                        "literal": "push"
+                      },
+                      {
+                        "literal": "replace"
+                      }
+                    ]
+                  }
+                },
+                "navigationId": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "parameter": {
+                  "optional": false,
+                  "type": {
+                    "literal": "xtend-state"
+                  }
+                },
+                "policyId": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "policyVersion": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "token": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      "string",
+                      {
+                        "literal": null
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "signature": "cause:union<literal<\"checkpoint\">|literal<\"commit\">|literal<\"initialize\">|literal<\"reset\">|literal<\"traverse\">>|documentId:string|mode:union<literal<\"none\">|literal<\"push\">|literal<\"replace\">>|navigationId:string|parameter:literal<\"xtend-state\">|policyId:string|policyVersion:number|token:union<string|literal<null>>"
+          },
+          "sourcePaths": [
+            "development/rmtx-a02/url-history/reference.d.ts"
+          ],
+          "symbols": [
+            "HistoryProposal"
+          ]
+        },
+        {
+          "authoritative": false,
+          "completeness": "complete",
+          "evidence": [
+            {
+              "authoritative": false,
+              "completeness": "complete",
+              "path": "development/rmtx-a02/url-history/examples.v1.json",
+              "symbol": "/history",
+              "type": "docs"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
+          ],
+          "hash": "sha256:8fb04cb75ec78341bb4fd27637c212370a89b5017b642eac041a9ea9b33a2ac0",
+          "shape": {
+            "fieldCount": 8,
+            "fields": [
+              "cause",
+              "documentId",
+              "mode",
+              "navigationId",
+              "parameter",
+              "policyId",
+              "policyVersion",
+              "token"
+            ],
+            "normalized": {
+              "fields": {
+                "cause": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "documentId": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "mode": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "navigationId": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "parameter": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "policyId": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "policyVersion": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "token": {
+                  "optional": false,
+                  "type": "string"
+                }
+              }
+            },
+            "signature": "cause:string|documentId:string|mode:string|navigationId:string|parameter:string|policyId:string|policyVersion:number|token:string"
+          },
+          "sourcePaths": [
+            "development/rmtx-a02/url-history/examples.v1.json"
+          ],
+          "symbols": [
+            "/history"
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "acceptedFingerprints": [
+          "sha256:745e82fa27454b9359cf219abcc96810eb5a15bfd088a73773676d214adc1a13",
+          "sha256:8e1a3f672d97ad9ec4a21c7a19957343880eb2b54e9b6f94ce8b1bcfbe70484f",
+          "sha256:8fb04cb75ec78341bb4fd27637c212370a89b5017b642eac041a9ea9b33a2ac0"
+        ],
+        "authoritativeFingerprints": [],
+        "decision": "reviewed-a025-url-history-contract",
+        "mode": "polymorphic",
+        "rationale": "A02.5.1 scoped URL/History contract review: development-only v1 policy, state, restore-plan and history-proposal, plus non-authoritative reference/test observations and source positions. No production contract changes; existing authority/released hashes are preserved. Router/Maraca integration and feature/publication acceptance remain pending. See development/rmtx-a02/url-history/README.md.",
+        "releasedFingerprintSetHash": null
+      },
+      "status": "docs-example",
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "interfaceReferences": [
+            {
+              "path": "development/rmtx-a02/url-history/reference.d.ts",
+              "symbol": "HistoryProposal",
+              "type": "symbol"
+            }
+          ],
+          "role": "definition",
+          "sourcePaths": [
+            "development/rmtx-a02/url-history/history-proposal.v1.schema.json",
+            "development/rmtx-a02/url-history/reference.d.ts"
+          ],
+          "visibility": "docs"
+        },
+        {
+          "application": "XTend Development Contracts",
+          "interfaceReferences": [
+            {
+              "path": "development/rmtx-a02/url-history/examples.v1.json",
+              "pointer": "/history",
+              "type": "json-pointer"
+            }
+          ],
+          "role": "documentation",
+          "sourcePaths": [
+            "development/rmtx-a02/url-history/README.md",
+            "development/rmtx-a02/url-history/evidence.json",
+            "development/rmtx-a02/url-history/examples.v1.json",
+            "development/rmtx-a02/url-history/history-proposal.v1.schema.json",
+            "development/rmtx-a02/url-history/reference.d.ts"
+          ],
+          "visibility": "docs"
+        }
+      ],
+      "version": 1
+    },
+    {
+      "aliasOf": null,
+      "canonicalDefinition": {
+        "definitionType": "json-schema",
+        "path": "development/rmtx-a02/url-history/policy.v1.schema.json",
+        "role": "definition",
+        "symbol": null,
+        "visibility": "docs"
+      },
+      "description": "Unreleased A02.5.1 development URL/History contract and executable reference. Explicit public scalar grants, logical typed addresses, canonical default deltas and atomic restore/History phase rules. No production integration or feature/publication acceptance.",
+      "descriptionStatus": "curated",
+      "familyId": "xtend.xtensions.url-state-policy",
+      "kinds": [
+        "json-schema"
+      ],
+      "lifecycle": {
+        "rollout": "planned",
+        "status": "active"
+      },
+      "releasedFingerprintSetHash": null,
+      "replacedBy": null,
+      "schemaId": "xtend.xtensions.url-state-policy.v1",
+      "shapeFingerprints": [
+        {
+          "authoritative": false,
+          "completeness": "complete",
+          "evidence": [
+            {
+              "authoritative": false,
+              "completeness": "complete",
+              "path": "development/rmtx-a02/url-history/examples.v1.json",
+              "symbol": "/policy",
+              "type": "docs"
+            },
+            {
+              "authoritative": false,
+              "completeness": "complete",
+              "path": "development/rmtx-a02/url-history/policy.v1.json",
+              "symbol": "/",
+              "type": "docs"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
+          ],
+          "hash": "sha256:67d73e8650c046b64f37e145ab6b6c78938692b079e56df531dce8728de66e1a",
+          "shape": {
+            "fieldCount": 6,
+            "fields": [
+              "documentId",
+              "exposure",
+              "fields",
+              "id",
+              "limits",
+              "version"
+            ],
+            "normalized": {
+              "fields": {
+                "documentId": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "exposure": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "fields": {
+                  "optional": false,
+                  "type": {
+                    "array": [
+                      {
+                        "fields": {
+                          "id": {
+                            "optional": false,
+                            "type": "string"
+                          },
+                          "prop": {
+                            "optional": false,
+                            "type": "string"
+                          },
+                          "surface": {
+                            "optional": false,
+                            "type": "string"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "limits": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "entries": {
+                        "optional": false,
+                        "type": "number"
+                      },
+                      "instances": {
+                        "optional": false,
+                        "type": "number"
+                      },
+                      "tokenBytes": {
+                        "optional": false,
+                        "type": "number"
+                      },
+                      "valueBytes": {
+                        "optional": false,
+                        "type": "number"
+                      }
+                    }
+                  }
+                },
+                "version": {
+                  "optional": false,
+                  "type": "number"
+                }
+              }
+            },
+            "signature": "documentId:string|exposure:string|fields:array<{id:string,prop:string,surface:string}>|id:string|limits:{entries:number,instances:number,tokenBytes:number,valueBytes:number}|version:number"
+          },
+          "sourcePaths": [
+            "development/rmtx-a02/url-history/examples.v1.json",
+            "development/rmtx-a02/url-history/policy.v1.json"
+          ],
+          "symbols": [
+            "/",
+            "/policy"
+          ]
+        },
+        {
+          "authoritative": false,
+          "completeness": "complete",
+          "evidence": [
+            {
+              "authoritative": false,
+              "completeness": "complete",
+              "path": "development/rmtx-a02/url-history/policy.v1.schema.json",
+              "symbol": null,
+              "type": "docs"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
+          ],
+          "hash": "sha256:94e947040d8fbef5e13a7abb3e3b1881c40c9cead5ae7bcfca766e13bfddbdaf",
+          "shape": {
+            "fieldCount": 1,
+            "fields": [
+              "$formalSchema"
+            ],
+            "normalized": {
+              "fields": {
+                "$formalSchema": {
+                  "optional": false,
+                  "type": {
+                    "$schema": "http://json-schema.org/draft-07/schema#",
+                    "additionalProperties": false,
+                    "definitions": {
+                      "address": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "declarationId": {
+                            "$ref": "#/definitions/name"
+                          },
+                          "keys": {
+                            "items": {
+                              "$ref": "#/definitions/key"
+                            },
+                            "maxItems": 32,
+                            "type": "array"
+                          }
+                        },
+                        "required": [
+                          "declarationId",
+                          "keys"
+                        ],
+                        "type": "object"
+                      },
+                      "field": {
+                        "not": {
+                          "enum": [
+                            "__proto__",
+                            "constructor",
+                            "prototype"
+                          ]
+                        },
+                        "pattern": "^[A-Za-z][A-Za-z0-9._-]{0,63}$",
+                        "type": "string"
+                      },
+                      "key": {
+                        "anyOf": [
+                          {
+                            "maxLength": 256,
+                            "minLength": 1,
+                            "not": {
+                              "enum": [
+                                "__proto__",
+                                "constructor",
+                                "prototype"
+                              ]
+                            },
+                            "pattern": "^\\S(?:[\\s\\S]*\\S)?$",
+                            "type": "string"
+                          },
+                          {
+                            "maximum": 9007199254740991,
+                            "minimum": 0,
+                            "type": "integer"
+                          }
+                        ]
+                      },
+                      "name": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "not": {
+                          "enum": [
+                            "__proto__",
+                            "constructor",
+                            "prototype"
+                          ]
+                        },
+                        "pattern": "^\\S(?:[\\s\\S]*\\S)?$",
+                        "type": "string"
+                      },
+                      "scalar": {
+                        "type": [
+                          "boolean",
+                          "null",
+                          "number",
+                          "string"
+                        ]
+                      }
+                    },
+                    "properties": {
+                      "documentId": {
+                        "$ref": "#/definitions/name"
+                      },
+                      "exposure": {
+                        "const": "public-url"
+                      },
+                      "fields": {
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "id": {
+                              "$ref": "#/definitions/field"
+                            },
+                            "prop": {
+                              "$ref": "#/definitions/name"
+                            },
+                            "surface": {
+                              "$ref": "#/definitions/name"
+                            }
+                          },
+                          "required": [
+                            "default",
+                            "id",
+                            "prop",
+                            "surface"
+                          ],
+                          "type": "object"
+                        },
+                        "maxItems": 32,
+                        "minItems": 1,
+                        "type": "array"
+                      },
+                      "id": {
+                        "$ref": "#/definitions/name"
+                      },
+                      "limits": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "entries": {
+                            "maximum": 128,
+                            "minimum": 1,
+                            "type": "integer"
+                          },
+                          "instances": {
+                            "maximum": 128,
+                            "minimum": 1,
+                            "type": "integer"
+                          },
+                          "tokenBytes": {
+                            "maximum": 8192,
+                            "minimum": 1,
+                            "type": "integer"
+                          },
+                          "valueBytes": {
+                            "maximum": 2048,
+                            "minimum": 1,
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "entries",
+                          "instances",
+                          "tokenBytes",
+                          "valueBytes"
+                        ],
+                        "type": "object"
+                      },
+                      "schema": {
+                        "const": "xtend.xtensions.url-state-policy.v1"
+                      },
+                      "version": {
+                        "maximum": 2147483647,
+                        "minimum": 1,
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "documentId",
+                      "exposure",
+                      "fields",
+                      "id",
+                      "limits",
+                      "schema",
+                      "version"
+                    ],
+                    "type": "object"
+                  }
+                }
+              },
+              "formalSchema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "additionalProperties": false,
+                "definitions": {
+                  "address": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "declarationId": {
+                        "$ref": "#/definitions/name"
+                      },
+                      "keys": {
+                        "items": {
+                          "$ref": "#/definitions/key"
+                        },
+                        "maxItems": 32,
+                        "type": "array"
+                      }
+                    },
+                    "required": [
+                      "declarationId",
+                      "keys"
+                    ],
+                    "type": "object"
+                  },
+                  "field": {
+                    "not": {
+                      "enum": [
+                        "__proto__",
+                        "constructor",
+                        "prototype"
+                      ]
+                    },
+                    "pattern": "^[A-Za-z][A-Za-z0-9._-]{0,63}$",
+                    "type": "string"
+                  },
+                  "key": {
+                    "anyOf": [
+                      {
+                        "maxLength": 256,
+                        "minLength": 1,
+                        "not": {
+                          "enum": [
+                            "__proto__",
+                            "constructor",
+                            "prototype"
+                          ]
+                        },
+                        "pattern": "^\\S(?:[\\s\\S]*\\S)?$",
+                        "type": "string"
+                      },
+                      {
+                        "maximum": 9007199254740991,
+                        "minimum": 0,
+                        "type": "integer"
+                      }
+                    ]
+                  },
+                  "name": {
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "not": {
+                      "enum": [
+                        "__proto__",
+                        "constructor",
+                        "prototype"
+                      ]
+                    },
+                    "pattern": "^\\S(?:[\\s\\S]*\\S)?$",
+                    "type": "string"
+                  },
+                  "scalar": {
+                    "type": [
+                      "boolean",
+                      "null",
+                      "number",
+                      "string"
+                    ]
+                  }
+                },
+                "properties": {
+                  "documentId": {
+                    "$ref": "#/definitions/name"
+                  },
+                  "exposure": {
+                    "const": "public-url"
+                  },
+                  "fields": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "id": {
+                          "$ref": "#/definitions/field"
+                        },
+                        "prop": {
+                          "$ref": "#/definitions/name"
+                        },
+                        "surface": {
+                          "$ref": "#/definitions/name"
+                        }
+                      },
+                      "required": [
+                        "default",
+                        "id",
+                        "prop",
+                        "surface"
+                      ],
+                      "type": "object"
+                    },
+                    "maxItems": 32,
+                    "minItems": 1,
+                    "type": "array"
+                  },
+                  "id": {
+                    "$ref": "#/definitions/name"
+                  },
+                  "limits": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "entries": {
+                        "maximum": 128,
+                        "minimum": 1,
+                        "type": "integer"
+                      },
+                      "instances": {
+                        "maximum": 128,
+                        "minimum": 1,
+                        "type": "integer"
+                      },
+                      "tokenBytes": {
+                        "maximum": 8192,
+                        "minimum": 1,
+                        "type": "integer"
+                      },
+                      "valueBytes": {
+                        "maximum": 2048,
+                        "minimum": 1,
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "entries",
+                      "instances",
+                      "tokenBytes",
+                      "valueBytes"
+                    ],
+                    "type": "object"
+                  },
+                  "schema": {
+                    "const": "xtend.xtensions.url-state-policy.v1"
+                  },
+                  "version": {
+                    "maximum": 2147483647,
+                    "minimum": 1,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "documentId",
+                  "exposure",
+                  "fields",
+                  "id",
+                  "limits",
+                  "schema",
+                  "version"
+                ],
+                "type": "object"
+              }
+            },
+            "signature": "$formalSchema:{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"additionalProperties\":false,\"definitions\":{\"address\":{\"additionalProperties\":false,\"properties\":{\"declarationId\":{\"$ref\":\"#/definitions/name\"},\"keys\":{\"items\":{\"$ref\":\"#/definitions/key\"},\"maxItems\":32,\"type\":\"array\"}},\"required\":[\"declarationId\",\"keys\"],\"type\":\"object\"},\"field\":{\"not\":{\"enum\":[\"__proto__\",\"constructor\",\"prototype\"]},\"pattern\":\"^[A-Za-z][A-Za-z0-9._-]{0,63}$\",\"type\":\"string\"},\"key\":{\"anyOf\":[{\"maxLength\":256,\"minLength\":1,\"not\":{\"enum\":[\"__proto__\",\"constructor\",\"prototype\"]},\"pattern\":\"^\\\\S(?:[\\\\s\\\\S]*\\\\S)?$\",\"type\":\"string\"},{\"maximum\":9007199254740991,\"minimum\":0,\"type\":\"integer\"}]},\"name\":{\"maxLength\":128,\"minLength\":1,\"not\":{\"enum\":[\"__proto__\",\"constructor\",\"prototype\"]},\"pattern\":\"^\\\\S(?:[\\\\s\\\\S]*\\\\S)?$\",\"type\":\"string\"},\"scalar\":{\"type\":[\"boolean\",\"null\",\"number\",\"string\"]}},\"properties\":{\"documentId\":{\"$ref\":\"#/definitions/name\"},\"exposure\":{\"const\":\"public-url\"},\"fields\":{\"items\":{\"additionalProperties\":false,\"properties\":{\"id\":{\"$ref\":\"#/definitions/field\"},\"prop\":{\"$ref\":\"#/definitions/name\"},\"surface\":{\"$ref\":\"#/definitions/name\"}},\"required\":[\"default\",\"id\",\"prop\",\"surface\"],\"type\":\"object\"},\"maxItems\":32,\"minItems\":1,\"type\":\"array\"},\"id\":{\"$ref\":\"#/definitions/name\"},\"limits\":{\"additionalProperties\":false,\"properties\":{\"entries\":{\"maximum\":128,\"minimum\":1,\"type\":\"integer\"},\"instances\":{\"maximum\":128,\"minimum\":1,\"type\":\"integer\"},\"tokenBytes\":{\"maximum\":8192,\"minimum\":1,\"type\":\"integer\"},\"valueBytes\":{\"maximum\":2048,\"minimum\":1,\"type\":\"integer\"}},\"required\":[\"entries\",\"instances\",\"tokenBytes\",\"valueBytes\"],\"type\":\"object\"},\"schema\":{\"const\":\"xtend.xtensions.url-state-policy.v1\"},\"version\":{\"maximum\":2147483647,\"minimum\":1,\"type\":\"integer\"}},\"required\":[\"documentId\",\"exposure\",\"fields\",\"id\",\"limits\",\"schema\",\"version\"],\"type\":\"object\"}"
+          },
+          "sourcePaths": [
+            "development/rmtx-a02/url-history/policy.v1.schema.json"
+          ],
+          "symbols": []
+        },
+        {
+          "authoritative": false,
+          "completeness": "complete",
+          "evidence": [
+            {
+              "authoritative": false,
+              "completeness": "complete",
+              "path": "development/rmtx-a02/url-history/reference.d.ts",
+              "symbol": "Policy",
+              "type": "docs"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
+          ],
+          "hash": "sha256:c4dabd6ea7072bb382a4f8ce9ec954a2c6026231a356f872dcf42476b54dd416",
+          "shape": {
+            "fieldCount": 6,
+            "fields": [
+              "documentId",
+              "exposure",
+              "fields",
+              "id",
+              "limits",
+              "version"
+            ],
+            "normalized": {
+              "fields": {
+                "documentId": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "exposure": {
+                  "optional": false,
+                  "type": {
+                    "literal": "public-url"
+                  }
+                },
+                "fields": {
+                  "optional": false,
+                  "type": {
+                    "elementType": {
+                      "fields": {
+                        "id": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "prop": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "surface": {
+                          "optional": false,
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "id": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "limits": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "entries": {
+                        "optional": false,
+                        "type": "number"
+                      },
+                      "instances": {
+                        "optional": false,
+                        "type": "number"
+                      },
+                      "tokenBytes": {
+                        "optional": false,
+                        "type": "number"
+                      },
+                      "valueBytes": {
+                        "optional": false,
+                        "type": "number"
+                      }
+                    }
+                  }
+                },
+                "version": {
+                  "optional": false,
+                  "type": "number"
+                }
+              }
+            },
+            "signature": "documentId:string|exposure:literal<\"public-url\">|fields:array<{id:string,prop:string,surface:string}>|id:string|limits:{entries:number,instances:number,tokenBytes:number,valueBytes:number}|version:number"
+          },
+          "sourcePaths": [
+            "development/rmtx-a02/url-history/reference.d.ts"
+          ],
+          "symbols": [
+            "Policy"
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "acceptedFingerprints": [
+          "sha256:67d73e8650c046b64f37e145ab6b6c78938692b079e56df531dce8728de66e1a",
+          "sha256:94e947040d8fbef5e13a7abb3e3b1881c40c9cead5ae7bcfca766e13bfddbdaf",
+          "sha256:c4dabd6ea7072bb382a4f8ce9ec954a2c6026231a356f872dcf42476b54dd416"
+        ],
+        "authoritativeFingerprints": [],
+        "decision": "reviewed-a025-url-history-contract",
+        "mode": "polymorphic",
+        "rationale": "A02.5.1 scoped URL/History contract review: development-only v1 policy, state, restore-plan and history-proposal, plus non-authoritative reference/test observations and source positions. No production contract changes; existing authority/released hashes are preserved. Router/Maraca integration and feature/publication acceptance remain pending. See development/rmtx-a02/url-history/README.md.",
+        "releasedFingerprintSetHash": null
+      },
+      "status": "docs-example",
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "interfaceReferences": [
+            {
+              "path": "development/rmtx-a02/url-history/reference.d.ts",
+              "symbol": "Policy",
+              "type": "symbol"
+            }
+          ],
+          "role": "definition",
+          "sourcePaths": [
+            "development/rmtx-a02/url-history/policy.v1.schema.json",
+            "development/rmtx-a02/url-history/reference.d.ts"
+          ],
+          "visibility": "docs"
+        },
+        {
+          "application": "XTend Development Contracts",
+          "interfaceReferences": [
+            {
+              "path": "development/rmtx-a02/url-history/examples.v1.json",
+              "pointer": "/policy",
+              "type": "json-pointer"
+            },
+            {
+              "path": "development/rmtx-a02/url-history/policy.v1.json",
+              "pointer": "/",
+              "type": "json-pointer"
+            }
+          ],
+          "role": "documentation",
+          "sourcePaths": [
+            "development/rmtx-a02/url-history/README.md",
+            "development/rmtx-a02/url-history/evidence.json",
+            "development/rmtx-a02/url-history/examples.v1.json",
+            "development/rmtx-a02/url-history/policy.v1.json",
+            "development/rmtx-a02/url-history/policy.v1.schema.json",
+            "development/rmtx-a02/url-history/reference.d.ts"
+          ],
+          "visibility": "docs"
+        }
+      ],
+      "version": 1
+    },
+    {
+      "aliasOf": null,
+      "canonicalDefinition": {
+        "definitionType": "json-schema",
+        "path": "development/rmtx-a02/url-history/restore-plan.v1.schema.json",
+        "role": "definition",
+        "symbol": null,
+        "visibility": "docs"
+      },
+      "description": "Unreleased A02.5.1 development URL/History contract and executable reference. Explicit public scalar grants, logical typed addresses, canonical default deltas and atomic restore/History phase rules. No production integration or feature/publication acceptance.",
+      "descriptionStatus": "curated",
+      "familyId": "xtend.xtensions.url-state-restore-plan",
+      "kinds": [
+        "json-schema"
+      ],
+      "lifecycle": {
+        "rollout": "planned",
+        "status": "active"
+      },
+      "releasedFingerprintSetHash": null,
+      "replacedBy": null,
+      "schemaId": "xtend.xtensions.url-state-restore-plan.v1",
+      "shapeFingerprints": [
+        {
+          "authoritative": false,
+          "completeness": "complete",
+          "evidence": [
+            {
+              "authoritative": false,
+              "completeness": "complete",
+              "path": "development/rmtx-a02/url-history/restore-plan.v1.schema.json",
+              "symbol": null,
+              "type": "docs"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
+          ],
+          "hash": "sha256:3c84c200950f46bc72fdfe134af0dc7e531cc89c9401a8f1452cc619bbd30e33",
+          "shape": {
+            "fieldCount": 1,
+            "fields": [
+              "$formalSchema"
+            ],
+            "normalized": {
+              "fields": {
+                "$formalSchema": {
+                  "optional": false,
+                  "type": {
+                    "$schema": "http://json-schema.org/draft-07/schema#",
+                    "additionalProperties": false,
+                    "allOf": [
+                      {
+                        "if": {
+                          "properties": {
+                            "status": {
+                              "const": "deferred"
+                            }
+                          }
+                        },
+                        "then": {
+                          "properties": {
+                            "changes": {
+                              "maxItems": 0,
+                              "type": "array"
+                            },
+                            "missing": {
+                              "minItems": 1,
+                              "type": "array"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "if": {
+                          "properties": {
+                            "status": {
+                              "const": "ready"
+                            }
+                          }
+                        },
+                        "then": {
+                          "properties": {
+                            "changes": {
+                              "minItems": 1,
+                              "type": "array"
+                            },
+                            "missing": {
+                              "maxItems": 0,
+                              "type": "array"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "if": {
+                          "properties": {
+                            "status": {
+                              "const": "unchanged"
+                            }
+                          }
+                        },
+                        "then": {
+                          "properties": {
+                            "changes": {
+                              "maxItems": 0,
+                              "type": "array"
+                            },
+                            "missing": {
+                              "maxItems": 0,
+                              "type": "array"
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "definitions": {
+                      "address": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "declarationId": {
+                            "$ref": "#/definitions/name"
+                          },
+                          "keys": {
+                            "items": {
+                              "$ref": "#/definitions/key"
+                            },
+                            "maxItems": 32,
+                            "type": "array"
+                          }
+                        },
+                        "required": [
+                          "declarationId",
+                          "keys"
+                        ],
+                        "type": "object"
+                      },
+                      "field": {
+                        "not": {
+                          "enum": [
+                            "__proto__",
+                            "constructor",
+                            "prototype"
+                          ]
+                        },
+                        "pattern": "^[A-Za-z][A-Za-z0-9._-]{0,63}$",
+                        "type": "string"
+                      },
+                      "key": {
+                        "anyOf": [
+                          {
+                            "maxLength": 256,
+                            "minLength": 1,
+                            "not": {
+                              "enum": [
+                                "__proto__",
+                                "constructor",
+                                "prototype"
+                              ]
+                            },
+                            "pattern": "^\\S(?:[\\s\\S]*\\S)?$",
+                            "type": "string"
+                          },
+                          {
+                            "maximum": 9007199254740991,
+                            "minimum": 0,
+                            "type": "integer"
+                          }
+                        ]
+                      },
+                      "name": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "not": {
+                          "enum": [
+                            "__proto__",
+                            "constructor",
+                            "prototype"
+                          ]
+                        },
+                        "pattern": "^\\S(?:[\\s\\S]*\\S)?$",
+                        "type": "string"
+                      },
+                      "scalar": {
+                        "type": [
+                          "boolean",
+                          "null",
+                          "number",
+                          "string"
+                        ]
+                      }
+                    },
+                    "properties": {
+                      "changes": {
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "declarationId": {
+                              "$ref": "#/definitions/name"
+                            },
+                            "field": {
+                              "$ref": "#/definitions/field"
+                            },
+                            "keys": {
+                              "items": {
+                                "$ref": "#/definitions/key"
+                              },
+                              "maxItems": 32,
+                              "type": "array"
+                            },
+                            "previous": {
+                              "$ref": "#/definitions/scalar"
+                            },
+                            "value": {
+                              "$ref": "#/definitions/scalar"
+                            }
+                          },
+                          "required": [
+                            "declarationId",
+                            "field",
+                            "keys",
+                            "previous",
+                            "value"
+                          ],
+                          "type": "object"
+                        },
+                        "maxItems": 4096,
+                        "type": "array"
+                      },
+                      "documentId": {
+                        "$ref": "#/definitions/name"
+                      },
+                      "missing": {
+                        "items": {
+                          "$ref": "#/definitions/address"
+                        },
+                        "maxItems": 128,
+                        "type": "array"
+                      },
+                      "navigationId": {
+                        "$ref": "#/definitions/name"
+                      },
+                      "policyId": {
+                        "$ref": "#/definitions/name"
+                      },
+                      "policyVersion": {
+                        "maximum": 2147483647,
+                        "minimum": 1,
+                        "type": "integer"
+                      },
+                      "schema": {
+                        "const": "xtend.xtensions.url-state-restore-plan.v1"
+                      },
+                      "status": {
+                        "enum": [
+                          "deferred",
+                          "ready",
+                          "unchanged"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "changes",
+                      "documentId",
+                      "missing",
+                      "navigationId",
+                      "policyId",
+                      "policyVersion",
+                      "schema",
+                      "status"
+                    ],
+                    "type": "object"
+                  }
+                }
+              },
+              "formalSchema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "additionalProperties": false,
+                "allOf": [
+                  {
+                    "if": {
+                      "properties": {
+                        "status": {
+                          "const": "deferred"
+                        }
+                      }
+                    },
+                    "then": {
+                      "properties": {
+                        "changes": {
+                          "maxItems": 0,
+                          "type": "array"
+                        },
+                        "missing": {
+                          "minItems": 1,
+                          "type": "array"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "if": {
+                      "properties": {
+                        "status": {
+                          "const": "ready"
+                        }
+                      }
+                    },
+                    "then": {
+                      "properties": {
+                        "changes": {
+                          "minItems": 1,
+                          "type": "array"
+                        },
+                        "missing": {
+                          "maxItems": 0,
+                          "type": "array"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "if": {
+                      "properties": {
+                        "status": {
+                          "const": "unchanged"
+                        }
+                      }
+                    },
+                    "then": {
+                      "properties": {
+                        "changes": {
+                          "maxItems": 0,
+                          "type": "array"
+                        },
+                        "missing": {
+                          "maxItems": 0,
+                          "type": "array"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "definitions": {
+                  "address": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "declarationId": {
+                        "$ref": "#/definitions/name"
+                      },
+                      "keys": {
+                        "items": {
+                          "$ref": "#/definitions/key"
+                        },
+                        "maxItems": 32,
+                        "type": "array"
+                      }
+                    },
+                    "required": [
+                      "declarationId",
+                      "keys"
+                    ],
+                    "type": "object"
+                  },
+                  "field": {
+                    "not": {
+                      "enum": [
+                        "__proto__",
+                        "constructor",
+                        "prototype"
+                      ]
+                    },
+                    "pattern": "^[A-Za-z][A-Za-z0-9._-]{0,63}$",
+                    "type": "string"
+                  },
+                  "key": {
+                    "anyOf": [
+                      {
+                        "maxLength": 256,
+                        "minLength": 1,
+                        "not": {
+                          "enum": [
+                            "__proto__",
+                            "constructor",
+                            "prototype"
+                          ]
+                        },
+                        "pattern": "^\\S(?:[\\s\\S]*\\S)?$",
+                        "type": "string"
+                      },
+                      {
+                        "maximum": 9007199254740991,
+                        "minimum": 0,
+                        "type": "integer"
+                      }
+                    ]
+                  },
+                  "name": {
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "not": {
+                      "enum": [
+                        "__proto__",
+                        "constructor",
+                        "prototype"
+                      ]
+                    },
+                    "pattern": "^\\S(?:[\\s\\S]*\\S)?$",
+                    "type": "string"
+                  },
+                  "scalar": {
+                    "type": [
+                      "boolean",
+                      "null",
+                      "number",
+                      "string"
+                    ]
+                  }
+                },
+                "properties": {
+                  "changes": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "declarationId": {
+                          "$ref": "#/definitions/name"
+                        },
+                        "field": {
+                          "$ref": "#/definitions/field"
+                        },
+                        "keys": {
+                          "items": {
+                            "$ref": "#/definitions/key"
+                          },
+                          "maxItems": 32,
+                          "type": "array"
+                        },
+                        "previous": {
+                          "$ref": "#/definitions/scalar"
+                        },
+                        "value": {
+                          "$ref": "#/definitions/scalar"
+                        }
+                      },
+                      "required": [
+                        "declarationId",
+                        "field",
+                        "keys",
+                        "previous",
+                        "value"
+                      ],
+                      "type": "object"
+                    },
+                    "maxItems": 4096,
+                    "type": "array"
+                  },
+                  "documentId": {
+                    "$ref": "#/definitions/name"
+                  },
+                  "missing": {
+                    "items": {
+                      "$ref": "#/definitions/address"
+                    },
+                    "maxItems": 128,
+                    "type": "array"
+                  },
+                  "navigationId": {
+                    "$ref": "#/definitions/name"
+                  },
+                  "policyId": {
+                    "$ref": "#/definitions/name"
+                  },
+                  "policyVersion": {
+                    "maximum": 2147483647,
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "schema": {
+                    "const": "xtend.xtensions.url-state-restore-plan.v1"
+                  },
+                  "status": {
+                    "enum": [
+                      "deferred",
+                      "ready",
+                      "unchanged"
+                    ]
+                  }
+                },
+                "required": [
+                  "changes",
+                  "documentId",
+                  "missing",
+                  "navigationId",
+                  "policyId",
+                  "policyVersion",
+                  "schema",
+                  "status"
+                ],
+                "type": "object"
+              }
+            },
+            "signature": "$formalSchema:{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"additionalProperties\":false,\"allOf\":[{\"if\":{\"properties\":{\"status\":{\"const\":\"deferred\"}}},\"then\":{\"properties\":{\"changes\":{\"maxItems\":0,\"type\":\"array\"},\"missing\":{\"minItems\":1,\"type\":\"array\"}}}},{\"if\":{\"properties\":{\"status\":{\"const\":\"ready\"}}},\"then\":{\"properties\":{\"changes\":{\"minItems\":1,\"type\":\"array\"},\"missing\":{\"maxItems\":0,\"type\":\"array\"}}}},{\"if\":{\"properties\":{\"status\":{\"const\":\"unchanged\"}}},\"then\":{\"properties\":{\"changes\":{\"maxItems\":0,\"type\":\"array\"},\"missing\":{\"maxItems\":0,\"type\":\"array\"}}}}],\"definitions\":{\"address\":{\"additionalProperties\":false,\"properties\":{\"declarationId\":{\"$ref\":\"#/definitions/name\"},\"keys\":{\"items\":{\"$ref\":\"#/definitions/key\"},\"maxItems\":32,\"type\":\"array\"}},\"required\":[\"declarationId\",\"keys\"],\"type\":\"object\"},\"field\":{\"not\":{\"enum\":[\"__proto__\",\"constructor\",\"prototype\"]},\"pattern\":\"^[A-Za-z][A-Za-z0-9._-]{0,63}$\",\"type\":\"string\"},\"key\":{\"anyOf\":[{\"maxLength\":256,\"minLength\":1,\"not\":{\"enum\":[\"__proto__\",\"constructor\",\"prototype\"]},\"pattern\":\"^\\\\S(?:[\\\\s\\\\S]*\\\\S)?$\",\"type\":\"string\"},{\"maximum\":9007199254740991,\"minimum\":0,\"type\":\"integer\"}]},\"name\":{\"maxLength\":128,\"minLength\":1,\"not\":{\"enum\":[\"__proto__\",\"constructor\",\"prototype\"]},\"pattern\":\"^\\\\S(?:[\\\\s\\\\S]*\\\\S)?$\",\"type\":\"string\"},\"scalar\":{\"type\":[\"boolean\",\"null\",\"number\",\"string\"]}},\"properties\":{\"changes\":{\"items\":{\"additionalProperties\":false,\"properties\":{\"declarationId\":{\"$ref\":\"#/definitions/name\"},\"field\":{\"$ref\":\"#/definitions/field\"},\"keys\":{\"items\":{\"$ref\":\"#/definitions/key\"},\"maxItems\":32,\"type\":\"array\"},\"previous\":{\"$ref\":\"#/definitions/scalar\"},\"value\":{\"$ref\":\"#/definitions/scalar\"}},\"required\":[\"declarationId\",\"field\",\"keys\",\"previous\",\"value\"],\"type\":\"object\"},\"maxItems\":4096,\"type\":\"array\"},\"documentId\":{\"$ref\":\"#/definitions/name\"},\"missing\":{\"items\":{\"$ref\":\"#/definitions/address\"},\"maxItems\":128,\"type\":\"array\"},\"navigationId\":{\"$ref\":\"#/definitions/name\"},\"policyId\":{\"$ref\":\"#/definitions/name\"},\"policyVersion\":{\"maximum\":2147483647,\"minimum\":1,\"type\":\"integer\"},\"schema\":{\"const\":\"xtend.xtensions.url-state-restore-plan.v1\"},\"status\":{\"enum\":[\"deferred\",\"ready\",\"unchanged\"]}},\"required\":[\"changes\",\"documentId\",\"missing\",\"navigationId\",\"policyId\",\"policyVersion\",\"schema\",\"status\"],\"type\":\"object\"}"
+          },
+          "sourcePaths": [
+            "development/rmtx-a02/url-history/restore-plan.v1.schema.json"
+          ],
+          "symbols": []
+        },
+        {
+          "authoritative": false,
+          "completeness": "complete",
+          "evidence": [
+            {
+              "authoritative": false,
+              "completeness": "complete",
+              "path": "development/rmtx-a02/url-history/reference.d.ts",
+              "symbol": "RestorePlan",
+              "type": "docs"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
+          ],
+          "hash": "sha256:8c1bc08bad86b89d0dff42696d1fa7d27534def97c407e9f7d63bed1bdd0a45c",
+          "shape": {
+            "fieldCount": 7,
+            "fields": [
+              "changes",
+              "documentId",
+              "missing",
+              "navigationId",
+              "policyId",
+              "policyVersion",
+              "status"
+            ],
+            "normalized": {
+              "fields": {
+                "changes": {
+                  "optional": false,
+                  "type": {
+                    "elementType": {
+                      "fields": {
+                        "declarationId": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "field": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "keys": {
+                          "optional": false,
+                          "type": {
+                            "elementType": {
+                              "union": [
+                                "number",
+                                "string"
+                              ]
+                            }
+                          }
+                        },
+                        "previous": {
+                          "optional": false,
+                          "type": {
+                            "union": [
+                              "boolean",
+                              "number",
+                              "string",
+                              {
+                                "literal": null
+                              }
+                            ]
+                          }
+                        },
+                        "value": {
+                          "optional": false,
+                          "type": {
+                            "union": [
+                              "boolean",
+                              "number",
+                              "string",
+                              {
+                                "literal": null
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "documentId": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "missing": {
+                  "optional": false,
+                  "type": {
+                    "elementType": {
+                      "fields": {
+                        "declarationId": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "keys": {
+                          "optional": false,
+                          "type": {
+                            "elementType": {
+                              "union": [
+                                "number",
+                                "string"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "navigationId": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "policyId": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "policyVersion": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "status": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "literal": "deferred"
+                      },
+                      {
+                        "literal": "ready"
+                      },
+                      {
+                        "literal": "unchanged"
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "signature": "changes:array<{declarationId:string,field:string,keys:array<union<number|string>>,previous:union<boolean|number|string|literal<null>>,value:union<boolean|number|string|literal<null>>}>|documentId:string|missing:array<{declarationId:string,keys:array<union<number|string>>}>|navigationId:string|policyId:string|policyVersion:number|status:union<literal<\"deferred\">|literal<\"ready\">|literal<\"unchanged\">>"
+          },
+          "sourcePaths": [
+            "development/rmtx-a02/url-history/reference.d.ts"
+          ],
+          "symbols": [
+            "RestorePlan"
+          ]
+        },
+        {
+          "authoritative": false,
+          "completeness": "complete",
+          "evidence": [
+            {
+              "authoritative": false,
+              "completeness": "complete",
+              "path": "development/rmtx-a02/url-history/examples.v1.json",
+              "symbol": "/restore",
+              "type": "docs"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
+          ],
+          "hash": "sha256:dd3327bd6875ab5c47202cc7b64cd795372d9893221b03dfdfc8938e644f5fd4",
+          "shape": {
+            "fieldCount": 7,
+            "fields": [
+              "changes",
+              "documentId",
+              "missing",
+              "navigationId",
+              "policyId",
+              "policyVersion",
+              "status"
+            ],
+            "normalized": {
+              "fields": {
+                "changes": {
+                  "optional": false,
+                  "type": {
+                    "array": [
+                      {
+                        "fields": {
+                          "declarationId": {
+                            "optional": false,
+                            "type": "string"
+                          },
+                          "field": {
+                            "optional": false,
+                            "type": "string"
+                          },
+                          "keys": {
+                            "optional": false,
+                            "type": {
+                              "array": [
+                                "number",
+                                "string"
+                              ]
+                            }
+                          },
+                          "previous": {
+                            "optional": false,
+                            "type": "null"
+                          },
+                          "value": {
+                            "optional": false,
+                            "type": "string"
+                          }
+                        }
+                      },
+                      {
+                        "fields": {
+                          "declarationId": {
+                            "optional": false,
+                            "type": "string"
+                          },
+                          "field": {
+                            "optional": false,
+                            "type": "string"
+                          },
+                          "keys": {
+                            "optional": false,
+                            "type": {
+                              "array": [
+                                "number",
+                                "string"
+                              ]
+                            }
+                          },
+                          "previous": {
+                            "optional": false,
+                            "type": "string"
+                          },
+                          "value": {
+                            "optional": false,
+                            "type": "string"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "documentId": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "missing": {
+                  "optional": false,
+                  "type": {
+                    "array": []
+                  }
+                },
+                "navigationId": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "policyId": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "policyVersion": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "status": {
+                  "optional": false,
+                  "type": "string"
+                }
+              }
+            },
+            "signature": "changes:array<{declarationId:string,field:string,keys:array<number|string>,previous:null,value:string}|{declarationId:string,field:string,keys:array<number|string>,previous:string,value:string}>|documentId:string|missing:array<>|navigationId:string|policyId:string|policyVersion:number|status:string"
+          },
+          "sourcePaths": [
+            "development/rmtx-a02/url-history/examples.v1.json"
+          ],
+          "symbols": [
+            "/restore"
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "acceptedFingerprints": [
+          "sha256:3c84c200950f46bc72fdfe134af0dc7e531cc89c9401a8f1452cc619bbd30e33",
+          "sha256:8c1bc08bad86b89d0dff42696d1fa7d27534def97c407e9f7d63bed1bdd0a45c",
+          "sha256:dd3327bd6875ab5c47202cc7b64cd795372d9893221b03dfdfc8938e644f5fd4"
+        ],
+        "authoritativeFingerprints": [],
+        "decision": "reviewed-a025-url-history-contract",
+        "mode": "polymorphic",
+        "rationale": "A02.5.1 scoped URL/History contract review: development-only v1 policy, state, restore-plan and history-proposal, plus non-authoritative reference/test observations and source positions. No production contract changes; existing authority/released hashes are preserved. Router/Maraca integration and feature/publication acceptance remain pending. See development/rmtx-a02/url-history/README.md.",
+        "releasedFingerprintSetHash": null
+      },
+      "status": "docs-example",
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "interfaceReferences": [
+            {
+              "path": "development/rmtx-a02/url-history/reference.d.ts",
+              "symbol": "RestorePlan",
+              "type": "symbol"
+            }
+          ],
+          "role": "definition",
+          "sourcePaths": [
+            "development/rmtx-a02/url-history/reference.d.ts",
+            "development/rmtx-a02/url-history/restore-plan.v1.schema.json"
+          ],
+          "visibility": "docs"
+        },
+        {
+          "application": "XTend Development Contracts",
+          "interfaceReferences": [
+            {
+              "path": "development/rmtx-a02/url-history/examples.v1.json",
+              "pointer": "/restore",
+              "type": "json-pointer"
+            }
+          ],
+          "role": "documentation",
+          "sourcePaths": [
+            "development/rmtx-a02/url-history/README.md",
+            "development/rmtx-a02/url-history/evidence.json",
+            "development/rmtx-a02/url-history/examples.v1.json",
+            "development/rmtx-a02/url-history/reference.d.ts",
+            "development/rmtx-a02/url-history/restore-plan.v1.schema.json"
+          ],
+          "visibility": "docs"
+        }
+      ],
+      "version": 1
+    },
+    {
+      "aliasOf": null,
+      "canonicalDefinition": {
+        "definitionType": "json-schema",
+        "path": "development/rmtx-a02/url-history/state.v1.schema.json",
+        "role": "definition",
+        "symbol": null,
+        "visibility": "docs"
+      },
+      "description": "Unreleased A02.5.1 development URL/History contract and executable reference. Explicit public scalar grants, logical typed addresses, canonical default deltas and atomic restore/History phase rules. No production integration or feature/publication acceptance.",
+      "descriptionStatus": "curated",
+      "familyId": "xtend.xtensions.url-state",
+      "kinds": [
+        "json-schema"
+      ],
+      "lifecycle": {
+        "rollout": "planned",
+        "status": "active"
+      },
+      "releasedFingerprintSetHash": null,
+      "replacedBy": null,
+      "schemaId": "xtend.xtensions.url-state.v1",
+      "shapeFingerprints": [
+        {
+          "authoritative": false,
+          "completeness": "partial",
+          "evidence": [
+            {
+              "authoritative": false,
+              "completeness": "partial",
+              "path": "development/rmtx-a02/url-history/reference.d.ts",
+              "symbol": "Snapshot",
+              "type": "docs"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
+          ],
+          "hash": "sha256:0dd41abf973968cffe85ceb471c78eea4da498dc0696defdf600ee33b690334a",
+          "shape": {
+            "fieldCount": 4,
+            "fields": [
+              "documentId",
+              "entries",
+              "policyId",
+              "policyVersion"
+            ],
+            "normalized": {
+              "fields": {
+                "documentId": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "entries": {
+                  "optional": false,
+                  "type": {
+                    "elementType": {
+                      "fields": {
+                        "declarationId": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "keys": {
+                          "optional": false,
+                          "type": {
+                            "elementType": {
+                              "union": [
+                                "number",
+                                "string"
+                              ]
+                            }
+                          }
+                        },
+                        "values": {
+                          "optional": false,
+                          "type": {
+                            "arguments": [
+                              {
+                                "record": {
+                                  "key": "string",
+                                  "value": {
+                                    "union": [
+                                      "boolean",
+                                      "number",
+                                      "string",
+                                      {
+                                        "literal": null
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ],
+                            "unresolvedReference": "Readonly"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "policyId": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "policyVersion": {
+                  "optional": false,
+                  "type": "number"
+                }
+              }
+            },
+            "signature": "documentId:string|entries:array<{declarationId:string,keys:array<union<number|string>>,values:{\"arguments\":[{\"record\":{\"key\":\"string\",\"value\":{\"union\":[\"boolean\",\"number\",\"string\",{\"literal\":null}]}}}],\"unresolvedReference\":\"Readonly\"}}>|policyId:string|policyVersion:number"
+          },
+          "sourcePaths": [
+            "development/rmtx-a02/url-history/reference.d.ts"
+          ],
+          "symbols": [
+            "Snapshot"
+          ]
+        },
+        {
+          "authoritative": false,
+          "completeness": "complete",
+          "evidence": [
+            {
+              "authoritative": false,
+              "completeness": "complete",
+              "path": "development/rmtx-a02/url-history/state.v1.schema.json",
+              "symbol": null,
+              "type": "docs"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
+          ],
+          "hash": "sha256:14f8e9f2d4b9be1f71357a7649158604e099c9284548f625a69b90577ee1f82d",
+          "shape": {
+            "fieldCount": 1,
+            "fields": [
+              "$formalSchema"
+            ],
+            "normalized": {
+              "fields": {
+                "$formalSchema": {
+                  "optional": false,
+                  "type": {
+                    "$schema": "http://json-schema.org/draft-07/schema#",
+                    "additionalProperties": false,
+                    "definitions": {
+                      "address": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "declarationId": {
+                            "$ref": "#/definitions/name"
+                          },
+                          "keys": {
+                            "items": {
+                              "$ref": "#/definitions/key"
+                            },
+                            "maxItems": 32,
+                            "type": "array"
+                          }
+                        },
+                        "required": [
+                          "declarationId",
+                          "keys"
+                        ],
+                        "type": "object"
+                      },
+                      "field": {
+                        "not": {
+                          "enum": [
+                            "__proto__",
+                            "constructor",
+                            "prototype"
+                          ]
+                        },
+                        "pattern": "^[A-Za-z][A-Za-z0-9._-]{0,63}$",
+                        "type": "string"
+                      },
+                      "key": {
+                        "anyOf": [
+                          {
+                            "maxLength": 256,
+                            "minLength": 1,
+                            "not": {
+                              "enum": [
+                                "__proto__",
+                                "constructor",
+                                "prototype"
+                              ]
+                            },
+                            "pattern": "^\\S(?:[\\s\\S]*\\S)?$",
+                            "type": "string"
+                          },
+                          {
+                            "maximum": 9007199254740991,
+                            "minimum": 0,
+                            "type": "integer"
+                          }
+                        ]
+                      },
+                      "name": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "not": {
+                          "enum": [
+                            "__proto__",
+                            "constructor",
+                            "prototype"
+                          ]
+                        },
+                        "pattern": "^\\S(?:[\\s\\S]*\\S)?$",
+                        "type": "string"
+                      },
+                      "scalar": {
+                        "type": [
+                          "boolean",
+                          "null",
+                          "number",
+                          "string"
+                        ]
+                      }
+                    },
+                    "properties": {
+                      "documentId": {
+                        "$ref": "#/definitions/name"
+                      },
+                      "entries": {
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "declarationId": {
+                              "$ref": "#/definitions/name"
+                            },
+                            "keys": {
+                              "items": {
+                                "$ref": "#/definitions/key"
+                              },
+                              "maxItems": 32,
+                              "type": "array"
+                            },
+                            "values": {
+                              "additionalProperties": {
+                                "$ref": "#/definitions/scalar"
+                              },
+                              "maxProperties": 32,
+                              "minProperties": 1,
+                              "propertyNames": {
+                                "$ref": "#/definitions/field"
+                              },
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "declarationId",
+                            "keys",
+                            "values"
+                          ],
+                          "type": "object"
+                        },
+                        "maxItems": 128,
+                        "type": "array"
+                      },
+                      "policyId": {
+                        "$ref": "#/definitions/name"
+                      },
+                      "policyVersion": {
+                        "maximum": 2147483647,
+                        "minimum": 1,
+                        "type": "integer"
+                      },
+                      "schema": {
+                        "const": "xtend.xtensions.url-state.v1"
+                      }
+                    },
+                    "required": [
+                      "documentId",
+                      "entries",
+                      "policyId",
+                      "policyVersion",
+                      "schema"
+                    ],
+                    "type": "object"
+                  }
+                }
+              },
+              "formalSchema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "additionalProperties": false,
+                "definitions": {
+                  "address": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "declarationId": {
+                        "$ref": "#/definitions/name"
+                      },
+                      "keys": {
+                        "items": {
+                          "$ref": "#/definitions/key"
+                        },
+                        "maxItems": 32,
+                        "type": "array"
+                      }
+                    },
+                    "required": [
+                      "declarationId",
+                      "keys"
+                    ],
+                    "type": "object"
+                  },
+                  "field": {
+                    "not": {
+                      "enum": [
+                        "__proto__",
+                        "constructor",
+                        "prototype"
+                      ]
+                    },
+                    "pattern": "^[A-Za-z][A-Za-z0-9._-]{0,63}$",
+                    "type": "string"
+                  },
+                  "key": {
+                    "anyOf": [
+                      {
+                        "maxLength": 256,
+                        "minLength": 1,
+                        "not": {
+                          "enum": [
+                            "__proto__",
+                            "constructor",
+                            "prototype"
+                          ]
+                        },
+                        "pattern": "^\\S(?:[\\s\\S]*\\S)?$",
+                        "type": "string"
+                      },
+                      {
+                        "maximum": 9007199254740991,
+                        "minimum": 0,
+                        "type": "integer"
+                      }
+                    ]
+                  },
+                  "name": {
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "not": {
+                      "enum": [
+                        "__proto__",
+                        "constructor",
+                        "prototype"
+                      ]
+                    },
+                    "pattern": "^\\S(?:[\\s\\S]*\\S)?$",
+                    "type": "string"
+                  },
+                  "scalar": {
+                    "type": [
+                      "boolean",
+                      "null",
+                      "number",
+                      "string"
+                    ]
+                  }
+                },
+                "properties": {
+                  "documentId": {
+                    "$ref": "#/definitions/name"
+                  },
+                  "entries": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "declarationId": {
+                          "$ref": "#/definitions/name"
+                        },
+                        "keys": {
+                          "items": {
+                            "$ref": "#/definitions/key"
+                          },
+                          "maxItems": 32,
+                          "type": "array"
+                        },
+                        "values": {
+                          "additionalProperties": {
+                            "$ref": "#/definitions/scalar"
+                          },
+                          "maxProperties": 32,
+                          "minProperties": 1,
+                          "propertyNames": {
+                            "$ref": "#/definitions/field"
+                          },
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "declarationId",
+                        "keys",
+                        "values"
+                      ],
+                      "type": "object"
+                    },
+                    "maxItems": 128,
+                    "type": "array"
+                  },
+                  "policyId": {
+                    "$ref": "#/definitions/name"
+                  },
+                  "policyVersion": {
+                    "maximum": 2147483647,
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "schema": {
+                    "const": "xtend.xtensions.url-state.v1"
+                  }
+                },
+                "required": [
+                  "documentId",
+                  "entries",
+                  "policyId",
+                  "policyVersion",
+                  "schema"
+                ],
+                "type": "object"
+              }
+            },
+            "signature": "$formalSchema:{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"additionalProperties\":false,\"definitions\":{\"address\":{\"additionalProperties\":false,\"properties\":{\"declarationId\":{\"$ref\":\"#/definitions/name\"},\"keys\":{\"items\":{\"$ref\":\"#/definitions/key\"},\"maxItems\":32,\"type\":\"array\"}},\"required\":[\"declarationId\",\"keys\"],\"type\":\"object\"},\"field\":{\"not\":{\"enum\":[\"__proto__\",\"constructor\",\"prototype\"]},\"pattern\":\"^[A-Za-z][A-Za-z0-9._-]{0,63}$\",\"type\":\"string\"},\"key\":{\"anyOf\":[{\"maxLength\":256,\"minLength\":1,\"not\":{\"enum\":[\"__proto__\",\"constructor\",\"prototype\"]},\"pattern\":\"^\\\\S(?:[\\\\s\\\\S]*\\\\S)?$\",\"type\":\"string\"},{\"maximum\":9007199254740991,\"minimum\":0,\"type\":\"integer\"}]},\"name\":{\"maxLength\":128,\"minLength\":1,\"not\":{\"enum\":[\"__proto__\",\"constructor\",\"prototype\"]},\"pattern\":\"^\\\\S(?:[\\\\s\\\\S]*\\\\S)?$\",\"type\":\"string\"},\"scalar\":{\"type\":[\"boolean\",\"null\",\"number\",\"string\"]}},\"properties\":{\"documentId\":{\"$ref\":\"#/definitions/name\"},\"entries\":{\"items\":{\"additionalProperties\":false,\"properties\":{\"declarationId\":{\"$ref\":\"#/definitions/name\"},\"keys\":{\"items\":{\"$ref\":\"#/definitions/key\"},\"maxItems\":32,\"type\":\"array\"},\"values\":{\"additionalProperties\":{\"$ref\":\"#/definitions/scalar\"},\"maxProperties\":32,\"minProperties\":1,\"propertyNames\":{\"$ref\":\"#/definitions/field\"},\"type\":\"object\"}},\"required\":[\"declarationId\",\"keys\",\"values\"],\"type\":\"object\"},\"maxItems\":128,\"type\":\"array\"},\"policyId\":{\"$ref\":\"#/definitions/name\"},\"policyVersion\":{\"maximum\":2147483647,\"minimum\":1,\"type\":\"integer\"},\"schema\":{\"const\":\"xtend.xtensions.url-state.v1\"}},\"required\":[\"documentId\",\"entries\",\"policyId\",\"policyVersion\",\"schema\"],\"type\":\"object\"}"
+          },
+          "sourcePaths": [
+            "development/rmtx-a02/url-history/state.v1.schema.json"
+          ],
+          "symbols": []
+        },
+        {
+          "authoritative": false,
+          "completeness": "partial",
+          "evidence": [
+            {
+              "authoritative": false,
+              "completeness": "partial",
+              "path": "tests/xtensions/url-history-acceptance.js",
+              "symbol": "token",
+              "type": "test"
+            }
+          ],
+          "evidenceTypes": [
+            "test"
+          ],
+          "hash": "sha256:68f455a95ddadae1662cdd98fefc77979633396eed0fa6570940224e65f9ff35",
+          "shape": {
+            "fieldCount": 4,
+            "fields": [
+              "documentId",
+              "entries",
+              "policyId",
+              "policyVersion"
+            ],
+            "normalized": {
+              "fields": {
+                "documentId": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "policy.documentId"
+                  }
+                },
+                "entries": {
+                  "optional": false,
+                  "type": {
+                    "unresolvedReference": "entries"
+                  }
+                },
+                "policyId": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "policy.id"
+                  }
+                },
+                "policyVersion": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "policy.version"
+                  }
+                }
+              }
+            },
+            "signature": "documentId:{\"unresolved\":\"policy.documentId\"}|entries:{\"unresolvedReference\":\"entries\"}|policyId:{\"unresolved\":\"policy.id\"}|policyVersion:{\"unresolved\":\"policy.version\"}"
+          },
+          "sourcePaths": [
+            "tests/xtensions/url-history-acceptance.js"
+          ],
+          "symbols": [
+            "token"
+          ]
+        },
+        {
+          "authoritative": false,
+          "completeness": "complete",
+          "evidence": [
+            {
+              "authoritative": false,
+              "completeness": "complete",
+              "path": "development/rmtx-a02/url-history/examples.v1.json",
+              "symbol": "/state",
+              "type": "docs"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
+          ],
+          "hash": "sha256:6956b2796f23524daec430f24c6d22fe0854fe5c61993aa668b38f665e48c98a",
+          "shape": {
+            "fieldCount": 4,
+            "fields": [
+              "documentId",
+              "entries",
+              "policyId",
+              "policyVersion"
+            ],
+            "normalized": {
+              "fields": {
+                "documentId": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "entries": {
+                  "optional": false,
+                  "type": {
+                    "array": [
+                      {
+                        "fields": {
+                          "declarationId": {
+                            "optional": false,
+                            "type": "string"
+                          },
+                          "keys": {
+                            "optional": false,
+                            "type": {
+                              "array": [
+                                "number",
+                                "string"
+                              ]
+                            }
+                          },
+                          "values": {
+                            "optional": false,
+                            "type": {
+                              "fields": {
+                                "activeId": {
+                                  "optional": false,
+                                  "type": "string"
+                                },
+                                "query": {
+                                  "optional": false,
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "policyId": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "policyVersion": {
+                  "optional": false,
+                  "type": "number"
+                }
+              }
+            },
+            "signature": "documentId:string|entries:array<{declarationId:string,keys:array<number|string>,values:{activeId:string,query:string}}>|policyId:string|policyVersion:number"
+          },
+          "sourcePaths": [
+            "development/rmtx-a02/url-history/examples.v1.json"
+          ],
+          "symbols": [
+            "/state"
+          ]
+        },
+        {
+          "authoritative": false,
+          "completeness": "complete",
+          "evidence": [
+            {
+              "authoritative": false,
+              "completeness": "complete",
+              "path": "tests/xtensions/url-history-contract-checks.cjs",
+              "symbol": "t",
+              "type": "test"
+            }
+          ],
+          "evidenceTypes": [
+            "test"
+          ],
+          "hash": "sha256:7c0dd26f8a04cab24ca0d28ee7cf491592cbd0a094842c8ced14ce97d4fc51c6",
+          "shape": {
+            "fieldCount": 4,
+            "fields": [
+              "documentId",
+              "entries",
+              "policyId",
+              "policyVersion"
+            ],
+            "normalized": {
+              "fields": {
+                "documentId": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "entries": {
+                  "optional": false,
+                  "type": {
+                    "array": [
+                      {
+                        "fields": {
+                          "declarationId": {
+                            "optional": false,
+                            "type": "string"
+                          },
+                          "keys": {
+                            "optional": false,
+                            "type": {
+                              "array": [
+                                "string"
+                              ]
+                            }
+                          },
+                          "values": {
+                            "optional": false,
+                            "type": {
+                              "fields": {
+                                "left-query": {
+                                  "optional": false,
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "fields": {
+                          "declarationId": {
+                            "optional": false,
+                            "type": "string"
+                          },
+                          "keys": {
+                            "optional": false,
+                            "type": {
+                              "array": [
+                                "string"
+                              ]
+                            }
+                          },
+                          "values": {
+                            "optional": false,
+                            "type": {
+                              "fields": {
+                                "right-query": {
+                                  "optional": false,
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "policyId": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "policyVersion": {
+                  "optional": false,
+                  "type": "number"
+                }
+              }
+            },
+            "signature": "documentId:string|entries:array<{declarationId:string,keys:array<string>,values:{left-query:string}}|{declarationId:string,keys:array<string>,values:{right-query:string}}>|policyId:string|policyVersion:number"
+          },
+          "sourcePaths": [
+            "tests/xtensions/url-history-contract-checks.cjs"
+          ],
+          "symbols": [
+            "t"
+          ]
+        },
+        {
+          "authoritative": false,
+          "completeness": "partial",
+          "evidence": [
+            {
+              "authoritative": false,
+              "completeness": "partial",
+              "path": "tests/xtensions/url-history-contract-checks.cjs",
+              "symbol": "payload",
+              "type": "test"
+            }
+          ],
+          "evidenceTypes": [
+            "test"
+          ],
+          "hash": "sha256:dd0903994f8cfcf1a4aa5e09e50d54f6228608c14cd93f379b0304f463c29283",
+          "shape": {
+            "fieldCount": 4,
+            "fields": [
+              "documentId",
+              "entries",
+              "policyId",
+              "policyVersion"
+            ],
+            "normalized": {
+              "fields": {
+                "documentId": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "c.policy.documentId"
+                  }
+                },
+                "entries": {
+                  "optional": false,
+                  "type": {
+                    "unresolvedReference": "entries"
+                  }
+                },
+                "policyId": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "c.policy.id"
+                  }
+                },
+                "policyVersion": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "c.policy.version"
+                  }
+                }
+              }
+            },
+            "signature": "documentId:{\"unresolved\":\"c.policy.documentId\"}|entries:{\"unresolvedReference\":\"entries\"}|policyId:{\"unresolved\":\"c.policy.id\"}|policyVersion:{\"unresolved\":\"c.policy.version\"}"
+          },
+          "sourcePaths": [
+            "tests/xtensions/url-history-contract-checks.cjs"
+          ],
+          "symbols": [
+            "payload"
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "acceptedFingerprints": [
+          "sha256:0dd41abf973968cffe85ceb471c78eea4da498dc0696defdf600ee33b690334a",
+          "sha256:14f8e9f2d4b9be1f71357a7649158604e099c9284548f625a69b90577ee1f82d",
+          "sha256:68f455a95ddadae1662cdd98fefc77979633396eed0fa6570940224e65f9ff35",
+          "sha256:6956b2796f23524daec430f24c6d22fe0854fe5c61993aa668b38f665e48c98a",
+          "sha256:7c0dd26f8a04cab24ca0d28ee7cf491592cbd0a094842c8ced14ce97d4fc51c6",
+          "sha256:dd0903994f8cfcf1a4aa5e09e50d54f6228608c14cd93f379b0304f463c29283"
+        ],
+        "authoritativeFingerprints": [],
+        "decision": "reviewed-a025-url-history-contract",
+        "mode": "polymorphic",
+        "rationale": "A02.5.1 scoped URL/History contract review: development-only v1 policy, state, restore-plan and history-proposal, plus non-authoritative reference/test observations and source positions. No production contract changes; existing authority/released hashes are preserved. Router/Maraca integration and feature/publication acceptance remain pending. See development/rmtx-a02/url-history/README.md.",
+        "releasedFingerprintSetHash": null
+      },
+      "status": "test-only",
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "interfaceReferences": [
+            {
+              "path": "development/rmtx-a02/url-history/reference.d.ts",
+              "symbol": "Snapshot",
+              "type": "symbol"
+            }
+          ],
+          "role": "definition",
+          "sourcePaths": [
+            "development/rmtx-a02/url-history/reference.d.ts",
+            "development/rmtx-a02/url-history/state.v1.schema.json"
+          ],
+          "visibility": "docs"
+        },
+        {
+          "application": "XTend Development Contracts",
+          "interfaceReferences": [
+            {
+              "path": "development/rmtx-a02/url-history/examples.v1.json",
+              "pointer": "/state",
+              "type": "json-pointer"
+            }
+          ],
+          "role": "documentation",
+          "sourcePaths": [
+            "development/rmtx-a02/url-history/README.md",
+            "development/rmtx-a02/url-history/evidence.json",
+            "development/rmtx-a02/url-history/examples.v1.json",
+            "development/rmtx-a02/url-history/reference.d.ts",
+            "development/rmtx-a02/url-history/state.v1.schema.json"
+          ],
+          "visibility": "docs"
+        },
+        {
+          "application": "XTend Tests: Xtensions",
+          "interfaceReferences": [
+            {
+              "path": "tests/xtensions/url-history-acceptance.js",
+              "symbol": "token",
+              "type": "symbol"
+            },
+            {
+              "path": "tests/xtensions/url-history-contract-checks.cjs",
+              "symbol": "payload",
+              "type": "symbol"
+            },
+            {
+              "path": "tests/xtensions/url-history-contract-checks.cjs",
+              "symbol": "t",
+              "type": "symbol"
+            }
+          ],
+          "role": "producer",
+          "sourcePaths": [
+            "tests/xtensions/url-history-acceptance.js",
+            "tests/xtensions/url-history-contract-checks.cjs"
+          ],
+          "visibility": "test"
+        },
+        {
+          "application": "XTend Tests: Xtensions",
+          "interfaceReferences": [
+            {
+              "path": "tests/xtensions/url-history-acceptance.js",
+              "symbol": null,
+              "type": "repo-symbol"
+            }
+          ],
+          "role": "assertion",
+          "sourcePaths": [
+            "tests/xtensions/url-history-acceptance.js",
+            "tests/xtensions/url-history-contract-checks.cjs"
+          ],
+          "visibility": "test"
         }
       ],
       "version": 1
@@ -975806,6 +978944,10 @@
         "contracts/release/artifact-v2.schema.json",
         "contracts/release/canary-v2.schema.json",
         "contracts/release/core-evidence-v1.schema.json",
+        "development/rmtx-a02/url-history/history-proposal.v1.schema.json",
+        "development/rmtx-a02/url-history/policy.v1.schema.json",
+        "development/rmtx-a02/url-history/restore-plan.v1.schema.json",
+        "development/rmtx-a02/url-history/state.v1.schema.json",
         "tools/rmt-language/contracts/classic-ast.v1.schema.json",
         "xtendrmt/contracts/node-ssr-fabric-telemetry-hints.v2.json",
         "xtendrmt/contracts/page-initial-resume.v1.json",
@@ -1010791,6 +1013933,74 @@
             "status": "active"
           },
           "releasedFingerprintSetHash": null
+        }
+      ]
+    },
+    {
+      "activeSchemaId": "xtend.xtensions.url-history-proposal.v1",
+      "currentVersion": 1,
+      "familyId": "xtend.xtensions.url-history-proposal",
+      "tombstones": [],
+      "versions": [
+        {
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": null,
+          "schemaId": "xtend.xtensions.url-history-proposal.v1",
+          "version": 1
+        }
+      ]
+    },
+    {
+      "activeSchemaId": "xtend.xtensions.url-state.v1",
+      "currentVersion": 1,
+      "familyId": "xtend.xtensions.url-state",
+      "tombstones": [],
+      "versions": [
+        {
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": null,
+          "schemaId": "xtend.xtensions.url-state.v1",
+          "version": 1
+        }
+      ]
+    },
+    {
+      "activeSchemaId": "xtend.xtensions.url-state-policy.v1",
+      "currentVersion": 1,
+      "familyId": "xtend.xtensions.url-state-policy",
+      "tombstones": [],
+      "versions": [
+        {
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": null,
+          "schemaId": "xtend.xtensions.url-state-policy.v1",
+          "version": 1
+        }
+      ]
+    },
+    {
+      "activeSchemaId": "xtend.xtensions.url-state-restore-plan.v1",
+      "currentVersion": 1,
+      "familyId": "xtend.xtensions.url-state-restore-plan",
+      "tombstones": [],
+      "versions": [
+        {
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": null,
+          "schemaId": "xtend.xtensions.url-state-restore-plan.v1",
+          "version": 1
         }
       ]
     },

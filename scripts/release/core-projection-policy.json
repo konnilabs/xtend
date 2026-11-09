@@ -1,7 +1,7 @@
 {
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "1da87b406cc3fe1f4a5efc0e61e3c74ef118e722aa13911c64f948520fcfd7bc",
+  "inventorySha256": "31686f067c1c67ab1ac68dcb4f79faf275e47b2e878fb89ba3c8a61954b344b1",
   "productivePaths": [
     ".codex",
     ".comments/XScaler ATC.png.xml",
@@ -1132,6 +1132,17 @@
     "development/rmtx-a02/repeated-evidence.json",
     "development/rmtx-a02/repeated-filters.js",
     "development/rmtx-a02/repeated-filters.rmt",
+    "development/rmtx-a02/url-history/README.md",
+    "development/rmtx-a02/url-history/evidence.json",
+    "development/rmtx-a02/url-history/examples.v1.json",
+    "development/rmtx-a02/url-history/history-proposal.v1.schema.json",
+    "development/rmtx-a02/url-history/inspect.cjs",
+    "development/rmtx-a02/url-history/policy.v1.json",
+    "development/rmtx-a02/url-history/policy.v1.schema.json",
+    "development/rmtx-a02/url-history/reference.d.ts",
+    "development/rmtx-a02/url-history/reference.js",
+    "development/rmtx-a02/url-history/restore-plan.v1.schema.json",
+    "development/rmtx-a02/url-history/state.v1.schema.json",
     "docs/.htaccess",
     "docs/assets/rmt-stack-topography.svg",
     "docs/de/README.md",
@@ -2777,6 +2788,7 @@
     "tests/types/vendor_type_exports_suite.js",
     "tests/types/xtensions_compiled_bindings.mts",
     "tests/types/xtensions_runtime_adapters.ts",
+    "tests/types/xtensions_url_history_contract.mts",
     "tests/utils/README.md",
     "tests/utils/assertions.js",
     "tests/utils/files.js",
@@ -2798,6 +2810,8 @@
     "tests/xtensions/runtime-peers/package-lock.json",
     "tests/xtensions/runtime-peers/package.json",
     "tests/xtensions/state-binding-acceptance.js",
+    "tests/xtensions/url-history-acceptance.js",
+    "tests/xtensions/url-history-contract-checks.cjs",
     "tests/xtensions/xtensions_adoption_handoff_suite.js",
     "tests/xtensions/xtensions_angular_host_adapter_suite.js",
     "tests/xtensions/xtensions_consumer_package_suite.js",
@@ -3531,7 +3545,7 @@
     "xtendrmt/rmt-surface-transition-runtime.js",
     "xtendrmt/rmt.schema.json"
   ],
-  "authorityDecisionSha256": "f2940df42286e2d413522e862ebf01f6821ef774407eac82a8bc314e1003d318",
+  "authorityDecisionSha256": "1adb5162bee8a362e38eaf5269d44ba45ed4ffea7aa270d5e6fccaa43f5a2c22",
   "note": "No union filtering or Core schema acceptance is inferred. Missing/pending exact projection blocks Core CI evidence and release preparation. Initial Candidate authority retirement remains a separate source guard.",
   "coreCandidateAuthoritySha256": "8fc57e4eb96a3a6fd0155234f06cc4b95879fc9d492fdaad8171e26345e4f865"
 }

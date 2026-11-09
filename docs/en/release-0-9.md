@@ -8,9 +8,9 @@
 | --- | --- | --- |
 | RMT Classic | Renaming and shared compiler contract implemented | Compatibility and regressions |
 | RMTX | Backend prepared; syntax and frontend pending | Parser/lowering, editor, mixed projects, browser/SSR |
-| XTensions 2.0 | Instance/state/Action integration, conditional and repeated hosts implemented | URL/history, cooperative kernel jobs, automatic adapter/provider/host chain and SSR/resume remain pending |
+| XTensions 2.0 | Instance/state/Action integration, conditional and repeated hosts implemented | Router/Maraca integration of the URL contract, kernel jobs, automatic provider/host chain and SSR/resume pending |
 
-A02.4 adds repeated hosts with stable keys. Versions: binding v2, sidecar v3, Maraca plan/configuration v4, runtime v6, compiler/browser API 4.0.0. Classic AST: 1.0.0. See the [contract and evidence](../../development/rmtx-a02/README.md).
+A02.5.1 defines the [URL/history contract](../../development/rmtx-a02/url-history/README.md), reference API 1.0.0 and four new v1 formats. Production integration remains pending. Existing versions: binding v2, sidecar v3, Maraca plan/configuration v4, runtime v6, compiler/browser API 4.0.0, Classic AST 1.0.0.
 
 ## Release checks
 

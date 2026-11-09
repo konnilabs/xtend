@@ -1,0 +1,12 @@
+{
+  "schema": "xtend.xtensions.url-state-policy.v1",
+  "id": "repeated-filter-view",
+  "version": 1,
+  "documentId": "repeated-filter-example",
+  "exposure": "public-url",
+  "fields": [
+    { "id": "query", "surface": "filter", "prop": "query", "default": "" },
+    { "id": "activeId", "surface": "filter", "prop": "activeId", "default": null }
+  ],
+  "limits": { "tokenBytes": 4096, "entries": 32, "valueBytes": 512, "instances": 128 }
+}

@@ -8,9 +8,9 @@
 | --- | --- | --- |
 | RMT Classic | Umbenennung und gemeinsamer Compilervertrag implementiert | Kompatibilität und Regressionen |
 | RMTX | Backend vorbereitet; Syntax und Frontend offen | Parser/Lowering, Editor, gemischte Projekte, Browser/SSR |
-| XTensions 2.0 | Instanz-/State-/Action-Anbindung sowie bedingte und wiederholte Hosts implementiert | URL/History, kooperative Kernel-Jobs, automatische Adapter-/Provider-/Host-Kette und SSR/Resume bleiben offen |
+| XTensions 2.0 | Instanz-/State-/Action-Anbindung sowie bedingte und wiederholte Hosts implementiert | Router-/Maraca-Anbindung des URL-Vertrags, Kernel-Jobs, automatische Provider-/Host-Kette und SSR/Resume offen |
 
-A02.4 führt wiederholte Hosts mit stabilen Schlüsseln ein. Versionen: Bindung v2, Sidecar v3, Maraca-Plan/-Konfiguration v4, Runtime v6, Compiler-/Browser-API 4.0.0. Classic-AST: 1.0.0. [Vertrag und Nachweise](../../development/rmtx-a02/README.md).
+A02.5.1 definiert den [URL-/History-Vertrag](../../development/rmtx-a02/url-history/README.md) mit Referenz-API 1.0.0 und vier neuen v1-Formaten. Produktive Integration folgt. Bestehende Versionen: Bindung v2, Sidecar v3, Maraca-Plan/-Konfiguration v4, Runtime v6, Compiler-/Browser-API 4.0.0, Classic-AST 1.0.0.
 
 ## Releaseprüfung
 
@@ -24,4 +24,4 @@ npm run release:features:check
 
 ## Nächste Schritte
 
-Die nächsten Schritte und Grenzen beschreibt die [Bestandsaufnahme](../../development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md). Der [Classic-Vertrag](./rmt-classic-contract.md) ist die gemeinsame Compilerbasis. RMTX-Syntax und weitere Adapterfähigkeiten sind offen.
+Schritte und Grenzen: [Bestandsaufnahme](../../development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md). [Classic-Vertrag](./rmt-classic-contract.md): gemeinsame Compilerbasis. RMTX-Syntax und weitere Adapterfähigkeiten sind offen.

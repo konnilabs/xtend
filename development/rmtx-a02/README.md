@@ -1,6 +1,6 @@
 # A02 – Instanzadressen, kontrollierte State-Slices und Intents
 
-Stand: 2026-11-09. **A02.1, der statische Compiler-/Maraca-Pfad A02.2, bedingte Hosts in A02.3 und wiederholte Hosts in A02.4 sind implementiert; A02 bleibt in Arbeit.** RMTX und XTensions 2.0 bleiben im Releaseumfang 0.9.0 auf `preparing`.
+Stand: 2026-11-09. **A02.1, der statische Compiler-/Maraca-Pfad A02.2, bedingte Hosts in A02.3 und wiederholte Hosts in A02.4 sind implementiert; A02.5.1 ergänzt den URL-/History-Vertrag mit Entwicklungsreferenz. A02 bleibt in Arbeit.** RMTX und XTensions 2.0 bleiben im Releaseumfang 0.9.0 auf `preparing`.
 
 Die [Bestandsaufnahme](../XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md) fordert für X02/X03 einen gemeinsamen Pfad durch Model, State-Projektion, Props und Rückkanal. Dieser erste Schritt nutzt die vorhandenen Model- und Runtime-Host-Ports. Er führt keine neue RMTX-Quellsyntax und keine Erweiterung des geschlossenen [Classic-AST-Vertrags](../rmtx-a01/compiler-contract.md) ein.
 
@@ -108,6 +108,7 @@ Geänderte Schema-Verträge erhalten gemäß der bestehenden Major-only-Schemare
 | State-Binding-Registry | A02.1 API | API `2.0.0`; v1 bleibt geschlossen lesbar, v2 ergänzt Schlüsselpfade und vertrauenswürdige Intent-Schlüsselfelder |
 | Bindungsdaten | `xtend.xtensions.state-binding.v1` | `xtend.xtensions.state-binding.v2` |
 | Bindungs-Sidecar | `xtend.xtensions.state-binding-artifact.v1`, `xtend.xtensions.state-binding-artifact.v2` | `xtend.xtensions.state-binding-artifact.v3` mit Wiederholungsketten; ältere Verträge bleiben geschlossen |
+| URL-Freigabe / State / Restore-Plan / History-Vorschlag | neue eigenständige Entwicklungsverträge | jeweils Schema v1, Referenz-API `1.0.0`; [Details](url-history/README.md) |
 | Runtime-Akzeptanzbericht | `xtend.xtensions.runtime-acceptance-report.v1` ohne Compiler-Nachweise | `xtend.xtensions.runtime-acceptance-report.v2` |
 
 Der statische Sidecar v1 bleibt lesbar und weist `presence` weiterhin ab. Sidecar v2 trägt die bedingte Instanziierung; v3 ergänzt Wiederholungen. Der unveränderte Classic-AST-Eingangsvertrag bleibt `1.0.0`; sein geschlossenes Schema wird nicht umnummeriert oder still erweitert. Lifecycle-/Event-Envelope und Presentation-Adapter behalten ihre unveränderten Verträge. Die veröffentlichte [v3-API-Deklaration](../../xtend-maraca/plan-runtime.v3.d.ts) bleibt als unveränderter Legacy-Nachweis erhalten; die [v4-Deklaration](../../xtend-maraca/plan-runtime.v4.d.ts) bleibt ebenfalls archiviert. Die [v5-Deklaration](../../xtend-maraca/plan-runtime.v5.d.ts) bleibt ebenfalls archiviert; aktuelle Runtime-Instanzen melden v6. Neue v2-Runtime-Hosts dürfen nicht durch Legacy-getaggte Adapter ersetzt werden.
@@ -154,8 +155,16 @@ Entfernen entzieht Callback-/Command-Autorität am Model-Commit und unmountet vo
 
 [`repeated-evidence.json`](repeated-evidence.json) bindet Quelle, Programm und Sidecar an SHA-256 sowie Source-/AST-Parität und Maraca-Transport. Die verpflichtenden Gates enthalten 15 A02.4-Fälle für echte Roots einschließlich verschachtelter typisierter Schlüssel, Umordnen, eigener Intents, Key-Fälschung, Entfernen/Ersetzen, leerer Collections, negativer Schlüssel, Presence, Lade-/Command-/View-Rennen, Teilfehler, Cleanup-Reihenfolge und Browser-Composition. Insgesamt laufen **137 Runtime-Fälle je Umgebung** und **88 Compiler-/Versionsprüfungen**; gepackte Root-/Compiler-Consumer prüfen den Materialisierer ebenfalls. Diese Entwicklungsnachweise ersetzen keine vollständige 0.9-Feature-Abnahme.
 
-## 11. Noch offen
+## 11. A02.5.1 – URL-/History-Vertrag und Referenz
 
-Statische, bedingte und wiederholte Host-Lebensdauern sind nachgewiesen. A02 bleibt für den expliziten URL-/History-Vertrag offen: Codec, Freigaben, adressierte Slices, Wiederherstellung und Umgang mit unbekannten beziehungsweise noch nicht materialisierten Schlüsseln müssen gemeinsam definiert werden. Die jetzigen Schlüsselpfade sind kein URL-Codec.
+Der [normative Vertrag](url-history/README.md) definiert ausdrückliche öffentliche Freigaben, versionierte Standardwerte, einen kanonischen Codec für logische typisierte Instanzadressen, atomare Wiederherstellung und History-Regeln. Fehlende gültige Model-Schlüssel vertagen den gesamten Restore; verborgene vorhandene Instanzen bleiben adressierbar. Private Felder, Model-Pfade und Host-Inkarnationen gelangen nicht in den Token. Der bestehende Router beziehungsweise Route-Host bleibt einziger URL-/History-Writer.
+
+Vier neue geschlossene Schemaformate beginnen bei v1; die ausführbare Entwicklungsreferenz trägt API `1.0.0`. Sie prüft Pläne und History-Vorschläge gegen aktuelle Navigation, Model und vertrauenswürdigen View-Abschluss. Ihr synchroner Model-Port ist ein Entwicklungsnachweis außerhalb der Maraca-Action-Kette. **Produktive Integration ist noch offen.** Bestehende Produktions-APIs/-Schemata ändern sich dadurch nicht.
+
+[Nachweise](url-history/evidence.json) und [Beispiele](url-history/examples.v1.json) werden im Releasevorbereitungs-Gate mit 70 Vertragsprüfungen geprüft. Vier weitere Fälle mit echten React-Roots in beiden Runtime-Umgebungen ergeben aktuell **141 Akzeptanzfälle je Umgebung**; die 88 Compiler-/Versionsprüfungen bleiben erhalten. Der Referenznachweis behauptet keine Router-Ausführung.
+
+## 12. Noch offen
+
+A02.5.2 muss den Vertrag mit dem Router und einem versionierten Maraca-Restore-Eingang verbinden: reale Hash-/History-Navigation, Back/Forward, Herkunftsschutz, Reset und Navigationsabbruch einschließlich gemeinsamer Model-/View-/Props-Barriere. Erst danach ist der URL-/History-Teil von A02 vollständig implementiert.
 
 Reale Microkernel-Auslieferung und Capabilities folgen in A03, die automatische Provider-/Build-/Host-Kette in A04 und SSR/Adoption/Restore in A05. Die endgültige RMTX-Quellsyntax bleibt A06 vorbehalten. Beide großen 0.9-Features bleiben bis zu ihren vollständigen Abnahmen `preparing`.

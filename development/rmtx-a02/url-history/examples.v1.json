@@ -1,0 +1,91 @@
+{
+  "policy": {
+    "schema": "xtend.xtensions.url-state-policy.v1",
+    "id": "repeated-filter-view",
+    "version": 1,
+    "documentId": "repeated-filter-example",
+    "exposure": "public-url",
+    "fields": [
+      {
+        "id": "query",
+        "surface": "filter",
+        "prop": "query",
+        "default": ""
+      },
+      {
+        "id": "activeId",
+        "surface": "filter",
+        "prop": "activeId",
+        "default": null
+      }
+    ],
+    "limits": {
+      "tokenBytes": 4096,
+      "entries": 32,
+      "valueBytes": 512,
+      "instances": 128
+    }
+  },
+  "state": {
+    "schema": "xtend.xtensions.url-state.v1",
+    "documentId": "repeated-filter-example",
+    "policyId": "repeated-filter-view",
+    "policyVersion": 1,
+    "entries": [
+      {
+        "declarationId": "filter-panel",
+        "keys": [
+          "a",
+          1
+        ],
+        "values": {
+          "activeId": "selected",
+          "query": "東京 🌻"
+        }
+      }
+    ]
+  },
+  "restore": {
+    "schema": "xtend.xtensions.url-state-restore-plan.v1",
+    "documentId": "repeated-filter-example",
+    "policyId": "repeated-filter-view",
+    "policyVersion": 1,
+    "navigationId": "n1",
+    "status": "ready",
+    "changes": [
+      {
+        "declarationId": "filter-panel",
+        "keys": [
+          "a",
+          1
+        ],
+        "field": "activeId",
+        "previous": null,
+        "value": "selected"
+      },
+      {
+        "declarationId": "filter-panel",
+        "keys": [
+          "a",
+          1
+        ],
+        "field": "query",
+        "previous": "",
+        "value": "東京 🌻"
+      }
+    ],
+    "missing": []
+  },
+  "history": {
+    "schema": "xtend.xtensions.url-history-proposal.v1",
+    "documentId": "repeated-filter-example",
+    "policyId": "repeated-filter-view",
+    "policyVersion": 1,
+    "navigationId": "n1",
+    "parameter": "xtend-state",
+    "mode": "push",
+    "cause": "checkpoint",
+    "token": "1.eyJkb2N1bWVudElkIjoicmVwZWF0ZWQtZmlsdGVyLWV4YW1wbGUiLCJlbnRyaWVzIjpbeyJkZWNsYXJhdGlvbklkIjoiZmlsdGVyLXBhbmVsIiwia2V5cyI6WyJhIiwxXSwidmFsdWVzIjp7ImFjdGl2ZUlkIjoic2VsZWN0ZWQiLCJxdWVyeSI6IuadseS6rCDwn4y7In19XSwicG9saWN5SWQiOiJyZXBlYXRlZC1maWx0ZXItdmlldyIsInBvbGljeVZlcnNpb24iOjEsInNjaGVtYSI6Inh0ZW5kLnh0ZW5zaW9ucy51cmwtc3RhdGUudjEifQ"
+  },
+  "token": "1.eyJkb2N1bWVudElkIjoicmVwZWF0ZWQtZmlsdGVyLWV4YW1wbGUiLCJlbnRyaWVzIjpbeyJkZWNsYXJhdGlvbklkIjoiZmlsdGVyLXBhbmVsIiwia2V5cyI6WyJhIiwxXSwidmFsdWVzIjp7ImFjdGl2ZUlkIjoic2VsZWN0ZWQiLCJxdWVyeSI6IuadseS6rCDwn4y7In19XSwicG9saWN5SWQiOiJyZXBlYXRlZC1maWx0ZXItdmlldyIsInBvbGljeVZlcnNpb24iOjEsInNjaGVtYSI6Inh0ZW5kLnh0ZW5zaW9ucy51cmwtc3RhdGUudjEifQ"
+}

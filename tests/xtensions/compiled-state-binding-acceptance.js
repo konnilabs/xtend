@@ -45,6 +45,7 @@ async function runCompiledStateBindingAcceptance({ React, ReactDOM, document, te
     } };
   }
   await require('./repeated-state-binding-acceptance').runRepeatedStateBindingAcceptance({ React, ReactDOM, document, test, check, equal, fixture, plan: repeatedPlan, modules, bindingRuntime, xtendState, within, rejected, deferred });
+  await require('./url-history-acceptance').runURLHistoryAcceptance({ React, ReactDOM, document, test, check, equal, plan: repeatedPlan, modules, bindingRuntime, xtendState });
   const filter = (query, activeId = null) => ({ filter: { query, selection: { activeId } } });
 
   await test('A02.3: invalid presence and unsupported adoption reject before host authority exists', async () => {

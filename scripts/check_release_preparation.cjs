@@ -8,6 +8,7 @@ const CHECKS = Object.freeze([
   ['scripts/generate_rmt_classic_contract.js', '--check'],
   ['development/rmtx-a01/inspect.cjs', '--check'],
   ['development/rmtx-a02/inspect.cjs', '--check'],
+  ['development/rmtx-a02/url-history/inspect.cjs', '--check'],
   ['scripts/sync_xtend_package_versions.js', '--check'],
   ['scripts/release/feature-scope.cjs', '--check-plan']
 ].map(command => Object.freeze(command)));
