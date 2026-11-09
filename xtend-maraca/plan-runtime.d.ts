@@ -265,7 +265,7 @@ export interface MaracaPlanRuntimeOptions {
   xtensionBindingsRuntime?: Pick<typeof XTensionBindings, 'validateStateBindingArtifact' | 'materializeStateBindingArtifact' | 'createXTensionStateRegistry'>;
   createXTensionHost?(context: XTensionBindings.XTensionBindingHostContext & {
     readonly container: Element; readonly surface: string; readonly hostSurface: string; readonly binding: XTensionBindings.XTensionStateBinding;
-  }): XTensionBindings.RuntimeHostController;
+  }): XTensionBindings.RuntimeHostController | XTensionBindings.KernelRuntimeHostController;
   /** Completed Action and Command history limits (default 100 each). 0 disables storage; Infinity is unbounded. */
   actionHistoryLimit?: number;
   commandHistoryLimit?: number;

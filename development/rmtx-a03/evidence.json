@@ -1,0 +1,195 @@
+{
+  "format": 1,
+  "stage": "A03.1-explicit-kernel-host-work",
+  "status": "a03-in-progress",
+  "kernelAdapterApiVersion": "3.0.0",
+  "registryApiVersion": "2.1.0",
+  "fabricRequired": true,
+  "frameworkPreemption": false,
+  "frameworkExecutionInPreparationCheck": false,
+  "contractChecks": 20,
+  "names": [
+    "required Fabric runner",
+    "reject missing scheduler",
+    "reject unknown lane",
+    "reject invalid budget",
+    "reject priority range",
+    "reject scope",
+    "reject authority in grant",
+    "reject invalid work map",
+    "closed capabilities are truthful",
+    "unknown named work is denied",
+    "component request options are denied",
+    "real kernel admission and cooperative yield",
+    "actual Fabric job id and lane correlation",
+    "suspend cancels owned work and fences old generation",
+    "terminal scope creates no replacement job",
+    "react v2 remains explicitly direct",
+    "react v3 requires Fabric and kernel",
+    "vue v2 remains explicitly direct",
+    "vue v3 requires Fabric and kernel",
+    "state registry API supports version-matched v2/v3 hosts"
+  ],
+  "requiredRealIntegrationCases": 26,
+  "requiredRuntimeCasesPerEnvironment": 184,
+  "requiredCompilerChecks": 88,
+  "sources": {
+    "tools/xtensions/kernel-work-scope.js": "a03d0b83af33c75b5f9e7c9295f0311ee6d9411a83b3a8a339e6c3c7fb300117",
+    "tools/xtensions/runtime-host-controller.js": "9ebd607784c4278d54718169c263004a1b02f39d3fb0ffdb104cd72e28a407b1",
+    "tools/xtensions/runtime-host-controller.d.ts": "688b3c0238110bacae903625c42c45110318aeffb98b1f6ededb7c3da69c11bd",
+    "tools/xtensions/react-runtime-adapter.js": "e4bb309b2c30371913957dcba74fde66068c7ac141b9e332a86482bce1388e45",
+    "tools/xtensions/react-runtime-adapter.d.ts": "3ccf8b4a1997310caee57ec9e23aec965ee4d68c29394bdb20a835048c33dcb3",
+    "tools/xtensions/vue-runtime-adapter.js": "9de3d366c70dcffaa5bb79fc32dc79680989c0c5df62061b4122cde1bd9fbf2d",
+    "tools/xtensions/vue-runtime-adapter.d.ts": "a4cd6850a61a727c1fdb6273e411af069a71e40287d60e01de59c675e364857f",
+    "tools/xtensions/state-binding.js": "4940e58382abfffa9f591c9ccab057437dbe34a9ec706b2666fa1bfad8a69d2d",
+    "tools/xtensions/state-binding.d.ts": "f13fe26ade4e2d693a299718dd88c6d73c8ba52eb6dcd0f2a99ad042eae2c137",
+    "xtend-maraca/plan-runtime.d.ts": "04f1a9cee18f0a495cd5b01b352c24bb6e7e59580b3b54c01b523133fff8aff0",
+    "tests/xtensions/kernel-runtime-acceptance.js": "3e3d4b2f4e27d82b2e0bdda14e90a36ad7b34547a2044f6a089952558f24dfcb",
+    "tests/xtensions/kernel-maraca-acceptance.js": "50344373ace1530805e5849219462dd425bf648bbcfb36b19ceecb24f0165291",
+    "tests/types/xtensions_kernel_runtime.mts": "2741915e56a7e0ed65f7c0d571b3cae595a06074d312b92b4c39c4558b952b3b",
+    "tests/xtensions/xtensions_runtime_gate_suite.js": "4445c6f65623f4ff2315326334666ea201ceb61d819b185a99d84f74cc3ab314"
+  },
+  "jobs": [
+    {
+      "phase": "queued",
+      "endpoint": "xtension.work.scan",
+      "lane": "background",
+      "scope": "reference-instance",
+      "rootId": "a03-reference"
+    },
+    {
+      "phase": "queued",
+      "endpoint": "xtension.lifecycle.mount",
+      "lane": "visible",
+      "scope": "reference-instance",
+      "rootId": "a03-reference"
+    },
+    {
+      "phase": "running",
+      "endpoint": "xtension.lifecycle.mount",
+      "lane": "visible",
+      "scope": "reference-instance",
+      "rootId": "a03-reference"
+    },
+    {
+      "phase": "waiting",
+      "endpoint": "xtension.lifecycle.mount",
+      "lane": "visible",
+      "scope": "reference-instance",
+      "rootId": "a03-reference"
+    },
+    {
+      "phase": "completed",
+      "endpoint": "xtension.lifecycle.mount",
+      "lane": "visible",
+      "scope": "reference-instance",
+      "rootId": "a03-reference"
+    },
+    {
+      "phase": "running",
+      "endpoint": "xtension.work.scan",
+      "lane": "background",
+      "scope": "reference-instance",
+      "rootId": "a03-reference"
+    },
+    {
+      "phase": "waiting",
+      "endpoint": "xtension.work.scan",
+      "lane": "background",
+      "scope": "reference-instance",
+      "rootId": "a03-reference"
+    },
+    {
+      "phase": "queued",
+      "endpoint": "rmt.scheduler.work",
+      "lane": "user-blocking",
+      "scope": "other",
+      "rootId": "other"
+    },
+    {
+      "phase": "yielded",
+      "endpoint": "xtension.work.scan",
+      "lane": "background",
+      "scope": "reference-instance",
+      "rootId": "a03-reference"
+    },
+    {
+      "phase": "running",
+      "endpoint": "rmt.scheduler.work",
+      "lane": "user-blocking",
+      "scope": "other",
+      "rootId": "other"
+    },
+    {
+      "phase": "completed",
+      "endpoint": "rmt.scheduler.work",
+      "lane": "user-blocking",
+      "scope": "other",
+      "rootId": "other"
+    },
+    {
+      "phase": "running",
+      "endpoint": "xtension.work.scan",
+      "lane": "background",
+      "scope": "reference-instance",
+      "rootId": "a03-reference"
+    },
+    {
+      "phase": "waiting",
+      "endpoint": "xtension.work.scan",
+      "lane": "background",
+      "scope": "reference-instance",
+      "rootId": "a03-reference"
+    },
+    {
+      "phase": "completed",
+      "endpoint": "xtension.work.scan",
+      "lane": "background",
+      "scope": "reference-instance",
+      "rootId": "a03-reference"
+    },
+    {
+      "phase": "queued",
+      "endpoint": "xtension.work.scan",
+      "lane": "background",
+      "scope": "reference-instance",
+      "rootId": "a03-reference"
+    },
+    {
+      "phase": "running",
+      "endpoint": "xtension.work.scan",
+      "lane": "background",
+      "scope": "reference-instance",
+      "rootId": "a03-reference"
+    },
+    {
+      "phase": "waiting",
+      "endpoint": "xtension.work.scan",
+      "lane": "background",
+      "scope": "reference-instance",
+      "rootId": "a03-reference"
+    },
+    {
+      "phase": "aborted",
+      "endpoint": "xtension.work.scan",
+      "lane": "background",
+      "scope": "reference-instance",
+      "rootId": "a03-reference"
+    }
+  ],
+  "capabilities": {
+    "schema": "xtend.xtensions.runtime-capabilities.v1",
+    "framework": "react",
+    "lifecycle": "kernel-jobs",
+    "fabricBoundary": true,
+    "namedWork": [
+      "scan"
+    ],
+    "cooperativeResources": true,
+    "cooperativeCancellation": true,
+    "budgets": "cooperative",
+    "frameworkInternalScheduling": false,
+    "preemption": false,
+    "terminalCleanup": "immediate"
+  }
+}

@@ -37,6 +37,7 @@
     "xtensions/url-state.*",
     "xtensions/url-state-contracts",
     "xtensions/cooperative-resource-scope.*",
+    "xtensions/kernel-work-scope.*",
     "xtensions/react-runtime-boundary.js",
     "xtensions/vue-runtime-boundary.js",
     "xtensions/react-payload-boundary.js",

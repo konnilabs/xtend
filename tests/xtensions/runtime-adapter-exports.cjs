@@ -40,12 +40,13 @@ function runExportChecks() {
       all[name] = Object.entries(exports).map(([key, value]) => [key, typeof value]).sort();
       if (kind === 'runtime') {
         runtime[framework] = all[name];
-        assert.deepEqual(Object.keys(exports).sort(), [`create${title}RuntimeAdapter`, `normalize${title}Peers`]);
+        assert.deepEqual(Object.keys(exports).sort(), [`create${title}KernelRuntimeAdapter`, `create${title}RuntimeAdapter`, `normalize${title}Peers`]);
         const declaration = fs.readFileSync(path.resolve(root, entry.types), 'utf8');
         const declared = [...declaration.matchAll(/export function (\w+)\(/g)].map((match) => match[1]).sort();
         assert.deepEqual(declared, Object.keys(exports).sort(), 'declarations describe every runtime value export');
         const compiler = require(`@ccslabs/xtend-compiler/xtensions/${framework}-runtime-adapter`);
         assert.equal(compiler[`create${title}RuntimeAdapter`], exports[`create${title}RuntimeAdapter`]);
+        assert.equal(compiler[`create${title}KernelRuntimeAdapter`], exports[`create${title}KernelRuntimeAdapter`]);
       } else {
         const adapter = exports[`create${title}HostAdapter`]();
         const initial = adapter.snapshot();

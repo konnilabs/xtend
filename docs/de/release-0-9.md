@@ -8,9 +8,9 @@
 | --- | --- | --- |
 | RMT Classic | Umbenennung und gemeinsamer Compilervertrag implementiert | Kompatibilität und Regressionen |
 | RMTX | Backend vorbereitet; Syntax und Frontend offen | Parser/Lowering, Editor, gemischte Projekte, Browser/SSR |
-| XTensions 2.0 | Instanz-/State-/Action-Anbindung sowie bedingte und wiederholte Hosts implementiert | Kernel-Jobs, automatische Provider-/Host-Kette und SSR/Resume offen |
+| XTensions 2.0 | State/Actions, bedingte/wiederholte Hosts und URL/History; Kernel-Adapter begonnen | Kernel-Anbindung vertiefen; Provider-/Host-Kette und SSR/Resume offen |
 
-A02.5.2 verbindet den [URL-/History-Vertrag](../../development/rmtx-a02/url-history/README.md) mit Router und Maraca. Versionen: URL-API 1.0.0, Runtime v7, Browser-API 5.0.0. Bindung v2, Sidecar v3, Maraca-Plan v4, Compiler 4.0.0 und Classic-AST 1.0.0 bleiben gültig.
+A03.1 liefert Kernel-Adapter-API 3.0.0 mit verbindlicher Fabric-Boundary. [Vertrag und Nachweise](../../development/rmtx-a03/README.md). URL/History läuft über Router und Maraca: Runtime v7, Browser-API 5.0.0, Registry 2.1.0. Classic-AST 1.0.0.
 
 ## Releaseprüfung
 

@@ -34,4 +34,9 @@ function createVueRuntimeAdapter(options = {}) {
   return createRuntimeHostController({ ...options }, { framework: 'vue', normalizeBoundary: normalizeVueRuntimeBoundary,
     inspectPayload: inspectVuePayloadBoundary, normalizePeers: normalizeVuePeers, create: createVueInstance });
 }
-module.exports = { createVueRuntimeAdapter, normalizeVuePeers };
+function createVueKernelRuntimeAdapter(options = {}) {
+  return createRuntimeHostController({ ...options }, { framework: 'vue', kernel: true,
+    normalizeBoundary: normalizeVueRuntimeBoundary, inspectPayload: inspectVuePayloadBoundary,
+    normalizePeers: normalizeVuePeers, create: createVueInstance });
+}
+module.exports = { createVueRuntimeAdapter, createVueKernelRuntimeAdapter, normalizeVuePeers };

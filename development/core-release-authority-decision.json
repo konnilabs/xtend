@@ -4,8 +4,8 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "06b65c57858828b2978d502823265f585e83674cc95b7427776833a9d801e00b",
-  "sourceMembershipSha256": "599ab5a310d30212e2421f9a7cc0b338510e5aff368e3608faac1939fc9fb48c",
+  "inventorySha256": "17b89c780944f71080a0e1c69f8c5fa4e846b3bdfb15b025f2dddc5badf29ff2",
+  "sourceMembershipSha256": "ea006ea47cfc4dd24479c2197a8462b816634e8f25de93767a07ca5271c3daa1",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
@@ -549,7 +549,7 @@
         },
         {
           "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
-          "sha256": "ad3fba8c4198fdab89fbb53e3fd5f09fd38e569c3740916370a476b6bfdda23e"
+          "sha256": "6d8a00bcff5d63d80745f31b38fdd67b5e996bac107aa7ea4644bfa4c2912b8a"
         },
         {
           "path": "development/rmtx-a01/README.md",
@@ -561,7 +561,7 @@
         },
         {
           "path": "development/rmtx-a01/inventory.json",
-          "sha256": "cc4ed49a357b62501257bc6a90f6769a277fb3f25447e04f85976a14e0dbc195"
+          "sha256": "38c6d08d426512551bff62a7e75347dc5197ffe37089decf3ff801d226d36650"
         },
         {
           "path": "docs/de/rmt-vnext-authoring.md",
@@ -573,7 +573,7 @@
         },
         {
           "path": "docs/generated/search/en.fulltext.json",
-          "sha256": "90ae03980e558a0765a05eef047b47c14f7b4ef7d699f88e8c50cc849beb9d1e"
+          "sha256": "5d602157f288d6360389e9a7606de3dfb4fa4655cca6650be82c188654827387"
         },
         {
           "path": "package.json",
@@ -1073,5 +1073,45 @@
     "publicationGuardRetired": false,
     "freshCommittedCaptureRequired": true,
     "rationale": "A02.5.2 scoped Router/Maraca integration review: new runtime v7/browser root v5 and route-host v1; four byte-identical URL v1 formats gain their first production formal/type authority. Other differences are source/archive/generated-mirror provenance or non-authoritative expression inference for open transaction metadata. Every unrelated authority/released hash remains unchanged. Feature acceptance, initial-candidate publication guard and fresh committed CI evidence remain separate."
+  },
+  "a031KernelFabricReview": {
+    "format": 1,
+    "date": "2026-11-09",
+    "status": "reviewed-unreleased-explicit-kernel-fabric-hosts",
+    "stage": "A03.1",
+    "a03Complete": false,
+    "contract": "development/rmtx-a03/README.md",
+    "newSchemaIds": [
+      "xtend.xtensions.kernel-work-scope.v1",
+      "xtend.xtensions.react-runtime-adapter.v3",
+      "xtend.xtensions.runtime-capabilities.v1",
+      "xtend.xtensions.runtime-host-controller.v3",
+      "xtend.xtensions.vue-runtime-adapter.v3"
+    ],
+    "scopedSchemaIds": [
+      "xtend.rmt.kernel-job.v1",
+      "xtend.rmt.kernel-scheduler.v1",
+      "xtend.rmt.kernel-work.v1",
+      "xtend.schemas.xtension.intent.v1",
+      "xtend.xtensions.kernel-work-scope.v1",
+      "xtend.xtensions.react-runtime-adapter.v3",
+      "xtend.xtensions.runtime-capabilities.v1",
+      "xtend.xtensions.runtime-host-controller.v2",
+      "xtend.xtensions.runtime-host-controller.v3",
+      "xtend.xtensions.state-binding.v2",
+      "xtend.xtensions.vue-runtime-adapter.v3"
+    ],
+    "fabricRequired": true,
+    "frameworkPreemption": false,
+    "nativeKernelAbiChanged": false,
+    "legacyV2FactoriesRetained": true,
+    "contractChecks": 20,
+    "integrationCases": 26,
+    "runtimeCasesPerEnvironment": 184,
+    "compilerChecks": 88,
+    "acceptedForRelease": false,
+    "publicationGuardRetired": false,
+    "freshCommittedCaptureRequired": true,
+    "rationale": "A03.1 scoped explicit Kernel/Fabric review: new v3 host and React/Vue factory contracts, v1 capability and owned-work snapshots; real kernel admission, named cooperative grants, current host policy, yielding and cancellation require Fabric and preserve immediate cleanup. Registry API 2.1 accepts version-matched v2/v3 suppliers. Every existing authoritative/released set and Native Kernel ABI is unchanged; other findings are source/generated/fixture provenance or non-authoritative expression inference. Full A03/0.9 feature acceptance and publication remain pending."
   }
 }

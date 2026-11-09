@@ -40,13 +40,14 @@ async function runCompiledStateBindingAcceptance({ React, ReactDOM, document, te
         const host = createReactRuntimeAdapter({ ...context, component: extra.component || createFilterPanel(React), peers: { React, ReactDOM }, policy: { events: context.events } });
         hosts.push({ context, host }); return host;
       }, ...extra }); } catch (error) { scheduler.dispose(); root.remove(); throw error; }
-    return { root, runtime, hosts, async close() {
+    return { root, runtime, hosts, scheduler, async close() {
       runtime.dispose(); await runtime.whenXTensionsIdle(); scheduler.dispose(); root.remove(); xtendState.clear(); xtendState.batchUpdate(previous);
     } };
   }
   await require('./repeated-state-binding-acceptance').runRepeatedStateBindingAcceptance({ React, ReactDOM, document, test, check, equal, fixture, plan: repeatedPlan, modules, bindingRuntime, xtendState, within, rejected, deferred });
   await require('./url-history-acceptance').runURLHistoryAcceptance({ React, ReactDOM, document, test, check, equal, plan: repeatedPlan, modules, bindingRuntime, xtendState });
   await require('./url-state-maraca-acceptance').runURLStateMaracaAcceptance({ React, ReactDOM, document, test, check, equal, fixture, plan: repeatedPlan, modules, xtendState, deferred, rejected, within });
+  await require('./kernel-maraca-acceptance').runKernelMaracaAcceptance({ React, ReactDOM, document, test, check, equal, fixture, plan: repeatedPlan, xtendState, within, rejected, deferred });
   const filter = (query, activeId = null) => ({ filter: { query, selection: { activeId } } });
 
   await test('A02.3: invalid presence and unsupported adoption reject before host authority exists', async () => {

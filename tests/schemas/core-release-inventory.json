@@ -17797,6 +17797,42 @@
       ],
       "status": "reviewed-distinct-observations",
       "type": "different-id-same-shape"
+    },
+    {
+      "baseline": "scoped-a031-kernel-fabric",
+      "baselineAccepted": true,
+      "confidence": "medium",
+      "origin": "scanner",
+      "rationale": "Static analysis observes 3 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A03.1 scoped explicit Kernel/Fabric review: new v3 host and React/Vue factory contracts, v1 capability and owned-work snapshots; real kernel admission, named cooperative grants, current host policy, yielding and cancellation require Fabric and preserve immediate cleanup. Registry API 2.1 accepts version-matched v2/v3 suppliers. Every existing authoritative/released set and Native Kernel ABI is unchanged; other findings are source/generated/fixture provenance or non-authoritative expression inference. Full A03/0.9 feature acceptance and publication remain pending."
+      },
+      "reviewId": "polymorphic-66b7dcca0610",
+      "schemaIds": [
+        "xtend.xtensions.runtime-capabilities.v1"
+      ],
+      "status": "reviewed-distinct-observations",
+      "type": "same-id-multiple-shapes"
+    },
+    {
+      "baseline": "scoped-a031-kernel-fabric",
+      "baselineAccepted": true,
+      "confidence": "medium",
+      "origin": "scanner",
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A03.1 scoped explicit Kernel/Fabric review: new v3 host and React/Vue factory contracts, v1 capability and owned-work snapshots; real kernel admission, named cooperative grants, current host policy, yielding and cancellation require Fabric and preserve immediate cleanup. Registry API 2.1 accepts version-matched v2/v3 suppliers. Every existing authoritative/released set and Native Kernel ABI is unchanged; other findings are source/generated/fixture provenance or non-authoritative expression inference. Full A03/0.9 feature acceptance and publication remain pending."
+      },
+      "reviewId": "polymorphic-c9b5dc0dff95",
+      "schemaIds": [
+        "xtend.xtensions.kernel-work-scope.v1"
+      ],
+      "status": "reviewed-distinct-observations",
+      "type": "same-id-multiple-shapes"
     }
   ],
   "entries": [
@@ -636836,6 +636872,67 @@
           "authoritative": false
         },
         {
+          "authoritative": false,
+          "completeness": "partial",
+          "evidence": [
+            {
+              "authoritative": false,
+              "completeness": "partial",
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "RuntimeKernelHandle",
+              "type": "declared-type"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "hash": "sha256:948ab82c737f8ea47682449ba73846cc2ebbf37f19ea8616d8ec5ea9d5c12de6",
+          "shape": {
+            "fieldCount": 4,
+            "fields": [
+              "cancel",
+              "id",
+              "result",
+              "status"
+            ],
+            "normalized": {
+              "fields": {
+                "cancel": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "id": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "result": {
+                  "optional": false,
+                  "type": {
+                    "arguments": [
+                      {
+                        "arguments": [],
+                        "unresolvedReference": "T"
+                      }
+                    ],
+                    "unresolvedReference": "Promise"
+                  }
+                },
+                "status": {
+                  "optional": false,
+                  "type": "string"
+                }
+              }
+            },
+            "signature": "cancel:function|id:string|result:{\"arguments\":[{\"arguments\":[],\"unresolvedReference\":\"T\"}],\"unresolvedReference\":\"Promise\"}|status:string"
+          },
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "symbols": [
+            "RuntimeKernelHandle"
+          ]
+        },
+        {
           "hash": "sha256:972b394188d718ace045f3c684b0b6800549e89eea964fc03f8ad866029cc5a0",
           "shape": {
             "fieldCount": 9,
@@ -637129,18 +637226,34 @@
         "acceptedFingerprints": [
           "sha256:31b3b6b229382ece50f3136ad5cba34492eb58637c448c7f073d49391c37cc06",
           "sha256:7bb0648b550b50e774743852716190c5924d06a4c2d7dea42a01c6a7a6fbca93",
+          "sha256:948ab82c737f8ea47682449ba73846cc2ebbf37f19ea8616d8ec5ea9d5c12de6",
           "sha256:972b394188d718ace045f3c684b0b6800549e89eea964fc03f8ad866029cc5a0",
           "sha256:e4f22bc24e28ada48588555b7f95db9ea0445d4c250e18fe7134f88d86b3ae9d",
           "sha256:ea76e4089c8db7250433876d2ac73253ebe604c9d5d4c2b1ce73ccdc3e55f3ed"
         ],
         "authoritativeFingerprints": [],
-        "decision": "accepted-initial-audit",
+        "decision": "reviewed-a031-kernel-fabric",
         "mode": "polymorphic",
-        "rationale": "Multiple statically observed shapes require an explicit, fingerprint-bound polymorphism decision.",
+        "rationale": "A03.1 scoped explicit Kernel/Fabric review: new v3 host and React/Vue factory contracts, v1 capability and owned-work snapshots; real kernel admission, named cooperative grants, current host policy, yielding and cancellation require Fabric and preserve immediate cleanup. Registry API 2.1 accepts version-matched v2/v3 suppliers. Every existing authoritative/released set and Native Kernel ABI is unchanged; other findings are source/generated/fixture provenance or non-authoritative expression inference. Full A03/0.9 feature acceptance and publication remain pending.",
         "releasedFingerprintSetHash": null
       },
       "status": "active",
       "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a01/inventory.json"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "development/rmtx-a01/inventory.json",
+              "pointer": "/"
+            }
+          ]
+        },
         {
           "application": "XTend Tests: Maraca",
           "role": "assertion",
@@ -637207,33 +637320,33 @@
             },
             {
               "type": "package-export",
-              "module": "@ccslabs/xtend/rmt/kernel-scheduler",
-              "path": "xtendrmt/rmt-kernel-scheduler.d.ts"
+              "path": "xtendrmt/rmt-kernel-scheduler.d.ts",
+              "module": "@ccslabs/xtend/rmt/kernel-scheduler"
             },
             {
               "type": "package-export",
-              "module": "@ccslabs/xtend/rmt/kernel-scheduler",
-              "path": "xtendrmt/rmt-kernel-scheduler.js"
-            },
-            {
-              "type": "symbol",
-              "path": "xtendrmt/rmt-kernel-scheduler.d.ts",
-              "symbol": "RMT_KERNEL_JOB_SCHEMA"
-            },
-            {
-              "type": "symbol",
-              "path": "xtendrmt/rmt-kernel-scheduler.d.ts",
-              "symbol": "RmtJobHandle"
-            },
-            {
-              "type": "symbol",
-              "path": "xtendrmt/rmt-kernel-scheduler.d.ts",
-              "symbol": "RmtKernelJobSnapshot"
-            },
-            {
-              "type": "symbol",
               "path": "xtendrmt/rmt-kernel-scheduler.js",
-              "symbol": "RMT_KERNEL_JOB_SCHEMA"
+              "module": "@ccslabs/xtend/rmt/kernel-scheduler"
+            },
+            {
+              "path": "xtendrmt/rmt-kernel-scheduler.d.ts",
+              "symbol": "RMT_KERNEL_JOB_SCHEMA",
+              "type": "symbol"
+            },
+            {
+              "path": "xtendrmt/rmt-kernel-scheduler.d.ts",
+              "symbol": "RmtJobHandle",
+              "type": "symbol"
+            },
+            {
+              "path": "xtendrmt/rmt-kernel-scheduler.d.ts",
+              "symbol": "RmtKernelJobSnapshot",
+              "type": "symbol"
+            },
+            {
+              "path": "xtendrmt/rmt-kernel-scheduler.js",
+              "symbol": "RMT_KERNEL_JOB_SCHEMA",
+              "type": "symbol"
             }
           ]
         },
@@ -637269,8 +637382,64 @@
         },
         {
           "application": "XTendRMT",
+          "interfaceReferences": [
+            {
+              "module": "@ccslabs/xtend-rmt",
+              "path": "xtendrmt/rmt-runtime.browser.js",
+              "type": "package-export"
+            },
+            {
+              "module": "@ccslabs/xtend-rmt",
+              "path": "xtendrmt/rmt-runtime.esm.js",
+              "type": "package-export"
+            },
+            {
+              "module": "@ccslabs/xtend-rmt/browser",
+              "path": "xtendrmt/rmt-runtime.browser.js",
+              "type": "package-export"
+            },
+            {
+              "module": "@ccslabs/xtend-rmt/core",
+              "path": "xtendrmt/rmt-core.esm.js",
+              "type": "package-export"
+            },
+            {
+              "module": "@ccslabs/xtend-rmt/kernel-scheduler",
+              "path": "xtendrmt/rmt-kernel-scheduler.d.ts",
+              "type": "package-export"
+            },
+            {
+              "module": "@ccslabs/xtend-rmt/runtime",
+              "path": "xtendrmt/rmt-runtime.browser.js",
+              "type": "package-export"
+            },
+            {
+              "module": "@ccslabs/xtend-rmt/runtime",
+              "path": "xtendrmt/rmt-runtime.esm.js",
+              "type": "package-export"
+            },
+            {
+              "module": "@ccslabs/xtend/rmt",
+              "path": "xtendrmt/rmt-runtime.browser.js",
+              "type": "package-export"
+            },
+            {
+              "module": "@ccslabs/xtend/rmt",
+              "path": "xtendrmt/rmt-runtime.esm.js",
+              "type": "package-export"
+            },
+            {
+              "module": "@ccslabs/xtend/rmt/browser",
+              "path": "xtendrmt/rmt-runtime.browser.js",
+              "type": "package-export"
+            },
+            {
+              "module": "@ccslabs/xtend/rmt/kernel-scheduler",
+              "path": "xtendrmt/rmt-kernel-scheduler.d.ts",
+              "type": "package-export"
+            }
+          ],
           "role": "reference",
-          "visibility": "public",
           "sourcePaths": [
             "xtendrmt/kernel/modules/rmt-state-telemetry-adapter.js",
             "xtendrmt/rmt-core.esm.js",
@@ -637278,63 +637447,52 @@
             "xtendrmt/rmt-runtime.browser.js",
             "xtendrmt/rmt-runtime.esm.js"
           ],
+          "visibility": "public"
+        },
+        {
+          "application": "XTensions",
           "interfaceReferences": [
             {
-              "type": "package-export",
-              "module": "@ccslabs/xtend-rmt",
-              "path": "xtendrmt/rmt-runtime.browser.js"
-            },
-            {
-              "type": "package-export",
-              "module": "@ccslabs/xtend-rmt",
-              "path": "xtendrmt/rmt-runtime.esm.js"
-            },
-            {
-              "type": "package-export",
-              "module": "@ccslabs/xtend-rmt/browser",
-              "path": "xtendrmt/rmt-runtime.browser.js"
-            },
-            {
-              "type": "package-export",
-              "module": "@ccslabs/xtend-rmt/core",
-              "path": "xtendrmt/rmt-core.esm.js"
-            },
-            {
-              "type": "package-export",
-              "module": "@ccslabs/xtend-rmt/kernel-scheduler",
-              "path": "xtendrmt/rmt-kernel-scheduler.d.ts"
-            },
-            {
-              "type": "package-export",
-              "module": "@ccslabs/xtend-rmt/runtime",
-              "path": "xtendrmt/rmt-runtime.browser.js"
-            },
-            {
-              "type": "package-export",
-              "module": "@ccslabs/xtend-rmt/runtime",
-              "path": "xtendrmt/rmt-runtime.esm.js"
-            },
-            {
-              "type": "package-export",
-              "module": "@ccslabs/xtend/rmt",
-              "path": "xtendrmt/rmt-runtime.browser.js"
-            },
-            {
-              "type": "package-export",
-              "module": "@ccslabs/xtend/rmt",
-              "path": "xtendrmt/rmt-runtime.esm.js"
-            },
-            {
-              "type": "package-export",
-              "module": "@ccslabs/xtend/rmt/browser",
-              "path": "xtendrmt/rmt-runtime.browser.js"
-            },
-            {
-              "type": "package-export",
-              "module": "@ccslabs/xtend/rmt/kernel-scheduler",
-              "path": "xtendrmt/rmt-kernel-scheduler.d.ts"
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "RuntimeKernelHandle",
+              "type": "symbol"
             }
-          ]
+          ],
+          "role": "definition",
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "visibility": "internal"
+        },
+        {
+          "application": "XTensions",
+          "interfaceReferences": [
+            {
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": null,
+              "type": "repo-symbol"
+            }
+          ],
+          "role": "producer",
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "visibility": "internal"
+        },
+        {
+          "application": "XTensions",
+          "interfaceReferences": [
+            {
+              "path": "tools/xtensions/kernel-work-scope.js",
+              "symbol": null,
+              "type": "repo-symbol"
+            }
+          ],
+          "role": "reference",
+          "sourcePaths": [
+            "tools/xtensions/kernel-work-scope.js"
+          ],
+          "visibility": "internal"
         }
       ],
       "version": 1
@@ -664241,6 +664399,21 @@
       "status": "active",
       "usages": [
         {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a03/README.md"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "development/rmtx-a03/README.md",
+              "symbol": null
+            }
+          ]
+        },
+        {
           "application": "XTend Tests: Rmt Language",
           "role": "assertion",
           "visibility": "test",
@@ -664277,28 +664450,28 @@
             },
             {
               "type": "package-export",
-              "module": "@ccslabs/xtend/rmt/kernel-scheduler",
-              "path": "xtendrmt/rmt-kernel-scheduler.d.ts"
+              "path": "xtendrmt/rmt-kernel-scheduler.d.ts",
+              "module": "@ccslabs/xtend/rmt/kernel-scheduler"
             },
             {
               "type": "package-export",
-              "module": "@ccslabs/xtend/rmt/kernel-scheduler",
-              "path": "xtendrmt/rmt-kernel-scheduler.js"
-            },
-            {
-              "type": "symbol",
-              "path": "xtendrmt/rmt-kernel-scheduler.d.ts",
-              "symbol": "RMT_KERNEL_SCHEDULER_SCHEMA"
-            },
-            {
-              "type": "symbol",
-              "path": "xtendrmt/rmt-kernel-scheduler.d.ts",
-              "symbol": "RmtKernelScheduler"
-            },
-            {
-              "type": "symbol",
               "path": "xtendrmt/rmt-kernel-scheduler.js",
-              "symbol": "RMT_KERNEL_SCHEDULER_SCHEMA"
+              "module": "@ccslabs/xtend/rmt/kernel-scheduler"
+            },
+            {
+              "path": "xtendrmt/rmt-kernel-scheduler.d.ts",
+              "symbol": "RMT_KERNEL_SCHEDULER_SCHEMA",
+              "type": "symbol"
+            },
+            {
+              "path": "xtendrmt/rmt-kernel-scheduler.d.ts",
+              "symbol": "RmtKernelScheduler",
+              "type": "symbol"
+            },
+            {
+              "path": "xtendrmt/rmt-kernel-scheduler.js",
+              "symbol": "RMT_KERNEL_SCHEDULER_SCHEMA",
+              "type": "symbol"
             }
           ]
         },
@@ -664321,36 +664494,51 @@
               "path": "xtendrmt/rmt-kernel-scheduler.js"
             },
             {
-              "type": "symbol",
               "path": "xtendrmt/rmt-kernel-scheduler.js",
-              "symbol": "createRmtKernelScheduler"
+              "symbol": "createRmtKernelScheduler",
+              "type": "symbol"
             },
             {
-              "type": "symbol",
               "path": "xtendrmt/rmt-kernel-scheduler.js",
-              "symbol": "snapshot"
+              "symbol": "snapshot",
+              "type": "symbol"
             }
           ]
         },
         {
           "application": "XTendRMT",
+          "interfaceReferences": [
+            {
+              "module": "@ccslabs/xtend-rmt/kernel-scheduler",
+              "path": "xtendrmt/rmt-kernel-scheduler.d.ts",
+              "type": "package-export"
+            },
+            {
+              "module": "@ccslabs/xtend/rmt/kernel-scheduler",
+              "path": "xtendrmt/rmt-kernel-scheduler.d.ts",
+              "type": "package-export"
+            }
+          ],
           "role": "reference",
-          "visibility": "public",
           "sourcePaths": [
             "xtendrmt/rmt-kernel-scheduler.d.ts"
           ],
+          "visibility": "public"
+        },
+        {
+          "application": "XTensions",
           "interfaceReferences": [
             {
-              "type": "package-export",
-              "module": "@ccslabs/xtend-rmt/kernel-scheduler",
-              "path": "xtendrmt/rmt-kernel-scheduler.d.ts"
-            },
-            {
-              "type": "package-export",
-              "module": "@ccslabs/xtend/rmt/kernel-scheduler",
-              "path": "xtendrmt/rmt-kernel-scheduler.d.ts"
+              "path": "tools/xtensions/kernel-work-scope.js",
+              "symbol": null,
+              "type": "repo-symbol"
             }
-          ]
+          ],
+          "role": "reference",
+          "sourcePaths": [
+            "tools/xtensions/kernel-work-scope.js"
+          ],
+          "visibility": "internal"
         }
       ],
       "version": 1
@@ -671664,21 +671852,127 @@
           ],
           "completeness": "partial",
           "authoritative": false
+        },
+        {
+          "authoritative": false,
+          "completeness": "partial",
+          "evidence": [
+            {
+              "authoritative": false,
+              "completeness": "partial",
+              "path": "tools/xtensions/kernel-work-scope.js",
+              "symbol": "handle",
+              "type": "runtime-observation"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "hash": "sha256:a59d4c8077763645186073d4ff101432ae8f5a2b8c71a4e75116925f8b57dbd3",
+          "shape": {
+            "fieldCount": 4,
+            "fields": [
+              "endpointName",
+              "metadata",
+              "rootId",
+              "scope"
+            ],
+            "normalized": {
+              "fields": {
+                "endpointName": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "metadata": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "generation": {
+                        "optional": false,
+                        "type": "number"
+                      },
+                      "operation": {
+                        "optional": false,
+                        "type": {
+                          "unresolvedReference": "workName"
+                        }
+                      },
+                      "source": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "workKind": {
+                        "optional": false,
+                        "type": {
+                          "unresolvedReference": "kind"
+                        }
+                      }
+                    },
+                    "unresolvedSpreads": [
+                      {
+                        "unresolvedReference": "identity"
+                      }
+                    ]
+                  }
+                },
+                "rootId": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "input.rootId"
+                  }
+                },
+                "scope": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "input.scope"
+                  }
+                }
+              },
+              "unresolvedSpreads": [
+                {
+                  "unresolvedReference": "policy"
+                }
+              ]
+            },
+            "signature": "endpointName:string|metadata:{generation:number,operation:{\"unresolvedReference\":\"workName\"},source:string,workKind:{\"unresolvedReference\":\"kind\"}}|rootId:{\"unresolved\":\"input.rootId\"}|scope:{\"unresolved\":\"input.scope\"}"
+          },
+          "sourcePaths": [
+            "tools/xtensions/kernel-work-scope.js"
+          ],
+          "symbols": [
+            "handle"
+          ]
         }
       ],
       "shapePolicy": {
         "acceptedFingerprints": [
           "sha256:87aa4b2c4deb3dc559db6cc04e9c63c22ca5c068bd4e409ceff1abf2a04a820e",
-          "sha256:a41fb36cf2b565b1791d97d8bb93ef6661f006e811e3a32d41b0568091c9a040"
+          "sha256:a41fb36cf2b565b1791d97d8bb93ef6661f006e811e3a32d41b0568091c9a040",
+          "sha256:a59d4c8077763645186073d4ff101432ae8f5a2b8c71a4e75116925f8b57dbd3"
         ],
         "authoritativeFingerprints": [],
-        "decision": "accepted-initial-audit",
+        "decision": "reviewed-a031-kernel-fabric",
         "mode": "polymorphic",
-        "rationale": "Multiple statically observed shapes require an explicit, fingerprint-bound polymorphism decision.",
+        "rationale": "A03.1 scoped explicit Kernel/Fabric review: new v3 host and React/Vue factory contracts, v1 capability and owned-work snapshots; real kernel admission, named cooperative grants, current host policy, yielding and cancellation require Fabric and preserve immediate cleanup. Registry API 2.1 accepts version-matched v2/v3 suppliers. Every existing authoritative/released set and Native Kernel ABI is unchanged; other findings are source/generated/fixture provenance or non-authoritative expression inference. Full A03/0.9 feature acceptance and publication remain pending.",
         "releasedFingerprintSetHash": null
       },
       "status": "active",
       "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a01/inventory.json"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "development/rmtx-a01/inventory.json",
+              "pointer": "/"
+            }
+          ]
+        },
         {
           "application": "XTendRMT",
           "role": "definition",
@@ -671700,28 +671994,28 @@
             },
             {
               "type": "package-export",
-              "module": "@ccslabs/xtend/rmt/kernel-scheduler",
-              "path": "xtendrmt/rmt-kernel-scheduler.d.ts"
-            },
-            {
-              "type": "package-export",
-              "module": "@ccslabs/xtend/rmt/kernel-scheduler",
-              "path": "xtendrmt/rmt-kernel-scheduler.js"
-            },
-            {
-              "type": "symbol",
               "path": "xtendrmt/rmt-kernel-scheduler.d.ts",
-              "symbol": "RMT_KERNEL_WORK_REQUEST_SCHEMA"
+              "module": "@ccslabs/xtend/rmt/kernel-scheduler"
             },
             {
-              "type": "symbol",
-              "path": "xtendrmt/rmt-kernel-scheduler.d.ts",
-              "symbol": "RmtKernelWorkRequest"
-            },
-            {
-              "type": "symbol",
+              "module": "@ccslabs/xtend/rmt/kernel-scheduler",
               "path": "xtendrmt/rmt-kernel-scheduler.js",
-              "symbol": "RMT_KERNEL_WORK_REQUEST_SCHEMA"
+              "type": "package-export"
+            },
+            {
+              "path": "xtendrmt/rmt-kernel-scheduler.d.ts",
+              "symbol": "RMT_KERNEL_WORK_REQUEST_SCHEMA",
+              "type": "symbol"
+            },
+            {
+              "path": "xtendrmt/rmt-kernel-scheduler.d.ts",
+              "symbol": "RmtKernelWorkRequest",
+              "type": "symbol"
+            },
+            {
+              "path": "xtendrmt/rmt-kernel-scheduler.js",
+              "symbol": "RMT_KERNEL_WORK_REQUEST_SCHEMA",
+              "type": "symbol"
             }
           ]
         },
@@ -671744,31 +672038,47 @@
               "path": "xtendrmt/rmt-kernel-scheduler.js"
             },
             {
-              "type": "symbol",
               "path": "xtendrmt/rmt-kernel-scheduler.js",
-              "symbol": "normalizeRequest"
+              "symbol": "normalizeRequest",
+              "type": "symbol"
             }
           ]
         },
         {
           "application": "XTendRMT",
+          "interfaceReferences": [
+            {
+              "module": "@ccslabs/xtend-rmt/kernel-scheduler",
+              "path": "xtendrmt/rmt-kernel-scheduler.d.ts",
+              "type": "package-export"
+            },
+            {
+              "module": "@ccslabs/xtend/rmt/kernel-scheduler",
+              "path": "xtendrmt/rmt-kernel-scheduler.d.ts",
+              "type": "package-export"
+            }
+          ],
           "role": "reference",
-          "visibility": "public",
           "sourcePaths": [
             "xtendrmt/rmt-kernel-scheduler.d.ts"
           ],
+          "visibility": "public"
+        },
+        {
+          "application": "XTensions",
           "interfaceReferences": [
             {
-              "type": "package-export",
-              "module": "@ccslabs/xtend-rmt/kernel-scheduler",
-              "path": "xtendrmt/rmt-kernel-scheduler.d.ts"
-            },
-            {
-              "type": "package-export",
-              "module": "@ccslabs/xtend/rmt/kernel-scheduler",
-              "path": "xtendrmt/rmt-kernel-scheduler.d.ts"
+              "path": "tools/xtensions/kernel-work-scope.js",
+              "symbol": "handle",
+              "type": "symbol"
             }
-          ]
+          ],
+          "role": "producer",
+          "sourcePaths": [
+            "tools/xtensions/kernel-work-scope.js",
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "visibility": "internal"
         }
       ],
       "version": 1
@@ -774248,7 +774558,7 @@
           },
           {
             "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
-            "sha256": "ad3fba8c4198fdab89fbb53e3fd5f09fd38e569c3740916370a476b6bfdda23e"
+            "sha256": "6d8a00bcff5d63d80745f31b38fdd67b5e996bac107aa7ea4644bfa4c2912b8a"
           },
           {
             "path": "development/rmtx-a01/README.md",
@@ -774260,7 +774570,7 @@
           },
           {
             "path": "development/rmtx-a01/inventory.json",
-            "sha256": "cc4ed49a357b62501257bc6a90f6769a277fb3f25447e04f85976a14e0dbc195"
+            "sha256": "38c6d08d426512551bff62a7e75347dc5197ffe37089decf3ff801d226d36650"
           },
           {
             "path": "docs/de/rmt-vnext-authoring.md",
@@ -774272,7 +774582,7 @@
           },
           {
             "path": "docs/generated/search/en.fulltext.json",
-            "sha256": "90ae03980e558a0765a05eef047b47c14f7b4ef7d699f88e8c50cc849beb9d1e"
+            "sha256": "5d602157f288d6360389e9a7606de3dfb4fa4655cca6650be82c188654827387"
           },
           {
             "path": "package.json",
@@ -819822,7 +820132,8 @@
             "development/XTensions-Runtime-Adapters-WP1.md",
             "development/rmtx-a02/bindings.v1.json",
             "development/rmtx-a02/conditional-bindings.v2.json",
-            "development/rmtx-a02/controlled-filters.js"
+            "development/rmtx-a02/controlled-filters.js",
+            "development/rmtx-a03/README.md"
           ],
           "interfaceReferences": [
             {
@@ -926763,6 +927074,287 @@
       "version": 1
     },
     {
+      "aliasOf": null,
+      "canonicalDefinition": {
+        "definitionType": "object-shape",
+        "path": "tools/xtensions/kernel-work-scope.js",
+        "role": "producer",
+        "symbol": null,
+        "visibility": "internal"
+      },
+      "description": "Unreleased A03.1 explicit Kernel/Fabric XTension contract. Versioned opt-in host delivery and named cooperative work, owned cancellation and truthful capability limits. Mandatory real React/Vue and Maraca references do not grant full A03 or 0.9 feature acceptance.",
+      "descriptionStatus": "curated",
+      "familyId": "xtend.xtensions.kernel-work-scope",
+      "kinds": [
+        "runtime-discriminator"
+      ],
+      "lifecycle": {
+        "rollout": "planned",
+        "status": "active"
+      },
+      "releasedFingerprintSetHash": "sha256:2412fdf636095669e31f290bae3cd0dd9ad566b7e9a8faa31f0523be99b4fa66",
+      "replacedBy": null,
+      "schemaId": "xtend.xtensions.kernel-work-scope.v1",
+      "shapeFingerprints": [
+        {
+          "authoritative": false,
+          "completeness": "partial",
+          "evidence": [
+            {
+              "authoritative": false,
+              "completeness": "partial",
+              "path": "tools/xtensions/kernel-work-scope.js",
+              "symbol": "snapshot",
+              "type": "runtime-observation"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "hash": "sha256:d253909157c24603d8071f44fb982921202bc9588bb87a9dea11e51f4278664e",
+          "shape": {
+            "fieldCount": 4,
+            "fields": [
+              "generation",
+              "history",
+              "pending",
+              "phase"
+            ],
+            "normalized": {
+              "fields": {
+                "generation": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "history": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "pending": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "phase": {
+                  "optional": false,
+                  "type": "string"
+                }
+              }
+            },
+            "signature": "generation:number|history:unknown|pending:unknown|phase:string"
+          },
+          "sourcePaths": [
+            "tools/xtensions/kernel-work-scope.js"
+          ],
+          "symbols": [
+            "snapshot"
+          ]
+        },
+        {
+          "authoritative": true,
+          "completeness": "complete",
+          "evidence": [
+            {
+              "authoritative": true,
+              "completeness": "complete",
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "KernelWorkSnapshot",
+              "type": "declared-type"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "hash": "sha256:e389fbd1325d8d374df350028c84d0ceeb121ab86dfada138f8534d646669ff3",
+          "shape": {
+            "fieldCount": 4,
+            "fields": [
+              "generation",
+              "history",
+              "pending",
+              "phase"
+            ],
+            "normalized": {
+              "fields": {
+                "generation": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "history": {
+                  "optional": false,
+                  "type": {
+                    "elementType": {
+                      "fields": {
+                        "id": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "kind": {
+                          "optional": false,
+                          "type": {
+                            "union": [
+                              {
+                                "literal": "lifecycle"
+                              },
+                              {
+                                "literal": "work"
+                              }
+                            ]
+                          }
+                        },
+                        "lane": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "name": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "status": {
+                          "optional": false,
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "pending": {
+                  "optional": false,
+                  "type": {
+                    "elementType": {
+                      "fields": {
+                        "id": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "kind": {
+                          "optional": false,
+                          "type": {
+                            "union": [
+                              {
+                                "literal": "lifecycle"
+                              },
+                              {
+                                "literal": "work"
+                              }
+                            ]
+                          }
+                        },
+                        "lane": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "name": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "status": {
+                          "optional": false,
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "phase": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "literal": "active"
+                      },
+                      {
+                        "literal": "disposed"
+                      },
+                      {
+                        "literal": "mounting"
+                      },
+                      {
+                        "literal": "resuming"
+                      },
+                      {
+                        "literal": "suspended"
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "signature": "generation:number|history:array<{id:string,kind:union<literal<\"lifecycle\">|literal<\"work\">>,lane:string,name:string,status:string}>|pending:array<{id:string,kind:union<literal<\"lifecycle\">|literal<\"work\">>,lane:string,name:string,status:string}>|phase:union<literal<\"active\">|literal<\"disposed\">|literal<\"mounting\">|literal<\"resuming\">|literal<\"suspended\">>"
+          },
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "symbols": [
+            "KernelWorkSnapshot"
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "acceptedFingerprints": [
+          "sha256:d253909157c24603d8071f44fb982921202bc9588bb87a9dea11e51f4278664e",
+          "sha256:e389fbd1325d8d374df350028c84d0ceeb121ab86dfada138f8534d646669ff3"
+        ],
+        "authoritativeFingerprints": [
+          "sha256:e389fbd1325d8d374df350028c84d0ceeb121ab86dfada138f8534d646669ff3"
+        ],
+        "decision": "reviewed-a031-kernel-fabric",
+        "mode": "polymorphic",
+        "rationale": "A03.1 scoped explicit Kernel/Fabric review: new v3 host and React/Vue factory contracts, v1 capability and owned-work snapshots; real kernel admission, named cooperative grants, current host policy, yielding and cancellation require Fabric and preserve immediate cleanup. Registry API 2.1 accepts version-matched v2/v3 suppliers. Every existing authoritative/released set and Native Kernel ABI is unchanged; other findings are source/generated/fixture provenance or non-authoritative expression inference. Full A03/0.9 feature acceptance and publication remain pending.",
+        "releasedFingerprintSetHash": "sha256:2412fdf636095669e31f290bae3cd0dd9ad566b7e9a8faa31f0523be99b4fa66"
+      },
+      "status": "active",
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "interfaceReferences": [
+            {
+              "path": "development/rmtx-a01/inventory.json",
+              "pointer": "/",
+              "type": "json-pointer"
+            }
+          ],
+          "role": "documentation",
+          "sourcePaths": [
+            "development/rmtx-a01/inventory.json",
+            "development/rmtx-a03/README.md"
+          ],
+          "visibility": "docs"
+        },
+        {
+          "application": "XTensions",
+          "interfaceReferences": [
+            {
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "KernelWorkSnapshot",
+              "type": "symbol"
+            }
+          ],
+          "role": "definition",
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "visibility": "internal"
+        },
+        {
+          "application": "XTensions",
+          "interfaceReferences": [
+            {
+              "path": "tools/xtensions/kernel-work-scope.js",
+              "symbol": "snapshot",
+              "type": "symbol"
+            }
+          ],
+          "role": "producer",
+          "sourcePaths": [
+            "tools/xtensions/kernel-work-scope.js",
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "visibility": "internal"
+        }
+      ],
+      "version": 1
+    },
+    {
       "aliasOf": "xtend.xtensions.host-resource-cleanup-record.v1",
       "canonicalDefinition": {
         "path": "tools/xtensions/host-resource-cleanup-record.js",
@@ -936854,6 +937446,77 @@
     {
       "aliasOf": null,
       "canonicalDefinition": {
+        "definitionType": "typescript-declaration",
+        "path": "tools/xtensions/react-runtime-adapter.d.ts",
+        "role": "reference",
+        "symbol": null,
+        "visibility": "internal"
+      },
+      "description": "Unreleased A03.1 explicit Kernel/Fabric XTension contract. Versioned opt-in host delivery and named cooperative work, owned cancellation and truthful capability limits. Mandatory real React/Vue and Maraca references do not grant full A03 or 0.9 feature acceptance.",
+      "descriptionStatus": "curated",
+      "familyId": "xtend.xtensions.react-runtime-adapter",
+      "kinds": [
+        "identifier-only"
+      ],
+      "lifecycle": {
+        "rollout": "planned",
+        "status": "active"
+      },
+      "releasedFingerprintSetHash": null,
+      "replacedBy": null,
+      "schemaId": "xtend.xtensions.react-runtime-adapter.v3",
+      "shapeFingerprints": [],
+      "shapePolicy": {
+        "acceptedFingerprints": [],
+        "authoritativeFingerprints": [],
+        "decision": "reviewed-a031-kernel-fabric",
+        "mode": "unresolved",
+        "rationale": "A03.1 scoped explicit Kernel/Fabric review: new v3 host and React/Vue factory contracts, v1 capability and owned-work snapshots; real kernel admission, named cooperative grants, current host policy, yielding and cancellation require Fabric and preserve immediate cleanup. Registry API 2.1 accepts version-matched v2/v3 suppliers. Every existing authoritative/released set and Native Kernel ABI is unchanged; other findings are source/generated/fixture provenance or non-authoritative expression inference. Full A03/0.9 feature acceptance and publication remain pending.",
+        "releasedFingerprintSetHash": null
+      },
+      "status": "active",
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "interfaceReferences": [
+            {
+              "path": "development/rmtx-a03/README.md",
+              "symbol": null,
+              "type": "repo-symbol"
+            }
+          ],
+          "role": "documentation",
+          "sourcePaths": [
+            "development/rmtx-a03/README.md"
+          ],
+          "visibility": "docs"
+        },
+        {
+          "application": "XTensions",
+          "interfaceReferences": [
+            {
+              "module": "@ccslabs/xtend-compiler/xtensions/react-runtime-adapter",
+              "path": "tools/xtensions/react-runtime-adapter.d.ts",
+              "type": "package-export"
+            },
+            {
+              "module": "@ccslabs/xtend/xtensions/react-runtime-adapter",
+              "path": "tools/xtensions/react-runtime-adapter.d.ts",
+              "type": "package-export"
+            }
+          ],
+          "role": "reference",
+          "sourcePaths": [
+            "tools/xtensions/react-runtime-adapter.d.ts"
+          ],
+          "visibility": "internal"
+        }
+      ],
+      "version": 3
+    },
+    {
+      "aliasOf": null,
+      "canonicalDefinition": {
         "path": "tools/xtensions/react-runtime-boundary.js",
         "symbol": "XTENSIONS_REACT_RUNTIME_BOUNDARY_SCHEMA",
         "definitionType": "constant",
@@ -942807,6 +943470,394 @@
     {
       "aliasOf": null,
       "canonicalDefinition": {
+        "definitionType": "object-shape",
+        "path": "tools/xtensions/kernel-work-scope.js",
+        "role": "producer",
+        "symbol": null,
+        "visibility": "internal"
+      },
+      "description": "Unreleased A03.1 explicit Kernel/Fabric XTension contract. Versioned opt-in host delivery and named cooperative work, owned cancellation and truthful capability limits. Mandatory real React/Vue and Maraca references do not grant full A03 or 0.9 feature acceptance.",
+      "descriptionStatus": "curated",
+      "familyId": "xtend.xtensions.runtime-capabilities",
+      "kinds": [
+        "runtime-discriminator"
+      ],
+      "lifecycle": {
+        "rollout": "planned",
+        "status": "active"
+      },
+      "releasedFingerprintSetHash": "sha256:1c54f9b049988ae7df4d63f3d2649c225654dd5d0801a209a8e6b8f7a521b29c",
+      "replacedBy": null,
+      "schemaId": "xtend.xtensions.runtime-capabilities.v1",
+      "shapeFingerprints": [
+        {
+          "authoritative": false,
+          "completeness": "partial",
+          "evidence": [
+            {
+              "authoritative": false,
+              "completeness": "partial",
+              "path": "tools/xtensions/kernel-work-scope.js",
+              "symbol": "createKernelWorkScope",
+              "type": "runtime-observation"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "hash": "sha256:31e51bb8596348942bd08b31e2a1c3eb2bd9358be7459ebf548204cd5b71d6a9",
+          "shape": {
+            "fieldCount": 10,
+            "fields": [
+              "budgets",
+              "cooperativeCancellation",
+              "cooperativeResources",
+              "fabricBoundary",
+              "framework",
+              "frameworkInternalScheduling",
+              "lifecycle",
+              "namedWork",
+              "preemption",
+              "terminalCleanup"
+            ],
+            "normalized": {
+              "fields": {
+                "budgets": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "cooperativeCancellation": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "cooperativeResources": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "fabricBoundary": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "framework": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "identity.framework"
+                  }
+                },
+                "frameworkInternalScheduling": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "lifecycle": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "namedWork": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "preemption": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "terminalCleanup": {
+                  "optional": false,
+                  "type": "string"
+                }
+              }
+            },
+            "signature": "budgets:string|cooperativeCancellation:boolean|cooperativeResources:boolean|fabricBoundary:boolean|framework:{\"unresolved\":\"identity.framework\"}|frameworkInternalScheduling:boolean|lifecycle:string|namedWork:unknown|preemption:boolean|terminalCleanup:string"
+          },
+          "sourcePaths": [
+            "tools/xtensions/kernel-work-scope.js"
+          ],
+          "symbols": [
+            "createKernelWorkScope"
+          ]
+        },
+        {
+          "authoritative": true,
+          "completeness": "complete",
+          "evidence": [
+            {
+              "authoritative": true,
+              "completeness": "complete",
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "RuntimeKernelCapabilities",
+              "type": "declared-type"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "hash": "sha256:51e794013f4fa9f36ff1c6c7aece438e98dbebacb8859d2b035e938a70b779e9",
+          "shape": {
+            "fieldCount": 10,
+            "fields": [
+              "budgets",
+              "cooperativeCancellation",
+              "cooperativeResources",
+              "fabricBoundary",
+              "framework",
+              "frameworkInternalScheduling",
+              "lifecycle",
+              "namedWork",
+              "preemption",
+              "terminalCleanup"
+            ],
+            "normalized": {
+              "fields": {
+                "budgets": {
+                  "optional": false,
+                  "type": {
+                    "literal": "cooperative"
+                  }
+                },
+                "cooperativeCancellation": {
+                  "optional": false,
+                  "type": {
+                    "literal": true
+                  }
+                },
+                "cooperativeResources": {
+                  "optional": false,
+                  "type": {
+                    "literal": true
+                  }
+                },
+                "fabricBoundary": {
+                  "optional": false,
+                  "type": {
+                    "literal": true
+                  }
+                },
+                "framework": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "literal": "react"
+                      },
+                      {
+                        "literal": "vue"
+                      }
+                    ]
+                  }
+                },
+                "frameworkInternalScheduling": {
+                  "optional": false,
+                  "type": {
+                    "literal": false
+                  }
+                },
+                "lifecycle": {
+                  "optional": false,
+                  "type": {
+                    "literal": "kernel-jobs"
+                  }
+                },
+                "namedWork": {
+                  "optional": false,
+                  "type": {
+                    "elementType": "string"
+                  }
+                },
+                "preemption": {
+                  "optional": false,
+                  "type": {
+                    "literal": false
+                  }
+                },
+                "terminalCleanup": {
+                  "optional": false,
+                  "type": {
+                    "literal": "immediate"
+                  }
+                }
+              }
+            },
+            "signature": "budgets:literal<\"cooperative\">|cooperativeCancellation:literal<true>|cooperativeResources:literal<true>|fabricBoundary:literal<true>|framework:union<literal<\"react\">|literal<\"vue\">>|frameworkInternalScheduling:literal<false>|lifecycle:literal<\"kernel-jobs\">|namedWork:array<string>|preemption:literal<false>|terminalCleanup:literal<\"immediate\">"
+          },
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "symbols": [
+            "RuntimeKernelCapabilities"
+          ]
+        },
+        {
+          "authoritative": false,
+          "completeness": "complete",
+          "evidence": [
+            {
+              "authoritative": false,
+              "completeness": "complete",
+              "path": "development/rmtx-a03/evidence.json",
+              "symbol": "/capabilities",
+              "type": "docs"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
+          ],
+          "hash": "sha256:7399fdc71275bfbb7c8cea06ed0613a58325bcb6becbac940e601c7e5c856f03",
+          "shape": {
+            "fieldCount": 10,
+            "fields": [
+              "budgets",
+              "cooperativeCancellation",
+              "cooperativeResources",
+              "fabricBoundary",
+              "framework",
+              "frameworkInternalScheduling",
+              "lifecycle",
+              "namedWork",
+              "preemption",
+              "terminalCleanup"
+            ],
+            "normalized": {
+              "fields": {
+                "budgets": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "cooperativeCancellation": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "cooperativeResources": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "fabricBoundary": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "framework": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "frameworkInternalScheduling": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "lifecycle": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "namedWork": {
+                  "optional": false,
+                  "type": {
+                    "array": [
+                      "string"
+                    ]
+                  }
+                },
+                "preemption": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "terminalCleanup": {
+                  "optional": false,
+                  "type": "string"
+                }
+              }
+            },
+            "signature": "budgets:string|cooperativeCancellation:boolean|cooperativeResources:boolean|fabricBoundary:boolean|framework:string|frameworkInternalScheduling:boolean|lifecycle:string|namedWork:array<string>|preemption:boolean|terminalCleanup:string"
+          },
+          "sourcePaths": [
+            "development/rmtx-a03/evidence.json"
+          ],
+          "symbols": [
+            "/capabilities"
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "acceptedFingerprints": [
+          "sha256:31e51bb8596348942bd08b31e2a1c3eb2bd9358be7459ebf548204cd5b71d6a9",
+          "sha256:51e794013f4fa9f36ff1c6c7aece438e98dbebacb8859d2b035e938a70b779e9",
+          "sha256:7399fdc71275bfbb7c8cea06ed0613a58325bcb6becbac940e601c7e5c856f03"
+        ],
+        "authoritativeFingerprints": [
+          "sha256:51e794013f4fa9f36ff1c6c7aece438e98dbebacb8859d2b035e938a70b779e9"
+        ],
+        "decision": "reviewed-a031-kernel-fabric",
+        "mode": "polymorphic",
+        "rationale": "A03.1 scoped explicit Kernel/Fabric review: new v3 host and React/Vue factory contracts, v1 capability and owned-work snapshots; real kernel admission, named cooperative grants, current host policy, yielding and cancellation require Fabric and preserve immediate cleanup. Registry API 2.1 accepts version-matched v2/v3 suppliers. Every existing authoritative/released set and Native Kernel ABI is unchanged; other findings are source/generated/fixture provenance or non-authoritative expression inference. Full A03/0.9 feature acceptance and publication remain pending.",
+        "releasedFingerprintSetHash": "sha256:1c54f9b049988ae7df4d63f3d2649c225654dd5d0801a209a8e6b8f7a521b29c"
+      },
+      "status": "active",
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "interfaceReferences": [
+            {
+              "path": "development/rmtx-a03/evidence.json",
+              "pointer": "/capabilities",
+              "type": "json-pointer"
+            }
+          ],
+          "role": "documentation",
+          "sourcePaths": [
+            "development/rmtx-a01/inventory.json",
+            "development/rmtx-a03/README.md",
+            "development/rmtx-a03/evidence.json"
+          ],
+          "visibility": "docs"
+        },
+        {
+          "application": "XTend Tests: Xtensions",
+          "interfaceReferences": [
+            {
+              "path": "tests/xtensions/kernel-runtime-acceptance.js",
+              "symbol": null,
+              "type": "repo-symbol"
+            }
+          ],
+          "role": "assertion",
+          "sourcePaths": [
+            "tests/xtensions/kernel-runtime-acceptance.js"
+          ],
+          "visibility": "test"
+        },
+        {
+          "application": "XTensions",
+          "interfaceReferences": [
+            {
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "RuntimeKernelCapabilities",
+              "type": "symbol"
+            }
+          ],
+          "role": "definition",
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "visibility": "internal"
+        },
+        {
+          "application": "XTensions",
+          "interfaceReferences": [
+            {
+              "path": "tools/xtensions/kernel-work-scope.js",
+              "symbol": "createKernelWorkScope",
+              "type": "symbol"
+            }
+          ],
+          "role": "producer",
+          "sourcePaths": [
+            "tools/xtensions/kernel-work-scope.js",
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "visibility": "internal"
+        }
+      ],
+      "version": 1
+    },
+    {
+      "aliasOf": null,
+      "canonicalDefinition": {
         "path": "tools/xtensions/runtime-capability-registry.js",
         "symbol": "XTENSIONS_RUNTIME_CAPABILITY_NEGOTIATION_SCHEMA",
         "definitionType": "constant",
@@ -944700,15 +945751,15 @@
       "familyId": "xtend.xtensions.runtime-host-controller",
       "version": 2,
       "kinds": [
-        "runtime-discriminator"
+        "identifier-only"
       ],
       "status": "active",
       "lifecycle": {
-        "status": "active",
+        "status": "deprecated",
         "rollout": "planned"
       },
       "aliasOf": null,
-      "replacedBy": null,
+      "replacedBy": "xtend.xtensions.runtime-host-controller.v3",
       "releasedFingerprintSetHash": "sha256:6958b4bd0a72f87e982b269078acc4c85d6d3b720237e6486063fb357770227b",
       "description": "Unreleased A02.2 versioned contract for compiler/Maraca transport, runtime identity or typed state-binding evidence. Full RMTX/XTensions acceptance and publication remain pending.",
       "descriptionStatus": "curated",
@@ -944725,7 +945776,9 @@
           "role": "documentation",
           "visibility": "docs",
           "sourcePaths": [
-            "development/rmtx-a02/README.md"
+            "development/rmtx-a02/README.md",
+            "development/rmtx-a03/README.md",
+            "development/rmtx-a03/inspect.cjs"
           ],
           "interfaceReferences": [
             {
@@ -944778,21 +945831,6 @@
         },
         {
           "application": "XTensions",
-          "role": "producer",
-          "visibility": "internal",
-          "sourcePaths": [
-            "tools/xtensions/runtime-host-controller.js"
-          ],
-          "interfaceReferences": [
-            {
-              "type": "symbol",
-              "path": "tools/xtensions/runtime-host-controller.js",
-              "symbol": "api"
-            }
-          ]
-        },
-        {
-          "application": "XTensions",
           "role": "reference",
           "visibility": "internal",
           "sourcePaths": [
@@ -944808,124 +945846,18 @@
         }
       ],
       "shapePolicy": {
-        "mode": "polymorphic",
+        "mode": "single",
         "acceptedFingerprints": [
-          "sha256:3561407dcf05814160f1cef3f6c01bfddb5feb8af45b0d320c9ffbad0e5dbf45",
           "sha256:6793f33eedcbbcb9fc4da872a3a6bb58f1fe9f3ce599b446298f5f7f0bf57479"
         ],
         "authoritativeFingerprints": [
           "sha256:6793f33eedcbbcb9fc4da872a3a6bb58f1fe9f3ce599b446298f5f7f0bf57479"
         ],
         "releasedFingerprintSetHash": "sha256:6958b4bd0a72f87e982b269078acc4c85d6d3b720237e6486063fb357770227b",
-        "rationale": "Scoped A02.2 review: changed contracts have distinct major schema versions or explicit API SemVer. Remaining differences are non-authoritative compiler, fixture, archived-type or generated-bundle observations. Every existing authoritative fingerprint and released set stays unchanged; see development/rmtx-a02/README.md, sections 7-8.",
-        "decision": "reviewed-a022-versioned-binding"
+        "rationale": "A03.1 scoped explicit Kernel/Fabric review: new v3 host and React/Vue factory contracts, v1 capability and owned-work snapshots; real kernel admission, named cooperative grants, current host policy, yielding and cancellation require Fabric and preserve immediate cleanup. Registry API 2.1 accepts version-matched v2/v3 suppliers. Every existing authoritative/released set and Native Kernel ABI is unchanged; other findings are source/generated/fixture provenance or non-authoritative expression inference. Full A03/0.9 feature acceptance and publication remain pending.",
+        "decision": "reviewed-a031-kernel-fabric"
       },
       "shapeFingerprints": [
-        {
-          "hash": "sha256:3561407dcf05814160f1cef3f6c01bfddb5feb8af45b0d320c9ffbad0e5dbf45",
-          "shape": {
-            "fieldCount": 14,
-            "fields": [
-              "adapterSchema",
-              "apiVersion",
-              "emit",
-              "framework",
-              "getCleanupRecords",
-              "getEventRecords",
-              "getLifecycleRecords",
-              "mount",
-              "reportError",
-              "resume",
-              "snapshot",
-              "suspend",
-              "unmount",
-              "update"
-            ],
-            "signature": "adapterSchema:string|apiVersion:string|emit:function|framework:{\"unresolved\":\"driver.framework\"}|getCleanupRecords:function|getEventRecords:function|getLifecycleRecords:function|mount:function|reportError:function|resume:function|snapshot:function|suspend:function|unmount:function|update:function",
-            "normalized": {
-              "fields": {
-                "adapterSchema": {
-                  "optional": false,
-                  "type": "string"
-                },
-                "apiVersion": {
-                  "optional": false,
-                  "type": "string"
-                },
-                "emit": {
-                  "optional": false,
-                  "type": "function"
-                },
-                "framework": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "driver.framework"
-                  }
-                },
-                "getCleanupRecords": {
-                  "optional": false,
-                  "type": "function"
-                },
-                "getEventRecords": {
-                  "optional": false,
-                  "type": "function"
-                },
-                "getLifecycleRecords": {
-                  "optional": false,
-                  "type": "function"
-                },
-                "mount": {
-                  "optional": false,
-                  "type": "function"
-                },
-                "reportError": {
-                  "optional": false,
-                  "type": "function"
-                },
-                "resume": {
-                  "optional": false,
-                  "type": "function"
-                },
-                "snapshot": {
-                  "optional": false,
-                  "type": "function"
-                },
-                "suspend": {
-                  "optional": false,
-                  "type": "function"
-                },
-                "unmount": {
-                  "optional": false,
-                  "type": "function"
-                },
-                "update": {
-                  "optional": false,
-                  "type": "function"
-                }
-              }
-            }
-          },
-          "sourcePaths": [
-            "tools/xtensions/runtime-host-controller.js"
-          ],
-          "symbols": [
-            "api"
-          ],
-          "evidence": [
-            {
-              "type": "runtime-observation",
-              "completeness": "partial",
-              "authoritative": false,
-              "path": "tools/xtensions/runtime-host-controller.js",
-              "symbol": "api"
-            }
-          ],
-          "evidenceTypes": [
-            "runtime-observation"
-          ],
-          "completeness": "partial",
-          "authoritative": false
-        },
         {
           "hash": "sha256:6793f33eedcbbcb9fc4da872a3a6bb58f1fe9f3ce599b446298f5f7f0bf57479",
           "shape": {
@@ -945063,7 +945995,284 @@
           "completeness": "complete",
           "authoritative": true
         }
-      ]
+      ],
+      "replacementDecision": {
+        "compatibility": "The original named v2 factories and complete v2 declaration remain supported as the direct compatibility path. There is no implicit upgrade or in-place expansion of v2 data. Existing authority/released hashes are preserved.",
+        "rationale": "A03.1 introduces explicit v3 kernel factories with mandatory Fabric, capability records and owned cooperative jobs."
+      }
+    },
+    {
+      "aliasOf": null,
+      "canonicalDefinition": {
+        "definitionType": "constant",
+        "path": "tools/xtensions/runtime-host-controller.js",
+        "role": "definition",
+        "symbol": "KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA",
+        "visibility": "internal"
+      },
+      "description": "Unreleased A03.1 explicit Kernel/Fabric XTension contract. Versioned opt-in host delivery and named cooperative work, owned cancellation and truthful capability limits. Mandatory real React/Vue and Maraca references do not grant full A03 or 0.9 feature acceptance.",
+      "descriptionStatus": "curated",
+      "familyId": "xtend.xtensions.runtime-host-controller",
+      "kinds": [
+        "event-id"
+      ],
+      "lifecycle": {
+        "rollout": "planned",
+        "status": "active"
+      },
+      "releasedFingerprintSetHash": "sha256:527b17ea2dcb969b00777e14a92eecf681fdea6c8a21eba5c25af772be01210e",
+      "replacedBy": null,
+      "schemaId": "xtend.xtensions.runtime-host-controller.v3",
+      "shapeFingerprints": [
+        {
+          "authoritative": true,
+          "completeness": "complete",
+          "evidence": [
+            {
+              "authoritative": true,
+              "completeness": "complete",
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "KernelRuntimeHostController",
+              "type": "declared-type"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "hash": "sha256:89a2fa8b79cdbfd1eb75f3df5fafe8e19156681030ef1c87950112e1be241c8d",
+          "shape": {
+            "fieldCount": 15,
+            "fields": [
+              "adapterSchema",
+              "apiVersion",
+              "emit",
+              "framework",
+              "getCapabilities",
+              "getCleanupRecords",
+              "getEventRecords",
+              "getLifecycleRecords",
+              "mount",
+              "reportError",
+              "resume",
+              "snapshot",
+              "suspend",
+              "unmount",
+              "update"
+            ],
+            "normalized": {
+              "fields": {
+                "adapterSchema": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "apiVersion": {
+                  "optional": false,
+                  "type": {
+                    "literal": "3.0.0"
+                  }
+                },
+                "emit": {
+                  "optional": false,
+                  "type": {
+                    "indexedAccess": {
+                      "index": {
+                        "literal": "emit"
+                      },
+                      "object": {
+                        "fields": {
+                          "emit": {
+                            "optional": false,
+                            "type": "function"
+                          },
+                          "resources": {
+                            "optional": false,
+                            "type": {
+                              "fields": {
+                                "register": {
+                                  "optional": false,
+                                  "type": "function"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "framework": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "literal": "react"
+                      },
+                      {
+                        "literal": "vue"
+                      }
+                    ]
+                  }
+                },
+                "getCapabilities": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "getCleanupRecords": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "getEventRecords": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "getLifecycleRecords": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "mount": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "reportError": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "resume": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "snapshot": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "suspend": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "unmount": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "update": {
+                  "optional": false,
+                  "type": "function"
+                }
+              }
+            },
+            "signature": "adapterSchema:string|apiVersion:literal<\"3.0.0\">|emit:{\"indexedAccess\":{\"index\":{\"literal\":\"emit\"},\"object\":{\"fields\":{\"emit\":{\"optional\":false,\"type\":\"function\"},\"resources\":{\"optional\":false,\"type\":{\"fields\":{\"register\":{\"optional\":false,\"type\":\"function\"}}}}}}}}|framework:union<literal<\"react\">|literal<\"vue\">>|getCapabilities:function|getCleanupRecords:function|getEventRecords:function|getLifecycleRecords:function|mount:function|reportError:function|resume:function|snapshot:function|suspend:function|unmount:function|update:function"
+          },
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "symbols": [
+            "KernelRuntimeHostController"
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "acceptedFingerprints": [
+          "sha256:89a2fa8b79cdbfd1eb75f3df5fafe8e19156681030ef1c87950112e1be241c8d"
+        ],
+        "authoritativeFingerprints": [
+          "sha256:89a2fa8b79cdbfd1eb75f3df5fafe8e19156681030ef1c87950112e1be241c8d"
+        ],
+        "decision": "reviewed-a031-kernel-fabric",
+        "mode": "single",
+        "rationale": "A03.1 scoped explicit Kernel/Fabric review: new v3 host and React/Vue factory contracts, v1 capability and owned-work snapshots; real kernel admission, named cooperative grants, current host policy, yielding and cancellation require Fabric and preserve immediate cleanup. Registry API 2.1 accepts version-matched v2/v3 suppliers. Every existing authoritative/released set and Native Kernel ABI is unchanged; other findings are source/generated/fixture provenance or non-authoritative expression inference. Full A03/0.9 feature acceptance and publication remain pending.",
+        "releasedFingerprintSetHash": "sha256:527b17ea2dcb969b00777e14a92eecf681fdea6c8a21eba5c25af772be01210e"
+      },
+      "status": "active",
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "interfaceReferences": [
+            {
+              "path": "development/rmtx-a03/README.md",
+              "symbol": null,
+              "type": "repo-symbol"
+            }
+          ],
+          "role": "documentation",
+          "sourcePaths": [
+            "development/rmtx-a03/README.md",
+            "development/rmtx-a03/inspect.cjs"
+          ],
+          "visibility": "docs"
+        },
+        {
+          "application": "XTend Tests: Types",
+          "interfaceReferences": [
+            {
+              "path": "tests/types/xtensions_kernel_runtime.mts",
+              "symbol": null,
+              "type": "repo-symbol"
+            }
+          ],
+          "role": "assertion",
+          "sourcePaths": [
+            "tests/types/xtensions_kernel_runtime.mts"
+          ],
+          "visibility": "test"
+        },
+        {
+          "application": "XTend Tests: Xtensions",
+          "interfaceReferences": [
+            {
+              "path": "tests/xtensions/kernel-runtime-acceptance.js",
+              "symbol": null,
+              "type": "repo-symbol"
+            }
+          ],
+          "role": "assertion",
+          "sourcePaths": [
+            "tests/xtensions/kernel-runtime-acceptance.js",
+            "tests/xtensions/xtensions_consumer_package_suite.js"
+          ],
+          "visibility": "test"
+        },
+        {
+          "application": "XTensions",
+          "interfaceReferences": [
+            {
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA",
+              "type": "symbol"
+            },
+            {
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "KernelRuntimeHostController",
+              "type": "symbol"
+            },
+            {
+              "path": "tools/xtensions/runtime-host-controller.js",
+              "symbol": "KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA",
+              "type": "symbol"
+            }
+          ],
+          "role": "definition",
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts",
+            "tools/xtensions/runtime-host-controller.js"
+          ],
+          "visibility": "internal"
+        },
+        {
+          "application": "XTensions",
+          "interfaceReferences": [
+            {
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": null,
+              "type": "repo-symbol"
+            }
+          ],
+          "role": "reference",
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "visibility": "internal"
+        }
+      ],
+      "version": 3
     },
     {
       "aliasOf": null,
@@ -955949,6 +957158,7 @@
       "descriptionStatus": "curated",
       "familyId": "xtend.xtensions.state-binding",
       "kinds": [
+        "event-id",
         "runtime-discriminator"
       ],
       "lifecycle": {
@@ -956878,6 +958088,21 @@
           ]
         },
         {
+          "application": "XTend Tests: Types",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/types/xtensions_kernel_runtime.mts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/types/xtensions_kernel_runtime.mts",
+              "symbol": null
+            }
+          ]
+        },
+        {
           "application": "XTend Tests: Xtensions",
           "role": "producer",
           "visibility": "test",
@@ -956894,18 +958119,18 @@
         },
         {
           "application": "XTend Tests: Xtensions",
+          "interfaceReferences": [
+            {
+              "path": "tests/xtensions/url-history-contract-checks.cjs",
+              "type": "repo-symbol",
+              "symbol": null
+            }
+          ],
           "role": "assertion",
-          "visibility": "test",
           "sourcePaths": [
             "tests/xtensions/url-history-contract-checks.cjs"
           ],
-          "interfaceReferences": [
-            {
-              "type": "repo-symbol",
-              "path": "tests/xtensions/url-history-contract-checks.cjs",
-              "symbol": null
-            }
-          ]
+          "visibility": "test"
         },
         {
           "application": "XTensions",
@@ -977966,6 +979191,77 @@
         }
       ],
       "version": 1
+    },
+    {
+      "aliasOf": null,
+      "canonicalDefinition": {
+        "definitionType": "typescript-declaration",
+        "path": "tools/xtensions/vue-runtime-adapter.d.ts",
+        "role": "reference",
+        "symbol": null,
+        "visibility": "internal"
+      },
+      "description": "Unreleased A03.1 explicit Kernel/Fabric XTension contract. Versioned opt-in host delivery and named cooperative work, owned cancellation and truthful capability limits. Mandatory real React/Vue and Maraca references do not grant full A03 or 0.9 feature acceptance.",
+      "descriptionStatus": "curated",
+      "familyId": "xtend.xtensions.vue-runtime-adapter",
+      "kinds": [
+        "identifier-only"
+      ],
+      "lifecycle": {
+        "rollout": "planned",
+        "status": "active"
+      },
+      "releasedFingerprintSetHash": null,
+      "replacedBy": null,
+      "schemaId": "xtend.xtensions.vue-runtime-adapter.v3",
+      "shapeFingerprints": [],
+      "shapePolicy": {
+        "acceptedFingerprints": [],
+        "authoritativeFingerprints": [],
+        "decision": "reviewed-a031-kernel-fabric",
+        "mode": "unresolved",
+        "rationale": "A03.1 scoped explicit Kernel/Fabric review: new v3 host and React/Vue factory contracts, v1 capability and owned-work snapshots; real kernel admission, named cooperative grants, current host policy, yielding and cancellation require Fabric and preserve immediate cleanup. Registry API 2.1 accepts version-matched v2/v3 suppliers. Every existing authoritative/released set and Native Kernel ABI is unchanged; other findings are source/generated/fixture provenance or non-authoritative expression inference. Full A03/0.9 feature acceptance and publication remain pending.",
+        "releasedFingerprintSetHash": null
+      },
+      "status": "active",
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "interfaceReferences": [
+            {
+              "path": "development/rmtx-a03/README.md",
+              "symbol": null,
+              "type": "repo-symbol"
+            }
+          ],
+          "role": "documentation",
+          "sourcePaths": [
+            "development/rmtx-a03/README.md"
+          ],
+          "visibility": "docs"
+        },
+        {
+          "application": "XTensions",
+          "interfaceReferences": [
+            {
+              "module": "@ccslabs/xtend-compiler/xtensions/vue-runtime-adapter",
+              "path": "tools/xtensions/vue-runtime-adapter.d.ts",
+              "type": "package-export"
+            },
+            {
+              "module": "@ccslabs/xtend/xtensions/vue-runtime-adapter",
+              "path": "tools/xtensions/vue-runtime-adapter.d.ts",
+              "type": "package-export"
+            }
+          ],
+          "role": "reference",
+          "sourcePaths": [
+            "tools/xtensions/vue-runtime-adapter.d.ts"
+          ],
+          "visibility": "internal"
+        }
+      ],
+      "version": 3
     },
     {
       "aliasOf": null,
@@ -1014463,6 +1015759,23 @@
       ]
     },
     {
+      "activeSchemaId": "xtend.xtensions.kernel-work-scope.v1",
+      "currentVersion": 1,
+      "familyId": "xtend.xtensions.kernel-work-scope",
+      "tombstones": [],
+      "versions": [
+        {
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": "sha256:2412fdf636095669e31f290bae3cd0dd9ad566b7e9a8faa31f0523be99b4fa66",
+          "schemaId": "xtend.xtensions.kernel-work-scope.v1",
+          "version": 1
+        }
+      ]
+    },
+    {
       "activeSchemaId": "xtend.xtensions.leaflet-cleanup-record.v1",
       "currentVersion": 1,
       "familyId": "xtend.xtensions.leaflet-cleanup-record",
@@ -1014939,6 +1016252,23 @@
       ]
     },
     {
+      "activeSchemaId": "xtend.xtensions.react-runtime-adapter.v3",
+      "currentVersion": 3,
+      "familyId": "xtend.xtensions.react-runtime-adapter",
+      "tombstones": [],
+      "versions": [
+        {
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": null,
+          "schemaId": "xtend.xtensions.react-runtime-adapter.v3",
+          "version": 3
+        }
+      ]
+    },
+    {
       "activeSchemaId": "xtend.xtensions.react-runtime-boundary.v1",
       "currentVersion": 1,
       "familyId": "xtend.xtensions.react-runtime-boundary",
@@ -1015237,6 +1016567,23 @@
       ]
     },
     {
+      "activeSchemaId": "xtend.xtensions.runtime-capabilities.v1",
+      "currentVersion": 1,
+      "familyId": "xtend.xtensions.runtime-capabilities",
+      "tombstones": [],
+      "versions": [
+        {
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": "sha256:1c54f9b049988ae7df4d63f3d2649c225654dd5d0801a209a8e6b8f7a521b29c",
+          "schemaId": "xtend.xtensions.runtime-capabilities.v1",
+          "version": 1
+        }
+      ]
+    },
+    {
       "activeSchemaId": "xtend.xtensions.runtime-capability-negotiation.v1",
       "currentVersion": 1,
       "familyId": "xtend.xtensions.runtime-capability-negotiation",
@@ -1015322,8 +1016669,8 @@
       ]
     },
     {
-      "activeSchemaId": "xtend.xtensions.runtime-host-controller.v2",
-      "currentVersion": 2,
+      "activeSchemaId": "xtend.xtensions.runtime-host-controller.v3",
+      "currentVersion": 3,
       "familyId": "xtend.xtensions.runtime-host-controller",
       "tombstones": [],
       "versions": [
@@ -1015332,9 +1016679,18 @@
           "version": 2,
           "lifecycle": {
             "rollout": "planned",
-            "status": "active"
+            "status": "deprecated"
           },
           "releasedFingerprintSetHash": "sha256:6958b4bd0a72f87e982b269078acc4c85d6d3b720237e6486063fb357770227b"
+        },
+        {
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": "sha256:527b17ea2dcb969b00777e14a92eecf681fdea6c8a21eba5c25af772be01210e",
+          "schemaId": "xtend.xtensions.runtime-host-controller.v3",
+          "version": 3
         }
       ]
     },
@@ -1016535,6 +1017891,23 @@
             "status": "active"
           },
           "releasedFingerprintSetHash": null
+        }
+      ]
+    },
+    {
+      "activeSchemaId": "xtend.xtensions.vue-runtime-adapter.v3",
+      "currentVersion": 3,
+      "familyId": "xtend.xtensions.vue-runtime-adapter",
+      "tombstones": [],
+      "versions": [
+        {
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": null,
+          "schemaId": "xtend.xtensions.vue-runtime-adapter.v3",
+          "version": 3
         }
       ]
     },

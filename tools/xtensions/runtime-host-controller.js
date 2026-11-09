@@ -4,6 +4,8 @@
 
 const { createLifecycleRecord, normalizeHostControllerResult } = require('./host-controller-contract');
 const RUNTIME_HOST_CONTROLLER_SCHEMA = 'xtend.xtensions.runtime-host-controller.v2';
+const KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA = 'xtend.xtensions.runtime-host-controller.v3';
+const { createKernelWorkScope } = require('./kernel-work-scope');
 const { createHostResourceCleanupRecord } = require('./host-resource-cleanup-record');
 const { createSurfaceEvent } = require('./signal-bridge-contract');
 const { createCooperativeResourceScope } = require('./cooperative-resource-scope');
@@ -65,7 +67,7 @@ function createRuntimeHostController(options, driver) {
   const framework = driver.framework;
   const ids = Object.freeze({ hostId: options.hostId || `${framework}-host`,
     surfaceId: options.surfaceId || `surface.${framework}`, xtensionId: options.xtensionId || options.id || `xtension.${framework}` });
-  const clockOptions = { ...ids, clock: options.clock, lane: options.lane || 'visible' };
+  const clockOptions = { ...ids, clock: options.clock, lane: driver.kernel === true ? options.kernelWork?.lifecycle?.lane || 'visible' : options.lane || 'visible' };
   const container = options.container;
   const component = options.component;
   const loadRuntime = options.loadRuntime;
@@ -80,7 +82,11 @@ function createRuntimeHostController(options, driver) {
   const validateProps = policy.validateProps;
   const onEvent = options.onEvent;
   const onDiagnostic = options.onDiagnostic;
-  const boundary = options.fabric?.createBoundary(ids.surfaceId, { source: 'xtension', lane: options.lane || 'visible' });
+  const boundaryFactory = options.fabric && typeof options.fabric.createBoundary === 'function' ? options.fabric.createBoundary.bind(options.fabric) : null;
+  if (options.fabric && !boundaryFactory) throw new TypeError('Fabric must implement createBoundary.');
+  const fabricScope = driver.kernel === true ? options.kernelWork?.scope : ids.surfaceId;
+  const boundary = boundaryFactory?.(fabricScope, { source: 'xtension', lane: clockOptions.lane });
+  if (driver.kernel === true && !options.fabric) throw new TypeError('Kernel adapters require an explicit Fabric boundary port.');
   if (options.fabric && (!boundary || typeof boundary.run !== 'function')) throw new TypeError('Fabric boundary must implement run.');
   const records = [], cleanupRecords = [], eventRecords = [], diagnostics = [];
   let phase = 'idle', disposed = false, suspended = false, instance = null, props = {};
@@ -100,6 +106,16 @@ function createRuntimeHostController(options, driver) {
     cleanupRecords.push(createHostResourceCleanupRecord({ ...clockOptions, resource, sequence: cleanupRecords.length + 1 }));
   }
   const resources = createCooperativeResourceScope({ allowedResources, onRelease: released });
+  const kernelBoundaries = new Map([[clockOptions.lane, boundary]]);
+  const runKernelBoundary = (operation, action, metadata) => {
+    if (!kernelBoundaries.has(metadata.kernelLane)) {
+      const next = boundaryFactory(fabricScope, { source: 'xtension', lane: metadata.kernelLane });
+      if (!next || typeof next.run !== 'function') throw new TypeError('Fabric boundary must implement run.');
+      kernelBoundaries.set(metadata.kernelLane, next);
+    }
+    return kernelBoundaries.get(metadata.kernelLane).run(operation, action, metadata);
+  };
+  const kernel = driver.kernel === true ? createKernelWorkScope(options.kernelWork, { ...ids, framework }, (error,name) => diagnostic(error,`work:${name}`), runKernelBoundary, name => permit(`work:${name}`,props), () => { if (!disposed) api.unmount('kernel-cancelled'); }) : null;
   function result(operation, status = 'ok', details = {}, errors = []) {
     const lifecycleRecord = createLifecycleRecord(operation, status === 'policy-blocked' ? 'surface:blocked' : status === 'failed' || status === 'degraded' ? 'surface:error' : null,
       { ...clockOptions, status, phase, sequence: ++sequence, payload: details, diagnostics: errors });
@@ -108,9 +124,12 @@ function createRuntimeHostController(options, driver) {
       cleanupRecords: operation === 'unmount' ? cleanupRecords : [], metadata: details }, clockOptions);
   }
   function run(operation, action) {
-    const work = () => boundary ? boundary.run(operation, action) : action();
+    const invoke = () => boundary ? boundary.run(operation, action) : action();
+    const work = () => disposed && kernel ? result(operation, 'skipped', { reason: 'disposed-before-kernel-delivery' }) : kernel ? kernel.runLifecycle(operation, action) : invoke();
     const promise = queue.then(work).catch(async (error) => {
+      if (kernel && disposed && error.code !== 'rmt.scheduler.panic_blocked') return result(operation, 'skipped', { reason: 'kernel-lifetime-ended' });
       const entry = diagnostic(error, operation);
+      if (kernel && operation !== 'unmount') await api.unmount('kernel-delivery-failure');
       // Instrumentation failures must not prevent terminal cleanup.
       if (operation === 'unmount') await teardown();
       return result(operation, error.policyBlocked ? 'policy-blocked' : 'failed', {}, [entry]);
@@ -166,8 +185,8 @@ function createRuntimeHostController(options, driver) {
     return teardownPromise;
   }
   const api = {
-    schema: RUNTIME_HOST_CONTROLLER_SCHEMA,
-    apiVersion: '2.0.0', adapterSchema: `xtend.xtensions.${framework}-runtime-adapter.v2`, framework,
+    schema: kernel ? KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA : RUNTIME_HOST_CONTROLLER_SCHEMA,
+    apiVersion: kernel ? '3.0.0' : '2.0.0', adapterSchema: `xtend.xtensions.${framework}-runtime-adapter.v${kernel ? 3 : 2}`, framework,
     mount(target = container, initialProps = {}, mountOptions = {}) {
       if (disposed) return Promise.resolve(result('mount', 'failed', { reason: 'already-destroyed' }));
       if (target !== container) return Promise.resolve(result('mount', 'policy-blocked', { reason: 'host-container-mismatch' }));
@@ -212,6 +231,7 @@ function createRuntimeHostController(options, driver) {
           if (!startResources(token)) { await teardown(); return result('mount', 'skipped', { reason: 'disposed-during-mount' }); }
           props = nextProps;
           phase = 'ready';
+          kernel?.activate();
           return result('mount');
         } catch (error) {
           const entry = diagnostic(error, 'mount');
@@ -254,7 +274,10 @@ function createRuntimeHostController(options, driver) {
         if (suspended) return result('suspend', 'skipped');
         permit('suspend', props);
         const before = diagnostics.length;
-        resources.stop(); suspended = true; phase = 'suspended';
+        kernel?.suspend();
+        resources.stop();
+        if (disposed) return result('suspend', 'skipped', { reason: 'disposed-during-suspend' });
+        suspended = true; phase = 'suspended';
         return result('suspend', before === diagnostics.length ? 'ok' : 'degraded', { reason: String(reason) }, diagnostics.slice(before));
       });
     },
@@ -271,6 +294,7 @@ function createRuntimeHostController(options, driver) {
         if (next) permit('update', next);
         permit('resume', next || props);
         const token = generation;
+        kernel?.beginResume();
         try {
           if (next) {
             const before = diagnostics.length;
@@ -282,6 +306,7 @@ function createRuntimeHostController(options, driver) {
           }
           if (!startResources(token)) { await teardown(); return result('resume', 'skipped', { reason: 'disposed-during-resume' }); }
           suspended = false; phase = 'active';
+          kernel?.activate();
           return result('resume', 'ok', { reason: String(reason) });
         } catch (error) {
           const entry = diagnostic(error, 'resume');
@@ -301,6 +326,7 @@ function createRuntimeHostController(options, driver) {
     unmount(reason = 'host-dispose') {
       if (disposal) return disposal;
       disposed = true; generation += 1; phase = 'destroying';
+      kernel?.dispose();
       // Never queue terminal cleanup behind an unresolved render or loader.
       disposal = Promise.resolve().then(() => {
         const action = async () => {
@@ -328,7 +354,7 @@ function createRuntimeHostController(options, driver) {
         const payload = checkedData(event.payload || {}, driver.inspectPayload);
         permit('emit', payload);
         const normalized = createSurfaceEvent({ event: name, source: { ...ids, framework }, owner: ids.xtensionId,
-          lane: options.lane || 'visible', payload, payloadSchema: events[name], trustBoundary: 'same-origin-adapter' }, clockOptions);
+          lane: clockOptions.lane, payload, payloadSchema: events[name], trustBoundary: 'same-origin-adapter' }, clockOptions);
         if (!normalized.ok) return normalized;
         eventRecords.push(normalized);
         onEvent?.(clone(normalized));
@@ -336,12 +362,13 @@ function createRuntimeHostController(options, driver) {
       } catch (error) { return { ok: false, diagnostics: error.diagnostics || [diagnostic(error, 'emit')] }; }
     },
     snapshot() { return clone({ ...ids, framework, phase, mounted: !!instance, suspended, disposed, props,
-      runtimeVersions, resources: resources.snapshot(), diagnostics }); },
+      runtimeVersions, resources: resources.snapshot(), diagnostics, ...(kernel ? { capabilities: kernel.capabilities, kernelWork: kernel.snapshot() } : {}) }); },
     getLifecycleRecords: () => clone(records),
     getCleanupRecords: () => clone(cleanupRecords),
     getEventRecords: () => clone(eventRecords)
   };
-  const facade = Object.freeze({ emit: api.emit, resources: Object.freeze({ register: resources.register }) });
+  if (kernel) api.getCapabilities = () => kernel.capabilities;
+  const facade = Object.freeze({ emit: api.emit, resources: Object.freeze({ register: resources.register }), ...(kernel ? { work: kernel.work } : {}) });
   return Object.freeze(api);
 }
-module.exports = { RUNTIME_HOST_CONTROLLER_SCHEMA, createRuntimeHostController };
+module.exports = { RUNTIME_HOST_CONTROLLER_SCHEMA, KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA, createRuntimeHostController };

@@ -547,6 +547,7 @@ async function runRuntimeAcceptance({ React: R, ReactDOM, Vue: V, document, comp
       finally { await f.close(); }
     });
   }
+  await require('./kernel-runtime-acceptance').runKernelRuntimeAcceptance({React:R,ReactDOM,Vue:V,document,test,check,equal});
   await require('./state-binding-acceptance').runStateBindingAcceptance({ React: R, ReactDOM, document, test, check, equal });
   await require('./compiled-state-binding-acceptance').runCompiledStateBindingAcceptance({ React: R, ReactDOM, document, test, check, equal, plan: compiledBindingPlan, conditionalPlan: conditionalBindingPlan, repeatedPlan: repeatedBindingPlan });
   return { ok: failed.length === 0, passed, failed, versions: { react: R.version, reactDOM: ReactDOM.version, vue: V.version }, retainedCyclesPerFramework: 50 };

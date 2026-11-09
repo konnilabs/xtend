@@ -58,4 +58,9 @@ function createReactRuntimeAdapter(options = {}) {
   return createRuntimeHostController({ ...options }, { framework: 'react', normalizeBoundary: normalizeReactRuntimeBoundary,
     inspectPayload: inspectReactPayloadBoundary, normalizePeers: normalizeReactPeers, create: createReactInstance });
 }
-module.exports = { createReactRuntimeAdapter, normalizeReactPeers };
+function createReactKernelRuntimeAdapter(options = {}) {
+  return createRuntimeHostController({ ...options }, { framework: 'react', kernel: true,
+    normalizeBoundary: normalizeReactRuntimeBoundary, inspectPayload: inspectReactPayloadBoundary,
+    normalizePeers: normalizeReactPeers, create: createReactInstance });
+}
+module.exports = { createReactRuntimeAdapter, createReactKernelRuntimeAdapter, normalizeReactPeers };

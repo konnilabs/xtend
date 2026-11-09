@@ -3,8 +3,8 @@
 
 const { XTENSION_STATE_BINDING_SCHEMA, validateStateBinding, addressKey, propsFrom, clone, freeze, data, record, typed } = require('./state-binding-contract');
 const { XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBindingArtifact, materializeStateBindingArtifact } = require('./state-binding-artifact');
-const { RUNTIME_HOST_CONTROLLER_SCHEMA } = require('./runtime-host-controller');
-const XTENSION_STATE_BINDING_API_VERSION = '2.0.0';
+const { RUNTIME_HOST_CONTROLLER_SCHEMA, KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA } = require('./runtime-host-controller');
+const XTENSION_STATE_BINDING_API_VERSION = '2.1.0';
 
 /** One registry per Model session. Factories and ports are trusted host capabilities. */
 function createXTensionStateRegistry({ modelReader, modelCommandPort, commandDispatcher, onDiagnostic } = {}) {
@@ -131,8 +131,8 @@ function createXTensionStateRegistry({ modelReader, modelCommandPort, commandDis
     }
     try {
       host = createHost(freeze({ identity, ...ids, events, onEvent }));
-      if (!host || host.schema !== RUNTIME_HOST_CONTROLLER_SCHEMA || !/^2\./.test(host.apiVersion || '') ||
-        ['mount', 'update', 'suspend', 'resume', 'unmount'].some((method) => typeof host[method] !== 'function')) throw new TypeError('The factory must return the version 2 runtime host controller.');
+      if (!host || ![RUNTIME_HOST_CONTROLLER_SCHEMA, KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA].includes(host.schema) || !(host.schema === RUNTIME_HOST_CONTROLLER_SCHEMA ? /^2\./ : /^3\./).test(host.apiVersion || '') ||
+        ['mount', 'update', 'suspend', 'resume', 'unmount'].some((method) => typeof host[method] !== 'function')) throw new TypeError('The factory must return a version-matched v2 or v3 runtime host controller.');
     } catch (error) { fail(error, 'createHost'); throw error; }
     return Object.freeze({
       identity,

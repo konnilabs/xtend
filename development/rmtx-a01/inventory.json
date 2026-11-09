@@ -158,7 +158,7 @@
     },
     {
       "file": "tools/xtensions/runtime-host-controller.d.ts",
-      "sha256": "1b6d0ba690b6a24151b299df19ea923adb5c46e333b50d82ff8fa904f8028bd7"
+      "sha256": "688b3c0238110bacae903625c42c45110318aeffb98b1f6ededb7c3da69c11bd"
     },
     {
       "file": "tools/xtensions/signal-bridge-contract.d.ts",
@@ -11782,6 +11782,518 @@
           ],
           "file": "tools/xtensions/runtime-host-controller.d.ts",
           "line": 58,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "KernelRequestPolicy",
+          "fields": [
+            {
+              "name": "lane",
+              "optional": true,
+              "type": "'user-blocking' | 'visible' | 'transition' | 'idle' | 'background' | 'diagnostics'",
+              "declaration": "readonly lane?: 'user-blocking' | 'visible' | 'transition' | 'idle' | 'background' | 'diagnostics';"
+            },
+            {
+              "name": "priority",
+              "optional": true,
+              "type": "number",
+              "declaration": "readonly priority?: number;"
+            },
+            {
+              "name": "maxChunkMs",
+              "optional": true,
+              "type": "number",
+              "declaration": "readonly maxChunkMs?: number;"
+            },
+            {
+              "name": "timeoutMs",
+              "optional": true,
+              "type": "number",
+              "declaration": "readonly timeoutMs?: number;"
+            },
+            {
+              "name": "budgetClass",
+              "optional": true,
+              "type": "string",
+              "declaration": "readonly budgetClass?: string;"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 81,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RuntimeKernelContext",
+          "fields": [
+            {
+              "name": "jobId",
+              "optional": false,
+              "type": "string",
+              "declaration": "readonly jobId: string;"
+            },
+            {
+              "name": "signal",
+              "optional": false,
+              "type": "AbortSignal | null",
+              "declaration": "readonly signal: AbortSignal | null;"
+            },
+            {
+              "name": "rootId",
+              "optional": false,
+              "type": "string",
+              "declaration": "readonly rootId: string;"
+            },
+            {
+              "name": "scope",
+              "optional": false,
+              "type": "string",
+              "declaration": "readonly scope: string;"
+            },
+            {
+              "name": "lane",
+              "optional": false,
+              "type": "string",
+              "declaration": "readonly lane: string;"
+            },
+            {
+              "name": "shouldYield",
+              "optional": false,
+              "type": "boolean",
+              "declaration": "shouldYield(): boolean;"
+            },
+            {
+              "name": "yield",
+              "optional": false,
+              "type": "Promise<void>",
+              "declaration": "yield(reason?: string): Promise<void>;"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 85,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RuntimeKernelHandle",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "'xtend.rmt.kernel-job.v1'",
+              "declaration": "readonly schema: 'xtend.rmt.kernel-job.v1';"
+            },
+            {
+              "name": "id",
+              "optional": false,
+              "type": "string",
+              "declaration": "readonly id: string;"
+            },
+            {
+              "name": "status",
+              "optional": false,
+              "type": "string",
+              "declaration": "readonly status: string;"
+            },
+            {
+              "name": "result",
+              "optional": false,
+              "type": "Promise<T>",
+              "declaration": "readonly result: Promise<T>;"
+            },
+            {
+              "name": "cancel",
+              "optional": false,
+              "type": "boolean",
+              "declaration": "cancel(reason?: string): boolean;"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 89,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RuntimeKernelSchedulerPort",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "string",
+              "declaration": "readonly schema: string;"
+            },
+            {
+              "name": "schedule",
+              "optional": false,
+              "type": "RuntimeKernelHandle<T>",
+              "declaration": "schedule<T>(request: KernelRequestPolicy & { readonly schema: 'xtend.rmt.kernel-work.v1'; readonly rootId: string; readonly scope: string; readonly endpointName: string; readonly metadata: Readonly<Record<string, unknown>> }, callback: (context: RuntimeKernelContext) => T | PromiseLike<T>): RuntimeKernelHandle<T>;"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 93,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "KernelRuntimeHostOptions",
+          "fields": [
+            {
+              "name": "fabric",
+              "optional": false,
+              "type": "NonNullable<RuntimeHostOptions['fabric']>",
+              "declaration": "readonly fabric: NonNullable<RuntimeHostOptions['fabric']>;"
+            },
+            {
+              "name": "kernelWork",
+              "optional": false,
+              "type": "{ readonly scheduler: RuntimeKernelSchedulerPort; readonly rootId: string; readonly scope: string;\n    readonly lifecycle?: KernelRequestPolicy; readonly work?: Readonly<Record<string, KernelRequestPolicy>> }",
+              "declaration": "readonly kernelWork: { readonly scheduler: RuntimeKernelSchedulerPort; readonly rootId: string; readonly scope: string;\n    readonly lifecycle?: KernelRequestPolicy; readonly work?: Readonly<Record<string, KernelRequestPolicy>> };"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 99,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "CooperativeWorkContext",
+          "fields": [
+            {
+              "name": "jobId",
+              "optional": false,
+              "type": "string",
+              "declaration": "readonly jobId: string;"
+            },
+            {
+              "name": "shouldYield",
+              "optional": false,
+              "type": "boolean",
+              "declaration": "shouldYield(): boolean;"
+            },
+            {
+              "name": "yield",
+              "optional": false,
+              "type": "Promise<void>",
+              "declaration": "yield(reason?: string): Promise<void>;"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 104,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "CooperativeWorkHandle",
+          "fields": [
+            {
+              "name": "jobId",
+              "optional": false,
+              "type": "string | null",
+              "declaration": "readonly jobId: string | null;"
+            },
+            {
+              "name": "signal",
+              "optional": false,
+              "type": "AbortSignal",
+              "declaration": "readonly signal: AbortSignal;"
+            },
+            {
+              "name": "result",
+              "optional": false,
+              "type": "Promise<T>",
+              "declaration": "readonly result: Promise<T>;"
+            },
+            {
+              "name": "cancel",
+              "optional": false,
+              "type": "boolean",
+              "declaration": "cancel(reason?: string): boolean;"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 107,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "KernelComponentCapabilities",
+          "fields": [
+            {
+              "name": "work",
+              "optional": false,
+              "type": "{ schedule<T>(name: string, callback: (context: CooperativeWorkContext) => T | PromiseLike<T>): CooperativeWorkHandle<T> }",
+              "declaration": "readonly work: { schedule<T>(name: string, callback: (context: CooperativeWorkContext) => T | PromiseLike<T>): CooperativeWorkHandle<T> };"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 111,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RuntimeKernelCapabilities",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "'xtend.xtensions.runtime-capabilities.v1'",
+              "declaration": "readonly schema: 'xtend.xtensions.runtime-capabilities.v1';"
+            },
+            {
+              "name": "framework",
+              "optional": false,
+              "type": "'react' | 'vue'",
+              "declaration": "readonly framework: 'react' | 'vue';"
+            },
+            {
+              "name": "lifecycle",
+              "optional": false,
+              "type": "'kernel-jobs'",
+              "declaration": "readonly lifecycle: 'kernel-jobs';"
+            },
+            {
+              "name": "fabricBoundary",
+              "optional": false,
+              "type": "true",
+              "declaration": "readonly fabricBoundary: true;"
+            },
+            {
+              "name": "namedWork",
+              "optional": false,
+              "type": "readonly string[]",
+              "declaration": "readonly namedWork: readonly string[];"
+            },
+            {
+              "name": "cooperativeResources",
+              "optional": false,
+              "type": "true",
+              "declaration": "readonly cooperativeResources: true;"
+            },
+            {
+              "name": "cooperativeCancellation",
+              "optional": false,
+              "type": "true",
+              "declaration": "readonly cooperativeCancellation: true;"
+            },
+            {
+              "name": "budgets",
+              "optional": false,
+              "type": "'cooperative'",
+              "declaration": "readonly budgets: 'cooperative';"
+            },
+            {
+              "name": "frameworkInternalScheduling",
+              "optional": false,
+              "type": "false",
+              "declaration": "readonly frameworkInternalScheduling: false;"
+            },
+            {
+              "name": "preemption",
+              "optional": false,
+              "type": "false",
+              "declaration": "readonly preemption: false;"
+            },
+            {
+              "name": "terminalCleanup",
+              "optional": false,
+              "type": "'immediate'",
+              "declaration": "readonly terminalCleanup: 'immediate';"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 114,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "KernelWorkRecord",
+          "fields": [
+            {
+              "name": "id",
+              "optional": false,
+              "type": "string",
+              "declaration": "readonly id: string;"
+            },
+            {
+              "name": "kind",
+              "optional": false,
+              "type": "'work' | 'lifecycle'",
+              "declaration": "readonly kind: 'work' | 'lifecycle';"
+            },
+            {
+              "name": "name",
+              "optional": false,
+              "type": "string",
+              "declaration": "readonly name: string;"
+            },
+            {
+              "name": "lane",
+              "optional": false,
+              "type": "string",
+              "declaration": "readonly lane: string;"
+            },
+            {
+              "name": "status",
+              "optional": false,
+              "type": "string",
+              "declaration": "readonly status: string"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 120,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "KernelWorkSnapshot",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "'xtend.xtensions.kernel-work-scope.v1'",
+              "declaration": "readonly schema: 'xtend.xtensions.kernel-work-scope.v1';"
+            },
+            {
+              "name": "phase",
+              "optional": false,
+              "type": "'mounting' | 'active' | 'suspended' | 'resuming' | 'disposed'",
+              "declaration": "readonly phase: 'mounting' | 'active' | 'suspended' | 'resuming' | 'disposed';"
+            },
+            {
+              "name": "generation",
+              "optional": false,
+              "type": "number",
+              "declaration": "readonly generation: number;"
+            },
+            {
+              "name": "pending",
+              "optional": false,
+              "type": "readonly KernelWorkRecord[]",
+              "declaration": "readonly pending: readonly KernelWorkRecord[];"
+            },
+            {
+              "name": "history",
+              "optional": false,
+              "type": "readonly KernelWorkRecord[]",
+              "declaration": "readonly history: readonly KernelWorkRecord[];"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 121,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "KernelRuntimeHostSnapshot",
+          "fields": [
+            {
+              "name": "capabilities",
+              "optional": false,
+              "type": "RuntimeKernelCapabilities",
+              "declaration": "readonly capabilities: RuntimeKernelCapabilities;"
+            },
+            {
+              "name": "kernelWork",
+              "optional": false,
+              "type": "KernelWorkSnapshot",
+              "declaration": "readonly kernelWork: KernelWorkSnapshot;"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 125,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "KernelRuntimeHostController",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "typeof KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA",
+              "declaration": "readonly schema: typeof KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA;"
+            },
+            {
+              "name": "apiVersion",
+              "optional": false,
+              "type": "'3.0.0'",
+              "declaration": "readonly apiVersion: '3.0.0';"
+            },
+            {
+              "name": "adapterSchema",
+              "optional": false,
+              "type": "string",
+              "declaration": "readonly adapterSchema: string;"
+            },
+            {
+              "name": "framework",
+              "optional": false,
+              "type": "'react' | 'vue'",
+              "declaration": "readonly framework: 'react' | 'vue';"
+            },
+            {
+              "name": "mount",
+              "optional": false,
+              "type": "Promise<RuntimeHostResult>",
+              "declaration": "mount(target?: Element, props?: RuntimeProps, options?: { lane?: string }): Promise<RuntimeHostResult>;"
+            },
+            {
+              "name": "update",
+              "optional": false,
+              "type": "Promise<RuntimeHostResult>",
+              "declaration": "update(signal: { props?: RuntimeProps; payload?: RuntimeProps; updateAdapter?: 'applyPropsUpdate'; type?: 'props.update' }): Promise<RuntimeHostResult>;"
+            },
+            {
+              "name": "suspend",
+              "optional": false,
+              "type": "Promise<RuntimeHostResult>",
+              "declaration": "suspend(reason?: string): Promise<RuntimeHostResult>;"
+            },
+            {
+              "name": "resume",
+              "optional": false,
+              "type": "Promise<RuntimeHostResult>",
+              "declaration": "resume(reason?: string, options?: { props: RuntimeProps }): Promise<RuntimeHostResult>;"
+            },
+            {
+              "name": "unmount",
+              "optional": false,
+              "type": "Promise<RuntimeHostResult>",
+              "declaration": "unmount(reason?: string): Promise<RuntimeHostResult>;"
+            },
+            {
+              "name": "reportError",
+              "optional": false,
+              "type": "RuntimeHostResult",
+              "declaration": "reportError(error: unknown, metadata?: { phase?: string }): RuntimeHostResult;"
+            },
+            {
+              "name": "emit",
+              "optional": false,
+              "type": "ComponentCapabilities['emit']",
+              "declaration": "emit: ComponentCapabilities['emit'];"
+            },
+            {
+              "name": "getCapabilities",
+              "optional": false,
+              "type": "RuntimeKernelCapabilities",
+              "declaration": "getCapabilities(): RuntimeKernelCapabilities;"
+            },
+            {
+              "name": "snapshot",
+              "optional": false,
+              "type": "KernelRuntimeHostSnapshot",
+              "declaration": "snapshot(): KernelRuntimeHostSnapshot;"
+            },
+            {
+              "name": "getLifecycleRecords",
+              "optional": false,
+              "type": "XTensionLifecycleRecord[]",
+              "declaration": "getLifecycleRecords(): XTensionLifecycleRecord[];"
+            },
+            {
+              "name": "getCleanupRecords",
+              "optional": false,
+              "type": "HostResourceCleanupRecord[]",
+              "declaration": "getCleanupRecords(): HostResourceCleanupRecord[];"
+            },
+            {
+              "name": "getEventRecords",
+              "optional": false,
+              "type": "XTensionsSurfaceEvent[]",
+              "declaration": "getEventRecords(): XTensionsSurfaceEvent[];"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 128,
           "symbol": "<anonymous>"
         }
       ],
