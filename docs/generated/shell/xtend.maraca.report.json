@@ -221,7 +221,7 @@
   "entry": "/home/konni/Downloads/xtend-dev/xtend/docs/generated/shell/xtend.maraca.mjs",
   "entryRelative": "docs/generated/shell/xtend.maraca.mjs",
   "entryBytes": 569478,
-  "bytes": 970486,
+  "bytes": 973354,
   "bundleFiles": [
     {
       "type": "chunk",
@@ -235,13 +235,13 @@
         "./runtime/xtend-maraca-browser-composition-runtime.mjs"
       ],
       "dynamicImports": [
-        "chunks/x-footer-jm0ALW_Q.mjs",
-        "chunks/x-header-BLHF6s_L.mjs",
-        "chunks/x-hero-CMnadzoG.mjs",
-        "chunks/x-router-_tnztVCo.mjs",
-        "chunks/x-section-DBUiS6SD.mjs",
-        "chunks/x-status-DY32VVPL.mjs",
-        "chunks/x-theme-kv6Hzf7a.mjs"
+        "chunks/x-footer-BtzbQyGM.mjs",
+        "chunks/x-header-Jxj0HE3W.mjs",
+        "chunks/x-hero-Cg10L2Bt.mjs",
+        "chunks/x-router-BBZtMFys.mjs",
+        "chunks/x-section-BsMQBCz3.mjs",
+        "chunks/x-status-DAaxFfHK.mjs",
+        "chunks/x-theme-C0avdUlV.mjs"
       ],
       "modules": [
         {
@@ -340,8 +340,8 @@
     },
     {
       "type": "chunk",
-      "fileName": "chunks/x-footer-jm0ALW_Q.mjs",
-      "path": "docs/generated/shell/chunks/x-footer-jm0ALW_Q.mjs",
+      "fileName": "chunks/x-footer-BtzbQyGM.mjs",
+      "path": "docs/generated/shell/chunks/x-footer-BtzbQyGM.mjs",
       "bytes": 17622,
       "isEntry": false,
       "isDynamicEntry": true,
@@ -364,13 +364,13 @@
     },
     {
       "type": "chunk",
-      "fileName": "chunks/x-header-BLHF6s_L.mjs",
-      "path": "docs/generated/shell/chunks/x-header-BLHF6s_L.mjs",
+      "fileName": "chunks/x-header-Jxj0HE3W.mjs",
+      "path": "docs/generated/shell/chunks/x-header-Jxj0HE3W.mjs",
       "bytes": 51988,
       "isEntry": false,
       "isDynamicEntry": true,
       "imports": [
-        "chunks/x-footer-jm0ALW_Q.mjs"
+        "chunks/x-footer-BtzbQyGM.mjs"
       ],
       "dynamicImports": [],
       "modules": [
@@ -390,14 +390,14 @@
     },
     {
       "type": "chunk",
-      "fileName": "chunks/x-hero-CMnadzoG.mjs",
-      "path": "docs/generated/shell/chunks/x-hero-CMnadzoG.mjs",
+      "fileName": "chunks/x-hero-Cg10L2Bt.mjs",
+      "path": "docs/generated/shell/chunks/x-hero-Cg10L2Bt.mjs",
       "bytes": 38138,
       "isEntry": false,
       "isDynamicEntry": true,
       "imports": [
-        "chunks/x-footer-jm0ALW_Q.mjs",
-        "chunks/x-header-BLHF6s_L.mjs"
+        "chunks/x-footer-BtzbQyGM.mjs",
+        "chunks/x-header-Jxj0HE3W.mjs"
       ],
       "dynamicImports": [],
       "modules": [
@@ -432,13 +432,13 @@
     },
     {
       "type": "chunk",
-      "fileName": "chunks/x-router-_tnztVCo.mjs",
-      "path": "docs/generated/shell/chunks/x-router-_tnztVCo.mjs",
+      "fileName": "chunks/x-router-BBZtMFys.mjs",
+      "path": "docs/generated/shell/chunks/x-router-BBZtMFys.mjs",
       "bytes": 59128,
       "isEntry": false,
       "isDynamicEntry": true,
       "imports": [
-        "chunks/x-footer-jm0ALW_Q.mjs"
+        "chunks/x-footer-BtzbQyGM.mjs"
       ],
       "dynamicImports": [],
       "modules": [
@@ -453,14 +453,14 @@
     },
     {
       "type": "chunk",
-      "fileName": "chunks/x-section-DBUiS6SD.mjs",
-      "path": "docs/generated/shell/chunks/x-section-DBUiS6SD.mjs",
+      "fileName": "chunks/x-section-BsMQBCz3.mjs",
+      "path": "docs/generated/shell/chunks/x-section-BsMQBCz3.mjs",
       "bytes": 8372,
       "isEntry": false,
       "isDynamicEntry": true,
       "imports": [
-        "chunks/x-footer-jm0ALW_Q.mjs",
-        "chunks/x-header-BLHF6s_L.mjs"
+        "chunks/x-footer-BtzbQyGM.mjs",
+        "chunks/x-header-Jxj0HE3W.mjs"
       ],
       "dynamicImports": [],
       "modules": [
@@ -480,15 +480,15 @@
     },
     {
       "type": "chunk",
-      "fileName": "chunks/x-status-DY32VVPL.mjs",
-      "path": "docs/generated/shell/chunks/x-status-DY32VVPL.mjs",
+      "fileName": "chunks/x-status-DAaxFfHK.mjs",
+      "path": "docs/generated/shell/chunks/x-status-DAaxFfHK.mjs",
       "bytes": 10936,
       "isEntry": false,
       "isDynamicEntry": true,
       "imports": [
-        "chunks/x-header-BLHF6s_L.mjs",
-        "chunks/x-footer-jm0ALW_Q.mjs",
-        "chunks/x-hero-CMnadzoG.mjs"
+        "chunks/x-header-Jxj0HE3W.mjs",
+        "chunks/x-footer-BtzbQyGM.mjs",
+        "chunks/x-hero-Cg10L2Bt.mjs"
       ],
       "dynamicImports": [],
       "modules": [
@@ -508,14 +508,14 @@
     },
     {
       "type": "chunk",
-      "fileName": "chunks/x-theme-kv6Hzf7a.mjs",
-      "path": "docs/generated/shell/chunks/x-theme-kv6Hzf7a.mjs",
+      "fileName": "chunks/x-theme-C0avdUlV.mjs",
+      "path": "docs/generated/shell/chunks/x-theme-C0avdUlV.mjs",
       "bytes": 33978,
       "isEntry": false,
       "isDynamicEntry": true,
       "imports": [],
       "dynamicImports": [
-        "chunks/x-footer-jm0ALW_Q.mjs"
+        "chunks/x-footer-BtzbQyGM.mjs"
       ],
       "modules": [
         {
@@ -531,7 +531,7 @@
       "type": "asset",
       "fileName": "runtime/xtend-maraca-plan-runtime.mjs",
       "path": "docs/generated/shell/runtime/xtend-maraca-plan-runtime.mjs",
-      "bytes": 118984,
+      "bytes": 121852,
       "isEntry": false,
       "isDynamicEntry": false,
       "imports": [
@@ -542,7 +542,7 @@
       "dynamicImports": [],
       "modules": [],
       "appServiceBytes": 0,
-      "frameworkBytes": 118984
+      "frameworkBytes": 121852
     },
     {
       "type": "asset",
@@ -1414,7 +1414,7 @@
         "sourceToSea": {},
         "evidence": {
           "sourceFingerprint": "sha256:56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718",
-          "artifactBundleFingerprint": "fnv1a:b3fc0f23",
+          "artifactBundleFingerprint": "fnv1a:cc7e5ec6",
           "bundleFingerprint": null
         }
       }
@@ -1439,7 +1439,7 @@
       "mode": "strict",
       "profile": "max",
       "baselineBytes": 1148375,
-      "bundleBytes": 970486,
+      "bundleBytes": 973354,
       "runtimeExpectedStatus": "report-only"
     },
     "releaseConstraint": {
@@ -1456,13 +1456,13 @@
       "sourceFingerprint": "sha256:56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718",
       "artifactFingerprints": {
         "templateSource": "sha256:56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718",
-        "templateBundle": "fnv1a:b3fc0f23",
+        "templateBundle": "fnv1a:cc7e5ec6",
         "bundle": null
       },
       "bundle": {
         "fileCount": 16,
         "entry": "xtend.maraca.mjs",
-        "bytes": 970486
+        "bytes": 973354
       },
       "runtimeFeatureStatus": [
         {
@@ -2033,7 +2033,7 @@
         "sourceToSea": {},
         "evidence": {
           "sourceFingerprint": "sha256:56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718",
-          "artifactBundleFingerprint": "fnv1a:b3fc0f23",
+          "artifactBundleFingerprint": "fnv1a:cc7e5ec6",
           "bundleFingerprint": null
         }
       }
@@ -2058,7 +2058,7 @@
       "mode": "strict",
       "profile": "max",
       "baselineBytes": 1148375,
-      "bundleBytes": 970486,
+      "bundleBytes": 973354,
       "runtimeExpectedStatus": "report-only"
     },
     "releaseConstraint": {
@@ -2075,13 +2075,13 @@
       "sourceFingerprint": "sha256:56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718",
       "artifactFingerprints": {
         "templateSource": "sha256:56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718",
-        "templateBundle": "fnv1a:b3fc0f23",
+        "templateBundle": "fnv1a:cc7e5ec6",
         "bundle": null
       },
       "bundle": {
         "fileCount": 16,
         "entry": "xtend.maraca.mjs",
-        "bytes": 970486
+        "bytes": 973354
       },
       "runtimeFeatureStatus": [
         {
@@ -2334,8 +2334,8 @@
     "documentCount": 1,
     "templateCount": 1,
     "sourceFingerprint": "sha256:56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718",
-    "artifactBundleFingerprint": "fnv1a:b3fc0f23",
-    "bundleFingerprint": "sha256:c790f88e0497a99596884f7d10b9862643bd4e603a86d37931f264266e1173e1",
+    "artifactBundleFingerprint": "fnv1a:cc7e5ec6",
+    "bundleFingerprint": "sha256:8e66e87958e85da61085824a43d3b5f061633a4b1364188720dcbe3c1db5d906",
     "runtimeProfileHints": [
       "browser",
       "detached_dom",
@@ -2346,7 +2346,7 @@
       {
         "kind": "rmt_template_artifact_document",
         "version": "1.0",
-        "artifactId": "artifact:xtend.docs.php_ssr_shell:v1a:50f2f165",
+        "artifactId": "artifact:xtend.docs.php_ssr_shell:v1a:92bfff28",
         "documentId": "xtend.docs.php_ssr_shell",
         "namespace": "xtend",
         "sourceUrl": "docs/xtendrmt-docs-document-v2.rmt",
@@ -2359,11 +2359,11 @@
           "maraca": true,
           "sourceHash": "56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718",
           "sourceFingerprint": "sha256:56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718",
-          "compilerSchema": "xtend.rmt.classic.compile-result.v2"
+          "compilerSchema": "xtend.rmt.classic.compile-result.v3"
         },
         "reactivityHints": {},
-        "fingerprint": "fnv1a:50f2f165",
-        "sourceFingerprint": "fnv1a:3a729356",
+        "fingerprint": "fnv1a:92bfff28",
+        "sourceFingerprint": "fnv1a:e4c9b04f",
         "templates": [
           {
             "kind": "rmt_prepared_template",
@@ -2428,17 +2428,17 @@
         "metadata": {
           "source": "docs/xtendrmt-docs-document-v2.rmt",
           "sourceHash": "56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718",
-          "compilerSchema": "xtend.rmt.classic.compile-result.v2"
+          "compilerSchema": "xtend.rmt.classic.compile-result.v3"
         },
         "documentCount": 1,
         "templateCount": 1,
-        "fingerprint": "fnv1a:b3fc0f23"
+        "fingerprint": "fnv1a:cc7e5ec6"
       },
       "documents": [
         {
           "kind": "rmt_template_artifact_document",
           "version": "1.0",
-          "artifactId": "artifact:xtend.docs.php_ssr_shell:v1a:50f2f165",
+          "artifactId": "artifact:xtend.docs.php_ssr_shell:v1a:92bfff28",
           "documentId": "xtend.docs.php_ssr_shell",
           "namespace": "xtend",
           "sourceUrl": "docs/xtendrmt-docs-document-v2.rmt",
@@ -2451,11 +2451,11 @@
             "maraca": true,
             "sourceHash": "56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718",
             "sourceFingerprint": "sha256:56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718",
-            "compilerSchema": "xtend.rmt.classic.compile-result.v2"
+            "compilerSchema": "xtend.rmt.classic.compile-result.v3"
           },
           "reactivityHints": {},
-          "fingerprint": "fnv1a:50f2f165",
-          "sourceFingerprint": "fnv1a:3a729356",
+          "fingerprint": "fnv1a:92bfff28",
+          "sourceFingerprint": "fnv1a:e4c9b04f",
           "templates": [
             {
               "kind": "rmt_prepared_template",
@@ -2526,7 +2526,7 @@
         "template:xtend.docs.php_ssr_shell"
       ],
       "bundleFileCount": 16,
-      "bundleFingerprint": "sha256:c790f88e0497a99596884f7d10b9862643bd4e603a86d37931f264266e1173e1"
+      "bundleFingerprint": "sha256:8e66e87958e85da61085824a43d3b5f061633a4b1364188720dcbe3c1db5d906"
     },
     "diagnostics": []
   },
@@ -3620,7 +3620,7 @@
       "fileArtifactAvailable": true,
       "baselineComparisonAvailable": true,
       "runtimeExpectedStatus": "report-only",
-      "bundleFingerprint": "sha256:c790f88e0497a99596884f7d10b9862643bd4e603a86d37931f264266e1173e1"
+      "bundleFingerprint": "sha256:8e66e87958e85da61085824a43d3b5f061633a4b1364188720dcbe3c1db5d906"
     },
     "diagnostics": [
       {
@@ -3640,7 +3640,7 @@
         ]
       }
     ],
-    "bundleFingerprint": "sha256:c790f88e0497a99596884f7d10b9862643bd4e603a86d37931f264266e1173e1"
+    "bundleFingerprint": "sha256:8e66e87958e85da61085824a43d3b5f061633a4b1364188720dcbe3c1db5d906"
   },
   "panicRecovery": {
     "schema": "xtend.maraca.kernel-panic-recovery-report.v1",
@@ -4564,7 +4564,7 @@
       "fileArtifactAvailable": true,
       "baselineComparisonAvailable": true,
       "runtimeExpectedStatus": "report-only",
-      "bundleFingerprint": "sha256:c790f88e0497a99596884f7d10b9862643bd4e603a86d37931f264266e1173e1"
+      "bundleFingerprint": "sha256:8e66e87958e85da61085824a43d3b5f061633a4b1364188720dcbe3c1db5d906"
     },
     "summary": {
       "schema": null,
@@ -5615,7 +5615,7 @@
     "click",
     "submit",
     "xtend.rmt.core-format.vnext.v1",
-    "xtend.maraca.build-plan.v2",
+    "xtend.maraca.build-plan.v3",
     "xtend.maraca.bundle-report.v1",
     "xtend.maraca.size-budget-report.v1",
     "xtend.maraca.performance-report.v1",
@@ -5639,7 +5639,7 @@
     "rollup": {
       "requested": true,
       "available": true,
-      "version": "4.60.4",
+      "version": "4.62.2",
       "mode": "rollup-js-api"
     },
     "terser": {
@@ -5662,7 +5662,7 @@
       },
       {
         "code": "THIS_IS_UNDEFINED",
-        "message": "xtendrmt/rmt-presentation-effect-adapter.js (597:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+        "message": "xtendrmt/rmt-state-binding-view-projector.js (579:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
       },
       {
         "code": "THIS_IS_UNDEFINED",
@@ -5670,7 +5670,7 @@
       },
       {
         "code": "THIS_IS_UNDEFINED",
-        "message": "xtendrmt/rmt-state-binding-view-projector.js (579:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
+        "message": "xtendrmt/rmt-presentation-effect-adapter.js (597:94): The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten"
       },
       {
         "code": "THIS_IS_UNDEFINED",
@@ -5698,9 +5698,9 @@
       "bytes": 1148375
     },
     "baselineBytes": 1148375,
-    "bundleBytes": 970486,
+    "bundleBytes": 973354,
     "framework": {
-      "bytes": 970486,
+      "bytes": 973354,
       "baselineBytes": 1148375,
       "withinBudget": true
     },
@@ -5735,7 +5735,7 @@
         }
       ]
     },
-    "ratio": 0.8450950255796233,
+    "ratio": 0.8475924676172852,
     "budgets": {
       "modernEsmEntryMustBeSmallerThanBaseline": true,
       "enforcement": "strict",

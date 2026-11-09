@@ -1,0 +1,33 @@
+// A02.3: existing Classic syntax; conditional lifetimes use the v2 sidecar.
+template conditional.filters {
+  state hosts type object preserve {
+    initial { left true; right false }
+  }
+  action hosts.replace {
+    input hosts object
+    reduce state.hosts = input.hosts
+  }
+  state filter.left type object preserve {
+    initial { query "left"; selection { activeId null } }
+  }
+  state filter.right type object preserve {
+    initial { query "right"; selection { activeId null } }
+  }
+  action filter.left.replace {
+    input filter object
+    reduce state.filter.left = input.filter
+  }
+  action filter.right.replace {
+    input filter object
+    reduce state.filter.right = input.filter
+  }
+  portal surface.root root "#xtend-maraca-root" layer surface
+  surface filter.left kind region component div {
+    portal surface.root
+    lane visible { mount filter-left }
+  }
+  surface filter.right kind region component div {
+    portal surface.root
+    lane visible { mount filter-right }
+  }
+}

@@ -2,10 +2,10 @@ import type { RuntimeHostController } from './runtime-host-controller';
 export type { RuntimeHostController } from './runtime-host-controller';
 import type { XTensionsSurfaceEvent } from './signal-bridge-contract';
 export { XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBindingArtifact } from './state-binding-artifact';
-export type { XTensionStateBindingArtifact } from './state-binding-artifact';
+export type { XTensionStateBindingArtifact, XTensionHostPresence } from './state-binding-artifact';
 
 export const XTENSION_STATE_BINDING_SCHEMA: 'xtend.xtensions.state-binding.v1';
-export const XTENSION_STATE_BINDING_API_VERSION: '1.1.0';
+export const XTENSION_STATE_BINDING_API_VERSION: '1.2.0';
 /** Structural ports keep the standalone compiler package independent of the RMT runtime. */
 export interface XTensionBindingModelReader {
   snapshot(): { readonly states: Readonly<Record<string, unknown>> };

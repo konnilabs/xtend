@@ -98,11 +98,11 @@
     },
     {
       "file": "tools/rmt-language/classic-compiler.d.ts",
-      "sha256": "62b0631474db60c71179d340ad544245934b778279668ac857ff708fcee4b952"
+      "sha256": "ba345f1e199f231435a4c15e25cacc6673cbc06c2ea3b0f1c875c27cb0aa7f5e"
     },
     {
       "file": "tools/rmt-language/classic-compiler.js",
-      "sha256": "a8abff577628966f207634117864d63617052c0ab87f9d9785ec6cb4433ad7b1"
+      "sha256": "145865c16e4a33d243ae1cd4957222c71cf6ab5142dd41a11ec591260ccb068b"
     },
     {
       "file": "tools/rmt-language/classic-parser.d.ts",
@@ -166,7 +166,7 @@
     },
     {
       "file": "xtend-maraca/plan-runtime.mjs",
-      "sha256": "d7cced49f185b934e5a86fe3ef2acbd4d3fa39efbe5136ca927e9bead82ec96a"
+      "sha256": "9ec49cebbeb60a1a9f2cb04770346f6386fda5100cf5294b8615aebf6bb43f88"
     },
     {
       "file": "xtendrmt/contracts/portable-render.v2.json",
@@ -4007,7 +4007,7 @@
       "versionedIdentifiers": [
         {
           "name": "RMT_CLASSIC_COMPILE_RESULT_SCHEMA",
-          "value": "xtend.rmt.classic.compile-result.v2",
+          "value": "xtend.rmt.classic.compile-result.v3",
           "file": "tools/rmt-language/classic-compiler.js",
           "line": 6,
           "symbol": "<anonymous>"
@@ -12654,7 +12654,7 @@
         },
         {
           "name": "PLAN_RUNTIME_SCHEMA",
-          "value": "xtend.maraca.plan-runtime.v4",
+          "value": "xtend.maraca.plan-runtime.v5",
           "file": "xtend-maraca/plan-runtime.mjs",
           "line": 6,
           "symbol": "<anonymous>"

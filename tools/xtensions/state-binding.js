@@ -4,7 +4,7 @@
 const { XTENSION_STATE_BINDING_SCHEMA, validateStateBinding, addressKey, propsFrom, clone, freeze, data, record, typed } = require('./state-binding-contract');
 const { XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBindingArtifact } = require('./state-binding-artifact');
 const { RUNTIME_HOST_CONTROLLER_SCHEMA } = require('./runtime-host-controller');
-const XTENSION_STATE_BINDING_API_VERSION = '1.1.0';
+const XTENSION_STATE_BINDING_API_VERSION = '1.2.0';
 
 /** One registry per Model session. Factories and ports are trusted host capabilities. */
 function createXTensionStateRegistry({ modelReader, modelCommandPort, commandDispatcher, onDiagnostic } = {}) {
@@ -26,6 +26,8 @@ function createXTensionStateRegistry({ modelReader, modelCommandPort, commandDis
   function bind(input, createHost) {
     if (closed) throw new Error('The state registry is disposed.');
     if (typeof createHost !== 'function') throw new TypeError('A trusted runtime host factory is required.');
+    // A new conditional lifetime may be created between Model and public View notification.
+    current = modelReader.snapshot();
     const definition = validateStateBinding(input), key = addressKey(definition.address);
     if (entries.has(key)) throw new Error('The XTension instance address is already bound.');
     const identity = freeze({ address: definition.address, key, incarnation: ++incarnation });

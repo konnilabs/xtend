@@ -7,7 +7,7 @@ const { normalizeHostResourceCleanupRecord } = require('../../tools/xtensions/ho
 const { createXtendFabric } = require('../../fabric/xtend-fabric');
 
 // Shared by jsdom and Chromium: no substitute framework roots or DOM stubs.
-async function runRuntimeAcceptance({ React: R, ReactDOM, Vue: V, document, compiledBindingPlan }) {
+async function runRuntimeAcceptance({ React: R, ReactDOM, Vue: V, document, compiledBindingPlan, conditionalBindingPlan }) {
   const passed = [], failed = [];
   const check = (condition, message) => { if (!condition) throw new Error(message); };
   const equal = (a, b, message) => check(JSON.stringify(a) === JSON.stringify(b), `${message}: ${JSON.stringify(a)} != ${JSON.stringify(b)}`);
@@ -548,7 +548,7 @@ async function runRuntimeAcceptance({ React: R, ReactDOM, Vue: V, document, comp
     });
   }
   await require('./state-binding-acceptance').runStateBindingAcceptance({ React: R, ReactDOM, document, test, check, equal });
-  await require('./compiled-state-binding-acceptance').runCompiledStateBindingAcceptance({ React: R, ReactDOM, document, test, check, equal, plan: compiledBindingPlan });
+  await require('./compiled-state-binding-acceptance').runCompiledStateBindingAcceptance({ React: R, ReactDOM, document, test, check, equal, plan: compiledBindingPlan, conditionalPlan: conditionalBindingPlan });
   return { ok: failed.length === 0, passed, failed, versions: { react: R.version, reactDOM: ReactDOM.version, vue: V.version }, retainedCyclesPerFramework: 50 };
 }
 module.exports = { runRuntimeAcceptance };

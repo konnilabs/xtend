@@ -1,5 +1,5 @@
 {
-  "schema": "xtend.maraca.build-config.v2",
+  "schema": "xtend.maraca.build-config.v3",
   "source": "docs/xtendrmt-docs-document-v2.rmt",
   "sourceFingerprint": "56c718ce05d79579bb08ea381d9c797f8184af2188d99eb9ec840a264e087718",
   "serviceGraphFingerprint": null,
@@ -60,10 +60,10 @@
     "cssProviderFallback": "none"
   },
   "toolchain": {
-    "rollup": "4.60.4",
+    "rollup": "4.62.2",
     "terser": "5.48.0",
     "mode": "rollup-terser"
   },
-  "candidateMatrixFingerprint": "851a22f28bd3feb6e4d17dd38c80a63cd84a7374bde8d535e49b6b934a0836c7",
-  "configFingerprint": "123ea1cf51a3b920d067be555473a9038225215f6c12f198ccc6ee517e121308"
+  "candidateMatrixFingerprint": "8d03ec8a32746b23a3616f7bf6b4025c5aa6d7365c25a0843dd9ca31c17fa068",
+  "configFingerprint": "509df353452ae4199d5f764bb35230c0652fb40686cc100dffdd0ae5cb033ab4"
 }

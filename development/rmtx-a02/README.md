@@ -1,6 +1,6 @@
 # A02 – Instanzadressen, kontrollierte State-Slices und Intents
 
-Stand: 2026-11-08. **A02.1 und der statische Compiler-/Maraca-Pfad A02.2 sind implementiert; A02 bleibt in Arbeit.** RMTX und XTensions 2.0 bleiben im Releaseumfang 0.9.0 auf `preparing`.
+Stand: 2026-11-09. **A02.1, der statische Compiler-/Maraca-Pfad A02.2 und bedingte Hosts in A02.3 sind implementiert; A02 bleibt in Arbeit.** RMTX und XTensions 2.0 bleiben im Releaseumfang 0.9.0 auf `preparing`.
 
 Die [Bestandsaufnahme](../XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md) fordert für X02/X03 einen gemeinsamen Pfad durch Model, State-Projektion, Props und Rückkanal. Dieser erste Schritt nutzt die vorhandenen Model- und Runtime-Host-Ports. Er führt keine neue RMTX-Quellsyntax und keine Erweiterung des geschlossenen [Classic-AST-Vertrags](../rmtx-a01/compiler-contract.md) ein.
 
@@ -98,20 +98,43 @@ Geänderte Schema-Verträge erhalten gemäß der bestehenden Major-only-Schemare
 
 | Vertrag | Legacy | Aktueller Stand |
 | --- | --- | --- |
-| Classic-Compiler-API / Compile-Ergebnis | bisherige vNext-Ergebnisform v1 | API `2.0.0`, `xtend.rmt.classic.compile-result.v2` |
+| Classic-Compiler-API / Compile-Ergebnis | `xtend.rmt.classic.compile-result.v2` | API `3.0.0`, `xtend.rmt.classic.compile-result.v3` |
 | Gemeinsame Legacy-Compiler-API | bisher ohne API-Marker | API `1.1.0` für den zusätzlich exportierten Orchestrierungs-Backendbuilder; unveränderte vNext-Compile-Ergebnisform v1 |
-| Maraca-Buildplan | `xtend.maraca.build-plan.v1` | `xtend.maraca.build-plan.v2` |
-| Maraca-Build-Konfiguration | `xtend.maraca.build-config.v1` | `xtend.maraca.build-config.v2`; v1 bleibt ohne neue XTension-Optionen lesbar |
-| Maraca-Plan-Runtime | `xtend.maraca.plan-runtime.v3` | `xtend.maraca.plan-runtime.v4` |
-| Browser-Composition / Fassade | Root v1 | `xtend.maraca.browser-composition-root.v2`, API `2.0.0` |
+| Maraca-Buildplan | `xtend.maraca.build-plan.v2` | `xtend.maraca.build-plan.v3` |
+| Maraca-Build-Konfiguration | `xtend.maraca.build-config.v1` | `xtend.maraca.build-config.v3`; v1 ohne Bindungen und v2 mit statischem Sidecar v1 bleiben lesbar |
+| Maraca-Plan-Runtime | `xtend.maraca.plan-runtime.v3` | `xtend.maraca.plan-runtime.v5` |
+| Browser-Composition / Fassade | `xtend.maraca.browser-composition-root.v2` | `xtend.maraca.browser-composition-root.v3`, API `3.0.0` |
 | Asynchrone Runtime-Hosts | zuvor generischer Legacy-Host-Identifier | `xtend.xtensions.runtime-host-controller.v2`, API `2.0.0`, frameworkbezogene Runtime-Adapter v2 |
-| State-Binding-Registry | A02.1 API | API `1.1.0`; unveränderte Bindungsdaten bleiben `xtend.xtensions.state-binding.v1` |
+| State-Binding-Registry | A02.1 API | API `1.2.0`; unveränderte Bindungsdaten bleiben `xtend.xtensions.state-binding.v1` |
+| Bindungs-Sidecar | statischer Sidecar v1 | `xtend.xtensions.state-binding-artifact.v2` mit optionalem booleschen `presence`-Pfad; v1 behält seinen geschlossenen Vertrag |
 | Runtime-Akzeptanzbericht | `xtend.xtensions.runtime-acceptance-report.v1` ohne Compiler-Nachweise | `xtend.xtensions.runtime-acceptance-report.v2` |
 
-Der Bindungs-Sidecar ist ein neuer Vertrag und beginnt bei v1. Der unveränderte Classic-AST-Eingangsvertrag bleibt `1.0.0`; sein geschlossenes Schema wird nicht umnummeriert oder still erweitert. Lifecycle-/Event-Envelope und Presentation-Adapter behalten ihre unveränderten Verträge. Die veröffentlichte [v3-API-Deklaration](../../xtend-maraca/plan-runtime.v3.d.ts) bleibt als unveränderter Legacy-Nachweis erhalten; aktuelle Runtime-Instanzen melden v4. Neue v2-Runtime-Hosts dürfen nicht durch Legacy-getaggte Adapter ersetzt werden.
+Der statische Sidecar v1 bleibt lesbar und weist `presence` weiterhin ab. Der neue Sidecar v2 trägt die bedingte Instanziierung. Der unveränderte Classic-AST-Eingangsvertrag bleibt `1.0.0`; sein geschlossenes Schema wird nicht umnummeriert oder still erweitert. Lifecycle-/Event-Envelope und Presentation-Adapter behalten ihre unveränderten Verträge. Die veröffentlichte [v3-API-Deklaration](../../xtend-maraca/plan-runtime.v3.d.ts) bleibt als unveränderter Legacy-Nachweis erhalten; die [v4-Deklaration](../../xtend-maraca/plan-runtime.v4.d.ts) bleibt ebenfalls archiviert. Aktuelle Runtime-Instanzen melden v5. Neue v2-Runtime-Hosts dürfen nicht durch Legacy-getaggte Adapter ersetzt werden.
 
-## 9. Noch offen
+## 9. A02.3 – bedingte Host-Lebensdauern
 
-Der statische A02.2-Pfad ist nachgewiesen. A02 ist insgesamt weiterhin offen: Für wiederholte beziehungsweise bedingte Hosts muss die Compiler-/Runtime-Instanziierung stabile Schlüssel und Lebensdauern gemeinsam ableiten. Danach benötigt die Tiefverlinkung einen expliziten URL-/History-Vertrag mit Codec, Freigaben und Wiederherstellungsregeln. Die jetzigen State-Pfade sind kein URL-Codec.
+[`conditional-filters.rmt`](conditional-filters.rmt) ergänzt die bestehende Classic-Referenz um einen Model-State `hosts` und eine deklarierte Action `hosts.replace`. Der [Sidecar v2](conditional-bindings.v2.json) ergänzt jeden Host um `presence: { state: "hosts", path: ["left"] }` beziehungsweise `right`. Die Bedingung ist ein expliziter boolescher Model-Pfad. Sie ist keine RMTX-Syntaxentscheidung und wird weder aus DOM-Sichtbarkeit noch aus Framework-State abgeleitet. Das deklarierte, leere Host-Template bleibt statisch und keyed; erst seine Runtime-Existenz ist bedingt.
+
+Der Compiler prüft State, Segmentpfad und booleschen Initialwert. Der v1-Sidecar erlaubt dieses Feld nicht. Beliebige Ausdrücke, Defaultwerte, Funktionen, Repeat-/Source-Hosts und zusätzliche Vertragsfelder bleiben ausgeschlossen. Der Classic-AST und die Daten einer einzelnen konkreten State-Bindung behalten ihre unveränderten Versionen.
+
+| Model-Presence | Lebensdauer und DOM |
+| --- | --- |
+| Initial `false` | Kein Host-DOM, kein Factory-Aufruf und keine lebende Registry-Adresse. Der kontrollierte Model-Slice bleibt erhalten. |
+| `true` → `false` | Callback-/Command-Autorität sofort entziehen; Framework-Root unmounten, während sein Host noch verbunden ist; anschließend den Host über den RMT-Renderer entfernen. |
+| `false` → `true` | Nach dem View-Commit den Host auflösen; mit aktueller Model-Projektion mounten; gleiche logische Adresse, neue lokale `incarnation`. |
+| Unverändert `true` | Vorhandenen keyed Host, fremde Kinder und Lebensdauer erhalten, auch beim vollständigen Refresh. |
+| Ungültiger Presence-Wert oder fehlgeschlagener neuer Host | Runtime fehlschlagen lassen und alle fremden Roots abbauen. Ein bereits erfolgter Model-Commit wird nicht als zurückgerollt dargestellt. |
+
+Die Host-Koordination gilt für Actions, Stream-Patches und vollständige Refreshes. Command-Erfolg wird erst nach Cleanup, View-Commit und neuen Framework-Mounts veröffentlicht. `whenXTensionsIdle()` drainiert in Runtime v5 auch die aktuelle Command-Queue und auslaufende Hosts. Das erfasst insbesondere Intents, die ihre eigene Instanz entfernen und dabei bereits ihre Registry-Autorität verlieren. Die interne Props-Grenze bleibt `registry.flush()` und wartet nicht auf den gerade veröffentlichenden Command. Externe Commands sollten weiterhin selbst awaited werden, um deren konkretes Ergebnis beziehungsweise Fehler zu erhalten.
+
+Wird ein View-Commit überholt, verlieren abwesende Hosts trotzdem ihre Autorität; neue Hosts entstehen erst beim nächsten aktuellen View-Commit. Die Reihenfolge ist fail-closed: Erst wird die vollständige neue Presence-Menge geprüft, dann werden entfernte Adressen freigegeben. Serialisierte Commands und sofortige Lebensdauerprüfung verhindern, dass ein noch eingereihter Intent gegen eine spätere Ersatzinstanz committet. Nach Dispose dürfen ungelöste Loader keine Hosts nachträglich erzeugen. Adoption vorhandener DOM-Hosts wird für Presence-Pläne vor Boot abgewiesen, bis A05 einen Restore-Vertrag bereitstellt. Entfernen ist ein Ende der Lebensdauer; ein fachliches Suspend/Resume bleibt eine separate Operation.
+
+[`inspect.cjs`](inspect.cjs) prüft beide Referenzen mit Source-/AST-Parität und Maraca-Transport. [`conditional-evidence.json`](conditional-evidence.json) bindet Quelle, Programm und v2-Sidecar an Inhalts-Hashes. Die verpflichtenden Runtime-Gates enthalten elf A02.3-Fälle: Versions-/Presence-/Adoption-Abweisung vor Boot, initiale Abwesenheit, selbstentfernende Intents, Wiedererscheinen, Cleanup vor DOM-Entfernung, verspätete Commands, ungültige Presence-Werte, Teilfehler, wiederholte Presence-Zyklen Dispose während eines nachträglichen Loaders und überholte View-Commits. Insgesamt werden 122 Akzeptanzfälle je Umgebung und 47 Compiler-/Versionsprüfungen ausgeführt. Das sind Entwicklungsnachweise; beide 0.9-Features bleiben `preparing`.
+
+Die gegenüber A02.2 geänderten Verträge erhalten neue Major-Schema-IDs: Sidecar v2, Classic-Compile-Ergebnis v3, Maraca-Buildplan/-Konfiguration v3, Runtime v5 und Browser-Root v3. Compiler- und Browser-API melden `3.0.0`; die kompatibel erweiterte Registry-API `1.2.0`. Die Runtime-Host-API bleibt unverändert `2.0.0`. Build-Konfiguration v2 bleibt für den statischen v1-Sidecar lesbar; ein v2-Sidecar benötigt Konfiguration v3. Die Core-Projektion erhält nur die geprüften Änderungen und bewahrt bestehende Autoritäts-Fingerprints.
+
+## 10. Noch offen
+
+Der statische A02.2-Pfad und bedingte Hosts aus A02.3 sind nachgewiesen. A02 ist insgesamt weiterhin offen: Für wiederholte Hosts muss die Compiler-/Runtime-Instanziierung die Elementschlüssel, instanzbezogene State-Pfade und Lebensdauern gemeinsam ableiten. Das umfasst Umordnen, doppelte/ungültige Schlüssel und verschachtelte Wiederholungen; DOM-Indizes sind kein Identitätsersatz. Danach benötigt die Tiefverlinkung einen expliziten URL-/History-Vertrag mit Codec, Freigaben und Wiederherstellungsregeln. Die jetzigen State-Pfade sind kein URL-Codec.
 
 Reale Microkernel-Auslieferung und Capabilities folgen in A03, die automatische Provider-/Build-/Host-Kette in A04 und SSR/Adoption/Restore in A05. Die endgültige RMTX-Quellsyntax bleibt A06 vorbehalten. Beide großen 0.9-Features bleiben bis zu ihren vollständigen Abnahmen `preparing`.

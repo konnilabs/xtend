@@ -2,8 +2,8 @@
 const legacy = require('./vnext-compiler');
 const { RMT_CLASSIC_COMPILER_CONTRACT, getRmtClassicAstSchema, validateRmtClassicAst } = require('./classic-ast-contract');
 const { validateStateBindingArtifact } = require('../xtensions/state-binding-artifact');
-const RMT_CLASSIC_COMPILER_API_VERSION = '2.0.0';
-const RMT_CLASSIC_COMPILE_RESULT_SCHEMA = 'xtend.rmt.classic.compile-result.v2';
+const RMT_CLASSIC_COMPILER_API_VERSION = '3.0.0';
+const RMT_CLASSIC_COMPILE_RESULT_SCHEMA = 'xtend.rmt.classic.compile-result.v3';
 
 function assertContractVersion(options) {
   if (options.contractVersion !== undefined && options.contractVersion !== RMT_CLASSIC_COMPILER_CONTRACT.version) {

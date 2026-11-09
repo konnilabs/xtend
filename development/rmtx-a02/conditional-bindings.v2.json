@@ -1,0 +1,164 @@
+{
+  "schema": "xtend.xtensions.state-binding-artifact.v2",
+  "documentId": "filter-example",
+  "bindings": [
+    {
+      "surface": "filter.left",
+      "binding": {
+        "schema": "xtend.xtensions.state-binding.v1",
+        "address": {
+          "documentId": "filter-example",
+          "declarationId": "filter-panel",
+          "keys": [
+            "left"
+          ]
+        },
+        "props": {
+          "query": {
+            "state": "filter.left",
+            "path": [
+              "query"
+            ],
+            "type": "string"
+          },
+          "activeId": {
+            "state": "filter.left",
+            "path": [
+              "selection",
+              "activeId"
+            ],
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "intents": {
+          "change": {
+            "command": "filter.left.replace",
+            "payloadSchema": "xtend.schemas.xtension.intent.v1",
+            "fields": {
+              "filter": {
+                "type": "object",
+                "fields": {
+                  "query": {
+                    "type": "string"
+                  },
+                  "selection": {
+                    "type": "object",
+                    "fields": {
+                      "activeId": {
+                        "type": "string",
+                        "nullable": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "presence": {
+            "command": "hosts.replace",
+            "payloadSchema": "filter-example.host-presence.v1",
+            "fields": {
+              "hosts": {
+                "type": "object",
+                "fields": {
+                  "left": {
+                    "type": "boolean"
+                  },
+                  "right": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "presence": {
+        "state": "hosts",
+        "path": [
+          "left"
+        ]
+      }
+    },
+    {
+      "surface": "filter.right",
+      "binding": {
+        "schema": "xtend.xtensions.state-binding.v1",
+        "address": {
+          "documentId": "filter-example",
+          "declarationId": "filter-panel",
+          "keys": [
+            "right"
+          ]
+        },
+        "props": {
+          "query": {
+            "state": "filter.right",
+            "path": [
+              "query"
+            ],
+            "type": "string"
+          },
+          "activeId": {
+            "state": "filter.right",
+            "path": [
+              "selection",
+              "activeId"
+            ],
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "intents": {
+          "change": {
+            "command": "filter.right.replace",
+            "payloadSchema": "xtend.schemas.xtension.intent.v1",
+            "fields": {
+              "filter": {
+                "type": "object",
+                "fields": {
+                  "query": {
+                    "type": "string"
+                  },
+                  "selection": {
+                    "type": "object",
+                    "fields": {
+                      "activeId": {
+                        "type": "string",
+                        "nullable": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "presence": {
+            "command": "hosts.replace",
+            "payloadSchema": "filter-example.host-presence.v1",
+            "fields": {
+              "hosts": {
+                "type": "object",
+                "fields": {
+                  "left": {
+                    "type": "boolean"
+                  },
+                  "right": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "presence": {
+        "state": "hosts",
+        "path": [
+          "right"
+        ]
+      }
+    }
+  ]
+}

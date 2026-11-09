@@ -1,6 +1,6 @@
 export * from './classic-ast-types';
-export declare const RMT_CLASSIC_COMPILER_API_VERSION: '2.0.0';
-export declare const RMT_CLASSIC_COMPILE_RESULT_SCHEMA: 'xtend.rmt.classic.compile-result.v2';
+export declare const RMT_CLASSIC_COMPILER_API_VERSION: '3.0.0';
+export declare const RMT_CLASSIC_COMPILE_RESULT_SCHEMA: 'xtend.rmt.classic.compile-result.v3';
 export { validateStateBindingArtifact } from '../xtensions/state-binding-artifact';
 import type { RmtClassicAst } from './classic-ast-types';
 import type { RmtJsonValue, RmtToolingDiagnostic, RmtCompileResult, RmtParseResult } from './rmt-tooling-public-types';

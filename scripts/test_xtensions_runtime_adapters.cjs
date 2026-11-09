@@ -13,6 +13,7 @@ async function main() {
   const exportsReport = require('../tests/xtensions/runtime-adapter-exports.cjs').runExportChecks();
   const browser = process.argv.includes('--browser');
   const compiledBindingPlan = require('../development/rmtx-a02/inspect.cjs').inspect();
+  const conditionalBindingPlan = require('../development/rmtx-a02/inspect.cjs').inspectConditional();
   const compilerChecks = require('../tests/xtensions/compiled-state-binding-compiler.cjs').runCompilerChecks();
   let report;
   if (browser) {
@@ -27,7 +28,8 @@ async function main() {
         return [framework, Object.entries(api).map(([name, value]) => [name, typeof value]).sort()];
       }));
       const compiledBindingPlan = ${JSON.stringify(compiledBindingPlan)};
-      window.runAcceptance = () => runRuntimeAcceptance({React,ReactDOM:{...client,version:dom.version},Vue,document,compiledBindingPlan});`, resolveDir: root },
+      const conditionalBindingPlan = ${JSON.stringify(conditionalBindingPlan)};
+      window.runAcceptance = () => runRuntimeAcceptance({React,ReactDOM:{...client,version:dom.version},Vue,document,compiledBindingPlan,conditionalBindingPlan});`, resolveDir: root },
       nodePaths: [path.resolve(peerRoot, 'node_modules')], bundle: true, platform: 'browser', write: false,
       define: { 'process.env.NODE_ENV': '"production"', __VUE_OPTIONS_API__: 'true', __VUE_PROD_DEVTOOLS__: 'false', __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false' } });
     const instance = await chromium.launch({ executablePath: process.env.CHROME_BIN || '/usr/bin/chromium', headless: true });
@@ -49,7 +51,7 @@ async function main() {
     for (const key of ['window', 'document', 'Node', 'Element', 'HTMLElement', 'SVGElement', 'navigator', 'MutationObserver', 'Event', 'CustomEvent']) Object.defineProperty(globalThis, key, { configurable: true, value: dom.window[key] });
     try {
       report = await require('../tests/xtensions/runtime-adapter-acceptance').runRuntimeAcceptance({ React: peers('react'),
-        ReactDOM: { ...peers('react-dom/client'), version: peers('react-dom').version }, Vue: peers('vue'), document: dom.window.document, compiledBindingPlan });
+        ReactDOM: { ...peers('react-dom/client'), version: peers('react-dom').version }, Vue: peers('vue'), document: dom.window.document, compiledBindingPlan, conditionalBindingPlan });
     } finally { dom.window.close(); }
   }
   report = {

@@ -16,7 +16,7 @@ import type {
 } from '../components/xsurfacemanager-controller.js';
 
 export interface MaracaPlanRuntimeSnapshot {
-  readonly schema: 'xtend.maraca.plan-runtime.v4';
+  readonly schema: 'xtend.maraca.plan-runtime.v5';
   readonly phase: 'created' | 'booting' | 'ready' | 'failed' | 'disposed';
   readonly generation: number;
   readonly renderCount: number;
@@ -213,7 +213,7 @@ export interface MaracaFastPassResult {
 }
 
 export interface MaracaPlanRuntime {
-  readonly schema: 'xtend.maraca.plan-runtime.v4';
+  readonly schema: 'xtend.maraca.plan-runtime.v5';
   readonly model: RmtModelReader;
   /** @deprecated Use model. Removed in 0.7. */
   readonly stateRuntime: RmtModelReader;
@@ -223,6 +223,7 @@ export interface MaracaPlanRuntime {
   dispatchCommand(command: string | MaracaCommand, payload?: unknown, metadata?: Record<string, unknown>, lifetime?: XTensionBindings.XTensionBindingCommandLifetime): Promise<MaracaCommandResult>;
   getXTensionBindings(): readonly { readonly surface: string; readonly instance: XTensionBindings.XTensionBoundInstance }[];
   /** Also drains asynchronous foreign-root cleanup after dispose(). */
+  /** Drains the current command queue, host deliveries and retiring foreign roots. */
   whenXTensionsIdle(): Promise<void>;
   dispatchFastPass(actionId: string, payload?: unknown, options?: MaracaFastPassOptions): RmtJobHandle<MaracaFastPassResult>;
   getSurfaceBoundary(id?: string): MaracaAbortBoundary;
@@ -359,7 +360,7 @@ export interface MaracaPlanRuntimeOptions {
   moduleUrls?: string[];
 }
 
-export declare const PLAN_RUNTIME_SCHEMA: 'xtend.maraca.plan-runtime.v4';
+export declare const PLAN_RUNTIME_SCHEMA: 'xtend.maraca.plan-runtime.v5';
 export declare const LEGACY_PLAN_RUNTIME_SCHEMA: 'xtend.maraca.plan-runtime.v3';
 export declare function createMaracaPlanRuntime(options: MaracaPlanRuntimeOptions): MaracaPlanRuntime;
 export declare function bootMaracaPlan(options: MaracaPlanRuntimeOptions): Promise<MaracaPlanRuntime>;

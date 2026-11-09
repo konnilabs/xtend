@@ -4,8 +4,8 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "c1697297885f7190a8f73e9b209c8e1a9c5ea080802a8d2a2d1e4f84ad9f4c95",
-  "sourceMembershipSha256": "408ba6b100e3d584875225c6fbb6021482c7f306f059da531b7f1c732d1e1e69",
+  "inventorySha256": "05be85456f7579d4e78fb12cbb9ac6e31a6b73881214caf53eddc51d68ee7e19",
+  "sourceMembershipSha256": "c08293cfbc06ab9383f14579905be188de92f26f629c15b2d81e9a26cc0b40a3",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
@@ -549,7 +549,7 @@
         },
         {
           "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
-          "sha256": "a71321e31614f239891c25eb0bcc7043d80e911dc649fa9e2e72a5531b0c432e"
+          "sha256": "db314a6e7248eed63c388fb90b36566f19da8041b6c511ca9880ea3aa5d3fa73"
         },
         {
           "path": "development/rmtx-a01/README.md",
@@ -561,7 +561,7 @@
         },
         {
           "path": "development/rmtx-a01/inventory.json",
-          "sha256": "164f61e37364183deb222b54e2b7f581b950f3386aa6bfc31279a3d0f88db8ec"
+          "sha256": "68bdb86faf5dc2c0a080fb5253046bc28b3f3e9f3abf48b508a13b70ce9d4beb"
         },
         {
           "path": "docs/de/rmt-vnext-authoring.md",
@@ -573,11 +573,11 @@
         },
         {
           "path": "docs/generated/search/en.fulltext.json",
-          "sha256": "9a711e7e91be4e61c8bb9271d7bc623fd2f9b18e58e9e2ddfc804fb7541d2ad9"
+          "sha256": "7ec2c90c42ff3bb08d51c94c1a6f9275f5e7ecf45a4e63727668fd67d269f1f6"
         },
         {
           "path": "package.json",
-          "sha256": "a0ee17c552c2d7ac527af60dd4838b3d98c94f46853c8fd9d1da72d87d98dbcb"
+          "sha256": "70fb483792ead3d55c009d976150e628cea6bd61559a8c4328ee343431a78f22"
         },
         {
           "path": "scripts/generate_rmt_classic_contract.js",
@@ -605,11 +605,11 @@
         },
         {
           "path": "tools/rmt-language/classic-compiler.d.ts",
-          "sha256": "62b0631474db60c71179d340ad544245934b778279668ac857ff708fcee4b952"
+          "sha256": "ba345f1e199f231435a4c15e25cacc6673cbc06c2ea3b0f1c875c27cb0aa7f5e"
         },
         {
           "path": "tools/rmt-language/classic-compiler.js",
-          "sha256": "a8abff577628966f207634117864d63617052c0ab87f9d9785ec6cb4433ad7b1"
+          "sha256": "145865c16e4a33d243ae1cd4957222c71cf6ab5142dd41a11ec591260ccb068b"
         },
         {
           "path": "tools/rmt-language/classic-parser.d.ts",
@@ -767,6 +767,116 @@
     ],
     "previousInventorySha256": "22d5882da7a9df5aecf747164b2a55f25fd4db943a95b0038fa6de0890ec1f98",
     "reviewDocument": "development/rmtx-a02/README.md",
+    "publicationGuardRetired": false,
+    "acceptedForRelease": false,
+    "freshCommittedCaptureRequired": true
+  },
+  "a023ConditionalHostReview": {
+    "status": "user-requested-scoped-development-gates",
+    "date": "2026-11-09",
+    "request": "A02 an der nächsten offenen Stelle fortsetzen; geänderte Schema-/API-Verträge gegenüber Legacy versionieren.",
+    "scope": "Model-owned boolean presence for static keyed host templates, conditional lifetimes, stale intent revocation, unmount before DOM removal, deferred mounts for superseded Views and current command/props cleanup barriers. Repeated hosts, URL/history and adoption/restore remain open.",
+    "sourceBindingRefresh": [
+      "xtend.rmt.vnext.ast.v1"
+    ],
+    "versionTransitions": {
+      "xtend.maraca.build-plan.v2": "xtend.maraca.build-plan.v3",
+      "xtend.maraca.build-config.v2": "xtend.maraca.build-config.v3",
+      "xtend.maraca.plan-runtime.v4": "xtend.maraca.plan-runtime.v5",
+      "xtend.maraca.browser-composition-root.v2": "xtend.maraca.browser-composition-root.v3",
+      "xtend.rmt.classic.compile-result.v2": "xtend.rmt.classic.compile-result.v3",
+      "xtend.xtensions.state-binding-artifact.v1": "xtend.xtensions.state-binding-artifact.v2"
+    },
+    "newAuthorityBaselines": [
+      {
+        "schemaId": "xtend.maraca.plan-runtime.v5",
+        "authoritativeFingerprints": [
+          "sha256:62c08f3745ee0ba1b374694cce49c50aae84cf7a097a9d3992c8742d25576ca7"
+        ],
+        "releasedFingerprintSetHash": "sha256:21df715444723cc936000ece30ed7654c2c61ffe9332a8e0e6c9872cbdcd1e6d"
+      }
+    ],
+    "reviewedSchemaIds": [
+      "filter-example.host-presence.v1",
+      "xtend.a11y.component-contract.v1",
+      "xtend.a11y.contrast-policy.v1",
+      "xtend.a11y.motion-contrast-policy.v1",
+      "xtend.a11y.motion-policy.v1",
+      "xtend.a11y.profile.v1",
+      "xtend.a11y.screenreader-signals.v1",
+      "xtend.component.contract.v2",
+      "xtend.component.feedback-status-ux-profile.v1",
+      "xtend.component.layout-display-media-snapshot.v1",
+      "xtend.component.layout-display-media-ux-profile.v1",
+      "xtend.component.lifecycle-telemetry.v1",
+      "xtend.component.navigation-routing-snapshot.v1",
+      "xtend.component.navigation-routing-ux-profile.v1",
+      "xtend.component.network.v1",
+      "xtend.component.x-icon.missing.v1",
+      "xtend.component.x-icon.ready.v1",
+      "xtend.component.x-icon.state.v1",
+      "xtend.design-tokens.pack.v1",
+      "xtend.design-tokens.product-contract.v1",
+      "xtend.fabric.state-diagnostics.v1",
+      "xtend.icon-pack.core.v1",
+      "xtend.icon-pack.custom.v1",
+      "xtend.icon-pack.lucide-local-adapter.v1",
+      "xtend.icon-pack.registered.v1",
+      "xtend.icon.registry.v1",
+      "xtend.icon.source.v1",
+      "xtend.layout-stability.v1",
+      "xtend.legacy-js-with-enterprise-profile.v1",
+      "xtend.local-esm-icon-adapter.v1",
+      "xtend.maraca.action-runtime-compat.v1",
+      "xtend.maraca.browser-composition-root.v2",
+      "xtend.maraca.browser-composition-root.v3",
+      "xtend.maraca.build-config.v2",
+      "xtend.maraca.build-config.v3",
+      "xtend.maraca.build-plan.v1",
+      "xtend.maraca.build-plan.v2",
+      "xtend.maraca.build-plan.v3",
+      "xtend.maraca.plan-runtime.v3",
+      "xtend.maraca.plan-runtime.v4",
+      "xtend.maraca.plan-runtime.v5",
+      "xtend.maraca.post-commit-context.v1",
+      "xtend.performance.component-profile.v1",
+      "xtend.performance.measurement.v1",
+      "xtend.rmt.classic.compile-result.v2",
+      "xtend.rmt.classic.compile-result.v3",
+      "xtend.rmt.command.v1",
+      "xtend.rmt.component-contract.v1",
+      "xtend.rmt.model-reader.v1",
+      "xtend.rmt.shell-authoring.component.v1",
+      "xtend.rmt.state-scheduler-compatibility.v2",
+      "xtend.rmt.stream-patch-commit.v1",
+      "xtend.router.adoption-pending-release.v1",
+      "xtend.router.closed-navigation-overlays.v1",
+      "xtend.router.document-meta.v1",
+      "xtend.router.navigation-capability.v1",
+      "xtend.router.route-adoption.v1",
+      "xtend.router.route-hydration.v1",
+      "xtend.router.scroll-boundary.v1",
+      "xtend.router.scroll-intent.v1",
+      "xtend.router.skeleton-loader.v1",
+      "xtend.schemas.xtension.intent.v1",
+      "xtend.security.xrouter-import-policy.v1",
+      "xtend.state.boundary-probe.v1",
+      "xtend.state.lifecycle-event.v1",
+      "xtend.state.snapshot.v1",
+      "xtend.theme.context.v1",
+      "xtend.theme.performance-snapshot.v1",
+      "xtend.theme.token-alias-layer.v1",
+      "xtend.typescript.component-source-strategy.v1",
+      "xtend.xkeymap.surface-contract.v1",
+      "xtend.xtensions.chart-cleanup-record.v1",
+      "xtend.xtensions.leaflet-cleanup-record.v1",
+      "xtend.xtensions.react-host-controller-cleanup-record.v1",
+      "xtend.xtensions.state-binding-artifact.v1",
+      "xtend.xtensions.state-binding-artifact.v2",
+      "xtend.xtensions.state-binding.v1",
+      "xtend.xtensions.three-cleanup-record.v1",
+      "xtend.xtensions.vue-host-controller-cleanup-record.v1"
+    ],
     "publicationGuardRetired": false,
     "acceptedForRelease": false,
     "freshCommittedCaptureRequired": true

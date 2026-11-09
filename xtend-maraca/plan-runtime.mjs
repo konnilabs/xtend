@@ -3,7 +3,7 @@ import { createMaracaFastPass } from './fastpass.mjs';
 export { createMaracaAbortBoundary } from './abort-boundary.mjs';
 
 const LEGACY_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v3';
-const PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v4';
+const PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v5';
 const DOM_COMMIT_SCHEMA = 'xtend.rmt.dom-commit-result.v1';
 const DOM_COMMIT_EVENT = 'xtend-maraca:dom-commit';
 const SYSTEM_REFRESH_COMMAND = 'xtend.system.refresh';
@@ -174,10 +174,73 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     }
     bindingArtifact = bindingRuntime.validateStateBindingArtifact(options.plan.xtensionBindings, artifact);
     if (bindingArtifact.bindings.length && typeof options.createXTensionHost !== 'function') throw new TypeError('Bound Maraca plans require a trusted createXTensionHost factory.');
+    if (options.adoptExisting === true && bindingArtifact.bindings.some((entry) => entry.presence)) {
+      throw new TypeError('Conditional XTension hosts require client rendering; adoption requires the separate restore contract.');
+    }
   }
   let xtensionRegistry = null, xtensionDisposal = null, xtensionsClosed = false;
   const boundXTensions = [];
   const boundXTensionSurfaces = new Set(bindingArtifact?.bindings.map((entry) => entry.surface) || []);
+  const xtensionRetirements = new Set();
+
+  function presentXTensionEntries(snapshot) {
+    return (bindingArtifact?.bindings || []).filter((entry) => {
+      if (!entry.presence) return true;
+      let value = asRecord(snapshot.states)[entry.presence.state];
+      for (const part of entry.presence.path) {
+        if (!value || typeof value !== 'object' || !hasOwn(value, part)) value = undefined;
+        else value = value[part];
+      }
+      if (typeof value !== 'boolean') throw new TypeError(`XTension host ${entry.surface} requires a boolean Model presence value.`);
+      return value;
+    });
+  }
+
+  async function retireAbsentXTensions(snapshot) {
+    if (!bindingArtifact) return;
+    try {
+      // Validate the complete next set before changing any existing lifetime.
+      const present = new Set(presentXTensionEntries(snapshot).map((entry) => entry.surface));
+      const removed = boundXTensions.filter((entry) => !present.has(entry.surface));
+      for (const entry of removed) {
+        boundXTensions.splice(boundXTensions.indexOf(entry), 1);
+        // dispose() revokes callbacks synchronously, before awaiting foreign cleanup.
+        const retirement = entry.instance.dispose('model-presence-removed');
+        xtensionRetirements.add(retirement);
+        retirement.finally(() => xtensionRetirements.delete(retirement)).catch(() => {});
+      }
+      await raceDisposed(Promise.all([...xtensionRetirements]));
+    } catch (error) {
+      if (phase !== 'disposed') {
+        phase = 'failed';
+        recordDiagnostic('xtend.maraca.xtension.presence', 'error', error.message);
+        teardownAdapters(false);
+      }
+      throw error;
+    }
+  }
+
+  async function mountPresentXTensions() {
+    if (!xtensionRegistry || phase === 'disposed' || phase === 'failed') return;
+    try {
+      for (const entry of presentXTensionEntries(modelReader.snapshot())) {
+        if (phase === 'disposed') throw runtimeDisposedError();
+        if (boundXTensions.some((bound) => bound.surface === entry.surface)) continue;
+        const container = surfaceElement(entry.surface);
+        if (!container) throw new Error(`XTension host ${entry.surface} was not rendered.`);
+        const instance = xtensionRegistry.bind(entry.binding, (context) => options.createXTensionHost(Object.freeze({ ...context, container, surface: entry.surface, binding: entry.binding })));
+        boundXTensions.push(Object.freeze({ surface: entry.surface, instance }));
+        await raceDisposed(instance.mount(container));
+      }
+    } catch (error) {
+      if (phase !== 'disposed') {
+        phase = 'failed';
+        recordDiagnostic('xtend.maraca.xtension.mount', 'error', error.message);
+        teardownAdapters(false);
+      }
+      throw error;
+    }
+  }
   const strict = orchestration.strict === true || orchestration.mode === 'strict';
   const surfaces = asArray(artifact.surfaces).length ? asArray(artifact.surfaces) : asArray(plan.surfaces);
   const declaredActions = asArray(asRecord(artifact.actions).actions);
@@ -379,6 +442,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   });
 
   function projectDescriptor(descriptor) {
+    const present = new Set(presentXTensionEntries(runtimes?.state?.snapshot() || { states: {} }).map((entry) => entry.surface));
     const projected = typeof options.projectDescriptor === 'function'
       ? options.projectDescriptor(descriptor, {
           ownership,
@@ -395,6 +459,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         if (next.bindings) { next.bindings = { ...next.bindings }; delete next.bindings.hidden; }
       }
       if (value.surface && boundXTensionSurfaces.has(String(value.surface))) {
+        if (!present.has(String(value.surface))) return { type: 'fragment', children: [] };
         // Bound host keys are identities, even if a Model state has that name.
         next.key = { op: 'literal', value: String(value.surface) };
       }
@@ -1862,6 +1927,12 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         metadata,
         validationStage
       );
+      if (bindingArtifact?.bindings.some((entry) => entry.presence)) {
+        // Revoke at the Model commit, before an awaited exit transition can
+        // leave a disappearing component with an apparently current callback.
+        await retireAbsentXTensions(transaction.next);
+        if (phase === 'disposed' || generation !== commandGeneration) throw runtimeDisposedError();
+      }
       validationStage = transaction.validationStage;
       validation = validationStage && validationStage.report;
       const transition = actionSucceeded && runtimes.transitions && typeof runtimes.transitions.findTransition === 'function'
@@ -1907,6 +1978,8 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     if (phase === 'disposed' || generation !== commandGeneration) throw runtimeDisposedError();
     let presentationGuard = prepared.presentationGuard;
     const currentPresentation = () => phase !== 'disposed' && generation === commandGeneration && shellEpoch === prepared.commandShellEpoch && presentationGuard();
+    await retireAbsentXTensions(prepared.transaction.next);
+    if (phase === 'disposed' || generation !== commandGeneration) throw runtimeDisposedError();
     if (currentPresentation()) {
       materializeSurfaces(prepared.transaction.next, {
         operation: 'maraca.command.surface-materialize',
@@ -1997,6 +2070,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       bufferedEventCount: prepared.stateEvents.length
     });
     notifyModelSubscribers(stateEvent);
+    if (currentPresentation()) await mountPresentXTensions();
     if (xtensionRegistry) await xtensionRegistry.flush();
     publish('command', {
       command: prepared.commandId,
@@ -2129,6 +2203,8 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         if (activeStateBuffer === stateBuffer) activeStateBuffer = null;
       }
       let committed = { report: null, surfaceIds: new Set() };
+      await retireAbsentXTensions(transaction.next);
+      if (phase === 'disposed') throw runtimeDisposedError();
       if (currentPresentation()) {
         materializeSurfaces(transaction.next, {
           ...streamMetadata,
@@ -2173,6 +2249,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         bufferedEventCount: stateBuffer.events.length
       });
       notifyModelSubscribers(stateEvent);
+      if (currentPresentation()) await mountPresentXTensions();
       if (xtensionRegistry) await xtensionRegistry.flush();
       return immutableClone({
         ...asRecord(applied),
@@ -2296,6 +2373,8 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     if (phase === 'disposed') throw new Error('Disposed Maraca plan runtimes cannot render.');
     const performRender = async () => {
       const stateSnapshot = runtimes.state.snapshot();
+      await retireAbsentXTensions(stateSnapshot);
+      if (phase === 'disposed') throw runtimeDisposedError();
       materializeSurfaces(stateSnapshot, metadata);
       const report = fullRender(
         { operation: metadata.operation || 'maraca.render', ...metadata },
@@ -2307,6 +2386,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         operation: metadata.operation || 'maraca.render'
       });
       reconcileEvents(report);
+      await mountPresentXTensions();
       await hydrate(null, {
         operation: metadata.operation || 'maraca.render',
         correlationId: metadata.correlationId || ''
@@ -2997,14 +3077,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         xtensionRegistry = bindingRuntime.createXTensionStateRegistry({ modelReader,
           commandDispatcher: { dispatch: (command, payload, metadata, lifetime) => dispatchCommand(command, payload, metadata, lifetime) },
           onDiagnostic: (diagnostic) => recordDiagnostic('xtend.maraca.xtension.binding', 'error', diagnostic.message, diagnostic) });
-        for (const entry of bindingArtifact.bindings) {
-          assertCurrentBoot();
-          const container = surfaceElement(entry.surface);
-          if (!container) throw new Error(`XTension host ${entry.surface} was not rendered.`);
-          const instance = xtensionRegistry.bind(entry.binding, (context) => options.createXTensionHost(Object.freeze({ ...context, container, surface: entry.surface, binding: entry.binding })));
-          boundXTensions.push(Object.freeze({ surface: entry.surface, instance }));
-          await instance.mount(container);
-        }
+        await mountPresentXTensions();
         assertCurrentBoot();
       }
       if (options.hydrateOnBoot !== false) {
@@ -3087,7 +3160,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   function teardownAdapters(clearOwnedDom) {
     if (adaptersDisposed) return;
     if (xtensionRegistry && !xtensionsClosed) {
-      if (!xtensionDisposal) xtensionDisposal = xtensionRegistry.dispose().catch((error) => {
+      if (!xtensionDisposal) xtensionDisposal = Promise.all([xtensionRegistry.dispose(), ...xtensionRetirements]).catch((error) => {
         recordDiagnostic('xtend.maraca.xtension.cleanup', 'error', error.message);
       }).then(() => { xtensionsClosed = true; teardownAdapters(clearOwnedDom); });
       return;
@@ -3220,8 +3293,15 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     dispatchCommand,
     getXTensionBindings: () => Object.freeze([...boundXTensions]),
     async whenXTensionsIdle() {
-      if (xtensionDisposal) await xtensionDisposal;
-      else await Promise.all(boundXTensions.map(({ instance }) => instance.whenIdle()));
+      let pending;
+      do {
+        pending = commandQueue;
+        // A self-removing intent loses its registry lifetime before its View commit
+        // completes. The runtime still owns that command's completion boundary.
+        await pending;
+        if (xtensionDisposal) await xtensionDisposal;
+        else await Promise.all([...xtensionRetirements, ...boundXTensions.map(({ instance }) => instance.whenIdle())]);
+      } while (pending !== commandQueue || xtensionRetirements.size);
     },
     dispatchFastPass,
     getSurfaceBoundary,

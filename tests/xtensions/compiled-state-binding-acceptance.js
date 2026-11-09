@@ -3,7 +3,7 @@ const bindingRuntime = require('@ccslabs/xtend/xtensions/state-binding');
 const { createReactRuntimeAdapter } = require('@ccslabs/xtend/xtensions/react-runtime-adapter');
 const { createFilterPanel } = require('../../development/rmtx-a02/controlled-filters');
 
-async function runCompiledStateBindingAcceptance({ React, ReactDOM, document, test, check, equal, plan }) {
+async function runCompiledStateBindingAcceptance({ React, ReactDOM, document, test, check, equal, plan, conditionalPlan }) {
   const { createMaracaPlanRuntime } = await import('../../xtend-maraca/plan-runtime.mjs');
   const modules = {
     state: await import('../../xtendrmt/rmt-state-selector-runtime.js'),
@@ -46,6 +46,189 @@ async function runCompiledStateBindingAcceptance({ React, ReactDOM, document, te
   }
   const filter = (query, activeId = null) => ({ filter: { query, selection: { activeId } } });
 
+  await test('A02.3: invalid presence and unsupported adoption reject before host authority exists', async () => {
+    for (const mutate of [
+      (value) => { value.xtensionBindings.schema = 'xtend.xtensions.state-binding-artifact.v1'; },
+      (value) => { value.xtensionBindings.bindings[0].presence.path = ['missing']; },
+      (value) => { value.xtensionBindings.bindings[0].presence.state = 'filter.left'; }
+    ]) {
+      const value = copy(conditionalPlan); mutate(value);
+      await rejected(() => fixture({ plan: value, createXTensionHost() { throw new Error('factory must never execute'); } }));
+    }
+    await rejected(() => fixture({ plan: conditionalPlan, adoptExisting: true }));
+  });
+
+  await test('A02.3: initially absent hosts create no factory, root or live address', async () => {
+    const f = fixture({ plan: conditionalPlan });
+    try {
+      await f.runtime.boot();
+      equal(f.hosts.length, 1, 'false presence does not create a framework host');
+      equal(f.runtime.getXTensionBindings().map((entry) => entry.surface), ['filter.left'], 'only present instances are exposed');
+      equal(f.root.querySelectorAll('input').length, 1, 'only one real root exists');
+      await f.runtime.dispatchCommand('filter.right.replace', filter('while-absent', 'saved'));
+      await f.runtime.dispatchCommand('hosts.replace', { hosts: { left: true, right: true } });
+      equal([...f.root.querySelectorAll('output')].map((node) => node.textContent), ['left:-', 'while-absent:saved'], 'new root mounts the latest committed controlled slice');
+    } finally { await f.close(); }
+  });
+  await test('A02.3: the idle barrier includes completion of a self-removing intent', async () => {
+    const f = fixture({ plan: conditionalPlan });
+    try {
+      await f.runtime.boot(); const old = f.hosts[0].host;
+      old.emit({ type: 'presence', payload: { hosts: { left: false, right: true } } });
+      await within(f.runtime.whenXTensionsIdle());
+      check(old.snapshot().disposed, 'idle waits for the disappearing emitter cleanup');
+      equal(f.runtime.getXTensionBindings().map((entry) => entry.surface), ['filter.right'], 'idle waits for replacement host creation');
+      equal(f.root.querySelector('output').textContent, 'right:-', 'idle includes the new framework commit');
+    } finally { await f.close(); }
+  });
+  await test('A02.3: removal unmounts before DOM removal and recreation changes only incarnation', async () => {
+    const f = fixture({ plan: conditionalPlan });
+    try {
+      await f.runtime.boot(); const first = f.runtime.getXTensionBindings()[0].instance;
+      const old = f.hosts[0], input = f.root.querySelector('input');
+      await f.runtime.dispatchCommand('hosts.replace', { hosts: { left: false, right: true } });
+      check(old.host.snapshot().disposed, 'disappearing root is disposed before command completion');
+      check(!input.isConnected && !old.context.container.isConnected, 'removed host and foreign subtree leave the View');
+      equal(first.snapshot().phase, 'disposed', 'old lifetime is retired');
+      equal(f.runtime.getXTensionBindings().map((entry) => entry.surface), ['filter.right'], 'removed address is no longer live');
+      await f.runtime.dispatchCommand('filter.left.replace', filter('retained', 'state'));
+      const rightInput = f.root.querySelector('input');
+      await f.runtime.dispatchCommand('hosts.replace', { hosts: { left: true, right: true } });
+      const replacement = f.runtime.getXTensionBindings().find((entry) => entry.surface === 'filter.left').instance;
+      equal(replacement.identity.address, first.identity.address, 'logical address is stable across absence');
+      check(replacement.identity.incarnation !== first.identity.incarnation, 'replacement has a fresh lifetime');
+      equal(f.root.querySelector('output').textContent, 'retained:state', 'Model state survives absence');
+      check(f.root.querySelectorAll('input')[1] === rightInput, 'unaffected foreign root retains its DOM');
+      await f.runtime.dispatchCommand('xtend.system.refresh');
+      equal(f.hosts.length, 3, 'refresh preserves existing roots');
+    } finally { await f.close(); }
+  });
+  await test('A02.3: callback authority is revoked while unmount still owns the connected host', async () => {
+    const entered = deferred(), release = deferred(); let original, context;
+    const f = fixture({ plan: conditionalPlan, createXTensionHost(value) {
+      context = value;
+      original = createReactRuntimeAdapter({ ...value, component: createFilterPanel(React), peers: { React, ReactDOM }, policy: { events: value.events } });
+      return { ...original, async unmount(reason) {
+        check(value.container.isConnected && !!value.container.querySelector('input'), 'RMT keeps host and framework DOM until unmount starts');
+        entered.resolve(); await release.promise; return original.unmount(reason);
+      } };
+    } });
+    try {
+      await f.runtime.boot(); const before = f.runtime.model.getState('filter.left');
+      const hiding = f.runtime.dispatchCommand('hosts.replace', { hosts: { left: false, right: false } });
+      await within(entered.promise);
+      check(context.onEvent({ ok: true, direction: 'upstream', event: 'change', payloadSchema: context.events.change,
+        source: { hostId: context.hostId, surfaceId: context.surfaceId, xtensionId: context.xtensionId }, payload: filter('stale') }) === false, 'retiring closure cannot queue an Action');
+      check(context.container.isConnected, 'View awaits foreign cleanup');
+      release.resolve(); await within(hiding);
+      equal(f.runtime.model.getState('filter.left'), before, 'retiring intent cannot mutate the controlled slice');
+    } finally { release.resolve(); await f.close(); }
+  });
+  await test('A02.3: an intent queued behind removal cannot commit against a replacement lifetime', async () => {
+    const entered = deferred(), release = deferred();
+    const action = { ...modules.action, createRmtActionEffectRuntime(options) {
+      const actual = modules.action.createRmtActionEffectRuntime(options);
+      return { ...actual, async runAction(id, ...args) {
+        if (id === 'hosts.replace') { entered.resolve(); await release.promise; }
+        return actual.runAction(id, ...args);
+      } };
+    } };
+    const f = fixture({ plan: conditionalPlan, moduleApis: { ...modules, action } });
+    try {
+      await f.runtime.boot(); const before = f.runtime.model.getState('filter.left');
+      const hiding = f.runtime.dispatchCommand('hosts.replace', { hosts: { left: false, right: false } });
+      await within(entered.promise);
+      f.hosts[0].host.emit({ type: 'change', payload: filter('queued-old-intent') });
+      release.resolve(); await within(hiding); await within(f.runtime.whenXTensionsIdle());
+      await f.runtime.dispatchCommand('hosts.replace', { hosts: { left: true, right: false } });
+      equal(f.runtime.model.getState('filter.left'), before, 'revoked queued Action never reaches the Model transaction');
+      equal(f.root.querySelector('output').textContent, 'left:-', 'replacement receives retained Model state');
+    } finally { release.resolve(); await f.close(); }
+  });
+  await test('A02.3: invalid presence after a Model commit fails closed and revokes all roots', async () => {
+    const f = fixture({ plan: conditionalPlan });
+    try {
+      await f.runtime.boot();
+      await rejected(() => f.runtime.dispatchCommand('hosts.replace', { hosts: { left: 'true', right: false } }));
+      await within(f.runtime.whenXTensionsIdle());
+      equal(f.runtime.snapshot().phase, 'failed', 'invalid boolean presence fails the runtime');
+      check(f.hosts.every(({ host }) => host.snapshot().disposed), 'invalid presence leaves no intent authority');
+      equal(f.runtime.model.getState('hosts').left, 'true', 'a committed Model value is not falsely reported as rolled back');
+    } finally { await f.close(); }
+  });
+  await test('A02.3: a new conditional host failure cleans existing roots and blocks further commands', async () => {
+    let calls = 0, first;
+    const f = fixture({ plan: conditionalPlan, createXTensionHost(context) {
+      if (++calls === 2) throw new Error('conditional-host-failure');
+      first = createReactRuntimeAdapter({ ...context, component: createFilterPanel(React), peers: { React, ReactDOM }, policy: { events: context.events } });
+      return first;
+    } });
+    try {
+      await f.runtime.boot();
+      await rejected(() => f.runtime.dispatchCommand('hosts.replace', { hosts: { left: true, right: true } }));
+      await within(f.runtime.whenXTensionsIdle());
+      check(first.snapshot().disposed, 'failed conditional mount cleans already live foreign root');
+      await rejected(() => f.runtime.dispatchCommand('filter.left.replace', filter('forbidden')));
+    } finally { await f.close(); }
+  });
+  await test('A02.3: repeated presence cycles release addresses and keep only the current root', async () => {
+    const f = fixture({ plan: conditionalPlan });
+    try {
+      await f.runtime.boot(); let previous = f.runtime.getXTensionBindings()[0].instance.identity;
+      for (let cycle = 0; cycle < 3; cycle++) {
+        await f.runtime.dispatchCommand('hosts.replace', { hosts: { left: false, right: false } });
+        equal(f.runtime.getXTensionBindings().length, 0, 'no live address while every host is absent');
+        equal(f.root.querySelectorAll('input').length, 0, 'no foreign DOM remains');
+        await f.runtime.dispatchCommand('xtend.system.refresh');
+        await f.runtime.dispatchCommand('hosts.replace', { hosts: { left: true, right: false } });
+        const current = f.runtime.getXTensionBindings()[0].instance.identity;
+        equal(current.address, previous.address, 'logical address is reusable');
+        check(current.incarnation > previous.incarnation, 'lifetimes remain distinct'); previous = current;
+      }
+      check(f.hosts.slice(0, -1).every(({ host }) => host.snapshot().disposed), 'every superseded framework root is disposed');
+    } finally { await f.close(); }
+  });
+  await test('A02.3: disposal cancels a loader started by conditional appearance after ready', async () => {
+    const entered = deferred(), load = deferred(); const hosts = [];
+    const f = fixture({ plan: conditionalPlan, createXTensionHost(context) {
+      const host = createReactRuntimeAdapter({ ...context, component: createFilterPanel(React),
+        ...(context.surface === 'filter.right' ? { loadRuntime: () => { entered.resolve(); return load.promise; } } : { peers: { React, ReactDOM } }),
+        policy: { events: context.events } });
+      hosts.push(host); return host;
+    } });
+    try {
+      await f.runtime.boot();
+      const appearing = f.runtime.dispatchCommand('hosts.replace', { hosts: { left: true, right: true } }).catch((error) => error);
+      await within(entered.promise); f.runtime.dispose();
+      await within(f.runtime.whenXTensionsIdle()); await within(appearing);
+      load.resolve({ React, ReactDOM }); await Promise.resolve();
+      check(hosts.every((host) => host.snapshot().disposed), 'late runtime loader cannot recreate a disposed conditional root');
+    } finally { load.resolve({ React, ReactDOM }); await f.close(); }
+  });
+  await test('A02.3: a superseded View defers new hosts until the next current View commit', async () => {
+    const entered = deferred(), release = deferred();
+    const action = { ...modules.action, createRmtActionEffectRuntime(options) {
+      const actual = modules.action.createRmtActionEffectRuntime(options);
+      return { ...actual, async runAction(id, ...args) {
+        if (id === 'hosts.replace') { entered.resolve(); await release.promise; }
+        return actual.runAction(id, ...args);
+      } };
+    } };
+    const f = fixture({ plan: conditionalPlan, moduleApis: { ...modules, action } });
+    try {
+      await f.runtime.boot();
+      const changing = f.runtime.dispatchCommand('hosts.replace', { hosts: { left: false, right: true } });
+      await within(entered.promise); f.runtime.getSurfaceBoundary('filter.left').invalidate('route-left');
+      release.resolve(); await within(changing);
+      equal(f.runtime.snapshot().phase, 'ready', 'superseded presentation does not falsely fail a valid Model commit');
+      equal(f.hosts.length, 1, 'a new host cannot bind against a skipped View');
+      check(f.hosts[0].host.snapshot().disposed, 'absent Model host still loses authority');
+      await f.runtime.dispatchCommand('xtend.system.refresh');
+      equal(f.runtime.getXTensionBindings().map((entry) => entry.surface), ['filter.right'], 'next current View creates the desired host');
+      equal(f.root.querySelector('output').textContent, 'right:-', 'deferred host mounts real current props');
+    } finally { release.resolve(); await f.close(); }
+  });
+
   await test('A02.2: browser composition transports the compiled sidecar and trusted host ports', async () => {
     const { createMaracaBrowserCompositionRoot } = await import('../../xtend-maraca/browser-composition-runtime.mjs');
     const root = document.createElement('main'); document.body.append(root);
@@ -70,8 +253,8 @@ async function runCompiledStateBindingAcceptance({ React, ReactDOM, document, te
       const facade = await composition.boot(bootOptions);
       // boot returns a snapshot; operations live on the composition facade.
       check(!!facade && composition.facade.getXTensionBindings().length === 2, 'composition exposes compiled bindings');
-      equal(composition.schema, 'xtend.maraca.browser-composition-root.v2', 'composition has a distinct current schema');
-      equal(composition.facade.apiVersion, '2.0.0', 'browser API version differs from Legacy');
+      equal(composition.schema, 'xtend.maraca.browser-composition-root.v3', 'composition has a distinct current schema');
+      equal(composition.facade.apiVersion, '3.0.0', 'browser API version differs from Legacy');
       await composition.facade.dispatchCommand('filter.right.replace', filter('composition', 'right'));
       equal(root.querySelectorAll('output')[1].textContent, 'composition:right', 'browser composition uses the same Action/props barrier');
       composition.dispose(); composition.dispose(); await composition.facade.whenXTensionsIdle();
@@ -85,7 +268,7 @@ async function runCompiledStateBindingAcceptance({ React, ReactDOM, document, te
     const f = fixture();
     try {
       await f.runtime.boot(); const bindings = f.runtime.getXTensionBindings();
-      equal(f.runtime.schema, 'xtend.maraca.plan-runtime.v4', 'extended API has its own schema version');
+      equal(f.runtime.schema, 'xtend.maraca.plan-runtime.v5', 'extended API has its own schema version');
       equal(bindings.length, 2, 'compiled artifact creates exactly two instances');
       const inputs = [...f.root.querySelectorAll('input')], commands = [], changes = [];
       const stopState = f.runtime.model.subscribe((event) => changes.push(event));

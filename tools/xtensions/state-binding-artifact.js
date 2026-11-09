@@ -2,7 +2,8 @@
 'use strict';
 
 const { validateStateBinding, addressKey, propsFrom, data, fields, name, clone, freeze } = require('./state-binding-contract');
-const XTENSION_STATE_BINDING_ARTIFACT_SCHEMA = 'xtend.xtensions.state-binding-artifact.v1';
+const XTENSION_STATE_BINDING_ARTIFACT_SCHEMA = 'xtend.xtensions.state-binding-artifact.v2';
+const LEGACY_ARTIFACT_SCHEMA = 'xtend.xtensions.state-binding-artifact.v1';
 
 function invalid(message, pointer = '') {
   const error = new TypeError(message);
@@ -15,7 +16,7 @@ function invalid(message, pointer = '') {
 function validateStateBindingArtifact(input, program) {
   try { data(input); fields(input, ['schema', 'documentId', 'bindings'], 'XTension binding artifact'); name(input.documentId); }
   catch (error) { invalid(error.message); }
-  if (input.schema !== XTENSION_STATE_BINDING_ARTIFACT_SCHEMA) invalid('Unsupported XTension binding artifact version.', '/schema');
+  if (![XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, LEGACY_ARTIFACT_SCHEMA].includes(input.schema)) invalid('Unsupported XTension binding artifact version.', '/schema');
   if (!Array.isArray(input.bindings)) invalid('Binding artifact requires a bindings array.', '/bindings');
   try { data(program, new Set(), true); } catch (error) { invalid(error.message); }
   if (!program || program.schema !== 'xtend.rmt.app-orchestration.v1') invalid('XTension bindings require the supported compiled RMT orchestration artifact.');
@@ -37,7 +38,7 @@ function validateStateBindingArtifact(input, program) {
   input.bindings.forEach((entry, index) => {
     const pointer = `/bindings/${index}`;
     let binding;
-    try { fields(entry, ['surface', 'binding'], 'XTension binding entry'); name(entry.surface); binding = validateStateBinding(entry.binding); }
+    try { fields(entry, ['surface', 'binding', ...(input.schema === XTENSION_STATE_BINDING_ARTIFACT_SCHEMA ? ['presence'] : [])], 'XTension binding entry'); name(entry.surface); binding = validateStateBinding(entry.binding); }
     catch (error) { invalid(error.message, pointer); }
     if (binding.address.documentId !== input.documentId) invalid('Binding document identity differs from its artifact.', `${pointer}/binding/address`);
     const key = addressKey(binding.address);
@@ -69,6 +70,16 @@ function validateStateBindingArtifact(input, program) {
     }
     try { propsFrom(initial, binding); }
     catch (error) { invalid(error.message, `${pointer}/binding/props`); }
+    if (Object.hasOwn(entry, 'presence')) {
+      try {
+        fields(entry.presence, ['state', 'path'], 'Host presence');
+        // Reuse the closed path and value rules; presence is always a required boolean.
+        const guard = validateStateBinding({ schema: binding.schema, address: binding.address,
+          props: { present: { ...entry.presence, type: 'boolean' } }, intents: {} });
+        if (!states.has(entry.presence.state)) throw new TypeError('Host presence references an undeclared Model state.');
+        propsFrom(initial, guard);
+      } catch (error) { invalid(error.message, `${pointer}/presence`); }
+    }
     for (const [event, intent] of Object.entries(binding.intents)) {
       const action = actions.get(intent.command);
       if (!action || action.execution === 'fastpass') invalid('Intent requires a declared business Action.', `${pointer}/binding/intents/${event}/command`);

@@ -59,22 +59,55 @@ function runCompilerChecks() {
   const enlarged = copy(result.parserResult.ast); enlarged.xtensionBindings = declarations;
   assert.throws(() => compiler.compileRmtClassicAst(enlarged)); checks++;
   assert.throws(() => compiler.compileRmtClassicAst(result.parserResult.ast, { xtensionBindings: declarations })); checks++;
-  assert.equal(result.schema, 'xtend.rmt.classic.compile-result.v2');
-  assert.equal(compiler.createRmtClassicCompiler().apiVersion, '2.0.0');
+  assert.equal(result.schema, 'xtend.rmt.classic.compile-result.v3');
+  assert.equal(compiler.createRmtClassicCompiler().apiVersion, '3.0.0');
   assert.equal(compiler.RMT_CLASSIC_COMPILER_CONTRACT.version, '1.0.0'); checks++;
+  const conditionalInput = { text: fs.readFileSync(path.join(root, 'development/rmtx-a02/conditional-filters.rmt'), 'utf8'), filePath: 'conditional-filters.rmt' };
+  const conditionalBindings = require('../../development/rmtx-a02/conditional-bindings.v2.json');
+  const conditional = compiler.compileRmtClassicSource(conditionalInput, { xtensionBindings: conditionalBindings });
+  assert(conditional.ok, JSON.stringify(conditional.diagnostics));
+  assert.equal(conditional.xtensionBindings.schema, 'xtend.xtensions.state-binding-artifact.v2'); checks++;
+  const conditionalAst = compiler.compileRmtClassicAstWithBindings(conditional.parserResult.ast, conditionalBindings, { sourceModel: conditional.parserResult.sourceModel });
+  assert.equal(conditionalAst.coreJson, conditional.coreJson);
+  assert.deepEqual(conditionalAst.xtensionBindings, conditional.xtensionBindings); checks++;
+  for (const mutate of [
+    (value) => { value.schema = 'xtend.xtensions.state-binding-artifact.v1'; },
+    (value) => { value.bindings[0].presence = null; },
+    (value) => { value.bindings[0].presence = { state: 'missing', path: [] }; },
+    (value) => { value.bindings[0].presence.path = ['missing']; },
+    (value) => { value.bindings[0].presence = { state: 'filter.left', path: ['query'] }; },
+    (value) => { value.bindings[0].presence.default = false; },
+    (value) => { delete value.bindings[0].presence.path; },
+    (value) => { value.bindings[0].presence.path = ['__proto__']; },
+    (value) => { value.bindings[0].presence.path = [0.5]; },
+    (value) => { value.bindings[0].presence.test = () => true; }
+  ]) {
+    const value = copy(conditionalBindings); mutate(value);
+    const rejected = compiler.compileRmtClassicSource(conditionalInput, { xtensionBindings: value });
+    assert.equal(rejected.ok, false); assert.equal(rejected.coreDocument, null); assert.equal(rejected.xtensionBindings, null);
+    assert.throws(() => compiler.compileRmtClassicAstWithBindings(conditional.parserResult.ast, value)); checks++;
+  }
   const maraca = require('../../xtend-maraca');
   const temp = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'xtend-a022-config-'));
   try {
     for (const [schema, withBindings, accepted] of [['xtend.maraca.build-config.v1', false, true],
-      ['xtend.maraca.build-config.v1', true, false], ['xtend.maraca.build-config.v2', true, true]]) {
+      ['xtend.maraca.build-config.v1', true, false], ['xtend.maraca.build-config.v2', true, true], ['xtend.maraca.build-config.v3', true, true]]) {
       const file = path.join(temp, 'config.json');
       fs.writeFileSync(file, JSON.stringify({ schema, options: withBindings ? { xtensionBindings: declarations } : {} }));
       const plan = maraca.createMaracaBuildPlan({ sourceText: input.text, virtualSourcePath: input.filePath, configPath: file,
         orchestration: 'strict', kernel: 'off', hydration: 'off', validation: 'off', transitions: 'off' }, { rootDir: root, inspectToolchain: false });
       assert.equal(plan.ok, accepted, JSON.stringify(plan.diagnostics));
-      assert.equal(plan.schema, 'xtend.maraca.build-plan.v2');
+      assert.equal(plan.schema, 'xtend.maraca.build-plan.v3');
       if (!accepted) assert(plan.diagnostics.some((item) => item.code === 'xtend.maraca.xtension_config_version'));
       checks++;
+    }
+    for (const [schema, accepted] of [['xtend.maraca.build-config.v2', false], ['xtend.maraca.build-config.v3', true]]) {
+      const file = path.join(temp, 'config.json');
+      fs.writeFileSync(file, JSON.stringify({ schema, options: { xtensionBindings: conditionalBindings } }));
+      const plan = maraca.createMaracaBuildPlan({ sourceText: conditionalInput.text, virtualSourcePath: conditionalInput.filePath, configPath: file,
+        orchestration: 'strict', kernel: 'off', hydration: 'off', validation: 'off', transitions: 'off' }, { rootDir: root, inspectToolchain: false });
+      assert.equal(plan.ok, accepted, JSON.stringify(plan.diagnostics));
+      if (!accepted) assert(plan.diagnostics.some((item) => item.code === 'xtend.maraca.xtension_config_version')); checks++;
     }
   } finally { fs.rmSync(temp, { recursive: true, force: true }); }
   return { ok: true, checks };

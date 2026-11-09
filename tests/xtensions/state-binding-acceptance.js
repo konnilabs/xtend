@@ -81,7 +81,7 @@ async function runStateBindingAcceptance({ React, ReactDOM, document, test, chec
     const f = fixture();
     try {
       const a = f.bind('left');
-      equal(f.registry.apiVersion, '1.1.0', 'extended registry API is explicitly versioned');
+      equal(f.registry.apiVersion, '1.2.0', 'extended registry API is explicitly versioned');
       const legacyDeclaration = filterBinding('left'); legacyDeclaration.address.keys = ['legacy-host'];
       await rejects(() => f.bind('left', { wrapHost: (host) => ({ ...host,
         schema: require('../../tools/xtensions/host-controller-contract').XTENSIONS_HOST_CONTROLLER_SCHEMA, apiVersion: '1.0.0'
