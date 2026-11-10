@@ -105,7 +105,7 @@ Geänderte Schema-Verträge erhalten gemäß der bestehenden Major-only-Schemare
 | Maraca-Plan-Runtime | `xtend.maraca.plan-runtime.v3` | `xtend.maraca.plan-runtime.v7` |
 | Browser-Composition / Fassade | `xtend.maraca.browser-composition-root.v2`, `xtend.maraca.browser-composition-root.v3` | `xtend.maraca.browser-composition-root.v5`, API `5.0.0` |
 | Asynchrone Runtime-Hosts | zuvor generischer Legacy-Host-Identifier | `xtend.xtensions.runtime-host-controller.v2`, API `2.0.0`, frameworkbezogene Runtime-Adapter v2 |
-| State-Binding-Registry | A02.1 API | API `2.3.0`; v1 bleibt geschlossen lesbar, v2 ergänzt Schlüsselpfade und vertrauenswürdige Intent-Schlüsselfelder |
+| State-Binding-Registry | A02.1 API | API `2.4.0`; v1 bleibt geschlossen lesbar, v2 ergänzt Schlüsselpfade und vertrauenswürdige Intent-Schlüsselfelder |
 | Bindungsdaten | `xtend.xtensions.state-binding.v1` | `xtend.xtensions.state-binding.v2` |
 | Bindungs-Sidecar | `xtend.xtensions.state-binding-artifact.v1`, `xtend.xtensions.state-binding-artifact.v2` | `xtend.xtensions.state-binding-artifact.v3` mit Wiederholungsketten; ältere Verträge bleiben geschlossen |
 | URL-Freigabe / State / Restore-Plan / History-Vorschlag | neue eigenständige Entwicklungsverträge | jeweils Schema v1, produktive URL-API `1.0.0`; [Details](url-history/README.md) |
@@ -173,4 +173,4 @@ Runtime v7 und Browser-API `5.0.0`/Root v5 versionieren die neuen Ports. Die vol
 
 ## 13. Weitere Arbeitspakete
 
-[A03.1](../rmtx-a03/README.md) implementiert explizite Microkernel-Auslieferung über verbindliche Fabric-Boundaries und Capability-Berichte; [A03.2](../rmtx-a03/resource-graph.md) ergänzt Surface-/Kernel-Ressourcenbindung; [A03.3](../rmtx-a03/work-budgets.md) ergänzt begrenzte Arbeit und Druck-/Budgetstrategien; Fähigkeitsverhandlung bleibt in A03 offen. Die automatische Provider-/Build-/Host-Kette folgt in A04 und SSR/Adoption/Restore in A05. Die endgültige RMTX-Quellsyntax bleibt A06 vorbehalten. Beide großen 0.9-Features bleiben bis zu ihren vollständigen Abnahmen `preparing`.
+[A03.1](../rmtx-a03/README.md) implementiert explizite Microkernel-Auslieferung über verbindliche Fabric-Boundaries und Capability-Berichte; [A03.2](../rmtx-a03/resource-graph.md) ergänzt Surface-/Kernel-Ressourcenbindung; [A03.3](../rmtx-a03/work-budgets.md) ergänzt begrenzte Arbeit und Druck-/Budgetstrategien; [A03.4](../rmtx-a03/capability-negotiation.md) implementiert die Fähigkeitsverhandlung. Die automatische Provider-/Build-/Host-Kette folgt in A04 und SSR/Adoption/Restore in A05. Die endgültige RMTX-Quellsyntax bleibt A06 vorbehalten. Beide großen 0.9-Features bleiben bis zu ihren vollständigen Abnahmen `preparing`.

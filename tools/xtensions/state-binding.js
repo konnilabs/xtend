@@ -3,8 +3,8 @@
 
 const { XTENSION_STATE_BINDING_SCHEMA, validateStateBinding, addressKey, propsFrom, clone, freeze, data, record, typed } = require('./state-binding-contract');
 const { XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBindingArtifact, materializeStateBindingArtifact } = require('./state-binding-artifact');
-const { RUNTIME_HOST_CONTROLLER_SCHEMA, KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA, GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA, BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA } = require('./runtime-host-controller');
-const XTENSION_STATE_BINDING_API_VERSION = '2.3.0';
+const { RUNTIME_HOST_CONTROLLER_SCHEMA, KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA, GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA, BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA, NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA } = require('./runtime-host-controller');
+const XTENSION_STATE_BINDING_API_VERSION = '2.4.0';
 
 /** One registry per Model session. Factories and ports are trusted host capabilities. */
 function createXTensionStateRegistry({ modelReader, modelCommandPort, commandDispatcher, onDiagnostic } = {}) {
@@ -90,7 +90,7 @@ function createXTensionStateRegistry({ modelReader, modelCommandPort, commandDis
       dispose,
       async flush() {
         let pending;
-        do { pending = queue; await pending; if ([GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA, BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA].includes(host?.schema)) await host.whenIdle(); } while (queue !== pending);
+        do { pending = queue; await pending; if ([GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA, BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA, NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA].includes(host?.schema)) await host.whenIdle(); } while (queue !== pending);
         if (failure) throw failure;
       },
       commit(model, nextRevision) {
@@ -131,9 +131,9 @@ function createXTensionStateRegistry({ modelReader, modelCommandPort, commandDis
     }
     try {
       host = createHost(freeze({ identity, ...ids, events, onEvent }));
-      if (!host || ![RUNTIME_HOST_CONTROLLER_SCHEMA, KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA, GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA, BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA].includes(host.schema) || !(host.schema === RUNTIME_HOST_CONTROLLER_SCHEMA ? /^2\./ : host.schema === KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA ? /^3\./ : host.schema === GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA ? /^4\./ : /^5\./).test(host.apiVersion || '') ||
+      if (!host || ![RUNTIME_HOST_CONTROLLER_SCHEMA, KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA, GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA, BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA, NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA].includes(host.schema) || !(host.schema === RUNTIME_HOST_CONTROLLER_SCHEMA ? /^2\./ : host.schema === KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA ? /^3\./ : host.schema === GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA ? /^4\./ : host.schema === BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA ? /^5\./ : /^6\./).test(host.apiVersion || '') ||
         ['mount', 'update', 'suspend', 'resume', 'unmount'].some((method) => typeof host[method] !== 'function') ||
-        [GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA, BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA].includes(host.schema) && typeof host.whenIdle !== 'function') throw new TypeError('The factory must return a version-matched v2, v3, v4 or v5 runtime host controller.');
+        [GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA, BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA, NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA].includes(host.schema) && typeof host.whenIdle !== 'function') throw new TypeError('The factory must return a version-matched v2, v3, v4, v5 or v6 runtime host controller.');
     } catch (error) { fail(error, 'createHost'); throw error; }
     return Object.freeze({
       identity,
@@ -166,7 +166,7 @@ function createXTensionStateRegistry({ modelReader, modelCommandPort, commandDis
       },
       async whenIdle() {
         let pending;
-        do { await Promise.all([...pendingCommands]); pending = queue; await pending; if ([GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA, BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA].includes(host?.schema)) await host.whenIdle(); } while (queue !== pending || pendingCommands.size);
+        do { await Promise.all([...pendingCommands]); pending = queue; await pending; if ([GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA, BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA, NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA].includes(host?.schema)) await host.whenIdle(); } while (queue !== pending || pendingCommands.size);
         if (failure) throw failure;
         return snapshot();
       },

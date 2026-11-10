@@ -10,7 +10,7 @@
 | RMTX | Backend prepared; syntax and frontend pending | Parser/lowering, editor, mixed projects, browser/SSR |
 | XTensions 2.0 | State/Actions, conditional/repeated hosts and URL/history; kernel adapters started | Further kernel integration, provider/host chain and SSR/resume pending |
 
-A03.3 adds bounded work and pressure budgets (host API 5.0.0) through kernel/Fabric. See the [contract and evidence](../../development/rmtx-a03/README.md). URL/history uses the router and Maraca: runtime v7, browser API 5.0.0, registry 2.3.0. Classic AST: 1.0.0.
+A03.4 adds capability negotiation (host API 6.0.0) through kernel/Fabric. See the [contract and evidence](../../development/rmtx-a03/README.md). URL/history uses the router and Maraca: runtime v7, browser API 5.0.0, registry 2.4.0. Classic AST: 1.0.0.
 
 ## Release checks
 

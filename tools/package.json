@@ -39,6 +39,7 @@
     "xtensions/cooperative-resource-scope.*",
     "xtensions/kernel-work-scope.*",
     "xtensions/work-budget-policy.*",
+    "xtensions/host-capability-negotiation.*",
     "xtensions/resource-graph-binding.*",
     "xtensions/react-runtime-boundary.js",
     "xtensions/vue-runtime-boundary.js",

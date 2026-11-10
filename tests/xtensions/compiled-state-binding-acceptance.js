@@ -50,6 +50,7 @@ async function runCompiledStateBindingAcceptance({ React, ReactDOM, document, te
   await require('./kernel-maraca-acceptance').runKernelMaracaAcceptance({ React, ReactDOM, document, test, check, equal, fixture, plan: repeatedPlan, xtendState, within, rejected, deferred });
   await require('./resource-graph-maraca-acceptance').runResourceGraphMaracaAcceptance({ React, ReactDOM, document, test, check, equal, fixture, plan: repeatedPlan, modules, xtendState, within });
   await require('./work-budget-maraca-acceptance').runWorkBudgetMaracaAcceptance({ React, ReactDOM, document, test, check, equal, fixture, plan: repeatedPlan, modules, xtendState, within });
+  await require('./capability-negotiation-maraca-acceptance').runCapabilityNegotiationMaracaAcceptance({ React, ReactDOM, document, test, check, equal, fixture, plan: repeatedPlan, modules, xtendState, within });
   const filter = (query, activeId = null) => ({ filter: { query, selection: { activeId } } });
 
   await test('A02.3: invalid presence and unsupported adoption reject before host authority exists', async () => {

@@ -549,6 +549,7 @@ async function runRuntimeAcceptance({ React: R, ReactDOM, Vue: V, document, comp
   }
   await require('./kernel-runtime-acceptance').runKernelRuntimeAcceptance({React:R,ReactDOM,Vue:V,document,test,check,equal});
   await require('./work-budget-acceptance').runWorkBudgetAcceptance({ React: R, ReactDOM, Vue: V, document, test, check, equal });
+  await require('./capability-negotiation-acceptance').runCapabilityNegotiationAcceptance({ React: R, ReactDOM, Vue: V, document, test, check, equal });
   await require('./resource-graph-acceptance').runResourceGraphAcceptance({React:R,ReactDOM,Vue:V,document,test,check,equal});
   await require('./state-binding-acceptance').runStateBindingAcceptance({ React: R, ReactDOM, document, test, check, equal });
   await require('./compiled-state-binding-acceptance').runCompiledStateBindingAcceptance({ React: R, ReactDOM, document, test, check, equal, plan: compiledBindingPlan, conditionalPlan: conditionalBindingPlan, repeatedPlan: repeatedBindingPlan });

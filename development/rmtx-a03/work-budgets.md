@@ -1,6 +1,6 @@
 # A03.3 – Begrenzte Arbeit und kooperative Druck-/Budgetstrategien
 
-Stand: 2026-11-10. **A03.3 ist implementiert; A03 bleibt für weitergehende Fähigkeitsverhandlung offen.** Der Anwendungshost begrenzt ausdrücklich gewährte Geschäftsarbeit und konsumiert den Druckzustand seines realen Microkernels. Der Ausführungsweg bleibt **Host → Microkernel-Queue → Fabric → Callback**. Surface-/Kernel-Eigentum und unmittelbarer terminaler Entzug aus A03.2 gelten unverändert. RMTX und XTensions 2.0 bleiben für 0.9 `preparing`.
+Stand: 2026-11-10. **A03.3 ist implementiert; die anschließende Fähigkeitsverhandlung ist in [A03.4](capability-negotiation.md) umgesetzt.** Der Anwendungshost begrenzt ausdrücklich gewährte Geschäftsarbeit und konsumiert den Druckzustand seines realen Microkernels. Der Ausführungsweg bleibt **Host → Microkernel-Queue → Fabric → Callback**. Surface-/Kernel-Eigentum und unmittelbarer terminaler Entzug aus A03.2 gelten unverändert. RMTX und XTensions 2.0 bleiben für 0.9 `preparing`.
 
 ## Expliziter Vertrag
 
@@ -58,4 +58,4 @@ Ein Druckwechsel allein stoppt keine bereits laufende Geschäftsarbeit und löst
 
 [`budget-inspect.cjs`](budget-inspect.cjs) führt native Kernel-/Fabric-Vertragsprüfungen aus und bindet produktive Quellen, Typen und Gates in [`budget-evidence.json`](budget-evidence.json). Der blockierende Releasevorbereitungs-Gate führt `--check` aus. Die tatsächliche Framework-Abnahme umfasst **26 neue Fälle**: zwölf je React/Vue und zwei kompilierte keyed Maraca-Fälle. Alle **216 bisherigen Fälle** bleiben erforderlich, insgesamt **242 je jsdom/Chromium** sowie 88 Compilerprüfungen. Gepackte Root-/Compiler-Consumer führen v2–v5 mit expliziten externen Peers aus; strikte Typprüfungen schützen Overloads, Graph-Eigentum und Registry-/Maraca-Anbindung.
 
-Weitergehende Anforderung-/Fähigkeitsverhandlung pro Adapter folgt als nächster A03-Abschnitt. Automatische Manifest-/Provider-/Build-Komposition bleibt A04, SSR/Adoption A05 und endgültige RMTX-Syntax/DX A06. Dieser Zwischenstand ist keine vollständige 0.9-Feature-Abnahme.
+[A03.4](capability-negotiation.md) ergänzt den Pflicht-/Optional-Abgleich pro tatsächlichem Runtime-Adapter. Automatische Manifest-/Provider-/Build-Komposition bleibt A04, SSR/Adoption A05 und endgültige RMTX-Syntax/DX A06. Dieser Zwischenstand ist keine vollständige 0.9-Feature-Abnahme.

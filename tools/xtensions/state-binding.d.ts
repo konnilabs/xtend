@@ -1,11 +1,11 @@
-import type { RuntimeHostController, KernelRuntimeHostController, GraphRuntimeHostController, BudgetRuntimeHostController } from './runtime-host-controller';
-export type { RuntimeHostController, KernelRuntimeHostController, GraphRuntimeHostController, BudgetRuntimeHostController } from './runtime-host-controller';
+import type { RuntimeHostController, KernelRuntimeHostController, GraphRuntimeHostController, BudgetRuntimeHostController, NegotiatedRuntimeHostController } from './runtime-host-controller';
+export type { RuntimeHostController, KernelRuntimeHostController, GraphRuntimeHostController, BudgetRuntimeHostController, NegotiatedRuntimeHostController } from './runtime-host-controller';
 import type { XTensionsSurfaceEvent } from './signal-bridge-contract';
 export { XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBindingArtifact, materializeStateBindingArtifact } from './state-binding-artifact';
 export type { XTensionStateBindingArtifact, XTensionHostPresence, XTensionBindingTemplate, XTensionRepeatScope, XTensionMaterializedBinding } from './state-binding-artifact';
 
 export const XTENSION_STATE_BINDING_SCHEMA: 'xtend.xtensions.state-binding.v2';
-export const XTENSION_STATE_BINDING_API_VERSION: '2.3.0';
+export const XTENSION_STATE_BINDING_API_VERSION: '2.4.0';
 /** Structural ports keep the standalone compiler package independent of the RMT runtime. */
 export interface XTensionBindingModelReader {
   snapshot(): { readonly states: Readonly<Record<string, unknown>> };
@@ -99,7 +99,7 @@ export function createXTensionStateRegistry(options: {
   onDiagnostic?(diagnostic: XTensionBindingDiagnostic): void;
 } & ({ modelCommandPort: XTensionBindingCommandPort; commandDispatcher?: never } | { commandDispatcher: XTensionBindingCommandDispatcher; modelCommandPort?: never })): {
   readonly apiVersion: typeof XTENSION_STATE_BINDING_API_VERSION;
-  bind(definition: XTensionStateBinding, createHost: (context: XTensionBindingHostContext) => RuntimeHostController | KernelRuntimeHostController | GraphRuntimeHostController | BudgetRuntimeHostController): XTensionBoundInstance;
+  bind(definition: XTensionStateBinding, createHost: (context: XTensionBindingHostContext) => RuntimeHostController | KernelRuntimeHostController | GraphRuntimeHostController | BudgetRuntimeHostController | NegotiatedRuntimeHostController): XTensionBoundInstance;
   /** Deliver committed props without waiting for the command currently publishing them. */
   flush(): Promise<void>;
   dispose(): Promise<void>;

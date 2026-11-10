@@ -105,7 +105,19 @@ const peers=createRequire(process.env.XTENSIONS_TEST_PEERS+'/package.json');
    assert.equal(budget.apiVersion,'5.0.0');assert.equal((await budget.mount(container,{title:'budget packed'})).ok,true);
    scheduler.updatePressure('critical');const denied=capabilities.work.schedule('scan',()=>true);assert.equal(denied.jobId,null);await assert.rejects(denied.result,{reason:'kernel-pressure'});
    scheduler.updatePressure('normal');assert.equal(await capabilities.work.schedule('scan',()=>42).result,42);assert.equal(budget.snapshot().workBudget.rejected,1);
-   await budget.unmount();assert.equal(engine.listResources().length,0);graph.dispose();controller.dispose();engine.disposeRoot('packed-owned');scheduler.dispose();assert.equal(container.childNodes.length,0);container.remove();
+   await budget.unmount();assert.equal(engine.listResources().length,0);
+   const negotiatedOptions={container,component:kernelComponent,peers:framework==='react'?{React,ReactDOM}:{Vue},fabric,
+    kernelWork:{scheduler,rootId:'packed-owned',scope:pkg+':'+framework,work:{scan:{lane:'background',maxChunkMs:4}}},resourceGraph:{kernel:engine,surfaceGraph:graph,surfaceController:controller,surfaceId:'packed-panel'},
+    workBudget:{schema:'xtend.xtensions.work-budget-policy.v1',maxPending:1,work:{scan:{maxPending:1}}},
+    capabilityRequirements:{schema:'xtend.xtensions.host-capability-requirements.v1',required:{features:['kernel.lifecycle','surface.lifecycle','work.bounded'],work:['scan']},optional:{features:['render.ssr']}}};
+   const negotiated=api['create'+title+'KernelRuntimeAdapter'](negotiatedOptions);
+   assert.equal(negotiated.apiVersion,'6.0.0');assert.equal(negotiated.getCapabilities().schema,'xtend.xtensions.runtime-capabilities.v2');assert.equal(negotiated.getCapabilityNegotiation().status,'degraded');
+   assert.equal((await negotiated.mount(container,{title:'negotiated packed'})).ok,true);assert.equal(await capabilities.work.schedule('scan',()=>42).result,42);
+   graph.closeSurface('packed-panel');await negotiated.update({type:'props.update',props:{title:'negotiated staged'}});await graph.openSurface('packed-panel');await negotiated.whenIdle();assert.equal(container.textContent,'negotiated staged');
+   await negotiated.unmount();
+   const blocked=api['create'+title+'KernelRuntimeAdapter']({...negotiatedOptions,capabilityRequirements:{schema:'xtend.xtensions.host-capability-requirements.v1',required:{features:['execution.preemption']}}});
+   assert.equal(blocked.getCapabilityNegotiation().status,'blocked');assert.equal((await blocked.mount(container,{})).status,'policy-blocked');assert.equal(engine.listResources().length,0);await blocked.unmount();
+   graph.dispose();controller.dispose();engine.disposeRoot('packed-owned');scheduler.dispose();assert.equal(container.childNodes.length,0);container.remove();
   }
  }finally{dom.window.close();}
  console.log('Packed root/compiler factories render with explicitly injected external peers; missing peers and unsafe payloads are rejected.');

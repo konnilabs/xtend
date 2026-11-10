@@ -10,7 +10,7 @@
 | RMTX | Backend vorbereitet; Syntax und Frontend offen | Parser/Lowering, Editor, gemischte Projekte, Browser/SSR |
 | XTensions 2.0 | State/Actions, bedingte/wiederholte Hosts und URL/History; Kernel-Adapter begonnen | Kernel-Anbindung vertiefen; Provider-/Host-Kette und SSR/Resume offen |
 
-A03.3 ergänzt begrenzte Arbeit und Druckbudgets (Host-API 5.0.0) über Kernel/Fabric. [Vertrag und Nachweise](../../development/rmtx-a03/README.md). Registry 2.3.0; Maraca v7; Browser-API 5.0.0; Classic-AST 1.0.0.
+A03.4 ergänzt Fähigkeitsverhandlung (Host-API 6.0.0) über Kernel/Fabric. [Vertrag und Nachweise](../../development/rmtx-a03/README.md). Registry 2.4.0; Maraca v7; Browser-API 5.0.0; Classic-AST 1.0.0.
 
 ## Releaseprüfung
 

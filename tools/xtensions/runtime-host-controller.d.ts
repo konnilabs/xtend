@@ -253,3 +253,79 @@ export interface BudgetRuntimeHostController {
   getCleanupRecords(): HostResourceCleanupRecord[];
   getEventRecords(): XTensionsSurfaceEvent[];
 }
+
+/** A03.4: explicit actual runtime capability requirements; legacy reports stay v1. */
+export const NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA: 'xtend.xtensions.runtime-host-controller.v6';
+export type RuntimeCapabilityFeature = 'kernel.lifecycle' | 'fabric.boundary' | 'props.controlled' | 'work.named' |
+  'resources.cooperative' | 'cancellation.cooperative' | 'surface.lifecycle' | 'work.bounded' | 'work.pressure-budgets' |
+  'framework.internal-scheduling' | 'execution.preemption' | 'render.ssr' | 'render.adoption';
+export interface HostCapabilityRequests {
+  readonly features?: readonly RuntimeCapabilityFeature[];
+  readonly work?: readonly string[]; readonly resources?: readonly string[]; readonly events?: readonly string[];
+}
+export interface HostCapabilityRequirements {
+  readonly schema: 'xtend.xtensions.host-capability-requirements.v1';
+  readonly framework?: 'react' | 'vue' | 'angular' | 'vanilla';
+  readonly required: HostCapabilityRequests; readonly optional?: HostCapabilityRequests;
+}
+export interface NegotiatedRuntimeCapabilities {
+  readonly schema: 'xtend.xtensions.runtime-capabilities.v2'; readonly framework: 'react' | 'vue';
+  readonly profile: 'kernel' | 'graph' | 'budget';
+  readonly features: {
+    readonly 'kernel.lifecycle': true; readonly 'fabric.boundary': true; readonly 'props.controlled': true;
+    readonly 'work.named': true; readonly 'resources.cooperative': true; readonly 'cancellation.cooperative': true;
+    readonly 'surface.lifecycle': boolean; readonly 'work.bounded': boolean; readonly 'work.pressure-budgets': boolean;
+    readonly 'framework.internal-scheduling': false; readonly 'execution.preemption': false;
+    readonly 'render.ssr': false; readonly 'render.adoption': false;
+  };
+  readonly grants: { readonly work: readonly string[]; readonly resources: readonly string[]; readonly events: readonly string[] };
+}
+export interface HostCapabilityMissing {
+  readonly features: readonly RuntimeCapabilityFeature[];
+  readonly work: readonly string[]; readonly resources: readonly string[]; readonly events: readonly string[];
+}
+export interface HostCapabilityNegotiation {
+  readonly schema: 'xtend.xtensions.host-capability-negotiation.v1'; readonly stage: 'preflight';
+  readonly status: 'matched' | 'degraded' | 'blocked'; readonly ok: boolean;
+  readonly framework: 'react' | 'vue'; readonly requiredFramework: HostCapabilityRequirements['framework'] | null;
+  readonly frameworkMatched: boolean; readonly requirements: HostCapabilityRequirements;
+  readonly capabilities: NegotiatedRuntimeCapabilities;
+  readonly missingRequired: HostCapabilityMissing; readonly missingOptional: HostCapabilityMissing;
+  readonly runtimeExecutionVerified: false;
+}
+/** Negotiation is available on each real kernel/graph/budget profile. */
+export type NegotiatedRuntimeHostOptions = (
+  KernelRuntimeHostOptions & { readonly resourceGraph?: never; readonly workBudget?: never } |
+  GraphRuntimeHostOptions & { readonly workBudget?: never } | BudgetRuntimeHostOptions
+) & {
+  readonly capabilityRequirements: HostCapabilityRequirements;
+};
+export interface NegotiatedRuntimeHostSnapshot extends RuntimeHostSnapshot {
+  readonly capabilities: NegotiatedRuntimeCapabilities; readonly kernelWork: KernelWorkSnapshot;
+  readonly capabilityNegotiation: HostCapabilityNegotiation;
+  readonly resourceGraph?: RuntimeResourceGraphBindingSnapshot; readonly workBudget?: RuntimeWorkBudgetSnapshot;
+}
+export interface NegotiatedRuntimeHostController {
+  readonly schema: typeof NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA;
+  /** SemVer metadata; the schema discriminator identifies the contract major. */
+  readonly apiVersion: '6.0.0';
+  readonly adapterSchema: string;
+  readonly framework: 'react' | 'vue';
+  mount(target?: Element, props?: RuntimeProps, options?: { lane?: string }): Promise<RuntimeHostResult>;
+  /** Full props replacement. Vue requires applyPropsUpdate or type props.update. */
+  update(signal: { props?: RuntimeProps; payload?: RuntimeProps; updateAdapter?: 'applyPropsUpdate'; type?: 'props.update' }): Promise<RuntimeHostResult>;
+  suspend(reason?: string): Promise<RuntimeHostResult>;
+  /** Optional full replacement is committed while suspended, before resources restart. */
+  resume(reason?: string, options?: { props: RuntimeProps }): Promise<RuntimeHostResult>;
+  unmount(reason?: string): Promise<RuntimeHostResult>;
+  reportError(error: unknown, metadata?: { phase?: string }): RuntimeHostResult;
+  emit: ComponentCapabilities['emit'];
+  getCapabilities(): NegotiatedRuntimeCapabilities;
+  getCapabilityNegotiation(): HostCapabilityNegotiation;
+  snapshot(): NegotiatedRuntimeHostSnapshot;
+  /** Includes graph-triggered lifecycle delivery and terminal cleanup, not named business work. */
+  whenIdle(): Promise<NegotiatedRuntimeHostSnapshot>;
+  getLifecycleRecords(): XTensionLifecycleRecord[];
+  getCleanupRecords(): HostResourceCleanupRecord[];
+  getEventRecords(): XTensionsSurfaceEvent[];
+}

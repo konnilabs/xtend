@@ -22,7 +22,7 @@
     "tools/xtensions/url-state-contracts/restore-plan.v1.schema.json": "57d5ea6e30f2378a66f418e5d601e201ac2bc552b719be1bd8d94d03877aeab0",
     "tools/xtensions/url-state-contracts/history-proposal.v1.schema.json": "63aadd491141cd781ebcacaf4a903421e079cdedae89689531efd41c65d8f1b0",
     "xtend-maraca/plan-runtime.mjs": "2bdeae9bbbc351460b657689d3808f3e7bfe2b6f35e46faeaf6412b41a1a4e05",
-    "xtend-maraca/plan-runtime.d.ts": "8e0d9d244156b98d23c707569e416733ad8276f6894309ab340d6bdcacb74e01",
+    "xtend-maraca/plan-runtime.d.ts": "87ce6df7aaeca8040c563d0be8252f56a9bd58c41f1d79e3d38daba3dabbbe3d",
     "xtend-maraca/plan-runtime.v6.d.ts": "7b67cdeaba29fafe8512571ac9d05b0e04073c207b2b78fb8a2ff7593f98530d",
     "xtend-maraca/browser-composition-runtime.mjs": "adf34c58b5c521274d4f6c53046f7bea64084525751ee008c3cfe5a2764721e9",
     "xtend-maraca/browser-composition-runtime.d.ts": "76c6f9933ad782f3b6c50a9ea0b597966e093278a927f51b674cc9c1e4ecb73f",
@@ -32,7 +32,7 @@
     "components/xrouter-url-state.js": "248da47a1bbc3e9b78d6712ece71d528bfcdabe7258de3dfd80a3e6e24cfc005",
     "components/xrouter-url-state.d.ts": "31b0fe7adef1d172153677970a81aa9df34147be2315672f4a96d33eb0bd3818",
     "tests/xtensions/url-state-maraca-acceptance.js": "6173882864115203429b624f7b52f722b8a24549b3f7217f8a75fc68929e44a3",
-    "tests/xtensions/xtensions_runtime_gate_suite.js": "b2f2ea92f620c0e1c0897d46e7d37ee4118ce99383ba39b5b2e44f6073aa4527",
+    "tests/xtensions/xtensions_runtime_gate_suite.js": "a008747b8fd8d6be9fc567016af825d205dcc120677f07187a10ad5e7a193067",
     "scripts/test_xtensions_runtime_adapters.cjs": "1e04333025c7a34fbd4a7e35ab648e5fb745f0209b52b61573f20071bc15774e"
   }
 }

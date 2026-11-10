@@ -7,8 +7,10 @@ const RUNTIME_HOST_CONTROLLER_SCHEMA = 'xtend.xtensions.runtime-host-controller.
 const KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA = 'xtend.xtensions.runtime-host-controller.v3';
 const GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA = 'xtend.xtensions.runtime-host-controller.v4';
 const BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA = 'xtend.xtensions.runtime-host-controller.v5';
+const NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA = 'xtend.xtensions.runtime-host-controller.v6';
 const { createKernelWorkScope } = require('./kernel-work-scope');
 const { createResourceGraphBinding } = require('./resource-graph-binding');
+const { createHostCapabilityNegotiation } = require('./host-capability-negotiation');
 const { createHostResourceCleanupRecord } = require('./host-resource-cleanup-record');
 const { createSurfaceEvent } = require('./signal-bridge-contract');
 const { createCooperativeResourceScope } = require('./cooperative-resource-scope');
@@ -69,8 +71,10 @@ function peerVersionMatches(version, range) {
 function createRuntimeHostController(options, driver) {
   const graphEnabled = Object.hasOwn(options, 'resourceGraph');
   const budgetEnabled = Object.hasOwn(options, 'workBudget');
+  const negotiatedEnabled = Object.hasOwn(options, 'capabilityRequirements');
   if (graphEnabled && driver.kernel !== true) throw new TypeError('Resource graph binding requires a kernel adapter.');
   if (budgetEnabled && (!graphEnabled || driver.kernel !== true || options.workBudget === undefined)) throw new TypeError('Work budgets require an explicit graph-bound kernel host and policy.');
+  if (negotiatedEnabled && driver.kernel !== true) throw new TypeError('Capability negotiation requires a kernel runtime adapter.');
   const framework = driver.framework;
   const ids = Object.freeze({ hostId: options.hostId || `${framework}-host`,
     surfaceId: options.surfaceId || `surface.${framework}`, xtensionId: options.xtensionId || options.id || `xtension.${framework}` });
@@ -82,6 +86,7 @@ function createRuntimeHostController(options, driver) {
   const peers = options.peers;
   const boundaryPolicy = driver.normalizeBoundary(clone(options.runtimeBoundary || {}));
   const policy = options.policy || {};
+  if (negotiatedEnabled && policy.allowedResources !== undefined && !Array.isArray(policy.allowedResources)) throw new TypeError('Resource grants must be an array.');
   // Capture host authority at construction; never accept policy from lifecycle data.
   const allowedResources = [...(policy.allowedResources || [])];
   const events = freeze(clone(policy.events || {}));
@@ -100,6 +105,7 @@ function createRuntimeHostController(options, driver) {
   let pendingMount = null, disposal = null, queue = Promise.resolve(), sequence = 0, generation = 0;
   let runtimeVersions = null, tearingDown = false, teardownPromise = null, fatalError = null;
   let graph = null, surfaceBlocked = false, surfaceNeedsResume = false, surfaceEpoch = 0;
+  let negotiation = null;
   const abort = new AbortController();
   const cancelled = new Promise((resolve) => abort.signal.addEventListener('abort', () => resolve({ cancelled: true }), { once: true }));
   function diagnostic(error, operation) {
@@ -137,10 +143,18 @@ function createRuntimeHostController(options, driver) {
       cleanupRecords: operation === 'unmount' ? cleanupRecords : [], metadata: details }, clockOptions);
   }
   function run(operation, action) {
+    if (negotiation && !negotiation.report.ok) return Promise.resolve(result(operation, 'policy-blocked', {
+      reason: 'capability-requirements-unsatisfied', negotiation: negotiation.report }));
     const invoke = () => boundary ? boundary.run(operation, action) : action();
     const work = () => disposed && kernel ? result(operation, 'skipped', { reason: 'disposed-before-kernel-delivery' }) : kernel ? kernel.runLifecycle(operation, () => { graph?.assertCurrent(); return action(); }) : invoke();
     const promise = queue.then(work).catch(async (error) => {
-      if (kernel && disposed && error.code !== 'rmt.scheduler.panic_blocked') return result(operation, 'skipped', { reason: 'kernel-lifetime-ended' });
+      if (kernel && disposed && error.code !== 'rmt.scheduler.panic_blocked') {
+        // A v6 provider/render failure may cancel its own lifecycle job during
+        // cleanup. Preserve that real failure instead of reporting a successful
+        // cancellation; explicit user disposal still remains a skipped delivery.
+        const failures = negotiatedEnabled ? diagnostics.filter(entry => entry.details.operation === operation) : [];
+        return result(operation, failures.length ? 'failed' : 'skipped', { reason: failures.length ? 'runtime-delivery-failed' : 'kernel-lifetime-ended' }, failures);
+      }
       const entry = diagnostic(error, operation);
       if (kernel && operation !== 'unmount') await api.unmount('kernel-delivery-failure');
       // Instrumentation failures must not prevent terminal cleanup.
@@ -234,10 +248,12 @@ function createRuntimeHostController(options, driver) {
     });
   }
   const api = {
-    schema: budgetEnabled ? BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA : graphEnabled ? GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA : kernel ? KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA : RUNTIME_HOST_CONTROLLER_SCHEMA,
-    apiVersion: budgetEnabled ? '5.0.0' : graphEnabled ? '4.0.0' : kernel ? '3.0.0' : '2.0.0', adapterSchema: `xtend.xtensions.${framework}-runtime-adapter.v${budgetEnabled ? 5 : graphEnabled ? 4 : kernel ? 3 : 2}`, framework,
+    schema: negotiatedEnabled ? NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA : budgetEnabled ? BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA : graphEnabled ? GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA : kernel ? KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA : RUNTIME_HOST_CONTROLLER_SCHEMA,
+    apiVersion: negotiatedEnabled ? '6.0.0' : budgetEnabled ? '5.0.0' : graphEnabled ? '4.0.0' : kernel ? '3.0.0' : '2.0.0', adapterSchema: `xtend.xtensions.${framework}-runtime-adapter.v${negotiatedEnabled ? 6 : budgetEnabled ? 5 : graphEnabled ? 4 : kernel ? 3 : 2}`, framework,
     mount(target = container, initialProps = {}, mountOptions = {}) {
       if (disposed) return Promise.resolve(result('mount', 'failed', { reason: 'already-destroyed' }));
+      if (negotiation && !negotiation.report.ok) return Promise.resolve(result('mount', 'policy-blocked', {
+        reason: 'capability-requirements-unsatisfied', negotiation: negotiation.report }));
       if (target !== container) return Promise.resolve(result('mount', 'policy-blocked', { reason: 'host-container-mismatch' }));
       if (pendingMount) return pendingMount;
       if (instance) return Promise.resolve(result('mount', 'skipped', { reason: 'already-mounted' }));
@@ -389,13 +405,13 @@ function createRuntimeHostController(options, driver) {
       } catch (error) { return { ok: false, diagnostics: error.diagnostics || [diagnostic(error, 'emit')] }; }
     },
     snapshot() { return clone({ ...ids, framework, phase, mounted: !!instance, suspended: suspended || surfaceBlocked, disposed, props,
-      runtimeVersions, resources: resources.snapshot(), diagnostics, ...(kernel ? { capabilities: kernel.capabilities, kernelWork: kernel.snapshot() } : {}), ...(graph ? { resourceGraph: graph.snapshot() } : {}), ...(budgetEnabled ? { workBudget: kernel.budgetSnapshot() } : {}) }); },
+      runtimeVersions, resources: resources.snapshot(), diagnostics, ...(kernel ? { capabilities: negotiation?.capabilities || kernel.capabilities, kernelWork: kernel.snapshot() } : {}), ...(graph ? { resourceGraph: graph.snapshot() } : {}), ...(budgetEnabled ? { workBudget: kernel.budgetSnapshot() } : {}), ...(negotiation ? { capabilityNegotiation: negotiation.report } : {}) }); },
     getLifecycleRecords: () => clone(records),
     getCleanupRecords: () => clone(cleanupRecords),
     getEventRecords: () => clone(eventRecords)
   };
-  if (kernel) api.getCapabilities = () => kernel.capabilities;
-  if (graphEnabled) api.whenIdle = async () => {
+  if (kernel) api.getCapabilities = () => negotiation?.capabilities || kernel.capabilities;
+  if (graphEnabled || negotiatedEnabled) api.whenIdle = async () => {
     let pending;
     do { pending = queue; await pending; } while (queue !== pending);
     if (disposal) await disposal;
@@ -425,7 +441,12 @@ function createRuntimeHostController(options, driver) {
       if (instance && !pendingMount && !suspended && surfaceNeedsResume) resumeHost(reason, undefined, true).catch(error => diagnostic(error, 'surface-resume'));
     }
   });
+  if (negotiatedEnabled) {
+    negotiation = createHostCapabilityNegotiation(options.capabilityRequirements, { framework, kernelCapabilities: kernel.capabilities,
+      graph: graphEnabled, budget: budgetEnabled, allowedResources, events });
+    api.getCapabilityNegotiation = () => negotiation.report;
+  }
   const facade = Object.freeze({ emit: api.emit, resources: Object.freeze({ register: resources.register }), ...(kernel ? { work: kernel.work } : {}) });
   return Object.freeze(api);
 }
-module.exports = { RUNTIME_HOST_CONTROLLER_SCHEMA, KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA, GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA, BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA, createRuntimeHostController };
+module.exports = { RUNTIME_HOST_CONTROLLER_SCHEMA, KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA, GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA, BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA, NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA, createRuntimeHostController };

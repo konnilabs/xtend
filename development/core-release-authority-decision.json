@@ -4,8 +4,8 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "6f36d6a42178b386f524957bfee71cf18f7072e58d94f45f789824b533a42e92",
-  "sourceMembershipSha256": "b889c9e975f4e57e030937b8092988d66d0c1306a36817415587b332f2d54a77",
+  "inventorySha256": "abdb9d2b73af47b64d0bbb1377231cb8ba74b4bc8937c8449f891aef3f2c89ca",
+  "sourceMembershipSha256": "4567f44f49091e0e1c2c5dfdc6a331c124867020033fc54b1d97c8ddaaf9ab85",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
@@ -549,7 +549,7 @@
         },
         {
           "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
-          "sha256": "b5e493a434d4727219b637c0534677cfb34796d005d1afcf5e1face34cc610d0"
+          "sha256": "d48f72d0a35a0c50477b402dd27e7ccbeee4b6870dd075e3edaf104474db74f6"
         },
         {
           "path": "development/rmtx-a01/README.md",
@@ -561,7 +561,7 @@
         },
         {
           "path": "development/rmtx-a01/inventory.json",
-          "sha256": "379ba2bb3f330e398f0eca20e0348dbad866888d036deb6012f53b65f5336c0d"
+          "sha256": "9945ce917dcd1c6ad45abd76f568d30c53b7a442b58bd66ed9bd9b188aaacaf2"
         },
         {
           "path": "docs/de/rmt-vnext-authoring.md",
@@ -573,7 +573,7 @@
         },
         {
           "path": "docs/generated/search/en.fulltext.json",
-          "sha256": "5c0161a474f8d67520b40fc44ef2c25907620ee33175df68b57aff02a12b26ea"
+          "sha256": "427c0aca9590f7f31d034989b3c97cf49f78146b775572e86e043460879c39ab"
         },
         {
           "path": "package.json",
@@ -1194,5 +1194,51 @@
     "publicationGuardRetired": false,
     "freshCommittedCaptureRequired": true,
     "rationale": "Scoped A03.3 development review: v5 graph-bound hosts add bounded named-work admission, same-grant explicit replacement and live kernel-pressure cooperative chunk ceilings through mandatory Fabric. Registry API 2.3 accepts version-matched v2-v5 suppliers. Existing authoritative/released fingerprints and native Kernel/Surface ABIs remain unchanged. Automatic provider composition, capability negotiation and complete 0.9 feature acceptance remain pending. See development/rmtx-a03/work-budgets.md."
+  },
+  "a034ActualAdapterCapabilityReview": {
+    "format": 1,
+    "date": "2026-11-10",
+    "status": "reviewed-unreleased-actual-adapter-capability-negotiation",
+    "stage": "A03.4",
+    "a03Complete": false,
+    "explicitReactVuePathImplemented": true,
+    "contract": "development/rmtx-a03/capability-negotiation.md",
+    "newSchemaIds": [
+      "xtend.xtensions.host-capability-negotiation.v1",
+      "xtend.xtensions.host-capability-requirements.v1",
+      "xtend.xtensions.react-runtime-adapter.v6",
+      "xtend.xtensions.runtime-capabilities.v2",
+      "xtend.xtensions.runtime-host-controller.v6",
+      "xtend.xtensions.vue-runtime-adapter.v6"
+    ],
+    "scopedSchemaIds": [
+      "xtend.schemas.xtension.intent.v1",
+      "xtend.xtensions.host-capability-negotiation.v1",
+      "xtend.xtensions.host-capability-requirements.v1",
+      "xtend.xtensions.react-runtime-adapter.v5",
+      "xtend.xtensions.react-runtime-adapter.v6",
+      "xtend.xtensions.runtime-capabilities.v1",
+      "xtend.xtensions.runtime-capabilities.v2",
+      "xtend.xtensions.runtime-host-controller.v5",
+      "xtend.xtensions.runtime-host-controller.v6",
+      "xtend.xtensions.state-binding.v2",
+      "xtend.xtensions.vue-runtime-adapter.v5",
+      "xtend.xtensions.vue-runtime-adapter.v6",
+      "xtend.xtensions.work-budget-policy.v1"
+    ],
+    "fabricRequired": true,
+    "negotiatedHostApiVersion": "6.0.0",
+    "registryApiVersion": "2.4.0",
+    "nativeKernelAbiChanged": false,
+    "surfaceGraphAbiChanged": false,
+    "legacyV2V3V4V5Retained": true,
+    "contractChecks": 19,
+    "integrationCases": 27,
+    "runtimeCasesPerEnvironment": 269,
+    "compilerChecks": 88,
+    "acceptedForRelease": false,
+    "publicationGuardRetired": false,
+    "freshCommittedCaptureRequired": true,
+    "rationale": "Scoped A03.4 development review: explicit v6 React/Vue hosts negotiate required and optional actual implementation features and captured work/resource/event grants before kernel admission, provider loading or graph acquisition. Capability v2 and dedicated requirements/negotiation contracts remain separate from static registry/load decisions. Registry API 2.4 accepts version-matched v2-v6 suppliers; all existing authoritative/released fingerprints and native Kernel/Surface ABIs are preserved. The explicit React/Vue path is implemented; automatic A04 composition, broader frameworks and full 0.9 acceptance remain pending. See development/rmtx-a03/capability-negotiation.md."
   }
 }

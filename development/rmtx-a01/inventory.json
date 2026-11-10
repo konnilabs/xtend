@@ -158,7 +158,7 @@
     },
     {
       "file": "tools/xtensions/runtime-host-controller.d.ts",
-      "sha256": "86a50e2a720b7946db03ddc76bfb5846ac9ac982e034dba7b8640693719fc31b"
+      "sha256": "b21b4c15d35e345b9228450c1825d78c13478931761741daa228144b744780d5"
     },
     {
       "file": "tools/xtensions/signal-bridge-contract.d.ts",
@@ -12798,6 +12798,374 @@
           ],
           "file": "tools/xtensions/runtime-host-controller.d.ts",
           "line": 233,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "HostCapabilityRequests",
+          "fields": [
+            {
+              "name": "features",
+              "optional": true,
+              "type": "readonly RuntimeCapabilityFeature[]",
+              "declaration": "readonly features?: readonly RuntimeCapabilityFeature[];"
+            },
+            {
+              "name": "work",
+              "optional": true,
+              "type": "readonly string[]",
+              "declaration": "readonly work?: readonly string[];"
+            },
+            {
+              "name": "resources",
+              "optional": true,
+              "type": "readonly string[]",
+              "declaration": "readonly resources?: readonly string[];"
+            },
+            {
+              "name": "events",
+              "optional": true,
+              "type": "readonly string[]",
+              "declaration": "readonly events?: readonly string[];"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 262,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "HostCapabilityRequirements",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "'xtend.xtensions.host-capability-requirements.v1'",
+              "declaration": "readonly schema: 'xtend.xtensions.host-capability-requirements.v1';"
+            },
+            {
+              "name": "framework",
+              "optional": true,
+              "type": "'react' | 'vue' | 'angular' | 'vanilla'",
+              "declaration": "readonly framework?: 'react' | 'vue' | 'angular' | 'vanilla';"
+            },
+            {
+              "name": "required",
+              "optional": false,
+              "type": "HostCapabilityRequests",
+              "declaration": "readonly required: HostCapabilityRequests;"
+            },
+            {
+              "name": "optional",
+              "optional": true,
+              "type": "HostCapabilityRequests",
+              "declaration": "readonly optional?: HostCapabilityRequests;"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 266,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "NegotiatedRuntimeCapabilities",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "'xtend.xtensions.runtime-capabilities.v2'",
+              "declaration": "readonly schema: 'xtend.xtensions.runtime-capabilities.v2';"
+            },
+            {
+              "name": "framework",
+              "optional": false,
+              "type": "'react' | 'vue'",
+              "declaration": "readonly framework: 'react' | 'vue';"
+            },
+            {
+              "name": "profile",
+              "optional": false,
+              "type": "'kernel' | 'graph' | 'budget'",
+              "declaration": "readonly profile: 'kernel' | 'graph' | 'budget';"
+            },
+            {
+              "name": "features",
+              "optional": false,
+              "type": "{\n    readonly 'kernel.lifecycle': true; readonly 'fabric.boundary': true; readonly 'props.controlled': true;\n    readonly 'work.named': true; readonly 'resources.cooperative': true; readonly 'cancellation.cooperative': true;\n    readonly 'surface.lifecycle': boolean; readonly 'work.bounded': boolean; readonly 'work.pressure-budgets': boolean;\n    readonly 'framework.internal-scheduling': false; readonly 'execution.preemption': false;\n    readonly 'render.ssr': false; readonly 'render.adoption': false;\n  }",
+              "declaration": "readonly features: {\n    readonly 'kernel.lifecycle': true; readonly 'fabric.boundary': true; readonly 'props.controlled': true;\n    readonly 'work.named': true; readonly 'resources.cooperative': true; readonly 'cancellation.cooperative': true;\n    readonly 'surface.lifecycle': boolean; readonly 'work.bounded': boolean; readonly 'work.pressure-budgets': boolean;\n    readonly 'framework.internal-scheduling': false; readonly 'execution.preemption': false;\n    readonly 'render.ssr': false; readonly 'render.adoption': false;\n  };"
+            },
+            {
+              "name": "grants",
+              "optional": false,
+              "type": "{ readonly work: readonly string[]; readonly resources: readonly string[]; readonly events: readonly string[] }",
+              "declaration": "readonly grants: { readonly work: readonly string[]; readonly resources: readonly string[]; readonly events: readonly string[] };"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 271,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "HostCapabilityMissing",
+          "fields": [
+            {
+              "name": "features",
+              "optional": false,
+              "type": "readonly RuntimeCapabilityFeature[]",
+              "declaration": "readonly features: readonly RuntimeCapabilityFeature[];"
+            },
+            {
+              "name": "work",
+              "optional": false,
+              "type": "readonly string[]",
+              "declaration": "readonly work: readonly string[];"
+            },
+            {
+              "name": "resources",
+              "optional": false,
+              "type": "readonly string[]",
+              "declaration": "readonly resources: readonly string[];"
+            },
+            {
+              "name": "events",
+              "optional": false,
+              "type": "readonly string[]",
+              "declaration": "readonly events: readonly string[];"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 283,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "HostCapabilityNegotiation",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "'xtend.xtensions.host-capability-negotiation.v1'",
+              "declaration": "readonly schema: 'xtend.xtensions.host-capability-negotiation.v1';"
+            },
+            {
+              "name": "stage",
+              "optional": false,
+              "type": "'preflight'",
+              "declaration": "readonly stage: 'preflight';"
+            },
+            {
+              "name": "status",
+              "optional": false,
+              "type": "'matched' | 'degraded' | 'blocked'",
+              "declaration": "readonly status: 'matched' | 'degraded' | 'blocked';"
+            },
+            {
+              "name": "ok",
+              "optional": false,
+              "type": "boolean",
+              "declaration": "readonly ok: boolean;"
+            },
+            {
+              "name": "framework",
+              "optional": false,
+              "type": "'react' | 'vue'",
+              "declaration": "readonly framework: 'react' | 'vue';"
+            },
+            {
+              "name": "requiredFramework",
+              "optional": false,
+              "type": "HostCapabilityRequirements['framework'] | null",
+              "declaration": "readonly requiredFramework: HostCapabilityRequirements['framework'] | null;"
+            },
+            {
+              "name": "frameworkMatched",
+              "optional": false,
+              "type": "boolean",
+              "declaration": "readonly frameworkMatched: boolean;"
+            },
+            {
+              "name": "requirements",
+              "optional": false,
+              "type": "HostCapabilityRequirements",
+              "declaration": "readonly requirements: HostCapabilityRequirements;"
+            },
+            {
+              "name": "capabilities",
+              "optional": false,
+              "type": "NegotiatedRuntimeCapabilities",
+              "declaration": "readonly capabilities: NegotiatedRuntimeCapabilities;"
+            },
+            {
+              "name": "missingRequired",
+              "optional": false,
+              "type": "HostCapabilityMissing",
+              "declaration": "readonly missingRequired: HostCapabilityMissing;"
+            },
+            {
+              "name": "missingOptional",
+              "optional": false,
+              "type": "HostCapabilityMissing",
+              "declaration": "readonly missingOptional: HostCapabilityMissing;"
+            },
+            {
+              "name": "runtimeExecutionVerified",
+              "optional": false,
+              "type": "false",
+              "declaration": "readonly runtimeExecutionVerified: false;"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 287,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "NegotiatedRuntimeHostSnapshot",
+          "fields": [
+            {
+              "name": "capabilities",
+              "optional": false,
+              "type": "NegotiatedRuntimeCapabilities",
+              "declaration": "readonly capabilities: NegotiatedRuntimeCapabilities;"
+            },
+            {
+              "name": "kernelWork",
+              "optional": false,
+              "type": "KernelWorkSnapshot",
+              "declaration": "readonly kernelWork: KernelWorkSnapshot;"
+            },
+            {
+              "name": "capabilityNegotiation",
+              "optional": false,
+              "type": "HostCapabilityNegotiation",
+              "declaration": "readonly capabilityNegotiation: HostCapabilityNegotiation;"
+            },
+            {
+              "name": "resourceGraph",
+              "optional": true,
+              "type": "RuntimeResourceGraphBindingSnapshot",
+              "declaration": "readonly resourceGraph?: RuntimeResourceGraphBindingSnapshot;"
+            },
+            {
+              "name": "workBudget",
+              "optional": true,
+              "type": "RuntimeWorkBudgetSnapshot",
+              "declaration": "readonly workBudget?: RuntimeWorkBudgetSnapshot;"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 303,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "NegotiatedRuntimeHostController",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "typeof NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA",
+              "declaration": "readonly schema: typeof NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA;"
+            },
+            {
+              "name": "apiVersion",
+              "optional": false,
+              "type": "'6.0.0'",
+              "declaration": "readonly apiVersion: '6.0.0';"
+            },
+            {
+              "name": "adapterSchema",
+              "optional": false,
+              "type": "string",
+              "declaration": "readonly adapterSchema: string;"
+            },
+            {
+              "name": "framework",
+              "optional": false,
+              "type": "'react' | 'vue'",
+              "declaration": "readonly framework: 'react' | 'vue';"
+            },
+            {
+              "name": "mount",
+              "optional": false,
+              "type": "Promise<RuntimeHostResult>",
+              "declaration": "mount(target?: Element, props?: RuntimeProps, options?: { lane?: string }): Promise<RuntimeHostResult>;"
+            },
+            {
+              "name": "update",
+              "optional": false,
+              "type": "Promise<RuntimeHostResult>",
+              "declaration": "update(signal: { props?: RuntimeProps; payload?: RuntimeProps; updateAdapter?: 'applyPropsUpdate'; type?: 'props.update' }): Promise<RuntimeHostResult>;"
+            },
+            {
+              "name": "suspend",
+              "optional": false,
+              "type": "Promise<RuntimeHostResult>",
+              "declaration": "suspend(reason?: string): Promise<RuntimeHostResult>;"
+            },
+            {
+              "name": "resume",
+              "optional": false,
+              "type": "Promise<RuntimeHostResult>",
+              "declaration": "resume(reason?: string, options?: { props: RuntimeProps }): Promise<RuntimeHostResult>;"
+            },
+            {
+              "name": "unmount",
+              "optional": false,
+              "type": "Promise<RuntimeHostResult>",
+              "declaration": "unmount(reason?: string): Promise<RuntimeHostResult>;"
+            },
+            {
+              "name": "reportError",
+              "optional": false,
+              "type": "RuntimeHostResult",
+              "declaration": "reportError(error: unknown, metadata?: { phase?: string }): RuntimeHostResult;"
+            },
+            {
+              "name": "emit",
+              "optional": false,
+              "type": "ComponentCapabilities['emit']",
+              "declaration": "emit: ComponentCapabilities['emit'];"
+            },
+            {
+              "name": "getCapabilities",
+              "optional": false,
+              "type": "NegotiatedRuntimeCapabilities",
+              "declaration": "getCapabilities(): NegotiatedRuntimeCapabilities;"
+            },
+            {
+              "name": "getCapabilityNegotiation",
+              "optional": false,
+              "type": "HostCapabilityNegotiation",
+              "declaration": "getCapabilityNegotiation(): HostCapabilityNegotiation;"
+            },
+            {
+              "name": "snapshot",
+              "optional": false,
+              "type": "NegotiatedRuntimeHostSnapshot",
+              "declaration": "snapshot(): NegotiatedRuntimeHostSnapshot;"
+            },
+            {
+              "name": "whenIdle",
+              "optional": false,
+              "type": "Promise<NegotiatedRuntimeHostSnapshot>",
+              "declaration": "whenIdle(): Promise<NegotiatedRuntimeHostSnapshot>;"
+            },
+            {
+              "name": "getLifecycleRecords",
+              "optional": false,
+              "type": "XTensionLifecycleRecord[]",
+              "declaration": "getLifecycleRecords(): XTensionLifecycleRecord[];"
+            },
+            {
+              "name": "getCleanupRecords",
+              "optional": false,
+              "type": "HostResourceCleanupRecord[]",
+              "declaration": "getCleanupRecords(): HostResourceCleanupRecord[];"
+            },
+            {
+              "name": "getEventRecords",
+              "optional": false,
+              "type": "XTensionsSurfaceEvent[]",
+              "declaration": "getEventRecords(): XTensionsSurfaceEvent[];"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 308,
           "symbol": "<anonymous>"
         }
       ],

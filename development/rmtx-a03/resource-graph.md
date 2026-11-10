@@ -63,4 +63,4 @@ Der Maraca-Nachweis komponiert drei echte keyed React-Hosts mit demselben Anwend
 
 [`graph-inspect.cjs`](graph-inspect.cjs) prüft 19 native Surface-/Kernel-Vertragsfälle und bindet die Quellen in [`graph-evidence.json`](graph-evidence.json). Der blockierende Release-Vorbereitungs-Gate führt `--check` aus. Framework-Ausführung bleibt ausdrücklich den Runtime-Gates vorbehalten: **32 A03.2-Fälle** in jsdom und Chromium, zusätzlich zu sämtlichen **184 bisherigen Fällen**, also **216 pro Umgebung**, sowie unverändert 88 Compilerprüfungen. Die gepackten Root-/Compiler-Consumer führen v2, v3 und v4 mit injizierten externen React-/Vue-Peers und den tatsächlichen öffentlichen Plattform-Modulen aus. Typprüfungen sichern die Overloads und die Maraca-/Registry-Anbindung.
 
-Druck-/Budgetstrategien und weitergehende Fähigkeitsverhandlung bleiben die nächsten A03-Abschnitte. RMTX und XTensions 2.0 bleiben für 0.9.0 `preparing`.
+[A03.3](work-budgets.md) und [A03.4](capability-negotiation.md) ergänzen Druck-/Budgetstrategien und Fähigkeitsverhandlung. RMTX und XTensions 2.0 bleiben für 0.9.0 `preparing`.

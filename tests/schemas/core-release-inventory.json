@@ -7735,6 +7735,24 @@
       "type": "same-id-multiple-shapes"
     },
     {
+      "reviewId": "polymorphic-73c11d5ac405",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "All observed data/reference forms remain bound to shapePolicy; partial test/config expressions are not promoted to a complete authority."
+      },
+      "schemaIds": [
+        "xtend.xtensions.host-capability-negotiation.v1"
+      ],
+      "rationale": "Scoped A03.4 development review: explicit v6 React/Vue hosts negotiate required and optional actual implementation features and captured work/resource/event grants before kernel admission, provider loading or graph acquisition. Capability v2 and dedicated requirements/negotiation contracts remain separate from static registry/load decisions. Registry API 2.4 accepts version-matched v2-v6 suppliers; all existing authoritative/released fingerprints and native Kernel/Surface ABIs are preserved. The explicit React/Vue path is implemented; automatic A04 composition, broader frameworks and full 0.9 acceptance remain pending. See development/rmtx-a03/capability-negotiation.md.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "a034-actual-adapter-capabilities"
+    },
+    {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
       "confidence": "medium",
@@ -8705,6 +8723,24 @@
       ],
       "status": "accepted-polymorphic-for-inventory",
       "type": "same-id-multiple-shapes"
+    },
+    {
+      "reviewId": "polymorphic-8481b447ee46",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "All observed data/reference forms remain bound to shapePolicy; partial test/config expressions are not promoted to a complete authority."
+      },
+      "schemaIds": [
+        "xtend.xtensions.runtime-capabilities.v2"
+      ],
+      "rationale": "Scoped A03.4 development review: explicit v6 React/Vue hosts negotiate required and optional actual implementation features and captured work/resource/event grants before kernel admission, provider loading or graph acquisition. Capability v2 and dedicated requirements/negotiation contracts remain separate from static registry/load decisions. Registry API 2.4 accepts version-matched v2-v6 suppliers; all existing authoritative/released fingerprints and native Kernel/Surface ABIs are preserved. The explicit React/Vue path is implemented; automatic A04 composition, broader frameworks and full 0.9 acceptance remain pending. See development/rmtx-a03/capability-negotiation.md.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "a034-actual-adapter-capabilities"
     },
     {
       "baseline": "inventory-v2",
@@ -13388,6 +13424,24 @@
       ],
       "status": "accepted-polymorphic-for-inventory",
       "type": "same-id-multiple-shapes"
+    },
+    {
+      "reviewId": "polymorphic-ccddc4075707",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "All observed data/reference forms remain bound to shapePolicy; partial test/config expressions are not promoted to a complete authority."
+      },
+      "schemaIds": [
+        "xtend.xtensions.host-capability-requirements.v1"
+      ],
+      "rationale": "Scoped A03.4 development review: explicit v6 React/Vue hosts negotiate required and optional actual implementation features and captured work/resource/event grants before kernel admission, provider loading or graph acquisition. Capability v2 and dedicated requirements/negotiation contracts remain separate from static registry/load decisions. Registry API 2.4 accepts version-matched v2-v6 suppliers; all existing authoritative/released fingerprints and native Kernel/Surface ABIs are preserved. The explicit React/Vue path is implemented; automatic A04 composition, broader frameworks and full 0.9 acceptance remain pending. See development/rmtx-a03/capability-negotiation.md.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "a034-actual-adapter-capabilities"
     },
     {
       "baseline": "inventory-v2",
@@ -774643,7 +774697,7 @@
           },
           {
             "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
-            "sha256": "b5e493a434d4727219b637c0534677cfb34796d005d1afcf5e1face34cc610d0"
+            "sha256": "d48f72d0a35a0c50477b402dd27e7ccbeee4b6870dd075e3edaf104474db74f6"
           },
           {
             "path": "development/rmtx-a01/README.md",
@@ -774655,7 +774709,7 @@
           },
           {
             "path": "development/rmtx-a01/inventory.json",
-            "sha256": "379ba2bb3f330e398f0eca20e0348dbad866888d036deb6012f53b65f5336c0d"
+            "sha256": "9945ce917dcd1c6ad45abd76f568d30c53b7a442b58bd66ed9bd9b188aaacaf2"
           },
           {
             "path": "docs/de/rmt-vnext-authoring.md",
@@ -774667,7 +774721,7 @@
           },
           {
             "path": "docs/generated/search/en.fulltext.json",
-            "sha256": "5c0161a474f8d67520b40fc44ef2c25907620ee33175df68b57aff02a12b26ea"
+            "sha256": "427c0aca9590f7f31d034989b3c97cf49f78146b775572e86e043460879c39ab"
           },
           {
             "path": "package.json",
@@ -820218,7 +820272,9 @@
             "development/rmtx-a02/bindings.v1.json",
             "development/rmtx-a02/conditional-bindings.v2.json",
             "development/rmtx-a02/controlled-filters.js",
-            "development/rmtx-a03/README.md"
+            "development/rmtx-a03/README.md",
+            "development/rmtx-a03/capability-inspect.cjs",
+            "development/rmtx-a03/capability-negotiation.md"
           ],
           "interfaceReferences": [
             {
@@ -820263,12 +820319,13 @@
           "role": "assertion",
           "visibility": "test",
           "sourcePaths": [
+            "tests/xtensions/capability-negotiation-acceptance.js",
             "tests/xtensions/runtime-adapter-acceptance.js"
           ],
           "interfaceReferences": [
             {
               "type": "repo-symbol",
-              "path": "tests/xtensions/runtime-adapter-acceptance.js",
+              "path": "tests/xtensions/capability-negotiation-acceptance.js",
               "symbol": null
             }
           ]
@@ -919975,6 +920032,1568 @@
       "version": 1
     },
     {
+      "schemaId": "xtend.xtensions.host-capability-negotiation.v1",
+      "familyId": "xtend.xtensions.host-capability-negotiation",
+      "version": 1,
+      "kinds": [
+        "event-id",
+        "runtime-discriminator"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": "sha256:3f57a3774df578b9b6f9a7f0f071fed258d346a19a14041c9f7f9fb62fa30ad6",
+      "description": "Unreleased A03.4 actual-adapter capability requirements, facts or negotiation contract. Explicit per-host required/optional preflight over real kernel/graph/budget profiles; no invented runtime execution, framework preemption or complete 0.9 acceptance.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "tools/xtensions/host-capability-negotiation.js",
+        "symbol": null,
+        "definitionType": "object-shape",
+        "role": "producer",
+        "visibility": "internal"
+      },
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a01/inventory.json",
+            "development/rmtx-a03/capability-negotiation.md"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "development/rmtx-a01/inventory.json",
+              "pointer": "/"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Types",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/types/xtensions_capability_negotiation.mts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/types/xtensions_capability_negotiation.mts",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Xtensions",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/xtensions/capability-negotiation-acceptance.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/xtensions/capability-negotiation-acceptance.js",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTensions",
+          "role": "definition",
+          "visibility": "internal",
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "HostCapabilityNegotiation"
+            }
+          ]
+        },
+        {
+          "application": "XTensions",
+          "role": "producer",
+          "visibility": "internal",
+          "sourcePaths": [
+            "tools/xtensions/host-capability-negotiation.js",
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "tools/xtensions/host-capability-negotiation.js",
+              "symbol": "report"
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "polymorphic",
+        "decision": "reviewed-a034-actual-adapter-capabilities",
+        "acceptedFingerprints": [
+          "sha256:72ae38bd10049cc9de93154678cdd2f30d8aacaea5a1d7512bc2ef7dac218649",
+          "sha256:7ea91bd95b15a83de27b0ee1654f8dc49eb2d627bfc5c97383c87b7740ee32f9"
+        ],
+        "authoritativeFingerprints": [
+          "sha256:72ae38bd10049cc9de93154678cdd2f30d8aacaea5a1d7512bc2ef7dac218649"
+        ],
+        "releasedFingerprintSetHash": "sha256:3f57a3774df578b9b6f9a7f0f071fed258d346a19a14041c9f7f9fb62fa30ad6",
+        "rationale": "Scoped A03.4 development review: explicit v6 React/Vue hosts negotiate required and optional actual implementation features and captured work/resource/event grants before kernel admission, provider loading or graph acquisition. Capability v2 and dedicated requirements/negotiation contracts remain separate from static registry/load decisions. Registry API 2.4 accepts version-matched v2-v6 suppliers; all existing authoritative/released fingerprints and native Kernel/Surface ABIs are preserved. The explicit React/Vue path is implemented; automatic A04 composition, broader frameworks and full 0.9 acceptance remain pending. See development/rmtx-a03/capability-negotiation.md."
+      },
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:72ae38bd10049cc9de93154678cdd2f30d8aacaea5a1d7512bc2ef7dac218649",
+          "shape": {
+            "fieldCount": 11,
+            "fields": [
+              "capabilities",
+              "framework",
+              "frameworkMatched",
+              "missingOptional",
+              "missingRequired",
+              "ok",
+              "requiredFramework",
+              "requirements",
+              "runtimeExecutionVerified",
+              "stage",
+              "status"
+            ],
+            "signature": "capabilities:{features:{cancellation.cooperative:literal<true>,execution.preemption:literal<false>,fabric.boundary:literal<true>,framework.internal-scheduling:literal<false>,kernel.lifecycle:literal<true>,props.controlled:literal<true>,render.adoption:literal<false>,render.ssr:literal<false>,resources.cooperative:literal<true>,surface.lifecycle:boolean,work.bounded:boolean,work.named:literal<true>,work.pressure-budgets:boolean},framework:union<literal<\"react\">|literal<\"vue\">>,grants:{events:array<string>,resources:array<string>,work:array<string>},profile:union<literal<\"budget\">|literal<\"graph\">|literal<\"kernel\">>}|framework:union<literal<\"react\">|literal<\"vue\">>|frameworkMatched:boolean|missingOptional:{events:array<string>,features:array<union<literal<\"cancellation.cooperative\">|literal<\"execution.preemption\">|literal<\"fabric.boundary\">|literal<\"framework.internal-scheduling\">|literal<\"kernel.lifecycle\">|literal<\"props.controlled\">|literal<\"render.adoption\">|literal<\"render.ssr\">|literal<\"resources.cooperative\">|literal<\"surface.lifecycle\">|literal<\"work.bounded\">|literal<\"work.named\">|literal<\"work.pressure-budgets\">>>,resources:array<string>,work:array<string>}|missingRequired:{events:array<string>,features:array<union<literal<\"cancellation.cooperative\">|literal<\"execution.preemption\">|literal<\"fabric.boundary\">|literal<\"framework.internal-scheduling\">|literal<\"kernel.lifecycle\">|literal<\"props.controlled\">|literal<\"render.adoption\">|literal<\"render.ssr\">|literal<\"resources.cooperative\">|literal<\"surface.lifecycle\">|literal<\"work.bounded\">|literal<\"work.named\">|literal<\"work.pressure-budgets\">>>,resources:array<string>,work:array<string>}|ok:boolean|requiredFramework:union<{\"indexedAccess\":{\"index\":{\"literal\":\"framework\"},\"object\":{\"fields\":{\"framework\":{\"optional\":true,\"type\":{\"union\":[{\"literal\":\"angular\"},{\"literal\":\"react\"},{\"literal\":\"vanilla\"},{\"literal\":\"vue\"}]}},\"optional\":{\"optional\":true,\"type\":{\"fields\":{\"events\":{\"optional\":true,\"type\":{\"elementType\":\"string\"}},\"features\":{\"optional\":true,\"type\":{\"elementType\":{\"union\":[{\"literal\":\"cancellation.cooperative\"},{\"literal\":\"execution.preemption\"},{\"literal\":\"fabric.boundary\"},{\"literal\":\"framework.internal-scheduling\"},{\"literal\":\"kernel.lifecycle\"},{\"literal\":\"props.controlled\"},{\"literal\":\"render.adoption\"},{\"literal\":\"render.ssr\"},{\"literal\":\"resources.cooperative\"},{\"literal\":\"surface.lifecycle\"},{\"literal\":\"work.bounded\"},{\"literal\":\"work.named\"},{\"literal\":\"work.pressure-budgets\"}]}}},\"resources\":{\"optional\":true,\"type\":{\"elementType\":\"string\"}},\"work\":{\"optional\":true,\"type\":{\"elementType\":\"string\"}}}}},\"required\":{\"optional\":false,\"type\":{\"fields\":{\"events\":{\"optional\":true,\"type\":{\"elementType\":\"string\"}},\"features\":{\"optional\":true,\"type\":{\"elementType\":{\"union\":[{\"literal\":\"cancellation.cooperative\"},{\"literal\":\"execution.preemption\"},{\"literal\":\"fabric.boundary\"},{\"literal\":\"framework.internal-scheduling\"},{\"literal\":\"kernel.lifecycle\"},{\"literal\":\"props.controlled\"},{\"literal\":\"render.adoption\"},{\"literal\":\"render.ssr\"},{\"literal\":\"resources.cooperative\"},{\"literal\":\"surface.lifecycle\"},{\"literal\":\"work.bounded\"},{\"literal\":\"work.named\"},{\"literal\":\"work.pressure-budgets\"}]}}},\"resources\":{\"optional\":true,\"type\":{\"elementType\":\"string\"}},\"work\":{\"optional\":true,\"type\":{\"elementType\":\"string\"}}}}}}}}}|literal<null>>|requirements:{framework?:union<literal<\"angular\">|literal<\"react\">|literal<\"vanilla\">|literal<\"vue\">>,optional?:{events?:array<string>,features?:array<union<literal<\"cancellation.cooperative\">|literal<\"execution.preemption\">|literal<\"fabric.boundary\">|literal<\"framework.internal-scheduling\">|literal<\"kernel.lifecycle\">|literal<\"props.controlled\">|literal<\"render.adoption\">|literal<\"render.ssr\">|literal<\"resources.cooperative\">|literal<\"surface.lifecycle\">|literal<\"work.bounded\">|literal<\"work.named\">|literal<\"work.pressure-budgets\">>>,resources?:array<string>,work?:array<string>},required:{events?:array<string>,features?:array<union<literal<\"cancellation.cooperative\">|literal<\"execution.preemption\">|literal<\"fabric.boundary\">|literal<\"framework.internal-scheduling\">|literal<\"kernel.lifecycle\">|literal<\"props.controlled\">|literal<\"render.adoption\">|literal<\"render.ssr\">|literal<\"resources.cooperative\">|literal<\"surface.lifecycle\">|literal<\"work.bounded\">|literal<\"work.named\">|literal<\"work.pressure-budgets\">>>,resources?:array<string>,work?:array<string>}}|runtimeExecutionVerified:literal<false>|stage:literal<\"preflight\">|status:union<literal<\"blocked\">|literal<\"degraded\">|literal<\"matched\">>",
+            "normalized": {
+              "fields": {
+                "capabilities": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "features": {
+                        "optional": false,
+                        "type": {
+                          "fields": {
+                            "cancellation.cooperative": {
+                              "optional": false,
+                              "type": {
+                                "literal": true
+                              }
+                            },
+                            "execution.preemption": {
+                              "optional": false,
+                              "type": {
+                                "literal": false
+                              }
+                            },
+                            "fabric.boundary": {
+                              "optional": false,
+                              "type": {
+                                "literal": true
+                              }
+                            },
+                            "framework.internal-scheduling": {
+                              "optional": false,
+                              "type": {
+                                "literal": false
+                              }
+                            },
+                            "kernel.lifecycle": {
+                              "optional": false,
+                              "type": {
+                                "literal": true
+                              }
+                            },
+                            "props.controlled": {
+                              "optional": false,
+                              "type": {
+                                "literal": true
+                              }
+                            },
+                            "render.adoption": {
+                              "optional": false,
+                              "type": {
+                                "literal": false
+                              }
+                            },
+                            "render.ssr": {
+                              "optional": false,
+                              "type": {
+                                "literal": false
+                              }
+                            },
+                            "resources.cooperative": {
+                              "optional": false,
+                              "type": {
+                                "literal": true
+                              }
+                            },
+                            "surface.lifecycle": {
+                              "optional": false,
+                              "type": "boolean"
+                            },
+                            "work.bounded": {
+                              "optional": false,
+                              "type": "boolean"
+                            },
+                            "work.named": {
+                              "optional": false,
+                              "type": {
+                                "literal": true
+                              }
+                            },
+                            "work.pressure-budgets": {
+                              "optional": false,
+                              "type": "boolean"
+                            }
+                          }
+                        }
+                      },
+                      "framework": {
+                        "optional": false,
+                        "type": {
+                          "union": [
+                            {
+                              "literal": "react"
+                            },
+                            {
+                              "literal": "vue"
+                            }
+                          ]
+                        }
+                      },
+                      "grants": {
+                        "optional": false,
+                        "type": {
+                          "fields": {
+                            "events": {
+                              "optional": false,
+                              "type": {
+                                "elementType": "string"
+                              }
+                            },
+                            "resources": {
+                              "optional": false,
+                              "type": {
+                                "elementType": "string"
+                              }
+                            },
+                            "work": {
+                              "optional": false,
+                              "type": {
+                                "elementType": "string"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "profile": {
+                        "optional": false,
+                        "type": {
+                          "union": [
+                            {
+                              "literal": "budget"
+                            },
+                            {
+                              "literal": "graph"
+                            },
+                            {
+                              "literal": "kernel"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                },
+                "framework": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "literal": "react"
+                      },
+                      {
+                        "literal": "vue"
+                      }
+                    ]
+                  }
+                },
+                "frameworkMatched": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "missingOptional": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "events": {
+                        "optional": false,
+                        "type": {
+                          "elementType": "string"
+                        }
+                      },
+                      "features": {
+                        "optional": false,
+                        "type": {
+                          "elementType": {
+                            "union": [
+                              {
+                                "literal": "cancellation.cooperative"
+                              },
+                              {
+                                "literal": "execution.preemption"
+                              },
+                              {
+                                "literal": "fabric.boundary"
+                              },
+                              {
+                                "literal": "framework.internal-scheduling"
+                              },
+                              {
+                                "literal": "kernel.lifecycle"
+                              },
+                              {
+                                "literal": "props.controlled"
+                              },
+                              {
+                                "literal": "render.adoption"
+                              },
+                              {
+                                "literal": "render.ssr"
+                              },
+                              {
+                                "literal": "resources.cooperative"
+                              },
+                              {
+                                "literal": "surface.lifecycle"
+                              },
+                              {
+                                "literal": "work.bounded"
+                              },
+                              {
+                                "literal": "work.named"
+                              },
+                              {
+                                "literal": "work.pressure-budgets"
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      "resources": {
+                        "optional": false,
+                        "type": {
+                          "elementType": "string"
+                        }
+                      },
+                      "work": {
+                        "optional": false,
+                        "type": {
+                          "elementType": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "missingRequired": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "events": {
+                        "optional": false,
+                        "type": {
+                          "elementType": "string"
+                        }
+                      },
+                      "features": {
+                        "optional": false,
+                        "type": {
+                          "elementType": {
+                            "union": [
+                              {
+                                "literal": "cancellation.cooperative"
+                              },
+                              {
+                                "literal": "execution.preemption"
+                              },
+                              {
+                                "literal": "fabric.boundary"
+                              },
+                              {
+                                "literal": "framework.internal-scheduling"
+                              },
+                              {
+                                "literal": "kernel.lifecycle"
+                              },
+                              {
+                                "literal": "props.controlled"
+                              },
+                              {
+                                "literal": "render.adoption"
+                              },
+                              {
+                                "literal": "render.ssr"
+                              },
+                              {
+                                "literal": "resources.cooperative"
+                              },
+                              {
+                                "literal": "surface.lifecycle"
+                              },
+                              {
+                                "literal": "work.bounded"
+                              },
+                              {
+                                "literal": "work.named"
+                              },
+                              {
+                                "literal": "work.pressure-budgets"
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      "resources": {
+                        "optional": false,
+                        "type": {
+                          "elementType": "string"
+                        }
+                      },
+                      "work": {
+                        "optional": false,
+                        "type": {
+                          "elementType": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "ok": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "requiredFramework": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "indexedAccess": {
+                          "index": {
+                            "literal": "framework"
+                          },
+                          "object": {
+                            "fields": {
+                              "framework": {
+                                "optional": true,
+                                "type": {
+                                  "union": [
+                                    {
+                                      "literal": "angular"
+                                    },
+                                    {
+                                      "literal": "react"
+                                    },
+                                    {
+                                      "literal": "vanilla"
+                                    },
+                                    {
+                                      "literal": "vue"
+                                    }
+                                  ]
+                                }
+                              },
+                              "optional": {
+                                "optional": true,
+                                "type": {
+                                  "fields": {
+                                    "events": {
+                                      "optional": true,
+                                      "type": {
+                                        "elementType": "string"
+                                      }
+                                    },
+                                    "features": {
+                                      "optional": true,
+                                      "type": {
+                                        "elementType": {
+                                          "union": [
+                                            {
+                                              "literal": "cancellation.cooperative"
+                                            },
+                                            {
+                                              "literal": "execution.preemption"
+                                            },
+                                            {
+                                              "literal": "fabric.boundary"
+                                            },
+                                            {
+                                              "literal": "framework.internal-scheduling"
+                                            },
+                                            {
+                                              "literal": "kernel.lifecycle"
+                                            },
+                                            {
+                                              "literal": "props.controlled"
+                                            },
+                                            {
+                                              "literal": "render.adoption"
+                                            },
+                                            {
+                                              "literal": "render.ssr"
+                                            },
+                                            {
+                                              "literal": "resources.cooperative"
+                                            },
+                                            {
+                                              "literal": "surface.lifecycle"
+                                            },
+                                            {
+                                              "literal": "work.bounded"
+                                            },
+                                            {
+                                              "literal": "work.named"
+                                            },
+                                            {
+                                              "literal": "work.pressure-budgets"
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    },
+                                    "resources": {
+                                      "optional": true,
+                                      "type": {
+                                        "elementType": "string"
+                                      }
+                                    },
+                                    "work": {
+                                      "optional": true,
+                                      "type": {
+                                        "elementType": "string"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "required": {
+                                "optional": false,
+                                "type": {
+                                  "fields": {
+                                    "events": {
+                                      "optional": true,
+                                      "type": {
+                                        "elementType": "string"
+                                      }
+                                    },
+                                    "features": {
+                                      "optional": true,
+                                      "type": {
+                                        "elementType": {
+                                          "union": [
+                                            {
+                                              "literal": "cancellation.cooperative"
+                                            },
+                                            {
+                                              "literal": "execution.preemption"
+                                            },
+                                            {
+                                              "literal": "fabric.boundary"
+                                            },
+                                            {
+                                              "literal": "framework.internal-scheduling"
+                                            },
+                                            {
+                                              "literal": "kernel.lifecycle"
+                                            },
+                                            {
+                                              "literal": "props.controlled"
+                                            },
+                                            {
+                                              "literal": "render.adoption"
+                                            },
+                                            {
+                                              "literal": "render.ssr"
+                                            },
+                                            {
+                                              "literal": "resources.cooperative"
+                                            },
+                                            {
+                                              "literal": "surface.lifecycle"
+                                            },
+                                            {
+                                              "literal": "work.bounded"
+                                            },
+                                            {
+                                              "literal": "work.named"
+                                            },
+                                            {
+                                              "literal": "work.pressure-budgets"
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    },
+                                    "resources": {
+                                      "optional": true,
+                                      "type": {
+                                        "elementType": "string"
+                                      }
+                                    },
+                                    "work": {
+                                      "optional": true,
+                                      "type": {
+                                        "elementType": "string"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "literal": null
+                      }
+                    ]
+                  }
+                },
+                "requirements": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "framework": {
+                        "optional": true,
+                        "type": {
+                          "union": [
+                            {
+                              "literal": "angular"
+                            },
+                            {
+                              "literal": "react"
+                            },
+                            {
+                              "literal": "vanilla"
+                            },
+                            {
+                              "literal": "vue"
+                            }
+                          ]
+                        }
+                      },
+                      "optional": {
+                        "optional": true,
+                        "type": {
+                          "fields": {
+                            "events": {
+                              "optional": true,
+                              "type": {
+                                "elementType": "string"
+                              }
+                            },
+                            "features": {
+                              "optional": true,
+                              "type": {
+                                "elementType": {
+                                  "union": [
+                                    {
+                                      "literal": "cancellation.cooperative"
+                                    },
+                                    {
+                                      "literal": "execution.preemption"
+                                    },
+                                    {
+                                      "literal": "fabric.boundary"
+                                    },
+                                    {
+                                      "literal": "framework.internal-scheduling"
+                                    },
+                                    {
+                                      "literal": "kernel.lifecycle"
+                                    },
+                                    {
+                                      "literal": "props.controlled"
+                                    },
+                                    {
+                                      "literal": "render.adoption"
+                                    },
+                                    {
+                                      "literal": "render.ssr"
+                                    },
+                                    {
+                                      "literal": "resources.cooperative"
+                                    },
+                                    {
+                                      "literal": "surface.lifecycle"
+                                    },
+                                    {
+                                      "literal": "work.bounded"
+                                    },
+                                    {
+                                      "literal": "work.named"
+                                    },
+                                    {
+                                      "literal": "work.pressure-budgets"
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            "resources": {
+                              "optional": true,
+                              "type": {
+                                "elementType": "string"
+                              }
+                            },
+                            "work": {
+                              "optional": true,
+                              "type": {
+                                "elementType": "string"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "required": {
+                        "optional": false,
+                        "type": {
+                          "fields": {
+                            "events": {
+                              "optional": true,
+                              "type": {
+                                "elementType": "string"
+                              }
+                            },
+                            "features": {
+                              "optional": true,
+                              "type": {
+                                "elementType": {
+                                  "union": [
+                                    {
+                                      "literal": "cancellation.cooperative"
+                                    },
+                                    {
+                                      "literal": "execution.preemption"
+                                    },
+                                    {
+                                      "literal": "fabric.boundary"
+                                    },
+                                    {
+                                      "literal": "framework.internal-scheduling"
+                                    },
+                                    {
+                                      "literal": "kernel.lifecycle"
+                                    },
+                                    {
+                                      "literal": "props.controlled"
+                                    },
+                                    {
+                                      "literal": "render.adoption"
+                                    },
+                                    {
+                                      "literal": "render.ssr"
+                                    },
+                                    {
+                                      "literal": "resources.cooperative"
+                                    },
+                                    {
+                                      "literal": "surface.lifecycle"
+                                    },
+                                    {
+                                      "literal": "work.bounded"
+                                    },
+                                    {
+                                      "literal": "work.named"
+                                    },
+                                    {
+                                      "literal": "work.pressure-budgets"
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            "resources": {
+                              "optional": true,
+                              "type": {
+                                "elementType": "string"
+                              }
+                            },
+                            "work": {
+                              "optional": true,
+                              "type": {
+                                "elementType": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "runtimeExecutionVerified": {
+                  "optional": false,
+                  "type": {
+                    "literal": false
+                  }
+                },
+                "stage": {
+                  "optional": false,
+                  "type": {
+                    "literal": "preflight"
+                  }
+                },
+                "status": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "literal": "blocked"
+                      },
+                      {
+                        "literal": "degraded"
+                      },
+                      {
+                        "literal": "matched"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "symbols": [
+            "HostCapabilityNegotiation"
+          ],
+          "evidence": [
+            {
+              "type": "declared-type",
+              "completeness": "complete",
+              "authoritative": true,
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "HostCapabilityNegotiation"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "completeness": "complete",
+          "authoritative": true
+        },
+        {
+          "hash": "sha256:7ea91bd95b15a83de27b0ee1654f8dc49eb2d627bfc5c97383c87b7740ee32f9",
+          "shape": {
+            "fieldCount": 11,
+            "fields": [
+              "capabilities",
+              "framework",
+              "frameworkMatched",
+              "missingOptional",
+              "missingRequired",
+              "ok",
+              "requiredFramework",
+              "requirements",
+              "runtimeExecutionVerified",
+              "stage",
+              "status"
+            ],
+            "signature": "capabilities:unknown|framework:{\"unresolvedReference\":\"framework\"}|frameworkMatched:{\"unresolved\":\"input.framework === undefined || input.framework === framework\"}|missingOptional:unknown|missingRequired:unknown|ok:{\"unresolved\":\"frameworkMatched && satisfied(missingRequired)\"}|requiredFramework:{\"unresolved\":\"input.framework ?? null\"}|requirements:unknown|runtimeExecutionVerified:boolean|stage:string|status:union<union<string>|string>",
+            "normalized": {
+              "fields": {
+                "capabilities": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "framework": {
+                  "optional": false,
+                  "type": {
+                    "unresolvedReference": "framework"
+                  }
+                },
+                "frameworkMatched": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "input.framework === undefined || input.framework === framework"
+                  }
+                },
+                "missingOptional": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "missingRequired": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "ok": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "frameworkMatched && satisfied(missingRequired)"
+                  }
+                },
+                "requiredFramework": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "input.framework ?? null"
+                  }
+                },
+                "requirements": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "runtimeExecutionVerified": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "stage": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "status": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "union": [
+                          "string"
+                        ]
+                      },
+                      "string"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "tools/xtensions/host-capability-negotiation.js"
+          ],
+          "symbols": [
+            "report"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "tools/xtensions/host-capability-negotiation.js",
+              "symbol": "report"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        }
+      ]
+    },
+    {
+      "schemaId": "xtend.xtensions.host-capability-requirements.v1",
+      "familyId": "xtend.xtensions.host-capability-requirements",
+      "version": 1,
+      "kinds": [
+        "runtime-discriminator"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": "sha256:6cdd190c5830a43b00a8c12f40e1dbcb3775457bf0d2671007bbe6fbb87a1de2",
+      "description": "Unreleased A03.4 actual-adapter capability requirements, facts or negotiation contract. Explicit per-host required/optional preflight over real kernel/graph/budget profiles; no invented runtime execution, framework preemption or complete 0.9 acceptance.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "tools/xtensions/runtime-host-controller.d.ts",
+        "symbol": "HostCapabilityRequirements",
+        "definitionType": "typescript-declaration",
+        "role": "definition",
+        "visibility": "internal"
+      },
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "producer",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a03/capability-inspect.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "development/rmtx-a03/capability-inspect.cjs",
+              "symbol": "required"
+            }
+          ]
+        },
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a01/inventory.json",
+            "development/rmtx-a03/capability-inspect.cjs",
+            "development/rmtx-a03/capability-negotiation.md"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "development/rmtx-a01/inventory.json",
+              "pointer": "/"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Types",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/types/xtensions_capability_negotiation.mts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/types/xtensions_capability_negotiation.mts",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Xtensions",
+          "role": "producer",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/xtensions/capability-negotiation-acceptance.js",
+            "tests/xtensions/capability-negotiation-maraca-acceptance.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "tests/xtensions/capability-negotiation-acceptance.js",
+              "symbol": "requirements"
+            },
+            {
+              "type": "symbol",
+              "path": "tests/xtensions/capability-negotiation-acceptance.js",
+              "symbol": "runCapabilityNegotiationAcceptance"
+            },
+            {
+              "type": "symbol",
+              "path": "tests/xtensions/capability-negotiation-maraca-acceptance.js",
+              "symbol": "host"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Xtensions",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/xtensions/capability-negotiation-acceptance.js",
+            "tests/xtensions/capability-negotiation-maraca-acceptance.js",
+            "tests/xtensions/xtensions_consumer_package_suite.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/xtensions/capability-negotiation-acceptance.js",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTensions",
+          "role": "definition",
+          "visibility": "internal",
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "HostCapabilityRequirements"
+            }
+          ]
+        },
+        {
+          "application": "XTensions",
+          "role": "producer",
+          "visibility": "internal",
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTensions",
+          "role": "reference",
+          "visibility": "internal",
+          "sourcePaths": [
+            "tools/xtensions/host-capability-negotiation.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tools/xtensions/host-capability-negotiation.js",
+              "symbol": null
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "polymorphic",
+        "decision": "reviewed-a034-actual-adapter-capabilities",
+        "acceptedFingerprints": [
+          "sha256:0c3d77be3711b0d5d66643297c45a5992a0a0c9cccfd7a91dde172e5f4fc8140",
+          "sha256:3c6329c0e8e054493a56520a8ee3ef24850a1d0df3a0240c2f5b7fb9a1062a0e",
+          "sha256:536c936e4befbd25a96d4e67cb55e306cf689fc19a2f0e00352f5ebc892e78dd",
+          "sha256:cac82b9db9558844e4009bf7c49334dc7d68186620e71e1ff3274dcac92ca3dd"
+        ],
+        "authoritativeFingerprints": [
+          "sha256:536c936e4befbd25a96d4e67cb55e306cf689fc19a2f0e00352f5ebc892e78dd"
+        ],
+        "releasedFingerprintSetHash": "sha256:6cdd190c5830a43b00a8c12f40e1dbcb3775457bf0d2671007bbe6fbb87a1de2",
+        "rationale": "Scoped A03.4 development review: explicit v6 React/Vue hosts negotiate required and optional actual implementation features and captured work/resource/event grants before kernel admission, provider loading or graph acquisition. Capability v2 and dedicated requirements/negotiation contracts remain separate from static registry/load decisions. Registry API 2.4 accepts version-matched v2-v6 suppliers; all existing authoritative/released fingerprints and native Kernel/Surface ABIs are preserved. The explicit React/Vue path is implemented; automatic A04 composition, broader frameworks and full 0.9 acceptance remain pending. See development/rmtx-a03/capability-negotiation.md."
+      },
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:0c3d77be3711b0d5d66643297c45a5992a0a0c9cccfd7a91dde172e5f4fc8140",
+          "shape": {
+            "fieldCount": 1,
+            "fields": [
+              "required"
+            ],
+            "signature": "required:{events:array<string>,features:array<string>,resources:array<string>,work:array<string>}",
+            "normalized": {
+              "fields": {
+                "required": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "events": {
+                        "optional": false,
+                        "type": {
+                          "array": [
+                            "string"
+                          ]
+                        }
+                      },
+                      "features": {
+                        "optional": false,
+                        "type": {
+                          "array": [
+                            "string"
+                          ]
+                        }
+                      },
+                      "resources": {
+                        "optional": false,
+                        "type": {
+                          "array": [
+                            "string"
+                          ]
+                        }
+                      },
+                      "work": {
+                        "optional": false,
+                        "type": {
+                          "array": [
+                            "string"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "development/rmtx-a03/capability-inspect.cjs"
+          ],
+          "symbols": [
+            "required"
+          ],
+          "evidence": [
+            {
+              "type": "docs",
+              "completeness": "complete",
+              "authoritative": false,
+              "path": "development/rmtx-a03/capability-inspect.cjs",
+              "symbol": "required"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
+          ],
+          "completeness": "complete",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:3c6329c0e8e054493a56520a8ee3ef24850a1d0df3a0240c2f5b7fb9a1062a0e",
+          "shape": {
+            "fieldCount": 2,
+            "fields": [
+              "framework",
+              "required"
+            ],
+            "signature": "framework:string|required:{events:array<string>,features:union<array<string>|array<string>>,work:array<string>}",
+            "normalized": {
+              "fields": {
+                "framework": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "required": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "events": {
+                        "optional": false,
+                        "type": {
+                          "array": [
+                            "string"
+                          ]
+                        }
+                      },
+                      "features": {
+                        "optional": false,
+                        "type": {
+                          "union": [
+                            {
+                              "array": [
+                                "string"
+                              ]
+                            },
+                            {
+                              "array": [
+                                "string"
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      "work": {
+                        "optional": false,
+                        "type": {
+                          "array": [
+                            "string"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "unresolvedSpreads": [
+                {
+                  "union": [
+                    {
+                      "fields": {
+                        "optional": {
+                          "optional": false,
+                          "type": {
+                            "fields": {
+                              "features": {
+                                "optional": false,
+                                "type": {
+                                  "array": [
+                                    "string"
+                                  ]
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "fields": {}
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "sourcePaths": [
+            "tests/xtensions/capability-negotiation-maraca-acceptance.js"
+          ],
+          "symbols": [
+            "host"
+          ],
+          "evidence": [
+            {
+              "type": "test",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "tests/xtensions/capability-negotiation-maraca-acceptance.js",
+              "symbol": "host"
+            }
+          ],
+          "evidenceTypes": [
+            "test"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:536c936e4befbd25a96d4e67cb55e306cf689fc19a2f0e00352f5ebc892e78dd",
+          "shape": {
+            "fieldCount": 3,
+            "fields": [
+              "framework",
+              "optional",
+              "required"
+            ],
+            "signature": "framework?:union<literal<\"angular\">|literal<\"react\">|literal<\"vanilla\">|literal<\"vue\">>|optional?:{events?:array<string>,features?:array<union<literal<\"cancellation.cooperative\">|literal<\"execution.preemption\">|literal<\"fabric.boundary\">|literal<\"framework.internal-scheduling\">|literal<\"kernel.lifecycle\">|literal<\"props.controlled\">|literal<\"render.adoption\">|literal<\"render.ssr\">|literal<\"resources.cooperative\">|literal<\"surface.lifecycle\">|literal<\"work.bounded\">|literal<\"work.named\">|literal<\"work.pressure-budgets\">>>,resources?:array<string>,work?:array<string>}|required:{events?:array<string>,features?:array<union<literal<\"cancellation.cooperative\">|literal<\"execution.preemption\">|literal<\"fabric.boundary\">|literal<\"framework.internal-scheduling\">|literal<\"kernel.lifecycle\">|literal<\"props.controlled\">|literal<\"render.adoption\">|literal<\"render.ssr\">|literal<\"resources.cooperative\">|literal<\"surface.lifecycle\">|literal<\"work.bounded\">|literal<\"work.named\">|literal<\"work.pressure-budgets\">>>,resources?:array<string>,work?:array<string>}",
+            "normalized": {
+              "fields": {
+                "framework": {
+                  "optional": true,
+                  "type": {
+                    "union": [
+                      {
+                        "literal": "angular"
+                      },
+                      {
+                        "literal": "react"
+                      },
+                      {
+                        "literal": "vanilla"
+                      },
+                      {
+                        "literal": "vue"
+                      }
+                    ]
+                  }
+                },
+                "optional": {
+                  "optional": true,
+                  "type": {
+                    "fields": {
+                      "events": {
+                        "optional": true,
+                        "type": {
+                          "elementType": "string"
+                        }
+                      },
+                      "features": {
+                        "optional": true,
+                        "type": {
+                          "elementType": {
+                            "union": [
+                              {
+                                "literal": "cancellation.cooperative"
+                              },
+                              {
+                                "literal": "execution.preemption"
+                              },
+                              {
+                                "literal": "fabric.boundary"
+                              },
+                              {
+                                "literal": "framework.internal-scheduling"
+                              },
+                              {
+                                "literal": "kernel.lifecycle"
+                              },
+                              {
+                                "literal": "props.controlled"
+                              },
+                              {
+                                "literal": "render.adoption"
+                              },
+                              {
+                                "literal": "render.ssr"
+                              },
+                              {
+                                "literal": "resources.cooperative"
+                              },
+                              {
+                                "literal": "surface.lifecycle"
+                              },
+                              {
+                                "literal": "work.bounded"
+                              },
+                              {
+                                "literal": "work.named"
+                              },
+                              {
+                                "literal": "work.pressure-budgets"
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      "resources": {
+                        "optional": true,
+                        "type": {
+                          "elementType": "string"
+                        }
+                      },
+                      "work": {
+                        "optional": true,
+                        "type": {
+                          "elementType": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "required": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "events": {
+                        "optional": true,
+                        "type": {
+                          "elementType": "string"
+                        }
+                      },
+                      "features": {
+                        "optional": true,
+                        "type": {
+                          "elementType": {
+                            "union": [
+                              {
+                                "literal": "cancellation.cooperative"
+                              },
+                              {
+                                "literal": "execution.preemption"
+                              },
+                              {
+                                "literal": "fabric.boundary"
+                              },
+                              {
+                                "literal": "framework.internal-scheduling"
+                              },
+                              {
+                                "literal": "kernel.lifecycle"
+                              },
+                              {
+                                "literal": "props.controlled"
+                              },
+                              {
+                                "literal": "render.adoption"
+                              },
+                              {
+                                "literal": "render.ssr"
+                              },
+                              {
+                                "literal": "resources.cooperative"
+                              },
+                              {
+                                "literal": "surface.lifecycle"
+                              },
+                              {
+                                "literal": "work.bounded"
+                              },
+                              {
+                                "literal": "work.named"
+                              },
+                              {
+                                "literal": "work.pressure-budgets"
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      "resources": {
+                        "optional": true,
+                        "type": {
+                          "elementType": "string"
+                        }
+                      },
+                      "work": {
+                        "optional": true,
+                        "type": {
+                          "elementType": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "symbols": [
+            "HostCapabilityRequirements"
+          ],
+          "evidence": [
+            {
+              "type": "declared-type",
+              "completeness": "complete",
+              "authoritative": true,
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "HostCapabilityRequirements"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "completeness": "complete",
+          "authoritative": true
+        },
+        {
+          "hash": "sha256:cac82b9db9558844e4009bf7c49334dc7d68186620e71e1ff3274dcac92ca3dd",
+          "shape": {
+            "fieldCount": 1,
+            "fields": [
+              "required"
+            ],
+            "signature": "required:{\"unresolvedReference\":\"required\"}",
+            "normalized": {
+              "fields": {
+                "required": {
+                  "optional": false,
+                  "type": {
+                    "unresolvedReference": "required"
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "tests/xtensions/capability-negotiation-acceptance.js"
+          ],
+          "symbols": [
+            "requirements"
+          ],
+          "evidence": [
+            {
+              "type": "test",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "tests/xtensions/capability-negotiation-acceptance.js",
+              "symbol": "requirements"
+            }
+          ],
+          "evidenceTypes": [
+            "test"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        }
+      ]
+    },
+    {
       "aliasOf": null,
       "canonicalDefinition": {
         "path": "tools/xtensions/host-controller-contract.js",
@@ -937703,11 +939322,11 @@
       ],
       "status": "active",
       "lifecycle": {
-        "status": "active",
+        "status": "deprecated",
         "rollout": "planned"
       },
       "aliasOf": null,
-      "replacedBy": null,
+      "replacedBy": "xtend.xtensions.react-runtime-adapter.v6",
       "releasedFingerprintSetHash": null,
       "description": "Unreleased A03.3 bounded-work/pressure-budget contract. Explicit native admission and Fabric execution, logical cancellation and cooperative chunks; no framework preemption or full 0.9 acceptance.",
       "descriptionStatus": "curated",
@@ -937762,6 +939381,81 @@
         "authoritativeFingerprints": [],
         "releasedFingerprintSetHash": null,
         "rationale": "Scoped A03.3 development review: v5 graph-bound hosts add bounded named-work admission, same-grant explicit replacement and live kernel-pressure cooperative chunk ceilings through mandatory Fabric. Registry API 2.3 accepts version-matched v2-v5 suppliers. Existing authoritative/released fingerprints and native Kernel/Surface ABIs remain unchanged. Automatic provider composition, capability negotiation and complete 0.9 feature acceptance remain pending. See development/rmtx-a03/work-budgets.md."
+      },
+      "shapeFingerprints": [],
+      "replacementDecision": {
+        "rationale": "A03.4 adds explicit capabilityRequirements with a separate v6 host and v2 actual-capability report.",
+        "compatibility": "Calls without capabilityRequirements retain their complete v2-v5 host contracts and the original v1 capability report. New v6 requirements do not grant authority or replace provider/peer/lifecycle checks. Legacy declarations and all existing authority/released fingerprints are preserved."
+      }
+    },
+    {
+      "schemaId": "xtend.xtensions.react-runtime-adapter.v6",
+      "familyId": "xtend.xtensions.react-runtime-adapter",
+      "version": 6,
+      "kinds": [
+        "identifier-only"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": null,
+      "description": "Unreleased A03.4 actual-adapter capability requirements, facts or negotiation contract. Explicit per-host required/optional preflight over real kernel/graph/budget profiles; no invented runtime execution, framework preemption or complete 0.9 acceptance.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "tools/xtensions/react-runtime-adapter.d.ts",
+        "symbol": null,
+        "definitionType": "typescript-declaration",
+        "role": "reference",
+        "visibility": "internal"
+      },
+      "usages": [
+        {
+          "application": "XTend Tests: Types",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/types/xtensions_capability_negotiation.mts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/types/xtensions_capability_negotiation.mts",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTensions",
+          "role": "reference",
+          "visibility": "internal",
+          "sourcePaths": [
+            "tools/xtensions/react-runtime-adapter.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-compiler/xtensions/react-runtime-adapter",
+              "path": "tools/xtensions/react-runtime-adapter.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/xtensions/react-runtime-adapter",
+              "path": "tools/xtensions/react-runtime-adapter.d.ts"
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "unresolved",
+        "decision": "reviewed-a034-actual-adapter-capabilities",
+        "acceptedFingerprints": [],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rationale": "Scoped A03.4 development review: explicit v6 React/Vue hosts negotiate required and optional actual implementation features and captured work/resource/event grants before kernel admission, provider loading or graph acquisition. Capability v2 and dedicated requirements/negotiation contracts remain separate from static registry/load decisions. Registry API 2.4 accepts version-matched v2-v6 suppliers; all existing authoritative/released fingerprints and native Kernel/Surface ABIs are preserved. The explicit React/Vue path is implemented; automatic A04 composition, broader frameworks and full 0.9 acceptance remain pending. See development/rmtx-a03/capability-negotiation.md."
       },
       "shapeFingerprints": []
     },
@@ -944021,11 +945715,11 @@
         "runtime-discriminator"
       ],
       "lifecycle": {
-        "rollout": "planned",
-        "status": "active"
+        "status": "deprecated",
+        "rollout": "planned"
       },
       "releasedFingerprintSetHash": "sha256:1c54f9b049988ae7df4d63f3d2649c225654dd5d0801a209a8e6b8f7a521b29c",
-      "replacedBy": null,
+      "replacedBy": "xtend.xtensions.runtime-capabilities.v2",
       "schemaId": "xtend.xtensions.runtime-capabilities.v1",
       "shapeFingerprints": [
         {
@@ -944329,69 +946023,526 @@
       "usages": [
         {
           "application": "XTend Development Contracts",
-          "interfaceReferences": [
-            {
-              "path": "development/rmtx-a03/evidence.json",
-              "pointer": "/capabilities",
-              "type": "json-pointer"
-            }
-          ],
           "role": "documentation",
+          "visibility": "docs",
           "sourcePaths": [
             "development/rmtx-a01/inventory.json",
             "development/rmtx-a03/README.md",
             "development/rmtx-a03/evidence.json"
           ],
-          "visibility": "docs"
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "development/rmtx-a03/evidence.json",
+              "pointer": "/capabilities"
+            }
+          ]
         },
         {
           "application": "XTend Tests: Xtensions",
-          "interfaceReferences": [
-            {
-              "path": "tests/xtensions/kernel-runtime-acceptance.js",
-              "symbol": null,
-              "type": "repo-symbol"
-            }
-          ],
           "role": "assertion",
+          "visibility": "test",
           "sourcePaths": [
             "tests/xtensions/kernel-runtime-acceptance.js"
           ],
-          "visibility": "test"
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/xtensions/kernel-runtime-acceptance.js",
+              "symbol": null
+            }
+          ]
         },
         {
           "application": "XTensions",
-          "interfaceReferences": [
-            {
-              "path": "tools/xtensions/runtime-host-controller.d.ts",
-              "symbol": "RuntimeKernelCapabilities",
-              "type": "symbol"
-            }
-          ],
           "role": "definition",
+          "visibility": "internal",
           "sourcePaths": [
             "tools/xtensions/runtime-host-controller.d.ts"
           ],
-          "visibility": "internal"
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "RuntimeKernelCapabilities"
+            }
+          ]
         },
         {
           "application": "XTensions",
-          "interfaceReferences": [
-            {
-              "path": "tools/xtensions/kernel-work-scope.js",
-              "symbol": "createKernelWorkScope",
-              "type": "symbol"
-            }
-          ],
           "role": "producer",
+          "visibility": "internal",
           "sourcePaths": [
             "tools/xtensions/kernel-work-scope.js",
             "tools/xtensions/runtime-host-controller.d.ts"
           ],
-          "visibility": "internal"
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "tools/xtensions/kernel-work-scope.js",
+              "symbol": "createKernelWorkScope"
+            }
+          ]
+        },
+        {
+          "application": "XTensions",
+          "role": "reference",
+          "visibility": "internal",
+          "sourcePaths": [
+            "tools/xtensions/host-capability-negotiation.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tools/xtensions/host-capability-negotiation.js",
+              "symbol": null
+            }
+          ]
         }
       ],
-      "version": 1
+      "version": 1,
+      "replacementDecision": {
+        "rationale": "A03.4 adds explicit capabilityRequirements with a separate v6 host and v2 actual-capability report.",
+        "compatibility": "Calls without capabilityRequirements retain their complete v2-v5 host contracts and the original v1 capability report. New v6 requirements do not grant authority or replace provider/peer/lifecycle checks. Legacy declarations and all existing authority/released fingerprints are preserved."
+      }
+    },
+    {
+      "schemaId": "xtend.xtensions.runtime-capabilities.v2",
+      "familyId": "xtend.xtensions.runtime-capabilities",
+      "version": 2,
+      "kinds": [
+        "event-id",
+        "runtime-discriminator"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": "sha256:bce84c05af28706f2b585ba46d73c5bc8fdac9b7dbaaa400aefae2323f75bbe7",
+      "description": "Unreleased A03.4 actual-adapter capability requirements, facts or negotiation contract. Explicit per-host required/optional preflight over real kernel/graph/budget profiles; no invented runtime execution, framework preemption or complete 0.9 acceptance.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "tools/xtensions/host-capability-negotiation.js",
+        "symbol": null,
+        "definitionType": "object-shape",
+        "role": "producer",
+        "visibility": "internal"
+      },
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a01/inventory.json",
+            "development/rmtx-a03/capability-inspect.cjs",
+            "development/rmtx-a03/capability-negotiation.md"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "development/rmtx-a01/inventory.json",
+              "pointer": "/"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Types",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/types/xtensions_capability_negotiation.mts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/types/xtensions_capability_negotiation.mts",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Xtensions",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/xtensions/capability-negotiation-acceptance.js",
+            "tests/xtensions/xtensions_consumer_package_suite.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/xtensions/capability-negotiation-acceptance.js",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTensions",
+          "role": "definition",
+          "visibility": "internal",
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "NegotiatedRuntimeCapabilities"
+            }
+          ]
+        },
+        {
+          "application": "XTensions",
+          "role": "producer",
+          "visibility": "internal",
+          "sourcePaths": [
+            "tools/xtensions/host-capability-negotiation.js",
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "tools/xtensions/host-capability-negotiation.js",
+              "symbol": "capabilities"
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "polymorphic",
+        "decision": "reviewed-a034-actual-adapter-capabilities",
+        "acceptedFingerprints": [
+          "sha256:6c9bf88a732d8a080c0f0fd449e16bba74d43097a1471f49447b100843255dbb",
+          "sha256:f277516577a2fdab4217025f7e9ae8c35cab6a8f2c20b25a449dc1a182ec5bdb"
+        ],
+        "authoritativeFingerprints": [
+          "sha256:f277516577a2fdab4217025f7e9ae8c35cab6a8f2c20b25a449dc1a182ec5bdb"
+        ],
+        "releasedFingerprintSetHash": "sha256:bce84c05af28706f2b585ba46d73c5bc8fdac9b7dbaaa400aefae2323f75bbe7",
+        "rationale": "Scoped A03.4 development review: explicit v6 React/Vue hosts negotiate required and optional actual implementation features and captured work/resource/event grants before kernel admission, provider loading or graph acquisition. Capability v2 and dedicated requirements/negotiation contracts remain separate from static registry/load decisions. Registry API 2.4 accepts version-matched v2-v6 suppliers; all existing authoritative/released fingerprints and native Kernel/Surface ABIs are preserved. The explicit React/Vue path is implemented; automatic A04 composition, broader frameworks and full 0.9 acceptance remain pending. See development/rmtx-a03/capability-negotiation.md."
+      },
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:6c9bf88a732d8a080c0f0fd449e16bba74d43097a1471f49447b100843255dbb",
+          "shape": {
+            "fieldCount": 4,
+            "fields": [
+              "features",
+              "framework",
+              "grants",
+              "profile"
+            ],
+            "signature": "features:{cancellation.cooperative:boolean,execution.preemption:boolean,fabric.boundary:boolean,framework.internal-scheduling:boolean,kernel.lifecycle:boolean,props.controlled:boolean,render.adoption:boolean,render.ssr:boolean,resources.cooperative:boolean,surface.lifecycle:{\"unresolvedReference\":\"graph\"},work.bounded:{\"unresolvedReference\":\"budget\"},work.named:boolean,work.pressure-budgets:{\"unresolvedReference\":\"budget\"}}|framework:{\"unresolvedReference\":\"framework\"}|grants:{events:unknown,resources:unknown,work:array<{\"unresolved\":\"...kernelCapabilities.namedWork\"}>}|profile:union<union<string>|string>",
+            "normalized": {
+              "fields": {
+                "features": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "cancellation.cooperative": {
+                        "optional": false,
+                        "type": "boolean"
+                      },
+                      "execution.preemption": {
+                        "optional": false,
+                        "type": "boolean"
+                      },
+                      "fabric.boundary": {
+                        "optional": false,
+                        "type": "boolean"
+                      },
+                      "framework.internal-scheduling": {
+                        "optional": false,
+                        "type": "boolean"
+                      },
+                      "kernel.lifecycle": {
+                        "optional": false,
+                        "type": "boolean"
+                      },
+                      "props.controlled": {
+                        "optional": false,
+                        "type": "boolean"
+                      },
+                      "render.adoption": {
+                        "optional": false,
+                        "type": "boolean"
+                      },
+                      "render.ssr": {
+                        "optional": false,
+                        "type": "boolean"
+                      },
+                      "resources.cooperative": {
+                        "optional": false,
+                        "type": "boolean"
+                      },
+                      "surface.lifecycle": {
+                        "optional": false,
+                        "type": {
+                          "unresolvedReference": "graph"
+                        }
+                      },
+                      "work.bounded": {
+                        "optional": false,
+                        "type": {
+                          "unresolvedReference": "budget"
+                        }
+                      },
+                      "work.named": {
+                        "optional": false,
+                        "type": "boolean"
+                      },
+                      "work.pressure-budgets": {
+                        "optional": false,
+                        "type": {
+                          "unresolvedReference": "budget"
+                        }
+                      }
+                    }
+                  }
+                },
+                "framework": {
+                  "optional": false,
+                  "type": {
+                    "unresolvedReference": "framework"
+                  }
+                },
+                "grants": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "events": {
+                        "optional": false,
+                        "type": "unknown"
+                      },
+                      "resources": {
+                        "optional": false,
+                        "type": "unknown"
+                      },
+                      "work": {
+                        "optional": false,
+                        "type": {
+                          "array": [
+                            {
+                              "unresolved": "...kernelCapabilities.namedWork"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                },
+                "profile": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "union": [
+                          "string"
+                        ]
+                      },
+                      "string"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "tools/xtensions/host-capability-negotiation.js"
+          ],
+          "symbols": [
+            "capabilities"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "tools/xtensions/host-capability-negotiation.js",
+              "symbol": "capabilities"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:f277516577a2fdab4217025f7e9ae8c35cab6a8f2c20b25a449dc1a182ec5bdb",
+          "shape": {
+            "fieldCount": 4,
+            "fields": [
+              "features",
+              "framework",
+              "grants",
+              "profile"
+            ],
+            "signature": "features:{cancellation.cooperative:literal<true>,execution.preemption:literal<false>,fabric.boundary:literal<true>,framework.internal-scheduling:literal<false>,kernel.lifecycle:literal<true>,props.controlled:literal<true>,render.adoption:literal<false>,render.ssr:literal<false>,resources.cooperative:literal<true>,surface.lifecycle:boolean,work.bounded:boolean,work.named:literal<true>,work.pressure-budgets:boolean}|framework:union<literal<\"react\">|literal<\"vue\">>|grants:{events:array<string>,resources:array<string>,work:array<string>}|profile:union<literal<\"budget\">|literal<\"graph\">|literal<\"kernel\">>",
+            "normalized": {
+              "fields": {
+                "features": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "cancellation.cooperative": {
+                        "optional": false,
+                        "type": {
+                          "literal": true
+                        }
+                      },
+                      "execution.preemption": {
+                        "optional": false,
+                        "type": {
+                          "literal": false
+                        }
+                      },
+                      "fabric.boundary": {
+                        "optional": false,
+                        "type": {
+                          "literal": true
+                        }
+                      },
+                      "framework.internal-scheduling": {
+                        "optional": false,
+                        "type": {
+                          "literal": false
+                        }
+                      },
+                      "kernel.lifecycle": {
+                        "optional": false,
+                        "type": {
+                          "literal": true
+                        }
+                      },
+                      "props.controlled": {
+                        "optional": false,
+                        "type": {
+                          "literal": true
+                        }
+                      },
+                      "render.adoption": {
+                        "optional": false,
+                        "type": {
+                          "literal": false
+                        }
+                      },
+                      "render.ssr": {
+                        "optional": false,
+                        "type": {
+                          "literal": false
+                        }
+                      },
+                      "resources.cooperative": {
+                        "optional": false,
+                        "type": {
+                          "literal": true
+                        }
+                      },
+                      "surface.lifecycle": {
+                        "optional": false,
+                        "type": "boolean"
+                      },
+                      "work.bounded": {
+                        "optional": false,
+                        "type": "boolean"
+                      },
+                      "work.named": {
+                        "optional": false,
+                        "type": {
+                          "literal": true
+                        }
+                      },
+                      "work.pressure-budgets": {
+                        "optional": false,
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "framework": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "literal": "react"
+                      },
+                      {
+                        "literal": "vue"
+                      }
+                    ]
+                  }
+                },
+                "grants": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "events": {
+                        "optional": false,
+                        "type": {
+                          "elementType": "string"
+                        }
+                      },
+                      "resources": {
+                        "optional": false,
+                        "type": {
+                          "elementType": "string"
+                        }
+                      },
+                      "work": {
+                        "optional": false,
+                        "type": {
+                          "elementType": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "profile": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "literal": "budget"
+                      },
+                      {
+                        "literal": "graph"
+                      },
+                      {
+                        "literal": "kernel"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "symbols": [
+            "NegotiatedRuntimeCapabilities"
+          ],
+          "evidence": [
+            {
+              "type": "declared-type",
+              "completeness": "complete",
+              "authoritative": true,
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "NegotiatedRuntimeCapabilities"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "completeness": "complete",
+          "authoritative": true
+        }
+      ]
     },
     {
       "aliasOf": null,
@@ -947106,11 +949257,11 @@
       ],
       "status": "active",
       "lifecycle": {
-        "status": "active",
+        "status": "deprecated",
         "rollout": "planned"
       },
       "aliasOf": null,
-      "replacedBy": null,
+      "replacedBy": "xtend.xtensions.runtime-host-controller.v6",
       "releasedFingerprintSetHash": "sha256:555ff0ef44a150ab883a0bd9234eeff79f748fc978c8aee99fa37321d863cc09",
       "description": "Unreleased A03.3 bounded-work/pressure-budget contract. Explicit native admission and Fabric execution, logical cancellation and cooperative chunks; no framework preemption or full 0.9 acceptance.",
       "descriptionStatus": "curated",
@@ -947363,6 +949514,276 @@
               "authoritative": true,
               "path": "tools/xtensions/runtime-host-controller.d.ts",
               "symbol": "BudgetRuntimeHostController"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "completeness": "complete",
+          "authoritative": true
+        }
+      ],
+      "replacementDecision": {
+        "rationale": "A03.4 adds explicit capabilityRequirements with a separate v6 host and v2 actual-capability report.",
+        "compatibility": "Calls without capabilityRequirements retain their complete v2-v5 host contracts and the original v1 capability report. New v6 requirements do not grant authority or replace provider/peer/lifecycle checks. Legacy declarations and all existing authority/released fingerprints are preserved."
+      }
+    },
+    {
+      "schemaId": "xtend.xtensions.runtime-host-controller.v6",
+      "familyId": "xtend.xtensions.runtime-host-controller",
+      "version": 6,
+      "kinds": [
+        "identifier-only"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": "sha256:fa2a53fbeb96a719af8a4c58178ca7f561c30099533a993fcfa405f2d70428e6",
+      "description": "Unreleased A03.4 actual-adapter capability requirements, facts or negotiation contract. Explicit per-host required/optional preflight over real kernel/graph/budget profiles; no invented runtime execution, framework preemption or complete 0.9 acceptance.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "tools/xtensions/runtime-host-controller.js",
+        "symbol": "NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA",
+        "definitionType": "constant",
+        "role": "definition",
+        "visibility": "internal"
+      },
+      "usages": [
+        {
+          "application": "XTend Tests: Types",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/types/xtensions_capability_negotiation.mts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/types/xtensions_capability_negotiation.mts",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Xtensions",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/xtensions/capability-negotiation-acceptance.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/xtensions/capability-negotiation-acceptance.js",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTensions",
+          "role": "definition",
+          "visibility": "internal",
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts",
+            "tools/xtensions/runtime-host-controller.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA"
+            },
+            {
+              "type": "symbol",
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "NegotiatedRuntimeHostController"
+            },
+            {
+              "type": "symbol",
+              "path": "tools/xtensions/runtime-host-controller.js",
+              "symbol": "NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA"
+            }
+          ]
+        },
+        {
+          "application": "XTensions",
+          "role": "reference",
+          "visibility": "internal",
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": null
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "single",
+        "decision": "reviewed-a034-actual-adapter-capabilities",
+        "acceptedFingerprints": [
+          "sha256:cd760c798480a841bcf5d574d52e6a37b5dddcc20734b62f449561f3781cf0b3"
+        ],
+        "authoritativeFingerprints": [
+          "sha256:cd760c798480a841bcf5d574d52e6a37b5dddcc20734b62f449561f3781cf0b3"
+        ],
+        "releasedFingerprintSetHash": "sha256:fa2a53fbeb96a719af8a4c58178ca7f561c30099533a993fcfa405f2d70428e6",
+        "rationale": "Scoped A03.4 development review: explicit v6 React/Vue hosts negotiate required and optional actual implementation features and captured work/resource/event grants before kernel admission, provider loading or graph acquisition. Capability v2 and dedicated requirements/negotiation contracts remain separate from static registry/load decisions. Registry API 2.4 accepts version-matched v2-v6 suppliers; all existing authoritative/released fingerprints and native Kernel/Surface ABIs are preserved. The explicit React/Vue path is implemented; automatic A04 composition, broader frameworks and full 0.9 acceptance remain pending. See development/rmtx-a03/capability-negotiation.md."
+      },
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:cd760c798480a841bcf5d574d52e6a37b5dddcc20734b62f449561f3781cf0b3",
+          "shape": {
+            "fieldCount": 17,
+            "fields": [
+              "adapterSchema",
+              "apiVersion",
+              "emit",
+              "framework",
+              "getCapabilities",
+              "getCapabilityNegotiation",
+              "getCleanupRecords",
+              "getEventRecords",
+              "getLifecycleRecords",
+              "mount",
+              "reportError",
+              "resume",
+              "snapshot",
+              "suspend",
+              "unmount",
+              "update",
+              "whenIdle"
+            ],
+            "signature": "adapterSchema:string|apiVersion:literal<\"6.0.0\">|emit:{\"indexedAccess\":{\"index\":{\"literal\":\"emit\"},\"object\":{\"fields\":{\"emit\":{\"optional\":false,\"type\":\"function\"},\"resources\":{\"optional\":false,\"type\":{\"fields\":{\"register\":{\"optional\":false,\"type\":\"function\"}}}}}}}}|framework:union<literal<\"react\">|literal<\"vue\">>|getCapabilities:function|getCapabilityNegotiation:function|getCleanupRecords:function|getEventRecords:function|getLifecycleRecords:function|mount:function|reportError:function|resume:function|snapshot:function|suspend:function|unmount:function|update:function|whenIdle:function",
+            "normalized": {
+              "fields": {
+                "adapterSchema": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "apiVersion": {
+                  "optional": false,
+                  "type": {
+                    "literal": "6.0.0"
+                  }
+                },
+                "emit": {
+                  "optional": false,
+                  "type": {
+                    "indexedAccess": {
+                      "index": {
+                        "literal": "emit"
+                      },
+                      "object": {
+                        "fields": {
+                          "emit": {
+                            "optional": false,
+                            "type": "function"
+                          },
+                          "resources": {
+                            "optional": false,
+                            "type": {
+                              "fields": {
+                                "register": {
+                                  "optional": false,
+                                  "type": "function"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "framework": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "literal": "react"
+                      },
+                      {
+                        "literal": "vue"
+                      }
+                    ]
+                  }
+                },
+                "getCapabilities": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "getCapabilityNegotiation": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "getCleanupRecords": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "getEventRecords": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "getLifecycleRecords": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "mount": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "reportError": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "resume": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "snapshot": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "suspend": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "unmount": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "update": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "whenIdle": {
+                  "optional": false,
+                  "type": "function"
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "symbols": [
+            "NegotiatedRuntimeHostController"
+          ],
+          "evidence": [
+            {
+              "type": "declared-type",
+              "completeness": "complete",
+              "authoritative": true,
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "NegotiatedRuntimeHostController"
             }
           ],
           "evidenceTypes": [
@@ -959191,6 +961612,7 @@
           "role": "assertion",
           "visibility": "test",
           "sourcePaths": [
+            "tests/types/xtensions_capability_negotiation.mts",
             "tests/types/xtensions_kernel_runtime.mts",
             "tests/types/xtensions_resource_graph.mts",
             "tests/types/xtensions_work_budget.mts"
@@ -959198,7 +961620,7 @@
           "interfaceReferences": [
             {
               "type": "repo-symbol",
-              "path": "tests/types/xtensions_kernel_runtime.mts",
+              "path": "tests/types/xtensions_capability_negotiation.mts",
               "symbol": null
             }
           ]
@@ -980437,11 +982859,11 @@
       ],
       "status": "active",
       "lifecycle": {
-        "status": "active",
+        "status": "deprecated",
         "rollout": "planned"
       },
       "aliasOf": null,
-      "replacedBy": null,
+      "replacedBy": "xtend.xtensions.vue-runtime-adapter.v6",
       "releasedFingerprintSetHash": null,
       "description": "Unreleased A03.3 bounded-work/pressure-budget contract. Explicit native admission and Fabric execution, logical cancellation and cooperative chunks; no framework preemption or full 0.9 acceptance.",
       "descriptionStatus": "curated",
@@ -980481,6 +982903,66 @@
         "authoritativeFingerprints": [],
         "releasedFingerprintSetHash": null,
         "rationale": "Scoped A03.3 development review: v5 graph-bound hosts add bounded named-work admission, same-grant explicit replacement and live kernel-pressure cooperative chunk ceilings through mandatory Fabric. Registry API 2.3 accepts version-matched v2-v5 suppliers. Existing authoritative/released fingerprints and native Kernel/Surface ABIs remain unchanged. Automatic provider composition, capability negotiation and complete 0.9 feature acceptance remain pending. See development/rmtx-a03/work-budgets.md."
+      },
+      "shapeFingerprints": [],
+      "replacementDecision": {
+        "rationale": "A03.4 adds explicit capabilityRequirements with a separate v6 host and v2 actual-capability report.",
+        "compatibility": "Calls without capabilityRequirements retain their complete v2-v5 host contracts and the original v1 capability report. New v6 requirements do not grant authority or replace provider/peer/lifecycle checks. Legacy declarations and all existing authority/released fingerprints are preserved."
+      }
+    },
+    {
+      "schemaId": "xtend.xtensions.vue-runtime-adapter.v6",
+      "familyId": "xtend.xtensions.vue-runtime-adapter",
+      "version": 6,
+      "kinds": [
+        "identifier-only"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": null,
+      "description": "Unreleased A03.4 actual-adapter capability requirements, facts or negotiation contract. Explicit per-host required/optional preflight over real kernel/graph/budget profiles; no invented runtime execution, framework preemption or complete 0.9 acceptance.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "tools/xtensions/vue-runtime-adapter.d.ts",
+        "symbol": null,
+        "definitionType": "typescript-declaration",
+        "role": "reference",
+        "visibility": "internal"
+      },
+      "usages": [
+        {
+          "application": "XTensions",
+          "role": "reference",
+          "visibility": "internal",
+          "sourcePaths": [
+            "tools/xtensions/vue-runtime-adapter.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-compiler/xtensions/vue-runtime-adapter",
+              "path": "tools/xtensions/vue-runtime-adapter.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/xtensions/vue-runtime-adapter",
+              "path": "tools/xtensions/vue-runtime-adapter.d.ts"
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "unresolved",
+        "decision": "reviewed-a034-actual-adapter-capabilities",
+        "acceptedFingerprints": [],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rationale": "Scoped A03.4 development review: explicit v6 React/Vue hosts negotiate required and optional actual implementation features and captured work/resource/event grants before kernel admission, provider loading or graph acquisition. Capability v2 and dedicated requirements/negotiation contracts remain separate from static registry/load decisions. Registry API 2.4 accepts version-matched v2-v6 suppliers; all existing authoritative/released fingerprints and native Kernel/Surface ABIs are preserved. The explicit React/Vue path is implemented; automatic A04 composition, broader frameworks and full 0.9 acceptance remain pending. See development/rmtx-a03/capability-negotiation.md."
       },
       "shapeFingerprints": []
     },
@@ -981179,12 +983661,18 @@
           "role": "producer",
           "visibility": "docs",
           "sourcePaths": [
-            "development/rmtx-a03/budget-inspect.cjs"
+            "development/rmtx-a03/budget-inspect.cjs",
+            "development/rmtx-a03/capability-inspect.cjs"
           ],
           "interfaceReferences": [
             {
               "type": "symbol",
               "path": "development/rmtx-a03/budget-inspect.cjs",
+              "symbol": "budget"
+            },
+            {
+              "type": "symbol",
+              "path": "development/rmtx-a03/capability-inspect.cjs",
               "symbol": "budget"
             }
           ]
@@ -981196,6 +983684,7 @@
           "sourcePaths": [
             "development/rmtx-a01/inventory.json",
             "development/rmtx-a03/budget-inspect.cjs",
+            "development/rmtx-a03/capability-inspect.cjs",
             "development/rmtx-a03/work-budgets.md"
           ],
           "interfaceReferences": [
@@ -981211,12 +983700,13 @@
           "role": "assertion",
           "visibility": "test",
           "sourcePaths": [
+            "tests/types/xtensions_capability_negotiation.mts",
             "tests/types/xtensions_work_budget.mts"
           ],
           "interfaceReferences": [
             {
               "type": "repo-symbol",
-              "path": "tests/types/xtensions_work_budget.mts",
+              "path": "tests/types/xtensions_capability_negotiation.mts",
               "symbol": null
             }
           ]
@@ -981226,10 +983716,22 @@
           "role": "producer",
           "visibility": "test",
           "sourcePaths": [
+            "tests/xtensions/capability-negotiation-acceptance.js",
+            "tests/xtensions/capability-negotiation-maraca-acceptance.js",
             "tests/xtensions/work-budget-acceptance.js",
             "tests/xtensions/work-budget-maraca-acceptance.js"
           ],
           "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "tests/xtensions/capability-negotiation-acceptance.js",
+              "symbol": "config"
+            },
+            {
+              "type": "symbol",
+              "path": "tests/xtensions/capability-negotiation-maraca-acceptance.js",
+              "symbol": "host"
+            },
             {
               "type": "symbol",
               "path": "tests/xtensions/work-budget-acceptance.js",
@@ -981247,6 +983749,8 @@
           "role": "assertion",
           "visibility": "test",
           "sourcePaths": [
+            "tests/xtensions/capability-negotiation-acceptance.js",
+            "tests/xtensions/capability-negotiation-maraca-acceptance.js",
             "tests/xtensions/work-budget-acceptance.js",
             "tests/xtensions/work-budget-maraca-acceptance.js",
             "tests/xtensions/xtensions_consumer_package_suite.js"
@@ -981254,7 +983758,7 @@
           "interfaceReferences": [
             {
               "type": "repo-symbol",
-              "path": "tests/xtensions/work-budget-acceptance.js",
+              "path": "tests/xtensions/capability-negotiation-acceptance.js",
               "symbol": null
             }
           ]
@@ -981307,16 +983811,18 @@
       ],
       "shapePolicy": {
         "mode": "polymorphic",
-        "decision": "reviewed-a033-bounded-pressure-budgets",
+        "decision": "reviewed-a034-actual-adapter-capabilities",
         "acceptedFingerprints": [
           "sha256:26dd53bd6206b4b1958846519286e82cef1f406c406b2f2e116c74f3cb094331",
           "sha256:85842470cc491ab47c99250ad4d3f011afd18f78387264530fac30dd185a8f87",
           "sha256:8ca0e09871e26d9388d9b1d772cc8d5db6a277e682e8b88a853c606fe6b5bfc7",
+          "sha256:99d4cf2c00acbf2aee600736da6061b4d23ed91508f932c8be39947950223792",
+          "sha256:c1c13d7b8c99e1584233f557095dbf44cd4fefe10ed3cf7c209de19192b4b26b",
           "sha256:c30cc4659fcf459b90388a1e7e9402edc690049b2dd8d47ceb459d8342a7891f"
         ],
         "authoritativeFingerprints": [],
         "releasedFingerprintSetHash": null,
-        "rationale": "Scoped A03.3 development review: v5 graph-bound hosts add bounded named-work admission, same-grant explicit replacement and live kernel-pressure cooperative chunk ceilings through mandatory Fabric. Registry API 2.3 accepts version-matched v2-v5 suppliers. Existing authoritative/released fingerprints and native Kernel/Surface ABIs remain unchanged. Automatic provider composition, capability negotiation and complete 0.9 feature acceptance remain pending. See development/rmtx-a03/work-budgets.md."
+        "rationale": "Scoped A03.4 development review: explicit v6 React/Vue hosts negotiate required and optional actual implementation features and captured work/resource/event grants before kernel admission, provider loading or graph acquisition. Capability v2 and dedicated requirements/negotiation contracts remain separate from static registry/load decisions. Registry API 2.4 accepts version-matched v2-v6 suppliers; all existing authoritative/released fingerprints and native Kernel/Surface ABIs are preserved. The explicit React/Vue path is implemented; automatic A04 composition, broader frameworks and full 0.9 acceptance remain pending. See development/rmtx-a03/capability-negotiation.md."
       },
       "shapeFingerprints": [
         {
@@ -981577,6 +984083,7 @@
             }
           },
           "sourcePaths": [
+            "tests/xtensions/capability-negotiation-maraca-acceptance.js",
             "tests/xtensions/work-budget-maraca-acceptance.js"
           ],
           "symbols": [
@@ -981587,12 +984094,151 @@
               "type": "test",
               "completeness": "complete",
               "authoritative": false,
+              "path": "tests/xtensions/capability-negotiation-maraca-acceptance.js",
+              "symbol": "host"
+            },
+            {
+              "type": "test",
+              "completeness": "complete",
+              "authoritative": false,
               "path": "tests/xtensions/work-budget-maraca-acceptance.js",
               "symbol": "host"
             }
           ],
           "evidenceTypes": [
             "test"
+          ],
+          "completeness": "complete",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:99d4cf2c00acbf2aee600736da6061b4d23ed91508f932c8be39947950223792",
+          "shape": {
+            "fieldCount": 2,
+            "fields": [
+              "maxPending",
+              "work"
+            ],
+            "signature": "maxPending:number|work:{scan:{maxPending:number,pressure:{critical:{admission:string}}}}",
+            "normalized": {
+              "fields": {
+                "maxPending": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "work": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "scan": {
+                        "optional": false,
+                        "type": {
+                          "fields": {
+                            "maxPending": {
+                              "optional": false,
+                              "type": "number"
+                            },
+                            "pressure": {
+                              "optional": false,
+                              "type": {
+                                "fields": {
+                                  "critical": {
+                                    "optional": false,
+                                    "type": {
+                                      "fields": {
+                                        "admission": {
+                                          "optional": false,
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "tests/xtensions/capability-negotiation-acceptance.js"
+          ],
+          "symbols": [
+            "config"
+          ],
+          "evidence": [
+            {
+              "type": "test",
+              "completeness": "complete",
+              "authoritative": false,
+              "path": "tests/xtensions/capability-negotiation-acceptance.js",
+              "symbol": "config"
+            }
+          ],
+          "evidenceTypes": [
+            "test"
+          ],
+          "completeness": "complete",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:c1c13d7b8c99e1584233f557095dbf44cd4fefe10ed3cf7c209de19192b4b26b",
+          "shape": {
+            "fieldCount": 2,
+            "fields": [
+              "maxPending",
+              "work"
+            ],
+            "signature": "maxPending:number|work:{scan:{maxPending:number}}",
+            "normalized": {
+              "fields": {
+                "maxPending": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "work": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "scan": {
+                        "optional": false,
+                        "type": {
+                          "fields": {
+                            "maxPending": {
+                              "optional": false,
+                              "type": "number"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "development/rmtx-a03/capability-inspect.cjs"
+          ],
+          "symbols": [
+            "budget"
+          ],
+          "evidence": [
+            {
+              "type": "docs",
+              "completeness": "complete",
+              "authoritative": false,
+              "path": "development/rmtx-a03/capability-inspect.cjs",
+              "symbol": "budget"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
           ],
           "completeness": "complete",
           "authoritative": false
@@ -1017609,6 +1020255,40 @@
       ]
     },
     {
+      "familyId": "xtend.xtensions.host-capability-negotiation",
+      "currentVersion": 1,
+      "activeSchemaId": "xtend.xtensions.host-capability-negotiation.v1",
+      "versions": [
+        {
+          "schemaId": "xtend.xtensions.host-capability-negotiation.v1",
+          "version": 1,
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": "sha256:3f57a3774df578b9b6f9a7f0f071fed258d346a19a14041c9f7f9fb62fa30ad6"
+        }
+      ],
+      "tombstones": []
+    },
+    {
+      "familyId": "xtend.xtensions.host-capability-requirements",
+      "currentVersion": 1,
+      "activeSchemaId": "xtend.xtensions.host-capability-requirements.v1",
+      "versions": [
+        {
+          "schemaId": "xtend.xtensions.host-capability-requirements.v1",
+          "version": 1,
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": "sha256:6cdd190c5830a43b00a8c12f40e1dbcb3775457bf0d2671007bbe6fbb87a1de2"
+        }
+      ],
+      "tombstones": []
+    },
+    {
       "activeSchemaId": "xtend.xtensions.host-controller.v1",
       "currentVersion": 1,
       "familyId": "xtend.xtensions.host-controller",
@@ -1018374,8 +1021054,8 @@
       ]
     },
     {
-      "activeSchemaId": "xtend.xtensions.react-runtime-adapter.v5",
-      "currentVersion": 5,
+      "activeSchemaId": "xtend.xtensions.react-runtime-adapter.v6",
+      "currentVersion": 6,
       "familyId": "xtend.xtensions.react-runtime-adapter",
       "tombstones": [],
       "versions": [
@@ -1018400,6 +1021080,15 @@
         {
           "schemaId": "xtend.xtensions.react-runtime-adapter.v5",
           "version": 5,
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "deprecated"
+          },
+          "releasedFingerprintSetHash": null
+        },
+        {
+          "schemaId": "xtend.xtensions.react-runtime-adapter.v6",
+          "version": 6,
           "lifecycle": {
             "rollout": "planned",
             "status": "active"
@@ -1018724,19 +1021413,28 @@
       ]
     },
     {
-      "activeSchemaId": "xtend.xtensions.runtime-capabilities.v1",
-      "currentVersion": 1,
+      "activeSchemaId": "xtend.xtensions.runtime-capabilities.v2",
+      "currentVersion": 2,
       "familyId": "xtend.xtensions.runtime-capabilities",
       "tombstones": [],
       "versions": [
         {
           "lifecycle": {
             "rollout": "planned",
-            "status": "active"
+            "status": "deprecated"
           },
           "releasedFingerprintSetHash": "sha256:1c54f9b049988ae7df4d63f3d2649c225654dd5d0801a209a8e6b8f7a521b29c",
           "schemaId": "xtend.xtensions.runtime-capabilities.v1",
           "version": 1
+        },
+        {
+          "schemaId": "xtend.xtensions.runtime-capabilities.v2",
+          "version": 2,
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": "sha256:bce84c05af28706f2b585ba46d73c5bc8fdac9b7dbaaa400aefae2323f75bbe7"
         }
       ]
     },
@@ -1018826,8 +1021524,8 @@
       ]
     },
     {
-      "activeSchemaId": "xtend.xtensions.runtime-host-controller.v5",
-      "currentVersion": 5,
+      "activeSchemaId": "xtend.xtensions.runtime-host-controller.v6",
+      "currentVersion": 6,
       "familyId": "xtend.xtensions.runtime-host-controller",
       "tombstones": [],
       "versions": [
@@ -1018863,9 +1021561,18 @@
           "version": 5,
           "lifecycle": {
             "rollout": "planned",
-            "status": "active"
+            "status": "deprecated"
           },
           "releasedFingerprintSetHash": "sha256:555ff0ef44a150ab883a0bd9234eeff79f748fc978c8aee99fa37321d863cc09"
+        },
+        {
+          "schemaId": "xtend.xtensions.runtime-host-controller.v6",
+          "version": 6,
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": "sha256:fa2a53fbeb96a719af8a4c58178ca7f561c30099533a993fcfa405f2d70428e6"
         }
       ]
     },
@@ -1020070,8 +1022777,8 @@
       ]
     },
     {
-      "activeSchemaId": "xtend.xtensions.vue-runtime-adapter.v5",
-      "currentVersion": 5,
+      "activeSchemaId": "xtend.xtensions.vue-runtime-adapter.v6",
+      "currentVersion": 6,
       "familyId": "xtend.xtensions.vue-runtime-adapter",
       "tombstones": [],
       "versions": [
@@ -1020096,6 +1022803,15 @@
         {
           "schemaId": "xtend.xtensions.vue-runtime-adapter.v5",
           "version": 5,
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "deprecated"
+          },
+          "releasedFingerprintSetHash": null
+        },
+        {
+          "schemaId": "xtend.xtensions.vue-runtime-adapter.v6",
+          "version": 6,
           "lifecycle": {
             "rollout": "planned",
             "status": "active"
