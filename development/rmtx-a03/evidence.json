@@ -3,7 +3,7 @@
   "stage": "A03.1-explicit-kernel-host-work",
   "status": "a03-in-progress",
   "kernelAdapterApiVersion": "3.0.0",
-  "registryApiVersion": "2.2.0",
+  "registryApiVersion": "2.3.0",
   "fabricRequired": true,
   "frameworkPreemption": false,
   "frameworkExecutionInPreparationCheck": false,
@@ -34,20 +34,20 @@
   "requiredRuntimeCasesPerEnvironment": 184,
   "requiredCompilerChecks": 88,
   "sources": {
-    "tools/xtensions/kernel-work-scope.js": "a03d0b83af33c75b5f9e7c9295f0311ee6d9411a83b3a8a339e6c3c7fb300117",
-    "tools/xtensions/runtime-host-controller.js": "e5a38786876cf3de6316de1992408a01b2c25316d0fda557c845cbb09080dd64",
-    "tools/xtensions/runtime-host-controller.d.ts": "3d6c4d71c1f848361e4a6daab58709db410f6693cdb4ae71214ab75923a3788a",
+    "tools/xtensions/kernel-work-scope.js": "2bc544e13567898f8c4eefd973c66e62c29f616477c103e21b28a0f39a716dc8",
+    "tools/xtensions/runtime-host-controller.js": "c8abeac60c1d1297cad576e941bb6f9d2d6674028c70d9e2c813db1ffe069ce4",
+    "tools/xtensions/runtime-host-controller.d.ts": "86a50e2a720b7946db03ddc76bfb5846ac9ac982e034dba7b8640693719fc31b",
     "tools/xtensions/react-runtime-adapter.js": "e4bb309b2c30371913957dcba74fde66068c7ac141b9e332a86482bce1388e45",
-    "tools/xtensions/react-runtime-adapter.d.ts": "561936d9774f856a228d3d33cd564e43f7d0c09140b8b2b6b1628883a543c884",
+    "tools/xtensions/react-runtime-adapter.d.ts": "02213b88ca9047664a538afc7f25be559312899e9d31ee6274b369f1c41c7bcf",
     "tools/xtensions/vue-runtime-adapter.js": "9de3d366c70dcffaa5bb79fc32dc79680989c0c5df62061b4122cde1bd9fbf2d",
-    "tools/xtensions/vue-runtime-adapter.d.ts": "d2d8e48c76acb279e3635d98f17a646dbe2c97f2906a24d33c194cadabb8ffdd",
-    "tools/xtensions/state-binding.js": "45c54b303dbe8229f7bd636a411f8f6c2acc499f6b85d1cc016ca9ece3eeacee",
-    "tools/xtensions/state-binding.d.ts": "9a5ad7c6663fddf77bd7e493fc88a5cecb8695bd98083de281404acf5d683ebc",
-    "xtend-maraca/plan-runtime.d.ts": "b76aa5ca25fcaa9d9b81a66820a1aeb380c616803a83873c2b02d3b53b19db47",
+    "tools/xtensions/vue-runtime-adapter.d.ts": "586fcf30a67172bc982e5ed430611afa4111d86fbbf5d7295439752723f99bbd",
+    "tools/xtensions/state-binding.js": "4178bbfb2cefc19c13856f67399e1a727c73f5290aa0d7a05c5762e5bd0e7581",
+    "tools/xtensions/state-binding.d.ts": "9490b0061bea55070373e954614a240f201b3600fb28d57e64a25974b8efa4f7",
+    "xtend-maraca/plan-runtime.d.ts": "8e0d9d244156b98d23c707569e416733ad8276f6894309ab340d6bdcacb74e01",
     "tests/xtensions/kernel-runtime-acceptance.js": "3e3d4b2f4e27d82b2e0bdda14e90a36ad7b34547a2044f6a089952558f24dfcb",
     "tests/xtensions/kernel-maraca-acceptance.js": "50344373ace1530805e5849219462dd425bf648bbcfb36b19ceecb24f0165291",
     "tests/types/xtensions_kernel_runtime.mts": "2741915e56a7e0ed65f7c0d571b3cae595a06074d312b92b4c39c4558b952b3b",
-    "tests/xtensions/xtensions_runtime_gate_suite.js": "5c28e49e154cd02048b55bca40aa89df98da84ef49bf5d00a92910482aed0cd4"
+    "tests/xtensions/xtensions_runtime_gate_suite.js": "b2f2ea92f620c0e1c0897d46e7d37ee4118ce99383ba39b5b2e44f6073aa4527"
   },
   "jobs": [
     {

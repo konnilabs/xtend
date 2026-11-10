@@ -105,7 +105,7 @@ export interface CooperativeWorkContext extends ResourceContext {
   readonly jobId: string; shouldYield(): boolean; yield(reason?: string): Promise<void>;
 }
 export interface CooperativeWorkHandle<T> {
-  /** Null means no kernel job was created because this host lifetime is already closed. */
+  /** Null means no kernel job was created: closed lifetime, or v5 budget admission refusal. */
   readonly jobId: string | null; readonly signal: AbortSignal; readonly result: Promise<T>; cancel(reason?: string): boolean;
 }
 export interface KernelComponentCapabilities extends ComponentCapabilities {
@@ -199,6 +199,56 @@ export interface GraphRuntimeHostController {
   snapshot(): GraphRuntimeHostSnapshot;
   /** Includes graph-triggered lifecycle delivery and terminal cleanup, not named business work. */
   whenIdle(): Promise<GraphRuntimeHostSnapshot>;
+  getLifecycleRecords(): XTensionLifecycleRecord[];
+  getCleanupRecords(): HostResourceCleanupRecord[];
+  getEventRecords(): XTensionsSurfaceEvent[];
+}
+
+/** A03.3: bounded named work with pressure-aware cooperative budgets. */
+export const BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA: 'xtend.xtensions.runtime-host-controller.v5';
+export type RuntimePressureLevel = 'idle' | 'normal' | 'elevated' | 'constrained' | 'critical';
+export interface WorkBudgetPolicy {
+  readonly schema: 'xtend.xtensions.work-budget-policy.v1';
+  /** Total logically pending/running named work in this host, from 1 to 128. */
+  readonly maxPending: number;
+  /** Exact same names as kernelWork.work. */
+  readonly work: Readonly<Record<string, { readonly maxPending: number; readonly overflow?: 'reject-new' | 'replace-oldest';
+    readonly pressure?: Partial<Readonly<Record<RuntimePressureLevel, { readonly admission?: 'allow' | 'reject'; readonly maxChunkMs?: number }>>> }>>;
+}
+export interface BudgetRuntimeHostOptions extends GraphRuntimeHostOptions {
+  readonly kernelWork: GraphRuntimeHostOptions['kernelWork'] & { readonly scheduler: RuntimeKernelSchedulerPort & {
+    snapshot(): Readonly<Record<string, unknown>>;
+  } };
+  readonly workBudget: WorkBudgetPolicy;
+}
+export interface RuntimeWorkBudgetSnapshot {
+  readonly schema: 'xtend.xtensions.work-budget-state.v1';
+  readonly pressureLevel: RuntimePressureLevel; readonly maxPending: number; readonly pending: number;
+  readonly rejected: number; readonly replaced: number;
+  readonly lastDecision: { readonly name: string; readonly reason: 'kernel-pressure' | 'pending-limit' | 'replace-oldest'; readonly pressureLevel: RuntimePressureLevel } | null;
+}
+export interface BudgetRuntimeHostSnapshot extends GraphRuntimeHostSnapshot {
+  readonly workBudget: RuntimeWorkBudgetSnapshot;
+}
+export interface BudgetRuntimeHostController {
+  readonly schema: typeof BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA;
+  /** SemVer metadata; the schema discriminator identifies the contract major. */
+  readonly apiVersion: '5.0.0';
+  readonly adapterSchema: string;
+  readonly framework: 'react' | 'vue';
+  mount(target?: Element, props?: RuntimeProps, options?: { lane?: string }): Promise<RuntimeHostResult>;
+  /** Full props replacement. Vue requires applyPropsUpdate or type props.update. */
+  update(signal: { props?: RuntimeProps; payload?: RuntimeProps; updateAdapter?: 'applyPropsUpdate'; type?: 'props.update' }): Promise<RuntimeHostResult>;
+  suspend(reason?: string): Promise<RuntimeHostResult>;
+  /** Optional full replacement is committed while suspended, before resources restart. */
+  resume(reason?: string, options?: { props: RuntimeProps }): Promise<RuntimeHostResult>;
+  unmount(reason?: string): Promise<RuntimeHostResult>;
+  reportError(error: unknown, metadata?: { phase?: string }): RuntimeHostResult;
+  emit: ComponentCapabilities['emit'];
+  getCapabilities(): RuntimeKernelCapabilities;
+  snapshot(): BudgetRuntimeHostSnapshot;
+  /** Includes graph-triggered lifecycle delivery and terminal cleanup, not named business work. */
+  whenIdle(): Promise<BudgetRuntimeHostSnapshot>;
   getLifecycleRecords(): XTensionLifecycleRecord[];
   getCleanupRecords(): HostResourceCleanupRecord[];
   getEventRecords(): XTensionsSurfaceEvent[];

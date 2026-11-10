@@ -4,8 +4,8 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "ee0f24f9530f80ab005b8ee45e1582b48c269b72cfb4cb57513f3263602bf70b",
-  "sourceMembershipSha256": "bc1209cdc3e981ec3f74ed71cdc2ab3a42f90d7c71ca3ccd6b225ec06b7b7b1d",
+  "inventorySha256": "6f36d6a42178b386f524957bfee71cf18f7072e58d94f45f789824b533a42e92",
+  "sourceMembershipSha256": "b889c9e975f4e57e030937b8092988d66d0c1306a36817415587b332f2d54a77",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
@@ -549,7 +549,7 @@
         },
         {
           "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
-          "sha256": "480e1968758fc62e07153e1eb864c23fec31d1fa7b8901b5d531d23462b517ef"
+          "sha256": "b5e493a434d4727219b637c0534677cfb34796d005d1afcf5e1face34cc610d0"
         },
         {
           "path": "development/rmtx-a01/README.md",
@@ -561,7 +561,7 @@
         },
         {
           "path": "development/rmtx-a01/inventory.json",
-          "sha256": "d609daebb5473a50c56a24dd3df5857c4a4accf1564b4223e0129f6528f01980"
+          "sha256": "379ba2bb3f330e398f0eca20e0348dbad866888d036deb6012f53b65f5336c0d"
         },
         {
           "path": "docs/de/rmt-vnext-authoring.md",
@@ -573,7 +573,7 @@
         },
         {
           "path": "docs/generated/search/en.fulltext.json",
-          "sha256": "7c05c18229c24f2b8ef31eaf2cf3936f669aad4aadd27eb256220357b9bff6c4"
+          "sha256": "5c0161a474f8d67520b40fc44ef2c25907620ee33175df68b57aff02a12b26ea"
         },
         {
           "path": "package.json",
@@ -1151,5 +1151,48 @@
     "publicationGuardRetired": false,
     "freshCommittedCaptureRequired": true,
     "rationale": "A03.2 scoped Surface/Kernel resource review: explicit v4 graph hosts own one native kernel resource and one generation-bound Surface subscription. Immediate Fabric-observed revocation, staged controlled props, queued resume, terminal cleanup and graph-inclusive idle barriers are verified with real frameworks and compiled keyed Maraca hosts. Registry API 2.2 accepts version-matched v2/v3/v4 suppliers. Native Kernel, Surface Graph and Surface Controller ABIs and every preexisting authoritative/released fingerprint remain unchanged. Automatic provider composition and remaining A03/0.9 acceptance stay pending."
+  },
+  "a033BoundedPressureBudgetReview": {
+    "format": 1,
+    "date": "2026-11-10",
+    "status": "reviewed-unreleased-bounded-pressure-budgets",
+    "stage": "A03.3",
+    "a03Complete": false,
+    "contract": "development/rmtx-a03/work-budgets.md",
+    "newSchemaIds": [
+      "xtend.xtensions.react-runtime-adapter.v5",
+      "xtend.xtensions.runtime-host-controller.v5",
+      "xtend.xtensions.vue-runtime-adapter.v5",
+      "xtend.xtensions.work-budget-policy.v1",
+      "xtend.xtensions.work-budget-state.v1"
+    ],
+    "scopedSchemaIds": [
+      "xtend.rmt.kernel-scheduler.v1",
+      "xtend.rmt.kernel-work.v1",
+      "xtend.xtensions.react-runtime-adapter.v4",
+      "xtend.xtensions.react-runtime-adapter.v5",
+      "xtend.xtensions.resource-graph-binding.v1",
+      "xtend.xtensions.runtime-host-controller.v4",
+      "xtend.xtensions.runtime-host-controller.v5",
+      "xtend.xtensions.state-binding.v2",
+      "xtend.xtensions.vue-runtime-adapter.v4",
+      "xtend.xtensions.vue-runtime-adapter.v5",
+      "xtend.xtensions.work-budget-policy.v1",
+      "xtend.xtensions.work-budget-state.v1"
+    ],
+    "fabricRequired": true,
+    "budgetHostApiVersion": "5.0.0",
+    "registryApiVersion": "2.3.0",
+    "nativeKernelAbiChanged": false,
+    "surfaceGraphAbiChanged": false,
+    "legacyV2V3V4Retained": true,
+    "contractChecks": 14,
+    "integrationCases": 26,
+    "runtimeCasesPerEnvironment": 242,
+    "compilerChecks": 88,
+    "acceptedForRelease": false,
+    "publicationGuardRetired": false,
+    "freshCommittedCaptureRequired": true,
+    "rationale": "Scoped A03.3 development review: v5 graph-bound hosts add bounded named-work admission, same-grant explicit replacement and live kernel-pressure cooperative chunk ceilings through mandatory Fabric. Registry API 2.3 accepts version-matched v2-v5 suppliers. Existing authoritative/released fingerprints and native Kernel/Surface ABIs remain unchanged. Automatic provider composition, capability negotiation and complete 0.9 feature acceptance remain pending. See development/rmtx-a03/work-budgets.md."
   }
 }

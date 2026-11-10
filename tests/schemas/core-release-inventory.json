@@ -870,6 +870,43 @@
     {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
+      "confidence": "high",
+      "origin": "curated",
+      "rationale": "The component-profile identifier appears only in xsurfaceportal while the established accessibility profile identifier is used across the component catalog.",
+      "recommendation": "Confirm whether xsurfaceportal should adopt the established accessibility profile identifier.",
+      "resolution": {
+        "kind": "review-case",
+        "rationale": "The initial audit retains the identifiers as separate entities and records the collision for domain-owner review; no runtime or API migration is performed here."
+      },
+      "reviewId": "a11y-component-profile-drift",
+      "schemaIds": [
+        "xtend.a11y.component-profile.v1",
+        "xtend.a11y.profile.v1"
+      ],
+      "status": "open",
+      "type": "near-name-drift"
+    },
+    {
+      "reviewId": "polymorphic-0061bd5fe274",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "All observed data/reference forms remain bound to shapePolicy; partial test/config expressions are not promoted to a complete authority."
+      },
+      "schemaIds": [
+        "xtend.xtensions.work-budget-policy.v1"
+      ],
+      "rationale": "Scoped A03.3 development review: v5 graph-bound hosts add bounded named-work admission, same-grant explicit replacement and live kernel-pressure cooperative chunk ceilings through mandatory Fabric. Registry API 2.3 accepts version-matched v2-v5 suppliers. Existing authoritative/released fingerprints and native Kernel/Surface ABIs remain unchanged. Automatic provider composition, capability negotiation and complete 0.9 feature acceptance remain pending. See development/rmtx-a03/work-budgets.md.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "a033-bounded-pressure-budgets"
+    },
+    {
+      "baseline": "inventory-v2",
+      "baselineAccepted": true,
       "confidence": "medium",
       "origin": "scanner",
       "rationale": "Static analysis observes 3 normalized shapes for this identifier.",
@@ -1336,6 +1373,24 @@
       "type": "same-id-multiple-shapes"
     },
     {
+      "reviewId": "polymorphic-085be9c05c5c",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
+      },
+      "schemaIds": [
+        "xtend.maraca.browser-composition-root.v2"
+      ],
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "scoped-a022-versioned-binding"
+    },
+    {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
       "confidence": "medium",
@@ -1369,6 +1424,24 @@
         "xtend.rmt.code-action-report.v1"
       ],
       "status": "accepted-polymorphic-for-inventory",
+      "type": "same-id-multiple-shapes"
+    },
+    {
+      "baseline": "scoped-a032-surface-kernel-resources",
+      "baselineAccepted": true,
+      "confidence": "medium",
+      "origin": "scanner",
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A03.2 scoped Surface/Kernel resource review: explicit v4 graph hosts own one native kernel resource and one generation-bound Surface subscription. Immediate Fabric-observed revocation, staged controlled props, queued resume, terminal cleanup and graph-inclusive idle barriers are verified with real frameworks and compiled keyed Maraca hosts. Registry API 2.2 accepts version-matched v2/v3/v4 suppliers. Native Kernel, Surface Graph and Surface Controller ABIs and every preexisting authoritative/released fingerprint remain unchanged. Automatic provider composition and remaining A03/0.9 acceptance stay pending."
+      },
+      "reviewId": "polymorphic-093c1f7117b5",
+      "schemaIds": [
+        "xtend.xtensions.resource-graph-binding.v1"
+      ],
+      "status": "reviewed-distinct-observations",
       "type": "same-id-multiple-shapes"
     },
     {
@@ -1498,6 +1571,24 @@
       "type": "same-id-multiple-shapes"
     },
     {
+      "reviewId": "polymorphic-0c4d6873595e",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
+      },
+      "schemaIds": [
+        "xtend.maraca.plan-runtime.v4"
+      ],
+      "rationale": "Static analysis observes 7 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "scoped-a022-versioned-binding"
+    },
+    {
       "baseline": "reviewed-0.8.0",
       "baselineAccepted": true,
       "confidence": "medium",
@@ -1550,6 +1641,24 @@
       ],
       "status": "accepted-polymorphic-for-inventory",
       "type": "same-id-multiple-shapes"
+    },
+    {
+      "reviewId": "polymorphic-0d9005183bb4",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
+      },
+      "schemaIds": [
+        "xtend.maraca.state-change.v1"
+      ],
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "scoped-a022-versioned-binding"
     },
     {
       "baseline": "inventory-v2",
@@ -1712,6 +1821,24 @@
       ],
       "status": "accepted-polymorphic-for-inventory",
       "type": "same-id-multiple-shapes"
+    },
+    {
+      "reviewId": "polymorphic-11d84ac31428",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
+      },
+      "schemaIds": [
+        "xtend.xtensions.runtime-host-controller.v2"
+      ],
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "scoped-a022-versioned-binding"
     },
     {
       "baseline": "inventory-v2",
@@ -2144,6 +2271,42 @@
       ],
       "status": "accepted-polymorphic-for-inventory",
       "type": "same-id-multiple-shapes"
+    },
+    {
+      "reviewId": "polymorphic-178512180dfc",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "reviewed-distinct-observations",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A02.3: versioned conditional lifetime semantics are distinct from Legacy; partial fixture/generated shapes do not grant alias or release authority."
+      },
+      "schemaIds": [
+        "xtend.maraca.plan-runtime.v5"
+      ],
+      "rationale": "Static analysis observes 7 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "scoped-a023-conditional-hosts"
+    },
+    {
+      "reviewId": "polymorphic-178fedbd612a",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
+      },
+      "schemaIds": [
+        "xtend.rmt.classic.compile-result.v2"
+      ],
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "scoped-a022-versioned-binding"
     },
     {
       "baseline": "inventory-v2",
@@ -2794,6 +2957,24 @@
       "type": "same-id-multiple-shapes"
     },
     {
+      "reviewId": "polymorphic-21a9c6c6aa3b",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
+      },
+      "schemaIds": [
+        "xtend.maraca.orchestration-boot.v1"
+      ],
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "scoped-a022-versioned-binding"
+    },
+    {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
       "confidence": "medium",
@@ -3190,6 +3371,24 @@
       "type": "same-id-multiple-shapes"
     },
     {
+      "reviewId": "polymorphic-278f13d45fa5",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
+      },
+      "schemaIds": [
+        "xtend.maraca.hydration-snapshot.v1"
+      ],
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "scoped-a022-versioned-binding"
+    },
+    {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
       "confidence": "medium",
@@ -3350,6 +3549,23 @@
       ],
       "status": "accepted-polymorphic-for-inventory",
       "type": "same-id-multiple-shapes"
+    },
+    {
+      "reviewId": "polymorphic-2ad410efc8e9",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "reviewed",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "Scope of the approved runtime diagnostics patch: exactly the empty producer probe array and the populated timeout test fixture. Both are non-authoritative internal observations; no error is accepted and no runtime identity check is changed."
+      },
+      "schemaIds": [
+        "xtend.test.probe-diagnostics.v1"
+      ],
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape."
     },
     {
       "baseline": "inventory-v2",
@@ -3957,6 +4173,24 @@
       "type": "same-id-multiple-shapes"
     },
     {
+      "reviewId": "polymorphic-36827006b66e",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
+      },
+      "schemaIds": [
+        "xtend.xtensions.state-binding-artifact.v1"
+      ],
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "scoped-a022-versioned-binding"
+    },
+    {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
       "confidence": "medium",
@@ -4315,6 +4549,24 @@
       ],
       "status": "accepted-polymorphic-for-inventory",
       "type": "same-id-multiple-shapes"
+    },
+    {
+      "reviewId": "polymorphic-3c72c51f7c36",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "reviewed-distinct-observations",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A02.4: versioned repeated-host and key-scope semantics are distinct from Legacy; partial fixture/generated shapes do not grant alias or release authority."
+      },
+      "schemaIds": [
+        "xtend.maraca.build-plan.v4"
+      ],
+      "rationale": "Static analysis observes 4 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "scoped-a024-repeated-hosts"
     },
     {
       "baseline": "inventory-v2",
@@ -4803,6 +5055,24 @@
       "type": "same-id-multiple-shapes"
     },
     {
+      "baseline": "scoped-a025-url-history-contract",
+      "baselineAccepted": true,
+      "confidence": "medium",
+      "origin": "scanner",
+      "rationale": "Static analysis observes 3 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A02.5.1 scoped URL/History contract review: development-only v1 policy, state, restore-plan and history-proposal, plus non-authoritative reference/test observations and source positions. No production contract changes; existing authority/released hashes are preserved. Router/Maraca integration and feature/publication acceptance remain pending. See development/rmtx-a02/url-history/README.md."
+      },
+      "reviewId": "polymorphic-48d8c58255a9",
+      "schemaIds": [
+        "xtend.xtensions.url-state-policy.v1"
+      ],
+      "status": "reviewed-distinct-observations",
+      "type": "same-id-multiple-shapes"
+    },
+    {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
       "confidence": "medium",
@@ -5021,24 +5291,6 @@
     {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
-      "confidence": "high",
-      "origin": "scanner",
-      "rationale": "The XKeymap surface identifier marks both individual keymap entries and the grouped keymap presentation model.",
-      "recommendation": "Keep both variants documented until a versioned contract split is explicitly designed.",
-      "resolution": {
-        "kind": "accepted-polymorphic",
-        "rationale": "All observed fingerprints are bound to the entry shapePolicy and remain subject to drift checks."
-      },
-      "reviewId": "xkeymap-surface-polymorphism",
-      "schemaIds": [
-        "xtend.xkeymap.surface-contract.v1"
-      ],
-      "status": "accepted-polymorphic-for-inventory",
-      "type": "same-id-multiple-shapes"
-    },
-    {
-      "baseline": "inventory-v2",
-      "baselineAccepted": true,
       "confidence": "medium",
       "origin": "scanner",
       "rationale": "Static analysis observes 3 normalized shapes for this identifier.",
@@ -5053,6 +5305,24 @@
       ],
       "status": "accepted-polymorphic-for-inventory",
       "type": "same-id-multiple-shapes"
+    },
+    {
+      "reviewId": "polymorphic-4e22358a680e",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
+      },
+      "schemaIds": [
+        "xtend.maraca.build-config.v2"
+      ],
+      "rationale": "Static analysis observes 3 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "scoped-a022-versioned-binding"
     },
     {
       "baseline": "inventory-v2",
@@ -6260,6 +6530,24 @@
       "type": "same-id-multiple-shapes"
     },
     {
+      "baseline": "scoped-a0252-router-maraca",
+      "baselineAccepted": true,
+      "confidence": "medium",
+      "origin": "scanner",
+      "rationale": "Static analysis observes 3 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A02.5.2 scoped Router/Maraca integration review: new runtime v7/browser root v5 and route-host v1; four byte-identical URL v1 formats gain their first production formal/type authority. Other differences are source/archive/generated-mirror provenance or non-authoritative expression inference for open transaction metadata. Every unrelated authority/released hash remains unchanged. Feature acceptance, initial-candidate publication guard and fresh committed CI evidence remain separate."
+      },
+      "reviewId": "polymorphic-62cc4e8bed2d",
+      "schemaIds": [
+        "xtend.router.url-state-host.v1"
+      ],
+      "status": "reviewed-distinct-observations",
+      "type": "same-id-multiple-shapes"
+    },
+    {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
       "confidence": "medium",
@@ -6365,6 +6653,24 @@
         "xtend.docs.rmt-playground.lsp-bridge.v1"
       ],
       "status": "accepted-polymorphic-for-inventory",
+      "type": "same-id-multiple-shapes"
+    },
+    {
+      "baseline": "scoped-a025-url-history-contract",
+      "baselineAccepted": true,
+      "confidence": "medium",
+      "origin": "scanner",
+      "rationale": "Static analysis observes 3 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A02.5.1 scoped URL/History contract review: development-only v1 policy, state, restore-plan and history-proposal, plus non-authoritative reference/test observations and source positions. No production contract changes; existing authority/released hashes are preserved. Router/Maraca integration and feature/publication acceptance remain pending. See development/rmtx-a02/url-history/README.md."
+      },
+      "reviewId": "polymorphic-6404b0b5cb9a",
+      "schemaIds": [
+        "xtend.xtensions.url-history-proposal.v1"
+      ],
+      "status": "reviewed-distinct-observations",
       "type": "same-id-multiple-shapes"
     },
     {
@@ -6527,6 +6833,24 @@
         "xtend.maraca.browser-host-adapter.v2"
       ],
       "status": "accepted-polymorphic-for-inventory",
+      "type": "same-id-multiple-shapes"
+    },
+    {
+      "baseline": "scoped-a031-kernel-fabric",
+      "baselineAccepted": true,
+      "confidence": "medium",
+      "origin": "scanner",
+      "rationale": "Static analysis observes 3 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A03.1 scoped explicit Kernel/Fabric review: new v3 host and React/Vue factory contracts, v1 capability and owned-work snapshots; real kernel admission, named cooperative grants, current host policy, yielding and cancellation require Fabric and preserve immediate cleanup. Registry API 2.1 accepts version-matched v2/v3 suppliers. Every existing authoritative/released set and Native Kernel ABI is unchanged; other findings are source/generated/fixture provenance or non-authoritative expression inference. Full A03/0.9 feature acceptance and publication remain pending."
+      },
+      "reviewId": "polymorphic-66b7dcca0610",
+      "schemaIds": [
+        "xtend.xtensions.runtime-capabilities.v1"
+      ],
+      "status": "reviewed-distinct-observations",
       "type": "same-id-multiple-shapes"
     },
     {
@@ -7303,6 +7627,24 @@
       "type": "same-id-multiple-shapes"
     },
     {
+      "reviewId": "polymorphic-7258e24c81e0",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "reviewed-distinct-observations",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A02.3: versioned conditional lifetime semantics are distinct from Legacy; partial fixture/generated shapes do not grant alias or release authority."
+      },
+      "schemaIds": [
+        "xtend.rmt.classic.compile-result.v3"
+      ],
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "scoped-a023-conditional-hosts"
+    },
+    {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
       "confidence": "medium",
@@ -7661,6 +8003,24 @@
       ],
       "status": "accepted-polymorphic-for-inventory",
       "type": "same-id-multiple-shapes"
+    },
+    {
+      "reviewId": "polymorphic-7858131e7dd5",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
+      },
+      "schemaIds": [
+        "xtend.maraca.component-command-context.v1"
+      ],
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "scoped-a022-versioned-binding"
     },
     {
       "baseline": "inventory-v2",
@@ -8113,6 +8473,42 @@
       "type": "same-id-multiple-shapes"
     },
     {
+      "reviewId": "polymorphic-81d0cac70caa",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "reviewed-distinct-observations",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A02.3: versioned conditional lifetime semantics are distinct from Legacy; partial fixture/generated shapes do not grant alias or release authority."
+      },
+      "schemaIds": [
+        "xtend.maraca.build-config.v3"
+      ],
+      "rationale": "Static analysis observes 3 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "scoped-a023-conditional-hosts"
+    },
+    {
+      "reviewId": "polymorphic-820093e676dc",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "Scoped Classic preparation: complete AST authority is the generated closed schema; compiler/report/fixture observations are distinct contexts. No partial collision is an alias or release grant."
+      },
+      "schemaIds": [
+        "xtend.rmt.vnext.ast.v1"
+      ],
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "scoped-0.9-classic-preparation"
+    },
+    {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
       "confidence": "medium",
@@ -8383,6 +8779,24 @@
       "type": "same-id-multiple-shapes"
     },
     {
+      "baseline": "scoped-a0252-router-maraca",
+      "baselineAccepted": true,
+      "confidence": "medium",
+      "origin": "scanner",
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A02.5.2 scoped Router/Maraca integration review: new runtime v7/browser root v5 and route-host v1; four byte-identical URL v1 formats gain their first production formal/type authority. Other differences are source/archive/generated-mirror provenance or non-authoritative expression inference for open transaction metadata. Every unrelated authority/released hash remains unchanged. Feature acceptance, initial-candidate publication guard and fresh committed CI evidence remain separate."
+      },
+      "reviewId": "polymorphic-86ed06cd56fa",
+      "schemaIds": [
+        "xtend.maraca.browser-composition-root.v5"
+      ],
+      "status": "reviewed-distinct-observations",
+      "type": "same-id-multiple-shapes"
+    },
+    {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
       "confidence": "medium",
@@ -8471,6 +8885,24 @@
       ],
       "status": "accepted-polymorphic-for-inventory",
       "type": "same-id-multiple-shapes"
+    },
+    {
+      "reviewId": "polymorphic-88fde00e0364",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
+      },
+      "schemaIds": [
+        "xtend.maraca.plan-runtime.scheduler-kernel.v1"
+      ],
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "scoped-a022-versioned-binding"
     },
     {
       "baseline": "inventory-v2",
@@ -8995,6 +9427,24 @@
       "type": "same-id-multiple-shapes"
     },
     {
+      "reviewId": "polymorphic-916d03ddd030",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
+      },
+      "schemaIds": [
+        "xtend.maraca.build-plan.v2"
+      ],
+      "rationale": "Static analysis observes 4 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "scoped-a022-versioned-binding"
+    },
+    {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
       "confidence": "medium",
@@ -9298,6 +9748,24 @@
       ],
       "status": "accepted-polymorphic-for-inventory",
       "type": "same-id-multiple-shapes"
+    },
+    {
+      "reviewId": "polymorphic-98256ad92bbf",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
+      },
+      "schemaIds": [
+        "xtend.maraca.presentation-effect-context.v1"
+      ],
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "scoped-a022-versioned-binding"
     },
     {
       "baseline": "inventory-v2",
@@ -9822,6 +10290,24 @@
       "type": "same-id-multiple-shapes"
     },
     {
+      "reviewId": "polymorphic-a05507c36e08",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "reviewed-distinct-observations",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A02.4: versioned repeated-host and key-scope semantics are distinct from Legacy; partial fixture/generated shapes do not grant alias or release authority."
+      },
+      "schemaIds": [
+        "xtend.maraca.plan-runtime.v6"
+      ],
+      "rationale": "Static analysis observes 7 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "scoped-a024-repeated-hosts"
+    },
+    {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
       "confidence": "medium",
@@ -10302,6 +10788,24 @@
       "type": "same-id-multiple-shapes"
     },
     {
+      "baseline": "scoped-a025-url-history-contract",
+      "baselineAccepted": true,
+      "confidence": "medium",
+      "origin": "scanner",
+      "rationale": "Static analysis observes 3 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A02.5.1 scoped URL/History contract review: development-only v1 policy, state, restore-plan and history-proposal, plus non-authoritative reference/test observations and source positions. No production contract changes; existing authority/released hashes are preserved. Router/Maraca integration and feature/publication acceptance remain pending. See development/rmtx-a02/url-history/README.md."
+      },
+      "reviewId": "polymorphic-a50492392c35",
+      "schemaIds": [
+        "xtend.xtensions.url-state-restore-plan.v1"
+      ],
+      "status": "reviewed-distinct-observations",
+      "type": "same-id-multiple-shapes"
+    },
+    {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
       "confidence": "medium",
@@ -10678,6 +11182,24 @@
       ],
       "status": "accepted-polymorphic-for-inventory",
       "type": "same-id-multiple-shapes"
+    },
+    {
+      "reviewId": "polymorphic-abb547f1e8bb",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "reviewed-distinct-observations",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A02.3: versioned conditional lifetime semantics are distinct from Legacy; partial fixture/generated shapes do not grant alias or release authority."
+      },
+      "schemaIds": [
+        "xtend.maraca.build-plan.v3"
+      ],
+      "rationale": "Static analysis observes 4 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "scoped-a023-conditional-hosts"
     },
     {
       "baseline": "inventory-v2",
@@ -11616,6 +12138,24 @@
       "type": "same-id-multiple-shapes"
     },
     {
+      "reviewId": "polymorphic-bb146c6137fd",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "reviewed-distinct-observations",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A02.4: versioned repeated-host and key-scope semantics are distinct from Legacy; partial fixture/generated shapes do not grant alias or release authority."
+      },
+      "schemaIds": [
+        "xtend.maraca.browser-composition-root.v4"
+      ],
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "scoped-a024-repeated-hosts"
+    },
+    {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
       "confidence": "medium",
@@ -11964,6 +12504,24 @@
       "type": "same-id-multiple-shapes"
     },
     {
+      "reviewId": "polymorphic-c0de9cfe24c6",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "reviewed-distinct-observations",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A02.3: versioned conditional lifetime semantics are distinct from Legacy; partial fixture/generated shapes do not grant alias or release authority."
+      },
+      "schemaIds": [
+        "xtend.maraca.browser-composition-root.v3"
+      ],
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "scoped-a023-conditional-hosts"
+    },
+    {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
       "confidence": "medium",
@@ -12109,6 +12667,24 @@
         "xtend.product-execution.v1"
       ],
       "status": "accepted",
+      "type": "same-id-multiple-shapes"
+    },
+    {
+      "baseline": "scoped-a025-url-history-contract",
+      "baselineAccepted": true,
+      "confidence": "medium",
+      "origin": "scanner",
+      "rationale": "Static analysis observes 6 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A02.5.1 scoped URL/History contract review: development-only v1 policy, state, restore-plan and history-proposal, plus non-authoritative reference/test observations and source positions. No production contract changes; existing authority/released hashes are preserved. Router/Maraca integration and feature/publication acceptance remain pending. See development/rmtx-a02/url-history/README.md."
+      },
+      "reviewId": "polymorphic-c24c54d50f0f",
+      "schemaIds": [
+        "xtend.xtensions.url-state.v1"
+      ],
+      "status": "reviewed-distinct-observations",
       "type": "same-id-multiple-shapes"
     },
     {
@@ -12526,6 +13102,24 @@
       "type": "same-id-multiple-shapes"
     },
     {
+      "reviewId": "polymorphic-c8bab910937a",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "All observed data/reference forms remain bound to shapePolicy; partial test/config expressions are not promoted to a complete authority."
+      },
+      "schemaIds": [
+        "xtend.xtensions.work-budget-state.v1"
+      ],
+      "rationale": "Scoped A03.3 development review: v5 graph-bound hosts add bounded named-work admission, same-grant explicit replacement and live kernel-pressure cooperative chunk ceilings through mandatory Fabric. Registry API 2.3 accepts version-matched v2-v5 suppliers. Existing authoritative/released fingerprints and native Kernel/Surface ABIs remain unchanged. Automatic provider composition, capability negotiation and complete 0.9 feature acceptance remain pending. See development/rmtx-a03/work-budgets.md.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "a033-bounded-pressure-budgets"
+    },
+    {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
       "confidence": "medium",
@@ -12598,6 +13192,24 @@
       "type": "same-id-multiple-shapes"
     },
     {
+      "baseline": "scoped-a031-kernel-fabric",
+      "baselineAccepted": true,
+      "confidence": "medium",
+      "origin": "scanner",
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A03.1 scoped explicit Kernel/Fabric review: new v3 host and React/Vue factory contracts, v1 capability and owned-work snapshots; real kernel admission, named cooperative grants, current host policy, yielding and cancellation require Fabric and preserve immediate cleanup. Registry API 2.1 accepts version-matched v2/v3 suppliers. Every existing authoritative/released set and Native Kernel ABI is unchanged; other findings are source/generated/fixture provenance or non-authoritative expression inference. Full A03/0.9 feature acceptance and publication remain pending."
+      },
+      "reviewId": "polymorphic-c9b5dc0dff95",
+      "schemaIds": [
+        "xtend.xtensions.kernel-work-scope.v1"
+      ],
+      "status": "reviewed-distinct-observations",
+      "type": "same-id-multiple-shapes"
+    },
+    {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
       "confidence": "medium",
@@ -12632,6 +13244,24 @@
       ],
       "status": "accepted-polymorphic-for-inventory",
       "type": "same-id-multiple-shapes"
+    },
+    {
+      "reviewId": "polymorphic-cabdc07ad33c",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "reviewed-distinct-observations",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A02.4: versioned repeated-host and key-scope semantics are distinct from Legacy; partial fixture/generated shapes do not grant alias or release authority."
+      },
+      "schemaIds": [
+        "xtend.xtensions.state-binding-artifact.v3"
+      ],
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "scoped-a024-repeated-hosts"
     },
     {
       "baseline": "inventory-v2",
@@ -12722,6 +13352,24 @@
       ],
       "status": "accepted-polymorphic-for-inventory",
       "type": "same-id-multiple-shapes"
+    },
+    {
+      "reviewId": "polymorphic-cc61cc8ef70b",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
+      },
+      "schemaIds": [
+        "xtend.xtensions.state-binding.v1"
+      ],
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "scoped-a022-versioned-binding"
     },
     {
       "baseline": "inventory-v2",
@@ -13118,6 +13766,24 @@
       ],
       "status": "accepted-polymorphic-for-inventory",
       "type": "same-id-multiple-shapes"
+    },
+    {
+      "reviewId": "polymorphic-d18e99753688",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "reviewed-distinct-observations",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A02.4: versioned repeated-host and key-scope semantics are distinct from Legacy; partial fixture/generated shapes do not grant alias or release authority."
+      },
+      "schemaIds": [
+        "xtend.xtensions.state-binding.v2"
+      ],
+      "rationale": "Static analysis observes 3 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "scoped-a024-repeated-hosts"
     },
     {
       "baseline": "inventory-v2",
@@ -13750,6 +14416,24 @@
       "type": "same-id-multiple-shapes"
     },
     {
+      "reviewId": "polymorphic-dacd021601f5",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
+      },
+      "schemaIds": [
+        "xtend.maraca.state-transaction.v1"
+      ],
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "scoped-a022-versioned-binding"
+    },
+    {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
       "confidence": "medium",
@@ -13838,6 +14522,42 @@
       ],
       "status": "accepted-polymorphic-for-inventory",
       "type": "same-id-multiple-shapes"
+    },
+    {
+      "reviewId": "polymorphic-dc7aa6c81f8e",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "reviewed-distinct-observations",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A02.4: versioned repeated-host and key-scope semantics are distinct from Legacy; partial fixture/generated shapes do not grant alias or release authority."
+      },
+      "schemaIds": [
+        "xtend.maraca.build-config.v4"
+      ],
+      "rationale": "Static analysis observes 3 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "scoped-a024-repeated-hosts"
+    },
+    {
+      "reviewId": "polymorphic-dc88bba1cb7e",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
+      },
+      "schemaIds": [
+        "xtend.maraca.surface-change.v1"
+      ],
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "scoped-a022-versioned-binding"
     },
     {
       "baseline": "inventory-v2",
@@ -14072,6 +14792,24 @@
       ],
       "status": "accepted-polymorphic-for-inventory",
       "type": "same-id-multiple-shapes"
+    },
+    {
+      "reviewId": "polymorphic-e05008178aab",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "reviewed-distinct-observations",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A02.4: versioned repeated-host and key-scope semantics are distinct from Legacy; partial fixture/generated shapes do not grant alias or release authority."
+      },
+      "schemaIds": [
+        "xtend.rmt.classic.compile-result.v4"
+      ],
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "scoped-a024-repeated-hosts"
     },
     {
       "baseline": "inventory-v2",
@@ -14709,24 +15447,6 @@
     {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
-      "confidence": "high",
-      "origin": "scanner",
-      "rationale": "XCommand intentionally uses the kernel contract identifier for the kernel facade, registrations, diagnostics, keystrokes and dispatch results.",
-      "recommendation": "Keep the variants visible and review a future split without changing the runtime in this inventory step.",
-      "resolution": {
-        "kind": "accepted-polymorphic",
-        "rationale": "All observed fingerprints are bound to the entry shapePolicy and remain subject to drift checks."
-      },
-      "reviewId": "xcommand-kernel-polymorphism",
-      "schemaIds": [
-        "xtend.xcommand.kernel-contract.v1"
-      ],
-      "status": "accepted-polymorphic-for-inventory",
-      "type": "same-id-multiple-shapes"
-    },
-    {
-      "baseline": "inventory-v2",
-      "baselineAccepted": true,
       "confidence": "medium",
       "origin": "scanner",
       "rationale": "Static analysis observes 4 normalized shapes for this identifier.",
@@ -15193,6 +15913,24 @@
       "type": "same-id-multiple-shapes"
     },
     {
+      "reviewId": "polymorphic-f28fdd5e2816",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
+      },
+      "schemaIds": [
+        "xtend.maraca.validation-projection.v1"
+      ],
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "scoped-a022-versioned-binding"
+    },
+    {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
       "confidence": "medium",
@@ -15316,6 +16054,24 @@
         "xtend.mcp.docs-resource.v1"
       ],
       "status": "accepted-polymorphic-for-inventory",
+      "type": "same-id-multiple-shapes"
+    },
+    {
+      "baseline": "scoped-a0252-router-maraca",
+      "baselineAccepted": true,
+      "confidence": "medium",
+      "origin": "scanner",
+      "rationale": "Static analysis observes 6 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A02.5.2 scoped Router/Maraca integration review: new runtime v7/browser root v5 and route-host v1; four byte-identical URL v1 formats gain their first production formal/type authority. Other differences are source/archive/generated-mirror provenance or non-authoritative expression inference for open transaction metadata. Every unrelated authority/released hash remains unchanged. Feature acceptance, initial-candidate publication guard and fresh committed CI evidence remain separate."
+      },
+      "reviewId": "polymorphic-f511fd375ed4",
+      "schemaIds": [
+        "xtend.maraca.plan-runtime.v7"
+      ],
+      "status": "reviewed-distinct-observations",
       "type": "same-id-multiple-shapes"
     },
     {
@@ -16372,6 +17128,27 @@
       "type": "different-id-same-shape"
     },
     {
+      "reviewId": "shape-collision-62c08f3745ee",
+      "type": "different-id-same-shape",
+      "confidence": "medium",
+      "status": "reviewed-distinct-observations",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A02.4: current/Legacy contract versions and partial generated or reference shapes have distinct semantic ownership. No collision is an alias or feature/publication approval."
+      },
+      "schemaIds": [
+        "xtend.maraca.plan-runtime.v4",
+        "xtend.maraca.plan-runtime.v5",
+        "xtend.maraca.plan-runtime.v6"
+      ],
+      "fingerprint": "sha256:62c08f3745ee0ba1b374694cce49c50aae84cf7a097a9d3992c8742d25576ca7",
+      "rationale": "Static analysis found the same normalized field shape under different identifiers.",
+      "recommendation": "Review semantic ownership and record aliasOf or a distinct-contract rationale before adding another matching identifier.",
+      "baseline": "scoped-a024-repeated-hosts"
+    },
+    {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
       "confidence": "medium",
@@ -16580,6 +17357,26 @@
         "xtend.maraca.diagnostic.v1"
       ],
       "status": "open",
+      "type": "different-id-same-shape"
+    },
+    {
+      "baseline": "scoped-a022-versioned-binding",
+      "baselineAccepted": true,
+      "confidence": "medium",
+      "fingerprint": "sha256:ab2d575d65f5aa5edd49f5f2acf88666e58f01828ab4a9c7978a839276924ed1",
+      "origin": "scanner",
+      "rationale": "Static analysis found the same normalized field shape under different identifiers.",
+      "recommendation": "Review semantic ownership and record aliasOf or a distinct-contract rationale before adding another matching identifier.",
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
+      },
+      "reviewId": "shape-collision-ab2d575d65f5",
+      "schemaIds": [
+        "xtend.epic18.rmt-dom-descriptor-renderer.v2",
+        "xtend.maraca.diagnostic.v1"
+      ],
+      "status": "reviewed-distinct-observations",
       "type": "different-id-same-shape"
     },
     {
@@ -16829,6 +17626,26 @@
       "type": "different-id-same-shape"
     },
     {
+      "baseline": "scoped-a022-versioned-binding",
+      "baselineAccepted": true,
+      "confidence": "medium",
+      "fingerprint": "sha256:d8432951a7d4802434b532fbecea3ab847d36a8be12a79e2e560b9eb8910dc2d",
+      "origin": "scanner",
+      "rationale": "Static analysis found the same normalized field shape under different identifiers.",
+      "recommendation": "Review semantic ownership and record aliasOf or a distinct-contract rationale before adding another matching identifier.",
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
+      },
+      "reviewId": "shape-collision-d8432951a7d4",
+      "schemaIds": [
+        "xtend.epic18.rmt-dom-descriptor-renderer.v2",
+        "xtend.rmt.state-binding-view-projector.v1"
+      ],
+      "status": "reviewed-distinct-observations",
+      "type": "different-id-same-shape"
+    },
+    {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
       "confidence": "medium",
@@ -16866,6 +17683,51 @@
         "xtend.material.shell-recipe-report.v1"
       ],
       "status": "open",
+      "type": "different-id-same-shape"
+    },
+    {
+      "reviewId": "shape-collision-e9da385c1ffb",
+      "type": "different-id-same-shape",
+      "confidence": "medium",
+      "status": "reviewed-distinct-observations",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A02.4: current/Legacy contract versions and partial generated or reference shapes have distinct semantic ownership. No collision is an alias or feature/publication approval."
+      },
+      "schemaIds": [
+        "xtend.maraca.plan-runtime.v3",
+        "xtend.maraca.plan-runtime.v4",
+        "xtend.maraca.plan-runtime.v5",
+        "xtend.maraca.plan-runtime.v6"
+      ],
+      "fingerprint": "sha256:e9da385c1ffb64df2a69cdbf3459c5c5fd27f5b8dc3836a0c06a24877affedc4",
+      "rationale": "Static analysis found the same normalized field shape under different identifiers.",
+      "recommendation": "Review semantic ownership and record aliasOf or a distinct-contract rationale before adding another matching identifier.",
+      "baseline": "scoped-a024-repeated-hosts"
+    },
+    {
+      "baseline": "scoped-a0252-router-maraca",
+      "baselineAccepted": true,
+      "confidence": "medium",
+      "fingerprint": "sha256:e9da385c1ffb64df2a69cdbf3459c5c5fd27f5b8dc3836a0c06a24877affedc4",
+      "origin": "scanner",
+      "rationale": "Static analysis found the same normalized field shape under different identifiers.",
+      "recommendation": "Review semantic ownership and record aliasOf or a distinct-contract rationale before adding another matching identifier.",
+      "resolution": {
+        "kind": "distinct-contract",
+        "rationale": "A02.5.2 scoped Router/Maraca integration review: new runtime v7/browser root v5 and route-host v1; four byte-identical URL v1 formats gain their first production formal/type authority. Other differences are source/archive/generated-mirror provenance or non-authoritative expression inference for open transaction metadata. Every unrelated authority/released hash remains unchanged. Feature acceptance, initial-candidate publication guard and fresh committed CI evidence remain separate."
+      },
+      "reviewId": "shape-collision-e9da385c1ffb",
+      "schemaIds": [
+        "xtend.maraca.plan-runtime.v3",
+        "xtend.maraca.plan-runtime.v4",
+        "xtend.maraca.plan-runtime.v5",
+        "xtend.maraca.plan-runtime.v6",
+        "xtend.maraca.plan-runtime.v7"
+      ],
+      "status": "reviewed-distinct-observations",
       "type": "different-id-same-shape"
     },
     {
@@ -16932,6 +17794,42 @@
       "baseline": "inventory-v2",
       "baselineAccepted": true,
       "confidence": "high",
+      "origin": "scanner",
+      "rationale": "XCommand intentionally uses the kernel contract identifier for the kernel facade, registrations, diagnostics, keystrokes and dispatch results.",
+      "recommendation": "Keep the variants visible and review a future split without changing the runtime in this inventory step.",
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "All observed fingerprints are bound to the entry shapePolicy and remain subject to drift checks."
+      },
+      "reviewId": "xcommand-kernel-polymorphism",
+      "schemaIds": [
+        "xtend.xcommand.kernel-contract.v1"
+      ],
+      "status": "accepted-polymorphic-for-inventory",
+      "type": "same-id-multiple-shapes"
+    },
+    {
+      "baseline": "inventory-v2",
+      "baselineAccepted": true,
+      "confidence": "high",
+      "origin": "scanner",
+      "rationale": "The XKeymap surface identifier marks both individual keymap entries and the grouped keymap presentation model.",
+      "recommendation": "Keep both variants documented until a versioned contract split is explicitly designed.",
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "All observed fingerprints are bound to the entry shapePolicy and remain subject to drift checks."
+      },
+      "reviewId": "xkeymap-surface-polymorphism",
+      "schemaIds": [
+        "xtend.xkeymap.surface-contract.v1"
+      ],
+      "status": "accepted-polymorphic-for-inventory",
+      "type": "same-id-multiple-shapes"
+    },
+    {
+      "baseline": "inventory-v2",
+      "baselineAccepted": true,
+      "confidence": "high",
       "origin": "curated",
       "rationale": "The five framework-specific host-resource cleanup records are exact aliases of the shared declared contract; the host-controller cleanup record remains distinct because it has no xtensionId field.",
       "recommendation": "Write the canonical host-resource cleanup ID, retain the five legacy IDs only in compatibility readers, and keep the six-field host-controller contract separate.",
@@ -16951,25 +17849,6 @@
       ],
       "status": "accepted",
       "type": "curated-consolidation-decision"
-    },
-    {
-      "baseline": "inventory-v2",
-      "baselineAccepted": true,
-      "confidence": "high",
-      "origin": "curated",
-      "rationale": "The component-profile identifier appears only in xsurfaceportal while the established accessibility profile identifier is used across the component catalog.",
-      "recommendation": "Confirm whether xsurfaceportal should adopt the established accessibility profile identifier.",
-      "resolution": {
-        "kind": "review-case",
-        "rationale": "The initial audit retains the identifiers as separate entities and records the collision for domain-owner review; no runtime or API migration is performed here."
-      },
-      "reviewId": "a11y-component-profile-drift",
-      "schemaIds": [
-        "xtend.a11y.component-profile.v1",
-        "xtend.a11y.profile.v1"
-      ],
-      "status": "open",
-      "type": "near-name-drift"
     },
     {
       "baseline": "inventory-v2",
@@ -17008,849 +17887,6 @@
       ],
       "status": "open",
       "type": "parallel-fixture-shape"
-    },
-    {
-      "reviewId": "polymorphic-2ad410efc8e9",
-      "type": "same-id-multiple-shapes",
-      "confidence": "medium",
-      "status": "reviewed",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "accepted-polymorphic",
-        "rationale": "Scope of the approved runtime diagnostics patch: exactly the empty producer probe array and the populated timeout test fixture. Both are non-authoritative internal observations; no error is accepted and no runtime identity check is changed."
-      },
-      "schemaIds": [
-        "xtend.test.probe-diagnostics.v1"
-      ],
-      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape."
-    },
-    {
-      "reviewId": "polymorphic-820093e676dc",
-      "type": "same-id-multiple-shapes",
-      "confidence": "medium",
-      "status": "accepted-polymorphic-for-inventory",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "accepted-polymorphic",
-        "rationale": "Scoped Classic preparation: complete AST authority is the generated closed schema; compiler/report/fixture observations are distinct contexts. No partial collision is an alias or release grant."
-      },
-      "schemaIds": [
-        "xtend.rmt.vnext.ast.v1"
-      ],
-      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "baseline": "scoped-0.9-classic-preparation"
-    },
-    {
-      "reviewId": "polymorphic-085be9c05c5c",
-      "type": "same-id-multiple-shapes",
-      "confidence": "medium",
-      "status": "accepted-polymorphic-for-inventory",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "accepted-polymorphic",
-        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
-      },
-      "schemaIds": [
-        "xtend.maraca.browser-composition-root.v2"
-      ],
-      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "baseline": "scoped-a022-versioned-binding"
-    },
-    {
-      "reviewId": "polymorphic-0c4d6873595e",
-      "type": "same-id-multiple-shapes",
-      "confidence": "medium",
-      "status": "accepted-polymorphic-for-inventory",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "accepted-polymorphic",
-        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
-      },
-      "schemaIds": [
-        "xtend.maraca.plan-runtime.v4"
-      ],
-      "rationale": "Static analysis observes 7 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "baseline": "scoped-a022-versioned-binding"
-    },
-    {
-      "reviewId": "polymorphic-0d9005183bb4",
-      "type": "same-id-multiple-shapes",
-      "confidence": "medium",
-      "status": "accepted-polymorphic-for-inventory",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "accepted-polymorphic",
-        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
-      },
-      "schemaIds": [
-        "xtend.maraca.state-change.v1"
-      ],
-      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "baseline": "scoped-a022-versioned-binding"
-    },
-    {
-      "reviewId": "polymorphic-11d84ac31428",
-      "type": "same-id-multiple-shapes",
-      "confidence": "medium",
-      "status": "accepted-polymorphic-for-inventory",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "accepted-polymorphic",
-        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
-      },
-      "schemaIds": [
-        "xtend.xtensions.runtime-host-controller.v2"
-      ],
-      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "baseline": "scoped-a022-versioned-binding"
-    },
-    {
-      "reviewId": "polymorphic-178fedbd612a",
-      "type": "same-id-multiple-shapes",
-      "confidence": "medium",
-      "status": "accepted-polymorphic-for-inventory",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "accepted-polymorphic",
-        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
-      },
-      "schemaIds": [
-        "xtend.rmt.classic.compile-result.v2"
-      ],
-      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "baseline": "scoped-a022-versioned-binding"
-    },
-    {
-      "reviewId": "polymorphic-21a9c6c6aa3b",
-      "type": "same-id-multiple-shapes",
-      "confidence": "medium",
-      "status": "accepted-polymorphic-for-inventory",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "accepted-polymorphic",
-        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
-      },
-      "schemaIds": [
-        "xtend.maraca.orchestration-boot.v1"
-      ],
-      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "baseline": "scoped-a022-versioned-binding"
-    },
-    {
-      "reviewId": "polymorphic-278f13d45fa5",
-      "type": "same-id-multiple-shapes",
-      "confidence": "medium",
-      "status": "accepted-polymorphic-for-inventory",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "accepted-polymorphic",
-        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
-      },
-      "schemaIds": [
-        "xtend.maraca.hydration-snapshot.v1"
-      ],
-      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "baseline": "scoped-a022-versioned-binding"
-    },
-    {
-      "reviewId": "polymorphic-36827006b66e",
-      "type": "same-id-multiple-shapes",
-      "confidence": "medium",
-      "status": "accepted-polymorphic-for-inventory",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "accepted-polymorphic",
-        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
-      },
-      "schemaIds": [
-        "xtend.xtensions.state-binding-artifact.v1"
-      ],
-      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "baseline": "scoped-a022-versioned-binding"
-    },
-    {
-      "reviewId": "polymorphic-4e22358a680e",
-      "type": "same-id-multiple-shapes",
-      "confidence": "medium",
-      "status": "accepted-polymorphic-for-inventory",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "accepted-polymorphic",
-        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
-      },
-      "schemaIds": [
-        "xtend.maraca.build-config.v2"
-      ],
-      "rationale": "Static analysis observes 3 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "baseline": "scoped-a022-versioned-binding"
-    },
-    {
-      "reviewId": "polymorphic-7858131e7dd5",
-      "type": "same-id-multiple-shapes",
-      "confidence": "medium",
-      "status": "accepted-polymorphic-for-inventory",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "accepted-polymorphic",
-        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
-      },
-      "schemaIds": [
-        "xtend.maraca.component-command-context.v1"
-      ],
-      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "baseline": "scoped-a022-versioned-binding"
-    },
-    {
-      "reviewId": "polymorphic-88fde00e0364",
-      "type": "same-id-multiple-shapes",
-      "confidence": "medium",
-      "status": "accepted-polymorphic-for-inventory",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "accepted-polymorphic",
-        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
-      },
-      "schemaIds": [
-        "xtend.maraca.plan-runtime.scheduler-kernel.v1"
-      ],
-      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "baseline": "scoped-a022-versioned-binding"
-    },
-    {
-      "reviewId": "polymorphic-916d03ddd030",
-      "type": "same-id-multiple-shapes",
-      "confidence": "medium",
-      "status": "accepted-polymorphic-for-inventory",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "accepted-polymorphic",
-        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
-      },
-      "schemaIds": [
-        "xtend.maraca.build-plan.v2"
-      ],
-      "rationale": "Static analysis observes 4 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "baseline": "scoped-a022-versioned-binding"
-    },
-    {
-      "reviewId": "polymorphic-98256ad92bbf",
-      "type": "same-id-multiple-shapes",
-      "confidence": "medium",
-      "status": "accepted-polymorphic-for-inventory",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "accepted-polymorphic",
-        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
-      },
-      "schemaIds": [
-        "xtend.maraca.presentation-effect-context.v1"
-      ],
-      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "baseline": "scoped-a022-versioned-binding"
-    },
-    {
-      "reviewId": "polymorphic-cc61cc8ef70b",
-      "type": "same-id-multiple-shapes",
-      "confidence": "medium",
-      "status": "accepted-polymorphic-for-inventory",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "accepted-polymorphic",
-        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
-      },
-      "schemaIds": [
-        "xtend.xtensions.state-binding.v1"
-      ],
-      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "baseline": "scoped-a022-versioned-binding"
-    },
-    {
-      "reviewId": "polymorphic-dacd021601f5",
-      "type": "same-id-multiple-shapes",
-      "confidence": "medium",
-      "status": "accepted-polymorphic-for-inventory",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "accepted-polymorphic",
-        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
-      },
-      "schemaIds": [
-        "xtend.maraca.state-transaction.v1"
-      ],
-      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "baseline": "scoped-a022-versioned-binding"
-    },
-    {
-      "reviewId": "polymorphic-dc88bba1cb7e",
-      "type": "same-id-multiple-shapes",
-      "confidence": "medium",
-      "status": "accepted-polymorphic-for-inventory",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "accepted-polymorphic",
-        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
-      },
-      "schemaIds": [
-        "xtend.maraca.surface-change.v1"
-      ],
-      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "baseline": "scoped-a022-versioned-binding"
-    },
-    {
-      "reviewId": "polymorphic-f28fdd5e2816",
-      "type": "same-id-multiple-shapes",
-      "confidence": "medium",
-      "status": "accepted-polymorphic-for-inventory",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "accepted-polymorphic",
-        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
-      },
-      "schemaIds": [
-        "xtend.maraca.validation-projection.v1"
-      ],
-      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "baseline": "scoped-a022-versioned-binding"
-    },
-    {
-      "baseline": "scoped-a022-versioned-binding",
-      "baselineAccepted": true,
-      "confidence": "medium",
-      "fingerprint": "sha256:ab2d575d65f5aa5edd49f5f2acf88666e58f01828ab4a9c7978a839276924ed1",
-      "origin": "scanner",
-      "rationale": "Static analysis found the same normalized field shape under different identifiers.",
-      "recommendation": "Review semantic ownership and record aliasOf or a distinct-contract rationale before adding another matching identifier.",
-      "resolution": {
-        "kind": "distinct-contract",
-        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
-      },
-      "reviewId": "shape-collision-ab2d575d65f5",
-      "schemaIds": [
-        "xtend.epic18.rmt-dom-descriptor-renderer.v2",
-        "xtend.maraca.diagnostic.v1"
-      ],
-      "status": "reviewed-distinct-observations",
-      "type": "different-id-same-shape"
-    },
-    {
-      "baseline": "scoped-a022-versioned-binding",
-      "baselineAccepted": true,
-      "confidence": "medium",
-      "fingerprint": "sha256:d8432951a7d4802434b532fbecea3ab847d36a8be12a79e2e560b9eb8910dc2d",
-      "origin": "scanner",
-      "rationale": "Static analysis found the same normalized field shape under different identifiers.",
-      "recommendation": "Review semantic ownership and record aliasOf or a distinct-contract rationale before adding another matching identifier.",
-      "resolution": {
-        "kind": "distinct-contract",
-        "rationale": "A02.2 review: current and Legacy versions are distinct contracts; partial compiler/fixture/generated observations are contextual shapes. The closed Classic AST and all existing released authorities remain unchanged. No observation collision is an alias or a publication grant."
-      },
-      "reviewId": "shape-collision-d8432951a7d4",
-      "schemaIds": [
-        "xtend.epic18.rmt-dom-descriptor-renderer.v2",
-        "xtend.rmt.state-binding-view-projector.v1"
-      ],
-      "status": "reviewed-distinct-observations",
-      "type": "different-id-same-shape"
-    },
-    {
-      "reviewId": "shape-collision-e9da385c1ffb",
-      "type": "different-id-same-shape",
-      "confidence": "medium",
-      "status": "reviewed-distinct-observations",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "distinct-contract",
-        "rationale": "A02.4: current/Legacy contract versions and partial generated or reference shapes have distinct semantic ownership. No collision is an alias or feature/publication approval."
-      },
-      "schemaIds": [
-        "xtend.maraca.plan-runtime.v3",
-        "xtend.maraca.plan-runtime.v4",
-        "xtend.maraca.plan-runtime.v5",
-        "xtend.maraca.plan-runtime.v6"
-      ],
-      "fingerprint": "sha256:e9da385c1ffb64df2a69cdbf3459c5c5fd27f5b8dc3836a0c06a24877affedc4",
-      "rationale": "Static analysis found the same normalized field shape under different identifiers.",
-      "recommendation": "Review semantic ownership and record aliasOf or a distinct-contract rationale before adding another matching identifier.",
-      "baseline": "scoped-a024-repeated-hosts"
-    },
-    {
-      "reviewId": "polymorphic-178512180dfc",
-      "type": "same-id-multiple-shapes",
-      "confidence": "medium",
-      "status": "reviewed-distinct-observations",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "distinct-contract",
-        "rationale": "A02.3: versioned conditional lifetime semantics are distinct from Legacy; partial fixture/generated shapes do not grant alias or release authority."
-      },
-      "schemaIds": [
-        "xtend.maraca.plan-runtime.v5"
-      ],
-      "rationale": "Static analysis observes 7 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "baseline": "scoped-a023-conditional-hosts"
-    },
-    {
-      "reviewId": "polymorphic-7258e24c81e0",
-      "type": "same-id-multiple-shapes",
-      "confidence": "medium",
-      "status": "reviewed-distinct-observations",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "distinct-contract",
-        "rationale": "A02.3: versioned conditional lifetime semantics are distinct from Legacy; partial fixture/generated shapes do not grant alias or release authority."
-      },
-      "schemaIds": [
-        "xtend.rmt.classic.compile-result.v3"
-      ],
-      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "baseline": "scoped-a023-conditional-hosts"
-    },
-    {
-      "reviewId": "polymorphic-81d0cac70caa",
-      "type": "same-id-multiple-shapes",
-      "confidence": "medium",
-      "status": "reviewed-distinct-observations",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "distinct-contract",
-        "rationale": "A02.3: versioned conditional lifetime semantics are distinct from Legacy; partial fixture/generated shapes do not grant alias or release authority."
-      },
-      "schemaIds": [
-        "xtend.maraca.build-config.v3"
-      ],
-      "rationale": "Static analysis observes 3 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "baseline": "scoped-a023-conditional-hosts"
-    },
-    {
-      "reviewId": "polymorphic-abb547f1e8bb",
-      "type": "same-id-multiple-shapes",
-      "confidence": "medium",
-      "status": "reviewed-distinct-observations",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "distinct-contract",
-        "rationale": "A02.3: versioned conditional lifetime semantics are distinct from Legacy; partial fixture/generated shapes do not grant alias or release authority."
-      },
-      "schemaIds": [
-        "xtend.maraca.build-plan.v3"
-      ],
-      "rationale": "Static analysis observes 4 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "baseline": "scoped-a023-conditional-hosts"
-    },
-    {
-      "reviewId": "polymorphic-c0de9cfe24c6",
-      "type": "same-id-multiple-shapes",
-      "confidence": "medium",
-      "status": "reviewed-distinct-observations",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "distinct-contract",
-        "rationale": "A02.3: versioned conditional lifetime semantics are distinct from Legacy; partial fixture/generated shapes do not grant alias or release authority."
-      },
-      "schemaIds": [
-        "xtend.maraca.browser-composition-root.v3"
-      ],
-      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "baseline": "scoped-a023-conditional-hosts"
-    },
-    {
-      "reviewId": "shape-collision-62c08f3745ee",
-      "type": "different-id-same-shape",
-      "confidence": "medium",
-      "status": "reviewed-distinct-observations",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "distinct-contract",
-        "rationale": "A02.4: current/Legacy contract versions and partial generated or reference shapes have distinct semantic ownership. No collision is an alias or feature/publication approval."
-      },
-      "schemaIds": [
-        "xtend.maraca.plan-runtime.v4",
-        "xtend.maraca.plan-runtime.v5",
-        "xtend.maraca.plan-runtime.v6"
-      ],
-      "fingerprint": "sha256:62c08f3745ee0ba1b374694cce49c50aae84cf7a097a9d3992c8742d25576ca7",
-      "rationale": "Static analysis found the same normalized field shape under different identifiers.",
-      "recommendation": "Review semantic ownership and record aliasOf or a distinct-contract rationale before adding another matching identifier.",
-      "baseline": "scoped-a024-repeated-hosts"
-    },
-    {
-      "reviewId": "polymorphic-3c72c51f7c36",
-      "type": "same-id-multiple-shapes",
-      "confidence": "medium",
-      "status": "reviewed-distinct-observations",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "distinct-contract",
-        "rationale": "A02.4: versioned repeated-host and key-scope semantics are distinct from Legacy; partial fixture/generated shapes do not grant alias or release authority."
-      },
-      "schemaIds": [
-        "xtend.maraca.build-plan.v4"
-      ],
-      "rationale": "Static analysis observes 4 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "baseline": "scoped-a024-repeated-hosts"
-    },
-    {
-      "reviewId": "polymorphic-a05507c36e08",
-      "type": "same-id-multiple-shapes",
-      "confidence": "medium",
-      "status": "reviewed-distinct-observations",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "distinct-contract",
-        "rationale": "A02.4: versioned repeated-host and key-scope semantics are distinct from Legacy; partial fixture/generated shapes do not grant alias or release authority."
-      },
-      "schemaIds": [
-        "xtend.maraca.plan-runtime.v6"
-      ],
-      "rationale": "Static analysis observes 7 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "baseline": "scoped-a024-repeated-hosts"
-    },
-    {
-      "reviewId": "polymorphic-bb146c6137fd",
-      "type": "same-id-multiple-shapes",
-      "confidence": "medium",
-      "status": "reviewed-distinct-observations",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "distinct-contract",
-        "rationale": "A02.4: versioned repeated-host and key-scope semantics are distinct from Legacy; partial fixture/generated shapes do not grant alias or release authority."
-      },
-      "schemaIds": [
-        "xtend.maraca.browser-composition-root.v4"
-      ],
-      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "baseline": "scoped-a024-repeated-hosts"
-    },
-    {
-      "reviewId": "polymorphic-cabdc07ad33c",
-      "type": "same-id-multiple-shapes",
-      "confidence": "medium",
-      "status": "reviewed-distinct-observations",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "distinct-contract",
-        "rationale": "A02.4: versioned repeated-host and key-scope semantics are distinct from Legacy; partial fixture/generated shapes do not grant alias or release authority."
-      },
-      "schemaIds": [
-        "xtend.xtensions.state-binding-artifact.v3"
-      ],
-      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "baseline": "scoped-a024-repeated-hosts"
-    },
-    {
-      "reviewId": "polymorphic-d18e99753688",
-      "type": "same-id-multiple-shapes",
-      "confidence": "medium",
-      "status": "reviewed-distinct-observations",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "distinct-contract",
-        "rationale": "A02.4: versioned repeated-host and key-scope semantics are distinct from Legacy; partial fixture/generated shapes do not grant alias or release authority."
-      },
-      "schemaIds": [
-        "xtend.xtensions.state-binding.v2"
-      ],
-      "rationale": "Static analysis observes 3 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "baseline": "scoped-a024-repeated-hosts"
-    },
-    {
-      "reviewId": "polymorphic-dc7aa6c81f8e",
-      "type": "same-id-multiple-shapes",
-      "confidence": "medium",
-      "status": "reviewed-distinct-observations",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "distinct-contract",
-        "rationale": "A02.4: versioned repeated-host and key-scope semantics are distinct from Legacy; partial fixture/generated shapes do not grant alias or release authority."
-      },
-      "schemaIds": [
-        "xtend.maraca.build-config.v4"
-      ],
-      "rationale": "Static analysis observes 3 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "baseline": "scoped-a024-repeated-hosts"
-    },
-    {
-      "reviewId": "polymorphic-e05008178aab",
-      "type": "same-id-multiple-shapes",
-      "confidence": "medium",
-      "status": "reviewed-distinct-observations",
-      "origin": "scanner",
-      "baselineAccepted": true,
-      "resolution": {
-        "kind": "distinct-contract",
-        "rationale": "A02.4: versioned repeated-host and key-scope semantics are distinct from Legacy; partial fixture/generated shapes do not grant alias or release authority."
-      },
-      "schemaIds": [
-        "xtend.rmt.classic.compile-result.v4"
-      ],
-      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "baseline": "scoped-a024-repeated-hosts"
-    },
-    {
-      "baseline": "scoped-a025-url-history-contract",
-      "baselineAccepted": true,
-      "confidence": "medium",
-      "origin": "scanner",
-      "rationale": "Static analysis observes 3 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "resolution": {
-        "kind": "distinct-contract",
-        "rationale": "A02.5.1 scoped URL/History contract review: development-only v1 policy, state, restore-plan and history-proposal, plus non-authoritative reference/test observations and source positions. No production contract changes; existing authority/released hashes are preserved. Router/Maraca integration and feature/publication acceptance remain pending. See development/rmtx-a02/url-history/README.md."
-      },
-      "reviewId": "polymorphic-48d8c58255a9",
-      "schemaIds": [
-        "xtend.xtensions.url-state-policy.v1"
-      ],
-      "status": "reviewed-distinct-observations",
-      "type": "same-id-multiple-shapes"
-    },
-    {
-      "baseline": "scoped-a025-url-history-contract",
-      "baselineAccepted": true,
-      "confidence": "medium",
-      "origin": "scanner",
-      "rationale": "Static analysis observes 3 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "resolution": {
-        "kind": "distinct-contract",
-        "rationale": "A02.5.1 scoped URL/History contract review: development-only v1 policy, state, restore-plan and history-proposal, plus non-authoritative reference/test observations and source positions. No production contract changes; existing authority/released hashes are preserved. Router/Maraca integration and feature/publication acceptance remain pending. See development/rmtx-a02/url-history/README.md."
-      },
-      "reviewId": "polymorphic-6404b0b5cb9a",
-      "schemaIds": [
-        "xtend.xtensions.url-history-proposal.v1"
-      ],
-      "status": "reviewed-distinct-observations",
-      "type": "same-id-multiple-shapes"
-    },
-    {
-      "baseline": "scoped-a025-url-history-contract",
-      "baselineAccepted": true,
-      "confidence": "medium",
-      "origin": "scanner",
-      "rationale": "Static analysis observes 3 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "resolution": {
-        "kind": "distinct-contract",
-        "rationale": "A02.5.1 scoped URL/History contract review: development-only v1 policy, state, restore-plan and history-proposal, plus non-authoritative reference/test observations and source positions. No production contract changes; existing authority/released hashes are preserved. Router/Maraca integration and feature/publication acceptance remain pending. See development/rmtx-a02/url-history/README.md."
-      },
-      "reviewId": "polymorphic-a50492392c35",
-      "schemaIds": [
-        "xtend.xtensions.url-state-restore-plan.v1"
-      ],
-      "status": "reviewed-distinct-observations",
-      "type": "same-id-multiple-shapes"
-    },
-    {
-      "baseline": "scoped-a025-url-history-contract",
-      "baselineAccepted": true,
-      "confidence": "medium",
-      "origin": "scanner",
-      "rationale": "Static analysis observes 6 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "resolution": {
-        "kind": "distinct-contract",
-        "rationale": "A02.5.1 scoped URL/History contract review: development-only v1 policy, state, restore-plan and history-proposal, plus non-authoritative reference/test observations and source positions. No production contract changes; existing authority/released hashes are preserved. Router/Maraca integration and feature/publication acceptance remain pending. See development/rmtx-a02/url-history/README.md."
-      },
-      "reviewId": "polymorphic-c24c54d50f0f",
-      "schemaIds": [
-        "xtend.xtensions.url-state.v1"
-      ],
-      "status": "reviewed-distinct-observations",
-      "type": "same-id-multiple-shapes"
-    },
-    {
-      "baseline": "scoped-a0252-router-maraca",
-      "baselineAccepted": true,
-      "confidence": "medium",
-      "origin": "scanner",
-      "rationale": "Static analysis observes 3 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "resolution": {
-        "kind": "distinct-contract",
-        "rationale": "A02.5.2 scoped Router/Maraca integration review: new runtime v7/browser root v5 and route-host v1; four byte-identical URL v1 formats gain their first production formal/type authority. Other differences are source/archive/generated-mirror provenance or non-authoritative expression inference for open transaction metadata. Every unrelated authority/released hash remains unchanged. Feature acceptance, initial-candidate publication guard and fresh committed CI evidence remain separate."
-      },
-      "reviewId": "polymorphic-62cc4e8bed2d",
-      "schemaIds": [
-        "xtend.router.url-state-host.v1"
-      ],
-      "status": "reviewed-distinct-observations",
-      "type": "same-id-multiple-shapes"
-    },
-    {
-      "baseline": "scoped-a0252-router-maraca",
-      "baselineAccepted": true,
-      "confidence": "medium",
-      "origin": "scanner",
-      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "resolution": {
-        "kind": "distinct-contract",
-        "rationale": "A02.5.2 scoped Router/Maraca integration review: new runtime v7/browser root v5 and route-host v1; four byte-identical URL v1 formats gain their first production formal/type authority. Other differences are source/archive/generated-mirror provenance or non-authoritative expression inference for open transaction metadata. Every unrelated authority/released hash remains unchanged. Feature acceptance, initial-candidate publication guard and fresh committed CI evidence remain separate."
-      },
-      "reviewId": "polymorphic-86ed06cd56fa",
-      "schemaIds": [
-        "xtend.maraca.browser-composition-root.v5"
-      ],
-      "status": "reviewed-distinct-observations",
-      "type": "same-id-multiple-shapes"
-    },
-    {
-      "baseline": "scoped-a0252-router-maraca",
-      "baselineAccepted": true,
-      "confidence": "medium",
-      "origin": "scanner",
-      "rationale": "Static analysis observes 6 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "resolution": {
-        "kind": "distinct-contract",
-        "rationale": "A02.5.2 scoped Router/Maraca integration review: new runtime v7/browser root v5 and route-host v1; four byte-identical URL v1 formats gain their first production formal/type authority. Other differences are source/archive/generated-mirror provenance or non-authoritative expression inference for open transaction metadata. Every unrelated authority/released hash remains unchanged. Feature acceptance, initial-candidate publication guard and fresh committed CI evidence remain separate."
-      },
-      "reviewId": "polymorphic-f511fd375ed4",
-      "schemaIds": [
-        "xtend.maraca.plan-runtime.v7"
-      ],
-      "status": "reviewed-distinct-observations",
-      "type": "same-id-multiple-shapes"
-    },
-    {
-      "baseline": "scoped-a0252-router-maraca",
-      "baselineAccepted": true,
-      "confidence": "medium",
-      "fingerprint": "sha256:e9da385c1ffb64df2a69cdbf3459c5c5fd27f5b8dc3836a0c06a24877affedc4",
-      "origin": "scanner",
-      "rationale": "Static analysis found the same normalized field shape under different identifiers.",
-      "recommendation": "Review semantic ownership and record aliasOf or a distinct-contract rationale before adding another matching identifier.",
-      "resolution": {
-        "kind": "distinct-contract",
-        "rationale": "A02.5.2 scoped Router/Maraca integration review: new runtime v7/browser root v5 and route-host v1; four byte-identical URL v1 formats gain their first production formal/type authority. Other differences are source/archive/generated-mirror provenance or non-authoritative expression inference for open transaction metadata. Every unrelated authority/released hash remains unchanged. Feature acceptance, initial-candidate publication guard and fresh committed CI evidence remain separate."
-      },
-      "reviewId": "shape-collision-e9da385c1ffb",
-      "schemaIds": [
-        "xtend.maraca.plan-runtime.v3",
-        "xtend.maraca.plan-runtime.v4",
-        "xtend.maraca.plan-runtime.v5",
-        "xtend.maraca.plan-runtime.v6",
-        "xtend.maraca.plan-runtime.v7"
-      ],
-      "status": "reviewed-distinct-observations",
-      "type": "different-id-same-shape"
-    },
-    {
-      "baseline": "scoped-a031-kernel-fabric",
-      "baselineAccepted": true,
-      "confidence": "medium",
-      "origin": "scanner",
-      "rationale": "Static analysis observes 3 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "resolution": {
-        "kind": "distinct-contract",
-        "rationale": "A03.1 scoped explicit Kernel/Fabric review: new v3 host and React/Vue factory contracts, v1 capability and owned-work snapshots; real kernel admission, named cooperative grants, current host policy, yielding and cancellation require Fabric and preserve immediate cleanup. Registry API 2.1 accepts version-matched v2/v3 suppliers. Every existing authoritative/released set and Native Kernel ABI is unchanged; other findings are source/generated/fixture provenance or non-authoritative expression inference. Full A03/0.9 feature acceptance and publication remain pending."
-      },
-      "reviewId": "polymorphic-66b7dcca0610",
-      "schemaIds": [
-        "xtend.xtensions.runtime-capabilities.v1"
-      ],
-      "status": "reviewed-distinct-observations",
-      "type": "same-id-multiple-shapes"
-    },
-    {
-      "baseline": "scoped-a031-kernel-fabric",
-      "baselineAccepted": true,
-      "confidence": "medium",
-      "origin": "scanner",
-      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "resolution": {
-        "kind": "distinct-contract",
-        "rationale": "A03.1 scoped explicit Kernel/Fabric review: new v3 host and React/Vue factory contracts, v1 capability and owned-work snapshots; real kernel admission, named cooperative grants, current host policy, yielding and cancellation require Fabric and preserve immediate cleanup. Registry API 2.1 accepts version-matched v2/v3 suppliers. Every existing authoritative/released set and Native Kernel ABI is unchanged; other findings are source/generated/fixture provenance or non-authoritative expression inference. Full A03/0.9 feature acceptance and publication remain pending."
-      },
-      "reviewId": "polymorphic-c9b5dc0dff95",
-      "schemaIds": [
-        "xtend.xtensions.kernel-work-scope.v1"
-      ],
-      "status": "reviewed-distinct-observations",
-      "type": "same-id-multiple-shapes"
-    },
-    {
-      "baseline": "scoped-a032-surface-kernel-resources",
-      "baselineAccepted": true,
-      "confidence": "medium",
-      "origin": "scanner",
-      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
-      "recommendation": "Confirm that the variants are intentional before adding another shape.",
-      "resolution": {
-        "kind": "distinct-contract",
-        "rationale": "A03.2 scoped Surface/Kernel resource review: explicit v4 graph hosts own one native kernel resource and one generation-bound Surface subscription. Immediate Fabric-observed revocation, staged controlled props, queued resume, terminal cleanup and graph-inclusive idle barriers are verified with real frameworks and compiled keyed Maraca hosts. Registry API 2.2 accepts version-matched v2/v3/v4 suppliers. Native Kernel, Surface Graph and Surface Controller ABIs and every preexisting authoritative/released fingerprint remain unchanged. Automatic provider composition and remaining A03/0.9 acceptance stay pending."
-      },
-      "reviewId": "polymorphic-093c1f7117b5",
-      "schemaIds": [
-        "xtend.xtensions.resource-graph-binding.v1"
-      ],
-      "status": "reviewed-distinct-observations",
-      "type": "same-id-multiple-shapes"
     }
   ],
   "entries": [
@@ -664483,28 +664519,28 @@
             },
             {
               "type": "package-export",
-              "path": "xtendrmt/rmt-kernel-scheduler.d.ts",
-              "module": "@ccslabs/xtend/rmt/kernel-scheduler"
+              "module": "@ccslabs/xtend/rmt/kernel-scheduler",
+              "path": "xtendrmt/rmt-kernel-scheduler.d.ts"
             },
             {
               "type": "package-export",
-              "path": "xtendrmt/rmt-kernel-scheduler.js",
-              "module": "@ccslabs/xtend/rmt/kernel-scheduler"
+              "module": "@ccslabs/xtend/rmt/kernel-scheduler",
+              "path": "xtendrmt/rmt-kernel-scheduler.js"
             },
             {
+              "type": "symbol",
               "path": "xtendrmt/rmt-kernel-scheduler.d.ts",
-              "symbol": "RMT_KERNEL_SCHEDULER_SCHEMA",
-              "type": "symbol"
+              "symbol": "RMT_KERNEL_SCHEDULER_SCHEMA"
             },
             {
+              "type": "symbol",
               "path": "xtendrmt/rmt-kernel-scheduler.d.ts",
-              "symbol": "RmtKernelScheduler",
-              "type": "symbol"
+              "symbol": "RmtKernelScheduler"
             },
             {
+              "type": "symbol",
               "path": "xtendrmt/rmt-kernel-scheduler.js",
-              "symbol": "RMT_KERNEL_SCHEDULER_SCHEMA",
-              "type": "symbol"
+              "symbol": "RMT_KERNEL_SCHEDULER_SCHEMA"
             }
           ]
         },
@@ -664527,51 +664563,52 @@
               "path": "xtendrmt/rmt-kernel-scheduler.js"
             },
             {
+              "type": "symbol",
               "path": "xtendrmt/rmt-kernel-scheduler.js",
-              "symbol": "createRmtKernelScheduler",
-              "type": "symbol"
+              "symbol": "createRmtKernelScheduler"
             },
             {
+              "type": "symbol",
               "path": "xtendrmt/rmt-kernel-scheduler.js",
-              "symbol": "snapshot",
-              "type": "symbol"
+              "symbol": "snapshot"
             }
           ]
         },
         {
           "application": "XTendRMT",
-          "interfaceReferences": [
-            {
-              "module": "@ccslabs/xtend-rmt/kernel-scheduler",
-              "path": "xtendrmt/rmt-kernel-scheduler.d.ts",
-              "type": "package-export"
-            },
-            {
-              "module": "@ccslabs/xtend/rmt/kernel-scheduler",
-              "path": "xtendrmt/rmt-kernel-scheduler.d.ts",
-              "type": "package-export"
-            }
-          ],
           "role": "reference",
+          "visibility": "public",
           "sourcePaths": [
             "xtendrmt/rmt-kernel-scheduler.d.ts"
           ],
-          "visibility": "public"
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-rmt/kernel-scheduler",
+              "path": "xtendrmt/rmt-kernel-scheduler.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/rmt/kernel-scheduler",
+              "path": "xtendrmt/rmt-kernel-scheduler.d.ts"
+            }
+          ]
         },
         {
           "application": "XTensions",
+          "role": "reference",
+          "visibility": "internal",
+          "sourcePaths": [
+            "tools/xtensions/kernel-work-scope.js",
+            "tools/xtensions/work-budget-policy.js"
+          ],
           "interfaceReferences": [
             {
+              "type": "repo-symbol",
               "path": "tools/xtensions/kernel-work-scope.js",
-              "symbol": null,
-              "type": "repo-symbol"
+              "symbol": null
             }
-          ],
-          "role": "reference",
-          "sourcePaths": [
-            "tools/xtensions/kernel-work-scope.js"
-          ],
-          "visibility": "internal"
+          ]
         }
       ],
       "version": 1
@@ -671620,6 +671657,111 @@
       "schemaId": "xtend.rmt.kernel-work.v1",
       "shapeFingerprints": [
         {
+          "hash": "sha256:4688791f67007c1b8035ce634e2d0aaee5341dc63585590a5d49d00592e478a0",
+          "shape": {
+            "fieldCount": 4,
+            "fields": [
+              "endpointName",
+              "metadata",
+              "rootId",
+              "scope"
+            ],
+            "signature": "endpointName:string|metadata:{generation:number,operation:{\"unresolvedReference\":\"workName\"},source:string,workKind:{\"unresolvedReference\":\"kind\"}}|rootId:{\"unresolved\":\"input.rootId\"}|scope:{\"unresolved\":\"input.scope\"}",
+            "normalized": {
+              "fields": {
+                "endpointName": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "metadata": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "generation": {
+                        "optional": false,
+                        "type": "number"
+                      },
+                      "operation": {
+                        "optional": false,
+                        "type": {
+                          "unresolvedReference": "workName"
+                        }
+                      },
+                      "source": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "workKind": {
+                        "optional": false,
+                        "type": {
+                          "unresolvedReference": "kind"
+                        }
+                      }
+                    },
+                    "unresolvedSpreads": [
+                      {
+                        "unresolvedReference": "identity"
+                      }
+                    ]
+                  }
+                },
+                "rootId": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "input.rootId"
+                  }
+                },
+                "scope": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "input.scope"
+                  }
+                }
+              },
+              "unresolvedSpreads": [
+                {
+                  "union": [
+                    {
+                      "fields": {
+                        "maxChunkMs": {
+                          "optional": false,
+                          "type": {
+                            "unresolved": "admission.limit.maxChunkMs"
+                          }
+                        }
+                      },
+                      "unresolvedSpreads": [
+                        "unknown"
+                      ]
+                    },
+                    "unknown"
+                  ]
+                }
+              ]
+            }
+          },
+          "sourcePaths": [
+            "tools/xtensions/kernel-work-scope.js"
+          ],
+          "symbols": [
+            "handle"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "tools/xtensions/kernel-work-scope.js",
+              "symbol": "handle"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
           "hash": "sha256:87aa4b2c4deb3dc559db6cc04e9c63c22ca5c068bd4e409ceff1abf2a04a820e",
           "shape": {
             "fieldCount": 15,
@@ -671885,108 +672027,18 @@
           ],
           "completeness": "partial",
           "authoritative": false
-        },
-        {
-          "authoritative": false,
-          "completeness": "partial",
-          "evidence": [
-            {
-              "authoritative": false,
-              "completeness": "partial",
-              "path": "tools/xtensions/kernel-work-scope.js",
-              "symbol": "handle",
-              "type": "runtime-observation"
-            }
-          ],
-          "evidenceTypes": [
-            "runtime-observation"
-          ],
-          "hash": "sha256:a59d4c8077763645186073d4ff101432ae8f5a2b8c71a4e75116925f8b57dbd3",
-          "shape": {
-            "fieldCount": 4,
-            "fields": [
-              "endpointName",
-              "metadata",
-              "rootId",
-              "scope"
-            ],
-            "normalized": {
-              "fields": {
-                "endpointName": {
-                  "optional": false,
-                  "type": "string"
-                },
-                "metadata": {
-                  "optional": false,
-                  "type": {
-                    "fields": {
-                      "generation": {
-                        "optional": false,
-                        "type": "number"
-                      },
-                      "operation": {
-                        "optional": false,
-                        "type": {
-                          "unresolvedReference": "workName"
-                        }
-                      },
-                      "source": {
-                        "optional": false,
-                        "type": "string"
-                      },
-                      "workKind": {
-                        "optional": false,
-                        "type": {
-                          "unresolvedReference": "kind"
-                        }
-                      }
-                    },
-                    "unresolvedSpreads": [
-                      {
-                        "unresolvedReference": "identity"
-                      }
-                    ]
-                  }
-                },
-                "rootId": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "input.rootId"
-                  }
-                },
-                "scope": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "input.scope"
-                  }
-                }
-              },
-              "unresolvedSpreads": [
-                {
-                  "unresolvedReference": "policy"
-                }
-              ]
-            },
-            "signature": "endpointName:string|metadata:{generation:number,operation:{\"unresolvedReference\":\"workName\"},source:string,workKind:{\"unresolvedReference\":\"kind\"}}|rootId:{\"unresolved\":\"input.rootId\"}|scope:{\"unresolved\":\"input.scope\"}"
-          },
-          "sourcePaths": [
-            "tools/xtensions/kernel-work-scope.js"
-          ],
-          "symbols": [
-            "handle"
-          ]
         }
       ],
       "shapePolicy": {
         "acceptedFingerprints": [
+          "sha256:4688791f67007c1b8035ce634e2d0aaee5341dc63585590a5d49d00592e478a0",
           "sha256:87aa4b2c4deb3dc559db6cc04e9c63c22ca5c068bd4e409ceff1abf2a04a820e",
-          "sha256:a41fb36cf2b565b1791d97d8bb93ef6661f006e811e3a32d41b0568091c9a040",
-          "sha256:a59d4c8077763645186073d4ff101432ae8f5a2b8c71a4e75116925f8b57dbd3"
+          "sha256:a41fb36cf2b565b1791d97d8bb93ef6661f006e811e3a32d41b0568091c9a040"
         ],
         "authoritativeFingerprints": [],
-        "decision": "reviewed-a031-kernel-fabric",
+        "decision": "reviewed-a033-bounded-pressure-budgets",
         "mode": "polymorphic",
-        "rationale": "A03.1 scoped explicit Kernel/Fabric review: new v3 host and React/Vue factory contracts, v1 capability and owned-work snapshots; real kernel admission, named cooperative grants, current host policy, yielding and cancellation require Fabric and preserve immediate cleanup. Registry API 2.1 accepts version-matched v2/v3 suppliers. Every existing authoritative/released set and Native Kernel ABI is unchanged; other findings are source/generated/fixture provenance or non-authoritative expression inference. Full A03/0.9 feature acceptance and publication remain pending.",
+        "rationale": "Scoped A03.3 development review: v5 graph-bound hosts add bounded named-work admission, same-grant explicit replacement and live kernel-pressure cooperative chunk ceilings through mandatory Fabric. Registry API 2.3 accepts version-matched v2-v5 suppliers. Existing authoritative/released fingerprints and native Kernel/Surface ABIs remain unchanged. Automatic provider composition, capability negotiation and complete 0.9 feature acceptance remain pending. See development/rmtx-a03/work-budgets.md.",
         "releasedFingerprintSetHash": null
       },
       "status": "active",
@@ -774591,7 +774643,7 @@
           },
           {
             "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
-            "sha256": "480e1968758fc62e07153e1eb864c23fec31d1fa7b8901b5d531d23462b517ef"
+            "sha256": "b5e493a434d4727219b637c0534677cfb34796d005d1afcf5e1face34cc610d0"
           },
           {
             "path": "development/rmtx-a01/README.md",
@@ -774603,7 +774655,7 @@
           },
           {
             "path": "development/rmtx-a01/inventory.json",
-            "sha256": "d609daebb5473a50c56a24dd3df5857c4a4accf1564b4223e0129f6528f01980"
+            "sha256": "379ba2bb3f330e398f0eca20e0348dbad866888d036deb6012f53b65f5336c0d"
           },
           {
             "path": "docs/de/rmt-vnext-authoring.md",
@@ -774615,7 +774667,7 @@
           },
           {
             "path": "docs/generated/search/en.fulltext.json",
-            "sha256": "7c05c18229c24f2b8ef31eaf2cf3936f669aad4aadd27eb256220357b9bff6c4"
+            "sha256": "5c0161a474f8d67520b40fc44ef2c25907620ee33175df68b57aff02a12b26ea"
           },
           {
             "path": "package.json",
@@ -937582,11 +937634,11 @@
         "identifier-only"
       ],
       "lifecycle": {
-        "rollout": "planned",
-        "status": "active"
+        "status": "deprecated",
+        "rollout": "planned"
       },
       "releasedFingerprintSetHash": null,
-      "replacedBy": null,
+      "replacedBy": "xtend.xtensions.react-runtime-adapter.v5",
       "schemaId": "xtend.xtensions.react-runtime-adapter.v4",
       "shapeFingerprints": [],
       "shapePolicy": {
@@ -937601,41 +937653,117 @@
       "usages": [
         {
           "application": "XTend Tests: Types",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/types/xtensions_resource_graph.mts",
+            "tests/types/xtensions_work_budget.mts"
+          ],
           "interfaceReferences": [
             {
+              "type": "repo-symbol",
               "path": "tests/types/xtensions_resource_graph.mts",
-              "symbol": null,
-              "type": "repo-symbol"
+              "symbol": null
             }
-          ],
-          "role": "assertion",
-          "sourcePaths": [
-            "tests/types/xtensions_resource_graph.mts"
-          ],
-          "visibility": "test"
+          ]
         },
         {
           "application": "XTensions",
-          "interfaceReferences": [
-            {
-              "module": "@ccslabs/xtend-compiler/xtensions/react-runtime-adapter",
-              "path": "tools/xtensions/react-runtime-adapter.d.ts",
-              "type": "package-export"
-            },
-            {
-              "module": "@ccslabs/xtend/xtensions/react-runtime-adapter",
-              "path": "tools/xtensions/react-runtime-adapter.d.ts",
-              "type": "package-export"
-            }
-          ],
           "role": "reference",
+          "visibility": "internal",
           "sourcePaths": [
             "tools/xtensions/react-runtime-adapter.d.ts"
           ],
-          "visibility": "internal"
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-compiler/xtensions/react-runtime-adapter",
+              "path": "tools/xtensions/react-runtime-adapter.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/xtensions/react-runtime-adapter",
+              "path": "tools/xtensions/react-runtime-adapter.d.ts"
+            }
+          ]
         }
       ],
-      "version": 4
+      "version": 4,
+      "replacementDecision": {
+        "rationale": "A03.3 adds an explicit workBudget overload with v5 host semantics; all earlier overloads remain supported.",
+        "compatibility": "The explicit graph-bound API 4.0.0 overload remains supported without workBudget; v5 opts into bounded named-work and pressure budgets. Complete v4 host declarations and runtime behavior remain retained."
+      }
+    },
+    {
+      "schemaId": "xtend.xtensions.react-runtime-adapter.v5",
+      "familyId": "xtend.xtensions.react-runtime-adapter",
+      "version": 5,
+      "kinds": [
+        "identifier-only"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": null,
+      "description": "Unreleased A03.3 bounded-work/pressure-budget contract. Explicit native admission and Fabric execution, logical cancellation and cooperative chunks; no framework preemption or full 0.9 acceptance.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "tools/xtensions/react-runtime-adapter.d.ts",
+        "symbol": null,
+        "definitionType": "typescript-declaration",
+        "role": "reference",
+        "visibility": "internal"
+      },
+      "usages": [
+        {
+          "application": "XTend Tests: Types",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/types/xtensions_work_budget.mts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/types/xtensions_work_budget.mts",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTensions",
+          "role": "reference",
+          "visibility": "internal",
+          "sourcePaths": [
+            "tools/xtensions/react-runtime-adapter.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-compiler/xtensions/react-runtime-adapter",
+              "path": "tools/xtensions/react-runtime-adapter.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/xtensions/react-runtime-adapter",
+              "path": "tools/xtensions/react-runtime-adapter.d.ts"
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "unresolved",
+        "decision": "reviewed-a033-bounded-pressure-budgets",
+        "acceptedFingerprints": [],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rationale": "Scoped A03.3 development review: v5 graph-bound hosts add bounded named-work admission, same-grant explicit replacement and live kernel-pressure cooperative chunk ceilings through mandatory Fabric. Registry API 2.3 accepts version-matched v2-v5 suppliers. Existing authoritative/released fingerprints and native Kernel/Surface ABIs remain unchanged. Automatic provider composition, capability negotiation and complete 0.9 feature acceptance remain pending. See development/rmtx-a03/work-budgets.md."
+      },
+      "shapeFingerprints": []
     },
     {
       "aliasOf": null,
@@ -942160,80 +942288,81 @@
       "usages": [
         {
           "application": "XTend Development Contracts",
-          "interfaceReferences": [
-            {
-              "path": "development/rmtx-a01/inventory.json",
-              "pointer": "/",
-              "type": "json-pointer"
-            }
-          ],
           "role": "documentation",
+          "visibility": "docs",
           "sourcePaths": [
             "development/rmtx-a01/inventory.json",
             "development/rmtx-a03/resource-graph.md"
           ],
-          "visibility": "docs"
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "development/rmtx-a01/inventory.json",
+              "pointer": "/"
+            }
+          ]
         },
         {
           "application": "XTend Tests: Types",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/types/xtensions_resource_graph.mts",
+            "tests/types/xtensions_work_budget.mts"
+          ],
           "interfaceReferences": [
             {
+              "type": "repo-symbol",
               "path": "tests/types/xtensions_resource_graph.mts",
-              "symbol": null,
-              "type": "repo-symbol"
+              "symbol": null
             }
-          ],
-          "role": "assertion",
-          "sourcePaths": [
-            "tests/types/xtensions_resource_graph.mts"
-          ],
-          "visibility": "test"
+          ]
         },
         {
           "application": "XTend Tests: Xtensions",
-          "interfaceReferences": [
-            {
-              "path": "tests/xtensions/resource-graph-acceptance.js",
-              "symbol": null,
-              "type": "repo-symbol"
-            }
-          ],
           "role": "assertion",
+          "visibility": "test",
           "sourcePaths": [
             "tests/xtensions/resource-graph-acceptance.js"
           ],
-          "visibility": "test"
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/xtensions/resource-graph-acceptance.js",
+              "symbol": null
+            }
+          ]
         },
         {
           "application": "XTensions",
-          "interfaceReferences": [
-            {
-              "path": "tools/xtensions/runtime-host-controller.d.ts",
-              "symbol": "RuntimeResourceGraphBindingSnapshot",
-              "type": "symbol"
-            }
-          ],
           "role": "definition",
+          "visibility": "internal",
           "sourcePaths": [
             "tools/xtensions/runtime-host-controller.d.ts"
           ],
-          "visibility": "internal"
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "RuntimeResourceGraphBindingSnapshot"
+            }
+          ]
         },
         {
           "application": "XTensions",
-          "interfaceReferences": [
-            {
-              "path": "tools/xtensions/resource-graph-binding.js",
-              "symbol": "snapshot",
-              "type": "symbol"
-            }
-          ],
           "role": "producer",
+          "visibility": "internal",
           "sourcePaths": [
             "tools/xtensions/resource-graph-binding.js",
             "tools/xtensions/runtime-host-controller.d.ts"
           ],
-          "visibility": "internal"
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "tools/xtensions/resource-graph-binding.js",
+              "symbol": "snapshot"
+            }
+          ]
         }
       ],
       "version": 1
@@ -946703,11 +946832,11 @@
         "identifier-only"
       ],
       "lifecycle": {
-        "rollout": "planned",
-        "status": "active"
+        "status": "deprecated",
+        "rollout": "planned"
       },
       "releasedFingerprintSetHash": "sha256:cdf6e38fa64efc5a6371d958fa1fc7d11f7e811aee11c8e2eac2074d7391c03e",
-      "replacedBy": null,
+      "replacedBy": "xtend.xtensions.runtime-host-controller.v5",
       "schemaId": "xtend.xtensions.runtime-host-controller.v4",
       "shapeFingerprints": [
         {
@@ -946876,92 +947005,373 @@
       "usages": [
         {
           "application": "XTend Development Contracts",
-          "interfaceReferences": [
-            {
-              "path": "development/rmtx-a03/resource-graph.md",
-              "symbol": null,
-              "type": "repo-symbol"
-            }
-          ],
           "role": "documentation",
+          "visibility": "docs",
           "sourcePaths": [
             "development/rmtx-a03/resource-graph.md"
           ],
-          "visibility": "docs"
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "development/rmtx-a03/resource-graph.md",
+              "symbol": null
+            }
+          ]
         },
         {
           "application": "XTend Tests: Types",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/types/xtensions_resource_graph.mts",
+            "tests/types/xtensions_work_budget.mts"
+          ],
           "interfaceReferences": [
             {
+              "type": "repo-symbol",
               "path": "tests/types/xtensions_resource_graph.mts",
-              "symbol": null,
-              "type": "repo-symbol"
+              "symbol": null
             }
-          ],
-          "role": "assertion",
-          "sourcePaths": [
-            "tests/types/xtensions_resource_graph.mts"
-          ],
-          "visibility": "test"
+          ]
         },
         {
           "application": "XTend Tests: Xtensions",
-          "interfaceReferences": [
-            {
-              "path": "tests/xtensions/resource-graph-acceptance.js",
-              "symbol": null,
-              "type": "repo-symbol"
-            }
-          ],
           "role": "assertion",
+          "visibility": "test",
           "sourcePaths": [
             "tests/xtensions/resource-graph-acceptance.js"
           ],
-          "visibility": "test"
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/xtensions/resource-graph-acceptance.js",
+              "symbol": null
+            }
+          ]
         },
         {
           "application": "XTensions",
-          "interfaceReferences": [
-            {
-              "path": "tools/xtensions/runtime-host-controller.d.ts",
-              "symbol": "GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA",
-              "type": "symbol"
-            },
-            {
-              "path": "tools/xtensions/runtime-host-controller.d.ts",
-              "symbol": "GraphRuntimeHostController",
-              "type": "symbol"
-            },
-            {
-              "path": "tools/xtensions/runtime-host-controller.js",
-              "symbol": "GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA",
-              "type": "symbol"
-            }
-          ],
           "role": "definition",
+          "visibility": "internal",
           "sourcePaths": [
             "tools/xtensions/runtime-host-controller.d.ts",
             "tools/xtensions/runtime-host-controller.js"
           ],
-          "visibility": "internal"
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA"
+            },
+            {
+              "type": "symbol",
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "GraphRuntimeHostController"
+            },
+            {
+              "type": "symbol",
+              "path": "tools/xtensions/runtime-host-controller.js",
+              "symbol": "GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA"
+            }
+          ]
         },
         {
           "application": "XTensions",
-          "interfaceReferences": [
-            {
-              "path": "tools/xtensions/runtime-host-controller.d.ts",
-              "symbol": null,
-              "type": "repo-symbol"
-            }
-          ],
           "role": "reference",
+          "visibility": "internal",
           "sourcePaths": [
             "tools/xtensions/runtime-host-controller.d.ts"
           ],
-          "visibility": "internal"
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": null
+            }
+          ]
         }
       ],
-      "version": 4
+      "version": 4,
+      "replacementDecision": {
+        "rationale": "A03.3 adds an explicit workBudget overload with v5 host semantics; all earlier overloads remain supported.",
+        "compatibility": "The explicit graph-bound API 4.0.0 overload remains supported without workBudget; v5 opts into bounded named-work and pressure budgets. Complete v4 host declarations and runtime behavior remain retained."
+      }
+    },
+    {
+      "schemaId": "xtend.xtensions.runtime-host-controller.v5",
+      "familyId": "xtend.xtensions.runtime-host-controller",
+      "version": 5,
+      "kinds": [
+        "runtime-discriminator"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": "sha256:555ff0ef44a150ab883a0bd9234eeff79f748fc978c8aee99fa37321d863cc09",
+      "description": "Unreleased A03.3 bounded-work/pressure-budget contract. Explicit native admission and Fabric execution, logical cancellation and cooperative chunks; no framework preemption or full 0.9 acceptance.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "tools/xtensions/runtime-host-controller.js",
+        "symbol": "BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA",
+        "definitionType": "constant",
+        "role": "definition",
+        "visibility": "internal"
+      },
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a03/work-budgets.md"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "development/rmtx-a03/work-budgets.md",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Types",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/types/xtensions_work_budget.mts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/types/xtensions_work_budget.mts",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Xtensions",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/xtensions/work-budget-acceptance.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/xtensions/work-budget-acceptance.js",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTensions",
+          "role": "definition",
+          "visibility": "internal",
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts",
+            "tools/xtensions/runtime-host-controller.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA"
+            },
+            {
+              "type": "symbol",
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "BudgetRuntimeHostController"
+            },
+            {
+              "type": "symbol",
+              "path": "tools/xtensions/runtime-host-controller.js",
+              "symbol": "BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA"
+            }
+          ]
+        },
+        {
+          "application": "XTensions",
+          "role": "producer",
+          "visibility": "internal",
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": null
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "single",
+        "decision": "reviewed-a033-bounded-pressure-budgets",
+        "acceptedFingerprints": [
+          "sha256:21abdf1bd69bc565c84e991919e3c03c1bbc4cfb1b84a28d53b80466e238e1aa"
+        ],
+        "authoritativeFingerprints": [
+          "sha256:21abdf1bd69bc565c84e991919e3c03c1bbc4cfb1b84a28d53b80466e238e1aa"
+        ],
+        "releasedFingerprintSetHash": "sha256:555ff0ef44a150ab883a0bd9234eeff79f748fc978c8aee99fa37321d863cc09",
+        "rationale": "Scoped A03.3 development review: v5 graph-bound hosts add bounded named-work admission, same-grant explicit replacement and live kernel-pressure cooperative chunk ceilings through mandatory Fabric. Registry API 2.3 accepts version-matched v2-v5 suppliers. Existing authoritative/released fingerprints and native Kernel/Surface ABIs remain unchanged. Automatic provider composition, capability negotiation and complete 0.9 feature acceptance remain pending. See development/rmtx-a03/work-budgets.md."
+      },
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:21abdf1bd69bc565c84e991919e3c03c1bbc4cfb1b84a28d53b80466e238e1aa",
+          "shape": {
+            "fieldCount": 16,
+            "fields": [
+              "adapterSchema",
+              "apiVersion",
+              "emit",
+              "framework",
+              "getCapabilities",
+              "getCleanupRecords",
+              "getEventRecords",
+              "getLifecycleRecords",
+              "mount",
+              "reportError",
+              "resume",
+              "snapshot",
+              "suspend",
+              "unmount",
+              "update",
+              "whenIdle"
+            ],
+            "signature": "adapterSchema:string|apiVersion:literal<\"5.0.0\">|emit:{\"indexedAccess\":{\"index\":{\"literal\":\"emit\"},\"object\":{\"fields\":{\"emit\":{\"optional\":false,\"type\":\"function\"},\"resources\":{\"optional\":false,\"type\":{\"fields\":{\"register\":{\"optional\":false,\"type\":\"function\"}}}}}}}}|framework:union<literal<\"react\">|literal<\"vue\">>|getCapabilities:function|getCleanupRecords:function|getEventRecords:function|getLifecycleRecords:function|mount:function|reportError:function|resume:function|snapshot:function|suspend:function|unmount:function|update:function|whenIdle:function",
+            "normalized": {
+              "fields": {
+                "adapterSchema": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "apiVersion": {
+                  "optional": false,
+                  "type": {
+                    "literal": "5.0.0"
+                  }
+                },
+                "emit": {
+                  "optional": false,
+                  "type": {
+                    "indexedAccess": {
+                      "index": {
+                        "literal": "emit"
+                      },
+                      "object": {
+                        "fields": {
+                          "emit": {
+                            "optional": false,
+                            "type": "function"
+                          },
+                          "resources": {
+                            "optional": false,
+                            "type": {
+                              "fields": {
+                                "register": {
+                                  "optional": false,
+                                  "type": "function"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "framework": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "literal": "react"
+                      },
+                      {
+                        "literal": "vue"
+                      }
+                    ]
+                  }
+                },
+                "getCapabilities": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "getCleanupRecords": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "getEventRecords": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "getLifecycleRecords": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "mount": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "reportError": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "resume": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "snapshot": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "suspend": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "unmount": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "update": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "whenIdle": {
+                  "optional": false,
+                  "type": "function"
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "symbols": [
+            "BudgetRuntimeHostController"
+          ],
+          "evidence": [
+            {
+              "type": "declared-type",
+              "completeness": "complete",
+              "authoritative": true,
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "BudgetRuntimeHostController"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "completeness": "complete",
+          "authoritative": true
+        }
+      ]
     },
     {
       "aliasOf": null,
@@ -958782,7 +959192,8 @@
           "visibility": "test",
           "sourcePaths": [
             "tests/types/xtensions_kernel_runtime.mts",
-            "tests/types/xtensions_resource_graph.mts"
+            "tests/types/xtensions_resource_graph.mts",
+            "tests/types/xtensions_work_budget.mts"
           ],
           "interfaceReferences": [
             {
@@ -958809,75 +959220,75 @@
         },
         {
           "application": "XTend Tests: Xtensions",
-          "interfaceReferences": [
-            {
-              "path": "tests/xtensions/url-history-contract-checks.cjs",
-              "type": "repo-symbol",
-              "symbol": null
-            }
-          ],
           "role": "assertion",
+          "visibility": "test",
           "sourcePaths": [
             "tests/xtensions/url-history-contract-checks.cjs"
           ],
-          "visibility": "test"
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/xtensions/url-history-contract-checks.cjs",
+              "symbol": null
+            }
+          ]
         },
         {
           "application": "XTensions",
-          "interfaceReferences": [
-            {
-              "module": "@ccslabs/xtend-compiler/xtensions/state-binding",
-              "path": "tools/xtensions/state-binding.d.ts",
-              "type": "package-export"
-            },
-            {
-              "module": "@ccslabs/xtend/xtensions/state-binding",
-              "path": "tools/xtensions/state-binding.d.ts",
-              "type": "package-export"
-            },
-            {
-              "path": "tools/xtensions/state-binding-contract.js",
-              "symbol": "XTENSION_STATE_BINDING_SCHEMA",
-              "type": "symbol"
-            },
-            {
-              "path": "tools/xtensions/state-binding.d.ts",
-              "symbol": "XTENSION_STATE_BINDING_SCHEMA",
-              "type": "symbol"
-            },
-            {
-              "path": "tools/xtensions/state-binding.d.ts",
-              "symbol": "XTensionKeyedStateBinding",
-              "type": "symbol"
-            }
-          ],
           "role": "definition",
+          "visibility": "internal",
           "sourcePaths": [
             "tools/xtensions/state-binding-contract.js",
             "tools/xtensions/state-binding.d.ts"
           ],
-          "visibility": "internal"
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-compiler/xtensions/state-binding",
+              "path": "tools/xtensions/state-binding.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/xtensions/state-binding",
+              "path": "tools/xtensions/state-binding.d.ts"
+            },
+            {
+              "type": "symbol",
+              "path": "tools/xtensions/state-binding-contract.js",
+              "symbol": "XTENSION_STATE_BINDING_SCHEMA"
+            },
+            {
+              "type": "symbol",
+              "path": "tools/xtensions/state-binding.d.ts",
+              "symbol": "XTENSION_STATE_BINDING_SCHEMA"
+            },
+            {
+              "type": "symbol",
+              "path": "tools/xtensions/state-binding.d.ts",
+              "symbol": "XTensionKeyedStateBinding"
+            }
+          ]
         },
         {
           "application": "XTensions",
-          "interfaceReferences": [
-            {
-              "module": "@ccslabs/xtend-compiler/xtensions/state-binding",
-              "path": "tools/xtensions/state-binding.d.ts",
-              "type": "package-export"
-            },
-            {
-              "module": "@ccslabs/xtend/xtensions/state-binding",
-              "path": "tools/xtensions/state-binding.d.ts",
-              "type": "package-export"
-            }
-          ],
           "role": "reference",
+          "visibility": "internal",
           "sourcePaths": [
             "tools/xtensions/state-binding-artifact.js",
             "tools/xtensions/state-binding.d.ts"
           ],
-          "visibility": "internal"
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-compiler/xtensions/state-binding",
+              "path": "tools/xtensions/state-binding.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/xtensions/state-binding",
+              "path": "tools/xtensions/state-binding.d.ts"
+            }
+          ]
         }
       ],
       "version": 2
@@ -979973,11 +980384,11 @@
         "identifier-only"
       ],
       "lifecycle": {
-        "rollout": "planned",
-        "status": "active"
+        "status": "deprecated",
+        "rollout": "planned"
       },
       "releasedFingerprintSetHash": null,
-      "replacedBy": null,
+      "replacedBy": "xtend.xtensions.vue-runtime-adapter.v5",
       "schemaId": "xtend.xtensions.vue-runtime-adapter.v4",
       "shapeFingerprints": [],
       "shapePolicy": {
@@ -980011,7 +980422,67 @@
           "visibility": "internal"
         }
       ],
-      "version": 4
+      "version": 4,
+      "replacementDecision": {
+        "rationale": "A03.3 adds an explicit workBudget overload with v5 host semantics; all earlier overloads remain supported.",
+        "compatibility": "The explicit graph-bound API 4.0.0 overload remains supported without workBudget; v5 opts into bounded named-work and pressure budgets. Complete v4 host declarations and runtime behavior remain retained."
+      }
+    },
+    {
+      "schemaId": "xtend.xtensions.vue-runtime-adapter.v5",
+      "familyId": "xtend.xtensions.vue-runtime-adapter",
+      "version": 5,
+      "kinds": [
+        "identifier-only"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": null,
+      "description": "Unreleased A03.3 bounded-work/pressure-budget contract. Explicit native admission and Fabric execution, logical cancellation and cooperative chunks; no framework preemption or full 0.9 acceptance.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "tools/xtensions/vue-runtime-adapter.d.ts",
+        "symbol": null,
+        "definitionType": "typescript-declaration",
+        "role": "reference",
+        "visibility": "internal"
+      },
+      "usages": [
+        {
+          "application": "XTensions",
+          "role": "reference",
+          "visibility": "internal",
+          "sourcePaths": [
+            "tools/xtensions/vue-runtime-adapter.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-compiler/xtensions/vue-runtime-adapter",
+              "path": "tools/xtensions/vue-runtime-adapter.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/xtensions/vue-runtime-adapter",
+              "path": "tools/xtensions/vue-runtime-adapter.d.ts"
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "unresolved",
+        "decision": "reviewed-a033-bounded-pressure-budgets",
+        "acceptedFingerprints": [],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rationale": "Scoped A03.3 development review: v5 graph-bound hosts add bounded named-work admission, same-grant explicit replacement and live kernel-pressure cooperative chunk ceilings through mandatory Fabric. Registry API 2.3 accepts version-matched v2-v5 suppliers. Existing authoritative/released fingerprints and native Kernel/Surface ABIs remain unchanged. Automatic provider composition, capability negotiation and complete 0.9 feature acceptance remain pending. See development/rmtx-a03/work-budgets.md."
+      },
+      "shapeFingerprints": []
     },
     {
       "aliasOf": null,
@@ -980676,6 +981147,907 @@
         }
       ],
       "version": 1
+    },
+    {
+      "schemaId": "xtend.xtensions.work-budget-policy.v1",
+      "familyId": "xtend.xtensions.work-budget-policy",
+      "version": 1,
+      "kinds": [
+        "policy-id",
+        "runtime-discriminator"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": null,
+      "description": "Unreleased A03.3 bounded-work/pressure-budget contract. Explicit native admission and Fabric execution, logical cancellation and cooperative chunks; no framework preemption or full 0.9 acceptance.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "tools/xtensions/runtime-host-controller.d.ts",
+        "symbol": "WorkBudgetPolicy",
+        "definitionType": "typescript-declaration",
+        "role": "definition",
+        "visibility": "internal"
+      },
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "producer",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a03/budget-inspect.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "development/rmtx-a03/budget-inspect.cjs",
+              "symbol": "budget"
+            }
+          ]
+        },
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a01/inventory.json",
+            "development/rmtx-a03/budget-inspect.cjs",
+            "development/rmtx-a03/work-budgets.md"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "development/rmtx-a01/inventory.json",
+              "pointer": "/"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Types",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/types/xtensions_work_budget.mts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/types/xtensions_work_budget.mts",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Xtensions",
+          "role": "producer",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/xtensions/work-budget-acceptance.js",
+            "tests/xtensions/work-budget-maraca-acceptance.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "tests/xtensions/work-budget-acceptance.js",
+              "symbol": "config"
+            },
+            {
+              "type": "symbol",
+              "path": "tests/xtensions/work-budget-maraca-acceptance.js",
+              "symbol": "host"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Xtensions",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/xtensions/work-budget-acceptance.js",
+            "tests/xtensions/work-budget-maraca-acceptance.js",
+            "tests/xtensions/xtensions_consumer_package_suite.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/xtensions/work-budget-acceptance.js",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTensions",
+          "role": "definition",
+          "visibility": "internal",
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "WorkBudgetPolicy"
+            }
+          ]
+        },
+        {
+          "application": "XTensions",
+          "role": "producer",
+          "visibility": "internal",
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTensions",
+          "role": "reference",
+          "visibility": "internal",
+          "sourcePaths": [
+            "tools/xtensions/work-budget-policy.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tools/xtensions/work-budget-policy.js",
+              "symbol": null
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "polymorphic",
+        "decision": "reviewed-a033-bounded-pressure-budgets",
+        "acceptedFingerprints": [
+          "sha256:26dd53bd6206b4b1958846519286e82cef1f406c406b2f2e116c74f3cb094331",
+          "sha256:85842470cc491ab47c99250ad4d3f011afd18f78387264530fac30dd185a8f87",
+          "sha256:8ca0e09871e26d9388d9b1d772cc8d5db6a277e682e8b88a853c606fe6b5bfc7",
+          "sha256:c30cc4659fcf459b90388a1e7e9402edc690049b2dd8d47ceb459d8342a7891f"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rationale": "Scoped A03.3 development review: v5 graph-bound hosts add bounded named-work admission, same-grant explicit replacement and live kernel-pressure cooperative chunk ceilings through mandatory Fabric. Registry API 2.3 accepts version-matched v2-v5 suppliers. Existing authoritative/released fingerprints and native Kernel/Surface ABIs remain unchanged. Automatic provider composition, capability negotiation and complete 0.9 feature acceptance remain pending. See development/rmtx-a03/work-budgets.md."
+      },
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:26dd53bd6206b4b1958846519286e82cef1f406c406b2f2e116c74f3cb094331",
+          "shape": {
+            "fieldCount": 2,
+            "fields": [
+              "maxPending",
+              "work"
+            ],
+            "signature": "maxPending:number|work:{scan:{maxPending:number,overflow:string,pressure:{constrained:{maxChunkMs:number},critical:{admission:string}}}}",
+            "normalized": {
+              "fields": {
+                "maxPending": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "work": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "scan": {
+                        "optional": false,
+                        "type": {
+                          "fields": {
+                            "maxPending": {
+                              "optional": false,
+                              "type": "number"
+                            },
+                            "overflow": {
+                              "optional": false,
+                              "type": "string"
+                            },
+                            "pressure": {
+                              "optional": false,
+                              "type": {
+                                "fields": {
+                                  "constrained": {
+                                    "optional": false,
+                                    "type": {
+                                      "fields": {
+                                        "maxChunkMs": {
+                                          "optional": false,
+                                          "type": "number"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "critical": {
+                                    "optional": false,
+                                    "type": {
+                                      "fields": {
+                                        "admission": {
+                                          "optional": false,
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "development/rmtx-a03/budget-inspect.cjs"
+          ],
+          "symbols": [
+            "budget"
+          ],
+          "evidence": [
+            {
+              "type": "docs",
+              "completeness": "complete",
+              "authoritative": false,
+              "path": "development/rmtx-a03/budget-inspect.cjs",
+              "symbol": "budget"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
+          ],
+          "completeness": "complete",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:85842470cc491ab47c99250ad4d3f011afd18f78387264530fac30dd185a8f87",
+          "shape": {
+            "fieldCount": 2,
+            "fields": [
+              "maxPending",
+              "work"
+            ],
+            "signature": "maxPending:{\"unresolved\":\"extra.maxPending || 2\"}|work:{other:{maxPending:number},scan:{maxPending:number,overflow:{\"unresolved\":\"extra.overflow || 'reject-new'\"},pressure:{constrained:{maxChunkMs:number},critical:{admission:string,maxChunkMs:number}}}}",
+            "normalized": {
+              "fields": {
+                "maxPending": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "extra.maxPending || 2"
+                  }
+                },
+                "work": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "other": {
+                        "optional": false,
+                        "type": {
+                          "fields": {
+                            "maxPending": {
+                              "optional": false,
+                              "type": "number"
+                            }
+                          }
+                        }
+                      },
+                      "scan": {
+                        "optional": false,
+                        "type": {
+                          "fields": {
+                            "maxPending": {
+                              "optional": false,
+                              "type": "number"
+                            },
+                            "overflow": {
+                              "optional": false,
+                              "type": {
+                                "unresolved": "extra.overflow || 'reject-new'"
+                              }
+                            },
+                            "pressure": {
+                              "optional": false,
+                              "type": {
+                                "fields": {
+                                  "constrained": {
+                                    "optional": false,
+                                    "type": {
+                                      "fields": {
+                                        "maxChunkMs": {
+                                          "optional": false,
+                                          "type": "number"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "critical": {
+                                    "optional": false,
+                                    "type": {
+                                      "fields": {
+                                        "admission": {
+                                          "optional": false,
+                                          "type": "string"
+                                        },
+                                        "maxChunkMs": {
+                                          "optional": false,
+                                          "type": "number"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "tests/xtensions/work-budget-acceptance.js"
+          ],
+          "symbols": [
+            "config"
+          ],
+          "evidence": [
+            {
+              "type": "test",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "tests/xtensions/work-budget-acceptance.js",
+              "symbol": "config"
+            }
+          ],
+          "evidenceTypes": [
+            "test"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:8ca0e09871e26d9388d9b1d772cc8d5db6a277e682e8b88a853c606fe6b5bfc7",
+          "shape": {
+            "fieldCount": 2,
+            "fields": [
+              "maxPending",
+              "work"
+            ],
+            "signature": "maxPending:number|work:{scan:{maxPending:number,pressure:{critical:{admission:string,maxChunkMs:number}}}}",
+            "normalized": {
+              "fields": {
+                "maxPending": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "work": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "scan": {
+                        "optional": false,
+                        "type": {
+                          "fields": {
+                            "maxPending": {
+                              "optional": false,
+                              "type": "number"
+                            },
+                            "pressure": {
+                              "optional": false,
+                              "type": {
+                                "fields": {
+                                  "critical": {
+                                    "optional": false,
+                                    "type": {
+                                      "fields": {
+                                        "admission": {
+                                          "optional": false,
+                                          "type": "string"
+                                        },
+                                        "maxChunkMs": {
+                                          "optional": false,
+                                          "type": "number"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "tests/xtensions/work-budget-maraca-acceptance.js"
+          ],
+          "symbols": [
+            "host"
+          ],
+          "evidence": [
+            {
+              "type": "test",
+              "completeness": "complete",
+              "authoritative": false,
+              "path": "tests/xtensions/work-budget-maraca-acceptance.js",
+              "symbol": "host"
+            }
+          ],
+          "evidenceTypes": [
+            "test"
+          ],
+          "completeness": "complete",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:c30cc4659fcf459b90388a1e7e9402edc690049b2dd8d47ceb459d8342a7891f",
+          "shape": {
+            "fieldCount": 2,
+            "fields": [
+              "maxPending",
+              "work"
+            ],
+            "signature": "maxPending:number|work:{\"arguments\":[{\"record\":{\"key\":\"string\",\"value\":{\"fields\":{\"maxPending\":{\"optional\":false,\"type\":\"number\"},\"overflow\":{\"optional\":true,\"type\":{\"union\":[{\"literal\":\"reject-new\"},{\"literal\":\"replace-oldest\"}]}},\"pressure\":{\"optional\":true,\"type\":{\"arguments\":[{\"arguments\":[{\"record\":{\"key\":{\"union\":[{\"literal\":\"constrained\"},{\"literal\":\"critical\"},{\"literal\":\"elevated\"},{\"literal\":\"idle\"},{\"literal\":\"normal\"}]},\"value\":{\"fields\":{\"admission\":{\"optional\":true,\"type\":{\"union\":[{\"literal\":\"allow\"},{\"literal\":\"reject\"}]}},\"maxChunkMs\":{\"optional\":true,\"type\":\"number\"}}}}}],\"unresolvedReference\":\"Readonly\"}],\"unresolvedReference\":\"Partial\"}}}}}}],\"unresolvedReference\":\"Readonly\"}",
+            "normalized": {
+              "fields": {
+                "maxPending": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "work": {
+                  "optional": false,
+                  "type": {
+                    "arguments": [
+                      {
+                        "record": {
+                          "key": "string",
+                          "value": {
+                            "fields": {
+                              "maxPending": {
+                                "optional": false,
+                                "type": "number"
+                              },
+                              "overflow": {
+                                "optional": true,
+                                "type": {
+                                  "union": [
+                                    {
+                                      "literal": "reject-new"
+                                    },
+                                    {
+                                      "literal": "replace-oldest"
+                                    }
+                                  ]
+                                }
+                              },
+                              "pressure": {
+                                "optional": true,
+                                "type": {
+                                  "arguments": [
+                                    {
+                                      "arguments": [
+                                        {
+                                          "record": {
+                                            "key": {
+                                              "union": [
+                                                {
+                                                  "literal": "constrained"
+                                                },
+                                                {
+                                                  "literal": "critical"
+                                                },
+                                                {
+                                                  "literal": "elevated"
+                                                },
+                                                {
+                                                  "literal": "idle"
+                                                },
+                                                {
+                                                  "literal": "normal"
+                                                }
+                                              ]
+                                            },
+                                            "value": {
+                                              "fields": {
+                                                "admission": {
+                                                  "optional": true,
+                                                  "type": {
+                                                    "union": [
+                                                      {
+                                                        "literal": "allow"
+                                                      },
+                                                      {
+                                                        "literal": "reject"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                "maxChunkMs": {
+                                                  "optional": true,
+                                                  "type": "number"
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      ],
+                                      "unresolvedReference": "Readonly"
+                                    }
+                                  ],
+                                  "unresolvedReference": "Partial"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "unresolvedReference": "Readonly"
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "symbols": [
+            "WorkBudgetPolicy"
+          ],
+          "evidence": [
+            {
+              "type": "declared-type",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "WorkBudgetPolicy"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        }
+      ]
+    },
+    {
+      "schemaId": "xtend.xtensions.work-budget-state.v1",
+      "familyId": "xtend.xtensions.work-budget-state",
+      "version": 1,
+      "kinds": [
+        "runtime-discriminator"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": "sha256:8d63727296f8419df49b1a1730cbb5fd0f45f6c5ddb5881eaba9f0e218b774ac",
+      "description": "Unreleased A03.3 bounded-work/pressure-budget contract. Explicit native admission and Fabric execution, logical cancellation and cooperative chunks; no framework preemption or full 0.9 acceptance.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "tools/xtensions/work-budget-policy.js",
+        "symbol": null,
+        "definitionType": "object-shape",
+        "role": "producer",
+        "visibility": "internal"
+      },
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a01/inventory.json",
+            "development/rmtx-a03/budget-inspect.cjs",
+            "development/rmtx-a03/work-budgets.md"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "development/rmtx-a01/inventory.json",
+              "pointer": "/"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Types",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/types/xtensions_work_budget.mts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/types/xtensions_work_budget.mts",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Xtensions",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/xtensions/work-budget-acceptance.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/xtensions/work-budget-acceptance.js",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTensions",
+          "role": "definition",
+          "visibility": "internal",
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "RuntimeWorkBudgetSnapshot"
+            }
+          ]
+        },
+        {
+          "application": "XTensions",
+          "role": "producer",
+          "visibility": "internal",
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts",
+            "tools/xtensions/work-budget-policy.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "tools/xtensions/work-budget-policy.js",
+              "symbol": "snapshot"
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "polymorphic",
+        "decision": "reviewed-a033-bounded-pressure-budgets",
+        "acceptedFingerprints": [
+          "sha256:64a3095a3a17357ad7fda1335f1db3a2a2f94c158f099c43497a06d845f9e7f2",
+          "sha256:b0afb058ecc07e7408183560b56fcb5fbc1b0609860f552367ef614818ec7eda"
+        ],
+        "authoritativeFingerprints": [
+          "sha256:b0afb058ecc07e7408183560b56fcb5fbc1b0609860f552367ef614818ec7eda"
+        ],
+        "releasedFingerprintSetHash": "sha256:8d63727296f8419df49b1a1730cbb5fd0f45f6c5ddb5881eaba9f0e218b774ac",
+        "rationale": "Scoped A03.3 development review: v5 graph-bound hosts add bounded named-work admission, same-grant explicit replacement and live kernel-pressure cooperative chunk ceilings through mandatory Fabric. Registry API 2.3 accepts version-matched v2-v5 suppliers. Existing authoritative/released fingerprints and native Kernel/Surface ABIs remain unchanged. Automatic provider composition, capability negotiation and complete 0.9 feature acceptance remain pending. See development/rmtx-a03/work-budgets.md."
+      },
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:64a3095a3a17357ad7fda1335f1db3a2a2f94c158f099c43497a06d845f9e7f2",
+          "shape": {
+            "fieldCount": 6,
+            "fields": [
+              "lastDecision",
+              "maxPending",
+              "pending",
+              "pressureLevel",
+              "rejected",
+              "replaced"
+            ],
+            "signature": "lastDecision:unknown|maxPending:{\"unresolved\":\"input.maxPending\"}|pending:{\"unresolved\":\"pending(entries).length + reservations.size\"}|pressureLevel:unknown|rejected:number|replaced:number",
+            "normalized": {
+              "fields": {
+                "lastDecision": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "maxPending": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "input.maxPending"
+                  }
+                },
+                "pending": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "pending(entries).length + reservations.size"
+                  }
+                },
+                "pressureLevel": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "rejected": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "replaced": {
+                  "optional": false,
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "tools/xtensions/work-budget-policy.js"
+          ],
+          "symbols": [
+            "snapshot"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "tools/xtensions/work-budget-policy.js",
+              "symbol": "snapshot"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:b0afb058ecc07e7408183560b56fcb5fbc1b0609860f552367ef614818ec7eda",
+          "shape": {
+            "fieldCount": 6,
+            "fields": [
+              "lastDecision",
+              "maxPending",
+              "pending",
+              "pressureLevel",
+              "rejected",
+              "replaced"
+            ],
+            "signature": "lastDecision:union<{name:string,pressureLevel:union<literal<\"constrained\">|literal<\"critical\">|literal<\"elevated\">|literal<\"idle\">|literal<\"normal\">>,reason:union<literal<\"kernel-pressure\">|literal<\"pending-limit\">|literal<\"replace-oldest\">>}|literal<null>>|maxPending:number|pending:number|pressureLevel:union<literal<\"constrained\">|literal<\"critical\">|literal<\"elevated\">|literal<\"idle\">|literal<\"normal\">>|rejected:number|replaced:number",
+            "normalized": {
+              "fields": {
+                "lastDecision": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "fields": {
+                          "name": {
+                            "optional": false,
+                            "type": "string"
+                          },
+                          "pressureLevel": {
+                            "optional": false,
+                            "type": {
+                              "union": [
+                                {
+                                  "literal": "constrained"
+                                },
+                                {
+                                  "literal": "critical"
+                                },
+                                {
+                                  "literal": "elevated"
+                                },
+                                {
+                                  "literal": "idle"
+                                },
+                                {
+                                  "literal": "normal"
+                                }
+                              ]
+                            }
+                          },
+                          "reason": {
+                            "optional": false,
+                            "type": {
+                              "union": [
+                                {
+                                  "literal": "kernel-pressure"
+                                },
+                                {
+                                  "literal": "pending-limit"
+                                },
+                                {
+                                  "literal": "replace-oldest"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "literal": null
+                      }
+                    ]
+                  }
+                },
+                "maxPending": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "pending": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "pressureLevel": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "literal": "constrained"
+                      },
+                      {
+                        "literal": "critical"
+                      },
+                      {
+                        "literal": "elevated"
+                      },
+                      {
+                        "literal": "idle"
+                      },
+                      {
+                        "literal": "normal"
+                      }
+                    ]
+                  }
+                },
+                "rejected": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "replaced": {
+                  "optional": false,
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "tools/xtensions/runtime-host-controller.d.ts"
+          ],
+          "symbols": [
+            "RuntimeWorkBudgetSnapshot"
+          ],
+          "evidence": [
+            {
+              "type": "declared-type",
+              "completeness": "complete",
+              "authoritative": true,
+              "path": "tools/xtensions/runtime-host-controller.d.ts",
+              "symbol": "RuntimeWorkBudgetSnapshot"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "completeness": "complete",
+          "authoritative": true
+        }
+      ]
     },
     {
       "aliasOf": null,
@@ -984249,8 +985621,8 @@
           "schemaId": "xtend.a11y.screenreader-signals.v1",
           "version": 1,
           "lifecycle": {
-            "status": "active",
-            "rollout": "complete"
+            "rollout": "complete",
+            "status": "active"
           },
           "releasedFingerprintSetHash": null
         }
@@ -984266,8 +985638,8 @@
           "schemaId": "xtend.a11y.test-contract.v1",
           "version": 1,
           "lifecycle": {
-            "status": "active",
-            "rollout": "complete"
+            "rollout": "complete",
+            "status": "active"
           },
           "releasedFingerprintSetHash": null
         }
@@ -984334,8 +985706,8 @@
           "schemaId": "xtend.browser-hypervisor.v1",
           "version": 1,
           "lifecycle": {
-            "status": "active",
-            "rollout": "complete"
+            "rollout": "complete",
+            "status": "active"
           },
           "releasedFingerprintSetHash": null
         }
@@ -984351,8 +985723,8 @@
           "schemaId": "xtend.browser-hypervisor-evidence.v1",
           "version": 1,
           "lifecycle": {
-            "status": "active",
-            "rollout": "complete"
+            "rollout": "complete",
+            "status": "active"
           },
           "releasedFingerprintSetHash": null
         }
@@ -1000383,8 +1001755,8 @@
           "schemaId": "xtend.node-warning-evidence.v1",
           "version": 1,
           "lifecycle": {
-            "status": "active",
-            "rollout": "complete"
+            "rollout": "complete",
+            "status": "active"
           },
           "releasedFingerprintSetHash": null
         }
@@ -1000888,8 +1002260,8 @@
           "schemaId": "xtend.product-execution.v1",
           "version": 1,
           "lifecycle": {
-            "status": "active",
-            "rollout": "planned"
+            "rollout": "planned",
+            "status": "active"
           },
           "releasedFingerprintSetHash": null
         }
@@ -1001230,8 +1002602,8 @@
           "schemaId": "xtend.release.build.v1",
           "version": 1,
           "lifecycle": {
-            "status": "active",
-            "rollout": "planned"
+            "rollout": "planned",
+            "status": "active"
           },
           "releasedFingerprintSetHash": null
         }
@@ -1017002,8 +1018374,8 @@
       ]
     },
     {
-      "activeSchemaId": "xtend.xtensions.react-runtime-adapter.v4",
-      "currentVersion": 4,
+      "activeSchemaId": "xtend.xtensions.react-runtime-adapter.v5",
+      "currentVersion": 5,
       "familyId": "xtend.xtensions.react-runtime-adapter",
       "tombstones": [],
       "versions": [
@@ -1017019,11 +1018391,20 @@
         {
           "lifecycle": {
             "rollout": "planned",
-            "status": "active"
+            "status": "deprecated"
           },
           "releasedFingerprintSetHash": null,
           "schemaId": "xtend.xtensions.react-runtime-adapter.v4",
           "version": 4
+        },
+        {
+          "schemaId": "xtend.xtensions.react-runtime-adapter.v5",
+          "version": 5,
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": null
         }
       ]
     },
@@ -1017445,8 +1018826,8 @@
       ]
     },
     {
-      "activeSchemaId": "xtend.xtensions.runtime-host-controller.v4",
-      "currentVersion": 4,
+      "activeSchemaId": "xtend.xtensions.runtime-host-controller.v5",
+      "currentVersion": 5,
       "familyId": "xtend.xtensions.runtime-host-controller",
       "tombstones": [],
       "versions": [
@@ -1017471,11 +1018852,20 @@
         {
           "lifecycle": {
             "rollout": "planned",
-            "status": "active"
+            "status": "deprecated"
           },
           "releasedFingerprintSetHash": "sha256:cdf6e38fa64efc5a6371d958fa1fc7d11f7e811aee11c8e2eac2074d7391c03e",
           "schemaId": "xtend.xtensions.runtime-host-controller.v4",
           "version": 4
+        },
+        {
+          "schemaId": "xtend.xtensions.runtime-host-controller.v5",
+          "version": 5,
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": "sha256:555ff0ef44a150ab883a0bd9234eeff79f748fc978c8aee99fa37321d863cc09"
         }
       ]
     },
@@ -1018680,8 +1020070,8 @@
       ]
     },
     {
-      "activeSchemaId": "xtend.xtensions.vue-runtime-adapter.v4",
-      "currentVersion": 4,
+      "activeSchemaId": "xtend.xtensions.vue-runtime-adapter.v5",
+      "currentVersion": 5,
       "familyId": "xtend.xtensions.vue-runtime-adapter",
       "tombstones": [],
       "versions": [
@@ -1018697,11 +1020087,20 @@
         {
           "lifecycle": {
             "rollout": "planned",
-            "status": "active"
+            "status": "deprecated"
           },
           "releasedFingerprintSetHash": null,
           "schemaId": "xtend.xtensions.vue-runtime-adapter.v4",
           "version": 4
+        },
+        {
+          "schemaId": "xtend.xtensions.vue-runtime-adapter.v5",
+          "version": 5,
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": null
         }
       ]
     },
@@ -1018738,6 +1020137,40 @@
           "releasedFingerprintSetHash": null
         }
       ]
+    },
+    {
+      "familyId": "xtend.xtensions.work-budget-policy",
+      "currentVersion": 1,
+      "activeSchemaId": "xtend.xtensions.work-budget-policy.v1",
+      "versions": [
+        {
+          "schemaId": "xtend.xtensions.work-budget-policy.v1",
+          "version": 1,
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": null
+        }
+      ],
+      "tombstones": []
+    },
+    {
+      "familyId": "xtend.xtensions.work-budget-state",
+      "currentVersion": 1,
+      "activeSchemaId": "xtend.xtensions.work-budget-state.v1",
+      "versions": [
+        {
+          "schemaId": "xtend.xtensions.work-budget-state.v1",
+          "version": 1,
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": "sha256:8d63727296f8419df49b1a1730cbb5fd0f45f6c5ddb5881eaba9f0e218b774ac"
+        }
+      ],
+      "tombstones": []
     },
     {
       "activeSchemaId": "xtension.chart.preview.selected.v1",

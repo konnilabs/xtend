@@ -98,7 +98,14 @@ const peers=createRequire(process.env.XTENSIONS_TEST_PEERS+'/package.json');
    graph.closeSurface('packed-panel');assert(owned.snapshot().suspended);assert.equal((await owned.update({type:'props.update',props:{title:'staged packed'}})).ok,true);
    await graph.openSurface('packed-panel');await owned.whenIdle();assert.equal(container.textContent,'staged packed');
    assert.equal(await capabilities.work.schedule('scan',context=>context.isCurrent()).result,true);
-   await owned.unmount();assert.equal(engine.listResources().length,0);graph.dispose();controller.dispose();engine.disposeRoot('packed-owned');scheduler.dispose();assert.equal(container.childNodes.length,0);container.remove();
+   await owned.unmount();assert.equal(engine.listResources().length,0);
+   const budget=api['create'+title+'KernelRuntimeAdapter']({container,component:kernelComponent,peers:framework==='react'?{React,ReactDOM}:{Vue},fabric,
+    kernelWork:{scheduler,rootId:'packed-owned',scope:pkg+':'+framework,work:{scan:{lane:'background',maxChunkMs:4}}},resourceGraph:{kernel:engine,surfaceGraph:graph,surfaceController:controller,surfaceId:'packed-panel'},
+    workBudget:{schema:'xtend.xtensions.work-budget-policy.v1',maxPending:1,work:{scan:{maxPending:1,pressure:{critical:{admission:'reject',maxChunkMs:1}}}}}});
+   assert.equal(budget.apiVersion,'5.0.0');assert.equal((await budget.mount(container,{title:'budget packed'})).ok,true);
+   scheduler.updatePressure('critical');const denied=capabilities.work.schedule('scan',()=>true);assert.equal(denied.jobId,null);await assert.rejects(denied.result,{reason:'kernel-pressure'});
+   scheduler.updatePressure('normal');assert.equal(await capabilities.work.schedule('scan',()=>42).result,42);assert.equal(budget.snapshot().workBudget.rejected,1);
+   await budget.unmount();assert.equal(engine.listResources().length,0);graph.dispose();controller.dispose();engine.disposeRoot('packed-owned');scheduler.dispose();assert.equal(container.childNodes.length,0);container.remove();
   }
  }finally{dom.window.close();}
  console.log('Packed root/compiler factories render with explicitly injected external peers; missing peers and unsafe payloads are rejected.');

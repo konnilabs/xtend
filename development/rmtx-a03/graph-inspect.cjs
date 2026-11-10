@@ -53,9 +53,9 @@ async function inspect() {
     check('native root disposal invokes terminal cleanup synchronously', () => { assert.equal(next.snapshot().state, 'disposed'); assert.equal(changes.filter(x => x === 'destroy').length, 2); });
     assert.equal(await scheduler.schedule({ rootId: 'other', scope: 'other' }, () => 42).result, 42);
     checked.push('binding disposal preserves the shared scheduler');
-    check('registry API identifies the additional host major', () => assert.equal(require('../../tools/xtensions/state-binding').XTENSION_STATE_BINDING_API_VERSION, '2.2.0'));
+    check('registry API identifies the additional host major', () => assert.equal(require('../../tools/xtensions/state-binding').XTENSION_STATE_BINDING_API_VERSION, '2.3.0'));
     const sources = ['tools/xtensions/resource-graph-binding.js', 'tools/xtensions/runtime-host-controller.js', 'tools/xtensions/runtime-host-controller.d.ts', 'tools/xtensions/react-runtime-adapter.d.ts', 'tools/xtensions/vue-runtime-adapter.d.ts', 'tools/xtensions/state-binding.js', 'tools/xtensions/state-binding.d.ts', 'xtend-maraca/plan-runtime.d.ts', 'tests/xtensions/resource-graph-acceptance.js', 'tests/xtensions/resource-graph-maraca-acceptance.js', 'tests/types/xtensions_resource_graph.mts', 'tests/xtensions/xtensions_runtime_gate_suite.js', 'tests/xtensions/xtensions_consumer_package_suite.js', 'tests/xtensions/runtime-adapter-exports.cjs'];
-    const report = { format: 1, stage: 'A03.2-surface-kernel-resource-graph', status: 'a03-in-progress', graphHostApiVersion: '4.0.0', registryApiVersion: '2.2.0', fabricRequired: true,
+    const report = { format: 1, stage: 'A03.2-surface-kernel-resource-graph', status: 'a03-in-progress', graphHostApiVersion: '4.0.0', registryApiVersion: '2.3.0', fabricRequired: true,
       frameworkExecutionInPreparationCheck: false, contractChecks: checked.length, names: checked, requiredRealIntegrationCases: 32, requiredRuntimeCasesPerEnvironment: 216, requiredCompilerChecks: 88,
       sources: Object.fromEntries(sources.map(name => [name, createHash('sha256').update(fs.readFileSync(path.join(root, name))).digest('hex')])) };
     const text = JSON.stringify(report, null, 2) + '\n', file = path.join(__dirname, 'graph-evidence.json');

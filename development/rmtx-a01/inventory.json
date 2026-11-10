@@ -158,7 +158,7 @@
     },
     {
       "file": "tools/xtensions/runtime-host-controller.d.ts",
-      "sha256": "3d6c4d71c1f848361e4a6daab58709db410f6693cdb4ae71214ab75923a3788a"
+      "sha256": "86a50e2a720b7946db03ddc76bfb5846ac9ac982e034dba7b8640693719fc31b"
     },
     {
       "file": "tools/xtensions/signal-bridge-contract.d.ts",
@@ -12578,6 +12578,226 @@
           ],
           "file": "tools/xtensions/runtime-host-controller.d.ts",
           "line": 183,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "WorkBudgetPolicy",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "'xtend.xtensions.work-budget-policy.v1'",
+              "declaration": "readonly schema: 'xtend.xtensions.work-budget-policy.v1';"
+            },
+            {
+              "name": "maxPending",
+              "optional": false,
+              "type": "number",
+              "declaration": "readonly maxPending: number;"
+            },
+            {
+              "name": "work",
+              "optional": false,
+              "type": "Readonly<Record<string, { readonly maxPending: number; readonly overflow?: 'reject-new' | 'replace-oldest';\n    readonly pressure?: Partial<Readonly<Record<RuntimePressureLevel, { readonly admission?: 'allow' | 'reject'; readonly maxChunkMs?: number }>>> }>>",
+              "declaration": "readonly work: Readonly<Record<string, { readonly maxPending: number; readonly overflow?: 'reject-new' | 'replace-oldest';\n    readonly pressure?: Partial<Readonly<Record<RuntimePressureLevel, { readonly admission?: 'allow' | 'reject'; readonly maxChunkMs?: number }>>> }>>;"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 210,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "BudgetRuntimeHostOptions",
+          "fields": [
+            {
+              "name": "kernelWork",
+              "optional": false,
+              "type": "GraphRuntimeHostOptions['kernelWork'] & { readonly scheduler: RuntimeKernelSchedulerPort & {\n    snapshot(): Readonly<Record<string, unknown>>;\n  } }",
+              "declaration": "readonly kernelWork: GraphRuntimeHostOptions['kernelWork'] & { readonly scheduler: RuntimeKernelSchedulerPort & {\n    snapshot(): Readonly<Record<string, unknown>>;\n  } };"
+            },
+            {
+              "name": "workBudget",
+              "optional": false,
+              "type": "WorkBudgetPolicy",
+              "declaration": "readonly workBudget: WorkBudgetPolicy;"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 218,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RuntimeWorkBudgetSnapshot",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "'xtend.xtensions.work-budget-state.v1'",
+              "declaration": "readonly schema: 'xtend.xtensions.work-budget-state.v1';"
+            },
+            {
+              "name": "pressureLevel",
+              "optional": false,
+              "type": "RuntimePressureLevel",
+              "declaration": "readonly pressureLevel: RuntimePressureLevel;"
+            },
+            {
+              "name": "maxPending",
+              "optional": false,
+              "type": "number",
+              "declaration": "readonly maxPending: number;"
+            },
+            {
+              "name": "pending",
+              "optional": false,
+              "type": "number",
+              "declaration": "readonly pending: number;"
+            },
+            {
+              "name": "rejected",
+              "optional": false,
+              "type": "number",
+              "declaration": "readonly rejected: number;"
+            },
+            {
+              "name": "replaced",
+              "optional": false,
+              "type": "number",
+              "declaration": "readonly replaced: number;"
+            },
+            {
+              "name": "lastDecision",
+              "optional": false,
+              "type": "{ readonly name: string; readonly reason: 'kernel-pressure' | 'pending-limit' | 'replace-oldest'; readonly pressureLevel: RuntimePressureLevel } | null",
+              "declaration": "readonly lastDecision: { readonly name: string; readonly reason: 'kernel-pressure' | 'pending-limit' | 'replace-oldest'; readonly pressureLevel: RuntimePressureLevel } | null;"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 224,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "BudgetRuntimeHostSnapshot",
+          "fields": [
+            {
+              "name": "workBudget",
+              "optional": false,
+              "type": "RuntimeWorkBudgetSnapshot",
+              "declaration": "readonly workBudget: RuntimeWorkBudgetSnapshot;"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 230,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "BudgetRuntimeHostController",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "typeof BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA",
+              "declaration": "readonly schema: typeof BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA;"
+            },
+            {
+              "name": "apiVersion",
+              "optional": false,
+              "type": "'5.0.0'",
+              "declaration": "readonly apiVersion: '5.0.0';"
+            },
+            {
+              "name": "adapterSchema",
+              "optional": false,
+              "type": "string",
+              "declaration": "readonly adapterSchema: string;"
+            },
+            {
+              "name": "framework",
+              "optional": false,
+              "type": "'react' | 'vue'",
+              "declaration": "readonly framework: 'react' | 'vue';"
+            },
+            {
+              "name": "mount",
+              "optional": false,
+              "type": "Promise<RuntimeHostResult>",
+              "declaration": "mount(target?: Element, props?: RuntimeProps, options?: { lane?: string }): Promise<RuntimeHostResult>;"
+            },
+            {
+              "name": "update",
+              "optional": false,
+              "type": "Promise<RuntimeHostResult>",
+              "declaration": "update(signal: { props?: RuntimeProps; payload?: RuntimeProps; updateAdapter?: 'applyPropsUpdate'; type?: 'props.update' }): Promise<RuntimeHostResult>;"
+            },
+            {
+              "name": "suspend",
+              "optional": false,
+              "type": "Promise<RuntimeHostResult>",
+              "declaration": "suspend(reason?: string): Promise<RuntimeHostResult>;"
+            },
+            {
+              "name": "resume",
+              "optional": false,
+              "type": "Promise<RuntimeHostResult>",
+              "declaration": "resume(reason?: string, options?: { props: RuntimeProps }): Promise<RuntimeHostResult>;"
+            },
+            {
+              "name": "unmount",
+              "optional": false,
+              "type": "Promise<RuntimeHostResult>",
+              "declaration": "unmount(reason?: string): Promise<RuntimeHostResult>;"
+            },
+            {
+              "name": "reportError",
+              "optional": false,
+              "type": "RuntimeHostResult",
+              "declaration": "reportError(error: unknown, metadata?: { phase?: string }): RuntimeHostResult;"
+            },
+            {
+              "name": "emit",
+              "optional": false,
+              "type": "ComponentCapabilities['emit']",
+              "declaration": "emit: ComponentCapabilities['emit'];"
+            },
+            {
+              "name": "getCapabilities",
+              "optional": false,
+              "type": "RuntimeKernelCapabilities",
+              "declaration": "getCapabilities(): RuntimeKernelCapabilities;"
+            },
+            {
+              "name": "snapshot",
+              "optional": false,
+              "type": "BudgetRuntimeHostSnapshot",
+              "declaration": "snapshot(): BudgetRuntimeHostSnapshot;"
+            },
+            {
+              "name": "whenIdle",
+              "optional": false,
+              "type": "Promise<BudgetRuntimeHostSnapshot>",
+              "declaration": "whenIdle(): Promise<BudgetRuntimeHostSnapshot>;"
+            },
+            {
+              "name": "getLifecycleRecords",
+              "optional": false,
+              "type": "XTensionLifecycleRecord[]",
+              "declaration": "getLifecycleRecords(): XTensionLifecycleRecord[];"
+            },
+            {
+              "name": "getCleanupRecords",
+              "optional": false,
+              "type": "HostResourceCleanupRecord[]",
+              "declaration": "getCleanupRecords(): HostResourceCleanupRecord[];"
+            },
+            {
+              "name": "getEventRecords",
+              "optional": false,
+              "type": "XTensionsSurfaceEvent[]",
+              "declaration": "getEventRecords(): XTensionsSurfaceEvent[];"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 233,
           "symbol": "<anonymous>"
         }
       ],

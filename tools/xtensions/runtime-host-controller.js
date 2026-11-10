@@ -6,6 +6,7 @@ const { createLifecycleRecord, normalizeHostControllerResult } = require('./host
 const RUNTIME_HOST_CONTROLLER_SCHEMA = 'xtend.xtensions.runtime-host-controller.v2';
 const KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA = 'xtend.xtensions.runtime-host-controller.v3';
 const GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA = 'xtend.xtensions.runtime-host-controller.v4';
+const BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA = 'xtend.xtensions.runtime-host-controller.v5';
 const { createKernelWorkScope } = require('./kernel-work-scope');
 const { createResourceGraphBinding } = require('./resource-graph-binding');
 const { createHostResourceCleanupRecord } = require('./host-resource-cleanup-record');
@@ -67,7 +68,9 @@ function peerVersionMatches(version, range) {
 // Loading is single-flight and disposal invalidates work both before and after await.
 function createRuntimeHostController(options, driver) {
   const graphEnabled = Object.hasOwn(options, 'resourceGraph');
+  const budgetEnabled = Object.hasOwn(options, 'workBudget');
   if (graphEnabled && driver.kernel !== true) throw new TypeError('Resource graph binding requires a kernel adapter.');
+  if (budgetEnabled && (!graphEnabled || driver.kernel !== true || options.workBudget === undefined)) throw new TypeError('Work budgets require an explicit graph-bound kernel host and policy.');
   const framework = driver.framework;
   const ids = Object.freeze({ hostId: options.hostId || `${framework}-host`,
     surfaceId: options.surfaceId || `surface.${framework}`, xtensionId: options.xtensionId || options.id || `xtension.${framework}` });
@@ -125,7 +128,7 @@ function createRuntimeHostController(options, driver) {
   const kernel = driver.kernel === true ? createKernelWorkScope(options.kernelWork, { ...ids, framework,
     ...(graphEnabled ? { kernelResourceId: `xtension:${options.kernelWork?.scope}`, owningSurfaceId: options.resourceGraph?.surfaceId } : {}) },
     (error,name) => diagnostic(error,`work:${name}`), runKernelBoundary,
-    name => { graph?.assertCurrent(); permit(`work:${name}`,props); }, () => { if (!disposed) api.unmount('kernel-cancelled'); }) : null;
+    name => { graph?.assertCurrent(); permit(`work:${name}`,props); }, () => { if (!disposed) api.unmount('kernel-cancelled'); }, budgetEnabled ? options.workBudget : undefined) : null;
   function result(operation, status = 'ok', details = {}, errors = []) {
     const lifecycleRecord = createLifecycleRecord(operation, status === 'policy-blocked' ? 'surface:blocked' : status === 'failed' || status === 'degraded' ? 'surface:error' : null,
       { ...clockOptions, status, phase, sequence: ++sequence, payload: details, diagnostics: errors });
@@ -231,8 +234,8 @@ function createRuntimeHostController(options, driver) {
     });
   }
   const api = {
-    schema: graphEnabled ? GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA : kernel ? KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA : RUNTIME_HOST_CONTROLLER_SCHEMA,
-    apiVersion: graphEnabled ? '4.0.0' : kernel ? '3.0.0' : '2.0.0', adapterSchema: `xtend.xtensions.${framework}-runtime-adapter.v${graphEnabled ? 4 : kernel ? 3 : 2}`, framework,
+    schema: budgetEnabled ? BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA : graphEnabled ? GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA : kernel ? KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA : RUNTIME_HOST_CONTROLLER_SCHEMA,
+    apiVersion: budgetEnabled ? '5.0.0' : graphEnabled ? '4.0.0' : kernel ? '3.0.0' : '2.0.0', adapterSchema: `xtend.xtensions.${framework}-runtime-adapter.v${budgetEnabled ? 5 : graphEnabled ? 4 : kernel ? 3 : 2}`, framework,
     mount(target = container, initialProps = {}, mountOptions = {}) {
       if (disposed) return Promise.resolve(result('mount', 'failed', { reason: 'already-destroyed' }));
       if (target !== container) return Promise.resolve(result('mount', 'policy-blocked', { reason: 'host-container-mismatch' }));
@@ -386,7 +389,7 @@ function createRuntimeHostController(options, driver) {
       } catch (error) { return { ok: false, diagnostics: error.diagnostics || [diagnostic(error, 'emit')] }; }
     },
     snapshot() { return clone({ ...ids, framework, phase, mounted: !!instance, suspended: suspended || surfaceBlocked, disposed, props,
-      runtimeVersions, resources: resources.snapshot(), diagnostics, ...(kernel ? { capabilities: kernel.capabilities, kernelWork: kernel.snapshot() } : {}), ...(graph ? { resourceGraph: graph.snapshot() } : {}) }); },
+      runtimeVersions, resources: resources.snapshot(), diagnostics, ...(kernel ? { capabilities: kernel.capabilities, kernelWork: kernel.snapshot() } : {}), ...(graph ? { resourceGraph: graph.snapshot() } : {}), ...(budgetEnabled ? { workBudget: kernel.budgetSnapshot() } : {}) }); },
     getLifecycleRecords: () => clone(records),
     getCleanupRecords: () => clone(cleanupRecords),
     getEventRecords: () => clone(eventRecords)
@@ -425,4 +428,4 @@ function createRuntimeHostController(options, driver) {
   const facade = Object.freeze({ emit: api.emit, resources: Object.freeze({ register: resources.register }), ...(kernel ? { work: kernel.work } : {}) });
   return Object.freeze(api);
 }
-module.exports = { RUNTIME_HOST_CONTROLLER_SCHEMA, KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA, GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA, createRuntimeHostController };
+module.exports = { RUNTIME_HOST_CONTROLLER_SCHEMA, KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA, GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA, BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA, createRuntimeHostController };

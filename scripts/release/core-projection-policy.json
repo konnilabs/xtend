@@ -1,7 +1,7 @@
 {
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "ee0f24f9530f80ab005b8ee45e1582b48c269b72cfb4cb57513f3263602bf70b",
+  "inventorySha256": "6f36d6a42178b386f524957bfee71cf18f7072e58d94f45f789824b533a42e92",
   "productivePaths": [
     ".codex",
     ".comments/XScaler ATC.png.xml",
@@ -1148,11 +1148,14 @@
     "development/rmtx-a02/url-history/restore-plan.v1.schema.json",
     "development/rmtx-a02/url-history/state.v1.schema.json",
     "development/rmtx-a03/README.md",
+    "development/rmtx-a03/budget-evidence.json",
+    "development/rmtx-a03/budget-inspect.cjs",
     "development/rmtx-a03/evidence.json",
     "development/rmtx-a03/graph-evidence.json",
     "development/rmtx-a03/graph-inspect.cjs",
     "development/rmtx-a03/inspect.cjs",
     "development/rmtx-a03/resource-graph.md",
+    "development/rmtx-a03/work-budgets.md",
     "docs/.htaccess",
     "docs/assets/rmt-stack-topography.svg",
     "docs/de/README.md",
@@ -2802,6 +2805,7 @@
     "tests/types/xtensions_resource_graph.mts",
     "tests/types/xtensions_runtime_adapters.ts",
     "tests/types/xtensions_url_history_contract.mts",
+    "tests/types/xtensions_work_budget.mts",
     "tests/utils/README.md",
     "tests/utils/assertions.js",
     "tests/utils/files.js",
@@ -2830,6 +2834,8 @@
     "tests/xtensions/url-history-acceptance.js",
     "tests/xtensions/url-history-contract-checks.cjs",
     "tests/xtensions/url-state-maraca-acceptance.js",
+    "tests/xtensions/work-budget-acceptance.js",
+    "tests/xtensions/work-budget-maraca-acceptance.js",
     "tests/xtensions/xtensions_adoption_handoff_suite.js",
     "tests/xtensions/xtensions_angular_host_adapter_suite.js",
     "tests/xtensions/xtensions_consumer_package_suite.js",
@@ -3165,6 +3171,7 @@
     "tools/xtensions/vue-runtime-adapter.d.ts",
     "tools/xtensions/vue-runtime-adapter.js",
     "tools/xtensions/vue-runtime-boundary.js",
+    "tools/xtensions/work-budget-policy.js",
     "tsconfig.components.json",
     "xcommand/xcommand.d.ts",
     "xcommand/xcommand.js",
@@ -3573,7 +3580,7 @@
     "xtendrmt/rmt-surface-transition-runtime.js",
     "xtendrmt/rmt.schema.json"
   ],
-  "authorityDecisionSha256": "aac342dd28243bdcfd871a28b64ac049258884f5c3ba3677dc1378d18178da6f",
+  "authorityDecisionSha256": "a51653065a39e35f91e34eca8031f161c5b8cb76e13e20a69d78d2076f953b44",
   "note": "No union filtering or Core schema acceptance is inferred. Missing/pending exact projection blocks Core CI evidence and release preparation. Initial Candidate authority retirement remains a separate source guard.",
   "coreCandidateAuthoritySha256": "8fc57e4eb96a3a6fd0155234f06cc4b95879fc9d492fdaad8171e26345e4f865"
 }
