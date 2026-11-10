@@ -74,13 +74,14 @@ function apply(plan, legacy, bundleFiles) {
     sourcePaths.add(source.absolutePath); sourceNames.add(source.source);
     sourceFiles.push({ source: source.source, bytes: source.bytes, sha256: source.sha256, additional: !legacyPaths.has(source.absolutePath) });
   }
-  for (const provider of artifact.providers) {
+  const graph = artifact.schema === 'xtend.maraca.xtension-composition-artifact.v3';
+  for (const provider of graph ? artifact.modules : artifact.providers) {
     const bytes = contents.get(provider.fileName);
-    if (!bytes || hash(bytes) !== provider.sha256) throw new TypeError('Missing captured provider bytes.');
-    const sourcePath = capture.providerPaths[provider.id];
+    if (!bytes || hash(bytes) !== (graph ? provider.outputSha256 : provider.sha256)) throw new TypeError('Missing captured provider bytes.');
+    const sourcePath = graph ? path.resolve(fs.realpathSync(plan.rootDir), provider.module) : capture.providerPaths[provider.id];
     if (!sourcePaths.has(sourcePath)) {
       sourcePaths.add(sourcePath);
-      sourceFiles.push({ source: 'provider/' + provider.id, bytes: bytes.length, sha256: provider.sha256, additional: !legacyPaths.has(sourcePath) });
+      sourceFiles.push({ source: 'provider/' + (graph ? provider.module.slice(2) : provider.id), bytes: graph ? provider.sourceBytes : bytes.length, sha256: provider.sha256, additional: !legacyPaths.has(sourcePath) });
     }
   }
   sourceFiles.sort((a, b) => a.source.localeCompare(b.source));

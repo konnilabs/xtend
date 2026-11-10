@@ -1,6 +1,6 @@
 # A04.2 – Regulärer Maraca-Build und Browser-Boot
 
-Stand: 2026-11-10. Der lokale A04.1-Begleiter ist in den regulären asynchronen Maraca-Build einschließlich CLI eingebunden. Das erzeugte Browser-Modul komponiert gebundene React-/Vue-Hosts automatisch mit den tatsächlich verwendeten Kernel- und Surface-Ports. RMTX und XTensions 2.0 bleiben für 0.9.0 `preparing`; A04.3 und die vollständige Feature-Abnahme sind offen.
+Stand: 2026-11-10. Der lokale A04.1-Begleiter ist in den regulären asynchronen Maraca-Build einschließlich CLI eingebunden. Das erzeugte Browser-Modul komponiert gebundene React-/Vue-Hosts automatisch mit den tatsächlich verwendeten Kernel- und Surface-Ports. RMTX und XTensions 2.0 bleiben für 0.9.0 `preparing`; [A04.3.1](provider-graphs.md) ergänzt lokale transitive Providergraphen; weitere A04.3-Arbeiten und die vollständige Feature-Abnahme sind offen.
 
 ## Versionierte Einstiege
 
@@ -85,4 +85,4 @@ Production und Max formatieren zusätzlich den geschlossenen XTension-Plattformg
 
 Die blockierende Referenzprüfung setzt zusätzlich feste Regressionsgrenzen: höchstens **2.200.000 Framework-Bytes** und **240.000 XTension-Laufzeitbytes** je Referenz. Negativfälle prüfen künstliches Ausgabewachstum bei unveränderter Quellbasis sowie einen eigenständig zu großen, versehentlich unoptimierten XTension-Graphen trotz eingehaltenem Gesamtbudget. Alle drei Referenzen sowie die tatsächlichen Browser-/Paketprüfungen müssen ohne `warn`-/`off`-Ausnahme bestehen.
 
-Provider bleiben lokale, importfreie synchrone Komponentenfactorys nach A04.1. Transitive Provider-Abhängigkeiten, Chunk-Provenienz, Lazy-/CSP-/Peer-Ladestrategien und Integrität nach weiterer Transformation/Auslieferung sind A04.3. Die Datei-Digests belegen Build-Ausgaben, keine HTTP-Laufzeitbytes. Beide Build-Berichtsversionen behalten `runtimeExecutionVerified: false`; nur die getrennten tatsächlichen Laufzeittests belegen ihre jeweilige Ausführung. SSR, Adoption, Angular, Vanilla und vollständige 0.9-Feature-Abnahme sind nicht Bestandteil dieses Abschnitts.
+Manifest v1 behält lokale, importfreie synchrone Komponentenfactorys nach A04.1. [A04.3.1](provider-graphs.md) ergänzt mit Manifest v2 und Artefakt/Bericht v3 gepinnte lokale statische ESM-Graphen samt Transformationsprovenienz. Lazy-/CSP-/Peer-Ladestrategien und Integrität nach weiterer Auslieferung bleiben A04.3. Die Datei-Digests belegen Build-Ausgaben, keine HTTP-Laufzeitbytes. Beide Build-Berichtsversionen behalten `runtimeExecutionVerified: false`; nur die getrennten tatsächlichen Laufzeittests belegen ihre jeweilige Ausführung. SSR, Adoption, Angular, Vanilla und vollständige 0.9-Feature-Abnahme sind nicht Bestandteil dieses Abschnitts.

@@ -23,4 +23,17 @@ function createBuildInput(framework, outputDir, extra = {}) {
 async function buildIntegratedReference(framework, outputDir, extra = {}) {
   return require('../../xtend-maraca').buildMaracaBundleAsync(createBuildInput(framework, outputDir, extra), { rootDir: root });
 }
-module.exports = { createBuildInput, buildIntegratedReference };
+function withProviderGraph(input) {
+  const value = JSON.parse(JSON.stringify(input)), manifest = value.xtensionComposition, modules = new Map();
+  manifest.schema = 'xtend.maraca.xtension-composition-manifest.v2';
+  function pin(module) { modules.set(module, { module, sha256: createHash('sha256').update(fs.readFileSync(path.join(root, module))).digest('hex') }); }
+  for (const provider of manifest.providers) {
+    const name = path.basename(provider.entry.module, '-panel.mjs');
+    provider.entry.module = `./development/rmtx-a04/providers/graph/${name}-panel.mjs`;
+    pin(provider.entry.module); pin(`./development/rmtx-a04/providers/graph/${name}-component.mjs`);
+    provider.integrity.sha256 = modules.get(provider.entry.module).sha256;
+  }
+  pin('./development/rmtx-a04/providers/graph/format.mjs');
+  manifest.modules = [...modules.values()]; return value;
+}
+module.exports = { createBuildInput, buildIntegratedReference, withProviderGraph };

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { validateArtifact, canonical, freeze, copy, name, json } from './xtension-composition-contract.mjs';
-export const XTENSION_COMPOSITION_API_VERSION = '2.0.0';
+export const XTENSION_COMPOSITION_API_VERSION = '3.0.0';
 
 function capturePolicies(hosts, input) {
   const policies = new Map();
@@ -20,7 +20,7 @@ function capturePolicies(hosts, input) {
  * resulting port to its real controller/root and internally created Surfaces. */
 export function createMaracaXTensionCompositionPort(options) {
   const artifact = validateArtifact(options.companion?.artifact, options.plan, options.bindingsRuntime);
-  if (artifact.schema !== 'xtend.maraca.xtension-composition-artifact.v2' || canonical(artifact) !== canonical(options.plan.xtensionComposition)) throw new TypeError('Integrated boot requires the exact built v2 composition artifact.');
+  if (!['xtend.maraca.xtension-composition-artifact.v2', 'xtend.maraca.xtension-composition-artifact.v3'].includes(artifact.schema) || canonical(artifact) !== canonical(options.plan.xtensionComposition)) throw new TypeError('Integrated boot requires the exact built v2/v3 composition artifact.');
   const createHostFactory = options.companion.createHostFactory;
   if (typeof createHostFactory !== 'function' || typeof options.loadPeers !== 'function') throw new TypeError('The built companion and explicit peer loader are required.');
   const policies = capturePolicies(artifact.manifest.hosts, options.grants);

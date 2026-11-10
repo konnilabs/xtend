@@ -1136,11 +1136,11 @@ export interface MaracaTuneReport {
   diagnostics: MaracaDiagnostic[];
 }
 
-export type MaracaComposedBuildInput = MaracaBuildInput & { xtensionComposition: import('./xtension-composition-runtime').XTensionCompositionManifest };
+export type MaracaComposedBuildInput = MaracaBuildInput & { xtensionComposition: import('./xtension-composition-runtime').AnyXTensionCompositionManifest };
 export interface MaracaComposedBuildPlan extends Omit<MaracaBuildPlan, 'schema'> {
   schema: typeof MARACA_XTENSION_BUILD_PLAN_SCHEMA;
   sourceHash: string;
-  xtensionComposition: import('./xtension-composition-runtime').XTensionCompositionManifest;
+  xtensionComposition: import('./xtension-composition-runtime').AnyXTensionCompositionManifest;
 }
 export interface MaracaComposedBuildConfig extends Omit<MaracaBuildConfig, 'schema' | 'options'> {
   schema: typeof MARACA_XTENSION_BUILD_CONFIG_SCHEMA;

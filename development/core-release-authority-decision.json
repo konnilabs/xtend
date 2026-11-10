@@ -4,8 +4,8 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "6a404a564e750b18485e45c82db182911ab338354d1445e3f77234baaf5545fa",
-  "sourceMembershipSha256": "cf74ef11e85d7f1045eadc04c21050eee99c79c9e0985c6d64909d93e3b97671",
+  "inventorySha256": "649dcfe9cf6dba665612c46b94370484b8fbe05178b573b4739273ff173483b8",
+  "sourceMembershipSha256": "a5918330aa316f12b5b010198bf0fdbf74458f3cc28007d5eec3ed4df215c3ae",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
@@ -549,7 +549,7 @@
         },
         {
           "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
-          "sha256": "cc9170207ec5836e544790724998db36da8a9920e98075d257c54693a87f41d3"
+          "sha256": "0f4b5305501fb3ff76dff718dbd769f4817ab26a55fd134020468d792f289441"
         },
         {
           "path": "development/rmtx-a01/README.md",
@@ -561,7 +561,7 @@
         },
         {
           "path": "development/rmtx-a01/inventory.json",
-          "sha256": "a256b0b922d254ae70ddc108c5ea7c2dc8c591cab03eb0510db79598ac9c95b8"
+          "sha256": "19eaa238bbce188c44b200c9f1ad9dee8499a8efb0b73ec8ae5a154a584a0734"
         },
         {
           "path": "docs/de/rmt-vnext-authoring.md",
@@ -1377,5 +1377,52 @@
     "publicationGuardRetired": false,
     "freshCommittedCaptureRequired": true,
     "rationale": "Scoped A04.2 size-budget review: integrated build-plan v5 emits size-budget-report v2 over actual output bytes, captured platform/provider sources and the bound artifact. Source paths are deduplicated and sealed with actual build/file membership; serialized plans, metadata inflation and byte substitution cannot stand in for producer evidence. Overall framework and XTension runtime comparisons are independent, with fixed reference regression ceilings. Conservative formatting of copied platform/kernel/controller/resume modules closes strict Production/Max reference budgets. Legacy report v1 and all existing authoritative/released fingerprint sets remain intact. Browser/Plan/Host ABIs are unchanged. Transitive delivery provenance and full 0.9 acceptance remain pending. See development/rmtx-a04/integration.md."
+  },
+  "a0431ProviderGraphReview": {
+    "format": 1,
+    "date": "2026-11-10",
+    "status": "reviewed-unreleased-local-static-provider-graphs",
+    "stage": "A04.3.1",
+    "a04Complete": false,
+    "contract": "development/rmtx-a04/provider-graphs.md",
+    "newSchemaIds": [
+      "xtend.maraca.xtension-composition-artifact.v3",
+      "xtend.maraca.xtension-composition-build-report.v3",
+      "xtend.maraca.xtension-composition-manifest.v2"
+    ],
+    "scopedSchemaIds": [
+      "xtend.maraca.build-config.v5",
+      "xtend.maraca.build-plan.v5",
+      "xtend.maraca.xtension-composition-artifact.v2",
+      "xtend.maraca.xtension-composition-artifact.v3",
+      "xtend.maraca.xtension-composition-build-report.v1",
+      "xtend.maraca.xtension-composition-build-report.v2",
+      "xtend.maraca.xtension-composition-build-report.v3",
+      "xtend.maraca.xtension-composition-manifest.v1",
+      "xtend.maraca.xtension-composition-manifest.v2"
+    ],
+    "manifestVersion": 2,
+    "artifactVersion": 3,
+    "buildReportVersion": 3,
+    "buildApiVersion": "3.0.0",
+    "runtimeApiVersion": "3.0.0",
+    "cycles": "rejected",
+    "legacyContractsRetained": true,
+    "nativeKernelAbiChanged": false,
+    "browserAbiChanged": false,
+    "planRuntimeAbiChanged": false,
+    "sizeBudgetReportVersion": 2,
+    "referenceRegressionLimits": {
+      "frameworkBytes": 2200000,
+      "xtensionRuntimeBytes": 240000
+    },
+    "rootExportCount": 214,
+    "contractChecks": 44,
+    "runtimeCasesPerEnvironment": 305,
+    "compilerChecks": 88,
+    "acceptedForRelease": false,
+    "publicationGuardRetired": false,
+    "freshCommittedCaptureRequired": true,
+    "rationale": "Scoped A04.3.1 review: composition API 3 adds explicit manifest v2 and artifact/report v3 for pinned, closed, acyclic local static ESM provider graphs. All original bytes are captured before output; source and transformed-output provenance are separate, canonical module identities and shared imports are preserved. Whole-graph top-level restrictions retain native Kernel/Fabric/peer/factory admission and cancellation. Existing plan/config, Browser, PlanRuntime, Host and size-budget outer ABIs and every prior authoritative/released fingerprint set remain intact. Strict React/Vue/mixed budgets, packed consumers and 305 real cases per environment are mandatory. Loading/delivery strategy and complete 0.9 acceptance remain pending. See development/rmtx-a04/provider-graphs.md."
   }
 }

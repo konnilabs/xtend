@@ -42,3 +42,20 @@ void [samePlanRuntime, sameBrowserRoot];
 const sizeBudgetMajor: typeof MARACA_XTENSION_SIZE_BUDGET_REPORT_SCHEMA | undefined = build.sizeBudgetReport?.schema;
 const ownRuntimeBytes: number | undefined = build.sizeBudgetReport?.xtensions.runtimeBytes;
 void [sizeBudgetMajor, ownRuntimeBytes];
+
+import type { GraphXTensionCompositionManifest } from '@ccslabs/xtend/maraca/xtension-composition-runtime';
+declare const graphManifest: GraphXTensionCompositionManifest;
+const graphPlan = createMaracaBuildPlan({ source: 'app.rmt', xtensionComposition: graphManifest });
+const graphReport = await buildMaracaXTensionComposition({ plan: graphPlan, manifest: graphManifest, bindingsRuntime, rootDir: '.', outputDir: 'dist' });
+const graphMajor: 'xtend.maraca.xtension-composition-build-report.v3' = graphReport.schema;
+const graphApi: '3.0.0' = graphReport.artifact.apiVersion;
+const graphRuntimePlan = { ...graphPlan, xtensionComposition: graphReport.artifact };
+const graphPort = createMaracaXTensionCompositionPort({ plan: graphRuntimePlan, companion: { artifact: graphReport.artifact, createHostFactory() { return () => ({} as any); } }, bindingsRuntime, adapters: { react }, loadPeers: async () => ({}), grants: {} });
+createMaracaPlanRuntime({ ...runtimeOptions, plan: graphRuntimePlan, xtensionCompositionPort: graphPort });
+createMaracaBrowserCompositionRoot({ schema: 'xtend.maraca.browser-composition-root.v6', buildPlanSchema: graphPlan.schema, xtensionComposition: graphReport.artifact });
+// @ts-expect-error Legacy manifests cannot declare a transitive module inventory.
+const invalidLegacy: XTensionCompositionManifest = { ...manifest, modules: graphManifest.modules };
+void [graphMajor, graphApi, invalidLegacy];
+const configReport = await buildMaracaXTensionComposition({ plan: graphPlan, manifest: graphPlan.xtensionComposition, bindingsRuntime, rootDir: '.', outputDir: 'dist' });
+const configReportSchema: 'xtend.maraca.xtension-composition-build-report.v1' | 'xtend.maraca.xtension-composition-build-report.v2' | 'xtend.maraca.xtension-composition-build-report.v3' = configReport.schema;
+void configReportSchema;

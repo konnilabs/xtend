@@ -39,7 +39,7 @@ export interface MaracaBrowserCompositionRoot {
 
 export function freezeMaracaConfiguration<T>(value: T): Readonly<T>;
 export function createMaracaBrowserCompositionRoot(configuration: Readonly<Record<string, unknown>> & {
-  schema: 'xtend.maraca.browser-composition-root.v6'; buildPlanSchema: 'xtend.maraca.build-plan.v5'; xtensionComposition: import('./xtension-composition-runtime').IntegratedXTensionCompositionArtifact;
+  schema: 'xtend.maraca.browser-composition-root.v6'; buildPlanSchema: 'xtend.maraca.build-plan.v5'; xtensionComposition: import('./xtension-composition-runtime').IntegratedXTensionCompositionArtifact | import('./xtension-composition-runtime').GraphXTensionCompositionArtifact;
 }, dependencies?: Readonly<Record<string, unknown>>): ComposedMaracaBrowserCompositionRoot;
 
 export function createMaracaBrowserCompositionRoot(

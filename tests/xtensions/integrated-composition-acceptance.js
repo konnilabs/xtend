@@ -10,7 +10,10 @@ async function runIntegratedCompositionAcceptance({ React, ReactDOM, Vue, docume
   const deferred = () => { let resolve; const promise = new Promise(done => { resolve = done; }); return { promise, resolve }; };
   function fixture(framework, extra = {}) {
     const root = document.createElement('main'); document.body.append(root);
-    const previous = xtendState.snapshot().data, fabric = createXtendFabric(), controllers = [], hosts = [], lifecycle = [];
+    const previous = xtendState.snapshot().data, actualFabric = createXtendFabric(), admissions = [], fabric = { ...actualFabric, createBoundary(...args) {
+      const boundary = actualFabric.createBoundary(...args);
+      return { ...boundary, run(phase, task, metadata) { if (metadata?.kernelJobId) admissions.push(metadata); return boundary.run(phase, task, metadata); } };
+    } }, controllers = [], hosts = [], lifecycle = [];
     const platform = integratedApps[framework].platform, adapters = {};
     for (const [kind, api] of Object.entries(platform.adapters)) {
       const method = kind === 'react' ? 'createReactKernelRuntimeAdapter' : 'createVueKernelRuntimeAdapter';
@@ -47,9 +50,45 @@ async function runIntegratedCompositionAcceptance({ React, ReactDOM, Vue, docume
           : { Vue: stats.badPeers ? { ...Vue, version: '3.0.0' } : Vue };
       }
     } };
-    return { app, root, hosts, controllers, options, stats, lifecycle, grants, fabric,
+    return { app, root, hosts, controllers, options, stats, lifecycle, grants, fabric, admissions,
       async close() { app.dispose(); await app.facade.whenXTensionsIdle(); root.remove(); xtendState.clear(); xtendState.batchUpdate(previous); } };
   }
+  for (const framework of ['react', 'vue']) {
+    await test(`A04.3.1: ${framework} native multi-module graph waits for admitted peer loading before factory execution`, async () => {
+      const entered = deferred(), release = deferred(), f = fixture(framework, { entered, wait: release.promise }), calls = [];
+      globalThis.__XTendA043Observe = () => calls.push(f.admissions.length);
+      try {
+        const artifact = integratedApps[framework].companion.artifact;
+        equal(artifact.schema, 'xtend.maraca.xtension-composition-artifact.v3', 'native companion uses the new graph artifact');
+        equal(artifact.modules.length, 3, 'entry, component and transitive helper remain separate native modules');
+        check(Object.isFrozen(artifact.modules[0].imports), 'module provenance is immutable');
+        equal(calls.length, 0, 'importing modules and constructing the app executes no factory');
+        const boot = f.app.boot(f.options); await entered.promise;
+        equal(calls.length, 0, 'admitted loader cannot run the component factory before exact peers arrive');
+        release.resolve(); await boot;
+        equal(calls.length, 3, 'factory executes once per keyed host'); check(calls.every(count => count > 0), 'factories execute after real Kernel/Fabric admission');
+        equal(f.root.querySelectorAll('output').length, 3, 'shared transitive helper participates in actual framework rendering');
+      } finally { release.resolve(); delete globalThis.__XTendA043Observe; await f.close(); }
+    });
+    await test(`A04.3.1: ${framework} revoked peer load cannot enter a transitive component factory`, async () => {
+      const entered = deferred(), release = deferred(), f = fixture(framework, { entered, wait: release.promise }); let calls = 0;
+      globalThis.__XTendA043Observe = () => calls++;
+      try {
+        const boot = f.app.boot(f.options).catch(() => {}); await entered.promise; f.app.dispose(); await f.app.facade.whenXTensionsIdle();
+        release.resolve(); await boot; await Promise.resolve();
+        equal(calls, 0, 'late peers cannot execute the captured factory after revocation'); equal(f.root.querySelectorAll('input').length, 0, 'no framework root survives');
+      } finally { release.resolve(); delete globalThis.__XTendA043Observe; await f.close(); }
+    });
+  }
+  await test('A04.3.1: mixed native React/Vue graph shares a single transitive module and native owner', async () => {
+    const artifact = integratedApps.mixed.companion.artifact, f = fixture('mixed');
+    try {
+      equal(artifact.modules.length, 5, 'two entries/components share one helper');
+      equal(artifact.modules.filter(row => row.module.endsWith('/format.mjs')).length, 1, 'shared helper has one source identity');
+      await f.app.boot(f.options); equal(f.root.querySelectorAll('input').length, 2, 'both frameworks render through the transitive graph');
+      equal(f.controllers.length, 1, 'the graph shares one actual kernel controller');
+    } finally { await f.close(); }
+  });
   for (const framework of ['react', 'vue']) {
     await test(`A04.2: ${framework} regular generated ESM boot composes real internal ports and typed Model delivery`, async () => {
       const f = fixture(framework); try {

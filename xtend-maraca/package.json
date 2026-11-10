@@ -144,7 +144,8 @@
     "xtension-composition-runtime.d.ts",
     "xtension-composition-contract.mjs",
     "xtension-platform-build.js",
-    "xtension-size-budget.js"
+    "xtension-size-budget.js",
+    "xtension-provider-graph.js"
   ],
   "engines": {
     "node": ">=24"

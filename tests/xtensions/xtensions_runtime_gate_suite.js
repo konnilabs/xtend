@@ -22,7 +22,7 @@ function runXTensionsRuntimeGate({ rootDir, browser = false } = {}) {
     const output = npmCommand(['run',browser ? 'test:xtensions-runtime:browser' : 'test:xtensions-runtime','--','--report',artifact],{cwd:rootDir,env,encoding:'utf8',timeout:90000,maxBuffer:16*1024*1024});
     console.log(output);
     const report = JSON.parse(fs.readFileSync(artifact,'utf8'));
-    context.assert(report.ok === true && report.failed.length === 0 && report.passed.length >= 300,'Complete real adapter acceptance, including compiled A02.2 state bindings and retained safeguards, passes');
+    context.assert(report.ok === true && report.failed.length === 0 && report.passed.length >= 305,'Complete real adapter acceptance, including compiled A02.2 state bindings and retained safeguards, passes');
     context.assert(report.passed.filter((name) => name.startsWith('A02:')).length >= 12,'A02 executes the two-instance, typed intent and lifecycle reference in the actual environment');
     context.assert(report.passed.filter((name) => name.startsWith('A02.2:')).length >= 9,'Compiled Classic/Maraca state binding reference and lifecycle guards execute in the actual environment');
     context.assert(report.passed.filter((name) => name.startsWith('A02.3:')).length >= 11,'Conditional host lifetimes, cleanup ordering, stale intents and failure guards execute in the actual environment');
@@ -35,6 +35,7 @@ function runXTensionsRuntimeGate({ rootDir, browser = false } = {}) {
     context.assert(report.passed.filter(name => name.startsWith('A03.4:')).length >= 27,'Actual adapter capability requirements, optional gaps, provider validation and keyed Maraca integration are mandatory');
     context.assert(report.passed.filter(name => name.startsWith('A04.1:')).length >= 14,'Captured provider graphs, automatic keyed hosts, explicit grants, peer integrity, Surface ownership and late cleanup are mandatory');
     context.assert(report.passed.filter(name => name.startsWith('A04.2:')).length >= 17,'Regular generated React/Vue and mixed native ESM boot, internal ownership, abort, retry and borrowed kernel cleanup are mandatory');
+    context.assert(report.passed.filter(name => name.startsWith('A04.3.1:')).length >= 5,'Native transitive React/Vue and shared graphs, deferred factories and revoked peer loads are mandatory');
     context.assert(report.schema === 'xtend.xtensions.runtime-acceptance-report.v2','Extended compiler evidence uses the new report version');
     context.assert(report.schema !== report.exports.legacyAcceptanceReportSchema,'Legacy acceptance reports cannot stand in for current feature evidence');
     context.assert(report.compilerChecks?.ok === true && report.compilerChecks.checks >= 88,'Source/AST/transport parity, explicit versions and negative compiler artifact guards are mandatory');

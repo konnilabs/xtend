@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Shared, data-only contract. No framework, filesystem or kernel implementation.
+export const GRAPH_MANIFEST_SCHEMA = 'xtend.maraca.xtension-composition-manifest.v2';
+export const GRAPH_ARTIFACT_SCHEMA = 'xtend.maraca.xtension-composition-artifact.v3';
 export const MANIFEST_SCHEMA = 'xtend.maraca.xtension-composition-manifest.v1';
 export const ARTIFACT_SCHEMA = 'xtend.maraca.xtension-composition-artifact.v1';
 export const INTEGRATED_ARTIFACT_SCHEMA = 'xtend.maraca.xtension-composition-artifact.v2';
@@ -61,13 +63,14 @@ export function planIdentity(plan, bindingsRuntime) {
   const identity = { schema: plan.schema, sourceHash: plan.sourceHash, program: copy(plan.orchestration.artifact), bindings: copy(bindings) };
   if (plan.schema === 'xtend.maraca.build-plan.v5') {
     const composition = plan.xtensionComposition;
-    identity.compositionManifest = normalizeManifest(composition?.schema === INTEGRATED_ARTIFACT_SCHEMA ? composition.manifest : composition, identity);
+    identity.compositionManifest = normalizeManifest([INTEGRATED_ARTIFACT_SCHEMA, GRAPH_ARTIFACT_SCHEMA].includes(composition?.schema) ? composition.manifest : composition, identity);
   }
   return freeze(identity);
 }
 export function normalizeManifest(input, identity) {
-  json(input); fields(input, ['schema', 'providers', 'hosts'], 'composition manifest');
-  if (input.schema !== MANIFEST_SCHEMA || !Array.isArray(input.providers) || !input.providers.length || input.providers.length > 64 || !Array.isArray(input.hosts) || input.hosts.length > 256) throw new TypeError('A bounded v1 composition manifest is required.');
+  json(input); const graph = input?.schema === GRAPH_MANIFEST_SCHEMA;
+  fields(input, graph ? ['schema', 'providers', 'hosts', 'modules'] : ['schema', 'providers', 'hosts'], 'composition manifest');
+  if (![MANIFEST_SCHEMA, GRAPH_MANIFEST_SCHEMA].includes(input.schema) || !Array.isArray(input.providers) || !input.providers.length || input.providers.length > 64 || !Array.isArray(input.hosts) || input.hosts.length > 256) throw new TypeError('A bounded v1/v2 composition manifest is required.');
   const ids = new Set();
   const providers = input.providers.map(provider => {
     fields(provider, ['id', 'framework', 'version', 'entry', 'integrity', 'peers'], 'provider');
@@ -94,21 +97,74 @@ export function normalizeManifest(input, identity) {
     return { declarationId: host.declarationId, providerId: host.providerId, ownerSurface: host.ownerSurface, capabilityRequirements: requirements(host.capabilityRequirements, provider.framework) };
   }).sort((a, b) => a.declarationId < b.declarationId ? -1 : 1);
   if (used.size !== declarations.size || providers.some(provider => !hosts.some(host => host.providerId === provider.id))) throw new TypeError('Composition must cover all bindings and use every provider.');
-  return freeze({ schema: MANIFEST_SCHEMA, providers, hosts });
+  let modules;
+  if (graph) {
+    if (!Array.isArray(input.modules) || !input.modules.length || input.modules.length > 256) throw new TypeError('Manifest v2 requires 1..256 pinned local modules.');
+    const paths = new Set();
+    modules = input.modules.map(row => {
+      fields(row, ['module', 'sha256'], 'pinned module');
+      if (!localModule(row.module) || paths.has(row.module) || !digest(row.sha256)) throw new TypeError('Pinned modules require unique canonical paths and exact SHA-256.');
+      paths.add(row.module); return copy(row);
+    }).sort((a, b) => a.module < b.module ? -1 : 1);
+    for (const provider of providers) if (!modules.some(row => row.module === provider.entry.module && row.sha256 === provider.integrity.sha256)) throw new TypeError('Every provider entry must match a pinned module.');
+  }
+  return freeze({ schema: input.schema, providers, hosts, ...(graph ? { modules } : {}) });
 }
 export function validateArtifact(input, plan, bindingsRuntime) {
-  json(input); fields(input, ['schema', 'apiVersion', 'plan', 'manifest', 'providers', 'entryFile', 'runtimeExecutionVerified'], 'composition artifact');
+  json(input); const graph = input?.schema === GRAPH_ARTIFACT_SCHEMA;
+  fields(input, ['schema', 'apiVersion', 'plan', 'manifest', 'providers', 'entryFile', 'runtimeExecutionVerified', ...(graph ? ['modules'] : [])], 'composition artifact');
   const integrated = input.schema === INTEGRATED_ARTIFACT_SCHEMA;
-  if ((!integrated && input.schema !== ARTIFACT_SCHEMA) || input.apiVersion !== (integrated ? '2.0.0' : '1.0.0') || input.plan?.schema !== (integrated ? 'xtend.maraca.build-plan.v5' : 'xtend.maraca.build-plan.v4') || input.runtimeExecutionVerified !== false || !/^xtend\.xtensions-[a-f0-9]{64}\.mjs$/.test(input.entryFile || '')) throw new TypeError('A version-matched v1/v2 build composition artifact is required.');
+  if ((!graph && !integrated && input.schema !== ARTIFACT_SCHEMA) || input.apiVersion !== (graph ? '3.0.0' : integrated ? '2.0.0' : '1.0.0') || !(graph ? ['xtend.maraca.build-plan.v4', 'xtend.maraca.build-plan.v5'] : [integrated ? 'xtend.maraca.build-plan.v5' : 'xtend.maraca.build-plan.v4']).includes(input.plan?.schema) || input.runtimeExecutionVerified !== false || !/^xtend\.xtensions-[a-f0-9]{64}\.mjs$/.test(input.entryFile || '')) throw new TypeError('A version-matched v1/v2/v3 build composition artifact is required.');
   const identity = planIdentity(plan, bindingsRuntime);
   if (canonical(input.plan) !== canonical(identity)) throw new TypeError('Composition artifact belongs to a different compiled source or binding contract.');
   const manifest = normalizeManifest(input.manifest, identity);
-  if (integrated && canonical(manifest) !== canonical(identity.compositionManifest)) throw new TypeError('The built provider manifest differs from the declared v5 composition.');
+  if ((integrated || graph && identity.schema === 'xtend.maraca.build-plan.v5') && canonical(manifest) !== canonical(identity.compositionManifest)) throw new TypeError('The built provider manifest differs from the declared v5 composition.');
   if (!Array.isArray(input.providers) || input.providers.length !== manifest.providers.length) throw new TypeError('Provider build records must match the manifest.');
+  if (graph !== (manifest.schema === GRAPH_MANIFEST_SCHEMA)) throw new TypeError('The artifact and manifest graph versions must agree.');
+  if (graph) validateModuleGraph(input.modules, manifest);
   input.providers.forEach((entry, index) => {
-    fields(entry, ['id', 'sha256', 'fileName'], 'provider build record');
+    fields(entry, ['id', 'sha256', 'fileName', ...(graph ? ['outputSha256'] : [])], 'provider build record');
     const provider = manifest.providers[index];
-    if (entry.id !== provider.id || entry.sha256 !== provider.integrity.sha256 || entry.fileName !== `providers/${provider.id}-${entry.sha256}.mjs`) throw new TypeError('Provider build record disagrees with the captured source identity.');
+    if (entry.id !== provider.id || entry.sha256 !== provider.integrity.sha256 || (graph ? !input.modules.some(row => row.module === provider.entry.module && row.fileName === entry.fileName && row.outputSha256 === entry.outputSha256) : entry.fileName !== `providers/${provider.id}-${entry.sha256}.mjs`)) throw new TypeError('Provider build record disagrees with the captured source identity.');
   });
   return freeze({ ...copy(input), plan: identity, manifest });
+}
+
+const digest = value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
+export const localModule = value => typeof value === 'string' && /^\.\/(?:[a-zA-Z0-9_-]+\/)*[a-zA-Z0-9_.-]+\.(?:mjs|js)$/.test(value);
+/** Explicit relative ESM only: no implicit extensions, package/URL resolution or aliases. */
+export function resolveModuleSpecifier(module, specifier) {
+  if (typeof specifier !== 'string' || !/^(?:\.\/|(?:\.\.\/)+)(?:[a-zA-Z0-9_-]+\/)*[a-zA-Z0-9_.-]+\.(?:mjs|js)$/.test(specifier)) throw new TypeError('Only explicit local relative ESM imports are admitted.');
+  const parts = module.slice(2).split('/'); parts.pop();
+  for (const part of specifier.split('/')) {
+    if (part === '.') continue;
+    if (part === '..') { if (!parts.length) throw new TypeError('Module import escapes the project root.'); parts.pop(); }
+    else parts.push(part);
+  }
+  const result = './' + parts.join('/');
+  if (!localModule(result)) throw new TypeError('Invalid local module path.');
+  return result;
+}
+export function validateModuleGraph(modules, manifest) {
+  if (!Array.isArray(modules) || modules.length !== manifest.modules.length) throw new TypeError('The captured graph must cover the pinned module inventory exactly.');
+  const byPath = new Map();
+  modules.forEach((row, index) => {
+    fields(row, ['module', 'sha256', 'sourceBytes', 'fileName', 'outputSha256', 'outputBytes', 'imports'], 'captured module');
+    const pin = manifest.modules[index];
+    if (row.module !== pin.module || row.sha256 !== pin.sha256 || !digest(row.outputSha256) || row.fileName !== `providers/modules/${row.module.slice(2)}-${row.outputSha256}.mjs` || !Number.isSafeInteger(row.sourceBytes) || row.sourceBytes < 0 || !Number.isSafeInteger(row.outputBytes) || row.outputBytes < 0 || !Array.isArray(row.imports) || row.imports.length > 256) throw new TypeError('Captured module provenance disagrees with its pinned source.');
+    for (const edge of row.imports) {
+      fields(edge, ['specifier', 'module'], 'static import');
+      if (resolveModuleSpecifier(row.module, edge.specifier) !== edge.module) throw new TypeError('Static import target differs from its canonical local resolution.');
+    }
+    byPath.set(row.module, row);
+  });
+  const active = new Set(), visited = new Set();
+  function visit(module) {
+    if (active.has(module)) throw new TypeError('Cyclic provider module graphs are not admitted.');
+    if (visited.has(module)) return;
+    const row = byPath.get(module); if (!row) throw new TypeError('Unpinned provider dependency.');
+    active.add(module); row.imports.forEach(edge => visit(edge.module)); active.delete(module); visited.add(module);
+  }
+  manifest.providers.forEach(provider => visit(provider.entry.module));
+  if (visited.size !== modules.length) throw new TypeError('Unused pinned modules are not admitted.');
 }

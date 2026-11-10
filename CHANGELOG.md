@@ -4,6 +4,8 @@ Alle sichtbaren Produktaenderungen werden in diesem Dokument gesammelt. XTend is
 
 ## Unreleased – 0.9.0
 
+- Maraca/XTensions: Kompositions-API 3 mit Manifest v2 und Artefakt/Bericht v3 für gepinnte lokale statische Provider-Modulgraphen, getrennte Quell-/Ausgabeprovenienz und strikte Größenbudgets; bisherige Verträge bleiben unterstützt.
+
 - A04.1: Versionierte Maraca-Kompositions-APIs verknüpfen geprüfte lokale Provider-Dateien mit keyed React-/Vue-Hosts über Kernel, Fabric und Surface-Ressourcen. A04.2 integriert den regulären asynchronen Build, CLI und Browser-Boot über neue explizite Plan-/Config-/Runtime-Versionen, interne Kernel-/Surface-Ports und geordnetes Cleanup. Der Größenbericht v2 erfasst gebundene Quellen und tatsächliche Ausgaben mit einem separaten XTension-Laufzeitbudget; zusätzliche Minifizierung ermöglicht strikte Production-/Max-Referenzbuilds. Transitive Provider-/Ladeprovenienz und vollständige 0.9-Feature-Abnahme bleiben offen.
 
 - RMTX und XTensions 2.0 sind verbindlicher Umfang von 0.9. Ein gemeinsamer Featureplan prüft den Umsetzungsstand und die Nachweise bei Releasevorbereitung und Publish. Beide Features sind noch in Vorbereitung.

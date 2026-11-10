@@ -22,12 +22,14 @@ async function main() {
   try {
   const compositionReports = Object.fromEntries(await Promise.all(['react', 'vue'].map(async framework => [framework, await compositionReference.buildReference(compositionPlan, path.join(compositionTemp, framework), framework)])));
   const compositions = Object.fromEntries(await Promise.all(Object.entries(compositionReports).map(async ([framework, report]) => [framework, await import(require('node:url').pathToFileURL(report.entryPath).href)])));
-  const integratedDirectories = {};
+  const integratedDirectories = {}, companionEntries = {};
   for (const framework of ['react', 'vue', 'mixed']) {
     const directory = path.join(compositionTemp, 'integrated-' + framework);
-    const built = await require('../development/rmtx-a04/integration-reference.cjs').buildIntegratedReference(framework, directory, { profile: framework === 'vue' ? 'max' : 'production' });
+    const reference = require('../development/rmtx-a04/integration-reference.cjs');
+    const built = await require('../xtend-maraca').buildMaracaBundleAsync(reference.withProviderGraph(reference.createBuildInput(framework, directory, { profile: framework === 'vue' ? 'max' : 'production' })), { rootDir: root });
     if (!built.ok) throw new Error('Integrated build failed: ' + JSON.stringify(built.plan.diagnostics));
     integratedDirectories[framework] = directory;
+    companionEntries[framework] = JSON.parse(fs.readFileSync(path.join(directory, 'xtend.xtensions.report.json'))).artifact.entryFile;
   }
   let report;
   if (browser) {
@@ -47,11 +49,12 @@ async function main() {
       const conditionalBindingPlan = ${JSON.stringify(conditionalBindingPlan)};
       const repeatedBindingPlan = ${JSON.stringify(repeatedBindingPlan)};
       window.__XTendMaracaDisableAutoBoot = true;
+      const companionEntries = ${JSON.stringify(companionEntries)};
       window.runAcceptance = async () => {
         const integratedApps = {};
         for (const framework of ['react', 'vue', 'mixed']) {
           const base = 'http://xtend.test/generated/' + framework + '/';
-          integratedApps[framework] = { entry: await import(base + 'xtend.maraca.mjs'), platform: (await import(base + 'runtime/xtension-platform.mjs')).default };
+          integratedApps[framework] = { entry: await import(base + 'xtend.maraca.mjs'), platform: (await import(base + 'runtime/xtension-platform.mjs')).default, companion: await import(base + companionEntries[framework]) };
         }
         return runRuntimeAcceptance({React,ReactDOM:{...client,version:dom.version},Vue,document,compiledBindingPlan,conditionalBindingPlan,repeatedBindingPlan,compositionPlan,compositions,integratedApps}); };`, resolveDir: root },
       nodePaths: [path.resolve(peerRoot, 'node_modules')], bundle: true, platform: 'browser', write: false,
@@ -87,7 +90,8 @@ async function main() {
       const integratedApps = {};
       for (const [framework, directory] of Object.entries(integratedDirectories)) integratedApps[framework] = {
         entry: await import(require('node:url').pathToFileURL(path.join(directory, 'xtend.maraca.mjs')).href),
-        platform: (await import(require('node:url').pathToFileURL(path.join(directory, 'runtime/xtension-platform.mjs')).href)).default
+        platform: (await import(require('node:url').pathToFileURL(path.join(directory, 'runtime/xtension-platform.mjs')).href)).default,
+      companion: await import(require('node:url').pathToFileURL(path.join(directory, companionEntries[framework])).href)
       };
       report = await require('../tests/xtensions/runtime-adapter-acceptance').runRuntimeAcceptance({ React: peers('react'),
         ReactDOM: { ...peers('react-dom/client'), version: peers('react-dom').version }, Vue: peers('vue'), document: dom.window.document, compiledBindingPlan, conditionalBindingPlan, repeatedBindingPlan, compositionPlan, compositions, integratedApps });

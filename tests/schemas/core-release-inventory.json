@@ -270891,24 +270891,24 @@
       ],
       "shapePolicy": {
         "mode": "polymorphic",
-        "decision": "reviewed-a042-regular-build-and-boot",
+        "decision": "reviewed-a0431-local-static-provider-graphs",
         "acceptedFingerprints": [
-          "sha256:5b73d2e561b77a3accf22bcbc07483e74e715e718bb51d2d5b3355a109189a92",
+          "sha256:bca5ccedbecc7063b48364be1ac5fd92003900e976b8a20d87d02624d238d4cd",
           "sha256:db80bff4c4f81bc2f8da3f0209c077e5174f21e9fa56b9b2bebdbbd399a0758b"
         ],
         "authoritativeFingerprints": [],
         "releasedFingerprintSetHash": null,
-        "rationale": "Scoped A04.2 review: automatic regular async Maraca/CLI build and browser boot use opt-in build-plan/config v5, composition API 2 with artifact/report v2, prepared port v1, Browser API 6 and PlanRuntime v8. Captured manifest identity and application grants bind actual internal Kernel/Fabric/Surface ports; owned roots drain before kernel retirement, borrowed owners survive. Legacy default plan/config v4, Browser API 5, PlanRuntime v7 and artifact/report v1 remain supported. All prior authoritative/released fingerprint sets remain fixed. Partial static/type observations stay partial. Transitive provider dependencies, delivery provenance, strict production size closure and full 0.9 acceptance remain pending. See development/rmtx-a04/integration.md."
+        "rationale": "Scoped A04.3.1 review: composition API 3 adds explicit manifest v2 and artifact/report v3 for pinned, closed, acyclic local static ESM provider graphs. All original bytes are captured before output; source and transformed-output provenance are separate, canonical module identities and shared imports are preserved. Whole-graph top-level restrictions retain native Kernel/Fabric/peer/factory admission and cancellation. Existing plan/config, Browser, PlanRuntime, Host and size-budget outer ABIs and every prior authoritative/released fingerprint set remain intact. Strict React/Vue/mixed budgets, packed consumers and 305 real cases per environment are mandatory. Loading/delivery strategy and complete 0.9 acceptance remain pending. See development/rmtx-a04/provider-graphs.md."
       },
       "shapeFingerprints": [
         {
-          "hash": "sha256:5b73d2e561b77a3accf22bcbc07483e74e715e718bb51d2d5b3355a109189a92",
+          "hash": "sha256:bca5ccedbecc7063b48364be1ac5fd92003900e976b8a20d87d02624d238d4cd",
           "shape": {
             "fieldCount": 1,
             "fields": [
               "options"
             ],
-            "signature": "options:{_?:array<string>,allow-dynamic-components?:union<boolean|string>,allowDynamicComponents?:boolean,build-config?:string,check?:union<boolean|string>,component-mode?:union<literal<\"all\">|literal<\"document\">>,componentMode?:union<literal<\"all\">|literal<\"document\">>,components?:union<literal<\"all\">|literal<\"document\">>,config?:string,configPath?:string,css?:union<literal<\"external\">|literal<\"inline\">>,css-budget?:union<number|string>,css-input?:string,css-preflight?:union<literal<\"disabled\">|literal<\"enabled\">|literal<\"scoped\">>,css-provider?:string,css-provider-fallback?:union<literal<\"native\">|literal<\"none\">>,css-sources?:union<string|array<string>>,cssBudget?:union<number|string>,cssInput?:string,cssPreflight?:union<literal<\"disabled\">|literal<\"enabled\">|literal<\"scoped\">>,cssProvider?:string,cssProviderFallback?:union<literal<\"native\">|literal<\"none\">>,cssProviderImplementation?:{\"arguments\":[],\"unresolvedReference\":\"CssProviderImplementation\"},cssSources?:union<string|array<string>>,enable-prewarm-worker?:union<boolean|string>,enable-pwa?:union<boolean|string>,enable-service-worker?:union<boolean|string>,enable-ui-coprocessor?:union<boolean|string>,enable-web-app-manifest?:union<boolean|string>,enablePrewarmWorker?:union<boolean|string>,enablePwa?:union<boolean|string>,enableServiceWorker?:union<boolean|string>,enableUiCoprocessor?:union<boolean|string>,enableWebAppManifest?:union<boolean|string>,filePath?:string,form-validation?:union<literal<\"auto\">|literal<\"off\">|literal<\"strict\">>,hydration?:union<literal<\"auto\">|literal<\"off\">|literal<\"prewarm\">|literal<\"strict\">|literal<\"warm\">>,hydration-mode?:union<literal<\"auto\">|literal<\"off\">|literal<\"prewarm\">|literal<\"strict\">|literal<\"warm\">>,hydrationMode?:union<literal<\"auto\">|literal<\"off\">|literal<\"prewarm\">|literal<\"strict\">|literal<\"warm\">>,json?:boolean,kernel?:union<literal<\"auto\">|literal<\"off\">|literal<\"strict\">>,kernel-boot?:union<literal<\"direct\">|literal<\"productSurface\">>,kernel-boot-mode?:union<literal<\"direct\">|literal<\"productSurface\">>,kernel-mode?:union<literal<\"auto\">|literal<\"off\">|literal<\"strict\">>,kernelBoot?:union<literal<\"direct\">|literal<\"productSurface\">>,kernelBootMode?:union<literal<\"direct\">|literal<\"productSurface\">>,kernelMode?:union<literal<\"auto\">|literal<\"off\">|literal<\"strict\">>,lazy?:union<literal<\"component\">|literal<\"none\">|literal<\"route\">>,manifest?:union<boolean|string|{backgroundColor?:string,background_color?:string,display?:string,enabled?:boolean,fileName?:string,iconDirectory?:string,icons?:array<{\"record\":{\"key\":\"string\",\"value\":\"unknown\"}}>,manifest?:{\"record\":{\"key\":\"string\",\"value\":\"unknown\"}},name?:string,reportFileName?:string,scope?:string,shortName?:string,short_name?:string,startUrl?:string,start_url?:string,themeColor?:string,theme_color?:string}|{\"record\":{\"key\":\"string\",\"value\":\"unknown\"}}>,orchestration?:union<literal<\"auto\">|literal<\"off\">|literal<\"strict\">>,orchestration-mode?:union<literal<\"auto\">|literal<\"off\">|literal<\"strict\">>,orchestrationMode?:union<literal<\"auto\">|literal<\"off\">|literal<\"strict\">>,out?:string,outDir?:string,php-services-entry?:string,phpServicesEntry?:string,policyParityContracts?:array<{\"record\":{\"key\":\"string\",\"value\":\"unknown\"}}>,policyParityReports?:array<{\"record\":{\"key\":\"string\",\"value\":\"unknown\"}}>,policyParityRequiredFactories?:array<string>,policyParityRuntimeHooks?:array<string>,prewarmWorker?:union<boolean|string>,profile?:union<literal<\"debug\">|literal<\"max\">|literal<\"production\">>,pwa?:union<boolean|string|{businessLogicImport?:string,cacheMode?:union<string|literal<\"generated-app-shell\">>,enabled?:boolean,manifest?:union<{backgroundColor?:string,background_color?:string,display?:string,enabled?:boolean,fileName?:string,iconDirectory?:string,icons?:array<{\"record\":{\"key\":\"string\",\"value\":\"unknown\"}}>,manifest?:{\"record\":{\"key\":\"string\",\"value\":\"unknown\"}},name?:string,reportFileName?:string,scope?:string,shortName?:string,short_name?:string,startUrl?:string,start_url?:string,themeColor?:string,theme_color?:string}|{\"record\":{\"key\":\"string\",\"value\":\"unknown\"}}>,manifestFileName?:string,name?:string,offlineFallback?:boolean,offlineFallbackFileName?:string,scope?:string,serviceWorker?:{businessLogicImport?:string,enabled?:boolean,fileName?:string,offlineFallback?:boolean,registrationUrl?:string,scope?:string,type?:union<string|literal<\"classic\">|literal<\"module\">>},serviceWorkerFileName?:string,shortName?:string,startUrl?:string,strategy?:union<string|literal<\"app-shell\">>,updateMode?:union<string|literal<\"auto\">|literal<\"manual\">|literal<\"prompt\">>}>,server-services-entry?:string,serverServicesEntry?:string,service-targets?:union<string|array<string>>,serviceTargets?:union<string|array<string>>,services?:union<{\"arguments\":[],\"unresolvedReference\":\"MaracaServicesConfig\"}|literal<false>|literal<true>>,services-entry?:string,servicesEntry?:string,source?:string,sourceContent?:string,sourcePath?:string,sourceText?:string,stack?:union<literal<\"full\">|literal<\"none\">|literal<\"plan\">|literal<\"runtime\">>,stack-mode?:union<literal<\"full\">|literal<\"none\">|literal<\"plan\">|literal<\"runtime\">>,stackMode?:union<literal<\"full\">|literal<\"none\">|literal<\"plan\">|literal<\"runtime\">>,surface-transitions?:union<literal<\"auto\">|literal<\"off\">|literal<\"strict\">>,transition-mode?:union<literal<\"auto\">|literal<\"off\">|literal<\"strict\">>,transitionMode?:union<literal<\"auto\">|literal<\"off\">|literal<\"strict\">>,transitions?:union<literal<\"auto\">|literal<\"off\">|literal<\"strict\">>,uiCoprocessor?:union<boolean|string|{enabled?:boolean,lifecycle?:union<string|literal<\"app\">|literal<\"runtime\">>,maxQueueDepth?:number,mode?:union<string|literal<\"alwaysOn\">|literal<\"opportunistic\">>,stalePolicy?:union<string|literal<\"discard\">>}>,validation?:union<literal<\"auto\">|literal<\"off\">|literal<\"strict\">>,validation-mode?:union<literal<\"auto\">|literal<\"off\">|literal<\"strict\">>,validationMode?:union<literal<\"auto\">|literal<\"off\">|literal<\"strict\">>,vendor?:union<boolean|string>,virtualSourcePath?:string,web-app-manifest?:union<boolean|string|{backgroundColor?:string,background_color?:string,display?:string,enabled?:boolean,fileName?:string,iconDirectory?:string,icons?:array<{\"record\":{\"key\":\"string\",\"value\":\"unknown\"}}>,manifest?:{\"record\":{\"key\":\"string\",\"value\":\"unknown\"}},name?:string,reportFileName?:string,scope?:string,shortName?:string,short_name?:string,startUrl?:string,start_url?:string,themeColor?:string,theme_color?:string}>,webAppManifest?:union<boolean|string|{backgroundColor?:string,background_color?:string,display?:string,enabled?:boolean,fileName?:string,iconDirectory?:string,icons?:array<{\"record\":{\"key\":\"string\",\"value\":\"unknown\"}}>,manifest?:{\"record\":{\"key\":\"string\",\"value\":\"unknown\"}},name?:string,reportFileName?:string,scope?:string,shortName?:string,short_name?:string,startUrl?:string,start_url?:string,themeColor?:string,theme_color?:string}>,write?:union<boolean|string>,xtensionBindings?:{\"arguments\":[],\"unresolvedReference\":\"XTensionStateBindingArtifact\"},xtensionComposition:{\"unresolved\":\"import('./xtension-composition-runtime').XTensionCompositionManifest\"}}",
+            "signature": "options:{_?:array<string>,allow-dynamic-components?:union<boolean|string>,allowDynamicComponents?:boolean,build-config?:string,check?:union<boolean|string>,component-mode?:union<literal<\"all\">|literal<\"document\">>,componentMode?:union<literal<\"all\">|literal<\"document\">>,components?:union<literal<\"all\">|literal<\"document\">>,config?:string,configPath?:string,css?:union<literal<\"external\">|literal<\"inline\">>,css-budget?:union<number|string>,css-input?:string,css-preflight?:union<literal<\"disabled\">|literal<\"enabled\">|literal<\"scoped\">>,css-provider?:string,css-provider-fallback?:union<literal<\"native\">|literal<\"none\">>,css-sources?:union<string|array<string>>,cssBudget?:union<number|string>,cssInput?:string,cssPreflight?:union<literal<\"disabled\">|literal<\"enabled\">|literal<\"scoped\">>,cssProvider?:string,cssProviderFallback?:union<literal<\"native\">|literal<\"none\">>,cssProviderImplementation?:{\"arguments\":[],\"unresolvedReference\":\"CssProviderImplementation\"},cssSources?:union<string|array<string>>,enable-prewarm-worker?:union<boolean|string>,enable-pwa?:union<boolean|string>,enable-service-worker?:union<boolean|string>,enable-ui-coprocessor?:union<boolean|string>,enable-web-app-manifest?:union<boolean|string>,enablePrewarmWorker?:union<boolean|string>,enablePwa?:union<boolean|string>,enableServiceWorker?:union<boolean|string>,enableUiCoprocessor?:union<boolean|string>,enableWebAppManifest?:union<boolean|string>,filePath?:string,form-validation?:union<literal<\"auto\">|literal<\"off\">|literal<\"strict\">>,hydration?:union<literal<\"auto\">|literal<\"off\">|literal<\"prewarm\">|literal<\"strict\">|literal<\"warm\">>,hydration-mode?:union<literal<\"auto\">|literal<\"off\">|literal<\"prewarm\">|literal<\"strict\">|literal<\"warm\">>,hydrationMode?:union<literal<\"auto\">|literal<\"off\">|literal<\"prewarm\">|literal<\"strict\">|literal<\"warm\">>,json?:boolean,kernel?:union<literal<\"auto\">|literal<\"off\">|literal<\"strict\">>,kernel-boot?:union<literal<\"direct\">|literal<\"productSurface\">>,kernel-boot-mode?:union<literal<\"direct\">|literal<\"productSurface\">>,kernel-mode?:union<literal<\"auto\">|literal<\"off\">|literal<\"strict\">>,kernelBoot?:union<literal<\"direct\">|literal<\"productSurface\">>,kernelBootMode?:union<literal<\"direct\">|literal<\"productSurface\">>,kernelMode?:union<literal<\"auto\">|literal<\"off\">|literal<\"strict\">>,lazy?:union<literal<\"component\">|literal<\"none\">|literal<\"route\">>,manifest?:union<boolean|string|{backgroundColor?:string,background_color?:string,display?:string,enabled?:boolean,fileName?:string,iconDirectory?:string,icons?:array<{\"record\":{\"key\":\"string\",\"value\":\"unknown\"}}>,manifest?:{\"record\":{\"key\":\"string\",\"value\":\"unknown\"}},name?:string,reportFileName?:string,scope?:string,shortName?:string,short_name?:string,startUrl?:string,start_url?:string,themeColor?:string,theme_color?:string}|{\"record\":{\"key\":\"string\",\"value\":\"unknown\"}}>,orchestration?:union<literal<\"auto\">|literal<\"off\">|literal<\"strict\">>,orchestration-mode?:union<literal<\"auto\">|literal<\"off\">|literal<\"strict\">>,orchestrationMode?:union<literal<\"auto\">|literal<\"off\">|literal<\"strict\">>,out?:string,outDir?:string,php-services-entry?:string,phpServicesEntry?:string,policyParityContracts?:array<{\"record\":{\"key\":\"string\",\"value\":\"unknown\"}}>,policyParityReports?:array<{\"record\":{\"key\":\"string\",\"value\":\"unknown\"}}>,policyParityRequiredFactories?:array<string>,policyParityRuntimeHooks?:array<string>,prewarmWorker?:union<boolean|string>,profile?:union<literal<\"debug\">|literal<\"max\">|literal<\"production\">>,pwa?:union<boolean|string|{businessLogicImport?:string,cacheMode?:union<string|literal<\"generated-app-shell\">>,enabled?:boolean,manifest?:union<{backgroundColor?:string,background_color?:string,display?:string,enabled?:boolean,fileName?:string,iconDirectory?:string,icons?:array<{\"record\":{\"key\":\"string\",\"value\":\"unknown\"}}>,manifest?:{\"record\":{\"key\":\"string\",\"value\":\"unknown\"}},name?:string,reportFileName?:string,scope?:string,shortName?:string,short_name?:string,startUrl?:string,start_url?:string,themeColor?:string,theme_color?:string}|{\"record\":{\"key\":\"string\",\"value\":\"unknown\"}}>,manifestFileName?:string,name?:string,offlineFallback?:boolean,offlineFallbackFileName?:string,scope?:string,serviceWorker?:{businessLogicImport?:string,enabled?:boolean,fileName?:string,offlineFallback?:boolean,registrationUrl?:string,scope?:string,type?:union<string|literal<\"classic\">|literal<\"module\">>},serviceWorkerFileName?:string,shortName?:string,startUrl?:string,strategy?:union<string|literal<\"app-shell\">>,updateMode?:union<string|literal<\"auto\">|literal<\"manual\">|literal<\"prompt\">>}>,server-services-entry?:string,serverServicesEntry?:string,service-targets?:union<string|array<string>>,serviceTargets?:union<string|array<string>>,services?:union<{\"arguments\":[],\"unresolvedReference\":\"MaracaServicesConfig\"}|literal<false>|literal<true>>,services-entry?:string,servicesEntry?:string,source?:string,sourceContent?:string,sourcePath?:string,sourceText?:string,stack?:union<literal<\"full\">|literal<\"none\">|literal<\"plan\">|literal<\"runtime\">>,stack-mode?:union<literal<\"full\">|literal<\"none\">|literal<\"plan\">|literal<\"runtime\">>,stackMode?:union<literal<\"full\">|literal<\"none\">|literal<\"plan\">|literal<\"runtime\">>,surface-transitions?:union<literal<\"auto\">|literal<\"off\">|literal<\"strict\">>,transition-mode?:union<literal<\"auto\">|literal<\"off\">|literal<\"strict\">>,transitionMode?:union<literal<\"auto\">|literal<\"off\">|literal<\"strict\">>,transitions?:union<literal<\"auto\">|literal<\"off\">|literal<\"strict\">>,uiCoprocessor?:union<boolean|string|{enabled?:boolean,lifecycle?:union<string|literal<\"app\">|literal<\"runtime\">>,maxQueueDepth?:number,mode?:union<string|literal<\"alwaysOn\">|literal<\"opportunistic\">>,stalePolicy?:union<string|literal<\"discard\">>}>,validation?:union<literal<\"auto\">|literal<\"off\">|literal<\"strict\">>,validation-mode?:union<literal<\"auto\">|literal<\"off\">|literal<\"strict\">>,validationMode?:union<literal<\"auto\">|literal<\"off\">|literal<\"strict\">>,vendor?:union<boolean|string>,virtualSourcePath?:string,web-app-manifest?:union<boolean|string|{backgroundColor?:string,background_color?:string,display?:string,enabled?:boolean,fileName?:string,iconDirectory?:string,icons?:array<{\"record\":{\"key\":\"string\",\"value\":\"unknown\"}}>,manifest?:{\"record\":{\"key\":\"string\",\"value\":\"unknown\"}},name?:string,reportFileName?:string,scope?:string,shortName?:string,short_name?:string,startUrl?:string,start_url?:string,themeColor?:string,theme_color?:string}>,webAppManifest?:union<boolean|string|{backgroundColor?:string,background_color?:string,display?:string,enabled?:boolean,fileName?:string,iconDirectory?:string,icons?:array<{\"record\":{\"key\":\"string\",\"value\":\"unknown\"}}>,manifest?:{\"record\":{\"key\":\"string\",\"value\":\"unknown\"}},name?:string,reportFileName?:string,scope?:string,shortName?:string,short_name?:string,startUrl?:string,start_url?:string,themeColor?:string,theme_color?:string}>,write?:union<boolean|string>,xtensionBindings?:{\"arguments\":[],\"unresolvedReference\":\"XTensionStateBindingArtifact\"},xtensionComposition:{\"unresolved\":\"import('./xtension-composition-runtime').AnyXTensionCompositionManifest\"}}",
             "normalized": {
               "fields": {
                 "options": {
@@ -272440,7 +272440,7 @@
                       "xtensionComposition": {
                         "optional": false,
                         "type": {
-                          "unresolved": "import('./xtension-composition-runtime').XTensionCompositionManifest"
+                          "unresolved": "import('./xtension-composition-runtime').AnyXTensionCompositionManifest"
                         }
                       }
                     }
@@ -280855,14 +280855,14 @@
       ],
       "shapePolicy": {
         "mode": "polymorphic",
-        "decision": "reviewed-a042-regular-build-and-boot",
+        "decision": "reviewed-a0431-local-static-provider-graphs",
         "acceptedFingerprints": [
           "sha256:2262284879f65378bf779b22655dfb7c973269f6c89b9e8ed3892b951c2f577d",
-          "sha256:3128da3e95fffd0164a769cebe9f0876e63bcfb003ca7d9cd160ff8e20ed6083"
+          "sha256:7eba853788c99f412257a25212c05127bdcfd25f4101f3f8ed6c0478ea54b640"
         ],
         "authoritativeFingerprints": [],
         "releasedFingerprintSetHash": null,
-        "rationale": "Scoped A04.2 review: automatic regular async Maraca/CLI build and browser boot use opt-in build-plan/config v5, composition API 2 with artifact/report v2, prepared port v1, Browser API 6 and PlanRuntime v8. Captured manifest identity and application grants bind actual internal Kernel/Fabric/Surface ports; owned roots drain before kernel retirement, borrowed owners survive. Legacy default plan/config v4, Browser API 5, PlanRuntime v7 and artifact/report v1 remain supported. All prior authoritative/released fingerprint sets remain fixed. Partial static/type observations stay partial. Transitive provider dependencies, delivery provenance, strict production size closure and full 0.9 acceptance remain pending. See development/rmtx-a04/integration.md."
+        "rationale": "Scoped A04.3.1 review: composition API 3 adds explicit manifest v2 and artifact/report v3 for pinned, closed, acyclic local static ESM provider graphs. All original bytes are captured before output; source and transformed-output provenance are separate, canonical module identities and shared imports are preserved. Whole-graph top-level restrictions retain native Kernel/Fabric/peer/factory admission and cancellation. Existing plan/config, Browser, PlanRuntime, Host and size-budget outer ABIs and every prior authoritative/released fingerprint set remain intact. Strict React/Vue/mixed budgets, packed consumers and 305 real cases per environment are mandatory. Loading/delivery strategy and complete 0.9 acceptance remain pending. See development/rmtx-a04/provider-graphs.md."
       },
       "shapeFingerprints": [
         {
@@ -280918,14 +280918,14 @@
           "authoritative": false
         },
         {
-          "hash": "sha256:3128da3e95fffd0164a769cebe9f0876e63bcfb003ca7d9cd160ff8e20ed6083",
+          "hash": "sha256:7eba853788c99f412257a25212c05127bdcfd25f4101f3f8ed6c0478ea54b640",
           "shape": {
             "fieldCount": 2,
             "fields": [
               "sourceHash",
               "xtensionComposition"
             ],
-            "signature": "sourceHash:string|xtensionComposition:{\"unresolved\":\"import('./xtension-composition-runtime').XTensionCompositionManifest\"}",
+            "signature": "sourceHash:string|xtensionComposition:{\"unresolved\":\"import('./xtension-composition-runtime').AnyXTensionCompositionManifest\"}",
             "normalized": {
               "fields": {
                 "sourceHash": {
@@ -280935,7 +280935,7 @@
                 "xtensionComposition": {
                   "optional": false,
                   "type": {
-                    "unresolved": "import('./xtension-composition-runtime').XTensionCompositionManifest"
+                    "unresolved": "import('./xtension-composition-runtime').AnyXTensionCompositionManifest"
                   }
                 }
               },
@@ -389117,11 +389117,11 @@
       ],
       "status": "active",
       "lifecycle": {
-        "status": "active",
+        "status": "deprecated",
         "rollout": "planned"
       },
       "aliasOf": null,
-      "replacedBy": null,
+      "replacedBy": "xtend.maraca.xtension-composition-artifact.v3",
       "releasedFingerprintSetHash": null,
       "description": "Unreleased A04.2 automatic build/boot composition contract. Opt-in versions bind captured provider manifest, compiled program and bindings to actual internal Kernel/Fabric/Surface ports with separate application grants and owned cleanup. Partial scanner/type shapes remain partial; no complete 0.9 or production size acceptance is claimed.",
       "descriptionStatus": "curated",
@@ -389851,6 +389851,1256 @@
           "completeness": "partial",
           "authoritative": false
         }
+      ],
+      "replacementDecision": {
+        "compatibility": "The full previous data/API contract and every authoritative/released fingerprint remain supported. Legacy/manual callers retain their existing defaults; automatic composition explicitly opts into the successor. No public read window is ended.",
+        "rationale": "A04.3.1 adds an explicit pinned local static provider-graph manifest and transformed module provenance. Full previous manifest/artifact/report versions remain supported, including default import-free behavior. See development/rmtx-a04/provider-graphs.md."
+      }
+    },
+    {
+      "schemaId": "xtend.maraca.xtension-composition-artifact.v3",
+      "familyId": "xtend.maraca.xtension-composition-artifact",
+      "version": 3,
+      "kinds": [
+        "runtime-discriminator"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": null,
+      "description": "Unreleased A04.3.1 pinned local static provider graph contract. Complete legacy manifest/artifact/report contracts remain supported. Partial observations remain partial; no HTTP integrity or complete 0.9 acceptance is asserted.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "xtend-maraca/xtension-composition-contract.mjs",
+        "symbol": "GRAPH_ARTIFACT_SCHEMA",
+        "definitionType": "constant",
+        "role": "definition",
+        "visibility": "public"
+      },
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a04/graph-inspect.cjs",
+            "development/rmtx-a04/provider-graphs.md"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "development/rmtx-a04/graph-inspect.cjs",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "definition",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition-contract.mjs",
+            "xtend-maraca/xtension-composition-runtime.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-composition-contract.mjs",
+              "symbol": "GRAPH_ARTIFACT_SCHEMA"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts",
+              "symbol": "GraphXTensionCompositionArtifact"
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "producer",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition-runtime.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts"
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "reference",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/plan-runtime.mjs",
+            "xtend-maraca/xtension-composition-runtime.mjs",
+            "xtend-maraca/xtension-size-budget.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/plan-runtime",
+              "path": "xtend-maraca/plan-runtime.mjs"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.mjs"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/plan-runtime",
+              "path": "xtend-maraca/plan-runtime.mjs"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.mjs"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Xtensions",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/xtensions/integrated-composition-acceptance.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/xtensions/integrated-composition-acceptance.js",
+              "symbol": null
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "single",
+        "decision": "reviewed-a0431-local-static-provider-graphs",
+        "acceptedFingerprints": [
+          "sha256:ee59c14461381f955822835ac47ef67c152489f0b8d2e6c073aebfebafbeb0be"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rationale": "Scoped A04.3.1 review: composition API 3 adds explicit manifest v2 and artifact/report v3 for pinned, closed, acyclic local static ESM provider graphs. All original bytes are captured before output; source and transformed-output provenance are separate, canonical module identities and shared imports are preserved. Whole-graph top-level restrictions retain native Kernel/Fabric/peer/factory admission and cancellation. Existing plan/config, Browser, PlanRuntime, Host and size-budget outer ABIs and every prior authoritative/released fingerprint set remain intact. Strict React/Vue/mixed budgets, packed consumers and 305 real cases per environment are mandatory. Loading/delivery strategy and complete 0.9 acceptance remain pending. See development/rmtx-a04/provider-graphs.md."
+      },
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:ee59c14461381f955822835ac47ef67c152489f0b8d2e6c073aebfebafbeb0be",
+          "shape": {
+            "fieldCount": 5,
+            "fields": [
+              "apiVersion",
+              "manifest",
+              "modules",
+              "plan",
+              "providers"
+            ],
+            "signature": "apiVersion:literal<\"3.0.0\">|manifest:{modules:array<{module:string,sha256:string}>}|modules:array<{fileName:string,imports:array<{module:string,specifier:string}>,module:string,outputBytes:number,outputSha256:string,sha256:string,sourceBytes:number}>|plan:union<{\"indexedAccess\":{\"index\":{\"literal\":\"plan\"},\"object\":{\"fields\":{\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"1.0.0\"}},\"entryFile\":{\"optional\":false,\"type\":\"string\"},\"manifest\":{\"optional\":false,\"type\":{\"fields\":{\"hosts\":{\"optional\":false,\"type\":{\"elementType\":{\"fields\":{\"capabilityRequirements\":{\"optional\":false,\"type\":{\"arguments\":[],\"unresolvedReference\":\"HostCapabilityRequirements\"}},\"declarationId\":{\"optional\":false,\"type\":\"string\"},\"ownerSurface\":{\"optional\":false,\"type\":\"string\"},\"providerId\":{\"optional\":false,\"type\":\"string\"}}}}},\"providers\":{\"optional\":false,\"type\":{\"elementType\":{\"intersection\":[{\"fields\":{\"entry\":{\"optional\":false,\"type\":{\"fields\":{\"exportName\":{\"optional\":false,\"type\":\"string\"},\"module\":{\"optional\":false,\"type\":\"string\"}}}},\"id\":{\"optional\":false,\"type\":\"string\"},\"integrity\":{\"optional\":false,\"type\":{\"fields\":{\"sha256\":{\"optional\":false,\"type\":\"string\"}}}},\"version\":{\"optional\":false,\"type\":\"string\"}}},{\"union\":[{\"fields\":{\"framework\":{\"optional\":false,\"type\":{\"literal\":\"react\"}},\"peers\":{\"optional\":false,\"type\":{\"fields\":{\"react\":{\"optional\":false,\"type\":\"string\"},\"react-dom\":{\"optional\":false,\"type\":\"string\"}}}}}},{\"fields\":{\"framework\":{\"optional\":false,\"type\":{\"literal\":\"vue\"}},\"peers\":{\"optional\":false,\"type\":{\"fields\":{\"vue\":{\"optional\":false,\"type\":\"string\"}}}}}}]}]}}}}}},\"plan\":{\"optional\":false,\"type\":{\"fields\":{\"bindings\":{\"optional\":false,\"type\":{\"arguments\":[],\"unresolvedReference\":\"XTensionStateBindingArtifact\"}},\"program\":{\"optional\":false,\"type\":\"unknown\"},\"sourceHash\":{\"optional\":false,\"type\":\"string\"}}}},\"providers\":{\"optional\":false,\"type\":{\"elementType\":{\"fields\":{\"fileName\":{\"optional\":false,\"type\":\"string\"},\"id\":{\"optional\":false,\"type\":\"string\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}}},\"runtimeExecutionVerified\":{\"optional\":false,\"type\":{\"literal\":false}}}}}}|intersection<{\"arguments\":[{\"indexedAccess\":{\"index\":{\"literal\":\"plan\"},\"object\":{\"fields\":{\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"1.0.0\"}},\"entryFile\":{\"optional\":false,\"type\":\"string\"},\"manifest\":{\"optional\":false,\"type\":{\"fields\":{\"hosts\":{\"optional\":false,\"type\":{\"elementType\":{\"fields\":{\"capabilityRequirements\":{\"optional\":false,\"type\":{\"arguments\":[],\"unresolvedReference\":\"HostCapabilityRequirements\"}},\"declarationId\":{\"optional\":false,\"type\":\"string\"},\"ownerSurface\":{\"optional\":false,\"type\":\"string\"},\"providerId\":{\"optional\":false,\"type\":\"string\"}}}}},\"providers\":{\"optional\":false,\"type\":{\"elementType\":{\"intersection\":[{\"fields\":{\"entry\":{\"optional\":false,\"type\":{\"fields\":{\"exportName\":{\"optional\":false,\"type\":\"string\"},\"module\":{\"optional\":false,\"type\":\"string\"}}}},\"id\":{\"optional\":false,\"type\":\"string\"},\"integrity\":{\"optional\":false,\"type\":{\"fields\":{\"sha256\":{\"optional\":false,\"type\":\"string\"}}}},\"version\":{\"optional\":false,\"type\":\"string\"}}},{\"union\":[{\"fields\":{\"framework\":{\"optional\":false,\"type\":{\"literal\":\"react\"}},\"peers\":{\"optional\":false,\"type\":{\"fields\":{\"react\":{\"optional\":false,\"type\":\"string\"},\"react-dom\":{\"optional\":false,\"type\":\"string\"}}}}}},{\"fields\":{\"framework\":{\"optional\":false,\"type\":{\"literal\":\"vue\"}},\"peers\":{\"optional\":false,\"type\":{\"fields\":{\"vue\":{\"optional\":false,\"type\":\"string\"}}}}}}]}]}}}}}},\"plan\":{\"optional\":false,\"type\":{\"fields\":{\"bindings\":{\"optional\":false,\"type\":{\"arguments\":[],\"unresolvedReference\":\"XTensionStateBindingArtifact\"}},\"program\":{\"optional\":false,\"type\":\"unknown\"},\"sourceHash\":{\"optional\":false,\"type\":\"string\"}}}},\"providers\":{\"optional\":false,\"type\":{\"elementType\":{\"fields\":{\"fileName\":{\"optional\":false,\"type\":\"string\"},\"id\":{\"optional\":false,\"type\":\"string\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}}},\"runtimeExecutionVerified\":{\"optional\":false,\"type\":{\"literal\":false}}}}}},{\"literal\":\"schema\"}],\"unresolvedReference\":\"Omit\"}&{compositionManifest:{modules:array<{module:string,sha256:string}>}}>>|providers:array<{fileName:string,id:string,outputSha256:string,sha256:string}>",
+            "normalized": {
+              "fields": {
+                "apiVersion": {
+                  "optional": false,
+                  "type": {
+                    "literal": "3.0.0"
+                  }
+                },
+                "manifest": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "modules": {
+                        "optional": false,
+                        "type": {
+                          "elementType": {
+                            "fields": {
+                              "module": {
+                                "optional": false,
+                                "type": "string"
+                              },
+                              "sha256": {
+                                "optional": false,
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "unresolvedSpreads": [
+                      {
+                        "arguments": [
+                          {
+                            "fields": {
+                              "hosts": {
+                                "optional": false,
+                                "type": {
+                                  "elementType": {
+                                    "fields": {
+                                      "capabilityRequirements": {
+                                        "optional": false,
+                                        "type": {
+                                          "arguments": [],
+                                          "unresolvedReference": "HostCapabilityRequirements"
+                                        }
+                                      },
+                                      "declarationId": {
+                                        "optional": false,
+                                        "type": "string"
+                                      },
+                                      "ownerSurface": {
+                                        "optional": false,
+                                        "type": "string"
+                                      },
+                                      "providerId": {
+                                        "optional": false,
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "providers": {
+                                "optional": false,
+                                "type": {
+                                  "elementType": {
+                                    "intersection": [
+                                      {
+                                        "fields": {
+                                          "entry": {
+                                            "optional": false,
+                                            "type": {
+                                              "fields": {
+                                                "exportName": {
+                                                  "optional": false,
+                                                  "type": "string"
+                                                },
+                                                "module": {
+                                                  "optional": false,
+                                                  "type": "string"
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "id": {
+                                            "optional": false,
+                                            "type": "string"
+                                          },
+                                          "integrity": {
+                                            "optional": false,
+                                            "type": {
+                                              "fields": {
+                                                "sha256": {
+                                                  "optional": false,
+                                                  "type": "string"
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "version": {
+                                            "optional": false,
+                                            "type": "string"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "union": [
+                                          {
+                                            "fields": {
+                                              "framework": {
+                                                "optional": false,
+                                                "type": {
+                                                  "literal": "react"
+                                                }
+                                              },
+                                              "peers": {
+                                                "optional": false,
+                                                "type": {
+                                                  "fields": {
+                                                    "react": {
+                                                      "optional": false,
+                                                      "type": "string"
+                                                    },
+                                                    "react-dom": {
+                                                      "optional": false,
+                                                      "type": "string"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "fields": {
+                                              "framework": {
+                                                "optional": false,
+                                                "type": {
+                                                  "literal": "vue"
+                                                }
+                                              },
+                                              "peers": {
+                                                "optional": false,
+                                                "type": {
+                                                  "fields": {
+                                                    "vue": {
+                                                      "optional": false,
+                                                      "type": "string"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "literal": "schema"
+                          }
+                        ],
+                        "unresolvedReference": "Omit"
+                      }
+                    ]
+                  }
+                },
+                "modules": {
+                  "optional": false,
+                  "type": {
+                    "elementType": {
+                      "fields": {
+                        "fileName": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "imports": {
+                          "optional": false,
+                          "type": {
+                            "elementType": {
+                              "fields": {
+                                "module": {
+                                  "optional": false,
+                                  "type": "string"
+                                },
+                                "specifier": {
+                                  "optional": false,
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "module": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "outputBytes": {
+                          "optional": false,
+                          "type": "number"
+                        },
+                        "outputSha256": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "sha256": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "sourceBytes": {
+                          "optional": false,
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                },
+                "plan": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "indexedAccess": {
+                          "index": {
+                            "literal": "plan"
+                          },
+                          "object": {
+                            "fields": {
+                              "apiVersion": {
+                                "optional": false,
+                                "type": {
+                                  "literal": "1.0.0"
+                                }
+                              },
+                              "entryFile": {
+                                "optional": false,
+                                "type": "string"
+                              },
+                              "manifest": {
+                                "optional": false,
+                                "type": {
+                                  "fields": {
+                                    "hosts": {
+                                      "optional": false,
+                                      "type": {
+                                        "elementType": {
+                                          "fields": {
+                                            "capabilityRequirements": {
+                                              "optional": false,
+                                              "type": {
+                                                "arguments": [],
+                                                "unresolvedReference": "HostCapabilityRequirements"
+                                              }
+                                            },
+                                            "declarationId": {
+                                              "optional": false,
+                                              "type": "string"
+                                            },
+                                            "ownerSurface": {
+                                              "optional": false,
+                                              "type": "string"
+                                            },
+                                            "providerId": {
+                                              "optional": false,
+                                              "type": "string"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "providers": {
+                                      "optional": false,
+                                      "type": {
+                                        "elementType": {
+                                          "intersection": [
+                                            {
+                                              "fields": {
+                                                "entry": {
+                                                  "optional": false,
+                                                  "type": {
+                                                    "fields": {
+                                                      "exportName": {
+                                                        "optional": false,
+                                                        "type": "string"
+                                                      },
+                                                      "module": {
+                                                        "optional": false,
+                                                        "type": "string"
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "id": {
+                                                  "optional": false,
+                                                  "type": "string"
+                                                },
+                                                "integrity": {
+                                                  "optional": false,
+                                                  "type": {
+                                                    "fields": {
+                                                      "sha256": {
+                                                        "optional": false,
+                                                        "type": "string"
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "version": {
+                                                  "optional": false,
+                                                  "type": "string"
+                                                }
+                                              }
+                                            },
+                                            {
+                                              "union": [
+                                                {
+                                                  "fields": {
+                                                    "framework": {
+                                                      "optional": false,
+                                                      "type": {
+                                                        "literal": "react"
+                                                      }
+                                                    },
+                                                    "peers": {
+                                                      "optional": false,
+                                                      "type": {
+                                                        "fields": {
+                                                          "react": {
+                                                            "optional": false,
+                                                            "type": "string"
+                                                          },
+                                                          "react-dom": {
+                                                            "optional": false,
+                                                            "type": "string"
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                {
+                                                  "fields": {
+                                                    "framework": {
+                                                      "optional": false,
+                                                      "type": {
+                                                        "literal": "vue"
+                                                      }
+                                                    },
+                                                    "peers": {
+                                                      "optional": false,
+                                                      "type": {
+                                                        "fields": {
+                                                          "vue": {
+                                                            "optional": false,
+                                                            "type": "string"
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "plan": {
+                                "optional": false,
+                                "type": {
+                                  "fields": {
+                                    "bindings": {
+                                      "optional": false,
+                                      "type": {
+                                        "arguments": [],
+                                        "unresolvedReference": "XTensionStateBindingArtifact"
+                                      }
+                                    },
+                                    "program": {
+                                      "optional": false,
+                                      "type": "unknown"
+                                    },
+                                    "sourceHash": {
+                                      "optional": false,
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              },
+                              "providers": {
+                                "optional": false,
+                                "type": {
+                                  "elementType": {
+                                    "fields": {
+                                      "fileName": {
+                                        "optional": false,
+                                        "type": "string"
+                                      },
+                                      "id": {
+                                        "optional": false,
+                                        "type": "string"
+                                      },
+                                      "sha256": {
+                                        "optional": false,
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "runtimeExecutionVerified": {
+                                "optional": false,
+                                "type": {
+                                  "literal": false
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "intersection": [
+                          {
+                            "arguments": [
+                              {
+                                "indexedAccess": {
+                                  "index": {
+                                    "literal": "plan"
+                                  },
+                                  "object": {
+                                    "fields": {
+                                      "apiVersion": {
+                                        "optional": false,
+                                        "type": {
+                                          "literal": "1.0.0"
+                                        }
+                                      },
+                                      "entryFile": {
+                                        "optional": false,
+                                        "type": "string"
+                                      },
+                                      "manifest": {
+                                        "optional": false,
+                                        "type": {
+                                          "fields": {
+                                            "hosts": {
+                                              "optional": false,
+                                              "type": {
+                                                "elementType": {
+                                                  "fields": {
+                                                    "capabilityRequirements": {
+                                                      "optional": false,
+                                                      "type": {
+                                                        "arguments": [],
+                                                        "unresolvedReference": "HostCapabilityRequirements"
+                                                      }
+                                                    },
+                                                    "declarationId": {
+                                                      "optional": false,
+                                                      "type": "string"
+                                                    },
+                                                    "ownerSurface": {
+                                                      "optional": false,
+                                                      "type": "string"
+                                                    },
+                                                    "providerId": {
+                                                      "optional": false,
+                                                      "type": "string"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "providers": {
+                                              "optional": false,
+                                              "type": {
+                                                "elementType": {
+                                                  "intersection": [
+                                                    {
+                                                      "fields": {
+                                                        "entry": {
+                                                          "optional": false,
+                                                          "type": {
+                                                            "fields": {
+                                                              "exportName": {
+                                                                "optional": false,
+                                                                "type": "string"
+                                                              },
+                                                              "module": {
+                                                                "optional": false,
+                                                                "type": "string"
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "id": {
+                                                          "optional": false,
+                                                          "type": "string"
+                                                        },
+                                                        "integrity": {
+                                                          "optional": false,
+                                                          "type": {
+                                                            "fields": {
+                                                              "sha256": {
+                                                                "optional": false,
+                                                                "type": "string"
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "version": {
+                                                          "optional": false,
+                                                          "type": "string"
+                                                        }
+                                                      }
+                                                    },
+                                                    {
+                                                      "union": [
+                                                        {
+                                                          "fields": {
+                                                            "framework": {
+                                                              "optional": false,
+                                                              "type": {
+                                                                "literal": "react"
+                                                              }
+                                                            },
+                                                            "peers": {
+                                                              "optional": false,
+                                                              "type": {
+                                                                "fields": {
+                                                                  "react": {
+                                                                    "optional": false,
+                                                                    "type": "string"
+                                                                  },
+                                                                  "react-dom": {
+                                                                    "optional": false,
+                                                                    "type": "string"
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        {
+                                                          "fields": {
+                                                            "framework": {
+                                                              "optional": false,
+                                                              "type": {
+                                                                "literal": "vue"
+                                                              }
+                                                            },
+                                                            "peers": {
+                                                              "optional": false,
+                                                              "type": {
+                                                                "fields": {
+                                                                  "vue": {
+                                                                    "optional": false,
+                                                                    "type": "string"
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "plan": {
+                                        "optional": false,
+                                        "type": {
+                                          "fields": {
+                                            "bindings": {
+                                              "optional": false,
+                                              "type": {
+                                                "arguments": [],
+                                                "unresolvedReference": "XTensionStateBindingArtifact"
+                                              }
+                                            },
+                                            "program": {
+                                              "optional": false,
+                                              "type": "unknown"
+                                            },
+                                            "sourceHash": {
+                                              "optional": false,
+                                              "type": "string"
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "providers": {
+                                        "optional": false,
+                                        "type": {
+                                          "elementType": {
+                                            "fields": {
+                                              "fileName": {
+                                                "optional": false,
+                                                "type": "string"
+                                              },
+                                              "id": {
+                                                "optional": false,
+                                                "type": "string"
+                                              },
+                                              "sha256": {
+                                                "optional": false,
+                                                "type": "string"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "runtimeExecutionVerified": {
+                                        "optional": false,
+                                        "type": {
+                                          "literal": false
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "literal": "schema"
+                              }
+                            ],
+                            "unresolvedReference": "Omit"
+                          },
+                          {
+                            "fields": {
+                              "compositionManifest": {
+                                "optional": false,
+                                "type": {
+                                  "fields": {
+                                    "modules": {
+                                      "optional": false,
+                                      "type": {
+                                        "elementType": {
+                                          "fields": {
+                                            "module": {
+                                              "optional": false,
+                                              "type": "string"
+                                            },
+                                            "sha256": {
+                                              "optional": false,
+                                              "type": "string"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "unresolvedSpreads": [
+                                    {
+                                      "arguments": [
+                                        {
+                                          "fields": {
+                                            "hosts": {
+                                              "optional": false,
+                                              "type": {
+                                                "elementType": {
+                                                  "fields": {
+                                                    "capabilityRequirements": {
+                                                      "optional": false,
+                                                      "type": {
+                                                        "arguments": [],
+                                                        "unresolvedReference": "HostCapabilityRequirements"
+                                                      }
+                                                    },
+                                                    "declarationId": {
+                                                      "optional": false,
+                                                      "type": "string"
+                                                    },
+                                                    "ownerSurface": {
+                                                      "optional": false,
+                                                      "type": "string"
+                                                    },
+                                                    "providerId": {
+                                                      "optional": false,
+                                                      "type": "string"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "providers": {
+                                              "optional": false,
+                                              "type": {
+                                                "elementType": {
+                                                  "intersection": [
+                                                    {
+                                                      "fields": {
+                                                        "entry": {
+                                                          "optional": false,
+                                                          "type": {
+                                                            "fields": {
+                                                              "exportName": {
+                                                                "optional": false,
+                                                                "type": "string"
+                                                              },
+                                                              "module": {
+                                                                "optional": false,
+                                                                "type": "string"
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "id": {
+                                                          "optional": false,
+                                                          "type": "string"
+                                                        },
+                                                        "integrity": {
+                                                          "optional": false,
+                                                          "type": {
+                                                            "fields": {
+                                                              "sha256": {
+                                                                "optional": false,
+                                                                "type": "string"
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "version": {
+                                                          "optional": false,
+                                                          "type": "string"
+                                                        }
+                                                      }
+                                                    },
+                                                    {
+                                                      "union": [
+                                                        {
+                                                          "fields": {
+                                                            "framework": {
+                                                              "optional": false,
+                                                              "type": {
+                                                                "literal": "react"
+                                                              }
+                                                            },
+                                                            "peers": {
+                                                              "optional": false,
+                                                              "type": {
+                                                                "fields": {
+                                                                  "react": {
+                                                                    "optional": false,
+                                                                    "type": "string"
+                                                                  },
+                                                                  "react-dom": {
+                                                                    "optional": false,
+                                                                    "type": "string"
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        {
+                                                          "fields": {
+                                                            "framework": {
+                                                              "optional": false,
+                                                              "type": {
+                                                                "literal": "vue"
+                                                              }
+                                                            },
+                                                            "peers": {
+                                                              "optional": false,
+                                                              "type": {
+                                                                "fields": {
+                                                                  "vue": {
+                                                                    "optional": false,
+                                                                    "type": "string"
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "literal": "schema"
+                                        }
+                                      ],
+                                      "unresolvedReference": "Omit"
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "providers": {
+                  "optional": false,
+                  "type": {
+                    "elementType": {
+                      "fields": {
+                        "fileName": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "id": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "outputSha256": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "sha256": {
+                          "optional": false,
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "unresolvedSpreads": [
+                {
+                  "arguments": [
+                    {
+                      "fields": {
+                        "apiVersion": {
+                          "optional": false,
+                          "type": {
+                            "literal": "1.0.0"
+                          }
+                        },
+                        "entryFile": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "manifest": {
+                          "optional": false,
+                          "type": {
+                            "fields": {
+                              "hosts": {
+                                "optional": false,
+                                "type": {
+                                  "elementType": {
+                                    "fields": {
+                                      "capabilityRequirements": {
+                                        "optional": false,
+                                        "type": {
+                                          "arguments": [],
+                                          "unresolvedReference": "HostCapabilityRequirements"
+                                        }
+                                      },
+                                      "declarationId": {
+                                        "optional": false,
+                                        "type": "string"
+                                      },
+                                      "ownerSurface": {
+                                        "optional": false,
+                                        "type": "string"
+                                      },
+                                      "providerId": {
+                                        "optional": false,
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "providers": {
+                                "optional": false,
+                                "type": {
+                                  "elementType": {
+                                    "intersection": [
+                                      {
+                                        "fields": {
+                                          "entry": {
+                                            "optional": false,
+                                            "type": {
+                                              "fields": {
+                                                "exportName": {
+                                                  "optional": false,
+                                                  "type": "string"
+                                                },
+                                                "module": {
+                                                  "optional": false,
+                                                  "type": "string"
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "id": {
+                                            "optional": false,
+                                            "type": "string"
+                                          },
+                                          "integrity": {
+                                            "optional": false,
+                                            "type": {
+                                              "fields": {
+                                                "sha256": {
+                                                  "optional": false,
+                                                  "type": "string"
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "version": {
+                                            "optional": false,
+                                            "type": "string"
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "union": [
+                                          {
+                                            "fields": {
+                                              "framework": {
+                                                "optional": false,
+                                                "type": {
+                                                  "literal": "react"
+                                                }
+                                              },
+                                              "peers": {
+                                                "optional": false,
+                                                "type": {
+                                                  "fields": {
+                                                    "react": {
+                                                      "optional": false,
+                                                      "type": "string"
+                                                    },
+                                                    "react-dom": {
+                                                      "optional": false,
+                                                      "type": "string"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "fields": {
+                                              "framework": {
+                                                "optional": false,
+                                                "type": {
+                                                  "literal": "vue"
+                                                }
+                                              },
+                                              "peers": {
+                                                "optional": false,
+                                                "type": {
+                                                  "fields": {
+                                                    "vue": {
+                                                      "optional": false,
+                                                      "type": "string"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "plan": {
+                          "optional": false,
+                          "type": {
+                            "fields": {
+                              "bindings": {
+                                "optional": false,
+                                "type": {
+                                  "arguments": [],
+                                  "unresolvedReference": "XTensionStateBindingArtifact"
+                                }
+                              },
+                              "program": {
+                                "optional": false,
+                                "type": "unknown"
+                              },
+                              "sourceHash": {
+                                "optional": false,
+                                "type": "string"
+                              }
+                            }
+                          }
+                        },
+                        "providers": {
+                          "optional": false,
+                          "type": {
+                            "elementType": {
+                              "fields": {
+                                "fileName": {
+                                  "optional": false,
+                                  "type": "string"
+                                },
+                                "id": {
+                                  "optional": false,
+                                  "type": "string"
+                                },
+                                "sha256": {
+                                  "optional": false,
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "runtimeExecutionVerified": {
+                          "optional": false,
+                          "type": {
+                            "literal": false
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "union": [
+                        {
+                          "literal": "apiVersion"
+                        },
+                        {
+                          "literal": "manifest"
+                        },
+                        {
+                          "literal": "plan"
+                        },
+                        {
+                          "literal": "providers"
+                        },
+                        {
+                          "literal": "schema"
+                        }
+                      ]
+                    }
+                  ],
+                  "unresolvedReference": "Omit"
+                }
+              ]
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition-runtime.d.ts"
+          ],
+          "symbols": [
+            "GraphXTensionCompositionArtifact"
+          ],
+          "evidence": [
+            {
+              "type": "declared-type",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts",
+              "symbol": "GraphXTensionCompositionArtifact"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        }
       ]
     },
     {
@@ -389947,6 +391197,21 @@
               "type": "package-export",
               "module": "@ccslabs/xtend/maraca/xtension-composition",
               "path": "xtend-maraca/xtension-composition.js"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Types",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/types/xtensions_integrated_composition.mts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/types/xtensions_integrated_composition.mts",
+              "symbol": null
             }
           ]
         }
@@ -390074,11 +391339,11 @@
       ],
       "status": "active",
       "lifecycle": {
-        "status": "active",
+        "status": "deprecated",
         "rollout": "planned"
       },
       "aliasOf": null,
-      "replacedBy": null,
+      "replacedBy": "xtend.maraca.xtension-composition-build-report.v3",
       "releasedFingerprintSetHash": null,
       "description": "Unreleased A04.2 automatic build/boot composition contract. Opt-in versions bind captured provider manifest, compiled program and bindings to actual internal Kernel/Fabric/Surface ports with separate application grants and owned cleanup. Partial scanner/type shapes remain partial; no complete 0.9 or production size acceptance is claimed.",
       "descriptionStatus": "curated",
@@ -390315,6 +391580,264 @@
           "completeness": "partial",
           "authoritative": false
         }
+      ],
+      "replacementDecision": {
+        "compatibility": "The full previous data/API contract and every authoritative/released fingerprint remain supported. Legacy/manual callers retain their existing defaults; automatic composition explicitly opts into the successor. No public read window is ended.",
+        "rationale": "A04.3.1 adds an explicit pinned local static provider-graph manifest and transformed module provenance. Full previous manifest/artifact/report versions remain supported, including default import-free behavior. See development/rmtx-a04/provider-graphs.md."
+      }
+    },
+    {
+      "schemaId": "xtend.maraca.xtension-composition-build-report.v3",
+      "familyId": "xtend.maraca.xtension-composition-build-report",
+      "version": 3,
+      "kinds": [
+        "report-id",
+        "runtime-discriminator"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": null,
+      "description": "Unreleased A04.3.1 pinned local static provider graph contract. Complete legacy manifest/artifact/report contracts remain supported. Partial observations remain partial; no HTTP integrity or complete 0.9 acceptance is asserted.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "xtend-maraca/xtension-composition.d.ts",
+        "symbol": "GraphXTensionCompositionBuildReport",
+        "definitionType": "typescript-declaration",
+        "role": "definition",
+        "visibility": "public"
+      },
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a04/graph-inspect.cjs",
+            "development/rmtx-a04/provider-graphs.md"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "development/rmtx-a04/graph-inspect.cjs",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "definition",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.d.ts"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-composition.d.ts",
+              "symbol": "GraphXTensionCompositionBuildReport"
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "producer",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition.d.ts",
+            "xtend-maraca/xtension-composition.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.js"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.js"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Types",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/types/xtensions_integrated_composition.mts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/types/xtensions_integrated_composition.mts",
+              "symbol": null
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "single",
+        "decision": "reviewed-a0431-local-static-provider-graphs",
+        "acceptedFingerprints": [
+          "sha256:4f89c79fe8d0cb9cb003dec1e55a14b481f4a2abed45cfa4e458b8deb8ea0bd6"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rationale": "Scoped A04.3.1 review: composition API 3 adds explicit manifest v2 and artifact/report v3 for pinned, closed, acyclic local static ESM provider graphs. All original bytes are captured before output; source and transformed-output provenance are separate, canonical module identities and shared imports are preserved. Whole-graph top-level restrictions retain native Kernel/Fabric/peer/factory admission and cancellation. Existing plan/config, Browser, PlanRuntime, Host and size-budget outer ABIs and every prior authoritative/released fingerprint set remain intact. Strict React/Vue/mixed budgets, packed consumers and 305 real cases per environment are mandatory. Loading/delivery strategy and complete 0.9 acceptance remain pending. See development/rmtx-a04/provider-graphs.md."
+      },
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:4f89c79fe8d0cb9cb003dec1e55a14b481f4a2abed45cfa4e458b8deb8ea0bd6",
+          "shape": {
+            "fieldCount": 2,
+            "fields": [
+              "apiVersion",
+              "artifact"
+            ],
+            "signature": "apiVersion:literal<\"3.0.0\">|artifact:{\"unresolved\":\"import('./xtension-composition-runtime').GraphXTensionCompositionArtifact\"}",
+            "normalized": {
+              "fields": {
+                "apiVersion": {
+                  "optional": false,
+                  "type": {
+                    "literal": "3.0.0"
+                  }
+                },
+                "artifact": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "import('./xtension-composition-runtime').GraphXTensionCompositionArtifact"
+                  }
+                }
+              },
+              "unresolvedSpreads": [
+                {
+                  "arguments": [
+                    {
+                      "fields": {
+                        "apiVersion": {
+                          "optional": false,
+                          "type": {
+                            "literal": "1.0.0"
+                          }
+                        },
+                        "artifact": {
+                          "optional": false,
+                          "type": {
+                            "arguments": [],
+                            "unresolvedReference": "XTensionCompositionArtifact"
+                          }
+                        },
+                        "entryPath": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "files": {
+                          "optional": false,
+                          "type": {
+                            "elementType": {
+                              "fields": {
+                                "bytes": {
+                                  "optional": false,
+                                  "type": "number"
+                                },
+                                "fileName": {
+                                  "optional": false,
+                                  "type": "string"
+                                },
+                                "sha256": {
+                                  "optional": false,
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "frameworkDependenciesBundled": {
+                          "optional": false,
+                          "type": {
+                            "literal": false
+                          }
+                        },
+                        "ok": {
+                          "optional": false,
+                          "type": {
+                            "literal": true
+                          }
+                        },
+                        "runtimeExecutionVerified": {
+                          "optional": false,
+                          "type": {
+                            "literal": false
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "union": [
+                        {
+                          "literal": "apiVersion"
+                        },
+                        {
+                          "literal": "artifact"
+                        },
+                        {
+                          "literal": "schema"
+                        }
+                      ]
+                    }
+                  ],
+                  "unresolvedReference": "Omit"
+                }
+              ]
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition.d.ts"
+          ],
+          "symbols": [
+            "GraphXTensionCompositionBuildReport"
+          ],
+          "evidence": [
+            {
+              "type": "declared-type",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtend-maraca/xtension-composition.d.ts",
+              "symbol": "GraphXTensionCompositionBuildReport"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        }
       ]
     },
     {
@@ -390327,11 +391850,11 @@
       ],
       "status": "active",
       "lifecycle": {
-        "status": "active",
+        "status": "deprecated",
         "rollout": "planned"
       },
       "aliasOf": null,
-      "replacedBy": null,
+      "replacedBy": "xtend.maraca.xtension-composition-manifest.v2",
       "releasedFingerprintSetHash": null,
       "description": "Unreleased A04.1 local-provider build and host-composition contract. Explicit companion ESM graph over verified source bytes, compiled program and keyed bindings; actual API-6 hosts retain separate application grants and native Kernel/Fabric/Surface ownership. Partial scanner/type shapes remain partial, without runtime or 0.9 acceptance claims.",
       "descriptionStatus": "curated",
@@ -390364,6 +391887,7 @@
           "visibility": "docs",
           "sourcePaths": [
             "development/rmtx-a04/README.md",
+            "development/rmtx-a04/graph-inspect.cjs",
             "development/rmtx-a04/reference.cjs"
           ],
           "interfaceReferences": [
@@ -390410,7 +391934,6 @@
           "role": "producer",
           "visibility": "public",
           "sourcePaths": [
-            "xtend-maraca/xtension-composition-contract.mjs",
             "xtend-maraca/xtension-composition-runtime.d.ts"
           ],
           "interfaceReferences": [
@@ -390423,11 +391946,6 @@
               "type": "package-export",
               "module": "@ccslabs/xtend/maraca/xtension-composition-runtime",
               "path": "xtend-maraca/xtension-composition-runtime.d.ts"
-            },
-            {
-              "type": "symbol",
-              "path": "xtend-maraca/xtension-composition-contract.mjs",
-              "symbol": "normalizeManifest"
             }
           ]
         },
@@ -390449,15 +391967,14 @@
       ],
       "shapePolicy": {
         "mode": "polymorphic",
-        "decision": "reviewed-a041-local-provider-composition",
+        "decision": "reviewed-a0431-local-static-provider-graphs",
         "acceptedFingerprints": [
           "sha256:1f896838b57ffdb8444c5770420c225565247c4af55d4d70e8391c1bbafe93ac",
-          "sha256:6d302986303c4407dc601a52df1e2124e068c34fb5d727eec923746f05c105e8",
           "sha256:ccf9533351c6cea7400a2d7045eaf879f6e9a20b66020783c8a63f284bb52c6e"
         ],
         "authoritativeFingerprints": [],
         "releasedFingerprintSetHash": null,
-        "rationale": "Scoped A04.1 development review: separate API-1.0.0 Maraca companion contracts bind the validated compiled program and keyed bindings to a closed manifest, captured SHA-256-checked local provider bytes and direct ESM imports. Actual API-6 React/Vue hosts use shared native Kernel/Fabric/Surface ports and separately captured application grants. Static manifests and capability reports remain distinct; a JSON hash is not a runtime byte certificate. Regular Maraca build/browser-boot integration, transitive chunks and complete 0.9 acceptance remain pending. All existing authoritative/released fingerprint sets and legacy plan/runtime/host ABIs are preserved. New partial static/type shapes remain partial and are not promoted to complete authority. See development/rmtx-a04/README.md."
+        "rationale": "Scoped A04.3.1 review: composition API 3 adds explicit manifest v2 and artifact/report v3 for pinned, closed, acyclic local static ESM provider graphs. All original bytes are captured before output; source and transformed-output provenance are separate, canonical module identities and shared imports are preserved. Whole-graph top-level restrictions retain native Kernel/Fabric/peer/factory admission and cancellation. Existing plan/config, Browser, PlanRuntime, Host and size-budget outer ABIs and every prior authoritative/released fingerprint set remain intact. Strict React/Vue/mixed budgets, packed consumers and 305 real cases per environment are mandatory. Loading/delivery strategy and complete 0.9 acceptance remain pending. See development/rmtx-a04/provider-graphs.md."
       },
       "shapeFingerprints": [
         {
@@ -390616,49 +392133,6 @@
           ],
           "evidenceTypes": [
             "declared-type"
-          ],
-          "completeness": "partial",
-          "authoritative": false
-        },
-        {
-          "hash": "sha256:6d302986303c4407dc601a52df1e2124e068c34fb5d727eec923746f05c105e8",
-          "shape": {
-            "fieldCount": 2,
-            "fields": [
-              "hosts",
-              "providers"
-            ],
-            "signature": "hosts:unknown|providers:unknown",
-            "normalized": {
-              "fields": {
-                "hosts": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "providers": {
-                  "optional": false,
-                  "type": "unknown"
-                }
-              }
-            }
-          },
-          "sourcePaths": [
-            "xtend-maraca/xtension-composition-contract.mjs"
-          ],
-          "symbols": [
-            "normalizeManifest"
-          ],
-          "evidence": [
-            {
-              "type": "runtime-observation",
-              "completeness": "partial",
-              "authoritative": false,
-              "path": "xtend-maraca/xtension-composition-contract.mjs",
-              "symbol": "normalizeManifest"
-            }
-          ],
-          "evidenceTypes": [
-            "runtime-observation"
           ],
           "completeness": "partial",
           "authoritative": false
@@ -390854,6 +392328,323 @@
           ],
           "evidenceTypes": [
             "docs"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        }
+      ],
+      "replacementDecision": {
+        "compatibility": "The full previous data/API contract and every authoritative/released fingerprint remain supported. Legacy/manual callers retain their existing defaults; automatic composition explicitly opts into the successor. No public read window is ended.",
+        "rationale": "A04.3.1 adds an explicit pinned local static provider-graph manifest and transformed module provenance. Full previous manifest/artifact/report versions remain supported, including default import-free behavior. See development/rmtx-a04/provider-graphs.md."
+      }
+    },
+    {
+      "schemaId": "xtend.maraca.xtension-composition-manifest.v2",
+      "familyId": "xtend.maraca.xtension-composition-manifest",
+      "version": 2,
+      "kinds": [
+        "manifest-id",
+        "runtime-discriminator"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": null,
+      "description": "Unreleased A04.3.1 pinned local static provider graph contract. Complete legacy manifest/artifact/report contracts remain supported. Partial observations remain partial; no HTTP integrity or complete 0.9 acceptance is asserted.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "xtend-maraca/xtension-composition-contract.mjs",
+        "symbol": "GRAPH_MANIFEST_SCHEMA",
+        "definitionType": "constant",
+        "role": "definition",
+        "visibility": "public"
+      },
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a04/graph-inspect.cjs",
+            "development/rmtx-a04/integration-reference.cjs",
+            "development/rmtx-a04/provider-graphs.md"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "development/rmtx-a04/graph-inspect.cjs",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "definition",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition-contract.mjs",
+            "xtend-maraca/xtension-composition-runtime.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-composition-contract.mjs",
+              "symbol": "GRAPH_MANIFEST_SCHEMA"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts",
+              "symbol": "GraphXTensionCompositionManifest"
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "producer",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition-runtime.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Xtensions",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/xtensions/xtensions_consumer_package_suite.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/xtensions/xtensions_consumer_package_suite.js",
+              "symbol": null
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "single",
+        "decision": "reviewed-a0431-local-static-provider-graphs",
+        "acceptedFingerprints": [
+          "sha256:41ccfd0de3cd13d0c25fcd4c83ffd82f9e2b558efb234d9707755cc7a14a4716"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rationale": "Scoped A04.3.1 review: composition API 3 adds explicit manifest v2 and artifact/report v3 for pinned, closed, acyclic local static ESM provider graphs. All original bytes are captured before output; source and transformed-output provenance are separate, canonical module identities and shared imports are preserved. Whole-graph top-level restrictions retain native Kernel/Fabric/peer/factory admission and cancellation. Existing plan/config, Browser, PlanRuntime, Host and size-budget outer ABIs and every prior authoritative/released fingerprint set remain intact. Strict React/Vue/mixed budgets, packed consumers and 305 real cases per environment are mandatory. Loading/delivery strategy and complete 0.9 acceptance remain pending. See development/rmtx-a04/provider-graphs.md."
+      },
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:41ccfd0de3cd13d0c25fcd4c83ffd82f9e2b558efb234d9707755cc7a14a4716",
+          "shape": {
+            "fieldCount": 1,
+            "fields": [
+              "modules"
+            ],
+            "signature": "modules:array<{module:string,sha256:string}>",
+            "normalized": {
+              "fields": {
+                "modules": {
+                  "optional": false,
+                  "type": {
+                    "elementType": {
+                      "fields": {
+                        "module": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "sha256": {
+                          "optional": false,
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "unresolvedSpreads": [
+                {
+                  "arguments": [
+                    {
+                      "fields": {
+                        "hosts": {
+                          "optional": false,
+                          "type": {
+                            "elementType": {
+                              "fields": {
+                                "capabilityRequirements": {
+                                  "optional": false,
+                                  "type": {
+                                    "arguments": [],
+                                    "unresolvedReference": "HostCapabilityRequirements"
+                                  }
+                                },
+                                "declarationId": {
+                                  "optional": false,
+                                  "type": "string"
+                                },
+                                "ownerSurface": {
+                                  "optional": false,
+                                  "type": "string"
+                                },
+                                "providerId": {
+                                  "optional": false,
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "providers": {
+                          "optional": false,
+                          "type": {
+                            "elementType": {
+                              "intersection": [
+                                {
+                                  "fields": {
+                                    "entry": {
+                                      "optional": false,
+                                      "type": {
+                                        "fields": {
+                                          "exportName": {
+                                            "optional": false,
+                                            "type": "string"
+                                          },
+                                          "module": {
+                                            "optional": false,
+                                            "type": "string"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "id": {
+                                      "optional": false,
+                                      "type": "string"
+                                    },
+                                    "integrity": {
+                                      "optional": false,
+                                      "type": {
+                                        "fields": {
+                                          "sha256": {
+                                            "optional": false,
+                                            "type": "string"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "version": {
+                                      "optional": false,
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                {
+                                  "union": [
+                                    {
+                                      "fields": {
+                                        "framework": {
+                                          "optional": false,
+                                          "type": {
+                                            "literal": "react"
+                                          }
+                                        },
+                                        "peers": {
+                                          "optional": false,
+                                          "type": {
+                                            "fields": {
+                                              "react": {
+                                                "optional": false,
+                                                "type": "string"
+                                              },
+                                              "react-dom": {
+                                                "optional": false,
+                                                "type": "string"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "fields": {
+                                        "framework": {
+                                          "optional": false,
+                                          "type": {
+                                            "literal": "vue"
+                                          }
+                                        },
+                                        "peers": {
+                                          "optional": false,
+                                          "type": {
+                                            "fields": {
+                                              "vue": {
+                                                "optional": false,
+                                                "type": "string"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "literal": "schema"
+                    }
+                  ],
+                  "unresolvedReference": "Omit"
+                }
+              ]
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition-runtime.d.ts"
+          ],
+          "symbols": [
+            "GraphXTensionCompositionManifest"
+          ],
+          "evidence": [
+            {
+              "type": "declared-type",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts",
+              "symbol": "GraphXTensionCompositionManifest"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
           ],
           "completeness": "partial",
           "authoritative": false
@@ -787081,7 +788872,7 @@
           },
           {
             "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
-            "sha256": "cc9170207ec5836e544790724998db36da8a9920e98075d257c54693a87f41d3"
+            "sha256": "0f4b5305501fb3ff76dff718dbd769f4817ab26a55fd134020468d792f289441"
           },
           {
             "path": "development/rmtx-a01/README.md",
@@ -787093,7 +788884,7 @@
           },
           {
             "path": "development/rmtx-a01/inventory.json",
-            "sha256": "a256b0b922d254ae70ddc108c5ea7c2dc8c591cab03eb0510db79598ac9c95b8"
+            "sha256": "19eaa238bbce188c44b200c9f1ad9dee8499a8efb0b73ec8ae5a154a584a0734"
           },
           {
             "path": "docs/de/rmt-vnext-authoring.md",
@@ -1013847,8 +1015638,8 @@
     },
     {
       "familyId": "xtend.maraca.xtension-composition-artifact",
-      "currentVersion": 2,
-      "activeSchemaId": "xtend.maraca.xtension-composition-artifact.v2",
+      "currentVersion": 3,
+      "activeSchemaId": "xtend.maraca.xtension-composition-artifact.v3",
       "versions": [
         {
           "schemaId": "xtend.maraca.xtension-composition-artifact.v1",
@@ -1013864,6 +1015655,15 @@
           "version": 2,
           "lifecycle": {
             "rollout": "planned",
+            "status": "deprecated"
+          },
+          "releasedFingerprintSetHash": null
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-composition-artifact.v3",
+          "version": 3,
+          "lifecycle": {
+            "rollout": "planned",
             "status": "active"
           },
           "releasedFingerprintSetHash": null
@@ -1013873,8 +1015673,8 @@
     },
     {
       "familyId": "xtend.maraca.xtension-composition-build-report",
-      "currentVersion": 2,
-      "activeSchemaId": "xtend.maraca.xtension-composition-build-report.v2",
+      "currentVersion": 3,
+      "activeSchemaId": "xtend.maraca.xtension-composition-build-report.v3",
       "versions": [
         {
           "schemaId": "xtend.maraca.xtension-composition-build-report.v1",
@@ -1013890,6 +1015690,15 @@
           "version": 2,
           "lifecycle": {
             "rollout": "planned",
+            "status": "deprecated"
+          },
+          "releasedFingerprintSetHash": null
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-composition-build-report.v3",
+          "version": 3,
+          "lifecycle": {
+            "rollout": "planned",
             "status": "active"
           },
           "releasedFingerprintSetHash": null
@@ -1013899,12 +1015708,21 @@
     },
     {
       "familyId": "xtend.maraca.xtension-composition-manifest",
-      "currentVersion": 1,
-      "activeSchemaId": "xtend.maraca.xtension-composition-manifest.v1",
+      "currentVersion": 2,
+      "activeSchemaId": "xtend.maraca.xtension-composition-manifest.v2",
       "versions": [
         {
           "schemaId": "xtend.maraca.xtension-composition-manifest.v1",
           "version": 1,
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "deprecated"
+          },
+          "releasedFingerprintSetHash": null
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-composition-manifest.v2",
+          "version": 2,
           "lifecycle": {
             "rollout": "planned",
             "status": "active"
