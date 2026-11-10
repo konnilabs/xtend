@@ -4,8 +4,8 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "4f4a6d3d775bba07d0026b8d2bd4736b445af84a2095751156fa763363692e0b",
-  "sourceMembershipSha256": "3c3b2d0838e7d66f781948b1368cecf84d8b642c75b3af52d2de063d80b146d9",
+  "inventorySha256": "6a404a564e750b18485e45c82db182911ab338354d1445e3f77234baaf5545fa",
+  "sourceMembershipSha256": "cf74ef11e85d7f1045eadc04c21050eee99c79c9e0985c6d64909d93e3b97671",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
@@ -549,7 +549,7 @@
         },
         {
           "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
-          "sha256": "c9c7de880d91dd51c92baab04691b2c3e1b18be8c30721095304b0039a0ad481"
+          "sha256": "cc9170207ec5836e544790724998db36da8a9920e98075d257c54693a87f41d3"
         },
         {
           "path": "development/rmtx-a01/README.md",
@@ -1343,5 +1343,39 @@
     "publicationGuardRetired": false,
     "freshCommittedCaptureRequired": true,
     "rationale": "Scoped A04.2 review: automatic regular async Maraca/CLI build and browser boot use opt-in build-plan/config v5, composition API 2 with artifact/report v2, prepared port v1, Browser API 6 and PlanRuntime v8. Captured manifest identity and application grants bind actual internal Kernel/Fabric/Surface ports; owned roots drain before kernel retirement, borrowed owners survive. Legacy default plan/config v4, Browser API 5, PlanRuntime v7 and artifact/report v1 remain supported. All prior authoritative/released fingerprint sets remain fixed. Partial static/type observations stay partial. Transitive provider dependencies, delivery provenance, strict production size closure and full 0.9 acceptance remain pending. See development/rmtx-a04/integration.md."
+  },
+  "a042SizeBudgetReview": {
+    "format": 1,
+    "date": "2026-11-10",
+    "status": "reviewed-unreleased-source-bound-size-budget",
+    "stage": "A04.2-size-budget",
+    "contract": "development/rmtx-a04/integration.md",
+    "newSchemaIds": [
+      "xtend.maraca.size-budget-report.v2"
+    ],
+    "scopedSchemaIds": [
+      "xtend.maraca.bundle-report.v1",
+      "xtend.maraca.size-budget-report.v1",
+      "xtend.maraca.size-budget-report.v2"
+    ],
+    "sizeBudgetReportVersion": 2,
+    "legacySizeBudgetReportVersion": 1,
+    "legacyContractsRetained": true,
+    "nativeKernelAbiChanged": false,
+    "browserAbiChanged": false,
+    "planRuntimeAbiChanged": false,
+    "referenceRegressionLimits": {
+      "frameworkBytes": 2200000,
+      "xtensionRuntimeBytes": 240000
+    },
+    "referenceProductionSizeClosureAccepted": true,
+    "rootExportCount": 214,
+    "contractChecks": 27,
+    "runtimeCasesPerEnvironment": 300,
+    "compilerChecks": 88,
+    "acceptedForRelease": false,
+    "publicationGuardRetired": false,
+    "freshCommittedCaptureRequired": true,
+    "rationale": "Scoped A04.2 size-budget review: integrated build-plan v5 emits size-budget-report v2 over actual output bytes, captured platform/provider sources and the bound artifact. Source paths are deduplicated and sealed with actual build/file membership; serialized plans, metadata inflation and byte substitution cannot stand in for producer evidence. Overall framework and XTension runtime comparisons are independent, with fixed reference regression ceilings. Conservative formatting of copied platform/kernel/controller/resume modules closes strict Production/Max reference budgets. Legacy report v1 and all existing authoritative/released fingerprint sets remain intact. Browser/Plan/Host ABIs are unchanged. Transitive delivery provenance and full 0.9 acceptance remain pending. See development/rmtx-a04/integration.md."
   }
 }

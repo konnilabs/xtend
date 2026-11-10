@@ -13066,6 +13066,24 @@
       "type": "same-id-multiple-shapes"
     },
     {
+      "reviewId": "polymorphic-c6005b155b0e",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "All observed data/reference forms remain bound to shapePolicy; partial test/config expressions are not promoted to a complete authority."
+      },
+      "schemaIds": [
+        "xtend.maraca.size-budget-report.v2"
+      ],
+      "rationale": "Scoped A04.2 size-budget review: integrated build-plan v5 emits size-budget-report v2 over actual output bytes, captured platform/provider sources and the bound artifact. Source paths are deduplicated and sealed with actual build/file membership; serialized plans, metadata inflation and byte substitution cannot stand in for producer evidence. Overall framework and XTension runtime comparisons are independent, with fixed reference regression ceilings. Conservative formatting of copied platform/kernel/controller/resume modules closes strict Production/Max reference budgets. Legacy report v1 and all existing authoritative/released fingerprint sets remain intact. Browser/Plan/Host ABIs are unchanged. Transitive delivery provenance and full 0.9 acceptance remain pending. See development/rmtx-a04/integration.md.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "a042-source-bound-size-budget"
+    },
+    {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
       "confidence": "medium",
@@ -286911,77 +286929,6 @@
       "schemaId": "xtend.maraca.bundle-report.v1",
       "shapeFingerprints": [
         {
-          "hash": "sha256:1b2d2f67e4a5b64ecd1603c023051836145adb26b674ede3bc31117abf8b1104",
-          "shape": {
-            "fieldCount": 6,
-            "fields": [
-              "bundleReport",
-              "ok",
-              "plan",
-              "serviceBuildReport",
-              "sizeBudgetReport",
-              "status"
-            ],
-            "signature": "bundleReport:unknown|ok:{\"unresolved\":\"bundleReport.ok && sizeBudgetReport.ok\"}|plan:unknown|serviceBuildReport:{\"unresolved\":\"await buildMaracaServiceArtifacts(plan.services, {\\n    rollupModule: rollupTool.available ? rollupTool.module : null\\n  })\"}|sizeBudgetReport:unknown|status:union<string>",
-            "normalized": {
-              "fields": {
-                "bundleReport": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "ok": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "bundleReport.ok && sizeBudgetReport.ok"
-                  }
-                },
-                "plan": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "serviceBuildReport": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "await buildMaracaServiceArtifacts(plan.services, {\n    rollupModule: rollupTool.available ? rollupTool.module : null\n  })"
-                  }
-                },
-                "sizeBudgetReport": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "status": {
-                  "optional": false,
-                  "type": {
-                    "union": [
-                      "string"
-                    ]
-                  }
-                }
-              }
-            }
-          },
-          "sourcePaths": [
-            "xtend-maraca/index.js"
-          ],
-          "symbols": [
-            "buildMaracaBundleAsync"
-          ],
-          "evidence": [
-            {
-              "type": "runtime-observation",
-              "completeness": "partial",
-              "authoritative": false,
-              "path": "xtend-maraca/index.js",
-              "symbol": "buildMaracaBundleAsync"
-            }
-          ],
-          "evidenceTypes": [
-            "runtime-observation"
-          ],
-          "completeness": "partial",
-          "authoritative": false
-        },
-        {
           "hash": "sha256:22e781223436cf2beb00761d7b06a02edd15167c98dbf9d6cfbe328b34356ede",
           "shape": {
             "fieldCount": 5,
@@ -287169,6 +287116,1251 @@
               "authoritative": false,
               "path": "xtend-maraca/index.js",
               "symbol": "buildMaracaBundleAsync"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:3fcf8a20d3f303229f254887861d5bfc125f5aded6b8eb525b3587bc6e72fece",
+          "shape": {
+            "fieldCount": 46,
+            "fields": [
+              "bundleFiles",
+              "bytes",
+              "componentMode",
+              "components",
+              "configFingerprint",
+              "css",
+              "cssBuild",
+              "entry",
+              "entryBytes",
+              "entryRelative",
+              "forbiddenRuntimeDependencies",
+              "hydration",
+              "kernel",
+              "kernelFeatureAdoption",
+              "kernelFeatureAdoptionClosure",
+              "lazy",
+              "lifecycle",
+              "loader",
+              "ok",
+              "orchestration",
+              "outputDir",
+              "panicRecovery",
+              "performance",
+              "policyParity",
+              "productionClosure",
+              "profile",
+              "publicNameReservations",
+              "pwa",
+              "rmtApp",
+              "runtimeModules",
+              "services",
+              "sizeBudget",
+              "source",
+              "stackMode",
+              "stackModules",
+              "status",
+              "target",
+              "templateArtifacts",
+              "toolchain",
+              "transitions",
+              "trustedDom",
+              "uiCoprocessor",
+              "validation",
+              "vendor",
+              "warmReentry",
+              "webAppManifest"
+            ],
+            "signature": "bundleFiles:unknown|bytes:{\"unresolved\":\"bundleFiles.reduce((sum, file) => sum + Number(file.bytes || 0), 0) || entryFile.bytes\"}|componentMode:{\"unresolved\":\"plan.componentMode\"}|components:{selected:unknown,unknown:array<>}|configFingerprint:{\"unresolved\":\"plan.configFingerprint || null\"}|css:{\"unresolved\":\"plan.css\"}|cssBuild:{\"unresolved\":\"plan.cssBuild || null\"}|entry:{\"unresolved\":\"entryFile.path\"}|entryBytes:{\"unresolved\":\"entryFile.bytes\"}|entryRelative:unknown|forbiddenRuntimeDependencies:{componentManifestJson:boolean,dataManifestAttribute:boolean,xtendLoader:boolean}|hydration:union<{artifactSchema:{\"unresolved\":\"plan.hydration.artifact && plan.hydration.artifact.schema || null\"},diagnostics:{\"unresolved\":\"plan.hydration.diagnostics\"},enabled:{\"unresolved\":\"plan.hydration.enabled\"},mode:{\"unresolved\":\"plan.hydration.mode\"},planStatus:{\"unresolved\":\"plan.hydration.status\"},runtimeExpectedStatus:union<string>,runtimeModules:{\"unresolved\":\"plan.hydration.runtimeModules\"},serverPrerender:{\"unresolved\":\"plan.hydration.serverPrerender || plan.hydration.summary && plan.hydration.summary.serverPrerender || null\"},status:{\"unresolved\":\"plan.hydration.status\"},summary:{\"unresolved\":\"plan.hydration.summary\"},supported:{\"unresolved\":\"plan.hydration.supported\"},uiCoprocessor:{\"unresolved\":\"plan.hydration.uiCoprocessor || plan.hydration.summary && plan.hydration.summary.uiCoprocessor || null\"},workerPrerender:{\"unresolved\":\"plan.hydration.workerPrerender || plan.hydration.summary && plan.hydration.summary.workerPrerender || null\"}}|null>|kernel:union<{artifactSchema:{\"unresolved\":\"plan.kernel.artifact && plan.kernel.artifact.schema || null\"},bootMode:{\"unresolved\":\"plan.kernel.bootMode || 'direct'\"},diagnostics:{\"unresolved\":\"plan.kernel.diagnostics\"},enabled:{\"unresolved\":\"plan.kernel.enabled\"},featureAdoption:union<{\"unresolved\":\"plan.kernel.featureAdoption\"}|unknown>,mode:{\"unresolved\":\"plan.kernel.mode\"},panicRecovery:union<{\"unresolved\":\"plan.kernel.panicRecovery\"}|unknown>,performanceSummary:{\"unresolved\":\"performance && performance.summary || null\"},planStatus:{\"unresolved\":\"plan.kernel.status\"},policyParity:union<{\"unresolved\":\"plan.kernel.policyParity\"}|unknown>,prewarmWorker:union<{\"unresolved\":\"plan.kernel.prewarmWorker\"}|unknown>,productSurface:union<{\"unresolved\":\"plan.kernel.productSurface\"}|unknown>,recordsSchema:{\"unresolved\":\"plan.kernel.artifact && plan.kernel.artifact.records && plan.kernel.artifact.records.schema || null\"},runtimeExpectedStatus:union<string>,runtimeModules:{\"unresolved\":\"plan.kernel.runtimeModules\"},security:union<{\"unresolved\":\"plan.kernel.security\"}|{diagnostics:array<>,panicRecovery:union<{\"unresolved\":\"plan.kernel.panicRecovery\"}|unknown>,policyParity:union<{\"unresolved\":\"plan.kernel.policyParity\"}|unknown>,status:union<string>,supported:boolean,trustedDom:union<{\"unresolved\":\"plan.kernel.trustedDom\"}|unknown>}>,status:{\"unresolved\":\"plan.kernel.status\"},summary:{\"unresolved\":\"plan.kernel.summary\"},supported:{\"unresolved\":\"plan.kernel.supported\"},trustedDom:union<{\"unresolved\":\"plan.kernel.trustedDom\"}|unknown>}|null>|kernelFeatureAdoption:union<{\"unresolved\":\"plan.kernel.featureAdoption\"}|unknown>|kernelFeatureAdoptionClosure:unknown|lazy:{\"unresolved\":\"plan.lazy\"}|lifecycle:union<{destroyOnCloseSurfaceCount:{\"unresolved\":\"plan.lifecycle.destroyOnCloseSurfaceCount\"},diagnostics:{\"unresolved\":\"plan.lifecycle.diagnostics\"},disposeOnSurfaceDestroyResourceCount:{\"unresolved\":\"plan.lifecycle.disposeOnSurfaceDestroyResourceCount\"},ok:{\"unresolved\":\"plan.lifecycle.ok\"},requiresDestroyChain:{\"unresolved\":\"plan.lifecycle.requiresDestroyChain\"},runtimeExpectedStatus:{\"unresolved\":\"plan.lifecycle.runtimeExpectedStatus\"},sourceToSea:{\"unresolved\":\"plan.lifecycle.sourceToSea\"},status:{\"unresolved\":\"plan.lifecycle.status\"},strict:{\"unresolved\":\"plan.lifecycle.strict\"},supportedOperations:{\"unresolved\":\"plan.lifecycle.supportedOperations\"},surfaceDestroyReleaseCount:{\"unresolved\":\"plan.lifecycle.surfaceDestroyReleaseCount\"}}|null>|loader:{\"unresolved\":\"plan.loader\"}|ok:{\"unresolved\":\"productionClosure.ok && (!sizeBudgetReport || sizeBudgetReport.ok !== false)\"}|orchestration:union<{artifactSchema:{\"unresolved\":\"plan.orchestration.artifact && plan.orchestration.artifact.schema || null\"},diagnostics:{\"unresolved\":\"plan.orchestration.diagnostics\"},enabled:{\"unresolved\":\"plan.orchestration.enabled\"},mode:{\"unresolved\":\"plan.orchestration.mode\"},planStatus:{\"unresolved\":\"plan.orchestration.status\"},runtimeExpectedStatus:union<string>,runtimeModules:{\"unresolved\":\"plan.orchestration.runtimeModules\"},status:{\"unresolved\":\"plan.orchestration.status\"},summary:{\"unresolved\":\"plan.orchestration.summary\"},supported:{\"unresolved\":\"plan.orchestration.supported\"}}|null>|outputDir:unknown|panicRecovery:union<{\"unresolved\":\"plan.kernel.panicRecovery\"}|unknown>|performance:unknown|policyParity:union<{\"unresolved\":\"plan.kernel.policyParity\"}|unknown>|productionClosure:unknown|profile:{\"unresolved\":\"plan.profile\"}|publicNameReservations:{\"unresolved\":\"plan.publicNameReservations\"}|pwa:{\"unresolved\":\"options.pwaReport || createMaracaPwaReport(plan, bundleFiles, deriveMaracaPwaPrecacheUrls(plan, bundleFiles))\"}|rmtApp:unknown|runtimeModules:{\"unresolved\":\"plan.runtimeModules\"}|services:{artifacts:unknown,budgets:{\"unresolved\":\"plan.services && plan.services.budgets || { clientBytes: null, serverBytes: null }\"},bytes:{client:union<{\"unresolved\":\"sizeBudgetReport.appServices.clientBytes\"}|number>,server:union<{\"unresolved\":\"sizeBudgetReport.appServices.serverBytes\"}|number>},diagnostics:{\"unresolved\":\"serviceBuildReport.diagnostics || []\"},enabled:boolean,files:unknown,fingerprint:{\"unresolved\":\"plan.serviceGraphFingerprint || null\"},integrity:{artifactCount:{\"unresolved\":\"serviceArtifacts.length\"},artifactFingerprints:unknown,manifestFingerprint:{\"unresolved\":\"serviceBuildReport.manifest && serviceBuildReport.manifest.fingerprint || plan.services && plan.services.manifest && plan.services.manifest.fingerprint || null\"},serviceGraphFingerprint:{\"unresolved\":\"plan.serviceGraphFingerprint || null\"}},manifest:{\"unresolved\":\"serviceBuildReport.manifest || plan.services && plan.services.manifest || null\"},ok:{\"unresolved\":\"serviceBuildReport.ok !== false\"},status:{\"unresolved\":\"serviceBuildReport.status\"},targetFacts:unknown,targets:{\"unresolved\":\"plan.services && plan.services.targets || []\"},warnings:{\"unresolved\":\"serviceBuildReport.warnings || []\"}}|sizeBudget:{\"unresolvedReference\":\"sizeBudgetReport\"}|source:{\"unresolved\":\"plan.source\"}|stackMode:{\"unresolved\":\"plan.stackMode\"}|stackModules:unknown|status:union<string>|target:string|templateArtifacts:unknown|toolchain:{active:{\"unresolved\":\"options.activeToolchain || 'local-esm-importgraph-fallback'\"},nameCache:{\"unresolved\":\"options.nameCache || null\"},warnings:{\"unresolved\":\"options.warnings || []\"}}|transitions:union<{artifactSchema:{\"unresolved\":\"plan.transitions.artifact && plan.transitions.artifact.schema || null\"},diagnostics:{\"unresolved\":\"plan.transitions.diagnostics\"},enabled:{\"unresolved\":\"plan.transitions.enabled\"},mode:{\"unresolved\":\"plan.transitions.mode\"},planStatus:{\"unresolved\":\"plan.transitions.status\"},runtimeExpectedStatus:union<string>,runtimeModules:{\"unresolved\":\"plan.transitions.runtimeModules\"},status:{\"unresolved\":\"plan.transitions.status\"},summary:{\"unresolved\":\"plan.transitions.summary\"},supported:{\"unresolved\":\"plan.transitions.supported\"}}|null>|trustedDom:union<{\"unresolved\":\"plan.kernel.trustedDom\"}|unknown>|uiCoprocessor:{\"unresolved\":\"plan.uiCoprocessor || null\"}|validation:union<{artifactSchema:{\"unresolved\":\"plan.validation.artifact && plan.validation.artifact.schema || null\"},diagnostics:{\"unresolved\":\"plan.validation.diagnostics\"},enabled:{\"unresolved\":\"plan.validation.enabled\"},mode:{\"unresolved\":\"plan.validation.mode\"},planStatus:{\"unresolved\":\"plan.validation.status\"},runtimeExpectedStatus:union<string>,runtimeModules:{\"unresolved\":\"plan.validation.runtimeModules\"},status:{\"unresolved\":\"plan.validation.status\"},summary:{\"unresolved\":\"plan.validation.summary\"},supported:{\"unresolved\":\"plan.validation.supported\"}}|null>|vendor:{\"unresolved\":\"plan.vendor\"}|warmReentry:union<{backpressurePolicy:{\"unresolved\":\"plan.warmReentry.backpressurePolicy\"},destroyInvalidation:{\"unresolved\":\"plan.warmReentry.destroyInvalidation\"},diagnostics:{\"unresolved\":\"plan.warmReentry.diagnostics\"},enabled:{\"unresolved\":\"plan.warmReentry.enabled\"},observedFiberKinds:{\"unresolved\":\"plan.warmReentry.observedFiberKinds\"},ok:{\"unresolved\":\"plan.warmReentry.ok\"},optional:{\"unresolved\":\"plan.warmReentry.optional\"},runtimeExpectedStatus:{\"unresolved\":\"plan.warmReentry.runtimeExpectedStatus\"},status:{\"unresolved\":\"plan.warmReentry.status\"},summary:{\"unresolved\":\"plan.warmReentry.summary\"},supportedFiberKinds:{\"unresolved\":\"plan.warmReentry.supportedFiberKinds\"}}|null>|webAppManifest:{\"unresolved\":\"options.webAppManifestReport || createMaracaWebAppManifestReport(plan, [])\"}",
+            "normalized": {
+              "fields": {
+                "bundleFiles": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "bytes": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "bundleFiles.reduce((sum, file) => sum + Number(file.bytes || 0), 0) || entryFile.bytes"
+                  }
+                },
+                "componentMode": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "plan.componentMode"
+                  }
+                },
+                "components": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "selected": {
+                        "optional": false,
+                        "type": "unknown"
+                      },
+                      "unknown": {
+                        "optional": false,
+                        "type": {
+                          "array": []
+                        }
+                      }
+                    }
+                  }
+                },
+                "configFingerprint": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "plan.configFingerprint || null"
+                  }
+                },
+                "css": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "plan.css"
+                  }
+                },
+                "cssBuild": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "plan.cssBuild || null"
+                  }
+                },
+                "entry": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "entryFile.path"
+                  }
+                },
+                "entryBytes": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "entryFile.bytes"
+                  }
+                },
+                "entryRelative": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "forbiddenRuntimeDependencies": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "componentManifestJson": {
+                        "optional": false,
+                        "type": "boolean"
+                      },
+                      "dataManifestAttribute": {
+                        "optional": false,
+                        "type": "boolean"
+                      },
+                      "xtendLoader": {
+                        "optional": false,
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "hydration": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "fields": {
+                          "artifactSchema": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.hydration.artifact && plan.hydration.artifact.schema || null"
+                            }
+                          },
+                          "diagnostics": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.hydration.diagnostics"
+                            }
+                          },
+                          "enabled": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.hydration.enabled"
+                            }
+                          },
+                          "mode": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.hydration.mode"
+                            }
+                          },
+                          "planStatus": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.hydration.status"
+                            }
+                          },
+                          "runtimeExpectedStatus": {
+                            "optional": false,
+                            "type": {
+                              "union": [
+                                "string"
+                              ]
+                            }
+                          },
+                          "runtimeModules": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.hydration.runtimeModules"
+                            }
+                          },
+                          "serverPrerender": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.hydration.serverPrerender || plan.hydration.summary && plan.hydration.summary.serverPrerender || null"
+                            }
+                          },
+                          "status": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.hydration.status"
+                            }
+                          },
+                          "summary": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.hydration.summary"
+                            }
+                          },
+                          "supported": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.hydration.supported"
+                            }
+                          },
+                          "uiCoprocessor": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.hydration.uiCoprocessor || plan.hydration.summary && plan.hydration.summary.uiCoprocessor || null"
+                            }
+                          },
+                          "workerPrerender": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.hydration.workerPrerender || plan.hydration.summary && plan.hydration.summary.workerPrerender || null"
+                            }
+                          }
+                        }
+                      },
+                      "null"
+                    ]
+                  }
+                },
+                "kernel": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "fields": {
+                          "artifactSchema": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.kernel.artifact && plan.kernel.artifact.schema || null"
+                            }
+                          },
+                          "bootMode": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.kernel.bootMode || 'direct'"
+                            }
+                          },
+                          "diagnostics": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.kernel.diagnostics"
+                            }
+                          },
+                          "enabled": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.kernel.enabled"
+                            }
+                          },
+                          "featureAdoption": {
+                            "optional": false,
+                            "type": {
+                              "union": [
+                                {
+                                  "unresolved": "plan.kernel.featureAdoption"
+                                },
+                                "unknown"
+                              ]
+                            }
+                          },
+                          "mode": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.kernel.mode"
+                            }
+                          },
+                          "panicRecovery": {
+                            "optional": false,
+                            "type": {
+                              "union": [
+                                {
+                                  "unresolved": "plan.kernel.panicRecovery"
+                                },
+                                "unknown"
+                              ]
+                            }
+                          },
+                          "performanceSummary": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "performance && performance.summary || null"
+                            }
+                          },
+                          "planStatus": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.kernel.status"
+                            }
+                          },
+                          "policyParity": {
+                            "optional": false,
+                            "type": {
+                              "union": [
+                                {
+                                  "unresolved": "plan.kernel.policyParity"
+                                },
+                                "unknown"
+                              ]
+                            }
+                          },
+                          "prewarmWorker": {
+                            "optional": false,
+                            "type": {
+                              "union": [
+                                {
+                                  "unresolved": "plan.kernel.prewarmWorker"
+                                },
+                                "unknown"
+                              ]
+                            }
+                          },
+                          "productSurface": {
+                            "optional": false,
+                            "type": {
+                              "union": [
+                                {
+                                  "unresolved": "plan.kernel.productSurface"
+                                },
+                                "unknown"
+                              ]
+                            }
+                          },
+                          "recordsSchema": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.kernel.artifact && plan.kernel.artifact.records && plan.kernel.artifact.records.schema || null"
+                            }
+                          },
+                          "runtimeExpectedStatus": {
+                            "optional": false,
+                            "type": {
+                              "union": [
+                                "string"
+                              ]
+                            }
+                          },
+                          "runtimeModules": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.kernel.runtimeModules"
+                            }
+                          },
+                          "security": {
+                            "optional": false,
+                            "type": {
+                              "union": [
+                                {
+                                  "unresolved": "plan.kernel.security"
+                                },
+                                {
+                                  "fields": {
+                                    "diagnostics": {
+                                      "optional": false,
+                                      "type": {
+                                        "array": []
+                                      }
+                                    },
+                                    "panicRecovery": {
+                                      "optional": false,
+                                      "type": {
+                                        "union": [
+                                          {
+                                            "unresolved": "plan.kernel.panicRecovery"
+                                          },
+                                          "unknown"
+                                        ]
+                                      }
+                                    },
+                                    "policyParity": {
+                                      "optional": false,
+                                      "type": {
+                                        "union": [
+                                          {
+                                            "unresolved": "plan.kernel.policyParity"
+                                          },
+                                          "unknown"
+                                        ]
+                                      }
+                                    },
+                                    "status": {
+                                      "optional": false,
+                                      "type": {
+                                        "union": [
+                                          "string"
+                                        ]
+                                      }
+                                    },
+                                    "supported": {
+                                      "optional": false,
+                                      "type": "boolean"
+                                    },
+                                    "trustedDom": {
+                                      "optional": false,
+                                      "type": {
+                                        "union": [
+                                          {
+                                            "unresolved": "plan.kernel.trustedDom"
+                                          },
+                                          "unknown"
+                                        ]
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          "status": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.kernel.status"
+                            }
+                          },
+                          "summary": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.kernel.summary"
+                            }
+                          },
+                          "supported": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.kernel.supported"
+                            }
+                          },
+                          "trustedDom": {
+                            "optional": false,
+                            "type": {
+                              "union": [
+                                {
+                                  "unresolved": "plan.kernel.trustedDom"
+                                },
+                                "unknown"
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      "null"
+                    ]
+                  }
+                },
+                "kernelFeatureAdoption": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "unresolved": "plan.kernel.featureAdoption"
+                      },
+                      "unknown"
+                    ]
+                  }
+                },
+                "kernelFeatureAdoptionClosure": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "lazy": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "plan.lazy"
+                  }
+                },
+                "lifecycle": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "fields": {
+                          "destroyOnCloseSurfaceCount": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.lifecycle.destroyOnCloseSurfaceCount"
+                            }
+                          },
+                          "diagnostics": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.lifecycle.diagnostics"
+                            }
+                          },
+                          "disposeOnSurfaceDestroyResourceCount": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.lifecycle.disposeOnSurfaceDestroyResourceCount"
+                            }
+                          },
+                          "ok": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.lifecycle.ok"
+                            }
+                          },
+                          "requiresDestroyChain": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.lifecycle.requiresDestroyChain"
+                            }
+                          },
+                          "runtimeExpectedStatus": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.lifecycle.runtimeExpectedStatus"
+                            }
+                          },
+                          "sourceToSea": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.lifecycle.sourceToSea"
+                            }
+                          },
+                          "status": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.lifecycle.status"
+                            }
+                          },
+                          "strict": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.lifecycle.strict"
+                            }
+                          },
+                          "supportedOperations": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.lifecycle.supportedOperations"
+                            }
+                          },
+                          "surfaceDestroyReleaseCount": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.lifecycle.surfaceDestroyReleaseCount"
+                            }
+                          }
+                        }
+                      },
+                      "null"
+                    ]
+                  }
+                },
+                "loader": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "plan.loader"
+                  }
+                },
+                "ok": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "productionClosure.ok && (!sizeBudgetReport || sizeBudgetReport.ok !== false)"
+                  }
+                },
+                "orchestration": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "fields": {
+                          "artifactSchema": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.orchestration.artifact && plan.orchestration.artifact.schema || null"
+                            }
+                          },
+                          "diagnostics": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.orchestration.diagnostics"
+                            }
+                          },
+                          "enabled": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.orchestration.enabled"
+                            }
+                          },
+                          "mode": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.orchestration.mode"
+                            }
+                          },
+                          "planStatus": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.orchestration.status"
+                            }
+                          },
+                          "runtimeExpectedStatus": {
+                            "optional": false,
+                            "type": {
+                              "union": [
+                                "string"
+                              ]
+                            }
+                          },
+                          "runtimeModules": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.orchestration.runtimeModules"
+                            }
+                          },
+                          "status": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.orchestration.status"
+                            }
+                          },
+                          "summary": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.orchestration.summary"
+                            }
+                          },
+                          "supported": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.orchestration.supported"
+                            }
+                          }
+                        }
+                      },
+                      "null"
+                    ]
+                  }
+                },
+                "outputDir": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "panicRecovery": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "unresolved": "plan.kernel.panicRecovery"
+                      },
+                      "unknown"
+                    ]
+                  }
+                },
+                "performance": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "policyParity": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "unresolved": "plan.kernel.policyParity"
+                      },
+                      "unknown"
+                    ]
+                  }
+                },
+                "productionClosure": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "profile": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "plan.profile"
+                  }
+                },
+                "publicNameReservations": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "plan.publicNameReservations"
+                  }
+                },
+                "pwa": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "options.pwaReport || createMaracaPwaReport(plan, bundleFiles, deriveMaracaPwaPrecacheUrls(plan, bundleFiles))"
+                  }
+                },
+                "rmtApp": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "runtimeModules": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "plan.runtimeModules"
+                  }
+                },
+                "services": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "artifacts": {
+                        "optional": false,
+                        "type": "unknown"
+                      },
+                      "budgets": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "plan.services && plan.services.budgets || { clientBytes: null, serverBytes: null }"
+                        }
+                      },
+                      "bytes": {
+                        "optional": false,
+                        "type": {
+                          "fields": {
+                            "client": {
+                              "optional": false,
+                              "type": {
+                                "union": [
+                                  {
+                                    "unresolved": "sizeBudgetReport.appServices.clientBytes"
+                                  },
+                                  "number"
+                                ]
+                              }
+                            },
+                            "server": {
+                              "optional": false,
+                              "type": {
+                                "union": [
+                                  {
+                                    "unresolved": "sizeBudgetReport.appServices.serverBytes"
+                                  },
+                                  "number"
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "diagnostics": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "serviceBuildReport.diagnostics || []"
+                        }
+                      },
+                      "enabled": {
+                        "optional": false,
+                        "type": "boolean"
+                      },
+                      "files": {
+                        "optional": false,
+                        "type": "unknown"
+                      },
+                      "fingerprint": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "plan.serviceGraphFingerprint || null"
+                        }
+                      },
+                      "integrity": {
+                        "optional": false,
+                        "type": {
+                          "fields": {
+                            "artifactCount": {
+                              "optional": false,
+                              "type": {
+                                "unresolved": "serviceArtifacts.length"
+                              }
+                            },
+                            "artifactFingerprints": {
+                              "optional": false,
+                              "type": "unknown"
+                            },
+                            "manifestFingerprint": {
+                              "optional": false,
+                              "type": {
+                                "unresolved": "serviceBuildReport.manifest && serviceBuildReport.manifest.fingerprint || plan.services && plan.services.manifest && plan.services.manifest.fingerprint || null"
+                              }
+                            },
+                            "serviceGraphFingerprint": {
+                              "optional": false,
+                              "type": {
+                                "unresolved": "plan.serviceGraphFingerprint || null"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "manifest": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "serviceBuildReport.manifest || plan.services && plan.services.manifest || null"
+                        }
+                      },
+                      "ok": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "serviceBuildReport.ok !== false"
+                        }
+                      },
+                      "status": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "serviceBuildReport.status"
+                        }
+                      },
+                      "targetFacts": {
+                        "optional": false,
+                        "type": "unknown"
+                      },
+                      "targets": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "plan.services && plan.services.targets || []"
+                        }
+                      },
+                      "warnings": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "serviceBuildReport.warnings || []"
+                        }
+                      }
+                    }
+                  }
+                },
+                "sizeBudget": {
+                  "optional": false,
+                  "type": {
+                    "unresolvedReference": "sizeBudgetReport"
+                  }
+                },
+                "source": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "plan.source"
+                  }
+                },
+                "stackMode": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "plan.stackMode"
+                  }
+                },
+                "stackModules": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "status": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      "string"
+                    ]
+                  }
+                },
+                "target": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "templateArtifacts": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "toolchain": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "active": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "options.activeToolchain || 'local-esm-importgraph-fallback'"
+                        }
+                      },
+                      "nameCache": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "options.nameCache || null"
+                        }
+                      },
+                      "warnings": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "options.warnings || []"
+                        }
+                      }
+                    },
+                    "unresolvedSpreads": [
+                      {
+                        "unresolved": "plan.toolchain"
+                      }
+                    ]
+                  }
+                },
+                "transitions": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "fields": {
+                          "artifactSchema": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.transitions.artifact && plan.transitions.artifact.schema || null"
+                            }
+                          },
+                          "diagnostics": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.transitions.diagnostics"
+                            }
+                          },
+                          "enabled": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.transitions.enabled"
+                            }
+                          },
+                          "mode": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.transitions.mode"
+                            }
+                          },
+                          "planStatus": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.transitions.status"
+                            }
+                          },
+                          "runtimeExpectedStatus": {
+                            "optional": false,
+                            "type": {
+                              "union": [
+                                "string"
+                              ]
+                            }
+                          },
+                          "runtimeModules": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.transitions.runtimeModules"
+                            }
+                          },
+                          "status": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.transitions.status"
+                            }
+                          },
+                          "summary": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.transitions.summary"
+                            }
+                          },
+                          "supported": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.transitions.supported"
+                            }
+                          }
+                        }
+                      },
+                      "null"
+                    ]
+                  }
+                },
+                "trustedDom": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "unresolved": "plan.kernel.trustedDom"
+                      },
+                      "unknown"
+                    ]
+                  }
+                },
+                "uiCoprocessor": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "plan.uiCoprocessor || null"
+                  }
+                },
+                "validation": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "fields": {
+                          "artifactSchema": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.validation.artifact && plan.validation.artifact.schema || null"
+                            }
+                          },
+                          "diagnostics": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.validation.diagnostics"
+                            }
+                          },
+                          "enabled": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.validation.enabled"
+                            }
+                          },
+                          "mode": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.validation.mode"
+                            }
+                          },
+                          "planStatus": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.validation.status"
+                            }
+                          },
+                          "runtimeExpectedStatus": {
+                            "optional": false,
+                            "type": {
+                              "union": [
+                                "string"
+                              ]
+                            }
+                          },
+                          "runtimeModules": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.validation.runtimeModules"
+                            }
+                          },
+                          "status": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.validation.status"
+                            }
+                          },
+                          "summary": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.validation.summary"
+                            }
+                          },
+                          "supported": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.validation.supported"
+                            }
+                          }
+                        }
+                      },
+                      "null"
+                    ]
+                  }
+                },
+                "vendor": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "plan.vendor"
+                  }
+                },
+                "warmReentry": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "fields": {
+                          "backpressurePolicy": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.warmReentry.backpressurePolicy"
+                            }
+                          },
+                          "destroyInvalidation": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.warmReentry.destroyInvalidation"
+                            }
+                          },
+                          "diagnostics": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.warmReentry.diagnostics"
+                            }
+                          },
+                          "enabled": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.warmReentry.enabled"
+                            }
+                          },
+                          "observedFiberKinds": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.warmReentry.observedFiberKinds"
+                            }
+                          },
+                          "ok": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.warmReentry.ok"
+                            }
+                          },
+                          "optional": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.warmReentry.optional"
+                            }
+                          },
+                          "runtimeExpectedStatus": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.warmReentry.runtimeExpectedStatus"
+                            }
+                          },
+                          "status": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.warmReentry.status"
+                            }
+                          },
+                          "summary": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.warmReentry.summary"
+                            }
+                          },
+                          "supportedFiberKinds": {
+                            "optional": false,
+                            "type": {
+                              "unresolved": "plan.warmReentry.supportedFiberKinds"
+                            }
+                          }
+                        }
+                      },
+                      "null"
+                    ]
+                  }
+                },
+                "webAppManifest": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "options.webAppManifestReport || createMaracaWebAppManifestReport(plan, [])"
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/index.js"
+          ],
+          "symbols": [
+            "createBundleReport"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtend-maraca/index.js",
+              "symbol": "createBundleReport"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:42006652f3eb38c1913ff847d613575f293c09e6b8eb9de612c67837bb4f12be",
+          "shape": {
+            "fieldCount": 5,
+            "fields": [
+              "bundleReport",
+              "ok",
+              "plan",
+              "sizeBudgetReport",
+              "status"
+            ],
+            "signature": "bundleReport:unknown|ok:{\"unresolved\":\"bundleReport.ok && sizeBudgetReport.ok\"}|plan:unknown|sizeBudgetReport:{\"unresolvedReference\":\"sizeBudgetReport\"}|status:union<string>",
+            "normalized": {
+              "fields": {
+                "bundleReport": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "ok": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "bundleReport.ok && sizeBudgetReport.ok"
+                  }
+                },
+                "plan": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "sizeBudgetReport": {
+                  "optional": false,
+                  "type": {
+                    "unresolvedReference": "sizeBudgetReport"
+                  }
+                },
+                "status": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      "string"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/index.js"
+          ],
+          "symbols": [
+            "buildMaracaBundle"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtend-maraca/index.js",
+              "symbol": "buildMaracaBundle"
             }
           ],
           "evidenceTypes": [
@@ -287420,6 +288612,79 @@
           ],
           "evidenceTypes": [
             "generated"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:5a168c1bed6d22a9edf7ba2e08458198d6d944db4aba969b3c760c1f756c060e",
+          "shape": {
+            "fieldCount": 6,
+            "fields": [
+              "bundleReport",
+              "ok",
+              "plan",
+              "serviceBuildReport",
+              "sizeBudgetReport",
+              "status"
+            ],
+            "signature": "bundleReport:unknown|ok:{\"unresolved\":\"bundleReport.ok && sizeBudgetReport.ok\"}|plan:unknown|serviceBuildReport:{\"unresolved\":\"await buildMaracaServiceArtifacts(plan.services, {\\n    rollupModule: rollupTool.available ? rollupTool.module : null\\n  })\"}|sizeBudgetReport:{\"unresolvedReference\":\"sizeBudgetReport\"}|status:union<string>",
+            "normalized": {
+              "fields": {
+                "bundleReport": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "ok": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "bundleReport.ok && sizeBudgetReport.ok"
+                  }
+                },
+                "plan": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "serviceBuildReport": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "await buildMaracaServiceArtifacts(plan.services, {\n    rollupModule: rollupTool.available ? rollupTool.module : null\n  })"
+                  }
+                },
+                "sizeBudgetReport": {
+                  "optional": false,
+                  "type": {
+                    "unresolvedReference": "sizeBudgetReport"
+                  }
+                },
+                "status": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      "string"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/index.js"
+          ],
+          "symbols": [
+            "buildMaracaBundleAsync"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtend-maraca/index.js",
+              "symbol": "buildMaracaBundleAsync"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
           ],
           "completeness": "partial",
           "authoritative": false
@@ -301032,70 +302297,6 @@
           "authoritative": false
         },
         {
-          "hash": "sha256:77c9c887f608eda06cbdc9f60fed1a9739daa0dc719082a067d0b82f29cfe375",
-          "shape": {
-            "fieldCount": 5,
-            "fields": [
-              "bundleReport",
-              "ok",
-              "plan",
-              "sizeBudgetReport",
-              "status"
-            ],
-            "signature": "bundleReport:unknown|ok:{\"unresolved\":\"bundleReport.ok && sizeBudgetReport.ok\"}|plan:unknown|sizeBudgetReport:unknown|status:union<string>",
-            "normalized": {
-              "fields": {
-                "bundleReport": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "ok": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "bundleReport.ok && sizeBudgetReport.ok"
-                  }
-                },
-                "plan": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "sizeBudgetReport": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "status": {
-                  "optional": false,
-                  "type": {
-                    "union": [
-                      "string"
-                    ]
-                  }
-                }
-              }
-            }
-          },
-          "sourcePaths": [
-            "xtend-maraca/index.js"
-          ],
-          "symbols": [
-            "buildMaracaBundle"
-          ],
-          "evidence": [
-            {
-              "type": "runtime-observation",
-              "completeness": "partial",
-              "authoritative": false,
-              "path": "xtend-maraca/index.js",
-              "symbol": "buildMaracaBundle"
-            }
-          ],
-          "evidenceTypes": [
-            "runtime-observation"
-          ],
-          "completeness": "partial",
-          "authoritative": false
-        },
-        {
           "hash": "sha256:7c7cf2cc06b31189b673aeb780736eae61f308a4250a9121896fc3d1d868a282",
           "shape": {
             "fieldCount": 46,
@@ -313886,1183 +315087,6 @@
           "authoritative": false
         },
         {
-          "hash": "sha256:b5186afbae7dc43a0a963890d08f89d639c074123c5e24362f3bfd40e74a74b9",
-          "shape": {
-            "fieldCount": 46,
-            "fields": [
-              "bundleFiles",
-              "bytes",
-              "componentMode",
-              "components",
-              "configFingerprint",
-              "css",
-              "cssBuild",
-              "entry",
-              "entryBytes",
-              "entryRelative",
-              "forbiddenRuntimeDependencies",
-              "hydration",
-              "kernel",
-              "kernelFeatureAdoption",
-              "kernelFeatureAdoptionClosure",
-              "lazy",
-              "lifecycle",
-              "loader",
-              "ok",
-              "orchestration",
-              "outputDir",
-              "panicRecovery",
-              "performance",
-              "policyParity",
-              "productionClosure",
-              "profile",
-              "publicNameReservations",
-              "pwa",
-              "rmtApp",
-              "runtimeModules",
-              "services",
-              "sizeBudget",
-              "source",
-              "stackMode",
-              "stackModules",
-              "status",
-              "target",
-              "templateArtifacts",
-              "toolchain",
-              "transitions",
-              "trustedDom",
-              "uiCoprocessor",
-              "validation",
-              "vendor",
-              "warmReentry",
-              "webAppManifest"
-            ],
-            "signature": "bundleFiles:unknown|bytes:{\"unresolved\":\"bundleFiles.reduce((sum, file) => sum + Number(file.bytes || 0), 0) || entryFile.bytes\"}|componentMode:{\"unresolved\":\"plan.componentMode\"}|components:{selected:unknown,unknown:array<>}|configFingerprint:{\"unresolved\":\"plan.configFingerprint || null\"}|css:{\"unresolved\":\"plan.css\"}|cssBuild:{\"unresolved\":\"plan.cssBuild || null\"}|entry:{\"unresolved\":\"entryFile.path\"}|entryBytes:{\"unresolved\":\"entryFile.bytes\"}|entryRelative:unknown|forbiddenRuntimeDependencies:{componentManifestJson:boolean,dataManifestAttribute:boolean,xtendLoader:boolean}|hydration:union<{artifactSchema:{\"unresolved\":\"plan.hydration.artifact && plan.hydration.artifact.schema || null\"},diagnostics:{\"unresolved\":\"plan.hydration.diagnostics\"},enabled:{\"unresolved\":\"plan.hydration.enabled\"},mode:{\"unresolved\":\"plan.hydration.mode\"},planStatus:{\"unresolved\":\"plan.hydration.status\"},runtimeExpectedStatus:union<string>,runtimeModules:{\"unresolved\":\"plan.hydration.runtimeModules\"},serverPrerender:{\"unresolved\":\"plan.hydration.serverPrerender || plan.hydration.summary && plan.hydration.summary.serverPrerender || null\"},status:{\"unresolved\":\"plan.hydration.status\"},summary:{\"unresolved\":\"plan.hydration.summary\"},supported:{\"unresolved\":\"plan.hydration.supported\"},uiCoprocessor:{\"unresolved\":\"plan.hydration.uiCoprocessor || plan.hydration.summary && plan.hydration.summary.uiCoprocessor || null\"},workerPrerender:{\"unresolved\":\"plan.hydration.workerPrerender || plan.hydration.summary && plan.hydration.summary.workerPrerender || null\"}}|null>|kernel:union<{artifactSchema:{\"unresolved\":\"plan.kernel.artifact && plan.kernel.artifact.schema || null\"},bootMode:{\"unresolved\":\"plan.kernel.bootMode || 'direct'\"},diagnostics:{\"unresolved\":\"plan.kernel.diagnostics\"},enabled:{\"unresolved\":\"plan.kernel.enabled\"},featureAdoption:union<{\"unresolved\":\"plan.kernel.featureAdoption\"}|unknown>,mode:{\"unresolved\":\"plan.kernel.mode\"},panicRecovery:union<{\"unresolved\":\"plan.kernel.panicRecovery\"}|unknown>,performanceSummary:{\"unresolved\":\"performance && performance.summary || null\"},planStatus:{\"unresolved\":\"plan.kernel.status\"},policyParity:union<{\"unresolved\":\"plan.kernel.policyParity\"}|unknown>,prewarmWorker:union<{\"unresolved\":\"plan.kernel.prewarmWorker\"}|unknown>,productSurface:union<{\"unresolved\":\"plan.kernel.productSurface\"}|unknown>,recordsSchema:{\"unresolved\":\"plan.kernel.artifact && plan.kernel.artifact.records && plan.kernel.artifact.records.schema || null\"},runtimeExpectedStatus:union<string>,runtimeModules:{\"unresolved\":\"plan.kernel.runtimeModules\"},security:union<{\"unresolved\":\"plan.kernel.security\"}|{diagnostics:array<>,panicRecovery:union<{\"unresolved\":\"plan.kernel.panicRecovery\"}|unknown>,policyParity:union<{\"unresolved\":\"plan.kernel.policyParity\"}|unknown>,status:union<string>,supported:boolean,trustedDom:union<{\"unresolved\":\"plan.kernel.trustedDom\"}|unknown>}>,status:{\"unresolved\":\"plan.kernel.status\"},summary:{\"unresolved\":\"plan.kernel.summary\"},supported:{\"unresolved\":\"plan.kernel.supported\"},trustedDom:union<{\"unresolved\":\"plan.kernel.trustedDom\"}|unknown>}|null>|kernelFeatureAdoption:union<{\"unresolved\":\"plan.kernel.featureAdoption\"}|unknown>|kernelFeatureAdoptionClosure:unknown|lazy:{\"unresolved\":\"plan.lazy\"}|lifecycle:union<{destroyOnCloseSurfaceCount:{\"unresolved\":\"plan.lifecycle.destroyOnCloseSurfaceCount\"},diagnostics:{\"unresolved\":\"plan.lifecycle.diagnostics\"},disposeOnSurfaceDestroyResourceCount:{\"unresolved\":\"plan.lifecycle.disposeOnSurfaceDestroyResourceCount\"},ok:{\"unresolved\":\"plan.lifecycle.ok\"},requiresDestroyChain:{\"unresolved\":\"plan.lifecycle.requiresDestroyChain\"},runtimeExpectedStatus:{\"unresolved\":\"plan.lifecycle.runtimeExpectedStatus\"},sourceToSea:{\"unresolved\":\"plan.lifecycle.sourceToSea\"},status:{\"unresolved\":\"plan.lifecycle.status\"},strict:{\"unresolved\":\"plan.lifecycle.strict\"},supportedOperations:{\"unresolved\":\"plan.lifecycle.supportedOperations\"},surfaceDestroyReleaseCount:{\"unresolved\":\"plan.lifecycle.surfaceDestroyReleaseCount\"}}|null>|loader:{\"unresolved\":\"plan.loader\"}|ok:{\"unresolved\":\"productionClosure.ok && (!sizeBudgetReport || sizeBudgetReport.ok !== false)\"}|orchestration:union<{artifactSchema:{\"unresolved\":\"plan.orchestration.artifact && plan.orchestration.artifact.schema || null\"},diagnostics:{\"unresolved\":\"plan.orchestration.diagnostics\"},enabled:{\"unresolved\":\"plan.orchestration.enabled\"},mode:{\"unresolved\":\"plan.orchestration.mode\"},planStatus:{\"unresolved\":\"plan.orchestration.status\"},runtimeExpectedStatus:union<string>,runtimeModules:{\"unresolved\":\"plan.orchestration.runtimeModules\"},status:{\"unresolved\":\"plan.orchestration.status\"},summary:{\"unresolved\":\"plan.orchestration.summary\"},supported:{\"unresolved\":\"plan.orchestration.supported\"}}|null>|outputDir:unknown|panicRecovery:union<{\"unresolved\":\"plan.kernel.panicRecovery\"}|unknown>|performance:unknown|policyParity:union<{\"unresolved\":\"plan.kernel.policyParity\"}|unknown>|productionClosure:unknown|profile:{\"unresolved\":\"plan.profile\"}|publicNameReservations:{\"unresolved\":\"plan.publicNameReservations\"}|pwa:{\"unresolved\":\"options.pwaReport || createMaracaPwaReport(plan, bundleFiles, deriveMaracaPwaPrecacheUrls(plan, bundleFiles))\"}|rmtApp:unknown|runtimeModules:{\"unresolved\":\"plan.runtimeModules\"}|services:{artifacts:unknown,budgets:{\"unresolved\":\"plan.services && plan.services.budgets || { clientBytes: null, serverBytes: null }\"},bytes:{client:union<{\"unresolved\":\"sizeBudgetReport.appServices.clientBytes\"}|number>,server:union<{\"unresolved\":\"sizeBudgetReport.appServices.serverBytes\"}|number>},diagnostics:{\"unresolved\":\"serviceBuildReport.diagnostics || []\"},enabled:boolean,files:unknown,fingerprint:{\"unresolved\":\"plan.serviceGraphFingerprint || null\"},integrity:{artifactCount:{\"unresolved\":\"serviceArtifacts.length\"},artifactFingerprints:unknown,manifestFingerprint:{\"unresolved\":\"serviceBuildReport.manifest && serviceBuildReport.manifest.fingerprint || plan.services && plan.services.manifest && plan.services.manifest.fingerprint || null\"},serviceGraphFingerprint:{\"unresolved\":\"plan.serviceGraphFingerprint || null\"}},manifest:{\"unresolved\":\"serviceBuildReport.manifest || plan.services && plan.services.manifest || null\"},ok:{\"unresolved\":\"serviceBuildReport.ok !== false\"},status:{\"unresolved\":\"serviceBuildReport.status\"},targetFacts:unknown,targets:{\"unresolved\":\"plan.services && plan.services.targets || []\"},warnings:{\"unresolved\":\"serviceBuildReport.warnings || []\"}}|sizeBudget:unknown|source:{\"unresolved\":\"plan.source\"}|stackMode:{\"unresolved\":\"plan.stackMode\"}|stackModules:unknown|status:union<string>|target:string|templateArtifacts:unknown|toolchain:{active:{\"unresolved\":\"options.activeToolchain || 'local-esm-importgraph-fallback'\"},nameCache:{\"unresolved\":\"options.nameCache || null\"},warnings:{\"unresolved\":\"options.warnings || []\"}}|transitions:union<{artifactSchema:{\"unresolved\":\"plan.transitions.artifact && plan.transitions.artifact.schema || null\"},diagnostics:{\"unresolved\":\"plan.transitions.diagnostics\"},enabled:{\"unresolved\":\"plan.transitions.enabled\"},mode:{\"unresolved\":\"plan.transitions.mode\"},planStatus:{\"unresolved\":\"plan.transitions.status\"},runtimeExpectedStatus:union<string>,runtimeModules:{\"unresolved\":\"plan.transitions.runtimeModules\"},status:{\"unresolved\":\"plan.transitions.status\"},summary:{\"unresolved\":\"plan.transitions.summary\"},supported:{\"unresolved\":\"plan.transitions.supported\"}}|null>|trustedDom:union<{\"unresolved\":\"plan.kernel.trustedDom\"}|unknown>|uiCoprocessor:{\"unresolved\":\"plan.uiCoprocessor || null\"}|validation:union<{artifactSchema:{\"unresolved\":\"plan.validation.artifact && plan.validation.artifact.schema || null\"},diagnostics:{\"unresolved\":\"plan.validation.diagnostics\"},enabled:{\"unresolved\":\"plan.validation.enabled\"},mode:{\"unresolved\":\"plan.validation.mode\"},planStatus:{\"unresolved\":\"plan.validation.status\"},runtimeExpectedStatus:union<string>,runtimeModules:{\"unresolved\":\"plan.validation.runtimeModules\"},status:{\"unresolved\":\"plan.validation.status\"},summary:{\"unresolved\":\"plan.validation.summary\"},supported:{\"unresolved\":\"plan.validation.supported\"}}|null>|vendor:{\"unresolved\":\"plan.vendor\"}|warmReentry:union<{backpressurePolicy:{\"unresolved\":\"plan.warmReentry.backpressurePolicy\"},destroyInvalidation:{\"unresolved\":\"plan.warmReentry.destroyInvalidation\"},diagnostics:{\"unresolved\":\"plan.warmReentry.diagnostics\"},enabled:{\"unresolved\":\"plan.warmReentry.enabled\"},observedFiberKinds:{\"unresolved\":\"plan.warmReentry.observedFiberKinds\"},ok:{\"unresolved\":\"plan.warmReentry.ok\"},optional:{\"unresolved\":\"plan.warmReentry.optional\"},runtimeExpectedStatus:{\"unresolved\":\"plan.warmReentry.runtimeExpectedStatus\"},status:{\"unresolved\":\"plan.warmReentry.status\"},summary:{\"unresolved\":\"plan.warmReentry.summary\"},supportedFiberKinds:{\"unresolved\":\"plan.warmReentry.supportedFiberKinds\"}}|null>|webAppManifest:{\"unresolved\":\"options.webAppManifestReport || createMaracaWebAppManifestReport(plan, [])\"}",
-            "normalized": {
-              "fields": {
-                "bundleFiles": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "bytes": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "bundleFiles.reduce((sum, file) => sum + Number(file.bytes || 0), 0) || entryFile.bytes"
-                  }
-                },
-                "componentMode": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "plan.componentMode"
-                  }
-                },
-                "components": {
-                  "optional": false,
-                  "type": {
-                    "fields": {
-                      "selected": {
-                        "optional": false,
-                        "type": "unknown"
-                      },
-                      "unknown": {
-                        "optional": false,
-                        "type": {
-                          "array": []
-                        }
-                      }
-                    }
-                  }
-                },
-                "configFingerprint": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "plan.configFingerprint || null"
-                  }
-                },
-                "css": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "plan.css"
-                  }
-                },
-                "cssBuild": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "plan.cssBuild || null"
-                  }
-                },
-                "entry": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "entryFile.path"
-                  }
-                },
-                "entryBytes": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "entryFile.bytes"
-                  }
-                },
-                "entryRelative": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "forbiddenRuntimeDependencies": {
-                  "optional": false,
-                  "type": {
-                    "fields": {
-                      "componentManifestJson": {
-                        "optional": false,
-                        "type": "boolean"
-                      },
-                      "dataManifestAttribute": {
-                        "optional": false,
-                        "type": "boolean"
-                      },
-                      "xtendLoader": {
-                        "optional": false,
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                },
-                "hydration": {
-                  "optional": false,
-                  "type": {
-                    "union": [
-                      {
-                        "fields": {
-                          "artifactSchema": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.hydration.artifact && plan.hydration.artifact.schema || null"
-                            }
-                          },
-                          "diagnostics": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.hydration.diagnostics"
-                            }
-                          },
-                          "enabled": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.hydration.enabled"
-                            }
-                          },
-                          "mode": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.hydration.mode"
-                            }
-                          },
-                          "planStatus": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.hydration.status"
-                            }
-                          },
-                          "runtimeExpectedStatus": {
-                            "optional": false,
-                            "type": {
-                              "union": [
-                                "string"
-                              ]
-                            }
-                          },
-                          "runtimeModules": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.hydration.runtimeModules"
-                            }
-                          },
-                          "serverPrerender": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.hydration.serverPrerender || plan.hydration.summary && plan.hydration.summary.serverPrerender || null"
-                            }
-                          },
-                          "status": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.hydration.status"
-                            }
-                          },
-                          "summary": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.hydration.summary"
-                            }
-                          },
-                          "supported": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.hydration.supported"
-                            }
-                          },
-                          "uiCoprocessor": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.hydration.uiCoprocessor || plan.hydration.summary && plan.hydration.summary.uiCoprocessor || null"
-                            }
-                          },
-                          "workerPrerender": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.hydration.workerPrerender || plan.hydration.summary && plan.hydration.summary.workerPrerender || null"
-                            }
-                          }
-                        }
-                      },
-                      "null"
-                    ]
-                  }
-                },
-                "kernel": {
-                  "optional": false,
-                  "type": {
-                    "union": [
-                      {
-                        "fields": {
-                          "artifactSchema": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.kernel.artifact && plan.kernel.artifact.schema || null"
-                            }
-                          },
-                          "bootMode": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.kernel.bootMode || 'direct'"
-                            }
-                          },
-                          "diagnostics": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.kernel.diagnostics"
-                            }
-                          },
-                          "enabled": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.kernel.enabled"
-                            }
-                          },
-                          "featureAdoption": {
-                            "optional": false,
-                            "type": {
-                              "union": [
-                                {
-                                  "unresolved": "plan.kernel.featureAdoption"
-                                },
-                                "unknown"
-                              ]
-                            }
-                          },
-                          "mode": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.kernel.mode"
-                            }
-                          },
-                          "panicRecovery": {
-                            "optional": false,
-                            "type": {
-                              "union": [
-                                {
-                                  "unresolved": "plan.kernel.panicRecovery"
-                                },
-                                "unknown"
-                              ]
-                            }
-                          },
-                          "performanceSummary": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "performance && performance.summary || null"
-                            }
-                          },
-                          "planStatus": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.kernel.status"
-                            }
-                          },
-                          "policyParity": {
-                            "optional": false,
-                            "type": {
-                              "union": [
-                                {
-                                  "unresolved": "plan.kernel.policyParity"
-                                },
-                                "unknown"
-                              ]
-                            }
-                          },
-                          "prewarmWorker": {
-                            "optional": false,
-                            "type": {
-                              "union": [
-                                {
-                                  "unresolved": "plan.kernel.prewarmWorker"
-                                },
-                                "unknown"
-                              ]
-                            }
-                          },
-                          "productSurface": {
-                            "optional": false,
-                            "type": {
-                              "union": [
-                                {
-                                  "unresolved": "plan.kernel.productSurface"
-                                },
-                                "unknown"
-                              ]
-                            }
-                          },
-                          "recordsSchema": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.kernel.artifact && plan.kernel.artifact.records && plan.kernel.artifact.records.schema || null"
-                            }
-                          },
-                          "runtimeExpectedStatus": {
-                            "optional": false,
-                            "type": {
-                              "union": [
-                                "string"
-                              ]
-                            }
-                          },
-                          "runtimeModules": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.kernel.runtimeModules"
-                            }
-                          },
-                          "security": {
-                            "optional": false,
-                            "type": {
-                              "union": [
-                                {
-                                  "unresolved": "plan.kernel.security"
-                                },
-                                {
-                                  "fields": {
-                                    "diagnostics": {
-                                      "optional": false,
-                                      "type": {
-                                        "array": []
-                                      }
-                                    },
-                                    "panicRecovery": {
-                                      "optional": false,
-                                      "type": {
-                                        "union": [
-                                          {
-                                            "unresolved": "plan.kernel.panicRecovery"
-                                          },
-                                          "unknown"
-                                        ]
-                                      }
-                                    },
-                                    "policyParity": {
-                                      "optional": false,
-                                      "type": {
-                                        "union": [
-                                          {
-                                            "unresolved": "plan.kernel.policyParity"
-                                          },
-                                          "unknown"
-                                        ]
-                                      }
-                                    },
-                                    "status": {
-                                      "optional": false,
-                                      "type": {
-                                        "union": [
-                                          "string"
-                                        ]
-                                      }
-                                    },
-                                    "supported": {
-                                      "optional": false,
-                                      "type": "boolean"
-                                    },
-                                    "trustedDom": {
-                                      "optional": false,
-                                      "type": {
-                                        "union": [
-                                          {
-                                            "unresolved": "plan.kernel.trustedDom"
-                                          },
-                                          "unknown"
-                                        ]
-                                      }
-                                    }
-                                  }
-                                }
-                              ]
-                            }
-                          },
-                          "status": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.kernel.status"
-                            }
-                          },
-                          "summary": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.kernel.summary"
-                            }
-                          },
-                          "supported": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.kernel.supported"
-                            }
-                          },
-                          "trustedDom": {
-                            "optional": false,
-                            "type": {
-                              "union": [
-                                {
-                                  "unresolved": "plan.kernel.trustedDom"
-                                },
-                                "unknown"
-                              ]
-                            }
-                          }
-                        }
-                      },
-                      "null"
-                    ]
-                  }
-                },
-                "kernelFeatureAdoption": {
-                  "optional": false,
-                  "type": {
-                    "union": [
-                      {
-                        "unresolved": "plan.kernel.featureAdoption"
-                      },
-                      "unknown"
-                    ]
-                  }
-                },
-                "kernelFeatureAdoptionClosure": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "lazy": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "plan.lazy"
-                  }
-                },
-                "lifecycle": {
-                  "optional": false,
-                  "type": {
-                    "union": [
-                      {
-                        "fields": {
-                          "destroyOnCloseSurfaceCount": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.lifecycle.destroyOnCloseSurfaceCount"
-                            }
-                          },
-                          "diagnostics": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.lifecycle.diagnostics"
-                            }
-                          },
-                          "disposeOnSurfaceDestroyResourceCount": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.lifecycle.disposeOnSurfaceDestroyResourceCount"
-                            }
-                          },
-                          "ok": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.lifecycle.ok"
-                            }
-                          },
-                          "requiresDestroyChain": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.lifecycle.requiresDestroyChain"
-                            }
-                          },
-                          "runtimeExpectedStatus": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.lifecycle.runtimeExpectedStatus"
-                            }
-                          },
-                          "sourceToSea": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.lifecycle.sourceToSea"
-                            }
-                          },
-                          "status": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.lifecycle.status"
-                            }
-                          },
-                          "strict": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.lifecycle.strict"
-                            }
-                          },
-                          "supportedOperations": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.lifecycle.supportedOperations"
-                            }
-                          },
-                          "surfaceDestroyReleaseCount": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.lifecycle.surfaceDestroyReleaseCount"
-                            }
-                          }
-                        }
-                      },
-                      "null"
-                    ]
-                  }
-                },
-                "loader": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "plan.loader"
-                  }
-                },
-                "ok": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "productionClosure.ok && (!sizeBudgetReport || sizeBudgetReport.ok !== false)"
-                  }
-                },
-                "orchestration": {
-                  "optional": false,
-                  "type": {
-                    "union": [
-                      {
-                        "fields": {
-                          "artifactSchema": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.orchestration.artifact && plan.orchestration.artifact.schema || null"
-                            }
-                          },
-                          "diagnostics": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.orchestration.diagnostics"
-                            }
-                          },
-                          "enabled": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.orchestration.enabled"
-                            }
-                          },
-                          "mode": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.orchestration.mode"
-                            }
-                          },
-                          "planStatus": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.orchestration.status"
-                            }
-                          },
-                          "runtimeExpectedStatus": {
-                            "optional": false,
-                            "type": {
-                              "union": [
-                                "string"
-                              ]
-                            }
-                          },
-                          "runtimeModules": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.orchestration.runtimeModules"
-                            }
-                          },
-                          "status": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.orchestration.status"
-                            }
-                          },
-                          "summary": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.orchestration.summary"
-                            }
-                          },
-                          "supported": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.orchestration.supported"
-                            }
-                          }
-                        }
-                      },
-                      "null"
-                    ]
-                  }
-                },
-                "outputDir": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "panicRecovery": {
-                  "optional": false,
-                  "type": {
-                    "union": [
-                      {
-                        "unresolved": "plan.kernel.panicRecovery"
-                      },
-                      "unknown"
-                    ]
-                  }
-                },
-                "performance": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "policyParity": {
-                  "optional": false,
-                  "type": {
-                    "union": [
-                      {
-                        "unresolved": "plan.kernel.policyParity"
-                      },
-                      "unknown"
-                    ]
-                  }
-                },
-                "productionClosure": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "profile": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "plan.profile"
-                  }
-                },
-                "publicNameReservations": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "plan.publicNameReservations"
-                  }
-                },
-                "pwa": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "options.pwaReport || createMaracaPwaReport(plan, bundleFiles, deriveMaracaPwaPrecacheUrls(plan, bundleFiles))"
-                  }
-                },
-                "rmtApp": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "runtimeModules": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "plan.runtimeModules"
-                  }
-                },
-                "services": {
-                  "optional": false,
-                  "type": {
-                    "fields": {
-                      "artifacts": {
-                        "optional": false,
-                        "type": "unknown"
-                      },
-                      "budgets": {
-                        "optional": false,
-                        "type": {
-                          "unresolved": "plan.services && plan.services.budgets || { clientBytes: null, serverBytes: null }"
-                        }
-                      },
-                      "bytes": {
-                        "optional": false,
-                        "type": {
-                          "fields": {
-                            "client": {
-                              "optional": false,
-                              "type": {
-                                "union": [
-                                  {
-                                    "unresolved": "sizeBudgetReport.appServices.clientBytes"
-                                  },
-                                  "number"
-                                ]
-                              }
-                            },
-                            "server": {
-                              "optional": false,
-                              "type": {
-                                "union": [
-                                  {
-                                    "unresolved": "sizeBudgetReport.appServices.serverBytes"
-                                  },
-                                  "number"
-                                ]
-                              }
-                            }
-                          }
-                        }
-                      },
-                      "diagnostics": {
-                        "optional": false,
-                        "type": {
-                          "unresolved": "serviceBuildReport.diagnostics || []"
-                        }
-                      },
-                      "enabled": {
-                        "optional": false,
-                        "type": "boolean"
-                      },
-                      "files": {
-                        "optional": false,
-                        "type": "unknown"
-                      },
-                      "fingerprint": {
-                        "optional": false,
-                        "type": {
-                          "unresolved": "plan.serviceGraphFingerprint || null"
-                        }
-                      },
-                      "integrity": {
-                        "optional": false,
-                        "type": {
-                          "fields": {
-                            "artifactCount": {
-                              "optional": false,
-                              "type": {
-                                "unresolved": "serviceArtifacts.length"
-                              }
-                            },
-                            "artifactFingerprints": {
-                              "optional": false,
-                              "type": "unknown"
-                            },
-                            "manifestFingerprint": {
-                              "optional": false,
-                              "type": {
-                                "unresolved": "serviceBuildReport.manifest && serviceBuildReport.manifest.fingerprint || plan.services && plan.services.manifest && plan.services.manifest.fingerprint || null"
-                              }
-                            },
-                            "serviceGraphFingerprint": {
-                              "optional": false,
-                              "type": {
-                                "unresolved": "plan.serviceGraphFingerprint || null"
-                              }
-                            }
-                          }
-                        }
-                      },
-                      "manifest": {
-                        "optional": false,
-                        "type": {
-                          "unresolved": "serviceBuildReport.manifest || plan.services && plan.services.manifest || null"
-                        }
-                      },
-                      "ok": {
-                        "optional": false,
-                        "type": {
-                          "unresolved": "serviceBuildReport.ok !== false"
-                        }
-                      },
-                      "status": {
-                        "optional": false,
-                        "type": {
-                          "unresolved": "serviceBuildReport.status"
-                        }
-                      },
-                      "targetFacts": {
-                        "optional": false,
-                        "type": "unknown"
-                      },
-                      "targets": {
-                        "optional": false,
-                        "type": {
-                          "unresolved": "plan.services && plan.services.targets || []"
-                        }
-                      },
-                      "warnings": {
-                        "optional": false,
-                        "type": {
-                          "unresolved": "serviceBuildReport.warnings || []"
-                        }
-                      }
-                    }
-                  }
-                },
-                "sizeBudget": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "source": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "plan.source"
-                  }
-                },
-                "stackMode": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "plan.stackMode"
-                  }
-                },
-                "stackModules": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "status": {
-                  "optional": false,
-                  "type": {
-                    "union": [
-                      "string"
-                    ]
-                  }
-                },
-                "target": {
-                  "optional": false,
-                  "type": "string"
-                },
-                "templateArtifacts": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "toolchain": {
-                  "optional": false,
-                  "type": {
-                    "fields": {
-                      "active": {
-                        "optional": false,
-                        "type": {
-                          "unresolved": "options.activeToolchain || 'local-esm-importgraph-fallback'"
-                        }
-                      },
-                      "nameCache": {
-                        "optional": false,
-                        "type": {
-                          "unresolved": "options.nameCache || null"
-                        }
-                      },
-                      "warnings": {
-                        "optional": false,
-                        "type": {
-                          "unresolved": "options.warnings || []"
-                        }
-                      }
-                    },
-                    "unresolvedSpreads": [
-                      {
-                        "unresolved": "plan.toolchain"
-                      }
-                    ]
-                  }
-                },
-                "transitions": {
-                  "optional": false,
-                  "type": {
-                    "union": [
-                      {
-                        "fields": {
-                          "artifactSchema": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.transitions.artifact && plan.transitions.artifact.schema || null"
-                            }
-                          },
-                          "diagnostics": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.transitions.diagnostics"
-                            }
-                          },
-                          "enabled": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.transitions.enabled"
-                            }
-                          },
-                          "mode": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.transitions.mode"
-                            }
-                          },
-                          "planStatus": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.transitions.status"
-                            }
-                          },
-                          "runtimeExpectedStatus": {
-                            "optional": false,
-                            "type": {
-                              "union": [
-                                "string"
-                              ]
-                            }
-                          },
-                          "runtimeModules": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.transitions.runtimeModules"
-                            }
-                          },
-                          "status": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.transitions.status"
-                            }
-                          },
-                          "summary": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.transitions.summary"
-                            }
-                          },
-                          "supported": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.transitions.supported"
-                            }
-                          }
-                        }
-                      },
-                      "null"
-                    ]
-                  }
-                },
-                "trustedDom": {
-                  "optional": false,
-                  "type": {
-                    "union": [
-                      {
-                        "unresolved": "plan.kernel.trustedDom"
-                      },
-                      "unknown"
-                    ]
-                  }
-                },
-                "uiCoprocessor": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "plan.uiCoprocessor || null"
-                  }
-                },
-                "validation": {
-                  "optional": false,
-                  "type": {
-                    "union": [
-                      {
-                        "fields": {
-                          "artifactSchema": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.validation.artifact && plan.validation.artifact.schema || null"
-                            }
-                          },
-                          "diagnostics": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.validation.diagnostics"
-                            }
-                          },
-                          "enabled": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.validation.enabled"
-                            }
-                          },
-                          "mode": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.validation.mode"
-                            }
-                          },
-                          "planStatus": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.validation.status"
-                            }
-                          },
-                          "runtimeExpectedStatus": {
-                            "optional": false,
-                            "type": {
-                              "union": [
-                                "string"
-                              ]
-                            }
-                          },
-                          "runtimeModules": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.validation.runtimeModules"
-                            }
-                          },
-                          "status": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.validation.status"
-                            }
-                          },
-                          "summary": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.validation.summary"
-                            }
-                          },
-                          "supported": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.validation.supported"
-                            }
-                          }
-                        }
-                      },
-                      "null"
-                    ]
-                  }
-                },
-                "vendor": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "plan.vendor"
-                  }
-                },
-                "warmReentry": {
-                  "optional": false,
-                  "type": {
-                    "union": [
-                      {
-                        "fields": {
-                          "backpressurePolicy": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.warmReentry.backpressurePolicy"
-                            }
-                          },
-                          "destroyInvalidation": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.warmReentry.destroyInvalidation"
-                            }
-                          },
-                          "diagnostics": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.warmReentry.diagnostics"
-                            }
-                          },
-                          "enabled": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.warmReentry.enabled"
-                            }
-                          },
-                          "observedFiberKinds": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.warmReentry.observedFiberKinds"
-                            }
-                          },
-                          "ok": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.warmReentry.ok"
-                            }
-                          },
-                          "optional": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.warmReentry.optional"
-                            }
-                          },
-                          "runtimeExpectedStatus": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.warmReentry.runtimeExpectedStatus"
-                            }
-                          },
-                          "status": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.warmReentry.status"
-                            }
-                          },
-                          "summary": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.warmReentry.summary"
-                            }
-                          },
-                          "supportedFiberKinds": {
-                            "optional": false,
-                            "type": {
-                              "unresolved": "plan.warmReentry.supportedFiberKinds"
-                            }
-                          }
-                        }
-                      },
-                      "null"
-                    ]
-                  }
-                },
-                "webAppManifest": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "options.webAppManifestReport || createMaracaWebAppManifestReport(plan, [])"
-                  }
-                }
-              }
-            }
-          },
-          "sourcePaths": [
-            "xtend-maraca/index.js"
-          ],
-          "symbols": [
-            "createBundleReport"
-          ],
-          "evidence": [
-            {
-              "type": "runtime-observation",
-              "completeness": "partial",
-              "authoritative": false,
-              "path": "xtend-maraca/index.js",
-              "symbol": "createBundleReport"
-            }
-          ],
-          "evidenceTypes": [
-            "runtime-observation"
-          ],
-          "completeness": "partial",
-          "authoritative": false
-        },
-        {
           "hash": "sha256:d50082e0592df2c9d6271169dab59e7a1730c2b9722b647900a8ae84d1446f70",
           "shape": {
             "fieldCount": 2,
@@ -315178,23 +315202,23 @@
       ],
       "shapePolicy": {
         "acceptedFingerprints": [
-          "sha256:1b2d2f67e4a5b64ecd1603c023051836145adb26b674ede3bc31117abf8b1104",
           "sha256:22e781223436cf2beb00761d7b06a02edd15167c98dbf9d6cfbe328b34356ede",
           "sha256:2d9b8951d574ba25733904ac34373d74e08c1ba9d2ee9b9a0d3e8a7ad0dba20b",
           "sha256:3d83f27a5ad076dc035d03edd36ed25e3e343e43a09a1e703e413c7587d316c7",
+          "sha256:3fcf8a20d3f303229f254887861d5bfc125f5aded6b8eb525b3587bc6e72fece",
+          "sha256:42006652f3eb38c1913ff847d613575f293c09e6b8eb9de612c67837bb4f12be",
           "sha256:475dacbc6ced9297cdd983064fee39acf9e80d3535ce15c644668871d43e66be",
           "sha256:568695730aabdc8e4ca5dda37f88cfcfd67c24dcf494facac6e8237185bd28bf",
+          "sha256:5a168c1bed6d22a9edf7ba2e08458198d6d944db4aba969b3c760c1f756c060e",
           "sha256:654e8050f1d9c09060eef29a8ea5c11363cbcbbcd318d4fb63dcb23252469484",
-          "sha256:77c9c887f608eda06cbdc9f60fed1a9739daa0dc719082a067d0b82f29cfe375",
           "sha256:7c7cf2cc06b31189b673aeb780736eae61f308a4250a9121896fc3d1d868a282",
-          "sha256:b5186afbae7dc43a0a963890d08f89d639c074123c5e24362f3bfd40e74a74b9",
           "sha256:d50082e0592df2c9d6271169dab59e7a1730c2b9722b647900a8ae84d1446f70",
           "sha256:f5693a4e4c94da4abf772d7c5ad7f5d013f4434ebc748ebbecd22baefd520a2d"
         ],
         "authoritativeFingerprints": [],
-        "decision": "reviewed-a024-repeated-hosts",
+        "decision": "reviewed-a042-source-bound-size-budget",
         "mode": "polymorphic",
-        "rationale": "Scoped A02.4 review: nested repeated hosts and keyed bindings use new major schemas; legacy input shapes stay closed, every pre-existing authority and release hash stays unchanged. Other differences are generated mirrors, archived declarations or non-authoritative reference observations. See development/rmtx-a02/README.md sections 8-10.",
+        "rationale": "Scoped A04.2 size-budget review: integrated build-plan v5 emits size-budget-report v2 over actual output bytes, captured platform/provider sources and the bound artifact. Source paths are deduplicated and sealed with actual build/file membership; serialized plans, metadata inflation and byte substitution cannot stand in for producer evidence. Overall framework and XTension runtime comparisons are independent, with fixed reference regression ceilings. Conservative formatting of copied platform/kernel/controller/resume modules closes strict Production/Max reference budgets. Legacy report v1 and all existing authoritative/released fingerprint sets remain intact. Browser/Plan/Host ABIs are unchanged. Transitive delivery provenance and full 0.9 acceptance remain pending. See development/rmtx-a04/integration.md.",
         "releasedFingerprintSetHash": null
       },
       "status": "active",
@@ -368128,10 +368152,10 @@
       ],
       "lifecycle": {
         "rollout": "complete",
-        "status": "active"
+        "status": "deprecated"
       },
       "releasedFingerprintSetHash": "sha256:c44ab30fca072d1a80e5c3eb7eee9fa01c2c04644bf0f1b0e95fdeaedfaedd5c",
-      "replacedBy": null,
+      "replacedBy": "xtend.maraca.size-budget-report.v2",
       "schemaId": "xtend.maraca.size-budget-report.v1",
       "shapeFingerprints": [
         {
@@ -368467,7 +368491,7 @@
             "xtend-maraca/index.js"
           ],
           "symbols": [
-            "createMaracaSizeBudgetReport"
+            "report"
           ],
           "evidence": [
             {
@@ -368475,7 +368499,7 @@
               "completeness": "partial",
               "authoritative": false,
               "path": "xtend-maraca/index.js",
-              "symbol": "createMaracaSizeBudgetReport"
+              "symbol": "report"
             }
           ],
           "evidenceTypes": [
@@ -369185,7 +369209,7 @@
             {
               "type": "symbol",
               "path": "xtend-maraca/index.js",
-              "symbol": "createMaracaSizeBudgetReport"
+              "symbol": "report"
             }
           ]
         },
@@ -369210,7 +369234,932 @@
           ]
         }
       ],
-      "version": 1
+      "version": 1,
+      "replacementDecision": {
+        "compatibility": "The full previous data/API contract and every authoritative/released fingerprint remain supported. Legacy/manual callers retain their existing defaults; automatic composition explicitly opts into the successor. No public read window is ended.",
+        "rationale": "A04.2 adds source-bound integrated size accounting and independent XTension runtime enforcement; the complete previous report remains the default for non-composed builds. See development/rmtx-a04/integration.md."
+      }
+    },
+    {
+      "schemaId": "xtend.maraca.size-budget-report.v2",
+      "familyId": "xtend.maraca.size-budget-report",
+      "version": 2,
+      "kinds": [
+        "report-id",
+        "runtime-discriminator"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": null,
+      "description": "Unreleased A04.2 integrated size-budget v2: actual emitted-file measurements, captured/deduplicated source basis, independent XTension runtime comparison and strict Production/Max reference ceilings. Existing v1 remains supported. Partial observations remain partial; no HTTP integrity or complete 0.9 acceptance is asserted.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "xtend-maraca/xtension-size-budget.js",
+        "symbol": "SCHEMA",
+        "definitionType": "constant",
+        "role": "definition",
+        "visibility": "public"
+      },
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a04/integration-inspect.cjs",
+            "development/rmtx-a04/integration.md"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "development/rmtx-a04/integration-inspect.cjs",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "definition",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/index.d.ts",
+            "xtend-maraca/index.js",
+            "xtend-maraca/xtension-size-budget.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca",
+              "path": "xtend-maraca/index.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca",
+              "path": "xtend-maraca/index.js"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca",
+              "path": "xtend-maraca/index.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca",
+              "path": "xtend-maraca/index.js"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/index.d.ts",
+              "symbol": "MARACA_XTENSION_SIZE_BUDGET_REPORT_SCHEMA"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/index.d.ts",
+              "symbol": "MaracaXTensionSizeBudgetReport"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/index.js",
+              "symbol": "MARACA_XTENSION_SIZE_BUDGET_REPORT_SCHEMA"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-size-budget.js",
+              "symbol": "SCHEMA"
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "producer",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-size-budget.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-size-budget.js",
+              "symbol": "apply"
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "reference",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/index.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca",
+              "path": "xtend-maraca/index.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca",
+              "path": "xtend-maraca/index.d.ts"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Xtensions",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/xtensions/xtensions_consumer_package_suite.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/xtensions/xtensions_consumer_package_suite.js",
+              "symbol": null
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "polymorphic",
+        "decision": "reviewed-a042-source-bound-size-budget",
+        "acceptedFingerprints": [
+          "sha256:20587ed69e3d9ffa844b55e6c2c5971f32d8948a708ea8341440a715b1795a1a",
+          "sha256:60bb31a5bb0d99f0cd45c8b889f97e64bd6d155fdd44e87d2abbc624aee6fb73"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rationale": "Scoped A04.2 size-budget review: integrated build-plan v5 emits size-budget-report v2 over actual output bytes, captured platform/provider sources and the bound artifact. Source paths are deduplicated and sealed with actual build/file membership; serialized plans, metadata inflation and byte substitution cannot stand in for producer evidence. Overall framework and XTension runtime comparisons are independent, with fixed reference regression ceilings. Conservative formatting of copied platform/kernel/controller/resume modules closes strict Production/Max reference budgets. Legacy report v1 and all existing authoritative/released fingerprint sets remain intact. Browser/Plan/Host ABIs are unchanged. Transitive delivery provenance and full 0.9 acceptance remain pending. See development/rmtx-a04/integration.md."
+      },
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:20587ed69e3d9ffa844b55e6c2c5971f32d8948a708ea8341440a715b1795a1a",
+          "shape": {
+            "fieldCount": 10,
+            "fields": [
+              "accounting",
+              "baseline",
+              "baselineBytes",
+              "budgets",
+              "bundleBytes",
+              "framework",
+              "ok",
+              "ratio",
+              "status",
+              "xtensions"
+            ],
+            "signature": "accounting:{externalFrameworkPeersIncluded:boolean,files:unknown,metadataIncluded:boolean,scope:string}|baseline:{bytes:{\"unresolved\":\"legacyBytes + additionalSourceBytes + contract.length\"},contractPayloadBytes:{\"unresolved\":\"legacy.baseline.contractPayloadBytes\"},legacyBytes:{\"unresolved\":\"loaderBytes + selectedComponentBytes + stackModuleBytes + contractPayloadBytes\"},loaderBytes:unknown,mode:string,selectedComponentBytes:unknown,stackModuleBytes:unknown,xtensionContractBytes:{\"unresolved\":\"contract.length\"},xtensionSourceBytes:unknown}|baselineBytes:{\"unresolved\":\"legacyBytes + additionalSourceBytes + contract.length\"}|budgets:{frameworkBytes:{\"unresolved\":\"legacyBytes + additionalSourceBytes + contract.length\"}}|bundleBytes:unknown|framework:{baselineBytes:{\"unresolved\":\"legacyBytes + additionalSourceBytes + contract.length\"},bytes:unknown,withinBudget:{\"unresolved\":\"frameworkBytes < baselineBytes\"}}|ok:{\"unresolved\":\"(!enforced || frameworkWithinBudget && ownWithinBudget) && legacy.css.withinBudget && legacy.appServices.withinBudget\"}|ratio:{\"unresolved\":\"frameworkBytes / baselineBytes\"}|status:union<union<union<union<union<string>|string>|{\"unresolved\":\"legacy.status\"}>|string>|string>|xtensions:{baselineBytes:{\"unresolved\":\"sourceBytes + contract.length\"},buildEvidenceBytes:{\"unresolved\":\"files.find(file => file.fileName === 'xtend.xtensions.report.json')?.bytes || 0\"},contractBytes:{\"unresolved\":\"contract.length\"},contractSha256:unknown,enforced:{\"unresolved\":\"plan.profile !== 'debug' && legacy.mode === 'strict'\"},runtimeBytes:unknown,runtimeFiles:unknown,runtimeGzipBytes:unknown,sourceBytes:unknown,sourceFiles:array<>,sourceFingerprint:unknown,withinBudget:{\"unresolved\":\"runtimeBytes < ownBaseline\"}}",
+            "normalized": {
+              "fields": {
+                "accounting": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "externalFrameworkPeersIncluded": {
+                        "optional": false,
+                        "type": "boolean"
+                      },
+                      "files": {
+                        "optional": false,
+                        "type": "unknown"
+                      },
+                      "metadataIncluded": {
+                        "optional": false,
+                        "type": "boolean"
+                      },
+                      "scope": {
+                        "optional": false,
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "baseline": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "bytes": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "legacyBytes + additionalSourceBytes + contract.length"
+                        }
+                      },
+                      "contractPayloadBytes": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "legacy.baseline.contractPayloadBytes"
+                        }
+                      },
+                      "legacyBytes": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "loaderBytes + selectedComponentBytes + stackModuleBytes + contractPayloadBytes"
+                        }
+                      },
+                      "loaderBytes": {
+                        "optional": false,
+                        "type": "unknown"
+                      },
+                      "mode": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "selectedComponentBytes": {
+                        "optional": false,
+                        "type": "unknown"
+                      },
+                      "stackModuleBytes": {
+                        "optional": false,
+                        "type": "unknown"
+                      },
+                      "xtensionContractBytes": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "contract.length"
+                        }
+                      },
+                      "xtensionSourceBytes": {
+                        "optional": false,
+                        "type": "unknown"
+                      }
+                    },
+                    "unresolvedSpreads": [
+                      {
+                        "unresolved": "legacy.baseline"
+                      }
+                    ]
+                  }
+                },
+                "baselineBytes": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "legacyBytes + additionalSourceBytes + contract.length"
+                  }
+                },
+                "budgets": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "frameworkBytes": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "legacyBytes + additionalSourceBytes + contract.length"
+                        }
+                      }
+                    },
+                    "unresolvedSpreads": [
+                      {
+                        "unresolved": "legacy.budgets"
+                      }
+                    ]
+                  }
+                },
+                "bundleBytes": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "framework": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "baselineBytes": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "legacyBytes + additionalSourceBytes + contract.length"
+                        }
+                      },
+                      "bytes": {
+                        "optional": false,
+                        "type": "unknown"
+                      },
+                      "withinBudget": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "frameworkBytes < baselineBytes"
+                        }
+                      }
+                    }
+                  }
+                },
+                "ok": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "(!enforced || frameworkWithinBudget && ownWithinBudget) && legacy.css.withinBudget && legacy.appServices.withinBudget"
+                  }
+                },
+                "ratio": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "frameworkBytes / baselineBytes"
+                  }
+                },
+                "status": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "union": [
+                          {
+                            "union": [
+                              {
+                                "union": [
+                                  {
+                                    "union": [
+                                      "string"
+                                    ]
+                                  },
+                                  "string"
+                                ]
+                              },
+                              {
+                                "unresolved": "legacy.status"
+                              }
+                            ]
+                          },
+                          "string"
+                        ]
+                      },
+                      "string"
+                    ]
+                  }
+                },
+                "xtensions": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "baselineBytes": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "sourceBytes + contract.length"
+                        }
+                      },
+                      "buildEvidenceBytes": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "files.find(file => file.fileName === 'xtend.xtensions.report.json')?.bytes || 0"
+                        }
+                      },
+                      "contractBytes": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "contract.length"
+                        }
+                      },
+                      "contractSha256": {
+                        "optional": false,
+                        "type": "unknown"
+                      },
+                      "enforced": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "plan.profile !== 'debug' && legacy.mode === 'strict'"
+                        }
+                      },
+                      "runtimeBytes": {
+                        "optional": false,
+                        "type": "unknown"
+                      },
+                      "runtimeFiles": {
+                        "optional": false,
+                        "type": "unknown"
+                      },
+                      "runtimeGzipBytes": {
+                        "optional": false,
+                        "type": "unknown"
+                      },
+                      "sourceBytes": {
+                        "optional": false,
+                        "type": "unknown"
+                      },
+                      "sourceFiles": {
+                        "optional": false,
+                        "type": {
+                          "array": []
+                        }
+                      },
+                      "sourceFingerprint": {
+                        "optional": false,
+                        "type": "unknown"
+                      },
+                      "withinBudget": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "runtimeBytes < ownBaseline"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "unresolvedSpreads": [
+                {
+                  "unresolvedReference": "legacy"
+                }
+              ]
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/xtension-size-budget.js"
+          ],
+          "symbols": [
+            "apply"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtend-maraca/xtension-size-budget.js",
+              "symbol": "apply"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:60bb31a5bb0d99f0cd45c8b889f97e64bd6d155fdd44e87d2abbc624aee6fb73",
+          "shape": {
+            "fieldCount": 7,
+            "fields": [
+              "accounting",
+              "baseline",
+              "framework",
+              "mode",
+              "profile",
+              "ratio",
+              "xtensions"
+            ],
+            "signature": "accounting:{externalFrameworkPeersIncluded:literal<false>,files:array<{bytes:number,fileName:string,sha256:string}>,metadataIncluded:literal<true>,scope:literal<\"listed-bundle-files\">}|baseline:{bytes:number,contractPayloadBytes:number,legacyBytes:number,loaderBytes:number,mode:literal<\"legacy-plus-captured-xtension-sources-and-contract\">,selectedComponentBytes:number,stackModuleBytes:number,xtensionContractBytes:number,xtensionSourceBytes:number}|framework:{baselineBytes:number,bytes:number,withinBudget:boolean}|mode:union<literal<\"off\">|literal<\"strict\">|literal<\"warn\">>|profile:union<literal<\"debug\">|literal<\"max\">|literal<\"production\">>|ratio:number|xtensions:{baselineBytes:number,buildEvidenceBytes:number,contractBytes:number,contractSha256:string,enforced:boolean,runtimeBytes:number,runtimeFiles:array<{bytes:number,fileName:string,sha256:string}>,runtimeGzipBytes:number,sourceBytes:number,sourceFiles:array<{additional:boolean,bytes:number,sha256:string,source:string}>,sourceFingerprint:string,withinBudget:boolean}",
+            "normalized": {
+              "fields": {
+                "accounting": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "externalFrameworkPeersIncluded": {
+                        "optional": false,
+                        "type": {
+                          "literal": false
+                        }
+                      },
+                      "files": {
+                        "optional": false,
+                        "type": {
+                          "elementType": {
+                            "fields": {
+                              "bytes": {
+                                "optional": false,
+                                "type": "number"
+                              },
+                              "fileName": {
+                                "optional": false,
+                                "type": "string"
+                              },
+                              "sha256": {
+                                "optional": false,
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "metadataIncluded": {
+                        "optional": false,
+                        "type": {
+                          "literal": true
+                        }
+                      },
+                      "scope": {
+                        "optional": false,
+                        "type": {
+                          "literal": "listed-bundle-files"
+                        }
+                      }
+                    }
+                  }
+                },
+                "baseline": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "bytes": {
+                        "optional": false,
+                        "type": "number"
+                      },
+                      "contractPayloadBytes": {
+                        "optional": false,
+                        "type": "number"
+                      },
+                      "legacyBytes": {
+                        "optional": false,
+                        "type": "number"
+                      },
+                      "loaderBytes": {
+                        "optional": false,
+                        "type": "number"
+                      },
+                      "mode": {
+                        "optional": false,
+                        "type": {
+                          "literal": "legacy-plus-captured-xtension-sources-and-contract"
+                        }
+                      },
+                      "selectedComponentBytes": {
+                        "optional": false,
+                        "type": "number"
+                      },
+                      "stackModuleBytes": {
+                        "optional": false,
+                        "type": "number"
+                      },
+                      "xtensionContractBytes": {
+                        "optional": false,
+                        "type": "number"
+                      },
+                      "xtensionSourceBytes": {
+                        "optional": false,
+                        "type": "number"
+                      }
+                    }
+                  }
+                },
+                "framework": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "baselineBytes": {
+                        "optional": false,
+                        "type": "number"
+                      },
+                      "bytes": {
+                        "optional": false,
+                        "type": "number"
+                      },
+                      "withinBudget": {
+                        "optional": false,
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "mode": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "literal": "off"
+                      },
+                      {
+                        "literal": "strict"
+                      },
+                      {
+                        "literal": "warn"
+                      }
+                    ]
+                  }
+                },
+                "profile": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "literal": "debug"
+                      },
+                      {
+                        "literal": "max"
+                      },
+                      {
+                        "literal": "production"
+                      }
+                    ]
+                  }
+                },
+                "ratio": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "xtensions": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "baselineBytes": {
+                        "optional": false,
+                        "type": "number"
+                      },
+                      "buildEvidenceBytes": {
+                        "optional": false,
+                        "type": "number"
+                      },
+                      "contractBytes": {
+                        "optional": false,
+                        "type": "number"
+                      },
+                      "contractSha256": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "enforced": {
+                        "optional": false,
+                        "type": "boolean"
+                      },
+                      "runtimeBytes": {
+                        "optional": false,
+                        "type": "number"
+                      },
+                      "runtimeFiles": {
+                        "optional": false,
+                        "type": {
+                          "elementType": {
+                            "fields": {
+                              "bytes": {
+                                "optional": false,
+                                "type": "number"
+                              },
+                              "fileName": {
+                                "optional": false,
+                                "type": "string"
+                              },
+                              "sha256": {
+                                "optional": false,
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "runtimeGzipBytes": {
+                        "optional": false,
+                        "type": "number"
+                      },
+                      "sourceBytes": {
+                        "optional": false,
+                        "type": "number"
+                      },
+                      "sourceFiles": {
+                        "optional": false,
+                        "type": {
+                          "elementType": {
+                            "fields": {
+                              "additional": {
+                                "optional": false,
+                                "type": "boolean"
+                              },
+                              "bytes": {
+                                "optional": false,
+                                "type": "number"
+                              },
+                              "sha256": {
+                                "optional": false,
+                                "type": "string"
+                              },
+                              "source": {
+                                "optional": false,
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "sourceFingerprint": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "withinBudget": {
+                        "optional": false,
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                }
+              },
+              "unresolvedSpreads": [
+                {
+                  "arguments": [
+                    {
+                      "fields": {
+                        "appServices": {
+                          "optional": true,
+                          "type": {
+                            "fields": {
+                              "clientBudgetBytes": {
+                                "optional": false,
+                                "type": {
+                                  "union": [
+                                    "number",
+                                    {
+                                      "literal": null
+                                    }
+                                  ]
+                                }
+                              },
+                              "clientBytes": {
+                                "optional": false,
+                                "type": "number"
+                              },
+                              "clientWithinBudget": {
+                                "optional": false,
+                                "type": "boolean"
+                              },
+                              "serverBudgetBytes": {
+                                "optional": false,
+                                "type": {
+                                  "union": [
+                                    "number",
+                                    {
+                                      "literal": null
+                                    }
+                                  ]
+                                }
+                              },
+                              "serverBytes": {
+                                "optional": false,
+                                "type": "number"
+                              },
+                              "serverWithinBudget": {
+                                "optional": false,
+                                "type": "boolean"
+                              },
+                              "withinBudget": {
+                                "optional": false,
+                                "type": "boolean"
+                              }
+                            }
+                          }
+                        },
+                        "baselineBytes": {
+                          "optional": false,
+                          "type": "number"
+                        },
+                        "bundleBytes": {
+                          "optional": false,
+                          "type": "number"
+                        },
+                        "css": {
+                          "optional": true,
+                          "type": {
+                            "fields": {
+                              "budgetBytes": {
+                                "optional": false,
+                                "type": {
+                                  "union": [
+                                    "number",
+                                    {
+                                      "literal": null
+                                    }
+                                  ]
+                                }
+                              },
+                              "bytes": {
+                                "optional": false,
+                                "type": "number"
+                              },
+                              "configFingerprint": {
+                                "optional": false,
+                                "type": {
+                                  "union": [
+                                    "string",
+                                    {
+                                      "literal": null
+                                    }
+                                  ]
+                                }
+                              },
+                              "evidenceFingerprint": {
+                                "optional": false,
+                                "type": {
+                                  "union": [
+                                    "string",
+                                    {
+                                      "literal": null
+                                    }
+                                  ]
+                                }
+                              },
+                              "outputFingerprint": {
+                                "optional": false,
+                                "type": {
+                                  "union": [
+                                    "string",
+                                    {
+                                      "literal": null
+                                    }
+                                  ]
+                                }
+                              },
+                              "provider": {
+                                "optional": false,
+                                "type": "string"
+                              },
+                              "requestFingerprint": {
+                                "optional": false,
+                                "type": {
+                                  "union": [
+                                    "string",
+                                    {
+                                      "literal": null
+                                    }
+                                  ]
+                                }
+                              },
+                              "sourceFingerprints": {
+                                "optional": false,
+                                "type": {
+                                  "elementType": {
+                                    "fields": {
+                                      "fingerprint": {
+                                        "optional": false,
+                                        "type": {
+                                          "union": [
+                                            "string",
+                                            {
+                                              "literal": null
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "path": {
+                                        "optional": false,
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "withinBudget": {
+                                "optional": false,
+                                "type": "boolean"
+                              }
+                            }
+                          }
+                        },
+                        "framework": {
+                          "optional": true,
+                          "type": {
+                            "fields": {
+                              "baselineBytes": {
+                                "optional": false,
+                                "type": "number"
+                              },
+                              "bytes": {
+                                "optional": false,
+                                "type": "number"
+                              },
+                              "withinBudget": {
+                                "optional": false,
+                                "type": "boolean"
+                              }
+                            }
+                          }
+                        },
+                        "ok": {
+                          "optional": false,
+                          "type": "boolean"
+                        },
+                        "status": {
+                          "optional": false,
+                          "type": "string"
+                        }
+                      }
+                    },
+                    {
+                      "literal": "schema"
+                    }
+                  ],
+                  "unresolvedReference": "Omit"
+                }
+              ]
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/index.d.ts"
+          ],
+          "symbols": [
+            "MaracaXTensionSizeBudgetReport"
+          ],
+          "evidence": [
+            {
+              "type": "declared-type",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtend-maraca/index.d.ts",
+              "symbol": "MaracaXTensionSizeBudgetReport"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        }
+      ]
     },
     {
       "aliasOf": null,
@@ -786132,7 +787081,7 @@
           },
           {
             "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
-            "sha256": "c9c7de880d91dd51c92baab04691b2c3e1b18be8c30721095304b0039a0ad481"
+            "sha256": "cc9170207ec5836e544790724998db36da8a9920e98075d257c54693a87f41d3"
           },
           {
             "path": "development/rmtx-a01/README.md",
@@ -1012480,8 +1013429,8 @@
       ]
     },
     {
-      "activeSchemaId": "xtend.maraca.size-budget-report.v1",
-      "currentVersion": 1,
+      "activeSchemaId": "xtend.maraca.size-budget-report.v2",
+      "currentVersion": 2,
       "familyId": "xtend.maraca.size-budget-report",
       "tombstones": [],
       "versions": [
@@ -1012490,9 +1013439,18 @@
           "version": 1,
           "lifecycle": {
             "rollout": "complete",
-            "status": "active"
+            "status": "deprecated"
           },
           "releasedFingerprintSetHash": "sha256:c44ab30fca072d1a80e5c3eb7eee9fa01c2c04644bf0f1b0e95fdeaedfaedd5c"
+        },
+        {
+          "schemaId": "xtend.maraca.size-budget-report.v2",
+          "version": 2,
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": null
         }
       ]
     },

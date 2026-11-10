@@ -12,9 +12,10 @@ Stand: 2026-11-10. Der lokale A04.1-Begleiter ist in den regulären asynchronen 
 | Vorbereiteter Kompositionsport | v1 | manuelle Host-Factory |
 | Browser-Kompositionsroot / API | v6 / `6.0.0` | v5 / `5.0.0` |
 | Plan-Runtime | v8 | v7 |
+| Größenbudgetbericht | v2 für integrierte Builds | v1 für bisherige Builds |
 | Manifest / tatsächlicher Host | v1 / API `6.0.0` | unverändert |
 
-Das Schema-Inventar führt je Familie genau eine aktuelle Version. Die bisherigen sechs Familienköpfe werden deshalb als `deprecated` mit Nachfolger geführt; ihre weiterhin unterstützten Defaults, vollständigen Verträge und Fingerprints bleiben erhalten. Damit wird kein öffentliches Lesefenster beendet.
+Das Schema-Inventar führt je Familie genau eine aktuelle Version. Die abgelösten Familienversionen werden deshalb als `deprecated` mit Nachfolger geführt; ihre weiterhin unterstützten Defaults, vollständigen Verträge und Fingerprints bleiben erhalten. Damit wird kein öffentliches Lesefenster beendet.
 
 Die neuen Typen heißen `MaracaComposedBuildInput`, `MaracaComposedBuildPlan`, `MaracaComposedBuildConfig`, `IntegratedXTensionCompositionArtifact`, `IntegratedXTensionCompositionBuildReport`, `ComposedMaracaPlanRuntimeOptions` und `MaracaXTensionBootOptions`. Die vollständigen bisherigen Typen bleiben erhalten. Die geordnete Root-Exportfolge bleibt bei 214 Einträgen mit Fingerprint `8a443b512c6993227950c2393eaa722ded512ea4f2243d4c09f527aaf3605924`.
 
@@ -23,7 +24,7 @@ Die neuen Typen heißen `MaracaComposedBuildInput`, `MaracaComposedBuildPlan`, `
 ```js
 const { buildMaracaBundleAsync } = require('@ccslabs/xtend-maraca');
 const result = await buildMaracaBundleAsync({
-  source: 'app.rmt', out: 'dist', profile: 'debug',
+  source: 'app.rmt', out: 'dist', profile: 'production',
   orchestration: 'strict', kernel: 'strict',
   xtensionBindings: bindings, xtensionComposition: manifest
 }, { rootDir: projectRoot });
@@ -66,8 +67,22 @@ Bei Dispose, Mount-Fehler oder abgebrochenem Boot werden zuerst Registry-Instanz
 
 ## Nachweise und Grenze zu A04.3
 
-[`integration-inspect.cjs`](integration-inspect.cjs) prüft 16 Build-/Vertragsfälle einschließlich echtem CLI-Build und bindet Quellen in [`integration-evidence.json`](integration-evidence.json). Es ist die 13. blockierende Prüfung des Vorbereitungs-Gates. [`integrated-composition-acceptance.js`](../../tests/xtensions/integrated-composition-acceptance.js) ergänzt 17 reale Fälle: React, Vue, beide Frameworks gemeinsam, typed Model-/State-Lieferung, interner Surface-Graph, erforderliche Rechte, Abbruch, Retry, Policy-Snapshot, keyed Reinkarnation und geliehene Kernel. Die verpflichtende Laufzeitprüfung umfasst damit 300 Fälle je jsdom-/Chromium-Umgebung sowie 88 Compilerprüfungen. Gepackte Root-/Compiler-/Maraca-Consumer bauen und booten die tatsächlichen generierten ESM-Graphen und prüfen öffentliche Typen ohne implizite Framework-Abhängigkeiten.
+[`integration-inspect.cjs`](integration-inspect.cjs) prüft 27 Build-/Vertragsfälle einschließlich echtem CLI-Build und bindet Quellen in [`integration-evidence.json`](integration-evidence.json). Es ist die 13. blockierende Prüfung des Vorbereitungs-Gates. [`integrated-composition-acceptance.js`](../../tests/xtensions/integrated-composition-acceptance.js) ergänzt 17 reale Fälle: React, Vue, beide Frameworks gemeinsam, typed Model-/State-Lieferung, interner Surface-Graph, erforderliche Rechte, Abbruch, Retry, Policy-Snapshot, keyed Reinkarnation und geliehene Kernel. Die verpflichtende Laufzeitprüfung umfasst damit 300 Fälle je jsdom-/Chromium-Umgebung sowie 88 Compilerprüfungen. Die integrierten Referenzen laufen dabei unter strikten Production-/Max-Budgets; gepackte Root-/Maraca-Consumer verwenden ebenfalls diese Profile. Gepackte Root-/Compiler-/Maraca-Consumer bauen und booten die tatsächlichen generierten ESM-Graphen und prüfen öffentliche Typen ohne implizite Framework-Abhängigkeiten.
 
-Die Größenprüfung bleibt verbindlich: Das wiederholte Vue-Referenzbeispiel liegt im Max-Profil aktuell über dem bisherigen strikten Framework-Budget (Build-Status `built_over_budget`). Der Debug-Pfad ist implementiert und geprüft; die zusätzliche Plattform-/Artefaktgröße benötigt vor Produktionsfreigabe Optimierung und eine belastbare Vergleichsbasis. Das Budget wird durch A04.2 nicht angehoben oder deaktiviert.
+## Größenbudget v2
+
+Der bisherige Größenbefund ist behoben. Integrierte Builds erzeugen `xtend.maraca.size-budget-report.v2`; `MARACA_XTENSION_SIZE_BUDGET_REPORT_SCHEMA` und `MaracaXTensionSizeBudgetReport` machen die neue Version explizit. Bisherige Builds behalten ihren vollständigen v1-Vertrag. Plan-/Config-v5, Manifest-v1 und Kompositions-API-2 ändern dadurch ihre Datenform nicht.
+
+Das strikte Budget verlangt zwei unabhängige Einsparungen: Der gesamte berechnete Framework-Anteil muss kleiner als seine vergleichbare Quellbasis sein; zusätzlich muss der erzeugte XTension-Laufzeitgraph kleiner als seine eigene Quell-/Vertragsbasis sein. Einsparungen im RMT-Kern können einen zu großen XTension-Graphen nicht verdecken. `warn`, `off` und Debug bleiben explizite bisherige Optionen; v2 zeigt die tatsächlichen Überschreitungen auch bei deaktivierter Durchsetzung an. CSS-/AppService-Budgets behalten ihre verbindlichen bisherigen Regeln.
+
+Die Quellbasis ergänzt die bisherige Loader-/Komponenten-/Stack-/Vertragsrechnung um die tatsächlich vom Plattform-Bundler erfassten CommonJS-/ESM-Quellen, verifizierte Provider-Quellen und eine kompakte Serialisierung des gebundenen v2-Kompositionsartefakts. Physisch gemeinsame Quellen zählen einmal, auch wenn zwei Provider-Deklarationen daraus zwei Ausgabedateien erzeugen. Bereits in der bisherigen Basis enthaltene Module werden nicht nochmals addiert. Der Legacy-Loader wird auch im eigenständig installierten Maraca-Paket über das tatsächliche Root-Paket aufgelöst. Ausgabegröße oder frei eingereichte JSON-Schätzwerte können diese Basis nicht erhöhen.
+
+Die Budgetprüfung verwendet den tatsächlichen Build-Kontext mit gebundenem Plan und vollständiger Ausgabedateiliste. `createMaracaSizeBudgetReport` kann für v5 nur mit demselben Planobjekt eines regulären asynchronen Builds rechnen. Ein serialisierter Plan/Bericht ersetzt diese Herkunft nicht. Abweichende Datei-Mitgliedschaft, vorgetäuschte Bytezahlen, fremde AppService-Zuordnungen, veränderte Provider-Bytes und Ausbrüche aus dem Ausgabeordner werden abgewiesen. Ausgabedateien werden erneut gelesen, vermessen und gehasht; das Kompositionsprotokoll bleibt an den nach Minifizierung erzeugten Plattform-Bytes gebunden.
+
+`accounting.files` enthält alle in der Bundle-Dateiliste geführten Ausgaben mit Größe und SHA-256. Auch `xtend.xtensions.report.json` wird dem Gesamtbudget zugerechnet. Die bisherigen separaten AppService-/Microkernel-Zuordnungen bleiben bestehen. Finale Bundle-/Größenberichte, Name-Cache und nicht gelistete Debug-Source-Maps sind keine Bestandteile dieser Dateiliste. Extern geladene React-/Vue-Peers werden weiterhin nicht als enthaltene Bytes behauptet. `xtensions.runtimeGzipBytes` summiert zusätzlich die mit gzip-Level 9 komprimierten Laufzeitdateien; die bindenden Vergleiche dieses Abschnitts verwenden Rohbytes.
+
+Production und Max formatieren zusätzlich den geschlossenen XTension-Plattformgraphen und alle kopierten Kernel-/Controller-/Resume-Module mit Terser. Kompression und Namensänderung bleiben für diese kopierten Module ausgeschaltet. Verifizierte Provider und der inhaltsadressierte Begleiter bleiben byteidentisch. Der Framework-Anteil der Referenzen sinkt dadurch von rund 2,48–2,53 MB auf rund 1,97–2,01 MB, einschließlich des Kompositionsberichts. Die exakten aktuellen Werte stehen in `integration-evidence.json`.
+
+Die blockierende Referenzprüfung setzt zusätzlich feste Regressionsgrenzen: höchstens **2.200.000 Framework-Bytes** und **240.000 XTension-Laufzeitbytes** je Referenz. Negativfälle prüfen künstliches Ausgabewachstum bei unveränderter Quellbasis sowie einen eigenständig zu großen, versehentlich unoptimierten XTension-Graphen trotz eingehaltenem Gesamtbudget. Alle drei Referenzen sowie die tatsächlichen Browser-/Paketprüfungen müssen ohne `warn`-/`off`-Ausnahme bestehen.
 
 Provider bleiben lokale, importfreie synchrone Komponentenfactorys nach A04.1. Transitive Provider-Abhängigkeiten, Chunk-Provenienz, Lazy-/CSP-/Peer-Ladestrategien und Integrität nach weiterer Transformation/Auslieferung sind A04.3. Die Datei-Digests belegen Build-Ausgaben, keine HTTP-Laufzeitbytes. Beide Build-Berichtsversionen behalten `runtimeExecutionVerified: false`; nur die getrennten tatsächlichen Laufzeittests belegen ihre jeweilige Ausführung. SSR, Adoption, Angular, Vanilla und vollständige 0.9-Feature-Abnahme sind nicht Bestandteil dieses Abschnitts.

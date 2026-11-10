@@ -8,6 +8,7 @@ export const MARACA_XTENSION_BUILD_PLAN_SCHEMA: 'xtend.maraca.build-plan.v5';
 export const LEGACY_MARACA_BUILD_PLAN_SCHEMA: 'xtend.maraca.build-plan.v1';
 export const MARACA_BUNDLE_REPORT_SCHEMA: 'xtend.maraca.bundle-report.v1';
 export const MARACA_SIZE_BUDGET_REPORT_SCHEMA: 'xtend.maraca.size-budget-report.v1';
+export const MARACA_XTENSION_SIZE_BUDGET_REPORT_SCHEMA: 'xtend.maraca.size-budget-report.v2';
 export const MARACA_PERFORMANCE_REPORT_SCHEMA: 'xtend.maraca.performance-report.v1';
 export const MARACA_ORCHESTRATION_PLAN_SCHEMA: 'xtend.maraca.orchestration-plan.v1';
 export const MARACA_KERNEL_PLAN_SCHEMA: 'xtend.maraca.kernel-plan.v1';
@@ -1042,6 +1043,21 @@ export interface MaracaSizeBudgetReport {
   };
 }
 
+/** Source-bound accounting for regular integrated builds. All listed output files,
+ * including the companion build report, remain charged to the framework budget. */
+export interface MaracaXTensionSizeBudgetReport extends Omit<MaracaSizeBudgetReport, 'schema'> {
+  schema: typeof MARACA_XTENSION_SIZE_BUDGET_REPORT_SCHEMA;
+  profile: MaracaProfile; mode: 'strict' | 'warn' | 'off'; ratio: number;
+  baseline: { mode: 'legacy-plus-captured-xtension-sources-and-contract'; legacyBytes: number; loaderBytes: number; selectedComponentBytes: number; stackModuleBytes: number; contractPayloadBytes: number; xtensionSourceBytes: number; xtensionContractBytes: number; bytes: number };
+  framework: { bytes: number; baselineBytes: number; withinBudget: boolean };
+  accounting: { scope: 'listed-bundle-files'; metadataIncluded: true; externalFrameworkPeersIncluded: false; files: Array<{ fileName: string; bytes: number; sha256: string }> };
+  xtensions: { enforced: boolean; withinBudget: boolean; baselineBytes: number; sourceBytes: number; contractBytes: number; runtimeBytes: number; runtimeGzipBytes: number; buildEvidenceBytes: number;
+    sourceFingerprint: string; contractSha256: string;
+    sourceFiles: Array<{ source: string; bytes: number; sha256: string; additional: boolean }>;
+    runtimeFiles: Array<{ fileName: string; bytes: number; sha256: string }>;
+  };
+}
+
 export interface MaracaBuildConfig {
   schema: typeof MARACA_BUILD_CONFIG_SCHEMA;
   source: string;
@@ -1153,11 +1169,11 @@ export function buildMaracaBundle(input?: string | MaracaBuildInput, options?: M
 };
 export function buildMaracaBundleAsync(input: MaracaComposedBuildInput, options?: MaracaRunOptions): Promise<{
   schema: typeof MARACA_BUNDLE_REPORT_SCHEMA; ok: boolean; status: string; plan: MaracaComposedBuildPlan;
-  bundleReport: MaracaBundleReport | null; sizeBudgetReport: MaracaSizeBudgetReport | null;
+  bundleReport: MaracaBundleReport | null; sizeBudgetReport: MaracaXTensionSizeBudgetReport | null;
 }>;
 export function buildMaracaBundleAsync(input: MaracaBuildInput & { config: string }, options?: MaracaRunOptions): Promise<{
   schema: typeof MARACA_BUNDLE_REPORT_SCHEMA; ok: boolean; status: string; plan: MaracaBuildPlan | MaracaComposedBuildPlan;
-  bundleReport: MaracaBundleReport | null; sizeBudgetReport: MaracaSizeBudgetReport | null;
+  bundleReport: MaracaBundleReport | null; sizeBudgetReport: MaracaSizeBudgetReport | MaracaXTensionSizeBudgetReport | null;
 }>;
 export function buildMaracaBundleAsync(input?: string | MaracaBuildInput, options?: MaracaRunOptions): Promise<{
   schema: typeof MARACA_BUNDLE_REPORT_SCHEMA;
@@ -1244,6 +1260,11 @@ export function createMaracaProductionBundleClosure(
   sizeBudgetReport?: MaracaSizeBudgetReport | null,
   options?: Record<string, unknown>
 ): MaracaProductionBundleClosureReport;
+/** A v5 call requires the same plan object and output membership captured by the
+ * actual async build; serialized plans/reports cannot replace that provenance. */
+export function createMaracaSizeBudgetReport(input: {
+  plan: MaracaComposedBuildPlan; entryPath: string; entryBytes: number; bundleFiles: Array<Record<string, unknown>>;
+}): MaracaXTensionSizeBudgetReport;
 export function createMaracaSizeBudgetReport(input: {
   plan: MaracaBuildPlan;
   entryPath: string;

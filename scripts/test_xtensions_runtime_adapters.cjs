@@ -25,7 +25,7 @@ async function main() {
   const integratedDirectories = {};
   for (const framework of ['react', 'vue', 'mixed']) {
     const directory = path.join(compositionTemp, 'integrated-' + framework);
-    const built = await require('../development/rmtx-a04/integration-reference.cjs').buildIntegratedReference(framework, directory);
+    const built = await require('../development/rmtx-a04/integration-reference.cjs').buildIntegratedReference(framework, directory, { profile: framework === 'vue' ? 'max' : 'production' });
     if (!built.ok) throw new Error('Integrated build failed: ' + JSON.stringify(built.plan.diagnostics));
     integratedDirectories[framework] = directory;
   }

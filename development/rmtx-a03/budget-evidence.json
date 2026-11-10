@@ -42,6 +42,6 @@
     "tests/xtensions/work-budget-maraca-acceptance.js": "864b8aa6ccee6d9aeb896999cb2a2ffa3c683d5632a0ef45a0e6fc1e0d4e6a80",
     "tests/types/xtensions_work_budget.mts": "b486b8d98c90bae96d1e0c7e38bb7a2e5961ca84612767aa8049825b43f3bef8",
     "tests/xtensions/xtensions_runtime_gate_suite.js": "3820e15e7597d5e7bd367142f35428d6d3cc7236a1df296999ad4343ff00ad2a",
-    "tests/xtensions/xtensions_consumer_package_suite.js": "1b2f5d7caaace67f41be3b59670f16665ab84b71dad2f472fcfed8964ec2b195"
+    "tests/xtensions/xtensions_consumer_package_suite.js": "971ea467fd774a3106889717816883b1c79f0b7cf34b93027c4549dc8e3a3806"
   }
 }

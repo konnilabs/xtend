@@ -54,15 +54,15 @@
     "xtend-maraca/xtension-composition-runtime.mjs": "a5ff05e129601a0e3c08052f9dfc225c79e39b837e56ded3d4af0806c26d40b2",
     "xtend-maraca/xtension-composition.d.ts": "6d97ff3ca6a6674eca24c1ddf25100ffa9e73d424e0b96aca75f5fc02e676a03",
     "xtend-maraca/xtension-composition-runtime.d.ts": "6206c5a07b065923666f10c6b5ad6b016ff124cc35e9d2de83d6372d8318e40f",
-    "xtend-maraca/package.json": "06455929db901e4fff159a00d1b04db4cb71a120216f6d365ae8dde371405c26",
+    "xtend-maraca/package.json": "4048a30c366e3f55e1b9c20195c9d63e1d2e6dc2907408dfbf235b867dd881e8",
     "development/rmtx-a04/reference.cjs": "82f369fc789e991dc3f2dfe72b2b27ac651780a922e5e4c27a19fd4bd72085e0",
     "development/rmtx-a04/providers/react-panel.mjs": "2fdf0c08bc913cf4d93a9586ee5c4dbcb50a191b1f5432704bd53e3e2e7dea86",
     "development/rmtx-a04/providers/vue-panel.mjs": "5a971750223744c69381f36200352e94efdce782a81cef208c560c8a9d2fd171",
     "development/rmtx-a04/inspect.cjs": "6ae03d4a77556e3b6bacab9f678166649a9efd445f3c0ae6abf3585d0980c4d1",
-    "tests/xtensions/xtensions_consumer_package_suite.js": "1b2f5d7caaace67f41be3b59670f16665ab84b71dad2f472fcfed8964ec2b195",
+    "tests/xtensions/xtensions_consumer_package_suite.js": "971ea467fd774a3106889717816883b1c79f0b7cf34b93027c4549dc8e3a3806",
     "tests/xtensions/composition-maraca-acceptance.js": "8996a43c0225ee153398e6d955d87426f084ddccf7083c19ee775f7b9246854c",
     "tests/types/xtensions_composition.mts": "97811e8d8bd03f64705533d185bcab79b312ce92a3f7381144d91ca69a4a4140",
-    "scripts/test_xtensions_runtime_adapters.cjs": "164a8320d6cd7348dc3f7edac5611a7bf66f3bb11166620eddcf84b49d3ceba5",
+    "scripts/test_xtensions_runtime_adapters.cjs": "29a2ff4eba47e87a51b3e65bc7f3a8635c6bdf3e11d96c53f5c662fe7feca60c",
     "tests/xtensions/xtensions_runtime_gate_suite.js": "3820e15e7597d5e7bd367142f35428d6d3cc7236a1df296999ad4343ff00ad2a"
   }
 }

@@ -32,6 +32,8 @@ const MARACA_BUILD_PLAN_SCHEMA = 'xtend.maraca.build-plan.v4';
 const MARACA_XTENSION_BUILD_PLAN_SCHEMA = 'xtend.maraca.build-plan.v5';
 const MARACA_BUNDLE_REPORT_SCHEMA = 'xtend.maraca.bundle-report.v1';
 const MARACA_SIZE_BUDGET_REPORT_SCHEMA = 'xtend.maraca.size-budget-report.v1';
+const MARACA_XTENSION_SIZE_BUDGET_REPORT_SCHEMA = 'xtend.maraca.size-budget-report.v2';
+const xtensionSizeBudget = require('./xtension-size-budget');
 const MARACA_PERFORMANCE_REPORT_SCHEMA = 'xtend.maraca.performance-report.v1';
 const MARACA_ORCHESTRATION_PLAN_SCHEMA = 'xtend.maraca.orchestration-plan.v1';
 const MARACA_KERNEL_PLAN_SCHEMA = 'xtend.maraca.kernel-plan.v1';
@@ -7048,7 +7050,7 @@ function createMaracaSizeBudgetReport(input) {
   const frameworkWithinBudget = enforced ? baselineBytes > 0 && frameworkBundleBytes < baselineBytes : true;
   const ok = frameworkWithinBudget && cssWithinBudget && appServicesWithinBudget;
 
-  return {
+  const report = {
     schema: MARACA_SIZE_BUDGET_REPORT_SCHEMA,
     ok,
     status: !cssWithinBudget
@@ -7112,6 +7114,7 @@ function createMaracaSizeBudgetReport(input) {
       serverAppServiceBytes: serverBudgetBytes
     }
   };
+  return plan.schema === MARACA_XTENSION_BUILD_PLAN_SCHEMA ? xtensionSizeBudget.apply(plan, report, input.bundleFiles) : report;
 }
 
 function executeNativeCssProviderSync(plan) {
@@ -7301,7 +7304,9 @@ async function buildMaracaBundleAsync(input = {}, options = {}) {
       const bindingsRuntime = require(require.resolve('@ccslabs/xtend-compiler/xtensions/state-binding', { paths: [plan.rootDir, __dirname] }));
       compositionBuild = await require('./xtension-composition').buildMaracaXTensionComposition({ plan, manifest: plan.xtensionComposition, rootDir: plan.rootDir, outputDir: plan.outputDir, bindingsRuntime });
       const platformFile = await require('./xtension-platform-build').buildXTensionPlatform(plan, tool.module);
+      await minifyCopiedMaracaRuntimeAssets(plan, [platformFile]);
       compositionBuild = { ...compositionBuild, files: [...compositionBuild.files, { fileName: platformFile.fileName, sha256: crypto.createHash('sha256').update(fs.readFileSync(platformFile.path)).digest('hex'), bytes: platformFile.bytes }] };
+      xtensionSizeBudget.register(plan, { composition: compositionBuild, sourceFiles: platformFile.sourceFiles, bindingsRuntime });
       const reportPath = path.join(plan.outputDir, 'xtend.xtensions.report.json');
       fs.writeFileSync(reportPath, JSON.stringify(compositionBuild, null, 2) + '\n');
       compositionFiles = [...compositionBuild.files.map(file => ({ ...file, type: 'asset', path: path.join(plan.outputDir, file.fileName), isEntry: false, isDynamicEntry: false, imports: [], dynamicImports: [] })), { type: 'asset', fileName: 'xtend.xtensions.report.json', path: reportPath, bytes: fs.statSync(reportPath).size, isEntry: false, isDynamicEntry: false, imports: [], dynamicImports: [] }];
@@ -7349,7 +7354,7 @@ async function buildMaracaBundleAsync(input = {}, options = {}) {
   try {
     rollupResult = await createRollupBundleFiles(plan, rawSource);
     // Copied ESM assets are outside Rollup's chunk minification pass.
-    await minifyCopiedMaracaRuntimeAssets(plan, [planRuntimeAsset, ...browserRuntimeAssets]);
+    await minifyCopiedMaracaRuntimeAssets(plan, [planRuntimeAsset, ...browserRuntimeAssets, ...(plan.xtensionComposition ? [kernelRuntimeAsset, ...kernelResumeRuntimeAssets, ...kernelControllerRuntimeAssets] : [])]);
   } catch (error) {
     return {
       schema: MARACA_BUNDLE_REPORT_SCHEMA,
@@ -7416,12 +7421,18 @@ async function buildMaracaBundleAsync(input = {}, options = {}) {
     bytes: fs.existsSync(plan.outputs.entry) ? fs.statSync(plan.outputs.entry).size : 0
   };
   const bundleBytes = rollupResult.files.reduce((sum, file) => sum + Number(file.bytes || 0), 0);
-  const sizeBudgetReport = createMaracaSizeBudgetReport({
-    plan,
-    entryPath: entryFile.path,
-    entryBytes: bundleBytes,
-    bundleFiles: rollupResult.files
-  });
+  let sizeBudgetReport;
+  try {
+    if (plan.xtensionComposition) xtensionSizeBudget.bindFiles(plan, rollupResult.files);
+    sizeBudgetReport = createMaracaSizeBudgetReport({
+      plan,
+      entryPath: entryFile.path,
+      entryBytes: bundleBytes,
+      bundleFiles: rollupResult.files
+    });
+  } catch (error) {
+    return { schema: MARACA_BUNDLE_REPORT_SCHEMA, ok: false, status: 'size_budget_accounting_failed', plan: { ...plan, diagnostics: plan.diagnostics.concat({ code: 'xtend.maraca.size_budget_accounting_failed', severity: 'error', message: error.message }) }, bundleReport: null, sizeBudgetReport: null };
+  }
   const bundleReport = createBundleReport(plan, rollupResult.files, sizeBudgetReport, {
     activeToolchain: 'rollup-terser',
     warnings: rollupResult.warnings,
@@ -7810,6 +7821,7 @@ module.exports = {
   LEGACY_MARACA_BUILD_PLAN_SCHEMA,
   MARACA_BUNDLE_REPORT_SCHEMA,
   MARACA_SIZE_BUDGET_REPORT_SCHEMA,
+  MARACA_XTENSION_SIZE_BUDGET_REPORT_SCHEMA,
   MARACA_PERFORMANCE_REPORT_SCHEMA,
   MARACA_ORCHESTRATION_PLAN_SCHEMA,
   MARACA_KERNEL_PLAN_SCHEMA,

@@ -9,7 +9,7 @@ async function buildXTensionPlatform(plan, rollup) {
     [name, require.resolve('@ccslabs/xtend-compiler/xtensions/' + name, { paths: [plan.rootDir, __dirname] })]));
   const compilerRoot = path.dirname(path.dirname(entries['state-binding']));
   const { parseAst } = require('rollup/parseAst');
-  const captured = new Map();
+  const captured = new Map(), esmSources = new Map();
   function capture(file) {
     file = fs.realpathSync(file);
     if (captured.has(file)) return;
@@ -39,7 +39,12 @@ async function buildXTensionPlatform(plan, rollup) {
     load(id) {
       if (id === virtual) return source;
       const record = captured.get(id);
-      if (!record) return null;
+      if (!record) {
+        if (id.startsWith(__dirname + path.sep) && id.endsWith('.mjs')) {
+          const source = fs.readFileSync(id, 'utf8'); esmSources.set(id, source); return source;
+        }
+        return null;
+      }
       const imports = [...record.imports];
       return imports.map(([name, target], index) => `import dependency${index} from ${JSON.stringify(target)};`).join('\n') +
         `\nconst api = (() => { const module = { exports: {} }; const exports = module.exports; const dependencies = {${imports.map(([name], index) => `${JSON.stringify(name)}: dependency${index}`).join(',')}}; const require = id => { if (!Object.hasOwn(dependencies, id)) throw new TypeError('Unknown XTension platform dependency.'); return dependencies[id]; };\n${record.source}\nreturn module.exports; })();\nexport default api;`;
@@ -50,7 +55,11 @@ async function buildXTensionPlatform(plan, rollup) {
     if (result.output.length !== 1 || result.output[0].type !== 'chunk' || result.output[0].imports.length || result.output[0].dynamicImports.length) throw new TypeError('The XTension platform must have a closed native ESM output.');
     const fileName = 'runtime/xtension-platform.mjs', target = path.join(plan.outputDir, fileName);
     fs.mkdirSync(path.dirname(target), { recursive: true }); fs.writeFileSync(target, result.output[0].code);
-    return { type: 'asset', fileName, path: target, bytes: fs.statSync(target).size, isEntry: false, isDynamicEntry: false, imports: [], dynamicImports: [] };
+    const { createHash } = require('node:crypto');
+    const sourceFiles = [...captured].map(([absolutePath, record]) => ({ absolutePath, source: 'compiler/' + path.relative(compilerRoot, absolutePath).split(path.sep).join('/'), content: record.source }))
+      .concat([...esmSources].map(([absolutePath, content]) => ({ absolutePath, source: 'maraca/' + path.relative(__dirname, absolutePath).split(path.sep).join('/'), content })))
+      .map(({ content, ...record }) => ({ ...record, bytes: Buffer.byteLength(content), sha256: createHash('sha256').update(content).digest('hex') }));
+    return { sourceFiles, type: 'asset', fileName, path: target, bytes: fs.statSync(target).size, isEntry: false, isDynamicEntry: false, imports: [], dynamicImports: [] };
   } finally { await bundle.close(); }
 }
 module.exports = { buildXTensionPlatform };

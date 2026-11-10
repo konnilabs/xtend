@@ -1,4 +1,4 @@
-import { createMaracaBuildPlan, buildMaracaBundleAsync, MARACA_XTENSION_BUILD_PLAN_SCHEMA, MARACA_XTENSION_BUILD_CONFIG_SCHEMA, type MaracaComposedBuildConfig } from '@ccslabs/xtend-maraca';
+import { createMaracaBuildPlan, buildMaracaBundleAsync, MARACA_XTENSION_BUILD_PLAN_SCHEMA, MARACA_XTENSION_BUILD_CONFIG_SCHEMA, MARACA_XTENSION_SIZE_BUDGET_REPORT_SCHEMA, type MaracaComposedBuildConfig } from '@ccslabs/xtend-maraca';
 import { buildMaracaXTensionComposition } from '@ccslabs/xtend/maraca/xtension-composition';
 import { createMaracaXTensionCompositionPort, type XTensionCompositionManifest, type XTensionHostCompositionOptions } from '@ccslabs/xtend/maraca/xtension-composition-runtime';
 import { createMaracaBrowserCompositionRoot, MARACA_XTENSION_BROWSER_API_VERSION, type MaracaXTensionBootOptions } from '@ccslabs/xtend/maraca/browser-composition-runtime';
@@ -38,3 +38,7 @@ import { createMaracaBrowserCompositionRoot as standaloneBrowserRoot } from '@cc
 const samePlanRuntime: typeof createMaracaPlanRuntime = standalonePlanRuntime;
 const sameBrowserRoot: typeof createMaracaBrowserCompositionRoot = standaloneBrowserRoot;
 void [samePlanRuntime, sameBrowserRoot];
+
+const sizeBudgetMajor: typeof MARACA_XTENSION_SIZE_BUDGET_REPORT_SCHEMA | undefined = build.sizeBudgetReport?.schema;
+const ownRuntimeBytes: number | undefined = build.sizeBudgetReport?.xtensions.runtimeBytes;
+void [sizeBudgetMajor, ownRuntimeBytes];
