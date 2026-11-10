@@ -16,6 +16,12 @@ async function main() {
   const conditionalBindingPlan = require('../development/rmtx-a02/inspect.cjs').inspectConditional();
   const repeatedBindingPlan = require('../development/rmtx-a02/inspect.cjs').inspectRepeated();
   const compilerChecks = require('../tests/xtensions/compiled-state-binding-compiler.cjs').runCompilerChecks();
+  const compositionReference = require('../development/rmtx-a04/reference.cjs');
+  const compositionPlan = compositionReference.createPlan();
+  const compositionTemp = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'xtend-a041-runtime-'));
+  try {
+  const compositionReports = Object.fromEntries(await Promise.all(['react', 'vue'].map(async framework => [framework, await compositionReference.buildReference(compositionPlan, path.join(compositionTemp, framework), framework)])));
+  const compositions = Object.fromEntries(await Promise.all(Object.entries(compositionReports).map(async ([framework, report]) => [framework, await import(require('node:url').pathToFileURL(report.entryPath).href)])));
   let report;
   if (browser) {
     const { build } = require('esbuild');
@@ -28,10 +34,12 @@ async function main() {
         const api = framework === 'react' ? require('@ccslabs/xtend/xtensions/react-runtime-adapter') : require('@ccslabs/xtend/xtensions/vue-runtime-adapter');
         return [framework, Object.entries(api).map(([name, value]) => [name, typeof value]).sort()];
       }));
+      const compositions = {react: require(${JSON.stringify(compositionReports.react.entryPath)}), vue: require(${JSON.stringify(compositionReports.vue.entryPath)})};
+      const compositionPlan = ${JSON.stringify(compositionPlan)};
       const compiledBindingPlan = ${JSON.stringify(compiledBindingPlan)};
       const conditionalBindingPlan = ${JSON.stringify(conditionalBindingPlan)};
       const repeatedBindingPlan = ${JSON.stringify(repeatedBindingPlan)};
-      window.runAcceptance = () => runRuntimeAcceptance({React,ReactDOM:{...client,version:dom.version},Vue,document,compiledBindingPlan,conditionalBindingPlan,repeatedBindingPlan});`, resolveDir: root },
+      window.runAcceptance = () => runRuntimeAcceptance({React,ReactDOM:{...client,version:dom.version},Vue,document,compiledBindingPlan,conditionalBindingPlan,repeatedBindingPlan,compositionPlan,compositions});`, resolveDir: root },
       nodePaths: [path.resolve(peerRoot, 'node_modules')], bundle: true, platform: 'browser', write: false,
       define: { 'process.env.NODE_ENV': '"production"', __VUE_OPTIONS_API__: 'true', __VUE_PROD_DEVTOOLS__: 'false', __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false' } });
     const instance = await chromium.launch({ executablePath: process.env.CHROME_BIN || '/usr/bin/chromium', headless: true });
@@ -54,7 +62,7 @@ async function main() {
     for (const key of ['window', 'document', 'Node', 'Element', 'HTMLElement', 'SVGElement', 'navigator', 'MutationObserver', 'Event', 'CustomEvent']) Object.defineProperty(globalThis, key, { configurable: true, value: dom.window[key] });
     try {
       report = await require('../tests/xtensions/runtime-adapter-acceptance').runRuntimeAcceptance({ React: peers('react'),
-        ReactDOM: { ...peers('react-dom/client'), version: peers('react-dom').version }, Vue: peers('vue'), document: dom.window.document, compiledBindingPlan, conditionalBindingPlan, repeatedBindingPlan });
+        ReactDOM: { ...peers('react-dom/client'), version: peers('react-dom').version }, Vue: peers('vue'), document: dom.window.document, compiledBindingPlan, conditionalBindingPlan, repeatedBindingPlan, compositionPlan, compositions });
     } finally { dom.window.close(); }
   }
   report = {
@@ -71,6 +79,7 @@ async function main() {
   for (const failure of report.failed) console.error(failure.name + '\n' + failure.message);
   if (report.pageErrors?.length) console.error(report.pageErrors);
   if (!report.ok) process.exitCode = 1;
+  } finally { fs.rmSync(compositionTemp, { recursive: true, force: true }); }
 }
 const deadline = setTimeout(() => { console.error('Runtime acceptance timed out before producing a complete report.'); process.exit(1); }, 60000);
 main().catch((error) => { console.error(error); process.exitCode = 1; }).finally(() => clearTimeout(deadline));

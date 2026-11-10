@@ -29,8 +29,8 @@ const TYPE_EXPORTS_RELEASE_STATUS = 'accepted-productive-type-exports-release-ga
 const TYPE_EXPORTS_RELEASE_TARGET = 'productive-type-exports-release-gate-ready';
 const TYPE_EXPORTS_RELEASE_PACKAGE_SCRIPT = 'npm run test:type-exports:release';
 const TYPE_EXPORTS_RELEASE_LOCAL_GATE = 'node scripts/run_xtend_tests.js type-exports type-exports-loader type-exports-api type-exports-rmt type-exports-policy type-exports-builder type-exports-catalog type-exports-vendor --report .xtend-test-results/xtend-type-exports-report.json';
-const TYPE_EXPORTS_LOCKED_EXPORT_COUNT = 212;
-const TYPE_EXPORTS_LOCKED_EXPORT_FINGERPRINT = "cc95ac4c5a1f907c0269321f47acd1d67a69d1067139e86aff2329a99af47f43";
+const TYPE_EXPORTS_LOCKED_EXPORT_COUNT = 214;
+const TYPE_EXPORTS_LOCKED_EXPORT_FINGERPRINT = "8a443b512c6993227950c2393eaa722ded512ea4f2243d4c09f527aaf3605924";
 
 const TYPE_EXPORTS_COMPLETED_WORKPACKAGES = Object.freeze([
   'WP-TypeExports-01',
@@ -150,7 +150,7 @@ const TYPE_EXPORT_GROUPS = Object.freeze([
     id: 'maraca',
     priority: 'P1',
     workpackage: 'WP-Maraca-01',
-    exports: ['./maraca', './maraca/runtime', './maraca/page-client', './maraca/page-bootstrap', './maraca/remote-surface', './maraca/plan-runtime', './maraca/browser-composition-runtime', './maraca/css-provider', './maraca/app-services', './maraca/server-services', './maraca/node-app-service-host', './maraca/node-app-host', './maraca/service-build-provider'],
+    exports: ['./maraca', './maraca/runtime', './maraca/page-client', './maraca/page-bootstrap', './maraca/remote-surface', './maraca/plan-runtime', './maraca/browser-composition-runtime', './maraca/css-provider', './maraca/app-services', './maraca/server-services', './maraca/node-app-service-host', './maraca/node-app-host', './maraca/service-build-provider', './maraca/xtension-composition', './maraca/xtension-composition-runtime'],
     strategy: 'maraca-package-declaration-pack'
   },
   {

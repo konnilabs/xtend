@@ -1028,6 +1028,14 @@
     "./rmt/page-resource-cache": {
       "types": "./xtendrmt/page-resource-cache.d.ts",
       "default": "./xtendrmt/page-resource-cache.mjs"
+    },
+    "./maraca/xtension-composition": {
+      "types": "./xtend-maraca/xtension-composition.d.ts",
+      "default": "./xtend-maraca/xtension-composition.js"
+    },
+    "./maraca/xtension-composition-runtime": {
+      "types": "./xtend-maraca/xtension-composition-runtime.d.ts",
+      "default": "./xtend-maraca/xtension-composition-runtime.mjs"
     }
   },
   "publishConfig": {
@@ -15636,7 +15644,7 @@
       "packageDryRunArtifact": ".xtend-test-results/xtend-pack-dry-run.json",
       "packageExportSurfaceArtifact": ".xtend-test-results/xtend-package-export-surface-lock.json",
       "packageExportLockReportArtifact": ".xtend-test-results/xtend-package-export-lock-report.json",
-      "expectedExportCount": 212,
+      "expectedExportCount": 214,
       "localGateRequiresNpmPackExecution": false,
       "artifactRequiredForRc1": true,
       "nextWorkpackage": "WP-E13-13",
@@ -15661,8 +15669,8 @@
       "localGate": "node scripts/run_xtend_tests.js type-exports --json",
       "packageScript": "npm run test:type-exports",
       "reportArtifact": ".xtend-test-results/xtend-type-exports-report.json",
-      "expectedExportCount": 212,
-      "lockedExportFingerprint": "cc95ac4c5a1f907c0269321f47acd1d67a69d1067139e86aff2329a99af47f43",
+      "expectedExportCount": 214,
+      "lockedExportFingerprint": "8a443b512c6993227950c2393eaa722ded512ea4f2243d4c09f527aaf3605924",
       "p0Exports": [
         ".",
         "./loader",
@@ -15814,7 +15822,9 @@
         "./xtend-maraca/page-bootstrap.d.ts",
         "./xtend-maraca/remote-surface.d.ts",
         "./xtendrmt/rmt-resume-capture-adapter.d.ts",
-        "./tools/rmt-language/compilation-session.d.ts"
+        "./tools/rmt-language/compilation-session.d.ts",
+        "./xtend-maraca/xtension-composition.d.ts",
+        "./xtend-maraca/xtension-composition-runtime.d.ts"
       ],
       "boundaries": [
         "types-only-no-runtime-imports",

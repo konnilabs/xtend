@@ -4,8 +4,8 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "abdb9d2b73af47b64d0bbb1377231cb8ba74b4bc8937c8449f891aef3f2c89ca",
-  "sourceMembershipSha256": "4567f44f49091e0e1c2c5dfdc6a331c124867020033fc54b1d97c8ddaaf9ab85",
+  "inventorySha256": "e35ba89899c12a746c92b1907e35739a34a0d5dd9cd70050d97aeec15b322353",
+  "sourceMembershipSha256": "1d1fd99275048c494702087a6ca4f826b3c92a7887acdb653e79af31cd56af9d",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
@@ -549,7 +549,7 @@
         },
         {
           "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
-          "sha256": "d48f72d0a35a0c50477b402dd27e7ccbeee4b6870dd075e3edaf104474db74f6"
+          "sha256": "ad5d8000912771360c40d6865287af5d2a13dc20d4f9a8a2e120735400801508"
         },
         {
           "path": "development/rmtx-a01/README.md",
@@ -577,7 +577,7 @@
         },
         {
           "path": "package.json",
-          "sha256": "f283ce93ebd740ec01d9ef1951e779ecbf7a33889db2b06544837203c7174195"
+          "sha256": "650f1f09d5aeffce8ecab03e51c72db4218758eca58d341dce28e1ae404b42bf"
         },
         {
           "path": "scripts/generate_rmt_classic_contract.js",
@@ -1240,5 +1240,45 @@
     "publicationGuardRetired": false,
     "freshCommittedCaptureRequired": true,
     "rationale": "Scoped A03.4 development review: explicit v6 React/Vue hosts negotiate required and optional actual implementation features and captured work/resource/event grants before kernel admission, provider loading or graph acquisition. Capability v2 and dedicated requirements/negotiation contracts remain separate from static registry/load decisions. Registry API 2.4 accepts version-matched v2-v6 suppliers; all existing authoritative/released fingerprints and native Kernel/Surface ABIs are preserved. The explicit React/Vue path is implemented; automatic A04 composition, broader frameworks and full 0.9 acceptance remain pending. See development/rmtx-a03/capability-negotiation.md."
+  },
+  "a041LocalProviderCompositionReview": {
+    "format": 1,
+    "date": "2026-11-10",
+    "status": "reviewed-unreleased-local-provider-build-and-host-composition",
+    "stage": "A04.1",
+    "a04Complete": false,
+    "contract": "development/rmtx-a04/README.md",
+    "newSchemaIds": [
+      "xtend.maraca.xtension-composition-artifact.v1",
+      "xtend.maraca.xtension-composition-build-report.v1",
+      "xtend.maraca.xtension-composition-manifest.v1"
+    ],
+    "scopedSchemaIds": [
+      "xtend.maraca.build-plan.v4",
+      "xtend.maraca.xtension-composition-artifact.v1",
+      "xtend.maraca.xtension-composition-build-report.v1",
+      "xtend.maraca.xtension-composition-manifest.v1",
+      "xtend.maraca.xtension-manifest.v1",
+      "xtend.xtensions.host-capability-requirements.v1",
+      "xtend.xtensions.work-budget-policy.v1"
+    ],
+    "buildApiVersion": "1.0.0",
+    "runtimeApiVersion": "1.0.0",
+    "hostApiVersion": "6.0.0",
+    "fabricRequired": true,
+    "nativeKernelAbiChanged": false,
+    "surfaceGraphAbiChanged": false,
+    "maracaPlanRuntimeAbiChanged": false,
+    "automaticBrowserBootComposition": false,
+    "legacyContractsRetained": true,
+    "rootExportCount": 214,
+    "contractChecks": 36,
+    "integrationCases": 14,
+    "runtimeCasesPerEnvironment": 283,
+    "compilerChecks": 88,
+    "acceptedForRelease": false,
+    "publicationGuardRetired": false,
+    "freshCommittedCaptureRequired": true,
+    "rationale": "Scoped A04.1 development review: separate API-1.0.0 Maraca companion contracts bind the validated compiled program and keyed bindings to a closed manifest, captured SHA-256-checked local provider bytes and direct ESM imports. Actual API-6 React/Vue hosts use shared native Kernel/Fabric/Surface ports and separately captured application grants. Static manifests and capability reports remain distinct; a JSON hash is not a runtime byte certificate. Regular Maraca build/browser-boot integration, transitive chunks and complete 0.9 acceptance remain pending. All existing authoritative/released fingerprint sets and legacy plan/runtime/host ABIs are preserved. New partial static/type shapes remain partial and are not promoted to complete authority. See development/rmtx-a04/README.md."
   }
 }

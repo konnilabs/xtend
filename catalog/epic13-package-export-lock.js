@@ -254,7 +254,9 @@ const EXPECTED_EXPORT_KEYS = Object.freeze([
   "./test-support/dev-server",
   "./laravel-package",
   "./candidate-integrity",
-  "./rmt/page-resource-cache"
+  "./rmt/page-resource-cache",
+  "./maraca/xtension-composition",
+  "./maraca/xtension-composition-runtime"
 ]);
 
 const REQUIRED_PACK_ROOTS = Object.freeze([

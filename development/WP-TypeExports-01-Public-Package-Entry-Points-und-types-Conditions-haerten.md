@@ -68,4 +68,8 @@ The exact ordered-key fingerprint, expected count, classification and each helpe
 
 ## A02.5.2 URL-state runtime (2026-11-09)
 
-The current contract is exactly 212 ordered export keys, SHA-256 `cc95ac4c5a1f907c0269321f47acd1d67a69d1067139e86aff2329a99af47f43`. The additive `./xtensions/url-state` entry has matching runtime and types targets in the root and compiler packages. Existing ordered keys and targets are preserved; the same strict addition/substitution/order/type checks apply. The 211-key record above is historical.
+The A02.5.2 contract was exactly 212 ordered export keys, SHA-256 `cc95ac4c5a1f907c0269321f47acd1d67a69d1067139e86aff2329a99af47f43`. The additive `./xtensions/url-state` entry has matching runtime and types targets in the root and compiler packages. Existing ordered keys and targets are preserved; the same strict addition/substitution/order/type checks apply. The 211-key record above is historical.
+
+## A04.1 composition APIs (2026-11-10)
+
+The current contract is exactly 214 ordered export keys, SHA-256 `8a443b512c6993227950c2393eaa722ded512ea4f2243d4c09f527aaf3605924`. The previous 212 keys and targets retain their order. Appended `./maraca/xtension-composition` and `./maraca/xtension-composition-runtime` expose separate API-1.0.0 build/runtime contracts with matching declarations in Root and Maraca. The first captures verified local provider bytes; the second composes actual API-6 hosts with explicit application grants and shared native ports. Strict addition/substitution/order/target checks remain active; full 0.9 feature acceptance remains pending.

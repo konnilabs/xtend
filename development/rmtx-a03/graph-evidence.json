@@ -43,8 +43,8 @@
     "tests/xtensions/resource-graph-acceptance.js": "b0273e06199aa8c9c5cf8038bbd80146d078259137e6a7e3e6fa45fb7aa59714",
     "tests/xtensions/resource-graph-maraca-acceptance.js": "0483e2b7add52963cc8911fd3da04954d16210d7fda681248580fdfdac034225",
     "tests/types/xtensions_resource_graph.mts": "a8e92658829f2ee4444534a717393bf48269e858eb521457650d6e9dee9e06a9",
-    "tests/xtensions/xtensions_runtime_gate_suite.js": "a008747b8fd8d6be9fc567016af825d205dcc120677f07187a10ad5e7a193067",
-    "tests/xtensions/xtensions_consumer_package_suite.js": "165394f9de706e0d7db349976a85faaecf7032a8356b06b532299037f8b3037f",
+    "tests/xtensions/xtensions_runtime_gate_suite.js": "caffd97dc7dd735fce59b78e15d04e5a594de06690c744e9739737325c4b1840",
+    "tests/xtensions/xtensions_consumer_package_suite.js": "28fa25884ce72fcf726ac884887ca2428679dc35a9594b9aa0e6cd487e932738",
     "tests/xtensions/runtime-adapter-exports.cjs": "4ad6573cbb55d1690ec86ffb82fb96aa8101d0f6e725ffd053717d3b9f3deb86"
   }
 }

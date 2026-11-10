@@ -77,6 +77,10 @@ await runtime.dispatchCommand('preview.submit', { value: 'XTend' });
 runtime.dispose();
 ```
 
+### XTension composition preparation
+
+The versioned `./xtension-composition` build API captures verified local React/Vue component factories into a companion ESM graph. `./xtension-composition-runtime` derives API-6 hosts from binding declarations and explicit application grants using shared native Kernel, Fabric and Surface ports. This A04.1 path is explicitly wired by the application; regular build/browser-boot integration follows A04.2. Both features remain in preparation for 0.9. See the [contract and verification](../development/rmtx-a04/README.md).
+
 ### AppServices and TypeScript
 
 Generated RMT apps use `src/services.ts` as the browser/local service entry and optional target-isolated Node/PHP implementations. The TypeScript provider performs full-program checking before the existing Rollup/Terser production build and emits a versioned service manifest plus declarations.

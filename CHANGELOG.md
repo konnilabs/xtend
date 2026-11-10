@@ -4,6 +4,8 @@ Alle sichtbaren Produktaenderungen werden in diesem Dokument gesammelt. XTend is
 
 ## Unreleased – 0.9.0
 
+- A04.1: Versionierte Maraca-Kompositions-APIs verknüpfen geprüfte lokale Provider-Dateien mit keyed React-/Vue-Hosts über Kernel, Fabric und Surface-Ressourcen. Automatische Build-/Boot-Komposition und vollständige 0.9-Feature-Abnahme bleiben offen.
+
 - RMTX und XTensions 2.0 sind verbindlicher Umfang von 0.9. Ein gemeinsamer Featureplan prüft den Umsetzungsstand und die Nachweise bei Releasevorbereitung und Publish. Beide Features sind noch in Vorbereitung.
 - Die bisherige RMT-vNext-Autorensprache heißt nun **RMT Classic**. Classic-Compiler-/Parser-Einstiege, Editorbeschriftungen und Snippetpräfixe sind ergänzt; bestehende vNext-APIs, Wire-IDs und Snippet-Aliasse bleiben erhalten.
 - Ein versionierter gemeinsamer Classic-AST-Vertrag prüft alle 122 Knotentypen, Feld-/Kontextregeln, Referenzen, grundlegende State-Typen und zyklische Abhängigkeiten. Selektorpläne werden nach Abhängigkeiten geordnet. JSON-Schema und TypeScript-Typen werden aus kuratierten Regeln erzeugt.

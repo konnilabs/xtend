@@ -6080,6 +6080,24 @@
       "type": "same-id-multiple-shapes"
     },
     {
+      "reviewId": "polymorphic-5bb8b1a2ed5c",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "All observed data/reference forms remain bound to shapePolicy; partial test/config expressions are not promoted to a complete authority."
+      },
+      "schemaIds": [
+        "xtend.maraca.xtension-composition-build-report.v1"
+      ],
+      "rationale": "Scoped A04.1 development review: separate API-1.0.0 Maraca companion contracts bind the validated compiled program and keyed bindings to a closed manifest, captured SHA-256-checked local provider bytes and direct ESM imports. Actual API-6 React/Vue hosts use shared native Kernel/Fabric/Surface ports and separately captured application grants. Static manifests and capability reports remain distinct; a JSON hash is not a runtime byte certificate. Regular Maraca build/browser-boot integration, transitive chunks and complete 0.9 acceptance remain pending. All existing authoritative/released fingerprint sets and legacy plan/runtime/host ABIs are preserved. New partial static/type shapes remain partial and are not promoted to complete authority. See development/rmtx-a04/README.md.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "a041-local-provider-composition"
+    },
+    {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
       "confidence": "medium",
@@ -9461,6 +9479,24 @@
       ],
       "status": "accepted-polymorphic-for-inventory",
       "type": "same-id-multiple-shapes"
+    },
+    {
+      "reviewId": "polymorphic-91563523daad",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "All observed data/reference forms remain bound to shapePolicy; partial test/config expressions are not promoted to a complete authority."
+      },
+      "schemaIds": [
+        "xtend.maraca.xtension-composition-manifest.v1"
+      ],
+      "rationale": "Scoped A04.1 development review: separate API-1.0.0 Maraca companion contracts bind the validated compiled program and keyed bindings to a closed manifest, captured SHA-256-checked local provider bytes and direct ESM imports. Actual API-6 React/Vue hosts use shared native Kernel/Fabric/Surface ports and separately captured application grants. Static manifests and capability reports remain distinct; a JSON hash is not a runtime byte certificate. Regular Maraca build/browser-boot integration, transitive chunks and complete 0.9 acceptance remain pending. All existing authoritative/released fingerprint sets and legacy plan/runtime/host ABIs are preserved. New partial static/type shapes remain partial and are not promoted to complete authority. See development/rmtx-a04/README.md.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "a041-local-provider-composition"
     },
     {
       "reviewId": "polymorphic-916d03ddd030",
@@ -277828,7 +277864,8 @@
           "role": "producer",
           "visibility": "public",
           "sourcePaths": [
-            "xtend-maraca/index.js"
+            "xtend-maraca/index.js",
+            "xtend-maraca/xtension-composition-runtime.d.ts"
           ],
           "interfaceReferences": [
             {
@@ -277838,8 +277875,18 @@
             },
             {
               "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts"
+            },
+            {
+              "type": "package-export",
               "module": "@ccslabs/xtend/maraca",
               "path": "xtend-maraca/index.js"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts"
             },
             {
               "type": "symbol",
@@ -277853,7 +277900,8 @@
           "role": "reference",
           "visibility": "public",
           "sourcePaths": [
-            "xtend-maraca/index.d.ts"
+            "xtend-maraca/index.d.ts",
+            "xtend-maraca/xtension-composition-contract.mjs"
           ],
           "interfaceReferences": [
             {
@@ -378830,6 +378878,1193 @@
       "version": 1
     },
     {
+      "schemaId": "xtend.maraca.xtension-composition-artifact.v1",
+      "familyId": "xtend.maraca.xtension-composition-artifact",
+      "version": 1,
+      "kinds": [
+        "runtime-discriminator"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": null,
+      "description": "Unreleased A04.1 local-provider build and host-composition contract. Explicit companion ESM graph over verified source bytes, compiled program and keyed bindings; actual API-6 hosts retain separate application grants and native Kernel/Fabric/Surface ownership. Partial scanner/type shapes remain partial, without runtime or 0.9 acceptance claims.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "xtend-maraca/xtension-composition-contract.mjs",
+        "symbol": "ARTIFACT_SCHEMA",
+        "definitionType": "constant",
+        "role": "definition",
+        "visibility": "public"
+      },
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a04/README.md",
+            "development/rmtx-a04/inspect.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "development/rmtx-a04/README.md",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "definition",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition-contract.mjs",
+            "xtend-maraca/xtension-composition-runtime.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-composition-contract.mjs",
+              "symbol": "ARTIFACT_SCHEMA"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts",
+              "symbol": "XTensionCompositionArtifact"
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "producer",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition-runtime.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts"
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "single",
+        "decision": "reviewed-a041-local-provider-composition",
+        "acceptedFingerprints": [
+          "sha256:84fd26234349b9a3717ee45f114e3476bc5c551878912bbfe4ed025b5ba798f3"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rationale": "Scoped A04.1 development review: separate API-1.0.0 Maraca companion contracts bind the validated compiled program and keyed bindings to a closed manifest, captured SHA-256-checked local provider bytes and direct ESM imports. Actual API-6 React/Vue hosts use shared native Kernel/Fabric/Surface ports and separately captured application grants. Static manifests and capability reports remain distinct; a JSON hash is not a runtime byte certificate. Regular Maraca build/browser-boot integration, transitive chunks and complete 0.9 acceptance remain pending. All existing authoritative/released fingerprint sets and legacy plan/runtime/host ABIs are preserved. New partial static/type shapes remain partial and are not promoted to complete authority. See development/rmtx-a04/README.md."
+      },
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:84fd26234349b9a3717ee45f114e3476bc5c551878912bbfe4ed025b5ba798f3",
+          "shape": {
+            "fieldCount": 6,
+            "fields": [
+              "apiVersion",
+              "entryFile",
+              "manifest",
+              "plan",
+              "providers",
+              "runtimeExecutionVerified"
+            ],
+            "signature": "apiVersion:literal<\"1.0.0\">|entryFile:string|manifest:{hosts:array<{capabilityRequirements:{\"arguments\":[],\"unresolvedReference\":\"HostCapabilityRequirements\"},declarationId:string,ownerSurface:string,providerId:string}>,providers:array<intersection<{entry:{exportName:string,module:string},id:string,integrity:{sha256:string},version:string}&union<{framework:literal<\"react\">,peers:{react:string,react-dom:string}}|{framework:literal<\"vue\">,peers:{vue:string}}>>>}|plan:{bindings:{\"arguments\":[],\"unresolvedReference\":\"XTensionStateBindingArtifact\"},program:unknown,sourceHash:string}|providers:array<{fileName:string,id:string,sha256:string}>|runtimeExecutionVerified:literal<false>",
+            "normalized": {
+              "fields": {
+                "apiVersion": {
+                  "optional": false,
+                  "type": {
+                    "literal": "1.0.0"
+                  }
+                },
+                "entryFile": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "manifest": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "hosts": {
+                        "optional": false,
+                        "type": {
+                          "elementType": {
+                            "fields": {
+                              "capabilityRequirements": {
+                                "optional": false,
+                                "type": {
+                                  "arguments": [],
+                                  "unresolvedReference": "HostCapabilityRequirements"
+                                }
+                              },
+                              "declarationId": {
+                                "optional": false,
+                                "type": "string"
+                              },
+                              "ownerSurface": {
+                                "optional": false,
+                                "type": "string"
+                              },
+                              "providerId": {
+                                "optional": false,
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "providers": {
+                        "optional": false,
+                        "type": {
+                          "elementType": {
+                            "intersection": [
+                              {
+                                "fields": {
+                                  "entry": {
+                                    "optional": false,
+                                    "type": {
+                                      "fields": {
+                                        "exportName": {
+                                          "optional": false,
+                                          "type": "string"
+                                        },
+                                        "module": {
+                                          "optional": false,
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "id": {
+                                    "optional": false,
+                                    "type": "string"
+                                  },
+                                  "integrity": {
+                                    "optional": false,
+                                    "type": {
+                                      "fields": {
+                                        "sha256": {
+                                          "optional": false,
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "version": {
+                                    "optional": false,
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              {
+                                "union": [
+                                  {
+                                    "fields": {
+                                      "framework": {
+                                        "optional": false,
+                                        "type": {
+                                          "literal": "react"
+                                        }
+                                      },
+                                      "peers": {
+                                        "optional": false,
+                                        "type": {
+                                          "fields": {
+                                            "react": {
+                                              "optional": false,
+                                              "type": "string"
+                                            },
+                                            "react-dom": {
+                                              "optional": false,
+                                              "type": "string"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "fields": {
+                                      "framework": {
+                                        "optional": false,
+                                        "type": {
+                                          "literal": "vue"
+                                        }
+                                      },
+                                      "peers": {
+                                        "optional": false,
+                                        "type": {
+                                          "fields": {
+                                            "vue": {
+                                              "optional": false,
+                                              "type": "string"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "plan": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "bindings": {
+                        "optional": false,
+                        "type": {
+                          "arguments": [],
+                          "unresolvedReference": "XTensionStateBindingArtifact"
+                        }
+                      },
+                      "program": {
+                        "optional": false,
+                        "type": "unknown"
+                      },
+                      "sourceHash": {
+                        "optional": false,
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "providers": {
+                  "optional": false,
+                  "type": {
+                    "elementType": {
+                      "fields": {
+                        "fileName": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "id": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "sha256": {
+                          "optional": false,
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "runtimeExecutionVerified": {
+                  "optional": false,
+                  "type": {
+                    "literal": false
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition-runtime.d.ts"
+          ],
+          "symbols": [
+            "XTensionCompositionArtifact"
+          ],
+          "evidence": [
+            {
+              "type": "declared-type",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts",
+              "symbol": "XTensionCompositionArtifact"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        }
+      ]
+    },
+    {
+      "schemaId": "xtend.maraca.xtension-composition-build-report.v1",
+      "familyId": "xtend.maraca.xtension-composition-build-report",
+      "version": 1,
+      "kinds": [
+        "report-id",
+        "runtime-discriminator"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": null,
+      "description": "Unreleased A04.1 local-provider build and host-composition contract. Explicit companion ESM graph over verified source bytes, compiled program and keyed bindings; actual API-6 hosts retain separate application grants and native Kernel/Fabric/Surface ownership. Partial scanner/type shapes remain partial, without runtime or 0.9 acceptance claims.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "xtend-maraca/xtension-composition.js",
+        "symbol": null,
+        "definitionType": "object-shape",
+        "role": "producer",
+        "visibility": "public"
+      },
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a04/README.md"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "development/rmtx-a04/README.md",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "definition",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.d.ts"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-composition.d.ts",
+              "symbol": "XTensionCompositionBuildReport"
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "producer",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition.d.ts",
+            "xtend-maraca/xtension-composition.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.js"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.js"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-composition.js",
+              "symbol": "buildMaracaXTensionComposition"
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "polymorphic",
+        "decision": "reviewed-a041-local-provider-composition",
+        "acceptedFingerprints": [
+          "sha256:77b3ed273102db65c01cf5467747014fee0a65e3afacb766b9e6da5ba0322614",
+          "sha256:7ddaebb3264d676f2bbb08076b959ed915af7a5010dd250e2234df424cc98594"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rationale": "Scoped A04.1 development review: separate API-1.0.0 Maraca companion contracts bind the validated compiled program and keyed bindings to a closed manifest, captured SHA-256-checked local provider bytes and direct ESM imports. Actual API-6 React/Vue hosts use shared native Kernel/Fabric/Surface ports and separately captured application grants. Static manifests and capability reports remain distinct; a JSON hash is not a runtime byte certificate. Regular Maraca build/browser-boot integration, transitive chunks and complete 0.9 acceptance remain pending. All existing authoritative/released fingerprint sets and legacy plan/runtime/host ABIs are preserved. New partial static/type shapes remain partial and are not promoted to complete authority. See development/rmtx-a04/README.md."
+      },
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:77b3ed273102db65c01cf5467747014fee0a65e3afacb766b9e6da5ba0322614",
+          "shape": {
+            "fieldCount": 7,
+            "fields": [
+              "apiVersion",
+              "artifact",
+              "entryPath",
+              "files",
+              "frameworkDependenciesBundled",
+              "ok",
+              "runtimeExecutionVerified"
+            ],
+            "signature": "apiVersion:string|artifact:{apiVersion:string,entryFile:string,manifest:unknown,plan:unknown,providers:unknown,runtimeExecutionVerified:boolean}|entryPath:unknown|files:unknown|frameworkDependenciesBundled:boolean|ok:boolean|runtimeExecutionVerified:boolean",
+            "normalized": {
+              "fields": {
+                "apiVersion": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "artifact": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "apiVersion": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "entryFile": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "manifest": {
+                        "optional": false,
+                        "type": "unknown"
+                      },
+                      "plan": {
+                        "optional": false,
+                        "type": "unknown"
+                      },
+                      "providers": {
+                        "optional": false,
+                        "type": "unknown"
+                      },
+                      "runtimeExecutionVerified": {
+                        "optional": false,
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                },
+                "entryPath": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "files": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "frameworkDependenciesBundled": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "ok": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "runtimeExecutionVerified": {
+                  "optional": false,
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition.js"
+          ],
+          "symbols": [
+            "buildMaracaXTensionComposition"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtend-maraca/xtension-composition.js",
+              "symbol": "buildMaracaXTensionComposition"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:7ddaebb3264d676f2bbb08076b959ed915af7a5010dd250e2234df424cc98594",
+          "shape": {
+            "fieldCount": 7,
+            "fields": [
+              "apiVersion",
+              "artifact",
+              "entryPath",
+              "files",
+              "frameworkDependenciesBundled",
+              "ok",
+              "runtimeExecutionVerified"
+            ],
+            "signature": "apiVersion:literal<\"1.0.0\">|artifact:{\"arguments\":[],\"unresolvedReference\":\"XTensionCompositionArtifact\"}|entryPath:string|files:array<{bytes:number,fileName:string,sha256:string}>|frameworkDependenciesBundled:literal<false>|ok:literal<true>|runtimeExecutionVerified:literal<false>",
+            "normalized": {
+              "fields": {
+                "apiVersion": {
+                  "optional": false,
+                  "type": {
+                    "literal": "1.0.0"
+                  }
+                },
+                "artifact": {
+                  "optional": false,
+                  "type": {
+                    "arguments": [],
+                    "unresolvedReference": "XTensionCompositionArtifact"
+                  }
+                },
+                "entryPath": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "files": {
+                  "optional": false,
+                  "type": {
+                    "elementType": {
+                      "fields": {
+                        "bytes": {
+                          "optional": false,
+                          "type": "number"
+                        },
+                        "fileName": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "sha256": {
+                          "optional": false,
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "frameworkDependenciesBundled": {
+                  "optional": false,
+                  "type": {
+                    "literal": false
+                  }
+                },
+                "ok": {
+                  "optional": false,
+                  "type": {
+                    "literal": true
+                  }
+                },
+                "runtimeExecutionVerified": {
+                  "optional": false,
+                  "type": {
+                    "literal": false
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition.d.ts"
+          ],
+          "symbols": [
+            "XTensionCompositionBuildReport"
+          ],
+          "evidence": [
+            {
+              "type": "declared-type",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtend-maraca/xtension-composition.d.ts",
+              "symbol": "XTensionCompositionBuildReport"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        }
+      ]
+    },
+    {
+      "schemaId": "xtend.maraca.xtension-composition-manifest.v1",
+      "familyId": "xtend.maraca.xtension-composition-manifest",
+      "version": 1,
+      "kinds": [
+        "manifest-id",
+        "runtime-discriminator"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": null,
+      "description": "Unreleased A04.1 local-provider build and host-composition contract. Explicit companion ESM graph over verified source bytes, compiled program and keyed bindings; actual API-6 hosts retain separate application grants and native Kernel/Fabric/Surface ownership. Partial scanner/type shapes remain partial, without runtime or 0.9 acceptance claims.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "xtend-maraca/xtension-composition-contract.mjs",
+        "symbol": "MANIFEST_SCHEMA",
+        "definitionType": "constant",
+        "role": "definition",
+        "visibility": "public"
+      },
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "producer",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a04/reference.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "development/rmtx-a04/reference.cjs",
+              "symbol": "createManifest"
+            }
+          ]
+        },
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a04/README.md",
+            "development/rmtx-a04/reference.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "development/rmtx-a04/README.md",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "definition",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition-contract.mjs",
+            "xtend-maraca/xtension-composition-runtime.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-composition-contract.mjs",
+              "symbol": "MANIFEST_SCHEMA"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts",
+              "symbol": "XTensionCompositionManifest"
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "producer",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition-contract.mjs",
+            "xtend-maraca/xtension-composition-runtime.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-composition-contract.mjs",
+              "symbol": "normalizeManifest"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Types",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/types/xtensions_composition.mts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/types/xtensions_composition.mts",
+              "symbol": null
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "polymorphic",
+        "decision": "reviewed-a041-local-provider-composition",
+        "acceptedFingerprints": [
+          "sha256:1f896838b57ffdb8444c5770420c225565247c4af55d4d70e8391c1bbafe93ac",
+          "sha256:6d302986303c4407dc601a52df1e2124e068c34fb5d727eec923746f05c105e8",
+          "sha256:ccf9533351c6cea7400a2d7045eaf879f6e9a20b66020783c8a63f284bb52c6e"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rationale": "Scoped A04.1 development review: separate API-1.0.0 Maraca companion contracts bind the validated compiled program and keyed bindings to a closed manifest, captured SHA-256-checked local provider bytes and direct ESM imports. Actual API-6 React/Vue hosts use shared native Kernel/Fabric/Surface ports and separately captured application grants. Static manifests and capability reports remain distinct; a JSON hash is not a runtime byte certificate. Regular Maraca build/browser-boot integration, transitive chunks and complete 0.9 acceptance remain pending. All existing authoritative/released fingerprint sets and legacy plan/runtime/host ABIs are preserved. New partial static/type shapes remain partial and are not promoted to complete authority. See development/rmtx-a04/README.md."
+      },
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:1f896838b57ffdb8444c5770420c225565247c4af55d4d70e8391c1bbafe93ac",
+          "shape": {
+            "fieldCount": 2,
+            "fields": [
+              "hosts",
+              "providers"
+            ],
+            "signature": "hosts:array<{capabilityRequirements:{\"arguments\":[],\"unresolvedReference\":\"HostCapabilityRequirements\"},declarationId:string,ownerSurface:string,providerId:string}>|providers:array<intersection<{entry:{exportName:string,module:string},id:string,integrity:{sha256:string},version:string}&union<{framework:literal<\"react\">,peers:{react:string,react-dom:string}}|{framework:literal<\"vue\">,peers:{vue:string}}>>>",
+            "normalized": {
+              "fields": {
+                "hosts": {
+                  "optional": false,
+                  "type": {
+                    "elementType": {
+                      "fields": {
+                        "capabilityRequirements": {
+                          "optional": false,
+                          "type": {
+                            "arguments": [],
+                            "unresolvedReference": "HostCapabilityRequirements"
+                          }
+                        },
+                        "declarationId": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "ownerSurface": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "providerId": {
+                          "optional": false,
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "providers": {
+                  "optional": false,
+                  "type": {
+                    "elementType": {
+                      "intersection": [
+                        {
+                          "fields": {
+                            "entry": {
+                              "optional": false,
+                              "type": {
+                                "fields": {
+                                  "exportName": {
+                                    "optional": false,
+                                    "type": "string"
+                                  },
+                                  "module": {
+                                    "optional": false,
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            },
+                            "id": {
+                              "optional": false,
+                              "type": "string"
+                            },
+                            "integrity": {
+                              "optional": false,
+                              "type": {
+                                "fields": {
+                                  "sha256": {
+                                    "optional": false,
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            },
+                            "version": {
+                              "optional": false,
+                              "type": "string"
+                            }
+                          }
+                        },
+                        {
+                          "union": [
+                            {
+                              "fields": {
+                                "framework": {
+                                  "optional": false,
+                                  "type": {
+                                    "literal": "react"
+                                  }
+                                },
+                                "peers": {
+                                  "optional": false,
+                                  "type": {
+                                    "fields": {
+                                      "react": {
+                                        "optional": false,
+                                        "type": "string"
+                                      },
+                                      "react-dom": {
+                                        "optional": false,
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "fields": {
+                                "framework": {
+                                  "optional": false,
+                                  "type": {
+                                    "literal": "vue"
+                                  }
+                                },
+                                "peers": {
+                                  "optional": false,
+                                  "type": {
+                                    "fields": {
+                                      "vue": {
+                                        "optional": false,
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition-runtime.d.ts"
+          ],
+          "symbols": [
+            "XTensionCompositionManifest"
+          ],
+          "evidence": [
+            {
+              "type": "declared-type",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts",
+              "symbol": "XTensionCompositionManifest"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:6d302986303c4407dc601a52df1e2124e068c34fb5d727eec923746f05c105e8",
+          "shape": {
+            "fieldCount": 2,
+            "fields": [
+              "hosts",
+              "providers"
+            ],
+            "signature": "hosts:unknown|providers:unknown",
+            "normalized": {
+              "fields": {
+                "hosts": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "providers": {
+                  "optional": false,
+                  "type": "unknown"
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition-contract.mjs"
+          ],
+          "symbols": [
+            "normalizeManifest"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtend-maraca/xtension-composition-contract.mjs",
+              "symbol": "normalizeManifest"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:ccf9533351c6cea7400a2d7045eaf879f6e9a20b66020783c8a63f284bb52c6e",
+          "shape": {
+            "fieldCount": 2,
+            "fields": [
+              "hosts",
+              "providers"
+            ],
+            "signature": "hosts:array<{capabilityRequirements:{framework:{\"unresolvedReference\":\"framework\"},optional:{features:array<string>},required:{events:array<string>,features:array<string>,work:array<string>}},declarationId:string,ownerSurface:string,providerId:string}>|providers:array<{entry:{exportName:string,module:string},framework:{\"unresolvedReference\":\"framework\"},id:string,integrity:{sha256:unknown},peers:union<{react:string,react-dom:string}|{vue:string}>,version:string}>",
+            "normalized": {
+              "fields": {
+                "hosts": {
+                  "optional": false,
+                  "type": {
+                    "array": [
+                      {
+                        "fields": {
+                          "capabilityRequirements": {
+                            "optional": false,
+                            "type": {
+                              "fields": {
+                                "framework": {
+                                  "optional": false,
+                                  "type": {
+                                    "unresolvedReference": "framework"
+                                  }
+                                },
+                                "optional": {
+                                  "optional": false,
+                                  "type": {
+                                    "fields": {
+                                      "features": {
+                                        "optional": false,
+                                        "type": {
+                                          "array": [
+                                            "string"
+                                          ]
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "required": {
+                                  "optional": false,
+                                  "type": {
+                                    "fields": {
+                                      "events": {
+                                        "optional": false,
+                                        "type": {
+                                          "array": [
+                                            "string"
+                                          ]
+                                        }
+                                      },
+                                      "features": {
+                                        "optional": false,
+                                        "type": {
+                                          "array": [
+                                            "string"
+                                          ]
+                                        }
+                                      },
+                                      "work": {
+                                        "optional": false,
+                                        "type": {
+                                          "array": [
+                                            "string"
+                                          ]
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "declarationId": {
+                            "optional": false,
+                            "type": "string"
+                          },
+                          "ownerSurface": {
+                            "optional": false,
+                            "type": "string"
+                          },
+                          "providerId": {
+                            "optional": false,
+                            "type": "string"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "providers": {
+                  "optional": false,
+                  "type": {
+                    "array": [
+                      {
+                        "fields": {
+                          "entry": {
+                            "optional": false,
+                            "type": {
+                              "fields": {
+                                "exportName": {
+                                  "optional": false,
+                                  "type": "string"
+                                },
+                                "module": {
+                                  "optional": false,
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          },
+                          "framework": {
+                            "optional": false,
+                            "type": {
+                              "unresolvedReference": "framework"
+                            }
+                          },
+                          "id": {
+                            "optional": false,
+                            "type": "string"
+                          },
+                          "integrity": {
+                            "optional": false,
+                            "type": {
+                              "fields": {
+                                "sha256": {
+                                  "optional": false,
+                                  "type": "unknown"
+                                }
+                              }
+                            }
+                          },
+                          "peers": {
+                            "optional": false,
+                            "type": {
+                              "union": [
+                                {
+                                  "fields": {
+                                    "react": {
+                                      "optional": false,
+                                      "type": "string"
+                                    },
+                                    "react-dom": {
+                                      "optional": false,
+                                      "type": "string"
+                                    }
+                                  }
+                                },
+                                {
+                                  "fields": {
+                                    "vue": {
+                                      "optional": false,
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          "version": {
+                            "optional": false,
+                            "type": "string"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "development/rmtx-a04/reference.cjs"
+          ],
+          "symbols": [
+            "createManifest"
+          ],
+          "evidence": [
+            {
+              "type": "docs",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "development/rmtx-a04/reference.cjs",
+              "symbol": "createManifest"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        }
+      ]
+    },
+    {
       "aliasOf": null,
       "canonicalDefinition": {
         "path": "tools/xtensions/maraca-xtension-manifest.js",
@@ -383167,6 +384402,21 @@
               "type": "json-pointer",
               "path": "tests/fixtures/xtensions/vue-host-adapter-valid.json",
               "pointer": "/manifest"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Types",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/types/xtensions_composition.mts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/types/xtensions_composition.mts",
+              "symbol": null
             }
           ]
         },
@@ -774697,7 +775947,7 @@
           },
           {
             "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
-            "sha256": "d48f72d0a35a0c50477b402dd27e7ccbeee4b6870dd075e3edaf104474db74f6"
+            "sha256": "ad5d8000912771360c40d6865287af5d2a13dc20d4f9a8a2e120735400801508"
           },
           {
             "path": "development/rmtx-a01/README.md",
@@ -774725,7 +775975,7 @@
           },
           {
             "path": "package.json",
-            "sha256": "f283ce93ebd740ec01d9ef1951e779ecbf7a33889db2b06544837203c7174195"
+            "sha256": "650f1f09d5aeffce8ecab03e51c72db4218758eca58d341dce28e1ae404b42bf"
           },
           {
             "path": "scripts/generate_rmt_classic_contract.js",
@@ -921011,11 +922261,11 @@
       "description": "Unreleased A03.4 actual-adapter capability requirements, facts or negotiation contract. Explicit per-host required/optional preflight over real kernel/graph/budget profiles; no invented runtime execution, framework preemption or complete 0.9 acceptance.",
       "descriptionStatus": "curated",
       "canonicalDefinition": {
-        "path": "tools/xtensions/runtime-host-controller.d.ts",
-        "symbol": "HostCapabilityRequirements",
-        "definitionType": "typescript-declaration",
-        "role": "definition",
-        "visibility": "internal"
+        "path": "xtend-maraca/xtension-composition-contract.mjs",
+        "symbol": null,
+        "definitionType": "identifier-reference",
+        "role": "producer",
+        "visibility": "public"
       },
       "usages": [
         {
@@ -921023,13 +922273,19 @@
           "role": "producer",
           "visibility": "docs",
           "sourcePaths": [
-            "development/rmtx-a03/capability-inspect.cjs"
+            "development/rmtx-a03/capability-inspect.cjs",
+            "development/rmtx-a04/reference.cjs"
           ],
           "interfaceReferences": [
             {
               "type": "symbol",
               "path": "development/rmtx-a03/capability-inspect.cjs",
               "symbol": "required"
+            },
+            {
+              "type": "symbol",
+              "path": "development/rmtx-a04/reference.cjs",
+              "symbol": "createManifest"
             }
           ]
         },
@@ -921040,7 +922296,8 @@
           "sourcePaths": [
             "development/rmtx-a01/inventory.json",
             "development/rmtx-a03/capability-inspect.cjs",
-            "development/rmtx-a03/capability-negotiation.md"
+            "development/rmtx-a03/capability-negotiation.md",
+            "development/rmtx-a04/reference.cjs"
           ],
           "interfaceReferences": [
             {
@@ -921051,11 +922308,27 @@
           ]
         },
         {
+          "application": "XTend Maraca",
+          "role": "producer",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition-contract.mjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "xtend-maraca/xtension-composition-contract.mjs",
+              "symbol": null
+            }
+          ]
+        },
+        {
           "application": "XTend Tests: Types",
           "role": "assertion",
           "visibility": "test",
           "sourcePaths": [
-            "tests/types/xtensions_capability_negotiation.mts"
+            "tests/types/xtensions_capability_negotiation.mts",
+            "tests/types/xtensions_composition.mts"
           ],
           "interfaceReferences": [
             {
@@ -921156,9 +922429,10 @@
       ],
       "shapePolicy": {
         "mode": "polymorphic",
-        "decision": "reviewed-a034-actual-adapter-capabilities",
+        "decision": "reviewed-a041-local-provider-composition",
         "acceptedFingerprints": [
           "sha256:0c3d77be3711b0d5d66643297c45a5992a0a0c9cccfd7a91dde172e5f4fc8140",
+          "sha256:2510387d32a7ab776e7ed1657453edd73e361965e881a9272fda78029680d90e",
           "sha256:3c6329c0e8e054493a56520a8ee3ef24850a1d0df3a0240c2f5b7fb9a1062a0e",
           "sha256:536c936e4befbd25a96d4e67cb55e306cf689fc19a2f0e00352f5ebc892e78dd",
           "sha256:cac82b9db9558844e4009bf7c49334dc7d68186620e71e1ff3274dcac92ca3dd"
@@ -921167,7 +922441,7 @@
           "sha256:536c936e4befbd25a96d4e67cb55e306cf689fc19a2f0e00352f5ebc892e78dd"
         ],
         "releasedFingerprintSetHash": "sha256:6cdd190c5830a43b00a8c12f40e1dbcb3775457bf0d2671007bbe6fbb87a1de2",
-        "rationale": "Scoped A03.4 development review: explicit v6 React/Vue hosts negotiate required and optional actual implementation features and captured work/resource/event grants before kernel admission, provider loading or graph acquisition. Capability v2 and dedicated requirements/negotiation contracts remain separate from static registry/load decisions. Registry API 2.4 accepts version-matched v2-v6 suppliers; all existing authoritative/released fingerprints and native Kernel/Surface ABIs are preserved. The explicit React/Vue path is implemented; automatic A04 composition, broader frameworks and full 0.9 acceptance remain pending. See development/rmtx-a03/capability-negotiation.md."
+        "rationale": "Scoped A04.1 development review: separate API-1.0.0 Maraca companion contracts bind the validated compiled program and keyed bindings to a closed manifest, captured SHA-256-checked local provider bytes and direct ESM imports. Actual API-6 React/Vue hosts use shared native Kernel/Fabric/Surface ports and separately captured application grants. Static manifests and capability reports remain distinct; a JSON hash is not a runtime byte certificate. Regular Maraca build/browser-boot integration, transitive chunks and complete 0.9 acceptance remain pending. All existing authoritative/released fingerprint sets and legacy plan/runtime/host ABIs are preserved. New partial static/type shapes remain partial and are not promoted to complete authority. See development/rmtx-a04/README.md."
       },
       "shapeFingerprints": [
         {
@@ -921241,6 +922515,94 @@
             "docs"
           ],
           "completeness": "complete",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:2510387d32a7ab776e7ed1657453edd73e361965e881a9272fda78029680d90e",
+          "shape": {
+            "fieldCount": 3,
+            "fields": [
+              "framework",
+              "optional",
+              "required"
+            ],
+            "signature": "framework:{\"unresolvedReference\":\"framework\"}|optional:{features:array<string>}|required:{events:array<string>,features:array<string>,work:array<string>}",
+            "normalized": {
+              "fields": {
+                "framework": {
+                  "optional": false,
+                  "type": {
+                    "unresolvedReference": "framework"
+                  }
+                },
+                "optional": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "features": {
+                        "optional": false,
+                        "type": {
+                          "array": [
+                            "string"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                },
+                "required": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "events": {
+                        "optional": false,
+                        "type": {
+                          "array": [
+                            "string"
+                          ]
+                        }
+                      },
+                      "features": {
+                        "optional": false,
+                        "type": {
+                          "array": [
+                            "string"
+                          ]
+                        }
+                      },
+                      "work": {
+                        "optional": false,
+                        "type": {
+                          "array": [
+                            "string"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "development/rmtx-a04/reference.cjs"
+          ],
+          "symbols": [
+            "createManifest"
+          ],
+          "evidence": [
+            {
+              "type": "docs",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "development/rmtx-a04/reference.cjs",
+              "symbol": "createManifest"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
+          ],
+          "completeness": "partial",
           "authoritative": false
         },
         {
@@ -983718,6 +985080,7 @@
           "sourcePaths": [
             "tests/xtensions/capability-negotiation-acceptance.js",
             "tests/xtensions/capability-negotiation-maraca-acceptance.js",
+            "tests/xtensions/composition-maraca-acceptance.js",
             "tests/xtensions/work-budget-acceptance.js",
             "tests/xtensions/work-budget-maraca-acceptance.js"
           ],
@@ -983731,6 +985094,11 @@
               "type": "symbol",
               "path": "tests/xtensions/capability-negotiation-maraca-acceptance.js",
               "symbol": "host"
+            },
+            {
+              "type": "symbol",
+              "path": "tests/xtensions/composition-maraca-acceptance.js",
+              "symbol": "grants"
             },
             {
               "type": "symbol",
@@ -983751,6 +985119,7 @@
           "sourcePaths": [
             "tests/xtensions/capability-negotiation-acceptance.js",
             "tests/xtensions/capability-negotiation-maraca-acceptance.js",
+            "tests/xtensions/composition-maraca-acceptance.js",
             "tests/xtensions/work-budget-acceptance.js",
             "tests/xtensions/work-budget-maraca-acceptance.js",
             "tests/xtensions/xtensions_consumer_package_suite.js"
@@ -984223,10 +985592,12 @@
             }
           },
           "sourcePaths": [
-            "development/rmtx-a03/capability-inspect.cjs"
+            "development/rmtx-a03/capability-inspect.cjs",
+            "tests/xtensions/composition-maraca-acceptance.js"
           ],
           "symbols": [
-            "budget"
+            "budget",
+            "grants"
           ],
           "evidence": [
             {
@@ -984235,10 +985606,18 @@
               "authoritative": false,
               "path": "development/rmtx-a03/capability-inspect.cjs",
               "symbol": "budget"
+            },
+            {
+              "type": "test",
+              "completeness": "complete",
+              "authoritative": false,
+              "path": "tests/xtensions/composition-maraca-acceptance.js",
+              "symbol": "grants"
             }
           ],
           "evidenceTypes": [
-            "docs"
+            "docs",
+            "test"
           ],
           "completeness": "complete",
           "authoritative": false
@@ -1001213,6 +1002592,57 @@
           "releasedFingerprintSetHash": null
         }
       ]
+    },
+    {
+      "familyId": "xtend.maraca.xtension-composition-artifact",
+      "currentVersion": 1,
+      "activeSchemaId": "xtend.maraca.xtension-composition-artifact.v1",
+      "versions": [
+        {
+          "schemaId": "xtend.maraca.xtension-composition-artifact.v1",
+          "version": 1,
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": null
+        }
+      ],
+      "tombstones": []
+    },
+    {
+      "familyId": "xtend.maraca.xtension-composition-build-report",
+      "currentVersion": 1,
+      "activeSchemaId": "xtend.maraca.xtension-composition-build-report.v1",
+      "versions": [
+        {
+          "schemaId": "xtend.maraca.xtension-composition-build-report.v1",
+          "version": 1,
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": null
+        }
+      ],
+      "tombstones": []
+    },
+    {
+      "familyId": "xtend.maraca.xtension-composition-manifest",
+      "currentVersion": 1,
+      "activeSchemaId": "xtend.maraca.xtension-composition-manifest.v1",
+      "versions": [
+        {
+          "schemaId": "xtend.maraca.xtension-composition-manifest.v1",
+          "version": 1,
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": null
+        }
+      ],
+      "tombstones": []
     },
     {
       "activeSchemaId": "xtend.maraca.xtension-contract-snapshot.v1",

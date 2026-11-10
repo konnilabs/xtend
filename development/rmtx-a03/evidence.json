@@ -47,7 +47,7 @@
     "tests/xtensions/kernel-runtime-acceptance.js": "3e3d4b2f4e27d82b2e0bdda14e90a36ad7b34547a2044f6a089952558f24dfcb",
     "tests/xtensions/kernel-maraca-acceptance.js": "50344373ace1530805e5849219462dd425bf648bbcfb36b19ceecb24f0165291",
     "tests/types/xtensions_kernel_runtime.mts": "2741915e56a7e0ed65f7c0d571b3cae595a06074d312b92b4c39c4558b952b3b",
-    "tests/xtensions/xtensions_runtime_gate_suite.js": "a008747b8fd8d6be9fc567016af825d205dcc120677f07187a10ad5e7a193067"
+    "tests/xtensions/xtensions_runtime_gate_suite.js": "caffd97dc7dd735fce59b78e15d04e5a594de06690c744e9739737325c4b1840"
   },
   "jobs": [
     {

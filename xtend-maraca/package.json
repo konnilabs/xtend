@@ -80,6 +80,14 @@
     "./remote-surface": {
       "types": "./remote-surface.d.ts",
       "import": "./remote-surface.mjs"
+    },
+    "./xtension-composition": {
+      "types": "./xtension-composition.d.ts",
+      "default": "./xtension-composition.js"
+    },
+    "./xtension-composition-runtime": {
+      "types": "./xtension-composition-runtime.d.ts",
+      "default": "./xtension-composition-runtime.mjs"
     }
   },
   "files": [
@@ -129,7 +137,12 @@
     "page-bootstrap.mjs",
     "page-bootstrap.d.ts",
     "remote-surface.mjs",
-    "remote-surface.d.ts"
+    "remote-surface.d.ts",
+    "xtension-composition.js",
+    "xtension-composition.d.ts",
+    "xtension-composition-runtime.mjs",
+    "xtension-composition-runtime.d.ts",
+    "xtension-composition-contract.mjs"
   ],
   "engines": {
     "node": ">=24"
