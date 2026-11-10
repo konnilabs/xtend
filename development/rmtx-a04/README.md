@@ -1,13 +1,13 @@
 # A04 – Manifest, Build, Provider und Host
 
-Stand: 2026-11-10. **A04.1 ist als explizit eingebundener Build-Begleiter implementiert.** Er verbindet ein kompiliertes Maraca-Programm, die A02-Bindungen, verifizierte lokale Provider-Dateien und reale API-6-Hosts für React und Vue. RMTX und XTensions 2.0 bleiben für 0.9.0 `preparing`. A04 ist damit begonnen, die automatische Maraca-Gesamtkomposition noch offen.
+Stand: 2026-11-10. **A04.1 und A04.2 sind implementiert.** [A04.2](integration.md) integriert den Begleiter in den regulären asynchronen Build und automatischen Browser-Boot. Die folgenden Abschnitte dokumentieren den weiterhin unterstützten expliziten A04.1-Einstieg. Er verbindet ein kompiliertes Maraca-Programm, die A02-Bindungen, verifizierte lokale Provider-Dateien und reale API-6-Hosts für React und Vue. RMTX und XTensions 2.0 bleiben für 0.9.0 `preparing`. Transitive Provider-/Chunk-Provenienz und Ladeentscheidungen bleiben für A04.3 offen.
 
 ## Vertrag und Versionen
 
 | Einstieg / Datenvertrag | Version |
 | --- | --- |
-| `@ccslabs/xtend-maraca/xtension-composition`: `buildMaracaXTensionComposition` | Build-API `1.0.0` |
-| `@ccslabs/xtend-maraca/xtension-composition-runtime`: `createMaracaXTensionHostFactory` | Runtime-API `1.0.0` |
+| `@ccslabs/xtend-maraca/xtension-composition`: `buildMaracaXTensionComposition` | Build-API `2.0.0` (Artefakt v1 für Plan v4) |
+| `@ccslabs/xtend-maraca/xtension-composition-runtime`: `createMaracaXTensionHostFactory` | Runtime-API `2.0.0` (Artefakt v1 weiter unterstützt) |
 | Kompositionsmanifest | `xtend.maraca.xtension-composition-manifest.v1` |
 | Gebauter Kompositionsartefakt | `xtend.maraca.xtension-composition-artifact.v1` |
 | Build-Bericht | `xtend.maraca.xtension-composition-build-report.v1` |
@@ -52,12 +52,12 @@ Der Browser-Composer nimmt vertrauenswürdig geladene Provider-Namespaces an. Ei
 
 Lokale Provider bestehen aus synchronen benannten Funktionsdeklarationen. Imports, Reexports, dynamische Imports, `require`, Top-Level-Initialisierer/-Ausführung, asynchrone Factorys und ungültiges JavaScript werden abgewiesen. Die Komponentenfactory bekommt nur ihre Framework-Peers und gibt synchron eine vorkompilierte Komponente zurück. Das ist ein begrenzter Build-Graph für vertrauenswürdigen Anwendungscode, keine JavaScript-Sandbox. Private Framework-Scheduler, SSR, Adoption und Präemption werden weiterhin nicht behauptet.
 
-Der gemeinsame native Root, Scheduler, Fabric und die von Maraca tatsächlich verwendeten Surface-Ports werden in diesem Abschnitt ausdrücklich injiziert. Die reguläre Maraca-CLI, Build-Konfiguration und Browser-Boot-Komposition wählen den Begleiter noch nicht automatisch aus. Es gibt noch keine transitive Provider-Abhängigkeitsauflösung, Rollup-/Chunk-Integration, Remote-Provider, SemVer-Bereichsauflösung, Peer-Deduplizierung, Lazy-/CSP-Auslieferung oder Auswahl einer abweichenden übergeordneten owning Surface.
+Der gemeinsame native Root, Scheduler, Fabric und die von Maraca tatsächlich verwendeten Surface-Ports werden in diesem Abschnitt ausdrücklich injiziert. Die automatische Auswahl über neue Plan-/Config-/Boot-Versionen ist in [A04.2](integration.md) implementiert. Es gibt noch keine transitive Provider-Abhängigkeitsauflösung, Provider-Chunk-Provenienz, Remote-Provider, SemVer-Bereichsauflösung, Peer-Deduplizierung, Lazy-/CSP-Auslieferung oder Auswahl einer abweichenden übergeordneten owning Surface.
 
 ## Nachweise und nächste Schritte
 
 [`inspect.cjs`](inspect.cjs) prüft **36** Build-/Datenfälle einschließlich fehlerhafter Zuordnung, Integrität, Importen, Ausbrüchen, Änderungen der Originaldatei und gebundenem Programm. [`evidence.json`](evidence.json) bindet die geprüften Quellen per SHA-256. Die Prüfung ist Teil des blockierenden 0.9-Vorbereitungs-Gates; sie führt keine Frameworks aus.
 
-[`composition-maraca-acceptance.js`](../../tests/xtensions/composition-maraca-acceptance.js) führt **14** zusätzliche reale Fälle in jsdom und Chromium aus: pro Framework sieben Fälle für generierte Provider-Graphen, typed Model-Intents, tatsächliche Kernel-/Fabric-Zulassung, getrennte Rechte, Peer-Versionen, verspäteten Cleanup, Surface-Lifecycle und keyed Reinkarnation. Der Gesamt-Gate verlangt **283 Fälle pro Umgebung** und weiterhin **88 Compilerprüfungen**. Gepackte Root-/Compiler-/Maraca-Consumer bauen und importieren den Begleiter, mounten tatsächliche React-/Vue-Hosts und prüfen Typen sowie den Browser-Bundle-Abschluss ohne implizite Framework-Abhängigkeiten.
+[`composition-maraca-acceptance.js`](../../tests/xtensions/composition-maraca-acceptance.js) führt **14** zusätzliche reale Fälle in jsdom und Chromium aus: pro Framework sieben Fälle für generierte Provider-Graphen, typed Model-Intents, tatsächliche Kernel-/Fabric-Zulassung, getrennte Rechte, Peer-Versionen, verspäteten Cleanup, Surface-Lifecycle und keyed Reinkarnation. Der Gesamt-Gate verlangt seit A04.2 **300 Fälle pro Umgebung** und weiterhin **88 Compilerprüfungen**. Gepackte Root-/Compiler-/Maraca-Consumer bauen und importieren den Begleiter, mounten tatsächliche React-/Vue-Hosts und prüfen Typen sowie den Browser-Bundle-Abschluss ohne implizite Framework-Abhängigkeiten.
 
-Der nächste Abschnitt **A04.2** integriert den Begleiter in Maracas regulären Build- und Browser-Boot-Pfad: versionierte neue Plan-/Config-/Boot-Verträge, Übergabe der intern erzeugten Surface-/Kernel-Ports und eindeutiges Cleanup im Kompositionsroot. Danach folgen transitive Provider-/Chunk-Provenienz und explizite Lazy-/CSP-/Peer-Ladeentscheidungen. Die A05-/A06- und vollständige 0.9-Feature-Abnahme bleiben eigenständig.
+[A04.2](integration.md) ergänzt 16 Build-/Vertragsfälle und 17 tatsächliche Laufzeitfälle für den regulären Build und Browser-Boot. Als Nächstes folgt A04.3 für transitive Provider-/Chunk-Provenienz und explizite Lazy-/CSP-/Peer-Ladeentscheidungen. A05/A06 und die vollständige 0.9-Feature-Abnahme bleiben eigenständig.

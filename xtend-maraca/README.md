@@ -79,7 +79,7 @@ runtime.dispose();
 
 ### XTension composition preparation
 
-The versioned `./xtension-composition` build API captures verified local React/Vue component factories into a companion ESM graph. `./xtension-composition-runtime` derives API-6 hosts from binding declarations and explicit application grants using shared native Kernel, Fabric and Surface ports. This A04.1 path is explicitly wired by the application; regular build/browser-boot integration follows A04.2. Both features remain in preparation for 0.9. See the [contract and verification](../development/rmtx-a04/README.md).
+The versioned `./xtension-composition` build API captures verified local React/Vue component factories into a companion ESM graph. `./xtension-composition-runtime` derives API-6 hosts from binding declarations and explicit application grants using shared native Kernel, Fabric and Surface ports. A04.2 integrates the companion into the regular async build and CLI with opt-in build-plan/config v5, artifact/report v2, browser API 6 and PlanRuntime v8. Applications supply Fabric, external peers and grants; Maraca binds its actual internal Kernel/Surface ports and drains owned hosts before kernel retirement. Legacy manual contracts remain available. Transitive provider dependencies and delivery provenance follow A04.3. See [automatic composition](../development/rmtx-a04/integration.md). Both features remain in preparation for 0.9. See the [contract and verification](../development/rmtx-a04/README.md).
 
 ### AppServices and TypeScript
 

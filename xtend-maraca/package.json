@@ -142,7 +142,8 @@
     "xtension-composition.d.ts",
     "xtension-composition-runtime.mjs",
     "xtension-composition-runtime.d.ts",
-    "xtension-composition-contract.mjs"
+    "xtension-composition-contract.mjs",
+    "xtension-platform-build.js"
   ],
   "engines": {
     "node": ">=24"

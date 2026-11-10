@@ -37,11 +37,11 @@
     "tools/xtensions/state-binding.js": "ea4b2e578d4ea9708c4c9abbf62b10b956cdc53a799757d4a66e263cf5d361f3",
     "tools/xtensions/state-binding.d.ts": "64b96864a7a3ef2f3d78a943eb81e0d6ae99e03fcfc3042ed5a227a14461100f",
     "tools/package.json": "6471a2ec40a5091c496855fdb5741cabdc36c4c6b515df0e18d30f003c0fe678",
-    "xtend-maraca/plan-runtime.d.ts": "87ce6df7aaeca8040c563d0be8252f56a9bd58c41f1d79e3d38daba3dabbbe3d",
+    "xtend-maraca/plan-runtime.d.ts": "4b4db45ca3a7cde3bde9eaf1ef1f8c230e2b2be23fe844bff0bf52d3f00067fd",
     "tests/xtensions/work-budget-acceptance.js": "7fcd2ab8138daad09452fe73af31f880d3c6d8f81164c8378022e69763140fe1",
     "tests/xtensions/work-budget-maraca-acceptance.js": "864b8aa6ccee6d9aeb896999cb2a2ffa3c683d5632a0ef45a0e6fc1e0d4e6a80",
     "tests/types/xtensions_work_budget.mts": "b486b8d98c90bae96d1e0c7e38bb7a2e5961ca84612767aa8049825b43f3bef8",
-    "tests/xtensions/xtensions_runtime_gate_suite.js": "caffd97dc7dd735fce59b78e15d04e5a594de06690c744e9739737325c4b1840",
-    "tests/xtensions/xtensions_consumer_package_suite.js": "28fa25884ce72fcf726ac884887ca2428679dc35a9594b9aa0e6cd487e932738"
+    "tests/xtensions/xtensions_runtime_gate_suite.js": "3820e15e7597d5e7bd367142f35428d6d3cc7236a1df296999ad4343ff00ad2a",
+    "tests/xtensions/xtensions_consumer_package_suite.js": "1b2f5d7caaace67f41be3b59670f16665ab84b71dad2f472fcfed8964ec2b195"
   }
 }

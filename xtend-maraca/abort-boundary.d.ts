@@ -1,4 +1,4 @@
-import type { RmtKernelScheduler, RmtJobContext, RmtKernelWorkRequest } from '../xtendrmt/rmt-kernel-scheduler.js';
+import type { RmtKernelScheduler, RmtJobContext, RmtKernelWorkRequest } from '@ccslabs/xtend/rmt/kernel-scheduler' with { 'resolution-mode': 'import' };
 export interface MaracaPresentationToken { readonly owner: object; readonly epoch: number; }
 export interface MaracaSuperseded { readonly ok: false; readonly status: 'superseded'; }
 export interface MaracaAbortBoundary {

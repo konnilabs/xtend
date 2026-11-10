@@ -2,6 +2,7 @@
 // Shared, data-only contract. No framework, filesystem or kernel implementation.
 export const MANIFEST_SCHEMA = 'xtend.maraca.xtension-composition-manifest.v1';
 export const ARTIFACT_SCHEMA = 'xtend.maraca.xtension-composition-artifact.v1';
+export const INTEGRATED_ARTIFACT_SCHEMA = 'xtend.maraca.xtension-composition-artifact.v2';
 const unsafe = new Set(['__proto__', 'prototype', 'constructor']);
 export function json(value, seen = new Set()) {
   if (value === null || typeof value === 'string' || typeof value === 'boolean' || typeof value === 'number' && Number.isFinite(value)) return;
@@ -53,11 +54,16 @@ function requirements(value, framework) {
   return result;
 }
 export function planIdentity(plan, bindingsRuntime) {
-  if (!plan || plan.schema !== 'xtend.maraca.build-plan.v4' || plan.ok !== true || !/^[a-f0-9]{64}$/.test(plan.sourceHash || '') || !plan.orchestration?.enabled) throw new TypeError('An enabled, valid Maraca v4 build plan is required.');
+  if (!plan || !['xtend.maraca.build-plan.v4', 'xtend.maraca.build-plan.v5'].includes(plan.schema) || plan.ok !== true || !/^[a-f0-9]{64}$/.test(plan.sourceHash || '') || !plan.orchestration?.enabled) throw new TypeError('An enabled, valid Maraca v4/v5 build plan is required.');
   if (bindingsRuntime?.XTENSION_STATE_BINDING_API_VERSION !== '2.4.0' || typeof bindingsRuntime.validateStateBindingArtifact !== 'function') throw new TypeError('The explicit state-binding API 2.4 runtime is required.');
   const bindings = bindingsRuntime.validateStateBindingArtifact(plan.xtensionBindings, plan.orchestration.artifact);
   if (!bindings.bindings.length) throw new TypeError('Composition requires at least one binding declaration.');
-  return freeze({ schema: plan.schema, sourceHash: plan.sourceHash, program: copy(plan.orchestration.artifact), bindings: copy(bindings) });
+  const identity = { schema: plan.schema, sourceHash: plan.sourceHash, program: copy(plan.orchestration.artifact), bindings: copy(bindings) };
+  if (plan.schema === 'xtend.maraca.build-plan.v5') {
+    const composition = plan.xtensionComposition;
+    identity.compositionManifest = normalizeManifest(composition?.schema === INTEGRATED_ARTIFACT_SCHEMA ? composition.manifest : composition, identity);
+  }
+  return freeze(identity);
 }
 export function normalizeManifest(input, identity) {
   json(input); fields(input, ['schema', 'providers', 'hosts'], 'composition manifest');
@@ -92,10 +98,12 @@ export function normalizeManifest(input, identity) {
 }
 export function validateArtifact(input, plan, bindingsRuntime) {
   json(input); fields(input, ['schema', 'apiVersion', 'plan', 'manifest', 'providers', 'entryFile', 'runtimeExecutionVerified'], 'composition artifact');
-  if (input.schema !== ARTIFACT_SCHEMA || input.apiVersion !== '1.0.0' || input.runtimeExecutionVerified !== false || !/^xtend\.xtensions-[a-f0-9]{64}\.mjs$/.test(input.entryFile || '')) throw new TypeError('A v1 build composition artifact is required.');
+  const integrated = input.schema === INTEGRATED_ARTIFACT_SCHEMA;
+  if ((!integrated && input.schema !== ARTIFACT_SCHEMA) || input.apiVersion !== (integrated ? '2.0.0' : '1.0.0') || input.plan?.schema !== (integrated ? 'xtend.maraca.build-plan.v5' : 'xtend.maraca.build-plan.v4') || input.runtimeExecutionVerified !== false || !/^xtend\.xtensions-[a-f0-9]{64}\.mjs$/.test(input.entryFile || '')) throw new TypeError('A version-matched v1/v2 build composition artifact is required.');
   const identity = planIdentity(plan, bindingsRuntime);
   if (canonical(input.plan) !== canonical(identity)) throw new TypeError('Composition artifact belongs to a different compiled source or binding contract.');
   const manifest = normalizeManifest(input.manifest, identity);
+  if (integrated && canonical(manifest) !== canonical(identity.compositionManifest)) throw new TypeError('The built provider manifest differs from the declared v5 composition.');
   if (!Array.isArray(input.providers) || input.providers.length !== manifest.providers.length) throw new TypeError('Provider build records must match the manifest.');
   input.providers.forEach((entry, index) => {
     fields(entry, ['id', 'sha256', 'fileName'], 'provider build record');

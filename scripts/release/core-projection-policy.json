@@ -1,7 +1,7 @@
 {
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "e35ba89899c12a746c92b1907e35739a34a0d5dd9cd70050d97aeec15b322353",
+  "inventorySha256": "4f4a6d3d775bba07d0026b8d2bd4736b445af84a2095751156fa763363692e0b",
   "productivePaths": [
     ".codex",
     ".comments/XScaler ATC.png.xml",
@@ -1162,6 +1162,12 @@
     "development/rmtx-a04/README.md",
     "development/rmtx-a04/evidence.json",
     "development/rmtx-a04/inspect.cjs",
+    "development/rmtx-a04/integration-evidence.json",
+    "development/rmtx-a04/integration-inspect.cjs",
+    "development/rmtx-a04/integration-reference.cjs",
+    "development/rmtx-a04/integration.md",
+    "development/rmtx-a04/providers/controlled-react-panel.mjs",
+    "development/rmtx-a04/providers/controlled-vue-panel.mjs",
     "development/rmtx-a04/providers/react-panel.mjs",
     "development/rmtx-a04/providers/vue-panel.mjs",
     "development/rmtx-a04/reference.cjs",
@@ -2812,6 +2818,7 @@
     "tests/types/xtensions_capability_negotiation.mts",
     "tests/types/xtensions_compiled_bindings.mts",
     "tests/types/xtensions_composition.mts",
+    "tests/types/xtensions_integrated_composition.mts",
     "tests/types/xtensions_kernel_runtime.mts",
     "tests/types/xtensions_resource_graph.mts",
     "tests/types/xtensions_runtime_adapters.ts",
@@ -2833,6 +2840,7 @@
     "tests/xtensions/compiled-state-binding-acceptance.js",
     "tests/xtensions/compiled-state-binding-compiler.cjs",
     "tests/xtensions/composition-maraca-acceptance.js",
+    "tests/xtensions/integrated-composition-acceptance.js",
     "tests/xtensions/kernel-maraca-acceptance.js",
     "tests/xtensions/kernel-runtime-acceptance.js",
     "tests/xtensions/maraca_xtensions_suite.js",
@@ -3432,6 +3440,7 @@
     "xtend-maraca/xtension-composition-runtime.mjs",
     "xtend-maraca/xtension-composition.d.ts",
     "xtend-maraca/xtension-composition.js",
+    "xtend-maraca/xtension-platform-build.js",
     "xtend-material/CHANGELOG.md",
     "xtend-material/README.md",
     "xtend-material/flow-recipes.d.ts",
@@ -3600,7 +3609,7 @@
     "xtendrmt/rmt-surface-transition-runtime.js",
     "xtendrmt/rmt.schema.json"
   ],
-  "authorityDecisionSha256": "221e2eddb20ffd9de7098cf5790b4153216510110e778d359e0ba1dbda9b0b38",
+  "authorityDecisionSha256": "30b80508727e0418c84e09ff25e701f3b11858b27fa6ce1ee9aad0dd2385b866",
   "note": "No union filtering or Core schema acceptance is inferred. Missing/pending exact projection blocks Core CI evidence and release preparation. Initial Candidate authority retirement remains a separate source guard.",
   "coreCandidateAuthoritySha256": "8fc57e4eb96a3a6fd0155234f06cc4b95879fc9d492fdaad8171e26345e4f865"
 }

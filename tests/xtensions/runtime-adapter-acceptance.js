@@ -7,7 +7,7 @@ const { normalizeHostResourceCleanupRecord } = require('../../tools/xtensions/ho
 const { createXtendFabric } = require('../../fabric/xtend-fabric');
 
 // Shared by jsdom and Chromium: no substitute framework roots or DOM stubs.
-async function runRuntimeAcceptance({ React: R, ReactDOM, Vue: V, document, compiledBindingPlan, conditionalBindingPlan, repeatedBindingPlan, compositionPlan, compositions }) {
+async function runRuntimeAcceptance({ React: R, ReactDOM, Vue: V, document, compiledBindingPlan, conditionalBindingPlan, repeatedBindingPlan, compositionPlan, compositions, integratedApps }) {
   const passed = [], failed = [];
   const check = (condition, message) => { if (!condition) throw new Error(message); };
   const equal = (a, b, message) => check(JSON.stringify(a) === JSON.stringify(b), `${message}: ${JSON.stringify(a)} != ${JSON.stringify(b)}`);
@@ -552,7 +552,8 @@ async function runRuntimeAcceptance({ React: R, ReactDOM, Vue: V, document, comp
   await require('./capability-negotiation-acceptance').runCapabilityNegotiationAcceptance({ React: R, ReactDOM, Vue: V, document, test, check, equal });
   await require('./resource-graph-acceptance').runResourceGraphAcceptance({React:R,ReactDOM,Vue:V,document,test,check,equal});
   await require('./state-binding-acceptance').runStateBindingAcceptance({ React: R, ReactDOM, document, test, check, equal });
-  await require('./composition-maraca-acceptance').runCompositionMaracaAcceptance({ React: R, ReactDOM, Vue: V, document, test, check, equal, plan: compositionPlan, compositions });
+  await require('./integrated-composition-acceptance').runIntegratedCompositionAcceptance({ React: R, ReactDOM, Vue: V, document, test, check, equal, integratedApps, compositions });
+  await require('./composition-maraca-acceptance').runCompositionMaracaAcceptance({ React: R, ReactDOM, Vue: V, document, test, check, equal, plan: compositionPlan, compositions, integratedApps });
   await require('./compiled-state-binding-acceptance').runCompiledStateBindingAcceptance({ React: R, ReactDOM, document, test, check, equal, plan: compiledBindingPlan, conditionalPlan: conditionalBindingPlan, repeatedPlan: repeatedBindingPlan });
   return { ok: failed.length === 0, passed, failed, versions: { react: R.version, reactDOM: ReactDOM.version, vue: V.version }, retainedCyclesPerFramework: 50 };
 }

@@ -166,7 +166,7 @@
     },
     {
       "file": "xtend-maraca/plan-runtime.mjs",
-      "sha256": "2bdeae9bbbc351460b657689d3808f3e7bfe2b6f35e46faeaf6412b41a1a4e05"
+      "sha256": "679bc7b1f1d1a30a33d36acd35df06c7c64820dd322ce8799b85bc554c0a1978"
     },
     {
       "file": "xtendrmt/contracts/portable-render.v2.json",
@@ -14044,10 +14044,17 @@
           "symbol": "<anonymous>"
         },
         {
+          "name": "XTENSION_PLAN_RUNTIME_SCHEMA",
+          "value": "xtend.maraca.plan-runtime.v8",
+          "file": "xtend-maraca/plan-runtime.mjs",
+          "line": 7,
+          "symbol": "<anonymous>"
+        },
+        {
           "name": "DOM_COMMIT_SCHEMA",
           "value": "xtend.rmt.dom-commit-result.v1",
           "file": "xtend-maraca/plan-runtime.mjs",
-          "line": 7,
+          "line": 9,
           "symbol": "<anonymous>"
         }
       ],
@@ -14063,7 +14070,7 @@
             "writer:change"
           ],
           "file": "xtend-maraca/plan-runtime.mjs",
-          "line": 10,
+          "line": 12,
           "symbol": "<anonymous>"
         },
         {
@@ -14074,7 +14081,7 @@
             "hidden"
           ],
           "file": "xtend-maraca/plan-runtime.mjs",
-          "line": 101,
+          "line": 103,
           "symbol": "<anonymous>"
         },
         {
@@ -14088,7 +14095,7 @@
             "invalid"
           ],
           "file": "xtend-maraca/plan-runtime.mjs",
-          "line": 102,
+          "line": 104,
           "symbol": "<anonymous>"
         },
         {
@@ -14105,7 +14112,7 @@
             "will-change"
           ],
           "file": "xtend-maraca/plan-runtime.mjs",
-          "line": 103,
+          "line": 105,
           "symbol": "<anonymous>"
         }
       ],

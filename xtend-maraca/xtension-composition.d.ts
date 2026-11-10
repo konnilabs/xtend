@@ -1,7 +1,7 @@
 import type { MaracaBuildPlan } from './index';
 import type { XTensionCompositionManifest, XTensionCompositionArtifact, XTensionCompositionBindingRuntime } from './xtension-composition-runtime';
 export type { XTensionCompositionManifest, XTensionCompositionArtifact, XTensionCompositionProvider } from './xtension-composition-runtime';
-export const XTENSION_COMPOSITION_BUILD_API_VERSION: '1.0.0';
+export const XTENSION_COMPOSITION_BUILD_API_VERSION: '2.0.0';
 export interface XTensionCompositionBuildReport {
   readonly schema: 'xtend.maraca.xtension-composition-build-report.v1';
   readonly apiVersion: '1.0.0'; readonly ok: true;
@@ -17,3 +17,12 @@ export function buildMaracaXTensionComposition(options: {
   readonly bindingsRuntime: XTensionCompositionBindingRuntime;
   readonly rootDir: string; readonly outputDir: string;
 }): Promise<XTensionCompositionBuildReport>;
+
+export interface IntegratedXTensionCompositionBuildReport extends Omit<XTensionCompositionBuildReport, 'schema' | 'apiVersion' | 'artifact'> {
+  readonly schema: 'xtend.maraca.xtension-composition-build-report.v2'; readonly apiVersion: '2.0.0';
+  readonly artifact: import('./xtension-composition-runtime').IntegratedXTensionCompositionArtifact;
+}
+export function buildMaracaXTensionComposition(options: {
+  readonly plan: import('./index').MaracaComposedBuildPlan; readonly manifest: XTensionCompositionManifest;
+  readonly bindingsRuntime: XTensionCompositionBindingRuntime; readonly rootDir: string; readonly outputDir: string;
+}): Promise<IntegratedXTensionCompositionBuildReport>;

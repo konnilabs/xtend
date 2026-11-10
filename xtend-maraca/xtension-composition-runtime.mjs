@@ -1,12 +1,46 @@
 // SPDX-License-Identifier: Apache-2.0
 import { validateArtifact, canonical, freeze, copy, name, json } from './xtension-composition-contract.mjs';
-export const XTENSION_COMPOSITION_API_VERSION = '1.0.0';
+export const XTENSION_COMPOSITION_API_VERSION = '2.0.0';
+
+function capturePolicies(hosts, input) {
+  const policies = new Map();
+  for (const host of hosts) {
+    const grants = input?.[host.declarationId];
+    if (!grants || typeof grants !== 'object' || Array.isArray(grants) || ![Object.prototype, null].includes(Object.getPrototypeOf(grants)) || Object.keys(grants).some(key => !['lifecycle', 'work', 'allowedResources', 'workBudget', 'authorize', 'validateProps'].includes(key))) throw new TypeError('Explicit, closed application grants are required for each declaration.');
+    for (const callback of ['authorize', 'validateProps']) if (grants[callback] !== undefined && typeof grants[callback] !== 'function') throw new TypeError('Application policy callbacks must be functions when supplied.');
+    const configured = { ...(grants.lifecycle === undefined ? {} : { lifecycle: grants.lifecycle }), work: grants.work === undefined ? {} : grants.work,
+      allowedResources: grants.allowedResources === undefined ? [] : grants.allowedResources, ...(grants.workBudget === undefined ? {} : { workBudget: grants.workBudget }) };
+    json(configured);
+    policies.set(host.declarationId, Object.freeze({ data: freeze(copy(configured)), authorize: grants.authorize, validateProps: grants.validateProps }));
+  }
+  return policies;
+}
+
+/** Captures application policy before asynchronous boot. Only Maraca binds the
+ * resulting port to its real controller/root and internally created Surfaces. */
+export function createMaracaXTensionCompositionPort(options) {
+  const artifact = validateArtifact(options.companion?.artifact, options.plan, options.bindingsRuntime);
+  if (artifact.schema !== 'xtend.maraca.xtension-composition-artifact.v2' || canonical(artifact) !== canonical(options.plan.xtensionComposition)) throw new TypeError('Integrated boot requires the exact built v2 composition artifact.');
+  const createHostFactory = options.companion.createHostFactory;
+  if (typeof createHostFactory !== 'function' || typeof options.loadPeers !== 'function') throw new TypeError('The built companion and explicit peer loader are required.');
+  const policies = capturePolicies(artifact.manifest.hosts, options.grants);
+  const grants = Object.freeze(Object.fromEntries([...policies].map(([id, policy]) => [id, Object.freeze({ ...policy.data, authorize: policy.authorize, validateProps: policy.validateProps })])));
+  const adapters = Object.freeze(Object.fromEntries(Object.entries(options.adapters || {}).map(([id, api]) => [id, Object.freeze({ ...api })])));
+  const plan = freeze(copy(options.plan)), bindingsRuntime = options.bindingsRuntime, loadPeers = options.loadPeers;
+  return Object.freeze({ schema: 'xtend.maraca.xtension-composition-port.v1', bindingsRuntime,
+    bind(ports) {
+      validateArtifact(artifact, ports.plan, bindingsRuntime);
+      return createHostFactory({ ...ports, plan, bindingsRuntime, adapters, loadPeers, grants,
+        compositionRuntime: Object.freeze({ createMaracaXTensionHostFactory }) });
+    }
+  });
+}
 
 /** Platform ports and loaded provider namespaces are trusted application inputs.
  * This composer neither fetches executable code nor treats a JSON hash as proof. */
 export function createMaracaXTensionHostFactory(options) {
   const artifact = validateArtifact(options.artifact, options.plan, options.bindingsRuntime);
-  const providers = new Map(), policies = new Map();
+  const providers = new Map(), policies = capturePolicies(artifact.manifest.hosts, options.grants);
   for (const provider of artifact.manifest.providers) {
     const namespace = options.providers?.[provider.id], adapter = options.adapters?.[provider.framework];
     const create = adapter?.[provider.framework === 'react' ? 'createReactKernelRuntimeAdapter' : 'createVueKernelRuntimeAdapter'];
@@ -19,18 +53,6 @@ export function createMaracaXTensionHostFactory(options) {
   const kernelWork = Object.freeze({ ...options.kernelWork }), resourceGraph = Object.freeze({ ...options.resourceGraph });
   name(kernelWork.rootId);
   if (!fabric || typeof fabric.createBoundary !== 'function' || !kernelWork.scheduler || !resourceGraph.kernel || !resourceGraph.surfaceGraph || !resourceGraph.surfaceController) throw new TypeError('Shared native Kernel, Fabric and Surface ports are required.');
-  for (const host of artifact.manifest.hosts) {
-    const grants = options.grants?.[host.declarationId];
-    if (!grants || typeof grants !== 'object' || Array.isArray(grants) || ![Object.prototype, null].includes(Object.getPrototypeOf(grants)) || Object.keys(grants).some(key => !['lifecycle', 'work', 'allowedResources', 'workBudget', 'authorize', 'validateProps'].includes(key))) throw new TypeError('Explicit, closed application grants are required for each declaration.');
-    for (const callback of ['authorize', 'validateProps']) if (grants[callback] !== undefined && typeof grants[callback] !== 'function') throw new TypeError('Application policy callbacks must be functions when supplied.');
-    const configured = { ...(grants.lifecycle === undefined ? {} : { lifecycle: grants.lifecycle }), work: grants.work === undefined ? {} : grants.work,
-      allowedResources: grants.allowedResources === undefined ? [] : grants.allowedResources, ...(grants.workBudget === undefined ? {} : { workBudget: grants.workBudget }) };
-    json(configured);
-    policies.set(host.declarationId, Object.freeze({
-      data: freeze(copy(configured)),
-      authorize: grants.authorize, validateProps: grants.validateProps
-    }));
-  }
   return function createXTensionHost(context) {
     const declarationId = context.identity?.address?.declarationId;
     const definition = artifact.manifest.hosts.find(entry => entry.declarationId === declarationId);

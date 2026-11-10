@@ -4,7 +4,7 @@ import type {
 } from '@ccslabs/xtend-compiler/xtensions/react-runtime-adapter';
 import type { XTensionBindingHostContext, XTensionStateBindingArtifact } from '@ccslabs/xtend-compiler/xtensions/state-binding';
 import type { MaracaBuildPlan } from './index';
-export const XTENSION_COMPOSITION_API_VERSION: '1.0.0';
+export const XTENSION_COMPOSITION_API_VERSION: '2.0.0';
 export type XTensionCompositionProvider = {
   readonly id: string;
   readonly version: string;
@@ -69,3 +69,27 @@ export type XTensionCompositionHostContext = XTensionBindingHostContext & {
 };
 /** Produces API-6 hosts with native Kernel/Fabric/Surface ownership for each registry incarnation. */
 export function createMaracaXTensionHostFactory(options: XTensionHostCompositionOptions): (context: XTensionCompositionHostContext) => NegotiatedRuntimeHostController;
+
+/** A04.2 adds v5 compiled-plan identity; the complete v1 artifact remains above. */
+export interface IntegratedXTensionCompositionArtifact extends Omit<XTensionCompositionArtifact, 'schema' | 'apiVersion' | 'plan'> {
+  readonly schema: 'xtend.maraca.xtension-composition-artifact.v2'; readonly apiVersion: '2.0.0';
+  readonly plan: Omit<XTensionCompositionArtifact['plan'], 'schema'> & { readonly schema: 'xtend.maraca.build-plan.v5'; readonly compositionManifest: XTensionCompositionManifest };
+}
+export interface IntegratedXTensionHostCompositionOptions extends Omit<XTensionHostCompositionOptions, 'artifact' | 'plan'> {
+  readonly artifact: IntegratedXTensionCompositionArtifact;
+  readonly plan: import('./index').MaracaComposedBuildPlan;
+}
+export function createMaracaXTensionHostFactory(options: IntegratedXTensionHostCompositionOptions): (context: XTensionCompositionHostContext) => NegotiatedRuntimeHostController;
+export interface MaracaXTensionCompositionPort {
+  readonly schema: 'xtend.maraca.xtension-composition-port.v1';
+  readonly bindingsRuntime: XTensionCompositionBindingRuntime;
+  bind(ports: Pick<XTensionHostCompositionOptions, 'fabric' | 'kernelWork' | 'resourceGraph'> & { readonly plan: Parameters<typeof createMaracaXTensionCompositionPort>[0]['plan'] }): (context: XTensionCompositionHostContext) => NegotiatedRuntimeHostController;
+}
+export function createMaracaXTensionCompositionPort(options: {
+  readonly plan: Omit<import('./index').MaracaComposedBuildPlan, 'xtensionComposition'> & { readonly xtensionComposition: IntegratedXTensionCompositionArtifact };
+  readonly companion: { readonly artifact: IntegratedXTensionCompositionArtifact; createHostFactory(ports: any): (context: XTensionCompositionHostContext) => NegotiatedRuntimeHostController };
+  readonly bindingsRuntime: XTensionCompositionBindingRuntime;
+  readonly adapters: XTensionHostCompositionOptions['adapters'];
+  readonly loadPeers: XTensionHostCompositionOptions['loadPeers'];
+  readonly grants: XTensionHostCompositionOptions['grants'];
+}): MaracaXTensionCompositionPort;

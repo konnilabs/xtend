@@ -1,4 +1,4 @@
-import type { RmtJobHandle } from '../xtendrmt/rmt-kernel-scheduler.js';
+import type { RmtJobHandle } from '@ccslabs/xtend/rmt/kernel-scheduler' with { 'resolution-mode': 'import' };
 import type { MaracaAbortBoundary, MaracaPresentationToken } from './abort-boundary';
 import type * as URLState from '@ccslabs/xtend/xtensions/url-state';
 import type * as XTensionBindings from '@ccslabs/xtend/xtensions/state-binding';
@@ -8,13 +8,13 @@ import type {
   RmtStateProjectionPort,
   RmtStateProjectionPortFactory,
   RmtStateHostTarget
-} from '../xtendrmt/rmt-state-host-adapter.js';
-import type { RmtDomDescriptorRenderer } from '../xtendrmt/rmt-dom-descriptor-renderer.js';
-import type { RmtKernelOrchestrationController } from '../xtendrmt/rmt-kernel-orchestration-controller.js';
+} from '@ccslabs/xtend/rmt/state-host-adapter' with { 'resolution-mode': 'import' };
+import type { RmtDomDescriptorRenderer } from '@ccslabs/xtend/rmt/dom-descriptor-renderer' with { 'resolution-mode': 'import' };
+import type { RmtKernelOrchestrationController } from '@ccslabs/xtend/rmt/kernel-orchestration-controller' with { 'resolution-mode': 'import' };
 import type {
   XtendSurfaceController,
   XtendSurfaceStateProjectionAdapter
-} from '../components/xsurfacemanager-controller.js';
+} from '@ccslabs/xtend/components/xsurfacemanager-controller.js' with { 'resolution-mode': 'import' };
 
 export interface MaracaPlanRuntimeSnapshot {
   readonly schema: 'xtend.maraca.plan-runtime.v7';
@@ -369,8 +369,27 @@ export interface MaracaPlanRuntimeOptions {
 
 export declare const PLAN_RUNTIME_SCHEMA: 'xtend.maraca.plan-runtime.v7';
 export declare const LEGACY_PLAN_RUNTIME_SCHEMA: 'xtend.maraca.plan-runtime.v3';
+export declare function createMaracaPlanRuntime(options: ComposedMaracaPlanRuntimeOptions): ComposedMaracaPlanRuntime;
 export declare function createMaracaPlanRuntime(options: MaracaPlanRuntimeOptions): MaracaPlanRuntime;
+export declare function bootMaracaPlan(options: ComposedMaracaPlanRuntimeOptions): Promise<ComposedMaracaPlanRuntime>;
 export declare function bootMaracaPlan(options: MaracaPlanRuntimeOptions): Promise<MaracaPlanRuntime>;
 
-declare const api: Readonly<{ PLAN_RUNTIME_SCHEMA: typeof PLAN_RUNTIME_SCHEMA; LEGACY_PLAN_RUNTIME_SCHEMA: typeof LEGACY_PLAN_RUNTIME_SCHEMA; createMaracaPlanRuntime: typeof createMaracaPlanRuntime; bootMaracaPlan: typeof bootMaracaPlan }>;
+declare const api: Readonly<{ PLAN_RUNTIME_SCHEMA: typeof PLAN_RUNTIME_SCHEMA; XTENSION_PLAN_RUNTIME_SCHEMA: typeof XTENSION_PLAN_RUNTIME_SCHEMA; LEGACY_PLAN_RUNTIME_SCHEMA: typeof LEGACY_PLAN_RUNTIME_SCHEMA; createMaracaPlanRuntime: typeof createMaracaPlanRuntime; bootMaracaPlan: typeof bootMaracaPlan }>;
 export default api;
+
+/** Separate opt-in v8 contract; manual v7 options, runtime and snapshots remain intact. */
+export const XTENSION_PLAN_RUNTIME_SCHEMA: 'xtend.maraca.plan-runtime.v8';
+export interface ComposedMaracaPlanRuntimeSnapshot extends Omit<MaracaPlanRuntimeSnapshot, 'schema'> {
+  readonly schema: 'xtend.maraca.plan-runtime.v8';
+}
+export interface ComposedMaracaPlanRuntime extends Omit<MaracaPlanRuntime, 'schema' | 'boot' | 'snapshot' | 'subscribe'> {
+  readonly schema: 'xtend.maraca.plan-runtime.v8';
+  boot(): Promise<ComposedMaracaPlanRuntimeSnapshot>;
+  snapshot(): ComposedMaracaPlanRuntimeSnapshot;
+  subscribe(listener: (snapshot: ComposedMaracaPlanRuntimeSnapshot) => void): () => void;
+}
+export interface ComposedMaracaPlanRuntimeOptions extends Omit<MaracaPlanRuntimeOptions, 'plan' | 'createXTensionHost' | 'xtensionBindingsRuntime'> {
+  plan: Record<string, unknown> & { schema: 'xtend.maraca.build-plan.v5'; xtensionComposition: import('./xtension-composition-runtime').IntegratedXTensionCompositionArtifact };
+  xtensionCompositionPort: import('./xtension-composition-runtime').MaracaXTensionCompositionPort;
+  createXTensionHost?: never; xtensionBindingsRuntime?: never; adoptExisting?: false;
+}

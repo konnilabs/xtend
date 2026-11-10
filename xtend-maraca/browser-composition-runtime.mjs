@@ -5,6 +5,7 @@ import {
   createMaracaBrowserHostAdapter
 } from './browser-host-adapter.mjs';
 export const MARACA_BROWSER_API_VERSION = '5.0.0';
+export const MARACA_XTENSION_BROWSER_API_VERSION = '6.0.0';
 export const LEGACY_BROWSER_COMPOSITION_SCHEMA = 'xtend.maraca.browser-composition-root.v1';
 
 function clone(value) {
@@ -192,6 +193,16 @@ function createAppServicesPort(config, dependencies, options, publish) {
   });
 }
 
+function createRuntimePlan(config, options) {
+  return {
+    ...(Object.hasOwn(config, 'xtensionComposition') ? { schema: 'xtend.maraca.build-plan.v5', ok: true, sourceHash: config.sourceHash, xtensionComposition: config.xtensionComposition } : {}),
+    orchestration: config.orchestration,
+    ...(Object.hasOwn(config, 'xtensionBindings') ? { xtensionBindings: config.xtensionBindings } : {}),
+    kernel: config.kernel, hydration: config.hydration, validation: config.validation, transitions: config.transitions,
+    components: { selected: config.components || [] }, surfaces: config.surfaces || [], state: options.initialState || config.state || {}
+  };
+}
+
 function createRuntimeConfiguration(config, options, host, handles) {
   const root = handles.root;
   const viewApi = host.runtimeApi('XTendRmtMaracaViewProjectionAdapter');
@@ -201,17 +212,8 @@ function createRuntimeConfiguration(config, options, host, handles) {
   // Ports and DOM roots are live host handles. Freeze only the composition
   // envelope; immutable Plan data was cloned/frozen when the root was built.
   return Object.freeze({
-    plan: {
-      orchestration: config.orchestration,
-      ...(Object.hasOwn(config, 'xtensionBindings') ? { xtensionBindings: config.xtensionBindings } : {}),
-      kernel: config.kernel,
-      hydration: config.hydration,
-      validation: config.validation,
-      transitions: config.transitions,
-      components: { selected: config.components || [] },
-      surfaces: config.surfaces || [],
-      state: options.initialState || config.state || {}
-    },
+    plan: createRuntimePlan(config, options),
+    ...(handles.compositionPort ? { xtensionCompositionPort: handles.compositionPort } : {}),
     root,
     initialState: options.initialState || config.state || {},
     xtensionBindingsRuntime: options.xtensionBindingsRuntime,
@@ -300,6 +302,9 @@ function createRuntimeConfiguration(config, options, host, handles) {
 
 export function createMaracaBrowserCompositionRoot(configuration = {}, dependencies = {}) {
   const config = freezeMaracaConfiguration(configuration || {});
+  const composed = Object.hasOwn(config, 'xtensionComposition');
+  if (composed !== (config.schema === 'xtend.maraca.browser-composition-root.v6') || composed && config.buildPlanSchema !== 'xtend.maraca.build-plan.v5') throw new TypeError('Automatic XTension boot requires the versioned v6 configuration and v5 build plan.');
+  const apiVersion = composed ? MARACA_XTENSION_BROWSER_API_VERSION : MARACA_BROWSER_API_VERSION;
   const platformTarget = dependencies.platformTarget || dependencies['global' + 'Target'] || dependencies.windowTarget || {};
   const windowTarget = dependencies.windowTarget || platformTarget['window'] || platformTarget;
   const documentTarget = dependencies.documentTarget || platformTarget['document'] || null;
@@ -324,6 +329,7 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
   let root = null;
   let renderer = null;
   let kernel = null;
+  let ownsKernel = true;
   let hydration = null;
   let appServices = null;
   let resume = null;
@@ -351,6 +357,19 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
     catch (error) { host.publish('xtend-maraca:dispose-error', { schema: 'xtend.maraca.diagnostic.v1', code: 'xtend.maraca.dispose_error', severity: 'error', message: error.message }); }
   }
 
+  function closeKernelAndRenderer(disposed, closingRuntime, handles) {
+    const { kernel, renderer, root, ownsKernel: owned } = handles;
+    const finish = () => {
+      if (owned !== false) closeHandle(disposed, 'kernel', kernel);
+      closeHandle(disposed, 'renderer', renderer, root || undefined, { clearOwnedDom: false });
+    };
+    if (composed && closingRuntime && typeof closingRuntime.whenXTensionsIdle === 'function') {
+      const retiring = Promise.resolve().then(() => closingRuntime.whenXTensionsIdle()).then(finish, error => { finish(); throw error; });
+      xtensionDrain = Promise.all([xtensionDrain, retiring]).then(() => undefined);
+      xtensionDrain.catch(() => {});
+    } else finish();
+  }
+
   function cleanupBootAttempt(attempt, disposed, reason) {
     if (!attempt || attempt.promoted || attempt.cleaned) return;
     attempt.cleaned = true;
@@ -360,9 +379,9 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
     closeHandle(disposed, 'hydration', attempt.hydration);
     closeHandle(disposed, 'orchestration', attempt.runtime);
     closeHandle(disposed, 'appServices', attempt.appServices, reason);
-    closeHandle(disposed, 'kernel', attempt.kernel);
+    closeKernelAndRenderer(disposed, attempt.runtime, attempt);
     closeHandle(disposed, 'telemetry', attempt.telemetry);
-    closeHandle(disposed, 'renderer', attempt.renderer, attempt.root || undefined, { clearOwnedDom: false });
+
     attempt.runtime = null;
     attempt.resume = null;
     attempt.hydration = null;
@@ -375,7 +394,7 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
 
   function snapshot() {
     if (runtime && typeof runtime.snapshot === 'function') return deepFreeze(clone(runtime.snapshot()));
-    return deepFreeze({ schema: 'xtend.maraca.plan-runtime.v3', phase: 'created', enabled: false, status: 'not_booted', diagnostics: [] });
+    return deepFreeze({ schema: composed ? 'xtend.maraca.plan-runtime.v8' : 'xtend.maraca.plan-runtime.v3', phase: 'created', enabled: false, status: 'not_booted', diagnostics: [] });
   }
 
   function subscribe(listener) {
@@ -435,13 +454,16 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
       if (!serverPrerenderShell.active && !(config.orchestration && config.orchestration.enabled)) {
         host.renderCompatibility(attempt.root, attempt.renderer);
       }
-      attempt.kernel = host.createKernelController(options);
+      if (composed && serverPrerenderShell.active) throw new TypeError('Automatic XTensions require client rendering; SSR/adoption belongs to the separate restore contract.');
+      attempt.ownsKernel = !composed || !options.kernelController;
+      attempt.kernel = composed && options.kernelController || host.createKernelController(options);
       attempt.hydration = host.createHydrationPort(attempt.root, options);
       const enabled = config.orchestration && config.orchestration.enabled && config.orchestration.artifact;
       if (enabled) {
         if (typeof dependencies.createPlanRuntime !== 'function') throw new Error('XTend Maraca composition requires createMaracaPlanRuntime.');
         attempt.runtime = dependencies.createPlanRuntime(createRuntimeConfiguration(config, options, host, {
           root: attempt.root,
+          compositionPort: attempt.compositionPort,
           renderer: attempt.renderer,
           kernel: attempt.kernel,
           hydration: attempt.hydration,
@@ -513,6 +535,7 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
       root = attempt.root;
       renderer = attempt.renderer;
       kernel = attempt.kernel;
+      ownsKernel = attempt.ownsKernel;
       hydration = attempt.hydration;
       appServices = attempt.appServices;
       resume = attempt.resume;
@@ -539,11 +562,20 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
   async function boot(options = {}) {
     if (bootResult && runtime) return duplicateBootResult(bootResult);
     if (bootAttempt) return duplicateBootResult(await bootAttempt.promise);
+    let compositionPort = null;
+    if (composed) {
+      if (options.createXTensionHost !== undefined || options.xtensionBindingsRuntime !== undefined || options.xtensionCompositionPort !== undefined || options.adoptExisting === true) throw new TypeError('Automatic XTensions cannot use manual factories, binding runtimes or adoption.');
+      if (!options.fabric || typeof options.fabric.createBoundary !== 'function' || !options.xtensions || Object.keys(options.xtensions).some(key => !['loadPeers', 'grants'].includes(key))) throw new TypeError('Automatic XTensions require Fabric and explicit peer-loader/grant options.');
+      const platform = dependencies.xtensionPlatform;
+      if (platform?.compositionRuntime?.XTENSION_COMPOSITION_API_VERSION !== '2.0.0') throw new TypeError('Automatic XTensions require the built platform API 2.');
+      compositionPort = platform.compositionRuntime.createMaracaXTensionCompositionPort({ plan: createRuntimePlan(config, {}), companion: dependencies.xtensionCompanion,
+        bindingsRuntime: platform.bindingsRuntime, adapters: platform.adapters, loadPeers: options.xtensions.loadPeers, grants: options.xtensions.grants });
+    }
     generation += 1;
     let rejectCancellation;
     const cancellation = new Promise((_, reject) => { rejectCancellation = reject; });
     const attempt = {
-      generation,
+      generation, compositionPort,
       cancelled: false,
       cancelError: null,
       cleaned: false,
@@ -601,9 +633,9 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
     closeHandle(disposed, 'hydration', hydration);
     closeHandle(disposed, 'orchestration', runtime);
     closeHandle(disposed, 'appServices', appServices, reason);
-    closeHandle(disposed, 'kernel', kernel);
+    closeKernelAndRenderer(disposed, runtime, { kernel, ownsKernel, renderer, root });
     closeHandle(disposed, 'telemetry', telemetry);
-    closeHandle(disposed, 'renderer', renderer, root || undefined, { clearOwnedDom: false });
+
     disposed.host = host.dispose() > 0;
     xtensionDrain = Promise.all([xtensionDrain, ...closingRuntimes.map((closing) => closing.whenXTensionsIdle?.())]).then(() => undefined);
     xtensionDrain.catch(() => {});
@@ -616,7 +648,7 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
   }
 
   const facadeMembers = {
-    apiVersion: MARACA_BROWSER_API_VERSION,
+    apiVersion,
     schema: config.schema,
     components: config.components || [],
     surfaces: config.surfaces || [],
@@ -677,8 +709,8 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
   facade = deepFreeze(facadeMembers);
 
   return deepFreeze({
-    schema: 'xtend.maraca.browser-composition-root.v5',
-    apiVersion: MARACA_BROWSER_API_VERSION,
+    schema: composed ? 'xtend.maraca.browser-composition-root.v6' : 'xtend.maraca.browser-composition-root.v5',
+    apiVersion,
     config,
     facade,
     boot,

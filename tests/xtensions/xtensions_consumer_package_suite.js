@@ -44,6 +44,7 @@ async function runXTensionsConsumerPackageSuite({ rootDir } = {}) {
       const manifest = JSON.parse(fs.readFileSync(path.join(target, 'package.json')));
       for (const subpath of ['xtension-composition', 'xtension-composition-runtime']) for (const condition of ['types', 'default']) assert(fs.existsSync(path.join(target, manifest.exports['./' + subpath][condition])));
       assert(fs.existsSync(path.join(target, 'xtension-composition-contract.mjs')));
+      assert(fs.existsSync(path.join(target, 'xtension-platform-build.js')));
       context.pass('Packed Maraca contains both versioned A04 APIs and their private data contract');
     }
     const fixture=path.join(temp,'consumer.cjs');
@@ -61,8 +62,8 @@ const peers=createRequire(process.env.XTENSIONS_TEST_PEERS+'/package.json');
  const {createRmtSurfaceResourceGraphRuntime}=await import('@ccslabs/xtend/rmt/surface-resource-graph-runtime');
  const {createSurfaceController}=await import('@ccslabs/xtend/components/xsurfacemanager-controller.js');
  const {createXtendFabric}=require('@ccslabs/xtend/fabric');
- const {JSDOM}=peers('jsdom');const dom=new JSDOM('<!doctype html><body></body>',{pretendToBeVisual:true});
- for(const key of ['window','document','Node','Element','HTMLElement','SVGElement','navigator','MutationObserver'])Object.defineProperty(globalThis,key,{configurable:true,value:dom.window[key]});
+ const {JSDOM}=peers('jsdom');const dom=new JSDOM('<!doctype html><body></body>',{pretendToBeVisual:true,url:'http://xtend.test/packed'});
+ for(const key of ['window','document','Node','Element','HTMLElement','SVGElement','navigator','MutationObserver','Event','CustomEvent'])Object.defineProperty(globalThis,key,{configurable:true,value:dom.window[key]});
  const React=peers('react'),ReactDOM={...peers('react-dom/client'),version:peers('react-dom').version},Vue=peers('vue');
  try{
   for(const pkg of ['@ccslabs/xtend','@ccslabs/xtend-compiler']){
@@ -131,8 +132,8 @@ const peers=createRequire(process.env.XTENSIONS_TEST_PEERS+'/package.json');
   const fs = require('node:fs'), path = require('node:path'), {createHash} = require('node:crypto');
   const compositionRuntime = await import('@ccslabs/xtend/maraca/xtension-composition-runtime');
   const maracaRuntime = await import('@ccslabs/xtend-maraca/xtension-composition-runtime');
-  assert.equal(maracaRuntime.XTENSION_COMPOSITION_API_VERSION, '1.0.0');
-  assert.equal(require('@ccslabs/xtend-maraca/xtension-composition').XTENSION_COMPOSITION_BUILD_API_VERSION, '1.0.0');
+  assert.equal(maracaRuntime.XTENSION_COMPOSITION_API_VERSION, '2.0.0');
+  assert.equal(require('@ccslabs/xtend-maraca/xtension-composition').XTENSION_COMPOSITION_BUILD_API_VERSION, '2.0.0');
   const compositionPlan = ${JSON.stringify(require('../../development/rmtx-a04/reference.cjs').createPlan())};
   const sources = ${JSON.stringify(Object.fromEntries(['react', 'vue'].map(framework => [framework, fs.readFileSync(path.join(rootDir, 'development/rmtx-a04/providers', framework + '-panel.mjs'), 'utf8')])))};
   const manifests = ${JSON.stringify(Object.fromEntries(['react', 'vue'].map(framework => [framework, require('../../development/rmtx-a04/reference.cjs').createManifest(framework)])))};
@@ -158,6 +159,19 @@ const peers=createRequire(process.env.XTENSIONS_TEST_PEERS+'/package.json');
    await registry.dispose();assert.equal(engine.listResources('packed-composition').length,0);assert.equal(root.querySelectorAll('input').length,0);
    graph.dispose();controller.dispose();engine.disposeRoot('packed-composition');scheduler.dispose();root.remove();
   }
+  const integratedSource = ${JSON.stringify(fs.readFileSync(path.join(rootDir, 'development/rmtx-a02/repeated-filters.rmt'), 'utf8'))};
+  window.__XTendMaracaDisableAutoBoot = true;
+  for (const framework of ['react', 'vue']) {
+   const builder = require(framework === 'react' ? '@ccslabs/xtend/maraca' : '@ccslabs/xtend-maraca');
+   const out = path.resolve('integrated-' + framework);
+   const built = await builder.buildMaracaBundleAsync({sourceText:integratedSource,virtualSourcePath:'packed.rmt',xtensionBindings:compositionPlan.xtensionBindings,xtensionComposition:manifests[framework],out,orchestration:'strict',kernel:'strict',hydration:'off',validation:'off',transitions:'off',profile:'debug',lazy:'none'},{rootDir:process.cwd()});
+   assert(built.ok, JSON.stringify(built.plan.diagnostics)); assert.equal(built.plan.schema,'xtend.maraca.build-plan.v5');
+   const generated = await import(require('node:url').pathToFileURL(path.join(out,'xtend.maraca.mjs')));
+   const root=document.createElement('main'); document.body.append(root); const app=generated.createXtendMaraca({windowTarget:window,documentTarget:document,platformTarget:{}});
+   await app.boot({root,fabric:createXtendFabric(),xtensions:{loadPeers:()=>framework==='react'?{React,ReactDOM}:{Vue},grants:{'filter-panel':{work:{scan:{lane:'background'}},workBudget:{schema:'xtend.xtensions.work-budget-policy.v1',maxPending:1,work:{scan:{maxPending:1}}}}}}});
+   assert.equal(app.apiVersion,'6.0.0');assert.equal(app.facade.snapshot().schema,'xtend.maraca.plan-runtime.v8');assert.equal(root.querySelectorAll('input').length,3);
+   app.dispose();await app.facade.whenXTensionsIdle();assert.equal(root.querySelectorAll('input').length,0);root.remove();
+  }
  }finally{dom.window.close();}
  console.log('Packed root/compiler factories render with explicitly injected external peers; missing peers and unsafe payloads are rejected.');
 })().catch(error=>{console.error(error);process.exitCode=1;});
@@ -175,7 +189,9 @@ const same: typeof root = compiler; void same; void compileRmtClassicAstWithBind
 import {createMaracaXTensionHostFactory} from '@ccslabs/xtend/maraca/xtension-composition-runtime';
 import {createMaracaXTensionHostFactory as workspace} from '@ccslabs/xtend-maraca/xtension-composition-runtime';
 const composition: typeof workspace = createMaracaXTensionHostFactory; void composition; void buildMaracaXTensionComposition;\n`);
-    command(process.execPath,[path.join(rootDir,'node_modules/typescript/bin/tsc'),'--strict','--noEmit','--lib','es2022,dom','--module','node16','--moduleResolution','node16',typing],{cwd:temp});
+    const integratedTyping=path.join(temp,'integrated-consumer.mts');
+    fs.copyFileSync(path.join(rootDir,'tests/types/xtensions_integrated_composition.mts'),integratedTyping);
+    command(process.execPath,[path.join(rootDir,'node_modules/typescript/bin/tsc'),'--strict','--noEmit','--lib','es2022,dom','--module','node16','--moduleResolution','node16',typing,integratedTyping],{cwd:temp});
     context.pass('Packed root/compiler state binding declarations resolve strictly without source-tree RMT imports');
     const { build } = require('esbuild');
     const bundle=await build({stdin:{contents:"import * as XTend from '@ccslabs/xtend'; import * as ReactAdapter from '@ccslabs/xtend/xtensions/react-runtime-adapter'; import * as VueAdapter from '@ccslabs/xtend/xtensions/vue-runtime-adapter'; import * as StateBinding from '@ccslabs/xtend/xtensions/state-binding'; import * as Composition from '@ccslabs/xtend/maraca/xtension-composition-runtime'; globalThis.consumer={XTend,ReactAdapter,VueAdapter,StateBinding,Composition};",resolveDir:temp},absWorkingDir:temp,bundle:true,platform:'browser',write:false,metafile:true});

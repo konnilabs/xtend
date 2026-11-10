@@ -4,6 +4,8 @@ export { createMaracaAbortBoundary } from './abort-boundary.mjs';
 
 const LEGACY_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v3';
 const PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v7';
+const XTENSION_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v8';
+let xtensionRootSequence = 0;
 const DOM_COMMIT_SCHEMA = 'xtend.rmt.dom-commit-result.v1';
 const DOM_COMMIT_EVENT = 'xtend-maraca:dom-commit';
 const SYSTEM_REFRESH_COMMAND = 'xtend.system.refresh';
@@ -166,14 +168,21 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   const dataSourceAdapters = Object.freeze({ ...asRecord(options.dataSourceAdapters) });
   const orchestration = asRecord(plan.orchestration);
   const artifact = asRecord(orchestration.artifact || plan.artifact);
-  const bindingRuntime = options.xtensionBindingsRuntime;
+  const composed = hasOwn(plan, 'xtensionComposition');
+  const runtimeSchema = composed ? XTENSION_PLAN_RUNTIME_SCHEMA : PLAN_RUNTIME_SCHEMA;
+  const compositionPort = options.xtensionCompositionPort;
+  if (composed && (plan.schema !== 'xtend.maraca.build-plan.v5' || plan.xtensionComposition?.schema !== 'xtend.maraca.xtension-composition-artifact.v2' || compositionPort?.schema !== 'xtend.maraca.xtension-composition-port.v1' || typeof compositionPort.bind !== 'function')) throw new TypeError('Integrated XTensions require a v5 plan, v2 artifact and the prepared composition port.');
+  if (composed && (options.createXTensionHost !== undefined || options.xtensionBindingsRuntime !== undefined || options.adoptExisting === true) || !composed && compositionPort !== undefined) throw new TypeError('Automatic and manual XTension composition cannot be mixed.');
+  let createXTensionHost = options.createXTensionHost;
+  let xtensionRoot = null;
+  const bindingRuntime = composed ? compositionPort.bindingsRuntime : options.xtensionBindingsRuntime;
   let bindingArtifact = null;
   if (hasOwn(asRecord(options.plan), 'xtensionBindings')) {
     if (!bindingRuntime || typeof bindingRuntime.validateStateBindingArtifact !== 'function' || typeof bindingRuntime.materializeStateBindingArtifact !== 'function' || typeof bindingRuntime.createXTensionStateRegistry !== 'function') {
       throw new TypeError('XTension binding artifacts require the explicit state-binding runtime port.');
     }
     bindingArtifact = bindingRuntime.validateStateBindingArtifact(options.plan.xtensionBindings, artifact);
-    if (bindingArtifact.bindings.length && typeof options.createXTensionHost !== 'function') throw new TypeError('Bound Maraca plans require a trusted createXTensionHost factory.');
+    if (bindingArtifact.bindings.length && !composed && typeof createXTensionHost !== 'function') throw new TypeError('Bound Maraca plans require a trusted createXTensionHost factory.');
     if (options.adoptExisting === true && bindingArtifact.bindings.some((entry) => entry.presence || entry.repeat)) {
       throw new TypeError('Conditional XTension hosts require client rendering; adoption requires the separate restore contract.');
     }
@@ -229,7 +238,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         if (boundXTensions.some((bound) => bound.hostSurface === entry.hostSurface)) continue;
         const container = surfaceElement(entry.hostSurface);
         if (!container) throw new Error(`XTension host ${entry.surface} was not rendered.`);
-        const instance = xtensionRegistry.bind(entry.binding, (context) => options.createXTensionHost(Object.freeze({ ...context, container, surface: entry.surface, hostSurface: entry.hostSurface, binding: entry.binding })));
+        const instance = xtensionRegistry.bind(entry.binding, (context) => createXTensionHost(Object.freeze({ ...context, container, surface: entry.surface, hostSurface: entry.hostSurface, binding: entry.binding })));
         boundXTensions.push(Object.freeze({ surface: entry.surface, hostSurface: entry.hostSurface, instance }));
         await raceDisposed(instance.mount(container));
       }
@@ -473,7 +482,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   }
 
   function publish(type, detail = {}) {
-    const event = immutableClone({ schema: PLAN_RUNTIME_SCHEMA, type, generation, ...detail }, {});
+    const event = immutableClone({ schema: runtimeSchema, type, generation, ...detail }, {});
     lastPublishedEvent = event;
     if (!subscriptions.size && !eventSubscriptions.size) return event;
     const fullListeners = [...subscriptions];
@@ -2722,6 +2731,13 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         throw error;
       }
       const kernel = createKernel(api.kernel, api.kernelRuntime || api.kernelApi);
+      runtimes = { ...runtimes, state, kernel };
+      if (composed) {
+        const native = kernel?.core?.rmt, scheduler = kernel?.scheduler;
+        if (!native || native.getScheduler?.() !== scheduler || scheduler?.schema !== 'xtend.rmt.kernel-scheduler.v1' || typeof native.mountRoot !== 'function' || typeof native.disposeRoot !== 'function' || typeof native.listRoots !== 'function') throw new TypeError('Automatic XTensions require the actual orchestration controller Core and native scheduler.');
+        let rootId; do { rootId = 'maraca.xtensions.' + (++xtensionRootSequence); } while (native.listRoots().some(entry => entry.id === rootId));
+        native.mountRoot(rootId, root); xtensionRoot = { kernel: native, rootId };
+      }
       const actionFactory = runtimeFactory(api.action, 'createRmtActionEffectRuntime');
       const resourceFactory = runtimeFactory(api.action, 'createRmtResourceManager');
       const appFactory = runtimeFactory(api.app, 'createRmtAppRuntime');
@@ -3157,6 +3173,9 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       assertCurrentBoot();
       reconcileEvents(initialCommit);
       if (bindingArtifact?.bindings.length) {
+        if (composed) createXTensionHost = compositionPort.bind({ plan, fabric: options.fabric,
+          kernelWork: { scheduler: kernel.scheduler, rootId: xtensionRoot.rootId },
+          resourceGraph: { kernel: xtensionRoot.kernel, surfaceGraph, surfaceController } });
         xtensionRegistry = bindingRuntime.createXTensionStateRegistry({ modelReader,
           commandDispatcher: { dispatch: (command, payload, metadata, lifetime) => dispatchCommand(command, payload, metadata, lifetime) },
           onDiagnostic: (diagnostic) => recordDiagnostic('xtend.maraca.xtension.binding', 'error', diagnostic.message, diagnostic) });
@@ -3184,7 +3203,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
 
   function snapshot() {
     return immutableClone({
-      schema: PLAN_RUNTIME_SCHEMA,
+      schema: runtimeSchema,
       phase,
       generation,
       renderCount,
@@ -3332,6 +3351,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         );
       }
     }
+    if (xtensionRoot) { const owned = xtensionRoot; xtensionRoot = null; try { owned.kernel.disposeRoot(owned.rootId, { removeState: true }); } catch (_) {} }
     if (ownsKernel && adapters.kernel && typeof adapters.kernel.dispose === 'function') {
       try { adapters.kernel.dispose(); } catch (_) {}
     }
@@ -3373,7 +3393,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   }
 
   const runtime = Object.freeze({
-    schema: PLAN_RUNTIME_SCHEMA,
+    schema: runtimeSchema,
     boot,
     dispatchCommand,
     restoreURLState,
@@ -3426,5 +3446,5 @@ export async function bootMaracaPlan(options = {}) {
   return runtime;
 }
 
-export { PLAN_RUNTIME_SCHEMA, LEGACY_PLAN_RUNTIME_SCHEMA };
-export default Object.freeze({ PLAN_RUNTIME_SCHEMA, LEGACY_PLAN_RUNTIME_SCHEMA, createMaracaPlanRuntime, bootMaracaPlan });
+export { PLAN_RUNTIME_SCHEMA, XTENSION_PLAN_RUNTIME_SCHEMA, LEGACY_PLAN_RUNTIME_SCHEMA };
+export default Object.freeze({ PLAN_RUNTIME_SCHEMA, XTENSION_PLAN_RUNTIME_SCHEMA, LEGACY_PLAN_RUNTIME_SCHEMA, createMaracaPlanRuntime, bootMaracaPlan });

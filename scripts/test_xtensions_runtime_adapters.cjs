@@ -22,6 +22,13 @@ async function main() {
   try {
   const compositionReports = Object.fromEntries(await Promise.all(['react', 'vue'].map(async framework => [framework, await compositionReference.buildReference(compositionPlan, path.join(compositionTemp, framework), framework)])));
   const compositions = Object.fromEntries(await Promise.all(Object.entries(compositionReports).map(async ([framework, report]) => [framework, await import(require('node:url').pathToFileURL(report.entryPath).href)])));
+  const integratedDirectories = {};
+  for (const framework of ['react', 'vue', 'mixed']) {
+    const directory = path.join(compositionTemp, 'integrated-' + framework);
+    const built = await require('../development/rmtx-a04/integration-reference.cjs').buildIntegratedReference(framework, directory);
+    if (!built.ok) throw new Error('Integrated build failed: ' + JSON.stringify(built.plan.diagnostics));
+    integratedDirectories[framework] = directory;
+  }
   let report;
   if (browser) {
     const { build } = require('esbuild');
@@ -39,14 +46,29 @@ async function main() {
       const compiledBindingPlan = ${JSON.stringify(compiledBindingPlan)};
       const conditionalBindingPlan = ${JSON.stringify(conditionalBindingPlan)};
       const repeatedBindingPlan = ${JSON.stringify(repeatedBindingPlan)};
-      window.runAcceptance = () => runRuntimeAcceptance({React,ReactDOM:{...client,version:dom.version},Vue,document,compiledBindingPlan,conditionalBindingPlan,repeatedBindingPlan,compositionPlan,compositions});`, resolveDir: root },
+      window.__XTendMaracaDisableAutoBoot = true;
+      window.runAcceptance = async () => {
+        const integratedApps = {};
+        for (const framework of ['react', 'vue', 'mixed']) {
+          const base = 'http://xtend.test/generated/' + framework + '/';
+          integratedApps[framework] = { entry: await import(base + 'xtend.maraca.mjs'), platform: (await import(base + 'runtime/xtension-platform.mjs')).default };
+        }
+        return runRuntimeAcceptance({React,ReactDOM:{...client,version:dom.version},Vue,document,compiledBindingPlan,conditionalBindingPlan,repeatedBindingPlan,compositionPlan,compositions,integratedApps}); };`, resolveDir: root },
       nodePaths: [path.resolve(peerRoot, 'node_modules')], bundle: true, platform: 'browser', write: false,
       define: { 'process.env.NODE_ENV': '"production"', __VUE_OPTIONS_API__: 'true', __VUE_PROD_DEVTOOLS__: 'false', __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false' } });
     const instance = await chromium.launch({ executablePath: process.env.CHROME_BIN || '/usr/bin/chromium', headless: true });
     try {
       const page = await instance.newPage();
       const errors = []; page.on('pageerror', (error) => errors.push(error.message));
-      await page.route('http://xtend.test/**', route => route.fulfill({ contentType: 'text/html', body: '<!doctype html><html><body></body></html>' }));
+      await page.route('http://xtend.test/**', route => {
+        const pathname = new URL(route.request().url()).pathname, match = pathname.match(/^\/generated\/(react|vue|mixed)\/(.+)$/);
+        if (match) {
+          const directory = integratedDirectories[match[1]], file = path.resolve(directory, match[2]);
+          if (!file.startsWith(directory + path.sep) || !fs.existsSync(file)) return route.fulfill({ status: 404, body: 'Missing generated asset' });
+          return route.fulfill({ contentType: file.endsWith('.json') ? 'application/json' : 'text/javascript', body: fs.readFileSync(file) });
+        }
+        return route.fulfill({ contentType: 'text/html', body: '<!doctype html><html><body></body></html>' });
+      });
       await page.goto('http://xtend.test/xtensions-test');
       await page.addScriptTag({ content: bundle.outputFiles[0].text });
       report = await page.evaluate(() => window.runAcceptance());
@@ -61,8 +83,14 @@ async function main() {
     const dom = new JSDOM('<!doctype html><html><body></body></html>', { pretendToBeVisual: true, url: 'http://xtend.test/xtensions-test' });
     for (const key of ['window', 'document', 'Node', 'Element', 'HTMLElement', 'SVGElement', 'navigator', 'MutationObserver', 'Event', 'CustomEvent']) Object.defineProperty(globalThis, key, { configurable: true, value: dom.window[key] });
     try {
+      dom.window.__XTendMaracaDisableAutoBoot = true;
+      const integratedApps = {};
+      for (const [framework, directory] of Object.entries(integratedDirectories)) integratedApps[framework] = {
+        entry: await import(require('node:url').pathToFileURL(path.join(directory, 'xtend.maraca.mjs')).href),
+        platform: (await import(require('node:url').pathToFileURL(path.join(directory, 'runtime/xtension-platform.mjs')).href)).default
+      };
       report = await require('../tests/xtensions/runtime-adapter-acceptance').runRuntimeAcceptance({ React: peers('react'),
-        ReactDOM: { ...peers('react-dom/client'), version: peers('react-dom').version }, Vue: peers('vue'), document: dom.window.document, compiledBindingPlan, conditionalBindingPlan, repeatedBindingPlan, compositionPlan, compositions });
+        ReactDOM: { ...peers('react-dom/client'), version: peers('react-dom').version }, Vue: peers('vue'), document: dom.window.document, compiledBindingPlan, conditionalBindingPlan, repeatedBindingPlan, compositionPlan, compositions, integratedApps });
     } finally { dom.window.close(); }
   }
   report = {

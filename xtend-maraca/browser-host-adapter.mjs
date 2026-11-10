@@ -286,6 +286,7 @@ export function createMaracaBrowserHostAdapter(configuration = {}, dependencies 
     }
     const controller = api.createRmtKernelOrchestrationController({
       kernelApi: dependencies.kernelRuntimeModule || null,
+      ...(config.xtensionComposition ? { kernelScheduler: options.kernelScheduler, fabric: options.fabric } : {}),
       artifact: plan.artifact || null,
       plan,
       strict: Boolean(plan.strict),

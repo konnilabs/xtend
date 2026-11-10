@@ -4,8 +4,8 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "e35ba89899c12a746c92b1907e35739a34a0d5dd9cd70050d97aeec15b322353",
-  "sourceMembershipSha256": "1d1fd99275048c494702087a6ca4f826b3c92a7887acdb653e79af31cd56af9d",
+  "inventorySha256": "4f4a6d3d775bba07d0026b8d2bd4736b445af84a2095751156fa763363692e0b",
+  "sourceMembershipSha256": "3c3b2d0838e7d66f781948b1368cecf84d8b642c75b3af52d2de063d80b146d9",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
@@ -549,7 +549,7 @@
         },
         {
           "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
-          "sha256": "ad5d8000912771360c40d6865287af5d2a13dc20d4f9a8a2e120735400801508"
+          "sha256": "c9c7de880d91dd51c92baab04691b2c3e1b18be8c30721095304b0039a0ad481"
         },
         {
           "path": "development/rmtx-a01/README.md",
@@ -561,7 +561,7 @@
         },
         {
           "path": "development/rmtx-a01/inventory.json",
-          "sha256": "9945ce917dcd1c6ad45abd76f568d30c53b7a442b58bd66ed9bd9b188aaacaf2"
+          "sha256": "a256b0b922d254ae70ddc108c5ea7c2dc8c591cab03eb0510db79598ac9c95b8"
         },
         {
           "path": "docs/de/rmt-vnext-authoring.md",
@@ -1280,5 +1280,68 @@
     "publicationGuardRetired": false,
     "freshCommittedCaptureRequired": true,
     "rationale": "Scoped A04.1 development review: separate API-1.0.0 Maraca companion contracts bind the validated compiled program and keyed bindings to a closed manifest, captured SHA-256-checked local provider bytes and direct ESM imports. Actual API-6 React/Vue hosts use shared native Kernel/Fabric/Surface ports and separately captured application grants. Static manifests and capability reports remain distinct; a JSON hash is not a runtime byte certificate. Regular Maraca build/browser-boot integration, transitive chunks and complete 0.9 acceptance remain pending. All existing authoritative/released fingerprint sets and legacy plan/runtime/host ABIs are preserved. New partial static/type shapes remain partial and are not promoted to complete authority. See development/rmtx-a04/README.md."
+  },
+  "a042RegularBuildBootReview": {
+    "format": 1,
+    "date": "2026-11-10",
+    "status": "reviewed-unreleased-regular-build-and-boot",
+    "stage": "A04.2",
+    "a04Complete": false,
+    "contract": "development/rmtx-a04/integration.md",
+    "newSchemaIds": [
+      "xtend.maraca.browser-composition-root.v6",
+      "xtend.maraca.build-config.v5",
+      "xtend.maraca.build-plan.v5",
+      "xtend.maraca.plan-runtime.v8",
+      "xtend.maraca.xtension-composition-artifact.v2",
+      "xtend.maraca.xtension-composition-build-report.v2",
+      "xtend.maraca.xtension-composition-port.v1"
+    ],
+    "scopedSchemaIds": [
+      "xtend.maraca.browser-composition-root.v5",
+      "xtend.maraca.browser-composition-root.v6",
+      "xtend.maraca.build-config.v4",
+      "xtend.maraca.build-config.v5",
+      "xtend.maraca.build-plan.v4",
+      "xtend.maraca.build-plan.v5",
+      "xtend.maraca.bundle-report.v1",
+      "xtend.maraca.plan-runtime.scheduler-kernel.v1",
+      "xtend.maraca.plan-runtime.v3",
+      "xtend.maraca.plan-runtime.v7",
+      "xtend.maraca.plan-runtime.v8",
+      "xtend.maraca.xtension-composition-artifact.v1",
+      "xtend.maraca.xtension-composition-artifact.v2",
+      "xtend.maraca.xtension-composition-build-report.v1",
+      "xtend.maraca.xtension-composition-build-report.v2",
+      "xtend.maraca.xtension-composition-port.v1",
+      "xtend.rmt.kernel-scheduler.v1",
+      "xtend.rmt.kernel-work.v1",
+      "xtend.xtensions.work-budget-policy.v1"
+    ],
+    "buildApiVersion": "2.0.0",
+    "runtimeApiVersion": "2.0.0",
+    "hostApiVersion": "6.0.0",
+    "buildPlanVersion": 5,
+    "buildConfigVersion": 5,
+    "artifactVersion": 2,
+    "buildReportVersion": 2,
+    "compositionPortVersion": 1,
+    "browserApiVersion": "6.0.0",
+    "planRuntimeVersion": 8,
+    "fabricRequired": true,
+    "nativeKernelAbiChanged": false,
+    "surfaceGraphAbiChanged": false,
+    "automaticBrowserBootComposition": true,
+    "legacyContractsRetained": true,
+    "rootExportCount": 214,
+    "contractChecks": 16,
+    "integrationCases": 17,
+    "runtimeCasesPerEnvironment": 300,
+    "compilerChecks": 88,
+    "productionSizeClosureAccepted": false,
+    "acceptedForRelease": false,
+    "publicationGuardRetired": false,
+    "freshCommittedCaptureRequired": true,
+    "rationale": "Scoped A04.2 review: automatic regular async Maraca/CLI build and browser boot use opt-in build-plan/config v5, composition API 2 with artifact/report v2, prepared port v1, Browser API 6 and PlanRuntime v8. Captured manifest identity and application grants bind actual internal Kernel/Fabric/Surface ports; owned roots drain before kernel retirement, borrowed owners survive. Legacy default plan/config v4, Browser API 5, PlanRuntime v7 and artifact/report v1 remain supported. All prior authoritative/released fingerprint sets remain fixed. Partial static/type observations stay partial. Transitive provider dependencies, delivery provenance, strict production size closure and full 0.9 acceptance remain pending. See development/rmtx-a04/integration.md."
   }
 }

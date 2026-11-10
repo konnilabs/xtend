@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { createHash } = require('node:crypto');
 const { TextDecoder } = require('node:util');
-const XTENSION_COMPOSITION_BUILD_API_VERSION = '1.0.0';
+const XTENSION_COMPOSITION_BUILD_API_VERSION = '2.0.0';
 const hash = value => createHash('sha256').update(value).digest('hex');
 function inspectSource(source, exportName) {
   const { parseAst } = require('rollup/parseAst');
@@ -27,8 +27,10 @@ function inspectSource(source, exportName) {
 /** Captures verified source bytes into a companion ESM graph for a compiled plan.
  * It does not execute providers, bundle peers, or certify HTTP delivery. */
 async function buildMaracaXTensionComposition(options) {
-  const { planIdentity, normalizeManifest, ARTIFACT_SCHEMA, canonical } = await import('./xtension-composition-contract.mjs');
+  const { planIdentity, normalizeManifest, ARTIFACT_SCHEMA, INTEGRATED_ARTIFACT_SCHEMA, canonical } = await import('./xtension-composition-contract.mjs');
   const identity = planIdentity(options.plan, options.bindingsRuntime), manifest = normalizeManifest(options.manifest, identity);
+  const integrated = identity.schema === 'xtend.maraca.build-plan.v5';
+  if (integrated && canonical(manifest) !== canonical(identity.compositionManifest)) throw new TypeError('The provider manifest must match the declared v5 build plan.');
   const root = fs.realpathSync(options.rootDir), captures = [];
   for (const provider of manifest.providers) {
     const sourcePath = fs.realpathSync(path.resolve(root, provider.entry.module));
@@ -42,7 +44,7 @@ async function buildMaracaXTensionComposition(options) {
   // Every source is captured and checked before the first output mutation.
   // Output imports these exact bytes; it never rereads the original source.
   const entryFile = `xtend.xtensions-${hash(canonical({ identity, manifest }))}.mjs`;
-  const artifact = { schema: ARTIFACT_SCHEMA, apiVersion: '1.0.0', plan: identity, manifest,
+  const artifact = { schema: integrated ? INTEGRATED_ARTIFACT_SCHEMA : ARTIFACT_SCHEMA, apiVersion: integrated ? '2.0.0' : '1.0.0', plan: identity, manifest,
     providers: captures.map(({ id, sha256, fileName }) => ({ id, sha256, fileName })), entryFile, runtimeExecutionVerified: false };
   const source = captures.map((entry, index) => `import * as provider${index} from ${JSON.stringify('./' + entry.fileName)};`).join('\n') +
     `\nfunction freezeData(value) { if (value && typeof value === 'object') { Object.values(value).forEach(freezeData); Object.freeze(value); } return value; }\nexport const artifact = freezeData(${JSON.stringify(artifact)});\nexport function createHostFactory(ports) {\n  return ports.compositionRuntime.createMaracaXTensionHostFactory({ ...ports, artifact, providers: {${captures.map((entry, index) => `${JSON.stringify(entry.id)}: provider${index}`).join(',')}} });\n}\n`;
@@ -56,7 +58,7 @@ async function buildMaracaXTensionComposition(options) {
     try { fs.writeFileSync(target, file.bytes, { flag: 'wx' }); }
     catch (error) { if (error.code !== 'EEXIST' || !fs.readFileSync(target).equals(file.bytes)) throw error; }
   }
-  return { schema: 'xtend.maraca.xtension-composition-build-report.v1', apiVersion: XTENSION_COMPOSITION_BUILD_API_VERSION, ok: true,
+  return { schema: integrated ? 'xtend.maraca.xtension-composition-build-report.v2' : 'xtend.maraca.xtension-composition-build-report.v1', apiVersion: integrated ? XTENSION_COMPOSITION_BUILD_API_VERSION : '1.0.0', ok: true,
     artifact, entryPath: path.join(output, entryFile), files: files.map(file => ({ fileName: file.fileName, sha256: file.sha256, bytes: file.bytes.length })),
     frameworkDependenciesBundled: false, runtimeExecutionVerified: false };
 }
