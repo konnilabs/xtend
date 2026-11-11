@@ -409,6 +409,7 @@ jobs:
             .xtend-test-results/xtend-xtensions-runtime-browser-report.json
             .xtend-test-results/xtend-xtensions-delivery-report.json
             .xtend-test-results/xtend-xtensions-integrity-report.json
+            .xtend-test-results/xtend-xtensions-deployment-runtime-report.json
             .xtend-test-results/xtend-xtensions-consumer-package-report.json
             .xtend-test-results/xtend-xtensions-runtime-gate-report.json
             .xtend-test-results/xtend-dev-surface-report.json

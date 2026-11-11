@@ -139,6 +139,7 @@
     "remote-surface.mjs",
     "remote-surface.d.ts",
     "xtension-deployment.js",
+    "xtension-deployment-pwa.js",
     "xtension-composition.js",
     "xtension-composition.d.ts",
     "xtension-composition-runtime.mjs",

@@ -5,7 +5,7 @@ import * as react from '@ccslabs/xtend-compiler/xtensions/react-runtime-adapter'
 import * as vue from '@ccslabs/xtend-compiler/xtensions/vue-runtime-adapter';
 import { createMaracaBuildPlan } from '@ccslabs/xtend-maraca';
 import type { MaracaPlanRuntimeOptions } from '@ccslabs/xtend/maraca/plan-runtime';
-const buildVersion: '7.0.0' = XTENSION_COMPOSITION_BUILD_API_VERSION;
+const buildVersion: '8.0.0' = XTENSION_COMPOSITION_BUILD_API_VERSION;
 const runtimeVersion: '6.0.0' = XTENSION_COMPOSITION_API_VERSION;
 const manifest: XTensionCompositionManifest = { schema: 'xtend.maraca.xtension-composition-manifest.v1',
   providers: [{ id: 'panel', framework: 'react', version: '1.0.0', entry: { module: './panel.mjs', exportName: 'createPanel' }, integrity: { sha256: '0'.repeat(64) }, peers: { react: '18.3.1', 'react-dom': '18.3.1' } }],

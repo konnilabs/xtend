@@ -4,8 +4,8 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "7252fe1b992a5ab064119e574846b07efd576b3ebaf2102861dfa23bc0695a71",
-  "sourceMembershipSha256": "497f79bd12b4474244b32aabe1185084de99b1f68b8fbd707467e0040b169716",
+  "inventorySha256": "1946b77534c01763d84a6c181407359fd19c6b5871ba61a9ce4f2b4c47927fad",
+  "sourceMembershipSha256": "b1f14a6c5447c4f48a875eae71248281fa4b9621dcd91d459ab9ed93aeafd16d",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
@@ -549,7 +549,7 @@
         },
         {
           "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
-          "sha256": "fb674c1008f7bdae1ea516795ba5aa3b16b28644aa82a048f0a03f0aca4c18ff"
+          "sha256": "7ca3e2dc9758f0c72313994c5337622ad25d3f72d1f5b24e5920ca2e89af8827"
         },
         {
           "path": "development/rmtx-a01/README.md",
@@ -1645,5 +1645,68 @@
     "publicationGuardRetired": false,
     "freshCommittedCaptureRequired": true,
     "rationale": "Scoped A04.3.5 review: public composition build API7 adds deployment API1 with closed config/manifest/result v1 and a separate real native-integrity acceptance report v1. Existing runtime API6, manifest v5, artifact/report v6, load-plan v2 and delivery-plan v1 retain complete semantics. Actual regular-build capture and explicit application pins produce a complete finite browser JavaScript inventory, native import-map integrity, external bootstrap SRI and hash-only CSP. Trusted document/headers and externally anchored manifest digest remain required. A private immutable HTTP snapshot serves exact bytes; restart loading verifies every member. Twenty-three actual HTTP/Chromium cases include full React/Vue/mixed boot, tampered bootstrap/peers/app/platform/kernel/companion/helper, missing metadata, existing Service Worker cache responses, changed redirect responses and unlisted modules. No final-URL attestation, PWA/AppServices integration or universal unsupported-browser claim is made. All previous authoritative/released fingerprint sets, strict reference ceilings, 341 runtime cases and 88 compiler checks remain mandatory. Complete 0.9 feature acceptance remains pending. See development/rmtx-a04/integrity.md."
+  },
+  "a0436PwaAppServicesDeploymentReview": {
+    "format": 1,
+    "date": "2026-11-11",
+    "status": "reviewed-unreleased-pwa-appservices-deployment",
+    "stage": "A04.3.6",
+    "a04Complete": false,
+    "contract": "development/rmtx-a04/runtime.md",
+    "newSchemaIds": [
+      "xtend.maraca.xtension-deployment-config.v2",
+      "xtend.maraca.xtension-deployment-manifest.v2",
+      "xtend.maraca.xtension-deployment-result.v2",
+      "xtend.maraca.xtension-deployment-runtime-policy.v1",
+      "xtend.xtensions.deployment-runtime-acceptance-report.v1"
+    ],
+    "scopedSchemaIds": [
+      "xtend.maraca.health.v1",
+      "xtend.maraca.xtension-deployment-config.v1",
+      "xtend.maraca.xtension-deployment-config.v2",
+      "xtend.maraca.xtension-deployment-manifest.v1",
+      "xtend.maraca.xtension-deployment-manifest.v2",
+      "xtend.maraca.xtension-deployment-result.v1",
+      "xtend.maraca.xtension-deployment-result.v2",
+      "xtend.maraca.xtension-deployment-runtime-policy.v1",
+      "xtend.xtensions.deployment-runtime-acceptance-report.v1",
+      "xtend.xtensions.work-budget-policy.v1"
+    ],
+    "deploymentApiVersion": "2.0.0",
+    "deploymentConfigVersion": 2,
+    "deploymentManifestVersion": 2,
+    "deploymentResultVersion": 2,
+    "runtimePolicyVersion": 1,
+    "runtimeAcceptanceReportVersion": 1,
+    "browserRuntimeCases": 10,
+    "browserByteIntegrityEnforced": true,
+    "trustedDocumentRequired": true,
+    "trustedWorkerRequired": true,
+    "workerRegistrationIntegrityEnforced": false,
+    "offlineMode": "static-fallback",
+    "publicPrivateOutputsSeparate": true,
+    "manifestVersion": 5,
+    "artifactVersion": 6,
+    "buildReportVersion": 6,
+    "loadPlanVersion": 2,
+    "buildApiVersion": "8.0.0",
+    "runtimeApiVersion": "6.0.0",
+    "legacyContractsRetained": true,
+    "nativeKernelAbiChanged": false,
+    "browserAbiChanged": false,
+    "planRuntimeAbiChanged": false,
+    "sizeBudgetReportVersion": 2,
+    "referenceRegressionLimits": {
+      "frameworkBytes": 2200000,
+      "xtensionRuntimeBytes": 240000
+    },
+    "rootExportCount": 214,
+    "contractChecks": 24,
+    "runtimeCasesPerEnvironment": 341,
+    "compilerChecks": 88,
+    "acceptedForRelease": false,
+    "publicationGuardRetired": false,
+    "freshCommittedCaptureRequired": true,
+    "rationale": "Scoped A04.3.6 review: build API8 and deployment API2 add config/manifest/result v2, a closed runtime policy v1 and a separate actual PWA/AppServices acceptance report v1. Complete deployment v1 data/API1 and every earlier composition/runtime contract remain supported. Public immutable browser files and private actual AppServices artifacts are separately pinned and emitted to disjoint roots. The new worker caches only a finite static inventory, validates network/cache bytes, refuses redirects, keeps navigation and API data off cache, and provides only a script-free offline fallback. Document/headers, externally anchored manifest digest and worker registration remain trusted origin operations; native registration SRI is explicitly not asserted. Existing worker imports/module workers/UI coprocessors are excluded by the new opt-in policy. Ten real HTTP/Chromium cases prove native Kernel/Fabric hosts, actual compiled RMT-to-Node AppServices transport, private HTTP rejection, verified cache responses, cache/install tampering, redirect rejection, network-only API and offline fallback. Twenty-four contract checks, all previous authoritative/released sets, unchanged strict reference ceilings, 341 retained runtime cases and 88 compiler checks remain mandatory. Coordinated updates/cache retirement, full offline application state and complete 0.9 acceptance remain pending. See development/rmtx-a04/runtime.md."
   }
 }

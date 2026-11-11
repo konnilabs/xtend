@@ -1,7 +1,7 @@
 import type { MaracaBuildPlan } from './index';
 import type { XTensionCompositionManifest, XTensionCompositionArtifact, XTensionCompositionBindingRuntime } from './xtension-composition-runtime';
 export type { XTensionCompositionManifest, XTensionCompositionArtifact, XTensionCompositionProvider } from './xtension-composition-runtime';
-export const XTENSION_COMPOSITION_BUILD_API_VERSION: '7.0.0';
+export const XTENSION_COMPOSITION_BUILD_API_VERSION: '8.0.0';
 export interface XTensionCompositionBuildReport {
   readonly schema: 'xtend.maraca.xtension-composition-build-report.v1';
   readonly apiVersion: '1.0.0'; readonly ok: true;
@@ -83,7 +83,7 @@ export function buildMaracaXTensionComposition(options: {
 }): Promise<XTensionCompositionBuildReport | IntegratedXTensionCompositionBuildReport | GraphXTensionCompositionBuildReport | DeferredXTensionCompositionBuildReport | SharedXTensionCompositionBuildReport | DeliveryXTensionCompositionBuildReport>;
 
 /** Node build/deployment API. Native browser execution keeps composition API6. */
-export const XTENSION_DEPLOYMENT_API_VERSION: '1.0.0';
+export const XTENSION_DEPLOYMENT_API_VERSION: '2.0.0';
 export interface XTensionDeploymentManifest {
   readonly schema: 'xtend.maraca.xtension-deployment-manifest.v1'; readonly apiVersion: '1.0.0';
   readonly mode: 'native-sri-importmap'; readonly publicPath: string;
@@ -106,9 +106,34 @@ export interface XTensionDeploymentConfig {
   readonly publicPath: string; readonly outputDir: string;
 }
 export function buildMaracaXTensionDeployment(options: XTensionDeploymentConfig): XTensionDeploymentResult;
+export function buildMaracaXTensionDeployment(options: XTensionRuntimeDeploymentConfig): XTensionRuntimeDeploymentResult;
 /** The expected manifest digest must come from trusted deployment configuration. */
-export function loadMaracaXTensionDeployment(options: { readonly rootDir: string; readonly manifestSha256: string }): XTensionDeploymentResult;
-export function createMaracaXTensionDeploymentHandler(result: XTensionDeploymentResult): (
+export function loadMaracaXTensionDeployment(options: { readonly rootDir: string; readonly manifestSha256: string; readonly serverRootDir?: string }): XTensionDeploymentResult | XTensionRuntimeDeploymentResult;
+export function createMaracaXTensionDeploymentHandler(result: XTensionDeploymentResult | XTensionRuntimeDeploymentResult): (
   request: { readonly method?: string; readonly url?: string },
   response: { setHeader(name: string, value: string | number): unknown; writeHead(status: number, headers?: Readonly<Record<string, string | number>>): unknown; end(body?: Uint8Array): unknown }
 ) => boolean;
+
+/** Opt-in runtime policy. Worker registration remains a trusted origin operation. */
+export interface XTensionDeploymentRuntimePolicy {
+  readonly schema: 'xtend.maraca.xtension-deployment-runtime-policy.v1';
+  readonly pwa: 'disabled' | 'verified-static-cache';
+  readonly appServices: 'disabled' | 'separate-server';
+}
+export interface XTensionRuntimeDeploymentConfig extends Omit<XTensionDeploymentConfig, 'schema'> {
+  readonly schema: 'xtend.maraca.xtension-deployment-config.v2';
+  readonly origin: string; readonly runtime: XTensionDeploymentRuntimePolicy;
+  /** Required when AppServices are enabled; must be separate from all public/input trees. */
+  readonly serverOutputDir?: string;
+}
+export interface XTensionRuntimeDeploymentManifest extends Omit<XTensionDeploymentManifest, 'schema' | 'apiVersion'> {
+  readonly schema: 'xtend.maraca.xtension-deployment-manifest.v2'; readonly apiVersion: '2.0.0';
+  readonly origin: string; readonly runtime: XTensionDeploymentRuntimePolicy; readonly servicePath: string | null;
+  readonly serverFiles: readonly { readonly fileName: string; readonly sha256: string; readonly bytes: number }[];
+  readonly pwa: Readonly<{workerFile: 'xtend.sealed-service-worker.js'; offlineFile: 'xtend.sealed-offline.html'; manifestFile: string; cacheName: string}> | null;
+}
+export interface XTensionRuntimeDeploymentResult extends Omit<XTensionDeploymentResult, 'schema' | 'apiVersion' | 'manifest' | 'accounting'> {
+  readonly schema: 'xtend.maraca.xtension-deployment-result.v2'; readonly apiVersion: '2.0.0';
+  readonly manifest: XTensionRuntimeDeploymentManifest; readonly serverOutputDir?: string;
+  readonly accounting?: NonNullable<XTensionDeploymentResult['accounting']> & Readonly<{publicBytes: number; serverBytes: number; pwaWorkerBytes: number}>;
+}

@@ -46,6 +46,7 @@ async function runXTensionsConsumerPackageSuite({ rootDir } = {}) {
       assert(fs.existsSync(path.join(target, 'xtension-composition-contract.mjs')));
       assert(fs.existsSync(path.join(target, 'xtension-platform-build.js')));
       assert(fs.existsSync(path.join(target, 'xtension-deployment.js')));
+      assert(fs.existsSync(path.join(target, 'xtension-deployment-pwa.js')));
       context.pass('Packed Maraca contains both versioned A04 APIs and their private data contract');
     }
     const fixture=path.join(temp,'consumer.cjs');
@@ -134,7 +135,7 @@ const peers=createRequire(process.env.XTENSIONS_TEST_PEERS+'/package.json');
   const compositionRuntime = await import('@ccslabs/xtend/maraca/xtension-composition-runtime');
   const maracaRuntime = await import('@ccslabs/xtend-maraca/xtension-composition-runtime');
   assert.equal(maracaRuntime.XTENSION_COMPOSITION_API_VERSION, '6.0.0');
-  assert.equal(require('@ccslabs/xtend-maraca/xtension-composition').XTENSION_COMPOSITION_BUILD_API_VERSION, '7.0.0');
+  assert.equal(require('@ccslabs/xtend-maraca/xtension-composition').XTENSION_COMPOSITION_BUILD_API_VERSION, '8.0.0');
   const compositionPlan = ${JSON.stringify(require('../../development/rmtx-a04/reference.cjs').createPlan())};
   const sources = ${JSON.stringify(Object.fromEntries(['react', 'vue'].map(framework => [framework, fs.readFileSync(path.join(rootDir, 'development/rmtx-a04/providers', framework + '-panel.mjs'), 'utf8')])))};
   const manifests = ${JSON.stringify(Object.fromEntries(['react', 'vue'].map(framework => [framework, require('../../development/rmtx-a04/reference.cjs').createManifest(framework)])))};
@@ -170,16 +171,19 @@ const peers=createRequire(process.env.XTENSIONS_TEST_PEERS+'/package.json');
   }
   const integratedSource = ${JSON.stringify(fs.readFileSync(path.join(rootDir, 'development/rmtx-a02/repeated-filters.rmt'), 'utf8'))};
   window.__XTendMaracaDisableAutoBoot = true;
+  fs.writeFileSync('packed-service-client.ts', ${JSON.stringify("import {defineAppServices,service} from '@ccslabs/xtend-maraca/app-services';export default defineAppServices({'packed.health':service({kind:'query',target:'server'})});")});
+  fs.writeFileSync('packed-service-server.ts', ${JSON.stringify("import {defineServerServices,service} from '@ccslabs/xtend-maraca/server-services';export default defineServerServices({'packed.health':service({kind:'query',target:'server',async invoke(input:unknown){return {ok:String(input).includes('PACKED_PRIVATE_SERVER_IMPLEMENTATION')};}})});")});
   for (const framework of ['react', 'vue']) {
    const builder = require(framework === 'react' ? '@ccslabs/xtend/maraca' : '@ccslabs/xtend-maraca');
    const out = path.resolve('integrated-' + framework);
-   const built = await builder.buildMaracaBundleAsync({sourceText:integratedSource,virtualSourcePath:'packed.rmt',xtensionBindings:compositionPlan.xtensionBindings,xtensionComposition:manifests[framework],out,orchestration:'strict',kernel:'strict',hydration:'off',validation:'off',transitions:'off',profile:framework==='react'?'production':'max',lazy:'none'},{rootDir:process.cwd()});
+   const integratedInput={sourceText:integratedSource,virtualSourcePath:'packed.rmt',xtensionBindings:compositionPlan.xtensionBindings,xtensionComposition:manifests[framework],out,orchestration:'strict',kernel:'strict',hydration:'off',validation:'off',transitions:'off',profile:framework==='react'?'production':'max',lazy:'none'};
+   const built = await builder.buildMaracaBundleAsync(integratedInput,{rootDir:process.cwd()});
    assert(built.ok, JSON.stringify(built.plan.diagnostics)); assert.equal(built.plan.schema,'xtend.maraca.build-plan.v5'); assert.equal(built.plan.xtensionComposition.schema,'xtend.maraca.xtension-composition-manifest.v5');assert.equal(built.sizeBudgetReport.schema,'xtend.maraca.size-budget-report.v2'); assert.equal(built.sizeBudgetReport.mode,'strict'); assert(built.sizeBudgetReport.xtensions.withinBudget);
    const compositionReport=JSON.parse(fs.readFileSync(path.join(out,'xtend.xtensions.report.json'))),delivery=JSON.parse(fs.readFileSync(path.join(out,compositionReport.deliveryFile)));
    assert.equal(compositionReport.apiVersion,'6.0.0');assert.equal(delivery.runtimeDeliveryVerified,false);assert.equal(delivery.headers['X-Content-Type-Options'],'nosniff');
    for(const file of delivery.files)assert.equal(createHash('sha256').update(fs.readFileSync(path.join(out,file.fileName))).digest('hex'),file.sha256);
    const deployment=require(framework==='react'?'@ccslabs/xtend/maraca/xtension-composition':'@ccslabs/xtend-maraca/xtension-composition');
-   assert.equal(deployment.XTENSION_DEPLOYMENT_API_VERSION,'1.0.0');
+   assert.equal(deployment.XTENSION_DEPLOYMENT_API_VERSION,'2.0.0');
    const appDir=path.resolve('application-'+framework);fs.mkdirSync(appDir);const code='import "./xtend.maraca.mjs";';fs.writeFileSync(path.join(appDir,'bootstrap.mjs'),code);
    const sealed=deployment.buildMaracaXTensionDeployment({schema:'xtend.maraca.xtension-deployment-config.v1',build:built,application:{rootDir:appDir,bootstrap:{fileName:'bootstrap.mjs',sha256:createHash('sha256').update(code).digest('hex')},modules:[]},publicPath:'/sealed/',outputDir:path.resolve('sealed-'+framework)});
    const loaded=deployment.loadMaracaXTensionDeployment({rootDir:sealed.outputDir,manifestSha256:sealed.manifestSha256});
@@ -187,6 +191,17 @@ const peers=createRequire(process.env.XTENSIONS_TEST_PEERS+'/package.json');
    assert(handler({method:'GET',url:'/sealed/'},{setHeader(k,v){headers[k]=v;},writeHead(s,h){status=s;Object.assign(headers,h);},end(b){body=b;}}));
    assert.equal(status,200);assert(body.toString().includes('type="importmap"'));assert(headers['Content-Security-Policy'].includes('sha256-'));assert(!headers['Content-Security-Policy'].includes("'self'"));
    assert.equal(sealed.accounting.xtensionRuntimeBytes,built.sizeBudgetReport.xtensions.runtimeBytes);assert.equal(sealed.runtimeExecutionVerified,false);
+   const currentBuild=framework==='react'?await builder.buildMaracaBundleAsync({...integratedInput,out:out+'-services',services:{clientEntry:'packed-service-client.ts',serverEntry:'packed-service-server.ts',phpEntry:'missing.php',targets:['browser','node'],strict:true}},{rootDir:process.cwd()}):built;
+   assert(currentBuild.ok,JSON.stringify(currentBuild.plan.diagnostics));
+   const current=deployment.buildMaracaXTensionDeployment({schema:'xtend.maraca.xtension-deployment-config.v2',build:currentBuild,application:{rootDir:appDir,bootstrap:{fileName:'bootstrap.mjs',sha256:createHash('sha256').update(code).digest('hex')},modules:[]},origin:'https://packed.test',publicPath:'/current/',outputDir:path.resolve('current-'+framework),...(framework==='react'?{serverOutputDir:path.resolve('private-'+framework)}:{}),runtime:{schema:'xtend.maraca.xtension-deployment-runtime-policy.v1',pwa:'disabled',appServices:framework==='react'?'separate-server':'disabled'}});
+   assert.equal(current.apiVersion,'2.0.0');assert.equal(current.manifest.schema,'xtend.maraca.xtension-deployment-manifest.v2');
+   const currentLoaded=deployment.loadMaracaXTensionDeployment({rootDir:current.outputDir,manifestSha256:current.manifestSha256,...(current.serverOutputDir?{serverRootDir:current.serverOutputDir}:{})});
+   assert.equal(currentLoaded.manifest.pwa,null);
+   if(framework==='react'){
+    assert(fs.readFileSync(path.join(current.serverOutputDir,'server/xtend.maraca.services.mjs'),'utf8').includes('PACKED_PRIVATE_SERVER_IMPLEMENTATION'));
+    assert(!fs.existsSync(path.join(current.outputDir,'server')));let privateStatus;
+    deployment.createMaracaXTensionDeploymentHandler(currentLoaded)({method:'GET',url:'/current/server/xtend.maraca.services.mjs'},{setHeader(){},writeHead(status){privateStatus=status;},end(){}});assert.equal(privateStatus,404);
+   }
    const generated = await import(require('node:url').pathToFileURL(path.join(out,'xtend.maraca.mjs')));
    const root=document.createElement('main'); document.body.append(root); const app=generated.createXtendMaraca({windowTarget:window,documentTarget:document,platformTarget:{}});
    await app.boot({root,fabric:createXtendFabric(),xtensions:{loadPeerGroup:()=>framework==='react'?{React,ReactDOM}:{Vue},grants:{'filter-panel':{work:{scan:{lane:'background'}},workBudget:{schema:'xtend.xtensions.work-budget-policy.v1',maxPending:1,work:{scan:{maxPending:1}}}}}}});

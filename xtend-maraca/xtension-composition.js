@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { createHash } = require('node:crypto');
 const { TextDecoder } = require('node:util');
-const XTENSION_COMPOSITION_BUILD_API_VERSION = '7.0.0';
+const XTENSION_COMPOSITION_BUILD_API_VERSION = '8.0.0';
 const hash = value => createHash('sha256').update(value).digest('hex');
 function inspectSource(source, exportName) {
   const { parseAst } = require('rollup/parseAst');

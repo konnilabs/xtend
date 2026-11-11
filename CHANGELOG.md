@@ -4,6 +4,8 @@ Alle sichtbaren Produktaenderungen werden in diesem Dokument gesammelt. XTend is
 
 ## Unreleased – 0.9.0
 
+- A04.3.6: Expliziter PWA-/AppServices-Auslieferungsvertrag mit geprüften statischen Caches, fester Offline-Seite und getrennten privaten Server-Artefakten. Build-API 8, Deployment-API 2 und Config/Manifest/Ergebnis v2; bestehende Runtime und Datenverträge bleiben erhalten. Dokument und Worker-Einstieg bleiben vertrauenswürdige Betriebskomponenten.
+
 - A04.3.5: Versiegelter nativer Browser-JavaScript-Graph mit SRI, vollständigen Importmap-Digests, Hash-CSP, expliziten Anwendung-/Peer-Pins und unveränderlichem HTTP-Handler. Build-API 7 und Deployment-API 1; Runtime-API 6 und ältere Datenverträge bleiben unterstützt. Dokument und Header bleiben vertrauenswürdig vorausgesetzt; PWA/AppServices sind gesondert offen.
 
 - A04.3.4: Versioniertes CSP-/Deployment-Profil für native ESM derselben Origin, gebundenes Auslieferungsinventar und echte HTTP-/Chromium-Prüfungen einschließlich unabhängiger Response-Digests; API 6, Manifest v5 und Artefakt/Bericht v6. Der Auslieferungsplan allein erzwingt keine Byte-Integrität.

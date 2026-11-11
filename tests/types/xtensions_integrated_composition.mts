@@ -112,7 +112,7 @@ void [deliveryMajor, deliveryApi, deliveryFile, retainedLoadPlan, notAnAttestati
 
 import { buildMaracaXTensionDeployment, loadMaracaXTensionDeployment, createMaracaXTensionDeploymentHandler, XTENSION_DEPLOYMENT_API_VERSION, type XTensionDeploymentConfig } from '@ccslabs/xtend/maraca/xtension-composition';
 import { buildMaracaXTensionDeployment as standaloneDeployment } from '@ccslabs/xtend-maraca/xtension-composition';
-const deploymentApi: '1.0.0' = XTENSION_DEPLOYMENT_API_VERSION;
+const deploymentApi: '2.0.0' = XTENSION_DEPLOYMENT_API_VERSION;
 const deploymentOptions: XTensionDeploymentConfig = { schema: 'xtend.maraca.xtension-deployment-config.v1', build, application: { rootDir: '.', bootstrap: { fileName: 'app-bootstrap.mjs', sha256: '0'.repeat(64) }, modules: [] }, publicPath: '/release/', outputDir: 'sealed' };
 const sealed = buildMaracaXTensionDeployment(deploymentOptions);
 const sealSchema: 'xtend.maraca.xtension-deployment-manifest.v1' = sealed.manifest.schema;
@@ -121,3 +121,17 @@ const sameDeployment: typeof buildMaracaXTensionDeployment = standaloneDeploymen
 // @ts-expect-error Loading a deployment requires an external trusted manifest digest.
 loadMaracaXTensionDeployment({ rootDir: 'sealed' });
 void [deploymentApi,sealSchema,sealedHandler,sameDeployment];
+
+import type { XTensionRuntimeDeploymentConfig, XTensionDeploymentRuntimePolicy } from '@ccslabs/xtend/maraca/xtension-composition';
+const runtimePolicy: XTensionDeploymentRuntimePolicy = { schema: 'xtend.maraca.xtension-deployment-runtime-policy.v1', pwa: 'verified-static-cache', appServices: 'separate-server' };
+const runtimeDeploymentOptions: XTensionRuntimeDeploymentConfig = { ...deploymentOptions, schema: 'xtend.maraca.xtension-deployment-config.v2', runtime: runtimePolicy, origin: 'https://example.test', serverOutputDir: 'private-services' };
+const runtimeDeployment = buildMaracaXTensionDeployment(runtimeDeploymentOptions);
+const runtimeDeploymentApi: '2.0.0' = runtimeDeployment.apiVersion;
+const runtimeDeploymentSchema: 'xtend.maraca.xtension-deployment-manifest.v2' = runtimeDeployment.manifest.schema;
+const publicBytes: number | undefined = runtimeDeployment.accounting?.publicBytes;
+createMaracaXTensionDeploymentHandler(loadMaracaXTensionDeployment({ rootDir: 'public', serverRootDir: 'private', manifestSha256: '0'.repeat(64) }));
+// @ts-expect-error Cache rules require a closed policy, rather than an arbitrary runtime strategy.
+const unsafeRuntimePolicy: XTensionDeploymentRuntimePolicy = { schema: 'xtend.maraca.xtension-deployment-runtime-policy.v1', pwa: 'cache-everything', appServices: 'separate-server' };
+// @ts-expect-error The v1 configuration retains its original closed shape.
+const unsafeLegacyDeployment: XTensionDeploymentConfig = { ...deploymentOptions, runtime: runtimePolicy };
+void [runtimeDeploymentApi,runtimeDeploymentSchema,publicBytes,unsafeRuntimePolicy,unsafeLegacyDeployment];

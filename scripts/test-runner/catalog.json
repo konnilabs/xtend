@@ -13674,6 +13674,12 @@
           "expectedSchema": "xtend.xtensions.integrity-acceptance-report.v1"
         },
         {
+          "path": ".xtend-test-results/xtend-xtensions-deployment-runtime-report.json",
+          "kind": "outcome",
+          "producer": "full_release",
+          "expectedSchema": "xtend.xtensions.deployment-runtime-acceptance-report.v1"
+        },
+        {
           "path": ".xtend-test-results/xtend-xtensions-consumer-package-report.json",
           "kind": "outcome",
           "producer": "full_release",
