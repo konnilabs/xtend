@@ -4,6 +4,7 @@ Alle sichtbaren Produktaenderungen werden in diesem Dokument gesammelt. XTend is
 
 ## Unreleased – 0.9.0
 
+- A04.3.3: Exakt versionierte gemeinsame Peer-Auflösung zwischen kompatiblen Providern mit getrennten Host-Lifetimes, Cache-Verfall und Fehlerwiederholung; API 5, Manifest v4, Artefakt/Bericht v5 und Ladeplan v2. Bisherige Verträge, Kernel-/Fabric-Zulassung und feste Größenbudgets bleiben unterstützt.
 - A04.3.2: Versionierter Ladeplan und lokale native Provider-Importe erst im zugelassenen Kernel-/Fabric-Mount; gemeinsame Ladeversuche mit getrennten Host-Lifetimes, API 4, Manifest v3 und Artefakt/Bericht v4. Peers bleiben explizit pro Host; bisherige Verträge bleiben unterstützt.
 
 - Maraca/XTensions: Kompositions-API 3 mit Manifest v2 und Artefakt/Bericht v3 für gepinnte lokale statische Provider-Modulgraphen, getrennte Quell-/Ausgabeprovenienz und strikte Größenbudgets; bisherige Verträge bleiben unterstützt.

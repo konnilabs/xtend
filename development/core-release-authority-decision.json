@@ -4,8 +4,8 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "827fbb43a35f603039c6a49c7dad6313817047b57fb790a4fd3275e930d69adb",
-  "sourceMembershipSha256": "ba1722f5dc2a656ac0b742fcbd269b2a42cc7dcc56e6282b9c5df60d54140c98",
+  "inventorySha256": "d29fab09a91a9f04842230fbff0dd1887bcbcd172990da17847fe21b9ee6c0a6",
+  "sourceMembershipSha256": "a989dd14abaf04211c420c62e5345e8817ad678e78cb5184ce0a450aa7491286",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
@@ -549,7 +549,7 @@
         },
         {
           "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
-          "sha256": "6193acd11abd5697ef9f6b271007c0e7f276aa14843abd98f83f1a68cd4ee517"
+          "sha256": "b35d99f57acb64264942e68e2f79d2c94e4289c94dfaa339c4e422214d264902"
         },
         {
           "path": "development/rmtx-a01/README.md",
@@ -561,7 +561,7 @@
         },
         {
           "path": "development/rmtx-a01/inventory.json",
-          "sha256": "57a592f6c796a3b7c59d27f710b18ec0ef5100a1feeaca0dc69132ef6e0af10f"
+          "sha256": "f550a5d025ac51240e5a9af36f8d44f6393a943af84a76708de01a9578a0f239"
         },
         {
           "path": "docs/de/rmt-vnext-authoring.md",
@@ -1473,5 +1473,58 @@
     "publicationGuardRetired": false,
     "freshCommittedCaptureRequired": true,
     "rationale": "Scoped A04.3.2 review: composition API 4 adds explicit manifest v3, artifact/report v4 and load-plan v1 for native local provider imports started only in admitted Kernel/Fabric mount work. The exact transitive output closure, factory export, phase and external peer versions are derived from the pinned graph. Provider load attempts are shared per factory/provider with separate terminally fenced host waiters; peers remain explicit per host. Native import transport is not abortable and no CSP/HTTP byte attestation is claimed. Strict React/Vue/mixed budgets, real native HTTP imports, packed consumers and 318 actual cases per environment are mandatory. All prior contracts and authoritative/released fingerprint sets remain intact. Shared peer resolution, delivery integrity and complete 0.9 acceptance remain pending. See development/rmtx-a04/loading.md."
+  },
+  "a0433SharedPeerGroupsReview": {
+    "format": 1,
+    "date": "2026-11-11",
+    "status": "reviewed-unreleased-shared-peer-groups",
+    "stage": "A04.3.3",
+    "a04Complete": false,
+    "contract": "development/rmtx-a04/peer-groups.md",
+    "newSchemaIds": [
+      "xtend.maraca.xtension-composition-artifact.v5",
+      "xtend.maraca.xtension-composition-build-report.v5",
+      "xtend.maraca.xtension-composition-manifest.v4",
+      "xtend.maraca.xtension-load-plan.v2"
+    ],
+    "scopedSchemaIds": [
+      "xtend.maraca.build-config.v5",
+      "xtend.maraca.xtension-composition-artifact.v4",
+      "xtend.maraca.xtension-composition-artifact.v5",
+      "xtend.maraca.xtension-composition-build-report.v4",
+      "xtend.maraca.xtension-composition-build-report.v5",
+      "xtend.maraca.xtension-composition-manifest.v3",
+      "xtend.maraca.xtension-composition-manifest.v4",
+      "xtend.maraca.xtension-load-plan.v1",
+      "xtend.maraca.xtension-load-plan.v2"
+    ],
+    "manifestVersion": 4,
+    "artifactVersion": 5,
+    "buildReportVersion": 5,
+    "loadPlanVersion": 2,
+    "buildApiVersion": "5.0.0",
+    "runtimeApiVersion": "5.0.0",
+    "peerLoading": "shared",
+    "cacheScope": "host-factory",
+    "lastConsumerEvicts": true,
+    "peerTransportAbortCooperative": true,
+    "nativeImportTransportAbortable": false,
+    "legacyContractsRetained": true,
+    "nativeKernelAbiChanged": false,
+    "browserAbiChanged": false,
+    "planRuntimeAbiChanged": false,
+    "sizeBudgetReportVersion": 2,
+    "referenceRegressionLimits": {
+      "frameworkBytes": 2200000,
+      "xtensionRuntimeBytes": 240000
+    },
+    "rootExportCount": 214,
+    "contractChecks": 26,
+    "runtimeCasesPerEnvironment": 341,
+    "compilerChecks": 88,
+    "acceptedForRelease": false,
+    "publicationGuardRetired": false,
+    "freshCommittedCaptureRequired": true,
+    "rationale": "Scoped A04.3.3 review: composition API 5 adds manifest v4, artifact/report v5 and load-plan v2 for exact shared peer groups derived solely from the pinned provider graph. Per-factory groups share a normalized exact-version result across compatible providers while retaining independent Kernel/Fabric admission, host lifetimes, roots and grants. The last consumer evicts and aborts the group; revoked late results and errors cannot publish or remove a replacement. Failures allow a later admitted retry, and versions are rechecked per host. Complete legacy contracts retain per-host loading. Strict React/Vue/mixed budgets, packed consumers and 341 actual cases per jsdom/Chromium environment are mandatory. All prior authoritative/released fingerprint sets remain intact. CSP/HTTP delivery integrity and complete 0.9 acceptance remain pending. See development/rmtx-a04/peer-groups.md."
   }
 }

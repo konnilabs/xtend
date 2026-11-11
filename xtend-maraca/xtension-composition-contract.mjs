@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // Shared, data-only contract. No framework, filesystem or kernel implementation.
+export const SHARED_MANIFEST_SCHEMA = 'xtend.maraca.xtension-composition-manifest.v4';
+export const SHARED_ARTIFACT_SCHEMA = 'xtend.maraca.xtension-composition-artifact.v5';
+export const SHARED_LOAD_PLAN_SCHEMA = 'xtend.maraca.xtension-load-plan.v2';
 export const DEFERRED_MANIFEST_SCHEMA = 'xtend.maraca.xtension-composition-manifest.v3';
 export const DEFERRED_ARTIFACT_SCHEMA = 'xtend.maraca.xtension-composition-artifact.v4';
 export const LOAD_PLAN_SCHEMA = 'xtend.maraca.xtension-load-plan.v1';
@@ -66,14 +69,14 @@ export function planIdentity(plan, bindingsRuntime) {
   const identity = { schema: plan.schema, sourceHash: plan.sourceHash, program: copy(plan.orchestration.artifact), bindings: copy(bindings) };
   if (plan.schema === 'xtend.maraca.build-plan.v5') {
     const composition = plan.xtensionComposition;
-    identity.compositionManifest = normalizeManifest([INTEGRATED_ARTIFACT_SCHEMA, GRAPH_ARTIFACT_SCHEMA, DEFERRED_ARTIFACT_SCHEMA].includes(composition?.schema) ? composition.manifest : composition, identity);
+    identity.compositionManifest = normalizeManifest([INTEGRATED_ARTIFACT_SCHEMA, GRAPH_ARTIFACT_SCHEMA, DEFERRED_ARTIFACT_SCHEMA, SHARED_ARTIFACT_SCHEMA].includes(composition?.schema) ? composition.manifest : composition, identity);
   }
   return freeze(identity);
 }
 export function normalizeManifest(input, identity) {
-  json(input); const deferred = input?.schema === DEFERRED_MANIFEST_SCHEMA, graph = deferred || input?.schema === GRAPH_MANIFEST_SCHEMA;
+  json(input); const shared = input?.schema === SHARED_MANIFEST_SCHEMA, deferred = shared || input?.schema === DEFERRED_MANIFEST_SCHEMA, graph = deferred || input?.schema === GRAPH_MANIFEST_SCHEMA;
   fields(input, graph ? ['schema', 'providers', 'hosts', 'modules', ...(deferred ? ['loading'] : [])] : ['schema', 'providers', 'hosts'], 'composition manifest');
-  if (![MANIFEST_SCHEMA, GRAPH_MANIFEST_SCHEMA, DEFERRED_MANIFEST_SCHEMA].includes(input.schema) || !Array.isArray(input.providers) || !input.providers.length || input.providers.length > 64 || !Array.isArray(input.hosts) || input.hosts.length > 256) throw new TypeError('A bounded v1/v2/v3 composition manifest is required.');
+  if (![MANIFEST_SCHEMA, GRAPH_MANIFEST_SCHEMA, DEFERRED_MANIFEST_SCHEMA, SHARED_MANIFEST_SCHEMA].includes(input.schema) || !Array.isArray(input.providers) || !input.providers.length || input.providers.length > 64 || !Array.isArray(input.hosts) || input.hosts.length > 256) throw new TypeError('A bounded v1/v2/v3/v4 composition manifest is required.');
   const ids = new Set();
   const providers = input.providers.map(provider => {
     fields(provider, ['id', 'framework', 'version', 'entry', 'integrity', 'peers'], 'provider');
@@ -113,21 +116,21 @@ export function normalizeManifest(input, identity) {
   }
   if (deferred) {
     fields(input.loading, ['provider', 'peers'], 'loading policy');
-    if (input.loading.provider !== 'on-mount' || input.loading.peers !== 'per-host') throw new TypeError('Manifest v3 requires explicit on-mount provider and per-host peer loading.');
+    if (input.loading.provider !== 'on-mount' || input.loading.peers !== (shared ? 'shared' : 'per-host')) throw new TypeError('Manifest loading must match its explicit provider/peer version policy.');
   }
   return freeze({ schema: input.schema, providers, hosts, ...(graph ? { modules } : {}), ...(deferred ? { loading: copy(input.loading) } : {}) });
 }
 export function validateArtifact(input, plan, bindingsRuntime) {
-  json(input); const deferred = input?.schema === DEFERRED_ARTIFACT_SCHEMA, graph = deferred || input?.schema === GRAPH_ARTIFACT_SCHEMA;
+  json(input); const shared = input?.schema === SHARED_ARTIFACT_SCHEMA, deferred = shared || input?.schema === DEFERRED_ARTIFACT_SCHEMA, graph = deferred || input?.schema === GRAPH_ARTIFACT_SCHEMA;
   fields(input, ['schema', 'apiVersion', 'plan', 'manifest', 'providers', 'entryFile', 'runtimeExecutionVerified', ...(graph ? ['modules'] : []), ...(deferred ? ['loadPlan'] : [])], 'composition artifact');
   const integrated = input.schema === INTEGRATED_ARTIFACT_SCHEMA;
-  if ((!graph && !integrated && input.schema !== ARTIFACT_SCHEMA) || input.apiVersion !== (deferred ? '4.0.0' : graph ? '3.0.0' : integrated ? '2.0.0' : '1.0.0') || !(graph ? ['xtend.maraca.build-plan.v4', 'xtend.maraca.build-plan.v5'] : [integrated ? 'xtend.maraca.build-plan.v5' : 'xtend.maraca.build-plan.v4']).includes(input.plan?.schema) || input.runtimeExecutionVerified !== false || !/^xtend\.xtensions-[a-f0-9]{64}\.mjs$/.test(input.entryFile || '')) throw new TypeError('A version-matched v1/v2/v3/v4 build composition artifact is required.');
+  if ((!graph && !integrated && input.schema !== ARTIFACT_SCHEMA) || input.apiVersion !== (shared ? '5.0.0' : deferred ? '4.0.0' : graph ? '3.0.0' : integrated ? '2.0.0' : '1.0.0') || !(graph ? ['xtend.maraca.build-plan.v4', 'xtend.maraca.build-plan.v5'] : [integrated ? 'xtend.maraca.build-plan.v5' : 'xtend.maraca.build-plan.v4']).includes(input.plan?.schema) || input.runtimeExecutionVerified !== false || !/^xtend\.xtensions-[a-f0-9]{64}\.mjs$/.test(input.entryFile || '')) throw new TypeError('A version-matched v1/v2/v3/v4/v5 build composition artifact is required.');
   const identity = planIdentity(plan, bindingsRuntime);
   if (canonical(input.plan) !== canonical(identity)) throw new TypeError('Composition artifact belongs to a different compiled source or binding contract.');
   const manifest = normalizeManifest(input.manifest, identity);
   if ((integrated || graph && identity.schema === 'xtend.maraca.build-plan.v5') && canonical(manifest) !== canonical(identity.compositionManifest)) throw new TypeError('The built provider manifest differs from the declared v5 composition.');
   if (!Array.isArray(input.providers) || input.providers.length !== manifest.providers.length) throw new TypeError('Provider build records must match the manifest.');
-  if (deferred !== (manifest.schema === DEFERRED_MANIFEST_SCHEMA) || graph !== [GRAPH_MANIFEST_SCHEMA, DEFERRED_MANIFEST_SCHEMA].includes(manifest.schema)) throw new TypeError('The artifact and manifest graph versions must agree.');
+  if (shared !== (manifest.schema === SHARED_MANIFEST_SCHEMA) || deferred !== [DEFERRED_MANIFEST_SCHEMA, SHARED_MANIFEST_SCHEMA].includes(manifest.schema) || graph !== [GRAPH_MANIFEST_SCHEMA, DEFERRED_MANIFEST_SCHEMA, SHARED_MANIFEST_SCHEMA].includes(manifest.schema)) throw new TypeError('The artifact and manifest graph versions must agree.');
   if (graph) validateModuleGraph(input.modules, manifest);
   input.providers.forEach((entry, index) => {
     fields(entry, ['id', 'sha256', 'fileName', ...(graph ? ['outputSha256'] : [])], 'provider build record');
@@ -180,13 +183,20 @@ export function validateModuleGraph(modules, manifest) {
 /** Pure derivation: executable imports and peer requests cannot add graph members. */
 export function createLoadPlan(manifest, modules, providers) {
   const byModule = new Map(modules.map(row => [row.module, row]));
-  return freeze({ schema: LOAD_PLAN_SCHEMA, providers: manifest.providers.map(provider => {
+  const shared = manifest.schema === SHARED_MANIFEST_SCHEMA, groups = new Map();
+  if (shared) for (const provider of manifest.providers) {
+    const key = canonical({ framework: provider.framework, versions: provider.peers });
+    if (!groups.has(key)) groups.set(key, { framework: provider.framework, versions: copy(provider.peers), providerIds: [] });
+    groups.get(key).providerIds.push(provider.id);
+  }
+  const peerGroups = [...groups].sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0).map(([, group], index) => ({ id: 'peers-' + index, ...group, providerIds: group.providerIds.sort() }));
+  return freeze({ schema: shared ? SHARED_LOAD_PLAN_SCHEMA : LOAD_PLAN_SCHEMA, ...(shared ? { peerGroups } : {}), providers: manifest.providers.map(provider => {
     const reachable = new Set();
     function visit(module) { if (reachable.has(module)) return; reachable.add(module); byModule.get(module).imports.forEach(edge => visit(edge.module)); }
     visit(provider.entry.module);
     return { providerId: provider.id, mode: 'on-mount', phase: 'kernel.fabric.mount',
       entryFile: providers.find(row => row.id === provider.id).fileName, exportName: provider.entry.exportName,
       modules: [...reachable].map(module => byModule.get(module).fileName).sort(),
-      peers: { mode: 'per-host', framework: provider.framework, versions: copy(provider.peers) } };
+      peers: shared ? { mode: 'shared', groupId: peerGroups.find(group => group.providerIds.includes(provider.id)).id } : { mode: 'per-host', framework: provider.framework, versions: copy(provider.peers) } };
   }) });
 }

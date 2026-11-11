@@ -39,7 +39,7 @@ export interface MaracaBrowserCompositionRoot {
 
 export function freezeMaracaConfiguration<T>(value: T): Readonly<T>;
 export function createMaracaBrowserCompositionRoot(configuration: Readonly<Record<string, unknown>> & {
-  schema: 'xtend.maraca.browser-composition-root.v6'; buildPlanSchema: 'xtend.maraca.build-plan.v5'; xtensionComposition: import('./xtension-composition-runtime').IntegratedXTensionCompositionArtifact | import('./xtension-composition-runtime').GraphXTensionCompositionArtifact | import('./xtension-composition-runtime').DeferredXTensionCompositionArtifact;
+  schema: 'xtend.maraca.browser-composition-root.v6'; buildPlanSchema: 'xtend.maraca.build-plan.v5'; xtensionComposition: import('./xtension-composition-runtime').IntegratedXTensionCompositionArtifact | import('./xtension-composition-runtime').GraphXTensionCompositionArtifact | import('./xtension-composition-runtime').DeferredXTensionCompositionArtifact | import('./xtension-composition-runtime').SharedXTensionCompositionArtifact;
 }, dependencies?: Readonly<Record<string, unknown>>): ComposedMaracaBrowserCompositionRoot;
 
 export function createMaracaBrowserCompositionRoot(
@@ -55,7 +55,7 @@ export function createMaracaBrowserCompositionRoot(
 export const MARACA_XTENSION_BROWSER_API_VERSION: '6.0.0';
 export interface MaracaXTensionBootOptions extends Record<string, unknown> {
   readonly fabric: import('./xtension-composition-runtime').XTensionHostCompositionOptions['fabric'];
-  readonly xtensions: Pick<import('./xtension-composition-runtime').XTensionHostCompositionOptions, 'loadPeers' | 'grants'>;
+  readonly xtensions: Pick<import('./xtension-composition-runtime').XTensionHostCompositionOptions, 'grants'> & import('./xtension-composition-runtime').XTensionPeerLoaderOptions;
   readonly createXTensionHost?: never; readonly xtensionBindingsRuntime?: never; readonly xtensionCompositionPort?: never; readonly adoptExisting?: false;
 }
 export interface ComposedMaracaBrowserFacade extends Omit<MaracaBrowserFacade, 'apiVersion' | 'boot' | 'snapshot' | 'subscribe' | 'orchestration'> {

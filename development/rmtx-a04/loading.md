@@ -1,6 +1,6 @@
 # A04.3.2 – Expliziter Ladeplan und Provider-Laden beim Mount
 
-Stand: 2026-11-11. Der explizite Maraca-Begleiter und der reguläre asynchrone Build einschließlich CLI und Browser-Boot unterstützen verzögertes Laden lokaler Provider. RMTX und XTensions 2.0 bleiben für 0.9.0 `preparing`. Gemeinsame Peer-Caches, weitere Lademodi, CSP-/HTTP-Integrität und die vollständige Feature-Abnahme bleiben offen.
+Stand: 2026-11-11. Der explizite Maraca-Begleiter und der reguläre asynchrone Build einschließlich CLI und Browser-Boot unterstützen verzögertes Laden lokaler Provider. RMTX und XTensions 2.0 bleiben für 0.9.0 `preparing`. [Gemeinsame Peer-Auflösung](peer-groups.md) ergänzt A04.3.3; weitere Lademodi, CSP-/HTTP-Integrität und die vollständige Feature-Abnahme bleiben offen.
 
 ## Versionierter Einstieg
 
@@ -59,4 +59,4 @@ Gepackte Root-/Compiler-/Maraca-Consumer bauen und booten den neuen Vertrag ohne
 
 ## Nächster Abschnitt
 
-A04.3 führt mit einer expliziten gemeinsamen Peer-Auflösung bzw. weiteren Lade-/CSP-/Auslieferungsregeln fort. Ein statischer Build-Digest und ein tatsächlich ausgeführter nativer Import belegen weiterhin keine unveränderten HTTP-Laufzeitbytes. SSR/Adoption bleibt A05, RMTX-Syntax/DX bleibt A06.
+[A04.3.3](peer-groups.md) ergänzt gemeinsame Peer-Gruppen mit Manifest v4, Artefakt/Bericht v5, Ladeplan v2 und API 5. Weitere CSP-/Auslieferungsregeln folgen. Ein statischer Build-Digest und ein tatsächlich ausgeführter nativer Import belegen weiterhin keine unveränderten HTTP-Laufzeitbytes. SSR/Adoption bleibt A05, RMTX-Syntax/DX bleibt A06.

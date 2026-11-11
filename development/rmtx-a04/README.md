@@ -1,13 +1,13 @@
 # A04 – Manifest, Build, Provider und Host
 
-Stand: 2026-11-10. **A04.1, A04.2, [A04.3.1](provider-graphs.md) und [A04.3.2](loading.md) sind implementiert.** [A04.2](integration.md) integriert den Begleiter in den regulären asynchronen Build und automatischen Browser-Boot. Die folgenden Abschnitte dokumentieren den weiterhin unterstützten expliziten A04.1-Einstieg. Er verbindet ein kompiliertes Maraca-Programm, die A02-Bindungen, verifizierte lokale Provider-Dateien und reale API-6-Hosts für React und Vue. RMTX und XTensions 2.0 bleiben für 0.9.0 `preparing`. A04.3.1 ergänzt gepinnte lokale statische Providergraphen; weitere Lade-/Auslieferungsentscheidungen bleiben für A04.3 offen.
+Stand: 2026-11-11. **A04.1, A04.2, [A04.3.1](provider-graphs.md), [A04.3.2](loading.md) und [A04.3.3](peer-groups.md) sind implementiert.** [A04.2](integration.md) integriert den Begleiter in den regulären asynchronen Build und automatischen Browser-Boot. Die folgenden Abschnitte dokumentieren den weiterhin unterstützten expliziten A04.1-Einstieg. Er verbindet ein kompiliertes Maraca-Programm, die A02-Bindungen, verifizierte lokale Provider-Dateien und reale API-6-Hosts für React und Vue. RMTX und XTensions 2.0 bleiben für 0.9.0 `preparing`. A04.3.1 ergänzt gepinnte lokale statische Providergraphen; weitere Lade-/Auslieferungsentscheidungen bleiben für A04.3 offen.
 
 ## Vertrag und Versionen
 
 | Einstieg / Datenvertrag | Version |
 | --- | --- |
-| `@ccslabs/xtend-maraca/xtension-composition`: `buildMaracaXTensionComposition` | Build-API `4.0.0` (Artefakt v1 für Plan v4) |
-| `@ccslabs/xtend-maraca/xtension-composition-runtime`: `createMaracaXTensionHostFactory` | Runtime-API `4.0.0` (Artefakt v1 weiter unterstützt) |
+| `@ccslabs/xtend-maraca/xtension-composition`: `buildMaracaXTensionComposition` | Build-API `5.0.0` (Artefakt v1 für Plan v4) |
+| `@ccslabs/xtend-maraca/xtension-composition-runtime`: `createMaracaXTensionHostFactory` | Runtime-API `5.0.0` (Artefakt v1 weiter unterstützt) |
 | Kompositionsmanifest | `xtend.maraca.xtension-composition-manifest.v1` |
 | Gebauter Kompositionsartefakt | `xtend.maraca.xtension-composition-artifact.v1` |
 | Build-Bericht | `xtend.maraca.xtension-composition-build-report.v1` |
@@ -52,7 +52,7 @@ Der Browser-Composer nimmt vertrauenswürdig geladene Provider-Namespaces an. Ei
 
 Lokale Provider bestehen aus synchronen benannten Funktionsdeklarationen. Imports, Reexports, dynamische Imports, `require`, Top-Level-Initialisierer/-Ausführung, asynchrone Factorys und ungültiges JavaScript werden abgewiesen. Die Komponentenfactory bekommt nur ihre Framework-Peers und gibt synchron eine vorkompilierte Komponente zurück. Das ist ein begrenzter Build-Graph für vertrauenswürdigen Anwendungscode, keine JavaScript-Sandbox. Private Framework-Scheduler, SSR, Adoption und Präemption werden weiterhin nicht behauptet.
 
-Der gemeinsame native Root, Scheduler, Fabric und die von Maraca tatsächlich verwendeten Surface-Ports werden in diesem Abschnitt ausdrücklich injiziert. Die automatische Auswahl über neue Plan-/Config-/Boot-Versionen ist in [A04.2](integration.md) implementiert. Der explizite Manifest-v1-Einstieg bleibt importfrei. [Manifest v2 / API 3](provider-graphs.md) ergänzt lokale statische Provider-Abhängigkeitsauflösung und transformierte Datei-Provenienz. Offen bleiben Remote-Provider, SemVer-Bereichsauflösung, Peer-Deduplizierung, Lazy-/CSP-Auslieferung oder Auswahl einer abweichenden übergeordneten owning Surface.
+Der gemeinsame native Root, Scheduler, Fabric und die von Maraca tatsächlich verwendeten Surface-Ports werden in diesem Abschnitt ausdrücklich injiziert. Die automatische Auswahl über neue Plan-/Config-/Boot-Versionen ist in [A04.2](integration.md) implementiert. Der explizite Manifest-v1-Einstieg bleibt importfrei. [Manifest v2 / API 3](provider-graphs.md) ergänzt lokale statische Provider-Abhängigkeitsauflösung und transformierte Datei-Provenienz. Offen bleiben Remote-Provider, SemVer-Bereichsauflösung, globale Peer-Caches, weitere Lazy-/CSP-Auslieferung oder Auswahl einer abweichenden übergeordneten owning Surface.
 
 ## Nachweise und nächste Schritte
 
@@ -60,4 +60,4 @@ Der gemeinsame native Root, Scheduler, Fabric und die von Maraca tatsächlich ve
 
 [`composition-maraca-acceptance.js`](../../tests/xtensions/composition-maraca-acceptance.js) führt **14** zusätzliche reale Fälle in jsdom und Chromium aus: pro Framework sieben Fälle für generierte Provider-Graphen, typed Model-Intents, tatsächliche Kernel-/Fabric-Zulassung, getrennte Rechte, Peer-Versionen, verspäteten Cleanup, Surface-Lifecycle und keyed Reinkarnation. Der Gesamt-Gate verlangt seit A04.2 **300 Fälle pro Umgebung** und weiterhin **88 Compilerprüfungen**. Gepackte Root-/Compiler-/Maraca-Consumer bauen und importieren den Begleiter, mounten tatsächliche React-/Vue-Hosts und prüfen Typen sowie den Browser-Bundle-Abschluss ohne implizite Framework-Abhängigkeiten.
 
-[A04.2](integration.md) ergänzt 27 Build-/Vertragsfälle und 17 tatsächliche Laufzeitfälle für den regulären Build und Browser-Boot. Der [integrierte Größenbericht v2](integration.md#größenbudget-v2) und die fehlende Minifizierung sind umgesetzt; Production-/Max-Referenzen bestehen strikte Gesamt- und XTension-Budgets. [A04.3.1](provider-graphs.md) ergänzt lokale transitive Providergraphen. [A04.3.2](loading.md) ergänzt einen expliziten Ladeplan und Provider-Importe im zugelassenen Mount. Als Nächstes folgen gemeinsame Peer-/CSP-/Auslieferungsentscheidungen. A05/A06 und die vollständige 0.9-Feature-Abnahme bleiben eigenständig.
+[A04.2](integration.md) ergänzt 27 Build-/Vertragsfälle und 17 tatsächliche Laufzeitfälle für den regulären Build und Browser-Boot. Der [integrierte Größenbericht v2](integration.md#größenbudget-v2) und die fehlende Minifizierung sind umgesetzt; Production-/Max-Referenzen bestehen strikte Gesamt- und XTension-Budgets. [A04.3.1](provider-graphs.md) ergänzt lokale transitive Providergraphen. [A04.3.2](loading.md) ergänzt einen expliziten Ladeplan und Provider-Importe im zugelassenen Mount. [A04.3.3](peer-groups.md) ergänzt gemeinsame Peer-Auflösung bei exakt gleichen Versionen und getrennten Host-Lifetimes. Als Nächstes folgen CSP-/Auslieferungsentscheidungen. A05/A06 und die vollständige 0.9-Feature-Abnahme bleiben eigenständig.

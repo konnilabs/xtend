@@ -57,7 +57,7 @@ createMaracaBrowserCompositionRoot({ schema: 'xtend.maraca.browser-composition-r
 const invalidLegacy: XTensionCompositionManifest = { ...manifest, modules: graphManifest.modules };
 void [graphMajor, graphApi, invalidLegacy];
 const configReport = await buildMaracaXTensionComposition({ plan: graphPlan, manifest: graphPlan.xtensionComposition, bindingsRuntime, rootDir: '.', outputDir: 'dist' });
-const configReportSchema: 'xtend.maraca.xtension-composition-build-report.v4' | 'xtend.maraca.xtension-composition-build-report.v1' | 'xtend.maraca.xtension-composition-build-report.v2' | 'xtend.maraca.xtension-composition-build-report.v3' = configReport.schema;
+const configReportSchema: 'xtend.maraca.xtension-composition-build-report.v5' | 'xtend.maraca.xtension-composition-build-report.v4' | 'xtend.maraca.xtension-composition-build-report.v1' | 'xtend.maraca.xtension-composition-build-report.v2' | 'xtend.maraca.xtension-composition-build-report.v3' = configReport.schema;
 void configReportSchema;
 
 import type { DeferredXTensionCompositionManifest, DeferredXTensionHostCompositionOptions } from '@ccslabs/xtend/maraca/xtension-composition-runtime';
@@ -72,3 +72,22 @@ createMaracaPlanRuntime({ ...runtimeOptions, plan: deferredRuntimePlan, xtension
 // @ts-expect-error Eager namespaces cannot replace a deferred provider loader.
 const deferredBypass: Pick<DeferredXTensionHostCompositionOptions, 'providers'> = { providers: {} };
 void [deferredMajor, loadPlanMajor, deferredBypass];
+
+import { createMaracaXTensionHostFactory, type SharedXTensionCompositionManifest, type SharedXTensionHostCompositionOptions } from '@ccslabs/xtend/maraca/xtension-composition-runtime';
+import { createMaracaXTensionHostFactory as standaloneHostFactory } from '@ccslabs/xtend-maraca/xtension-composition-runtime';
+declare const sharedManifest: SharedXTensionCompositionManifest;
+const sharedPlan = createMaracaBuildPlan({ source: 'app.rmt', xtensionComposition: sharedManifest });
+const sharedReport = await buildMaracaXTensionComposition({ plan: sharedPlan, manifest: sharedManifest, bindingsRuntime, rootDir: '.', outputDir: 'dist' });
+const sharedMajor: 'xtend.maraca.xtension-composition-build-report.v5' = sharedReport.schema;
+const sharedApi: '5.0.0' = sharedReport.artifact.apiVersion;
+const sharedLoadPlan: 'xtend.maraca.xtension-load-plan.v2' = sharedReport.artifact.loadPlan.schema;
+const sharedRuntimePlan = { ...sharedPlan, xtensionComposition: sharedReport.artifact };
+const sharedPort = createMaracaXTensionCompositionPort({ plan: sharedRuntimePlan, companion: { artifact: sharedReport.artifact, createHostFactory() { return () => ({} as any); } }, bindingsRuntime, adapters: { react }, loadPeerGroup: async ({ group, signal }) => { signal.throwIfAborted(); const ids: readonly string[] = group.providerIds; return { ids, versions: group.versions }; }, grants: {} });
+createMaracaPlanRuntime({ ...runtimeOptions, plan: sharedRuntimePlan, xtensionCompositionPort: sharedPort });
+await app.boot({ fabric: ports.fabric, xtensions: { loadPeerGroup: async () => ({}), grants: {} } });
+// @ts-expect-error Shared peer groups cannot use the per-host loader.
+const sharedBypass: Pick<SharedXTensionHostCompositionOptions, 'loadPeers'> = { loadPeers() {} };
+// @ts-expect-error A boot must choose exactly one explicit peer-loader port.
+const ambiguousBoot: MaracaXTensionBootOptions = { fabric: ports.fabric, xtensions: { loadPeers() {}, loadPeerGroup() {}, grants: {} } };
+const sameHostFactory: typeof createMaracaXTensionHostFactory = standaloneHostFactory;
+void [sharedMajor, sharedApi, sharedLoadPlan, sharedBypass, ambiguousBoot, sameHostFactory];

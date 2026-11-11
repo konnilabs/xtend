@@ -1,7 +1,7 @@
 import type { MaracaBuildPlan } from './index';
 import type { XTensionCompositionManifest, XTensionCompositionArtifact, XTensionCompositionBindingRuntime } from './xtension-composition-runtime';
 export type { XTensionCompositionManifest, XTensionCompositionArtifact, XTensionCompositionProvider } from './xtension-composition-runtime';
-export const XTENSION_COMPOSITION_BUILD_API_VERSION: '4.0.0';
+export const XTENSION_COMPOSITION_BUILD_API_VERSION: '5.0.0';
 export interface XTensionCompositionBuildReport {
   readonly schema: 'xtend.maraca.xtension-composition-build-report.v1';
   readonly apiVersion: '1.0.0'; readonly ok: true;
@@ -47,9 +47,19 @@ export function buildMaracaXTensionComposition(options: {
   readonly manifest: import('./xtension-composition-runtime').DeferredXTensionCompositionManifest;
   readonly bindingsRuntime: XTensionCompositionBindingRuntime; readonly rootDir: string; readonly outputDir: string;
 }): Promise<DeferredXTensionCompositionBuildReport>;
+export type { SharedXTensionCompositionManifest, SharedXTensionCompositionArtifact, SharedXTensionLoadPlan, XTensionPeerGroup } from './xtension-composition-runtime';
+export interface SharedXTensionCompositionBuildReport extends Omit<XTensionCompositionBuildReport, 'schema' | 'apiVersion' | 'artifact'> {
+  readonly schema: 'xtend.maraca.xtension-composition-build-report.v5'; readonly apiVersion: '5.0.0';
+  readonly artifact: import('./xtension-composition-runtime').SharedXTensionCompositionArtifact;
+}
+export function buildMaracaXTensionComposition(options: {
+  readonly plan: MaracaBuildPlan | import('./index').MaracaComposedBuildPlan;
+  readonly manifest: import('./xtension-composition-runtime').SharedXTensionCompositionManifest;
+  readonly bindingsRuntime: XTensionCompositionBindingRuntime; readonly rootDir: string; readonly outputDir: string;
+}): Promise<SharedXTensionCompositionBuildReport>;
 /** A manifest read from a versioned config keeps its union until the result is narrowed. */
 export function buildMaracaXTensionComposition(options: {
   readonly plan: MaracaBuildPlan | import('./index').MaracaComposedBuildPlan;
   readonly manifest: import('./xtension-composition-runtime').AnyXTensionCompositionManifest;
   readonly bindingsRuntime: XTensionCompositionBindingRuntime; readonly rootDir: string; readonly outputDir: string;
-}): Promise<XTensionCompositionBuildReport | IntegratedXTensionCompositionBuildReport | GraphXTensionCompositionBuildReport | DeferredXTensionCompositionBuildReport>;
+}): Promise<XTensionCompositionBuildReport | IntegratedXTensionCompositionBuildReport | GraphXTensionCompositionBuildReport | DeferredXTensionCompositionBuildReport | SharedXTensionCompositionBuildReport>;

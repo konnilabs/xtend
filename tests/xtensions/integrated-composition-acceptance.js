@@ -14,7 +14,7 @@ async function runIntegratedCompositionAcceptance({ React, ReactDOM, Vue, docume
       const boundary = actualFabric.createBoundary(...args);
       return { ...boundary, run(phase, task, metadata) { if (metadata?.kernelJobId) admissions.push(metadata); return boundary.run(phase, task, metadata); } };
     } }, controllers = [], hosts = [], lifecycle = [];
-    const source = integratedApps[(extra.deferred ? 'deferred-' : '') + framework], platform = source.platform, adapters = {};
+    const source = integratedApps[(extra.sourceKey || (extra.shared ? 'shared-' : extra.deferred ? 'deferred-' : '') + framework)], platform = source.platform, adapters = {};
     const stats = { loads: 0, providerLoads: 0, providerCalls: [], contexts: [], badPeers: !!extra.badPeers };
     for (const [kind, api] of Object.entries(platform.adapters)) {
       const method = kind === 'react' ? 'createReactKernelRuntimeAdapter' : 'createVueKernelRuntimeAdapter';
@@ -25,7 +25,7 @@ async function runIntegratedCompositionAcceptance({ React, ReactDOM, Vue, docume
         entry.host = api[method]({ ...options, component }); hosts.push(entry); return entry.host;
       } };
     }
-    const dependencies = { xtensionCompanion: extra.deferred ? { ...source.companion, createHostFactory(ports) {
+    const dependencies = { xtensionCompanion: extra.deferred || extra.shared ? { ...source.companion, createHostFactory(ports) {
       return source.companion.createHostFactory({ ...ports, compositionRuntime: { ...ports.compositionRuntime, createMaracaXTensionHostFactory(options) {
         const loadProviders = Object.fromEntries(Object.entries(options.loadProviders).map(([id, load]) => [id, async () => {
           stats.providerLoads++; stats.providerCalls.push({ id, admissions: admissions.length }); extra.providerEntered?.resolve();
@@ -52,19 +52,146 @@ async function runIntegratedCompositionAcceptance({ React, ReactDOM, Vue, docume
         return Object.freeze(observed);
       } }, ...extra.dependencies };
     const app = source.entry.createXtendMaraca(dependencies);
-    const ids = framework === 'mixed' ? ['mixed-filter-0', 'mixed-filter-1'] : ['filter-panel'];
+    const ids = framework === 'mixed' || extra.sourceKey?.includes('pair-') ? ['mixed-filter-0', 'mixed-filter-1'] : ['filter-panel'];
     const grants = Object.fromEntries(ids.map(id => [id, { work: extra.missingGrant ? {} : { scan: { lane: 'background', maxChunkMs: 4 } },
       workBudget: { schema: 'xtend.xtensions.work-budget-policy.v1', maxPending: 1, work: extra.missingGrant ? {} : { scan: { maxPending: 1 } } } }]));
     const options = { root, fabric, stateProjectionTarget: xtendState, dataSourceAdapters: { rest: createRepeatedDataSourceAdapter() }, xtensions: {
-      grants, async loadPeers({ provider }) {
-        stats.loads++; extra.entered?.resolve(); if (extra.wait) await extra.wait;
-        return provider.framework === 'react' ? { React: stats.badPeers ? { ...React, version: '19.0.0' } : React, ReactDOM }
+      grants, async [extra.shared ? 'loadPeerGroup' : 'loadPeers']({ provider, group, signal }) {
+        stats.loads++; (stats.peerCalls ||= []).push({ provider, group, signal, admissions: admissions.length }); extra.entered?.resolve(); if (extra.wait) await extra.wait;
+        if (extra.peerFailure?.()) throw new Error('peer load failure');
+        return (group || provider).framework === 'react' ? { React: stats.badPeers ? { ...React, version: '19.0.0' } : React, ReactDOM }
           : { Vue: stats.badPeers ? { ...Vue, version: '3.0.0' } : Vue };
       }
     } };
     return { app, root, hosts, controllers, options, stats, lifecycle, grants, fabric, admissions,
       async close() { app.dispose(); await app.facade.whenXTensionsIdle(); root.remove(); xtendState.clear(); xtendState.batchUpdate(previous); } };
   }
+  function additionalHosts(f, framework, overrides) {
+    const hosts = [], options = f.stats.providerOptions;
+    const factory = integratedApps[f.optionsKey || 'shared-' + framework].platform.compositionRuntime.createMaracaXTensionHostFactory({ ...options, ...overrides });
+    return { create(index = 0) {
+      const context = f.stats.contexts[index], container = document.createElement('section'); f.root.append(container);
+      const suffix = '.shared-test-' + hosts.length;
+      const host = factory({ ...context, container, hostId: context.hostId + suffix, xtensionId: context.xtensionId + suffix }); hosts.push(host);
+      return { host, container, mount: () => host.mount(container, { query: 'shared', activeId: null }) };
+    }, async close() { for (const host of hosts) await host.unmount(); } };
+  }
+  for (const framework of ['react', 'vue']) {
+    await test(`A04.3.3: ${framework} keyed hosts load exact shared peers only after native admission`, async () => {
+      const source = integratedApps['shared-' + framework], f = fixture(framework, { shared: true });
+      try {
+        equal(f.stats.loads, 0, 'preloading companion does not resolve peers');
+        if (source.readProviderRequests) equal((await source.readProviderRequests()).length, 0, 'preloading requests no provider modules');
+        await f.app.boot(f.options);
+        equal(f.stats.loads, 1, 'one shared group serves three keyed hosts'); equal(f.stats.providerLoads, 1, 'one native provider import');
+        const call = f.stats.peerCalls[0]; check(call.admissions > 0, 'actual Kernel/Fabric admission precedes resolution');
+        check(Object.isFrozen(call.group) && Object.isFrozen(call.group.versions) && Object.isFrozen(call.group.providerIds), 'group descriptor is deeply immutable');
+        check(!call.provider && !call.signal.aborted, 'loader receives a live group lifetime'); equal(f.root.querySelectorAll('input').length, 3, 'independent framework roots render');
+        if (source.readProviderRequests) equal(new Set(await source.readProviderRequests()).size, 3, 'native HTTP imports preserve the complete pinned graph');
+      } finally { await f.close(); }
+    });
+    await test(`A04.3.3: ${framework} distinct compatible providers share peers and retain independent roots`, async () => {
+      const f = fixture(framework, { shared: true, sourceKey: 'shared-pair-' + framework });
+      try {
+        await f.app.boot(f.options); equal(f.stats.providerLoads, 2, 'both declared provider loaders execute'); equal(f.stats.loads, 1, 'distinct compatible providers share one group');
+        equal(f.stats.peerCalls[0].group.providerIds.length, 2, 'both provider identities are declared members'); equal(f.root.querySelectorAll('input').length, 2, 'each provider owns a framework root');
+        equal(f.controllers.length, 1, 'one native Kernel owns both hosts');
+      } finally { await f.close(); }
+    });
+    await test(`A04.3.3: ${framework} revoking one pending consumer preserves its sibling's shared peers`, async () => {
+      const f = fixture(framework, { shared: true, sourceKey: 'shared-pair-' + framework }), entered = deferred(), release = deferred(); let extra;
+      try {
+        await f.app.boot(f.options); f.optionsKey = 'shared-pair-' + framework; let calls = 0, signal;
+        extra = additionalHosts(f, framework, { loadPeerGroup: async context => { calls++; signal = context.signal; entered.resolve(); await release.promise; return framework === 'react' ? { React, ReactDOM } : { Vue }; } });
+        const first = extra.create(0), second = extra.create(1), a = first.mount(), b = second.mount();
+        await entered.promise; await new Promise(resolve => setTimeout(resolve, 0)); await first.host.unmount();
+        check(!signal.aborted, 'surviving consumer keeps group authority'); release.resolve(); await a; check((await b).ok, 'surviving mount succeeds');
+        equal(calls, 1, 'one pending attempt serves both providers'); equal(first.container.childElementCount, 0, 'revoked root stays empty'); equal(second.container.querySelectorAll('input').length, 1, 'sibling renders');
+        await second.host.unmount(); check(signal.aborted, 'last mounted consumer releases group lifetime');
+      } finally { release.resolve(); await extra?.close(); await f.close(); }
+    });
+    await test(`A04.3.3: ${framework} successful cache survives one dispose and expires with its last host`, async () => {
+      const f = fixture(framework, { shared: true }); let extra;
+      try {
+        await f.app.boot(f.options); const signals = [];
+        extra = additionalHosts(f, framework, { loadPeerGroup: ({ signal }) => { signals.push(signal); return framework === 'react' ? { React, ReactDOM } : { Vue }; } });
+        const a = extra.create(), b = extra.create(); check((await a.mount()).ok && (await b.mount()).ok, 'both actual hosts mount');
+        equal(signals.length, 1, 'successful group is cached'); await a.host.unmount(); check(!signals[0].aborted, 'one dispose preserves sibling lifetime');
+        const c = extra.create(); check((await c.mount()).ok, 'later host joins successful cache'); equal(signals.length, 1, 'mounted sibling retains cache');
+        await b.host.unmount(); await c.host.unmount(); check(signals[0].aborted, 'last consumer evicts cache');
+        const d = extra.create(); check((await d.mount()).ok, 'later incarnation mounts'); equal(signals.length, 2, 'fresh lifetime resolves peers again');
+      } finally { await extra?.close(); await f.close(); }
+    });
+    await test(`A04.3.3: ${framework} final pending abort fences late peers and permits a fresh attempt`, async () => {
+      const f = fixture(framework, { shared: true }), entered = deferred(), release = deferred(); let extra, factories = 0;
+      try {
+        await f.app.boot(f.options); let attempts = 0, firstSignal;
+        extra = additionalHosts(f, framework, { loadPeerGroup: async ({ signal }) => { attempts++; if (attempts === 1) { firstSignal = signal; entered.resolve(); await release.promise; } return framework === 'react' ? { React, ReactDOM } : { Vue }; } });
+        globalThis.__XTendA043Observe = () => factories++;
+        const first = extra.create(), pending = first.mount(); await entered.promise; await first.host.unmount(); await pending;
+        check(firstSignal.aborted, 'logical drain aborts last pending group without awaiting transport');
+        const next = extra.create(); check((await next.mount()).ok, 'new host resolves an independent attempt'); equal(attempts, 2, 'retired cache is not reused');
+        release.resolve(); await new Promise(resolve => setTimeout(resolve, 0)); equal(factories, 1, 'late completion cannot initialize a revoked host');
+        const sibling = extra.create(); check((await sibling.mount()).ok, 'new successful cache remains usable'); equal(attempts, 2, 'late old completion cannot replace the current cache');
+      } finally { release.resolve(); delete globalThis.__XTendA043Observe; await extra?.close(); await f.close(); }
+    });
+    for (const failure of ['rejection', 'version']) await test(`A04.3.3: ${framework} shared ${failure} evicts the attempt before retry in the same factory`, async () => {
+      const f = fixture(framework, { shared: true }); let extra;
+      try {
+        await f.app.boot(f.options); let attempts = 0;
+        extra = additionalHosts(f, framework, { loadPeerGroup: () => { attempts++; if (attempts === 1 && failure === 'rejection') throw new Error('trusted loader failed');
+          return framework === 'react' ? { React: attempts === 1 ? { ...React, version: '19.0.0' } : React, ReactDOM } : { Vue: attempts === 1 ? { ...Vue, version: '3.0.0' } : Vue }; } });
+        const first = extra.create(); let result; try { result = await first.mount(); } catch (_) {} check(!result?.ok, 'invalid peer result fails mount'); equal(first.container.childElementCount, 0, 'no invalid framework root');
+        const second = extra.create(); check((await second.mount()).ok, 'same factory retries after failure'); equal(attempts, 2, 'failure is never cached');
+      } finally { await extra?.close(); await f.close(); }
+    });
+    await test(`A04.3.3: ${framework} late rejected transport cannot evict its replacement`, async () => {
+      const f = fixture(framework, { shared: true }), entered = deferred(), release = deferred(); let extra;
+      try {
+        await f.app.boot(f.options); let attempts = 0, normalizations = 0;
+        const options = f.stats.providerOptions, method = framework === 'react' ? 'normalizeReactPeers' : 'normalizeVuePeers';
+        extra = additionalHosts(f, framework, { adapters: { ...options.adapters, [framework]: { ...options.adapters[framework], [method](loaded) { normalizations++; return options.adapters[framework][method](loaded); } } },
+          loadPeerGroup: async () => { attempts++; if (attempts === 1) { entered.resolve(); await release.promise; throw new Error('retired transport failure'); } return framework === 'react' ? { React, ReactDOM } : { Vue }; } });
+        const first = extra.create(), pending = first.mount(); await entered.promise; await first.host.unmount(); await pending;
+        equal(normalizations, 0, 'retired pending result is never normalized');
+        const next = extra.create(); check((await next.mount()).ok, 'replacement mounts'); const before = normalizations;
+        release.resolve(); await new Promise(resolve => setTimeout(resolve, 0)); equal(normalizations, before, 'late failure has no peer continuation');
+        const sibling = extra.create(); check((await sibling.mount()).ok, 'replacement remains cached'); equal(attempts, 2, 'old failure cannot delete the new entry');
+      } finally { release.resolve(); await extra?.close(); await f.close(); }
+    });
+    await test(`A04.3.3: ${framework} cached versions are rechecked before each host factory`, async () => {
+      const f = fixture(framework, { shared: true }); let extra, factories = 0;
+      try {
+        await f.app.boot(f.options); const runtime = { ...(framework === 'react' ? React : Vue) }, version = runtime.version; let attempts = 0;
+        extra = additionalHosts(f, framework, { loadPeerGroup: () => { attempts++; return framework === 'react' ? { React: runtime, ReactDOM } : { Vue: runtime }; } });
+        globalThis.__XTendA043Observe = () => factories++;
+        const first = extra.create(); check((await first.mount()).ok, 'initial exact version mounts');
+        runtime.version = framework === 'react' ? '19.0.0' : '3.0.0'; const second = extra.create(); let result;
+        try { result = await second.mount(); } catch (_) {} check(!result?.ok, 'mutated cached version is rejected'); equal(factories, 1, 'invalid cached peers never reach the factory'); equal(attempts, 1, 'existing group is reused and revalidated');
+        runtime.version = version;
+      } finally { delete globalThis.__XTendA043Observe; await extra?.close(); await f.close(); }
+    });
+    await test(`A04.3.3: ${framework} denied capabilities prevent shared resolution`, async () => {
+      const f = fixture(framework, { shared: true, missingGrant: true });
+      try { let failed = false; try { await f.app.boot(f.options); } catch (_) { failed = true; } check(failed, 'missing authority rejects boot'); equal(f.stats.loads, 0, 'no shared peer loader'); equal(f.stats.providerLoads, 0, 'no provider loader'); }
+      finally { await f.close(); }
+    });
+    await test(`A04.3.3: ${framework} boot captures the loader and creates a fresh cache after dispose`, async () => {
+      const entered = deferred(), release = deferred(), f = fixture(framework, { shared: true, providerEntered: entered, providerWait: release.promise });
+      try {
+        const original = f.options.xtensions.loadPeerGroup, boot = f.app.boot(f.options); await entered.promise;
+        f.options.xtensions.loadPeerGroup = () => { throw new Error('mutated loader must not run'); }; release.resolve(); await boot;
+        equal(f.stats.loads, 1, 'synchronous capture preserves original application loader'); const old = f.stats.peerCalls[0].signal;
+        f.app.dispose(); await f.app.facade.whenXTensionsIdle(); check(old.aborted, 'boot dispose drains shared group');
+        f.options.xtensions.loadPeerGroup = original; await f.app.boot(f.options); equal(f.stats.loads, 2, 'new boot owns its own cache');
+      } finally { release.resolve(); await f.close(); }
+    });
+  }
+  await test('A04.3.3: mixed React/Vue resolution uses separate exact groups', async () => {
+    const f = fixture('mixed', { shared: true });
+    try { await f.app.boot(f.options); equal(f.stats.loads, 2, 'one group per framework/version tuple'); equal(f.root.querySelectorAll('input').length, 2, 'both actual roots render'); check(f.stats.peerCalls[0].group.id !== f.stats.peerCalls[1].group.id, 'groups have separate identities'); }
+    finally { await f.close(); }
+  });
   for (const framework of ['react', 'vue']) {
     await test(`A04.3.2: ${framework} native provider import waits for admitted mount and is shared across keyed hosts`, async () => {
       const source = integratedApps['deferred-' + framework], entered = deferred(), release = deferred(), f = fixture(framework, { deferred: true, providerEntered: entered, providerWait: release.promise }); let factories = 0;

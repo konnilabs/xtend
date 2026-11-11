@@ -41,4 +41,17 @@ function withDeferredProviders(input) {
   value.xtensionComposition.schema = 'xtend.maraca.xtension-composition-manifest.v3';
   value.xtensionComposition.loading = { provider: 'on-mount', peers: 'per-host' }; return value;
 }
-module.exports = { createBuildInput, buildIntegratedReference, withProviderGraph, withDeferredProviders };
+function withSharedPeers(input) {
+  const value = withDeferredProviders(input);
+  value.xtensionComposition.schema = 'xtend.maraca.xtension-composition-manifest.v4';
+  value.xtensionComposition.loading.peers = 'shared'; return value;
+}
+function createSharedPairInput(framework, outputDir, extra = {}) {
+  const value = createBuildInput('mixed', outputDir, extra), template = JSON.parse(JSON.stringify(value.xtensionComposition.providers.find(row => row.framework === framework)));
+  value.xtensionComposition.providers = value.xtensionComposition.hosts.map((host, index) => {
+    const provider = { ...template, id: framework + '-pair-' + index };
+    host.providerId = provider.id; host.capabilityRequirements.framework = framework; return provider;
+  });
+  return value;
+}
+module.exports = { createBuildInput, buildIntegratedReference, withProviderGraph, withDeferredProviders, withSharedPeers, createSharedPairInput };

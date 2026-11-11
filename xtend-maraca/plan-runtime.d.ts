@@ -389,7 +389,7 @@ export interface ComposedMaracaPlanRuntime extends Omit<MaracaPlanRuntime, 'sche
   subscribe(listener: (snapshot: ComposedMaracaPlanRuntimeSnapshot) => void): () => void;
 }
 export interface ComposedMaracaPlanRuntimeOptions extends Omit<MaracaPlanRuntimeOptions, 'plan' | 'createXTensionHost' | 'xtensionBindingsRuntime'> {
-  plan: Record<string, unknown> & { schema: 'xtend.maraca.build-plan.v5'; xtensionComposition: import('./xtension-composition-runtime').IntegratedXTensionCompositionArtifact | import('./xtension-composition-runtime').GraphXTensionCompositionArtifact | import('./xtension-composition-runtime').DeferredXTensionCompositionArtifact };
+  plan: Record<string, unknown> & { schema: 'xtend.maraca.build-plan.v5'; xtensionComposition: import('./xtension-composition-runtime').IntegratedXTensionCompositionArtifact | import('./xtension-composition-runtime').GraphXTensionCompositionArtifact | import('./xtension-composition-runtime').DeferredXTensionCompositionArtifact | import('./xtension-composition-runtime').SharedXTensionCompositionArtifact };
   xtensionCompositionPort: import('./xtension-composition-runtime').MaracaXTensionCompositionPort;
   createXTensionHost?: never; xtensionBindingsRuntime?: never; adoptExisting?: false;
 }

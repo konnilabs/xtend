@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { validateArtifact, canonical, freeze, copy, name, json } from './xtension-composition-contract.mjs';
-export const XTENSION_COMPOSITION_API_VERSION = '4.0.0';
+export const XTENSION_COMPOSITION_API_VERSION = '5.0.0';
 
 function capturePolicies(hosts, input) {
   const policies = new Map();
@@ -16,21 +16,72 @@ function capturePolicies(hosts, input) {
   return policies;
 }
 
+function capturePeerLoader(options, artifact) {
+  const shared = artifact.schema === 'xtend.maraca.xtension-composition-artifact.v5';
+  const key = shared ? 'loadPeerGroup' : 'loadPeers', other = shared ? 'loadPeers' : 'loadPeerGroup';
+  if (typeof options[key] !== 'function' || options[other] !== undefined) throw new TypeError('Exactly the peer loader port matching the artifact version is required.');
+  return { [key]: options[key] };
+}
+function verifiedPeers(provider, loaded) {
+  const peers = provider.normalize(loaded);
+  for (const [key, version] of Object.entries(provider.definition.peers)) if (peers.versions[key] !== version) throw new TypeError(`External peer ${key} does not match the verified build manifest.`);
+  return peers;
+}
+
+/** One factory owns the cache. Subscribers stay attached through mount success.
+ * Revocation fences late results even when the trusted loader ignores abort. */
+function createSharedPeers(groups, providers, load) {
+  const cache = new Map();
+  return (provider, signal) => {
+    if (signal.aborted) return waitForProvider(Promise.resolve(), signal);
+    const group = groups.find(row => row.providerIds.includes(provider.definition.id));
+    let entry = cache.get(group.id), start = false;
+    if (!entry) {
+      start = true;
+      let resolve, reject;
+      const promise = new Promise((yes, no) => { resolve = yes; reject = no; });
+      entry = { promise, resolve, reject, controller: new AbortController(), users: new Set() };
+      cache.set(group.id, entry);
+    }
+    const fail = error => {
+      if (cache.get(group.id) === entry) cache.delete(group.id);
+      entry.controller.abort();
+      for (const detach of entry.users) detach();
+      entry.reject(error);
+    };
+    const detach = () => { signal.removeEventListener('abort', cancel); entry.users.delete(detach); };
+    const cancel = () => { detach(); if (!entry.users.size) fail(new DOMException('Peer group lifetime was revoked.', 'AbortError')); };
+    entry.users.add(detach); signal.addEventListener('abort', cancel, { once: true });
+    const pending = waitForProvider(entry.promise, signal);
+    if (start) {
+      try {
+        Promise.resolve(load(Object.freeze({ group, signal: entry.controller.signal }))).then(loaded => {
+          if (entry.controller.signal.aborted) return;
+          const peers = verifiedPeers(providers.get(group.providerIds[0]), loaded);
+          if (!entry.controller.signal.aborted) entry.resolve(Object.freeze(group.framework === 'react' ? { React: peers.React, ReactDOM: peers.ReactDOM } : { Vue: peers.Vue }));
+        }).catch(fail);
+      } catch (error) { fail(error); }
+    }
+    return pending;
+  };
+}
+
 /** Captures application policy before asynchronous boot. Only Maraca binds the
  * resulting port to its real controller/root and internally created Surfaces. */
 export function createMaracaXTensionCompositionPort(options) {
   const artifact = validateArtifact(options.companion?.artifact, options.plan, options.bindingsRuntime);
-  if (!['xtend.maraca.xtension-composition-artifact.v2', 'xtend.maraca.xtension-composition-artifact.v3', 'xtend.maraca.xtension-composition-artifact.v4'].includes(artifact.schema) || canonical(artifact) !== canonical(options.plan.xtensionComposition)) throw new TypeError('Integrated boot requires the exact built v2/v3/v4 composition artifact.');
+  if (!['xtend.maraca.xtension-composition-artifact.v2', 'xtend.maraca.xtension-composition-artifact.v3', 'xtend.maraca.xtension-composition-artifact.v4', 'xtend.maraca.xtension-composition-artifact.v5'].includes(artifact.schema) || canonical(artifact) !== canonical(options.plan.xtensionComposition)) throw new TypeError('Integrated boot requires the exact built v2/v3/v4/v5 composition artifact.');
   const createHostFactory = options.companion.createHostFactory;
-  if (typeof createHostFactory !== 'function' || typeof options.loadPeers !== 'function') throw new TypeError('The built companion and explicit peer loader are required.');
+  if (typeof createHostFactory !== 'function') throw new TypeError('The built companion and explicit peer loader are required.');
+  const loaders = capturePeerLoader(options, artifact);
   const policies = capturePolicies(artifact.manifest.hosts, options.grants);
   const grants = Object.freeze(Object.fromEntries([...policies].map(([id, policy]) => [id, Object.freeze({ ...policy.data, authorize: policy.authorize, validateProps: policy.validateProps })])));
   const adapters = Object.freeze(Object.fromEntries(Object.entries(options.adapters || {}).map(([id, api]) => [id, Object.freeze({ ...api })])));
-  const plan = freeze(copy(options.plan)), bindingsRuntime = options.bindingsRuntime, loadPeers = options.loadPeers;
+  const plan = freeze(copy(options.plan)), bindingsRuntime = options.bindingsRuntime;
   return Object.freeze({ schema: 'xtend.maraca.xtension-composition-port.v1', bindingsRuntime,
     bind(ports) {
       validateArtifact(artifact, ports.plan, bindingsRuntime);
-      return createHostFactory({ ...ports, plan, bindingsRuntime, adapters, loadPeers, grants,
+      return createHostFactory({ ...ports, plan, bindingsRuntime, adapters, ...loaders, grants,
         compositionRuntime: Object.freeze({ createMaracaXTensionHostFactory }) });
     }
   });
@@ -51,9 +102,9 @@ function waitForProvider(promise, signal) {
  * This composer neither fetches executable code nor treats a JSON hash as proof. */
 export function createMaracaXTensionHostFactory(options) {
   const artifact = validateArtifact(options.artifact, options.plan, options.bindingsRuntime);
-  const deferred = artifact.schema === 'xtend.maraca.xtension-composition-artifact.v4';
+  const shared = artifact.schema === 'xtend.maraca.xtension-composition-artifact.v5', deferred = shared || artifact.schema === 'xtend.maraca.xtension-composition-artifact.v4';
   if ((deferred && options.providers !== undefined) || (!deferred && options.loadProviders !== undefined)) throw new TypeError('Provider namespace/loader ports must match the artifact version.');
-  const providerLoads = new Map();
+  const loaders = capturePeerLoader(options, artifact), providerLoads = new Map();
   const providers = new Map(), policies = capturePolicies(artifact.manifest.hosts, options.grants);
   for (const provider of artifact.manifest.providers) {
     const namespace = options.providers?.[provider.id], adapter = options.adapters?.[provider.framework];
@@ -63,8 +114,7 @@ export function createMaracaXTensionHostFactory(options) {
     if ((deferred ? typeof loadProvider !== 'function' : typeof namespace?.[provider.entry.exportName] !== 'function') || typeof create !== 'function' || typeof normalize !== 'function') throw new TypeError('The built provider factory and actual React/Vue adapter ports are required.');
     providers.set(provider.id, { definition: provider, factory: namespace?.[provider.entry.exportName], loadProvider, create, normalize });
   }
-  if (typeof options.loadPeers !== 'function') throw new TypeError('An explicit external-peer loader is required.');
-  const loadPeers = options.loadPeers, fabric = options.fabric;
+  const loadPeers = shared ? createSharedPeers(artifact.loadPlan.peerGroups, providers, loaders.loadPeerGroup) : loaders.loadPeers, fabric = options.fabric;
   const kernelWork = Object.freeze({ ...options.kernelWork }), resourceGraph = Object.freeze({ ...options.resourceGraph });
   name(kernelWork.rootId);
   if (!fabric || typeof fabric.createBoundary !== 'function' || !kernelWork.scheduler || !resourceGraph.kernel || !resourceGraph.surfaceGraph || !resourceGraph.surfaceController) throw new TypeError('Shared native Kernel, Fabric and Surface ports are required.');
@@ -112,10 +162,10 @@ export function createMaracaXTensionHostFactory(options) {
           factory = await waitForProvider(pending, signal);
         }
         if (signal.aborted) throw new DOMException('Provider lifetime was revoked.', 'AbortError');
-        const loaded = await loadPeers(Object.freeze({ provider: provider.definition, signal }));
+        const loaded = await (shared ? loadPeers(provider, signal) : loadPeers(Object.freeze({ provider: provider.definition, signal })));
         if (signal.aborted) throw new DOMException('Provider lifetime was revoked.', 'AbortError');
-        peers = provider.normalize(loaded);
-        for (const [key, version] of Object.entries(provider.definition.peers)) if (peers.versions[key] !== version) throw new TypeError(`External peer ${key} does not match the verified build manifest.`);
+        peers = verifiedPeers(provider, loaded);
+        if (signal.aborted) throw new DOMException('Provider lifetime was revoked.', 'AbortError');
         component = factory(Object.freeze(framework === 'react' ? { React: peers.React, ReactDOM: peers.ReactDOM } : { Vue: peers.Vue }));
         if (!component || !['function', 'object'].includes(typeof component) || typeof component.then === 'function') throw new TypeError('Provider factory must synchronously return a precompiled component.');
         if (signal.aborted) throw new DOMException('Provider lifetime was revoked.', 'AbortError');

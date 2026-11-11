@@ -23,11 +23,11 @@ async function main() {
   const compositionReports = Object.fromEntries(await Promise.all(['react', 'vue'].map(async framework => [framework, await compositionReference.buildReference(compositionPlan, path.join(compositionTemp, framework), framework)])));
   const compositions = Object.fromEntries(await Promise.all(Object.entries(compositionReports).map(async ([framework, report]) => [framework, await import(require('node:url').pathToFileURL(report.entryPath).href)])));
   const integratedDirectories = {}, companionEntries = {};
-  for (const key of ['react', 'vue', 'mixed', 'deferred-react', 'deferred-vue', 'deferred-mixed']) {
-    const framework = key.replace('deferred-', '');
+  for (const key of ['react', 'vue', 'mixed', 'deferred-react', 'deferred-vue', 'deferred-mixed', 'shared-react', 'shared-vue', 'shared-mixed', 'shared-pair-react', 'shared-pair-vue']) {
+    const framework = key.replace(/^(?:deferred-|shared-(?:pair-)?)/, '');
     const directory = path.join(compositionTemp, 'integrated-' + key);
     const reference = require('../development/rmtx-a04/integration-reference.cjs');
-    const built = await require('../xtend-maraca').buildMaracaBundleAsync(reference[key.startsWith('deferred-') ? 'withDeferredProviders' : 'withProviderGraph'](reference.createBuildInput(framework, directory, { profile: framework === 'vue' ? 'max' : 'production' })), { rootDir: root });
+    const built = await require('../xtend-maraca').buildMaracaBundleAsync(reference[key.startsWith('shared-') ? 'withSharedPeers' : key.startsWith('deferred-') ? 'withDeferredProviders' : 'withProviderGraph'](reference[key.startsWith('shared-pair-') ? 'createSharedPairInput' : 'createBuildInput'](framework, directory, { profile: framework === 'vue' ? 'max' : 'production' })), { rootDir: root });
     if (!built.ok) throw new Error('Integrated build failed: ' + JSON.stringify(built.plan.diagnostics));
     integratedDirectories[key] = directory;
     companionEntries[key] = JSON.parse(fs.readFileSync(path.join(directory, 'xtend.xtensions.report.json'))).artifact.entryFile;
@@ -53,7 +53,7 @@ async function main() {
       const companionEntries = ${JSON.stringify(companionEntries)};
       window.runAcceptance = async () => {
         const integratedApps = {};
-        for (const framework of ['react', 'vue', 'mixed', 'deferred-react', 'deferred-vue', 'deferred-mixed']) {
+        for (const framework of ['react', 'vue', 'mixed', 'deferred-react', 'deferred-vue', 'deferred-mixed', 'shared-react', 'shared-vue', 'shared-mixed', 'shared-pair-react', 'shared-pair-vue']) {
           const base = 'http://xtend.test/generated/' + framework + '/';
           integratedApps[framework] = { entry: await import(base + 'xtend.maraca.mjs'), platform: (await import(base + 'runtime/xtension-platform.mjs')).default, companion: await import(base + companionEntries[framework]), readProviderRequests: () => window.__readXTensionRequests(framework) };
         }
@@ -66,7 +66,7 @@ async function main() {
       const requests = []; await page.exposeFunction('__readXTensionRequests', key => requests.filter(row => row.startsWith('/generated/' + key + '/providers/')));
       const errors = []; page.on('pageerror', (error) => errors.push(error.message));
       await page.route('http://xtend.test/**', route => {
-        const pathname = new URL(route.request().url()).pathname, match = pathname.match(/^\/generated\/((?:deferred-)?(?:react|vue|mixed))\/(.+)$/);
+        const pathname = new URL(route.request().url()).pathname, match = pathname.match(/^\/generated\/((?:deferred-|shared-(?:pair-)?)?(?:react|vue|mixed))\/(.+)$/);
         requests.push(pathname);
         if (match) {
           const directory = integratedDirectories[match[1]], file = path.resolve(directory, match[2]);

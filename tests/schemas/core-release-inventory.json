@@ -270815,7 +270815,8 @@
           "visibility": "docs",
           "sourcePaths": [
             "development/rmtx-a04/integration-inspect.cjs",
-            "development/rmtx-a04/loading-inspect.cjs"
+            "development/rmtx-a04/loading-inspect.cjs",
+            "development/rmtx-a04/peer-inspect.cjs"
           ],
           "interfaceReferences": [
             {
@@ -270827,6 +270828,11 @@
               "type": "symbol",
               "path": "development/rmtx-a04/loading-inspect.cjs",
               "symbol": "inspect"
+            },
+            {
+              "type": "symbol",
+              "path": "development/rmtx-a04/peer-inspect.cjs",
+              "symbol": "inspect"
             }
           ]
         },
@@ -270837,7 +270843,8 @@
           "sourcePaths": [
             "development/rmtx-a04/integration-inspect.cjs",
             "development/rmtx-a04/integration.md",
-            "development/rmtx-a04/loading-inspect.cjs"
+            "development/rmtx-a04/loading-inspect.cjs",
+            "development/rmtx-a04/peer-inspect.cjs"
           ],
           "interfaceReferences": [
             {
@@ -274195,7 +274202,8 @@
             }
           },
           "sourcePaths": [
-            "development/rmtx-a04/loading-inspect.cjs"
+            "development/rmtx-a04/loading-inspect.cjs",
+            "development/rmtx-a04/peer-inspect.cjs"
           ],
           "symbols": [
             "inspect"
@@ -274206,6 +274214,13 @@
               "completeness": "partial",
               "authoritative": false,
               "path": "development/rmtx-a04/loading-inspect.cjs",
+              "symbol": "inspect"
+            },
+            {
+              "type": "docs",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "development/rmtx-a04/peer-inspect.cjs",
               "symbol": "inspect"
             }
           ],
@@ -391187,11 +391202,11 @@
       ],
       "status": "active",
       "lifecycle": {
-        "status": "active",
+        "status": "deprecated",
         "rollout": "planned"
       },
       "aliasOf": null,
-      "replacedBy": null,
+      "replacedBy": "xtend.maraca.xtension-composition-artifact.v5",
       "releasedFingerprintSetHash": null,
       "description": "Unreleased A04.3.2 explicit deferred-provider load plan: pinned local modules, admitted Kernel/Fabric imports, independently revoked shared waiters and exact per-host peers. Complete legacy contracts remain supported. Partial observations remain partial; no HTTP integrity or complete 0.9 acceptance is asserted.",
       "descriptionStatus": "curated",
@@ -393358,6 +393373,2277 @@
           "completeness": "partial",
           "authoritative": false
         }
+      ],
+      "replacementDecision": {
+        "compatibility": "The complete previous data/API contract and all authoritative/released fingerprints remain supported. Existing eager/import-free and deferred/per-host callers retain their defaults; shared peer composition explicitly opts into its successor. No public read window is ended.",
+        "rationale": "A04.3.3 adds a distinct exact-version shared-peer contract and runtime API with per-factory cache ownership and independent host lifetimes. Existing manifest/artifact/report/load-plan versions retain their complete semantics. See development/rmtx-a04/peer-groups.md."
+      }
+    },
+    {
+      "schemaId": "xtend.maraca.xtension-composition-artifact.v5",
+      "familyId": "xtend.maraca.xtension-composition-artifact",
+      "version": 5,
+      "kinds": [
+        "runtime-discriminator"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": null,
+      "description": "Unreleased A04.3.3 exact shared peer groups: derived group membership, explicit captured application loader, per-factory cache and independent admitted Kernel/Fabric host lifetimes with last-consumer eviction. Complete legacy contracts remain supported. Partial observations remain partial; no HTTP integrity or complete 0.9 acceptance is asserted.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "xtend-maraca/xtension-composition-contract.mjs",
+        "symbol": "SHARED_ARTIFACT_SCHEMA",
+        "definitionType": "constant",
+        "role": "definition",
+        "visibility": "public"
+      },
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a04/peer-groups.md"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "development/rmtx-a04/peer-groups.md",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "definition",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition-contract.mjs",
+            "xtend-maraca/xtension-composition-runtime.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-composition-contract.mjs",
+              "symbol": "SHARED_ARTIFACT_SCHEMA"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts",
+              "symbol": "SharedXTensionCompositionArtifact"
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "producer",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition-runtime.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts"
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "reference",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/plan-runtime.mjs",
+            "xtend-maraca/xtension-composition-runtime.mjs",
+            "xtend-maraca/xtension-size-budget.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/plan-runtime",
+              "path": "xtend-maraca/plan-runtime.mjs"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.mjs"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/plan-runtime",
+              "path": "xtend-maraca/plan-runtime.mjs"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.mjs"
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "single",
+        "decision": "reviewed-a0433-shared-peer-groups",
+        "acceptedFingerprints": [
+          "sha256:28aac293b21be4b8f2a788378abfe36e142aba898d404c2927186848d794b394"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rationale": "Scoped A04.3.3 review: composition API 5 adds manifest v4, artifact/report v5 and load-plan v2 for exact shared peer groups derived solely from the pinned provider graph. Per-factory groups share a normalized exact-version result across compatible providers while retaining independent Kernel/Fabric admission, host lifetimes, roots and grants. The last consumer evicts and aborts the group; revoked late results and errors cannot publish or remove a replacement. Failures allow a later admitted retry, and versions are rechecked per host. Complete legacy contracts retain per-host loading. Strict React/Vue/mixed budgets, packed consumers and 341 actual cases per jsdom/Chromium environment are mandatory. All prior authoritative/released fingerprint sets remain intact. CSP/HTTP delivery integrity and complete 0.9 acceptance remain pending. See development/rmtx-a04/peer-groups.md."
+      },
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:28aac293b21be4b8f2a788378abfe36e142aba898d404c2927186848d794b394",
+          "shape": {
+            "fieldCount": 4,
+            "fields": [
+              "apiVersion",
+              "loadPlan",
+              "manifest",
+              "plan"
+            ],
+            "signature": "apiVersion:literal<\"5.0.0\">|loadPlan:{peerGroups:array<{framework:union<literal<\"react\">|literal<\"vue\">>,id:string,providerIds:array<string>,versions:{\"arguments\":[{\"record\":{\"key\":\"string\",\"value\":\"string\"}}],\"unresolvedReference\":\"Readonly\"}}>,providers:array<intersection<{\"arguments\":[{\"indexedAccess\":{\"index\":\"number\",\"object\":{\"indexedAccess\":{\"index\":{\"literal\":\"providers\"},\"object\":{\"fields\":{\"providers\":{\"optional\":false,\"type\":{\"elementType\":{\"fields\":{\"entryFile\":{\"optional\":false,\"type\":\"string\"},\"exportName\":{\"optional\":false,\"type\":\"string\"},\"mode\":{\"optional\":false,\"type\":{\"literal\":\"on-mount\"}},\"modules\":{\"optional\":false,\"type\":{\"elementType\":\"string\"}},\"peers\":{\"optional\":false,\"type\":{\"fields\":{\"framework\":{\"optional\":false,\"type\":{\"union\":[{\"literal\":\"react\"},{\"literal\":\"vue\"}]}},\"mode\":{\"optional\":false,\"type\":{\"literal\":\"per-host\"}},\"versions\":{\"optional\":false,\"type\":{\"arguments\":[{\"record\":{\"key\":\"string\",\"value\":\"string\"}}],\"unresolvedReference\":\"Readonly\"}}}}},\"phase\":{\"optional\":false,\"type\":{\"literal\":\"kernel.fabric.mount\"}},\"providerId\":{\"optional\":false,\"type\":\"string\"}}}}}}}}}}},{\"literal\":\"peers\"}],\"unresolvedReference\":\"Omit\"}&{peers:{groupId:string,mode:literal<\"shared\">}}>>}|manifest:{loading:{peers:literal<\"shared\">,provider:literal<\"on-mount\">}}|plan:union<{\"indexedAccess\":{\"index\":{\"literal\":\"plan\"},\"object\":{\"fields\":{\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"1.0.0\"}},\"entryFile\":{\"optional\":false,\"type\":\"string\"},\"manifest\":{\"optional\":false,\"type\":{\"fields\":{\"hosts\":{\"optional\":false,\"type\":{\"elementType\":{\"fields\":{\"capabilityRequirements\":{\"optional\":false,\"type\":{\"arguments\":[],\"unresolvedReference\":\"HostCapabilityRequirements\"}},\"declarationId\":{\"optional\":false,\"type\":\"string\"},\"ownerSurface\":{\"optional\":false,\"type\":\"string\"},\"providerId\":{\"optional\":false,\"type\":\"string\"}}}}},\"providers\":{\"optional\":false,\"type\":{\"elementType\":{\"intersection\":[{\"fields\":{\"entry\":{\"optional\":false,\"type\":{\"fields\":{\"exportName\":{\"optional\":false,\"type\":\"string\"},\"module\":{\"optional\":false,\"type\":\"string\"}}}},\"id\":{\"optional\":false,\"type\":\"string\"},\"integrity\":{\"optional\":false,\"type\":{\"fields\":{\"sha256\":{\"optional\":false,\"type\":\"string\"}}}},\"version\":{\"optional\":false,\"type\":\"string\"}}},{\"union\":[{\"fields\":{\"framework\":{\"optional\":false,\"type\":{\"literal\":\"react\"}},\"peers\":{\"optional\":false,\"type\":{\"fields\":{\"react\":{\"optional\":false,\"type\":\"string\"},\"react-dom\":{\"optional\":false,\"type\":\"string\"}}}}}},{\"fields\":{\"framework\":{\"optional\":false,\"type\":{\"literal\":\"vue\"}},\"peers\":{\"optional\":false,\"type\":{\"fields\":{\"vue\":{\"optional\":false,\"type\":\"string\"}}}}}}]}]}}}}}},\"plan\":{\"optional\":false,\"type\":{\"fields\":{\"bindings\":{\"optional\":false,\"type\":{\"arguments\":[],\"unresolvedReference\":\"XTensionStateBindingArtifact\"}},\"program\":{\"optional\":false,\"type\":\"unknown\"},\"sourceHash\":{\"optional\":false,\"type\":\"string\"}}}},\"providers\":{\"optional\":false,\"type\":{\"elementType\":{\"fields\":{\"fileName\":{\"optional\":false,\"type\":\"string\"},\"id\":{\"optional\":false,\"type\":\"string\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}}},\"runtimeExecutionVerified\":{\"optional\":false,\"type\":{\"literal\":false}}}}}}|intersection<{\"arguments\":[{\"indexedAccess\":{\"index\":{\"literal\":\"plan\"},\"object\":{\"fields\":{\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"1.0.0\"}},\"entryFile\":{\"optional\":false,\"type\":\"string\"},\"manifest\":{\"optional\":false,\"type\":{\"fields\":{\"hosts\":{\"optional\":false,\"type\":{\"elementType\":{\"fields\":{\"capabilityRequirements\":{\"optional\":false,\"type\":{\"arguments\":[],\"unresolvedReference\":\"HostCapabilityRequirements\"}},\"declarationId\":{\"optional\":false,\"type\":\"string\"},\"ownerSurface\":{\"optional\":false,\"type\":\"string\"},\"providerId\":{\"optional\":false,\"type\":\"string\"}}}}},\"providers\":{\"optional\":false,\"type\":{\"elementType\":{\"intersection\":[{\"fields\":{\"entry\":{\"optional\":false,\"type\":{\"fields\":{\"exportName\":{\"optional\":false,\"type\":\"string\"},\"module\":{\"optional\":false,\"type\":\"string\"}}}},\"id\":{\"optional\":false,\"type\":\"string\"},\"integrity\":{\"optional\":false,\"type\":{\"fields\":{\"sha256\":{\"optional\":false,\"type\":\"string\"}}}},\"version\":{\"optional\":false,\"type\":\"string\"}}},{\"union\":[{\"fields\":{\"framework\":{\"optional\":false,\"type\":{\"literal\":\"react\"}},\"peers\":{\"optional\":false,\"type\":{\"fields\":{\"react\":{\"optional\":false,\"type\":\"string\"},\"react-dom\":{\"optional\":false,\"type\":\"string\"}}}}}},{\"fields\":{\"framework\":{\"optional\":false,\"type\":{\"literal\":\"vue\"}},\"peers\":{\"optional\":false,\"type\":{\"fields\":{\"vue\":{\"optional\":false,\"type\":\"string\"}}}}}}]}]}}}}}},\"plan\":{\"optional\":false,\"type\":{\"fields\":{\"bindings\":{\"optional\":false,\"type\":{\"arguments\":[],\"unresolvedReference\":\"XTensionStateBindingArtifact\"}},\"program\":{\"optional\":false,\"type\":\"unknown\"},\"sourceHash\":{\"optional\":false,\"type\":\"string\"}}}},\"providers\":{\"optional\":false,\"type\":{\"elementType\":{\"fields\":{\"fileName\":{\"optional\":false,\"type\":\"string\"},\"id\":{\"optional\":false,\"type\":\"string\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}}},\"runtimeExecutionVerified\":{\"optional\":false,\"type\":{\"literal\":false}}}}}},{\"literal\":\"schema\"}],\"unresolvedReference\":\"Omit\"}&{compositionManifest:{loading:{peers:literal<\"shared\">,provider:literal<\"on-mount\">}}}>>",
+            "normalized": {
+              "fields": {
+                "apiVersion": {
+                  "optional": false,
+                  "type": {
+                    "literal": "5.0.0"
+                  }
+                },
+                "loadPlan": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "peerGroups": {
+                        "optional": false,
+                        "type": {
+                          "elementType": {
+                            "fields": {
+                              "framework": {
+                                "optional": false,
+                                "type": {
+                                  "union": [
+                                    {
+                                      "literal": "react"
+                                    },
+                                    {
+                                      "literal": "vue"
+                                    }
+                                  ]
+                                }
+                              },
+                              "id": {
+                                "optional": false,
+                                "type": "string"
+                              },
+                              "providerIds": {
+                                "optional": false,
+                                "type": {
+                                  "elementType": "string"
+                                }
+                              },
+                              "versions": {
+                                "optional": false,
+                                "type": {
+                                  "arguments": [
+                                    {
+                                      "record": {
+                                        "key": "string",
+                                        "value": "string"
+                                      }
+                                    }
+                                  ],
+                                  "unresolvedReference": "Readonly"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "providers": {
+                        "optional": false,
+                        "type": {
+                          "elementType": {
+                            "intersection": [
+                              {
+                                "arguments": [
+                                  {
+                                    "indexedAccess": {
+                                      "index": "number",
+                                      "object": {
+                                        "indexedAccess": {
+                                          "index": {
+                                            "literal": "providers"
+                                          },
+                                          "object": {
+                                            "fields": {
+                                              "providers": {
+                                                "optional": false,
+                                                "type": {
+                                                  "elementType": {
+                                                    "fields": {
+                                                      "entryFile": {
+                                                        "optional": false,
+                                                        "type": "string"
+                                                      },
+                                                      "exportName": {
+                                                        "optional": false,
+                                                        "type": "string"
+                                                      },
+                                                      "mode": {
+                                                        "optional": false,
+                                                        "type": {
+                                                          "literal": "on-mount"
+                                                        }
+                                                      },
+                                                      "modules": {
+                                                        "optional": false,
+                                                        "type": {
+                                                          "elementType": "string"
+                                                        }
+                                                      },
+                                                      "peers": {
+                                                        "optional": false,
+                                                        "type": {
+                                                          "fields": {
+                                                            "framework": {
+                                                              "optional": false,
+                                                              "type": {
+                                                                "union": [
+                                                                  {
+                                                                    "literal": "react"
+                                                                  },
+                                                                  {
+                                                                    "literal": "vue"
+                                                                  }
+                                                                ]
+                                                              }
+                                                            },
+                                                            "mode": {
+                                                              "optional": false,
+                                                              "type": {
+                                                                "literal": "per-host"
+                                                              }
+                                                            },
+                                                            "versions": {
+                                                              "optional": false,
+                                                              "type": {
+                                                                "arguments": [
+                                                                  {
+                                                                    "record": {
+                                                                      "key": "string",
+                                                                      "value": "string"
+                                                                    }
+                                                                  }
+                                                                ],
+                                                                "unresolvedReference": "Readonly"
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      "phase": {
+                                                        "optional": false,
+                                                        "type": {
+                                                          "literal": "kernel.fabric.mount"
+                                                        }
+                                                      },
+                                                      "providerId": {
+                                                        "optional": false,
+                                                        "type": "string"
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "literal": "peers"
+                                  }
+                                ],
+                                "unresolvedReference": "Omit"
+                              },
+                              {
+                                "fields": {
+                                  "peers": {
+                                    "optional": false,
+                                    "type": {
+                                      "fields": {
+                                        "groupId": {
+                                          "optional": false,
+                                          "type": "string"
+                                        },
+                                        "mode": {
+                                          "optional": false,
+                                          "type": {
+                                            "literal": "shared"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "manifest": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "loading": {
+                        "optional": false,
+                        "type": {
+                          "fields": {
+                            "peers": {
+                              "optional": false,
+                              "type": {
+                                "literal": "shared"
+                              }
+                            },
+                            "provider": {
+                              "optional": false,
+                              "type": {
+                                "literal": "on-mount"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "unresolvedSpreads": [
+                      {
+                        "arguments": [
+                          {
+                            "fields": {
+                              "modules": {
+                                "optional": false,
+                                "type": {
+                                  "elementType": {
+                                    "fields": {
+                                      "module": {
+                                        "optional": false,
+                                        "type": "string"
+                                      },
+                                      "sha256": {
+                                        "optional": false,
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "unresolvedSpreads": [
+                              {
+                                "arguments": [
+                                  {
+                                    "fields": {
+                                      "hosts": {
+                                        "optional": false,
+                                        "type": {
+                                          "elementType": {
+                                            "fields": {
+                                              "capabilityRequirements": {
+                                                "optional": false,
+                                                "type": {
+                                                  "arguments": [],
+                                                  "unresolvedReference": "HostCapabilityRequirements"
+                                                }
+                                              },
+                                              "declarationId": {
+                                                "optional": false,
+                                                "type": "string"
+                                              },
+                                              "ownerSurface": {
+                                                "optional": false,
+                                                "type": "string"
+                                              },
+                                              "providerId": {
+                                                "optional": false,
+                                                "type": "string"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "providers": {
+                                        "optional": false,
+                                        "type": {
+                                          "elementType": {
+                                            "intersection": [
+                                              {
+                                                "fields": {
+                                                  "entry": {
+                                                    "optional": false,
+                                                    "type": {
+                                                      "fields": {
+                                                        "exportName": {
+                                                          "optional": false,
+                                                          "type": "string"
+                                                        },
+                                                        "module": {
+                                                          "optional": false,
+                                                          "type": "string"
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  "id": {
+                                                    "optional": false,
+                                                    "type": "string"
+                                                  },
+                                                  "integrity": {
+                                                    "optional": false,
+                                                    "type": {
+                                                      "fields": {
+                                                        "sha256": {
+                                                          "optional": false,
+                                                          "type": "string"
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  "version": {
+                                                    "optional": false,
+                                                    "type": "string"
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "union": [
+                                                  {
+                                                    "fields": {
+                                                      "framework": {
+                                                        "optional": false,
+                                                        "type": {
+                                                          "literal": "react"
+                                                        }
+                                                      },
+                                                      "peers": {
+                                                        "optional": false,
+                                                        "type": {
+                                                          "fields": {
+                                                            "react": {
+                                                              "optional": false,
+                                                              "type": "string"
+                                                            },
+                                                            "react-dom": {
+                                                              "optional": false,
+                                                              "type": "string"
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  {
+                                                    "fields": {
+                                                      "framework": {
+                                                        "optional": false,
+                                                        "type": {
+                                                          "literal": "vue"
+                                                        }
+                                                      },
+                                                      "peers": {
+                                                        "optional": false,
+                                                        "type": {
+                                                          "fields": {
+                                                            "vue": {
+                                                              "optional": false,
+                                                              "type": "string"
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "literal": "schema"
+                                  }
+                                ],
+                                "unresolvedReference": "Omit"
+                              }
+                            ]
+                          },
+                          {
+                            "literal": "schema"
+                          }
+                        ],
+                        "unresolvedReference": "Omit"
+                      }
+                    ]
+                  }
+                },
+                "plan": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "indexedAccess": {
+                          "index": {
+                            "literal": "plan"
+                          },
+                          "object": {
+                            "fields": {
+                              "apiVersion": {
+                                "optional": false,
+                                "type": {
+                                  "literal": "1.0.0"
+                                }
+                              },
+                              "entryFile": {
+                                "optional": false,
+                                "type": "string"
+                              },
+                              "manifest": {
+                                "optional": false,
+                                "type": {
+                                  "fields": {
+                                    "hosts": {
+                                      "optional": false,
+                                      "type": {
+                                        "elementType": {
+                                          "fields": {
+                                            "capabilityRequirements": {
+                                              "optional": false,
+                                              "type": {
+                                                "arguments": [],
+                                                "unresolvedReference": "HostCapabilityRequirements"
+                                              }
+                                            },
+                                            "declarationId": {
+                                              "optional": false,
+                                              "type": "string"
+                                            },
+                                            "ownerSurface": {
+                                              "optional": false,
+                                              "type": "string"
+                                            },
+                                            "providerId": {
+                                              "optional": false,
+                                              "type": "string"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "providers": {
+                                      "optional": false,
+                                      "type": {
+                                        "elementType": {
+                                          "intersection": [
+                                            {
+                                              "fields": {
+                                                "entry": {
+                                                  "optional": false,
+                                                  "type": {
+                                                    "fields": {
+                                                      "exportName": {
+                                                        "optional": false,
+                                                        "type": "string"
+                                                      },
+                                                      "module": {
+                                                        "optional": false,
+                                                        "type": "string"
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "id": {
+                                                  "optional": false,
+                                                  "type": "string"
+                                                },
+                                                "integrity": {
+                                                  "optional": false,
+                                                  "type": {
+                                                    "fields": {
+                                                      "sha256": {
+                                                        "optional": false,
+                                                        "type": "string"
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "version": {
+                                                  "optional": false,
+                                                  "type": "string"
+                                                }
+                                              }
+                                            },
+                                            {
+                                              "union": [
+                                                {
+                                                  "fields": {
+                                                    "framework": {
+                                                      "optional": false,
+                                                      "type": {
+                                                        "literal": "react"
+                                                      }
+                                                    },
+                                                    "peers": {
+                                                      "optional": false,
+                                                      "type": {
+                                                        "fields": {
+                                                          "react": {
+                                                            "optional": false,
+                                                            "type": "string"
+                                                          },
+                                                          "react-dom": {
+                                                            "optional": false,
+                                                            "type": "string"
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                {
+                                                  "fields": {
+                                                    "framework": {
+                                                      "optional": false,
+                                                      "type": {
+                                                        "literal": "vue"
+                                                      }
+                                                    },
+                                                    "peers": {
+                                                      "optional": false,
+                                                      "type": {
+                                                        "fields": {
+                                                          "vue": {
+                                                            "optional": false,
+                                                            "type": "string"
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "plan": {
+                                "optional": false,
+                                "type": {
+                                  "fields": {
+                                    "bindings": {
+                                      "optional": false,
+                                      "type": {
+                                        "arguments": [],
+                                        "unresolvedReference": "XTensionStateBindingArtifact"
+                                      }
+                                    },
+                                    "program": {
+                                      "optional": false,
+                                      "type": "unknown"
+                                    },
+                                    "sourceHash": {
+                                      "optional": false,
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              },
+                              "providers": {
+                                "optional": false,
+                                "type": {
+                                  "elementType": {
+                                    "fields": {
+                                      "fileName": {
+                                        "optional": false,
+                                        "type": "string"
+                                      },
+                                      "id": {
+                                        "optional": false,
+                                        "type": "string"
+                                      },
+                                      "sha256": {
+                                        "optional": false,
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "runtimeExecutionVerified": {
+                                "optional": false,
+                                "type": {
+                                  "literal": false
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "intersection": [
+                          {
+                            "arguments": [
+                              {
+                                "indexedAccess": {
+                                  "index": {
+                                    "literal": "plan"
+                                  },
+                                  "object": {
+                                    "fields": {
+                                      "apiVersion": {
+                                        "optional": false,
+                                        "type": {
+                                          "literal": "1.0.0"
+                                        }
+                                      },
+                                      "entryFile": {
+                                        "optional": false,
+                                        "type": "string"
+                                      },
+                                      "manifest": {
+                                        "optional": false,
+                                        "type": {
+                                          "fields": {
+                                            "hosts": {
+                                              "optional": false,
+                                              "type": {
+                                                "elementType": {
+                                                  "fields": {
+                                                    "capabilityRequirements": {
+                                                      "optional": false,
+                                                      "type": {
+                                                        "arguments": [],
+                                                        "unresolvedReference": "HostCapabilityRequirements"
+                                                      }
+                                                    },
+                                                    "declarationId": {
+                                                      "optional": false,
+                                                      "type": "string"
+                                                    },
+                                                    "ownerSurface": {
+                                                      "optional": false,
+                                                      "type": "string"
+                                                    },
+                                                    "providerId": {
+                                                      "optional": false,
+                                                      "type": "string"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "providers": {
+                                              "optional": false,
+                                              "type": {
+                                                "elementType": {
+                                                  "intersection": [
+                                                    {
+                                                      "fields": {
+                                                        "entry": {
+                                                          "optional": false,
+                                                          "type": {
+                                                            "fields": {
+                                                              "exportName": {
+                                                                "optional": false,
+                                                                "type": "string"
+                                                              },
+                                                              "module": {
+                                                                "optional": false,
+                                                                "type": "string"
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "id": {
+                                                          "optional": false,
+                                                          "type": "string"
+                                                        },
+                                                        "integrity": {
+                                                          "optional": false,
+                                                          "type": {
+                                                            "fields": {
+                                                              "sha256": {
+                                                                "optional": false,
+                                                                "type": "string"
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "version": {
+                                                          "optional": false,
+                                                          "type": "string"
+                                                        }
+                                                      }
+                                                    },
+                                                    {
+                                                      "union": [
+                                                        {
+                                                          "fields": {
+                                                            "framework": {
+                                                              "optional": false,
+                                                              "type": {
+                                                                "literal": "react"
+                                                              }
+                                                            },
+                                                            "peers": {
+                                                              "optional": false,
+                                                              "type": {
+                                                                "fields": {
+                                                                  "react": {
+                                                                    "optional": false,
+                                                                    "type": "string"
+                                                                  },
+                                                                  "react-dom": {
+                                                                    "optional": false,
+                                                                    "type": "string"
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        {
+                                                          "fields": {
+                                                            "framework": {
+                                                              "optional": false,
+                                                              "type": {
+                                                                "literal": "vue"
+                                                              }
+                                                            },
+                                                            "peers": {
+                                                              "optional": false,
+                                                              "type": {
+                                                                "fields": {
+                                                                  "vue": {
+                                                                    "optional": false,
+                                                                    "type": "string"
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "plan": {
+                                        "optional": false,
+                                        "type": {
+                                          "fields": {
+                                            "bindings": {
+                                              "optional": false,
+                                              "type": {
+                                                "arguments": [],
+                                                "unresolvedReference": "XTensionStateBindingArtifact"
+                                              }
+                                            },
+                                            "program": {
+                                              "optional": false,
+                                              "type": "unknown"
+                                            },
+                                            "sourceHash": {
+                                              "optional": false,
+                                              "type": "string"
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "providers": {
+                                        "optional": false,
+                                        "type": {
+                                          "elementType": {
+                                            "fields": {
+                                              "fileName": {
+                                                "optional": false,
+                                                "type": "string"
+                                              },
+                                              "id": {
+                                                "optional": false,
+                                                "type": "string"
+                                              },
+                                              "sha256": {
+                                                "optional": false,
+                                                "type": "string"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "runtimeExecutionVerified": {
+                                        "optional": false,
+                                        "type": {
+                                          "literal": false
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "literal": "schema"
+                              }
+                            ],
+                            "unresolvedReference": "Omit"
+                          },
+                          {
+                            "fields": {
+                              "compositionManifest": {
+                                "optional": false,
+                                "type": {
+                                  "fields": {
+                                    "loading": {
+                                      "optional": false,
+                                      "type": {
+                                        "fields": {
+                                          "peers": {
+                                            "optional": false,
+                                            "type": {
+                                              "literal": "shared"
+                                            }
+                                          },
+                                          "provider": {
+                                            "optional": false,
+                                            "type": {
+                                              "literal": "on-mount"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "unresolvedSpreads": [
+                                    {
+                                      "arguments": [
+                                        {
+                                          "fields": {
+                                            "modules": {
+                                              "optional": false,
+                                              "type": {
+                                                "elementType": {
+                                                  "fields": {
+                                                    "module": {
+                                                      "optional": false,
+                                                      "type": "string"
+                                                    },
+                                                    "sha256": {
+                                                      "optional": false,
+                                                      "type": "string"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "unresolvedSpreads": [
+                                            {
+                                              "arguments": [
+                                                {
+                                                  "fields": {
+                                                    "hosts": {
+                                                      "optional": false,
+                                                      "type": {
+                                                        "elementType": {
+                                                          "fields": {
+                                                            "capabilityRequirements": {
+                                                              "optional": false,
+                                                              "type": {
+                                                                "arguments": [],
+                                                                "unresolvedReference": "HostCapabilityRequirements"
+                                                              }
+                                                            },
+                                                            "declarationId": {
+                                                              "optional": false,
+                                                              "type": "string"
+                                                            },
+                                                            "ownerSurface": {
+                                                              "optional": false,
+                                                              "type": "string"
+                                                            },
+                                                            "providerId": {
+                                                              "optional": false,
+                                                              "type": "string"
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "providers": {
+                                                      "optional": false,
+                                                      "type": {
+                                                        "elementType": {
+                                                          "intersection": [
+                                                            {
+                                                              "fields": {
+                                                                "entry": {
+                                                                  "optional": false,
+                                                                  "type": {
+                                                                    "fields": {
+                                                                      "exportName": {
+                                                                        "optional": false,
+                                                                        "type": "string"
+                                                                      },
+                                                                      "module": {
+                                                                        "optional": false,
+                                                                        "type": "string"
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "id": {
+                                                                  "optional": false,
+                                                                  "type": "string"
+                                                                },
+                                                                "integrity": {
+                                                                  "optional": false,
+                                                                  "type": {
+                                                                    "fields": {
+                                                                      "sha256": {
+                                                                        "optional": false,
+                                                                        "type": "string"
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "version": {
+                                                                  "optional": false,
+                                                                  "type": "string"
+                                                                }
+                                                              }
+                                                            },
+                                                            {
+                                                              "union": [
+                                                                {
+                                                                  "fields": {
+                                                                    "framework": {
+                                                                      "optional": false,
+                                                                      "type": {
+                                                                        "literal": "react"
+                                                                      }
+                                                                    },
+                                                                    "peers": {
+                                                                      "optional": false,
+                                                                      "type": {
+                                                                        "fields": {
+                                                                          "react": {
+                                                                            "optional": false,
+                                                                            "type": "string"
+                                                                          },
+                                                                          "react-dom": {
+                                                                            "optional": false,
+                                                                            "type": "string"
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "fields": {
+                                                                    "framework": {
+                                                                      "optional": false,
+                                                                      "type": {
+                                                                        "literal": "vue"
+                                                                      }
+                                                                    },
+                                                                    "peers": {
+                                                                      "optional": false,
+                                                                      "type": {
+                                                                        "fields": {
+                                                                          "vue": {
+                                                                            "optional": false,
+                                                                            "type": "string"
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              ]
+                                                            }
+                                                          ]
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                {
+                                                  "literal": "schema"
+                                                }
+                                              ],
+                                              "unresolvedReference": "Omit"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "literal": "schema"
+                                        }
+                                      ],
+                                      "unresolvedReference": "Omit"
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              "unresolvedSpreads": [
+                {
+                  "arguments": [
+                    {
+                      "fields": {
+                        "apiVersion": {
+                          "optional": false,
+                          "type": {
+                            "literal": "3.0.0"
+                          }
+                        },
+                        "manifest": {
+                          "optional": false,
+                          "type": {
+                            "fields": {
+                              "modules": {
+                                "optional": false,
+                                "type": {
+                                  "elementType": {
+                                    "fields": {
+                                      "module": {
+                                        "optional": false,
+                                        "type": "string"
+                                      },
+                                      "sha256": {
+                                        "optional": false,
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "unresolvedSpreads": [
+                              {
+                                "arguments": [
+                                  {
+                                    "fields": {
+                                      "hosts": {
+                                        "optional": false,
+                                        "type": {
+                                          "elementType": {
+                                            "fields": {
+                                              "capabilityRequirements": {
+                                                "optional": false,
+                                                "type": {
+                                                  "arguments": [],
+                                                  "unresolvedReference": "HostCapabilityRequirements"
+                                                }
+                                              },
+                                              "declarationId": {
+                                                "optional": false,
+                                                "type": "string"
+                                              },
+                                              "ownerSurface": {
+                                                "optional": false,
+                                                "type": "string"
+                                              },
+                                              "providerId": {
+                                                "optional": false,
+                                                "type": "string"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "providers": {
+                                        "optional": false,
+                                        "type": {
+                                          "elementType": {
+                                            "intersection": [
+                                              {
+                                                "fields": {
+                                                  "entry": {
+                                                    "optional": false,
+                                                    "type": {
+                                                      "fields": {
+                                                        "exportName": {
+                                                          "optional": false,
+                                                          "type": "string"
+                                                        },
+                                                        "module": {
+                                                          "optional": false,
+                                                          "type": "string"
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  "id": {
+                                                    "optional": false,
+                                                    "type": "string"
+                                                  },
+                                                  "integrity": {
+                                                    "optional": false,
+                                                    "type": {
+                                                      "fields": {
+                                                        "sha256": {
+                                                          "optional": false,
+                                                          "type": "string"
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  "version": {
+                                                    "optional": false,
+                                                    "type": "string"
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "union": [
+                                                  {
+                                                    "fields": {
+                                                      "framework": {
+                                                        "optional": false,
+                                                        "type": {
+                                                          "literal": "react"
+                                                        }
+                                                      },
+                                                      "peers": {
+                                                        "optional": false,
+                                                        "type": {
+                                                          "fields": {
+                                                            "react": {
+                                                              "optional": false,
+                                                              "type": "string"
+                                                            },
+                                                            "react-dom": {
+                                                              "optional": false,
+                                                              "type": "string"
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  {
+                                                    "fields": {
+                                                      "framework": {
+                                                        "optional": false,
+                                                        "type": {
+                                                          "literal": "vue"
+                                                        }
+                                                      },
+                                                      "peers": {
+                                                        "optional": false,
+                                                        "type": {
+                                                          "fields": {
+                                                            "vue": {
+                                                              "optional": false,
+                                                              "type": "string"
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "literal": "schema"
+                                  }
+                                ],
+                                "unresolvedReference": "Omit"
+                              }
+                            ]
+                          }
+                        },
+                        "modules": {
+                          "optional": false,
+                          "type": {
+                            "elementType": {
+                              "fields": {
+                                "fileName": {
+                                  "optional": false,
+                                  "type": "string"
+                                },
+                                "imports": {
+                                  "optional": false,
+                                  "type": {
+                                    "elementType": {
+                                      "fields": {
+                                        "module": {
+                                          "optional": false,
+                                          "type": "string"
+                                        },
+                                        "specifier": {
+                                          "optional": false,
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "module": {
+                                  "optional": false,
+                                  "type": "string"
+                                },
+                                "outputBytes": {
+                                  "optional": false,
+                                  "type": "number"
+                                },
+                                "outputSha256": {
+                                  "optional": false,
+                                  "type": "string"
+                                },
+                                "sha256": {
+                                  "optional": false,
+                                  "type": "string"
+                                },
+                                "sourceBytes": {
+                                  "optional": false,
+                                  "type": "number"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "plan": {
+                          "optional": false,
+                          "type": {
+                            "union": [
+                              {
+                                "indexedAccess": {
+                                  "index": {
+                                    "literal": "plan"
+                                  },
+                                  "object": {
+                                    "fields": {
+                                      "apiVersion": {
+                                        "optional": false,
+                                        "type": {
+                                          "literal": "1.0.0"
+                                        }
+                                      },
+                                      "entryFile": {
+                                        "optional": false,
+                                        "type": "string"
+                                      },
+                                      "manifest": {
+                                        "optional": false,
+                                        "type": {
+                                          "fields": {
+                                            "hosts": {
+                                              "optional": false,
+                                              "type": {
+                                                "elementType": {
+                                                  "fields": {
+                                                    "capabilityRequirements": {
+                                                      "optional": false,
+                                                      "type": {
+                                                        "arguments": [],
+                                                        "unresolvedReference": "HostCapabilityRequirements"
+                                                      }
+                                                    },
+                                                    "declarationId": {
+                                                      "optional": false,
+                                                      "type": "string"
+                                                    },
+                                                    "ownerSurface": {
+                                                      "optional": false,
+                                                      "type": "string"
+                                                    },
+                                                    "providerId": {
+                                                      "optional": false,
+                                                      "type": "string"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "providers": {
+                                              "optional": false,
+                                              "type": {
+                                                "elementType": {
+                                                  "intersection": [
+                                                    {
+                                                      "fields": {
+                                                        "entry": {
+                                                          "optional": false,
+                                                          "type": {
+                                                            "fields": {
+                                                              "exportName": {
+                                                                "optional": false,
+                                                                "type": "string"
+                                                              },
+                                                              "module": {
+                                                                "optional": false,
+                                                                "type": "string"
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "id": {
+                                                          "optional": false,
+                                                          "type": "string"
+                                                        },
+                                                        "integrity": {
+                                                          "optional": false,
+                                                          "type": {
+                                                            "fields": {
+                                                              "sha256": {
+                                                                "optional": false,
+                                                                "type": "string"
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "version": {
+                                                          "optional": false,
+                                                          "type": "string"
+                                                        }
+                                                      }
+                                                    },
+                                                    {
+                                                      "union": [
+                                                        {
+                                                          "fields": {
+                                                            "framework": {
+                                                              "optional": false,
+                                                              "type": {
+                                                                "literal": "react"
+                                                              }
+                                                            },
+                                                            "peers": {
+                                                              "optional": false,
+                                                              "type": {
+                                                                "fields": {
+                                                                  "react": {
+                                                                    "optional": false,
+                                                                    "type": "string"
+                                                                  },
+                                                                  "react-dom": {
+                                                                    "optional": false,
+                                                                    "type": "string"
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        {
+                                                          "fields": {
+                                                            "framework": {
+                                                              "optional": false,
+                                                              "type": {
+                                                                "literal": "vue"
+                                                              }
+                                                            },
+                                                            "peers": {
+                                                              "optional": false,
+                                                              "type": {
+                                                                "fields": {
+                                                                  "vue": {
+                                                                    "optional": false,
+                                                                    "type": "string"
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "plan": {
+                                        "optional": false,
+                                        "type": {
+                                          "fields": {
+                                            "bindings": {
+                                              "optional": false,
+                                              "type": {
+                                                "arguments": [],
+                                                "unresolvedReference": "XTensionStateBindingArtifact"
+                                              }
+                                            },
+                                            "program": {
+                                              "optional": false,
+                                              "type": "unknown"
+                                            },
+                                            "sourceHash": {
+                                              "optional": false,
+                                              "type": "string"
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "providers": {
+                                        "optional": false,
+                                        "type": {
+                                          "elementType": {
+                                            "fields": {
+                                              "fileName": {
+                                                "optional": false,
+                                                "type": "string"
+                                              },
+                                              "id": {
+                                                "optional": false,
+                                                "type": "string"
+                                              },
+                                              "sha256": {
+                                                "optional": false,
+                                                "type": "string"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "runtimeExecutionVerified": {
+                                        "optional": false,
+                                        "type": {
+                                          "literal": false
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "intersection": [
+                                  {
+                                    "arguments": [
+                                      {
+                                        "indexedAccess": {
+                                          "index": {
+                                            "literal": "plan"
+                                          },
+                                          "object": {
+                                            "fields": {
+                                              "apiVersion": {
+                                                "optional": false,
+                                                "type": {
+                                                  "literal": "1.0.0"
+                                                }
+                                              },
+                                              "entryFile": {
+                                                "optional": false,
+                                                "type": "string"
+                                              },
+                                              "manifest": {
+                                                "optional": false,
+                                                "type": {
+                                                  "fields": {
+                                                    "hosts": {
+                                                      "optional": false,
+                                                      "type": {
+                                                        "elementType": {
+                                                          "fields": {
+                                                            "capabilityRequirements": {
+                                                              "optional": false,
+                                                              "type": {
+                                                                "arguments": [],
+                                                                "unresolvedReference": "HostCapabilityRequirements"
+                                                              }
+                                                            },
+                                                            "declarationId": {
+                                                              "optional": false,
+                                                              "type": "string"
+                                                            },
+                                                            "ownerSurface": {
+                                                              "optional": false,
+                                                              "type": "string"
+                                                            },
+                                                            "providerId": {
+                                                              "optional": false,
+                                                              "type": "string"
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "providers": {
+                                                      "optional": false,
+                                                      "type": {
+                                                        "elementType": {
+                                                          "intersection": [
+                                                            {
+                                                              "fields": {
+                                                                "entry": {
+                                                                  "optional": false,
+                                                                  "type": {
+                                                                    "fields": {
+                                                                      "exportName": {
+                                                                        "optional": false,
+                                                                        "type": "string"
+                                                                      },
+                                                                      "module": {
+                                                                        "optional": false,
+                                                                        "type": "string"
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "id": {
+                                                                  "optional": false,
+                                                                  "type": "string"
+                                                                },
+                                                                "integrity": {
+                                                                  "optional": false,
+                                                                  "type": {
+                                                                    "fields": {
+                                                                      "sha256": {
+                                                                        "optional": false,
+                                                                        "type": "string"
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "version": {
+                                                                  "optional": false,
+                                                                  "type": "string"
+                                                                }
+                                                              }
+                                                            },
+                                                            {
+                                                              "union": [
+                                                                {
+                                                                  "fields": {
+                                                                    "framework": {
+                                                                      "optional": false,
+                                                                      "type": {
+                                                                        "literal": "react"
+                                                                      }
+                                                                    },
+                                                                    "peers": {
+                                                                      "optional": false,
+                                                                      "type": {
+                                                                        "fields": {
+                                                                          "react": {
+                                                                            "optional": false,
+                                                                            "type": "string"
+                                                                          },
+                                                                          "react-dom": {
+                                                                            "optional": false,
+                                                                            "type": "string"
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "fields": {
+                                                                    "framework": {
+                                                                      "optional": false,
+                                                                      "type": {
+                                                                        "literal": "vue"
+                                                                      }
+                                                                    },
+                                                                    "peers": {
+                                                                      "optional": false,
+                                                                      "type": {
+                                                                        "fields": {
+                                                                          "vue": {
+                                                                            "optional": false,
+                                                                            "type": "string"
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              ]
+                                                            }
+                                                          ]
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "plan": {
+                                                "optional": false,
+                                                "type": {
+                                                  "fields": {
+                                                    "bindings": {
+                                                      "optional": false,
+                                                      "type": {
+                                                        "arguments": [],
+                                                        "unresolvedReference": "XTensionStateBindingArtifact"
+                                                      }
+                                                    },
+                                                    "program": {
+                                                      "optional": false,
+                                                      "type": "unknown"
+                                                    },
+                                                    "sourceHash": {
+                                                      "optional": false,
+                                                      "type": "string"
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "providers": {
+                                                "optional": false,
+                                                "type": {
+                                                  "elementType": {
+                                                    "fields": {
+                                                      "fileName": {
+                                                        "optional": false,
+                                                        "type": "string"
+                                                      },
+                                                      "id": {
+                                                        "optional": false,
+                                                        "type": "string"
+                                                      },
+                                                      "sha256": {
+                                                        "optional": false,
+                                                        "type": "string"
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "runtimeExecutionVerified": {
+                                                "optional": false,
+                                                "type": {
+                                                  "literal": false
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      {
+                                        "literal": "schema"
+                                      }
+                                    ],
+                                    "unresolvedReference": "Omit"
+                                  },
+                                  {
+                                    "fields": {
+                                      "compositionManifest": {
+                                        "optional": false,
+                                        "type": {
+                                          "fields": {
+                                            "modules": {
+                                              "optional": false,
+                                              "type": {
+                                                "elementType": {
+                                                  "fields": {
+                                                    "module": {
+                                                      "optional": false,
+                                                      "type": "string"
+                                                    },
+                                                    "sha256": {
+                                                      "optional": false,
+                                                      "type": "string"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "unresolvedSpreads": [
+                                            {
+                                              "arguments": [
+                                                {
+                                                  "fields": {
+                                                    "hosts": {
+                                                      "optional": false,
+                                                      "type": {
+                                                        "elementType": {
+                                                          "fields": {
+                                                            "capabilityRequirements": {
+                                                              "optional": false,
+                                                              "type": {
+                                                                "arguments": [],
+                                                                "unresolvedReference": "HostCapabilityRequirements"
+                                                              }
+                                                            },
+                                                            "declarationId": {
+                                                              "optional": false,
+                                                              "type": "string"
+                                                            },
+                                                            "ownerSurface": {
+                                                              "optional": false,
+                                                              "type": "string"
+                                                            },
+                                                            "providerId": {
+                                                              "optional": false,
+                                                              "type": "string"
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "providers": {
+                                                      "optional": false,
+                                                      "type": {
+                                                        "elementType": {
+                                                          "intersection": [
+                                                            {
+                                                              "fields": {
+                                                                "entry": {
+                                                                  "optional": false,
+                                                                  "type": {
+                                                                    "fields": {
+                                                                      "exportName": {
+                                                                        "optional": false,
+                                                                        "type": "string"
+                                                                      },
+                                                                      "module": {
+                                                                        "optional": false,
+                                                                        "type": "string"
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "id": {
+                                                                  "optional": false,
+                                                                  "type": "string"
+                                                                },
+                                                                "integrity": {
+                                                                  "optional": false,
+                                                                  "type": {
+                                                                    "fields": {
+                                                                      "sha256": {
+                                                                        "optional": false,
+                                                                        "type": "string"
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "version": {
+                                                                  "optional": false,
+                                                                  "type": "string"
+                                                                }
+                                                              }
+                                                            },
+                                                            {
+                                                              "union": [
+                                                                {
+                                                                  "fields": {
+                                                                    "framework": {
+                                                                      "optional": false,
+                                                                      "type": {
+                                                                        "literal": "react"
+                                                                      }
+                                                                    },
+                                                                    "peers": {
+                                                                      "optional": false,
+                                                                      "type": {
+                                                                        "fields": {
+                                                                          "react": {
+                                                                            "optional": false,
+                                                                            "type": "string"
+                                                                          },
+                                                                          "react-dom": {
+                                                                            "optional": false,
+                                                                            "type": "string"
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "fields": {
+                                                                    "framework": {
+                                                                      "optional": false,
+                                                                      "type": {
+                                                                        "literal": "vue"
+                                                                      }
+                                                                    },
+                                                                    "peers": {
+                                                                      "optional": false,
+                                                                      "type": {
+                                                                        "fields": {
+                                                                          "vue": {
+                                                                            "optional": false,
+                                                                            "type": "string"
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              ]
+                                                            }
+                                                          ]
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                {
+                                                  "literal": "schema"
+                                                }
+                                              ],
+                                              "unresolvedReference": "Omit"
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        },
+                        "providers": {
+                          "optional": false,
+                          "type": {
+                            "elementType": {
+                              "fields": {
+                                "fileName": {
+                                  "optional": false,
+                                  "type": "string"
+                                },
+                                "id": {
+                                  "optional": false,
+                                  "type": "string"
+                                },
+                                "outputSha256": {
+                                  "optional": false,
+                                  "type": "string"
+                                },
+                                "sha256": {
+                                  "optional": false,
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "unresolvedSpreads": [
+                        {
+                          "arguments": [
+                            {
+                              "fields": {
+                                "apiVersion": {
+                                  "optional": false,
+                                  "type": {
+                                    "literal": "1.0.0"
+                                  }
+                                },
+                                "entryFile": {
+                                  "optional": false,
+                                  "type": "string"
+                                },
+                                "manifest": {
+                                  "optional": false,
+                                  "type": {
+                                    "fields": {
+                                      "hosts": {
+                                        "optional": false,
+                                        "type": {
+                                          "elementType": {
+                                            "fields": {
+                                              "capabilityRequirements": {
+                                                "optional": false,
+                                                "type": {
+                                                  "arguments": [],
+                                                  "unresolvedReference": "HostCapabilityRequirements"
+                                                }
+                                              },
+                                              "declarationId": {
+                                                "optional": false,
+                                                "type": "string"
+                                              },
+                                              "ownerSurface": {
+                                                "optional": false,
+                                                "type": "string"
+                                              },
+                                              "providerId": {
+                                                "optional": false,
+                                                "type": "string"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "providers": {
+                                        "optional": false,
+                                        "type": {
+                                          "elementType": {
+                                            "intersection": [
+                                              {
+                                                "fields": {
+                                                  "entry": {
+                                                    "optional": false,
+                                                    "type": {
+                                                      "fields": {
+                                                        "exportName": {
+                                                          "optional": false,
+                                                          "type": "string"
+                                                        },
+                                                        "module": {
+                                                          "optional": false,
+                                                          "type": "string"
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  "id": {
+                                                    "optional": false,
+                                                    "type": "string"
+                                                  },
+                                                  "integrity": {
+                                                    "optional": false,
+                                                    "type": {
+                                                      "fields": {
+                                                        "sha256": {
+                                                          "optional": false,
+                                                          "type": "string"
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  "version": {
+                                                    "optional": false,
+                                                    "type": "string"
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "union": [
+                                                  {
+                                                    "fields": {
+                                                      "framework": {
+                                                        "optional": false,
+                                                        "type": {
+                                                          "literal": "react"
+                                                        }
+                                                      },
+                                                      "peers": {
+                                                        "optional": false,
+                                                        "type": {
+                                                          "fields": {
+                                                            "react": {
+                                                              "optional": false,
+                                                              "type": "string"
+                                                            },
+                                                            "react-dom": {
+                                                              "optional": false,
+                                                              "type": "string"
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  {
+                                                    "fields": {
+                                                      "framework": {
+                                                        "optional": false,
+                                                        "type": {
+                                                          "literal": "vue"
+                                                        }
+                                                      },
+                                                      "peers": {
+                                                        "optional": false,
+                                                        "type": {
+                                                          "fields": {
+                                                            "vue": {
+                                                              "optional": false,
+                                                              "type": "string"
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "plan": {
+                                  "optional": false,
+                                  "type": {
+                                    "fields": {
+                                      "bindings": {
+                                        "optional": false,
+                                        "type": {
+                                          "arguments": [],
+                                          "unresolvedReference": "XTensionStateBindingArtifact"
+                                        }
+                                      },
+                                      "program": {
+                                        "optional": false,
+                                        "type": "unknown"
+                                      },
+                                      "sourceHash": {
+                                        "optional": false,
+                                        "type": "string"
+                                      }
+                                    }
+                                  }
+                                },
+                                "providers": {
+                                  "optional": false,
+                                  "type": {
+                                    "elementType": {
+                                      "fields": {
+                                        "fileName": {
+                                          "optional": false,
+                                          "type": "string"
+                                        },
+                                        "id": {
+                                          "optional": false,
+                                          "type": "string"
+                                        },
+                                        "sha256": {
+                                          "optional": false,
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "runtimeExecutionVerified": {
+                                  "optional": false,
+                                  "type": {
+                                    "literal": false
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "union": [
+                                {
+                                  "literal": "apiVersion"
+                                },
+                                {
+                                  "literal": "manifest"
+                                },
+                                {
+                                  "literal": "plan"
+                                },
+                                {
+                                  "literal": "providers"
+                                },
+                                {
+                                  "literal": "schema"
+                                }
+                              ]
+                            }
+                          ],
+                          "unresolvedReference": "Omit"
+                        }
+                      ]
+                    },
+                    {
+                      "union": [
+                        {
+                          "literal": "apiVersion"
+                        },
+                        {
+                          "literal": "manifest"
+                        },
+                        {
+                          "literal": "plan"
+                        },
+                        {
+                          "literal": "schema"
+                        }
+                      ]
+                    }
+                  ],
+                  "unresolvedReference": "Omit"
+                }
+              ]
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition-runtime.d.ts"
+          ],
+          "symbols": [
+            "SharedXTensionCompositionArtifact"
+          ],
+          "evidence": [
+            {
+              "type": "declared-type",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts",
+              "symbol": "SharedXTensionCompositionArtifact"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        }
       ]
     },
     {
@@ -394111,11 +396397,11 @@
       ],
       "status": "active",
       "lifecycle": {
-        "status": "active",
+        "status": "deprecated",
         "rollout": "planned"
       },
       "aliasOf": null,
-      "replacedBy": null,
+      "replacedBy": "xtend.maraca.xtension-composition-build-report.v5",
       "releasedFingerprintSetHash": null,
       "description": "Unreleased A04.3.2 explicit deferred-provider load plan: pinned local modules, admitted Kernel/Fabric imports, independently revoked shared waiters and exact per-host peers. Complete legacy contracts remain supported. Partial observations remain partial; no HTTP integrity or complete 0.9 acceptance is asserted.",
       "descriptionStatus": "curated",
@@ -394345,6 +396631,264 @@
               "authoritative": false,
               "path": "xtend-maraca/xtension-composition.d.ts",
               "symbol": "DeferredXTensionCompositionBuildReport"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        }
+      ],
+      "replacementDecision": {
+        "compatibility": "The complete previous data/API contract and all authoritative/released fingerprints remain supported. Existing eager/import-free and deferred/per-host callers retain their defaults; shared peer composition explicitly opts into its successor. No public read window is ended.",
+        "rationale": "A04.3.3 adds a distinct exact-version shared-peer contract and runtime API with per-factory cache ownership and independent host lifetimes. Existing manifest/artifact/report/load-plan versions retain their complete semantics. See development/rmtx-a04/peer-groups.md."
+      }
+    },
+    {
+      "schemaId": "xtend.maraca.xtension-composition-build-report.v5",
+      "familyId": "xtend.maraca.xtension-composition-build-report",
+      "version": 5,
+      "kinds": [
+        "report-id",
+        "runtime-discriminator"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": null,
+      "description": "Unreleased A04.3.3 exact shared peer groups: derived group membership, explicit captured application loader, per-factory cache and independent admitted Kernel/Fabric host lifetimes with last-consumer eviction. Complete legacy contracts remain supported. Partial observations remain partial; no HTTP integrity or complete 0.9 acceptance is asserted.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "xtend-maraca/xtension-composition.d.ts",
+        "symbol": "SharedXTensionCompositionBuildReport",
+        "definitionType": "typescript-declaration",
+        "role": "definition",
+        "visibility": "public"
+      },
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a04/peer-groups.md",
+            "development/rmtx-a04/peer-inspect.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "development/rmtx-a04/peer-groups.md",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "definition",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.d.ts"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-composition.d.ts",
+              "symbol": "SharedXTensionCompositionBuildReport"
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "producer",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition.d.ts",
+            "xtend-maraca/xtension-composition.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.js"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.js"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Types",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/types/xtensions_integrated_composition.mts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/types/xtensions_integrated_composition.mts",
+              "symbol": null
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "single",
+        "decision": "reviewed-a0433-shared-peer-groups",
+        "acceptedFingerprints": [
+          "sha256:e5a3822084ffb5bab28f26479908aca949ba7540892f1831a924f7a077963f3a"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rationale": "Scoped A04.3.3 review: composition API 5 adds manifest v4, artifact/report v5 and load-plan v2 for exact shared peer groups derived solely from the pinned provider graph. Per-factory groups share a normalized exact-version result across compatible providers while retaining independent Kernel/Fabric admission, host lifetimes, roots and grants. The last consumer evicts and aborts the group; revoked late results and errors cannot publish or remove a replacement. Failures allow a later admitted retry, and versions are rechecked per host. Complete legacy contracts retain per-host loading. Strict React/Vue/mixed budgets, packed consumers and 341 actual cases per jsdom/Chromium environment are mandatory. All prior authoritative/released fingerprint sets remain intact. CSP/HTTP delivery integrity and complete 0.9 acceptance remain pending. See development/rmtx-a04/peer-groups.md."
+      },
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:e5a3822084ffb5bab28f26479908aca949ba7540892f1831a924f7a077963f3a",
+          "shape": {
+            "fieldCount": 2,
+            "fields": [
+              "apiVersion",
+              "artifact"
+            ],
+            "signature": "apiVersion:literal<\"5.0.0\">|artifact:{\"unresolved\":\"import('./xtension-composition-runtime').SharedXTensionCompositionArtifact\"}",
+            "normalized": {
+              "fields": {
+                "apiVersion": {
+                  "optional": false,
+                  "type": {
+                    "literal": "5.0.0"
+                  }
+                },
+                "artifact": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "import('./xtension-composition-runtime').SharedXTensionCompositionArtifact"
+                  }
+                }
+              },
+              "unresolvedSpreads": [
+                {
+                  "arguments": [
+                    {
+                      "fields": {
+                        "apiVersion": {
+                          "optional": false,
+                          "type": {
+                            "literal": "1.0.0"
+                          }
+                        },
+                        "artifact": {
+                          "optional": false,
+                          "type": {
+                            "arguments": [],
+                            "unresolvedReference": "XTensionCompositionArtifact"
+                          }
+                        },
+                        "entryPath": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "files": {
+                          "optional": false,
+                          "type": {
+                            "elementType": {
+                              "fields": {
+                                "bytes": {
+                                  "optional": false,
+                                  "type": "number"
+                                },
+                                "fileName": {
+                                  "optional": false,
+                                  "type": "string"
+                                },
+                                "sha256": {
+                                  "optional": false,
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "frameworkDependenciesBundled": {
+                          "optional": false,
+                          "type": {
+                            "literal": false
+                          }
+                        },
+                        "ok": {
+                          "optional": false,
+                          "type": {
+                            "literal": true
+                          }
+                        },
+                        "runtimeExecutionVerified": {
+                          "optional": false,
+                          "type": {
+                            "literal": false
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "union": [
+                        {
+                          "literal": "apiVersion"
+                        },
+                        {
+                          "literal": "artifact"
+                        },
+                        {
+                          "literal": "schema"
+                        }
+                      ]
+                    }
+                  ],
+                  "unresolvedReference": "Omit"
+                }
+              ]
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition.d.ts"
+          ],
+          "symbols": [
+            "SharedXTensionCompositionBuildReport"
+          ],
+          "evidence": [
+            {
+              "type": "declared-type",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtend-maraca/xtension-composition.d.ts",
+              "symbol": "SharedXTensionCompositionBuildReport"
             }
           ],
           "evidenceTypes": [
@@ -395166,11 +397710,11 @@
       ],
       "status": "active",
       "lifecycle": {
-        "status": "active",
+        "status": "deprecated",
         "rollout": "planned"
       },
       "aliasOf": null,
-      "replacedBy": null,
+      "replacedBy": "xtend.maraca.xtension-composition-manifest.v4",
       "releasedFingerprintSetHash": null,
       "description": "Unreleased A04.3.2 explicit deferred-provider load plan: pinned local modules, admitted Kernel/Fabric imports, independently revoked shared waiters and exact per-host peers. Complete legacy contracts remain supported. Partial observations remain partial; no HTTP integrity or complete 0.9 acceptance is asserted.",
       "descriptionStatus": "curated",
@@ -395188,7 +397732,8 @@
           "visibility": "docs",
           "sourcePaths": [
             "development/rmtx-a04/integration-reference.cjs",
-            "development/rmtx-a04/loading.md"
+            "development/rmtx-a04/loading.md",
+            "development/rmtx-a04/peer-inspect.cjs"
           ],
           "interfaceReferences": [
             {
@@ -395246,21 +397791,6 @@
               "type": "package-export",
               "module": "@ccslabs/xtend/maraca/xtension-composition-runtime",
               "path": "xtend-maraca/xtension-composition-runtime.d.ts"
-            }
-          ]
-        },
-        {
-          "application": "XTend Tests: Xtensions",
-          "role": "assertion",
-          "visibility": "test",
-          "sourcePaths": [
-            "tests/xtensions/xtensions_consumer_package_suite.js"
-          ],
-          "interfaceReferences": [
-            {
-              "type": "repo-symbol",
-              "path": "tests/xtensions/xtensions_consumer_package_suite.js",
-              "symbol": null
             }
           ]
         }
@@ -395491,6 +398021,355 @@
               "authoritative": false,
               "path": "xtend-maraca/xtension-composition-runtime.d.ts",
               "symbol": "DeferredXTensionCompositionManifest"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        }
+      ],
+      "replacementDecision": {
+        "compatibility": "The complete previous data/API contract and all authoritative/released fingerprints remain supported. Existing eager/import-free and deferred/per-host callers retain their defaults; shared peer composition explicitly opts into its successor. No public read window is ended.",
+        "rationale": "A04.3.3 adds a distinct exact-version shared-peer contract and runtime API with per-factory cache ownership and independent host lifetimes. Existing manifest/artifact/report/load-plan versions retain their complete semantics. See development/rmtx-a04/peer-groups.md."
+      }
+    },
+    {
+      "schemaId": "xtend.maraca.xtension-composition-manifest.v4",
+      "familyId": "xtend.maraca.xtension-composition-manifest",
+      "version": 4,
+      "kinds": [
+        "manifest-id",
+        "runtime-discriminator"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": null,
+      "description": "Unreleased A04.3.3 exact shared peer groups: derived group membership, explicit captured application loader, per-factory cache and independent admitted Kernel/Fabric host lifetimes with last-consumer eviction. Complete legacy contracts remain supported. Partial observations remain partial; no HTTP integrity or complete 0.9 acceptance is asserted.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "xtend-maraca/xtension-composition-contract.mjs",
+        "symbol": "SHARED_MANIFEST_SCHEMA",
+        "definitionType": "constant",
+        "role": "definition",
+        "visibility": "public"
+      },
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a04/integration-reference.cjs",
+            "development/rmtx-a04/peer-groups.md"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "development/rmtx-a04/integration-reference.cjs",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "definition",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition-contract.mjs",
+            "xtend-maraca/xtension-composition-runtime.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-composition-contract.mjs",
+              "symbol": "SHARED_MANIFEST_SCHEMA"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts",
+              "symbol": "SharedXTensionCompositionManifest"
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "producer",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition-runtime.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Xtensions",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/xtensions/xtensions_consumer_package_suite.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/xtensions/xtensions_consumer_package_suite.js",
+              "symbol": null
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "single",
+        "decision": "reviewed-a0433-shared-peer-groups",
+        "acceptedFingerprints": [
+          "sha256:1a316873c8dd6462a41980d716b45978e90a6b40f57342020d93678f6305bf19"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rationale": "Scoped A04.3.3 review: composition API 5 adds manifest v4, artifact/report v5 and load-plan v2 for exact shared peer groups derived solely from the pinned provider graph. Per-factory groups share a normalized exact-version result across compatible providers while retaining independent Kernel/Fabric admission, host lifetimes, roots and grants. The last consumer evicts and aborts the group; revoked late results and errors cannot publish or remove a replacement. Failures allow a later admitted retry, and versions are rechecked per host. Complete legacy contracts retain per-host loading. Strict React/Vue/mixed budgets, packed consumers and 341 actual cases per jsdom/Chromium environment are mandatory. All prior authoritative/released fingerprint sets remain intact. CSP/HTTP delivery integrity and complete 0.9 acceptance remain pending. See development/rmtx-a04/peer-groups.md."
+      },
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:1a316873c8dd6462a41980d716b45978e90a6b40f57342020d93678f6305bf19",
+          "shape": {
+            "fieldCount": 1,
+            "fields": [
+              "loading"
+            ],
+            "signature": "loading:{peers:literal<\"shared\">,provider:literal<\"on-mount\">}",
+            "normalized": {
+              "fields": {
+                "loading": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "peers": {
+                        "optional": false,
+                        "type": {
+                          "literal": "shared"
+                        }
+                      },
+                      "provider": {
+                        "optional": false,
+                        "type": {
+                          "literal": "on-mount"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "unresolvedSpreads": [
+                {
+                  "arguments": [
+                    {
+                      "fields": {
+                        "modules": {
+                          "optional": false,
+                          "type": {
+                            "elementType": {
+                              "fields": {
+                                "module": {
+                                  "optional": false,
+                                  "type": "string"
+                                },
+                                "sha256": {
+                                  "optional": false,
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "unresolvedSpreads": [
+                        {
+                          "arguments": [
+                            {
+                              "fields": {
+                                "hosts": {
+                                  "optional": false,
+                                  "type": {
+                                    "elementType": {
+                                      "fields": {
+                                        "capabilityRequirements": {
+                                          "optional": false,
+                                          "type": {
+                                            "arguments": [],
+                                            "unresolvedReference": "HostCapabilityRequirements"
+                                          }
+                                        },
+                                        "declarationId": {
+                                          "optional": false,
+                                          "type": "string"
+                                        },
+                                        "ownerSurface": {
+                                          "optional": false,
+                                          "type": "string"
+                                        },
+                                        "providerId": {
+                                          "optional": false,
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "providers": {
+                                  "optional": false,
+                                  "type": {
+                                    "elementType": {
+                                      "intersection": [
+                                        {
+                                          "fields": {
+                                            "entry": {
+                                              "optional": false,
+                                              "type": {
+                                                "fields": {
+                                                  "exportName": {
+                                                    "optional": false,
+                                                    "type": "string"
+                                                  },
+                                                  "module": {
+                                                    "optional": false,
+                                                    "type": "string"
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "id": {
+                                              "optional": false,
+                                              "type": "string"
+                                            },
+                                            "integrity": {
+                                              "optional": false,
+                                              "type": {
+                                                "fields": {
+                                                  "sha256": {
+                                                    "optional": false,
+                                                    "type": "string"
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "version": {
+                                              "optional": false,
+                                              "type": "string"
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "union": [
+                                            {
+                                              "fields": {
+                                                "framework": {
+                                                  "optional": false,
+                                                  "type": {
+                                                    "literal": "react"
+                                                  }
+                                                },
+                                                "peers": {
+                                                  "optional": false,
+                                                  "type": {
+                                                    "fields": {
+                                                      "react": {
+                                                        "optional": false,
+                                                        "type": "string"
+                                                      },
+                                                      "react-dom": {
+                                                        "optional": false,
+                                                        "type": "string"
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            {
+                                              "fields": {
+                                                "framework": {
+                                                  "optional": false,
+                                                  "type": {
+                                                    "literal": "vue"
+                                                  }
+                                                },
+                                                "peers": {
+                                                  "optional": false,
+                                                  "type": {
+                                                    "fields": {
+                                                      "vue": {
+                                                        "optional": false,
+                                                        "type": "string"
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "literal": "schema"
+                            }
+                          ],
+                          "unresolvedReference": "Omit"
+                        }
+                      ]
+                    },
+                    {
+                      "literal": "schema"
+                    }
+                  ],
+                  "unresolvedReference": "Omit"
+                }
+              ]
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition-runtime.d.ts"
+          ],
+          "symbols": [
+            "SharedXTensionCompositionManifest"
+          ],
+          "evidence": [
+            {
+              "type": "declared-type",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts",
+              "symbol": "SharedXTensionCompositionManifest"
             }
           ],
           "evidenceTypes": [
@@ -397067,11 +399946,11 @@
       ],
       "status": "active",
       "lifecycle": {
-        "status": "active",
+        "status": "deprecated",
         "rollout": "planned"
       },
       "aliasOf": null,
-      "replacedBy": null,
+      "replacedBy": "xtend.maraca.xtension-load-plan.v2",
       "releasedFingerprintSetHash": null,
       "description": "Unreleased A04.3.2 explicit deferred-provider load plan: pinned local modules, admitted Kernel/Fabric imports, independently revoked shared waiters and exact per-host peers. Complete legacy contracts remain supported. Partial observations remain partial; no HTTP integrity or complete 0.9 acceptance is asserted.",
       "descriptionStatus": "curated",
@@ -397089,7 +399968,8 @@
           "visibility": "docs",
           "sourcePaths": [
             "development/rmtx-a04/loading-inspect.cjs",
-            "development/rmtx-a04/loading.md"
+            "development/rmtx-a04/loading.md",
+            "development/rmtx-a04/peer-inspect.cjs"
           ],
           "interfaceReferences": [
             {
@@ -397135,7 +400015,6 @@
           "role": "producer",
           "visibility": "public",
           "sourcePaths": [
-            "xtend-maraca/xtension-composition-contract.mjs",
             "xtend-maraca/xtension-composition-runtime.d.ts"
           ],
           "interfaceReferences": [
@@ -397148,11 +400027,6 @@
               "type": "package-export",
               "module": "@ccslabs/xtend/maraca/xtension-composition-runtime",
               "path": "xtend-maraca/xtension-composition-runtime.d.ts"
-            },
-            {
-              "type": "symbol",
-              "path": "xtend-maraca/xtension-composition-contract.mjs",
-              "symbol": "createLoadPlan"
             }
           ]
         },
@@ -397188,15 +400062,14 @@
         }
       ],
       "shapePolicy": {
-        "mode": "polymorphic",
-        "decision": "reviewed-a0432-deferred-provider-load-plan",
+        "mode": "single",
+        "decision": "reviewed-a0433-shared-peer-groups",
         "acceptedFingerprints": [
-          "sha256:19e76c351ba832e020e4fa573748dc012f3df1a5d35f5fbea41009268cdbba93",
-          "sha256:f94963f4e54c18bd9e96659eba09794ee0edb16bdadbdae463990ba9b1ec0d14"
+          "sha256:19e76c351ba832e020e4fa573748dc012f3df1a5d35f5fbea41009268cdbba93"
         ],
         "authoritativeFingerprints": [],
         "releasedFingerprintSetHash": null,
-        "rationale": "Scoped A04.3.2 review: composition API 4 adds explicit manifest v3, artifact/report v4 and load-plan v1 for native local provider imports started only in admitted Kernel/Fabric mount work. The exact transitive output closure, factory export, phase and external peer versions are derived from the pinned graph. Provider load attempts are shared per factory/provider with separate terminally fenced host waiters; peers remain explicit per host. Native import transport is not abortable and no CSP/HTTP byte attestation is claimed. Strict React/Vue/mixed budgets, real native HTTP imports, packed consumers and 318 actual cases per environment are mandatory. All prior contracts and authoritative/released fingerprint sets remain intact. Shared peer resolution, delivery integrity and complete 0.9 acceptance remain pending. See development/rmtx-a04/loading.md."
+        "rationale": "Scoped A04.3.3 review: composition API 5 adds manifest v4, artifact/report v5 and load-plan v2 for exact shared peer groups derived solely from the pinned provider graph. Per-factory groups share a normalized exact-version result across compatible providers while retaining independent Kernel/Fabric admission, host lifetimes, roots and grants. The last consumer evicts and aborts the group; revoked late results and errors cannot publish or remove a replacement. Failures allow a later admitted retry, and versions are rechecked per host. Complete legacy contracts retain per-host loading. Strict React/Vue/mixed budgets, packed consumers and 341 actual cases per jsdom/Chromium environment are mandatory. All prior authoritative/released fingerprint sets remain intact. CSP/HTTP delivery integrity and complete 0.9 acceptance remain pending. See development/rmtx-a04/peer-groups.md."
       },
       "shapeFingerprints": [
         {
@@ -397311,41 +400184,342 @@
           ],
           "completeness": "partial",
           "authoritative": false
+        }
+      ],
+      "replacementDecision": {
+        "compatibility": "The complete previous data/API contract and all authoritative/released fingerprints remain supported. Existing eager/import-free and deferred/per-host callers retain their defaults; shared peer composition explicitly opts into its successor. No public read window is ended.",
+        "rationale": "A04.3.3 adds a distinct exact-version shared-peer contract and runtime API with per-factory cache ownership and independent host lifetimes. Existing manifest/artifact/report/load-plan versions retain their complete semantics. See development/rmtx-a04/peer-groups.md."
+      }
+    },
+    {
+      "schemaId": "xtend.maraca.xtension-load-plan.v2",
+      "familyId": "xtend.maraca.xtension-load-plan",
+      "version": 2,
+      "kinds": [
+        "runtime-discriminator"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": null,
+      "description": "Unreleased A04.3.3 exact shared peer groups: derived group membership, explicit captured application loader, per-factory cache and independent admitted Kernel/Fabric host lifetimes with last-consumer eviction. Complete legacy contracts remain supported. Partial observations remain partial; no HTTP integrity or complete 0.9 acceptance is asserted.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "xtend-maraca/xtension-composition-contract.mjs",
+        "symbol": "SHARED_LOAD_PLAN_SCHEMA",
+        "definitionType": "constant",
+        "role": "definition",
+        "visibility": "public"
+      },
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a04/peer-groups.md",
+            "development/rmtx-a04/peer-inspect.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "development/rmtx-a04/peer-groups.md",
+              "symbol": null
+            }
+          ]
         },
         {
-          "hash": "sha256:f94963f4e54c18bd9e96659eba09794ee0edb16bdadbdae463990ba9b1ec0d14",
+          "application": "XTend Maraca",
+          "role": "definition",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition-contract.mjs",
+            "xtend-maraca/xtension-composition-runtime.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-composition-contract.mjs",
+              "symbol": "SHARED_LOAD_PLAN_SCHEMA"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts",
+              "symbol": "SharedXTensionLoadPlan"
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "producer",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition-runtime.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition-runtime",
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Types",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/types/xtensions_integrated_composition.mts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/types/xtensions_integrated_composition.mts",
+              "symbol": null
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "single",
+        "decision": "reviewed-a0433-shared-peer-groups",
+        "acceptedFingerprints": [
+          "sha256:d49632389547cd3d0d39b898c68a725c94bd8129961067ea75d321875f587ed5"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rationale": "Scoped A04.3.3 review: composition API 5 adds manifest v4, artifact/report v5 and load-plan v2 for exact shared peer groups derived solely from the pinned provider graph. Per-factory groups share a normalized exact-version result across compatible providers while retaining independent Kernel/Fabric admission, host lifetimes, roots and grants. The last consumer evicts and aborts the group; revoked late results and errors cannot publish or remove a replacement. Failures allow a later admitted retry, and versions are rechecked per host. Complete legacy contracts retain per-host loading. Strict React/Vue/mixed budgets, packed consumers and 341 actual cases per jsdom/Chromium environment are mandatory. All prior authoritative/released fingerprint sets remain intact. CSP/HTTP delivery integrity and complete 0.9 acceptance remain pending. See development/rmtx-a04/peer-groups.md."
+      },
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:d49632389547cd3d0d39b898c68a725c94bd8129961067ea75d321875f587ed5",
           "shape": {
-            "fieldCount": 1,
+            "fieldCount": 2,
             "fields": [
+              "peerGroups",
               "providers"
             ],
-            "signature": "providers:unknown",
+            "signature": "peerGroups:array<{framework:union<literal<\"react\">|literal<\"vue\">>,id:string,providerIds:array<string>,versions:{\"arguments\":[{\"record\":{\"key\":\"string\",\"value\":\"string\"}}],\"unresolvedReference\":\"Readonly\"}}>|providers:array<intersection<{\"arguments\":[{\"indexedAccess\":{\"index\":\"number\",\"object\":{\"indexedAccess\":{\"index\":{\"literal\":\"providers\"},\"object\":{\"fields\":{\"providers\":{\"optional\":false,\"type\":{\"elementType\":{\"fields\":{\"entryFile\":{\"optional\":false,\"type\":\"string\"},\"exportName\":{\"optional\":false,\"type\":\"string\"},\"mode\":{\"optional\":false,\"type\":{\"literal\":\"on-mount\"}},\"modules\":{\"optional\":false,\"type\":{\"elementType\":\"string\"}},\"peers\":{\"optional\":false,\"type\":{\"fields\":{\"framework\":{\"optional\":false,\"type\":{\"union\":[{\"literal\":\"react\"},{\"literal\":\"vue\"}]}},\"mode\":{\"optional\":false,\"type\":{\"literal\":\"per-host\"}},\"versions\":{\"optional\":false,\"type\":{\"arguments\":[{\"record\":{\"key\":\"string\",\"value\":\"string\"}}],\"unresolvedReference\":\"Readonly\"}}}}},\"phase\":{\"optional\":false,\"type\":{\"literal\":\"kernel.fabric.mount\"}},\"providerId\":{\"optional\":false,\"type\":\"string\"}}}}}}}}}}},{\"literal\":\"peers\"}],\"unresolvedReference\":\"Omit\"}&{peers:{groupId:string,mode:literal<\"shared\">}}>>",
             "normalized": {
               "fields": {
+                "peerGroups": {
+                  "optional": false,
+                  "type": {
+                    "elementType": {
+                      "fields": {
+                        "framework": {
+                          "optional": false,
+                          "type": {
+                            "union": [
+                              {
+                                "literal": "react"
+                              },
+                              {
+                                "literal": "vue"
+                              }
+                            ]
+                          }
+                        },
+                        "id": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "providerIds": {
+                          "optional": false,
+                          "type": {
+                            "elementType": "string"
+                          }
+                        },
+                        "versions": {
+                          "optional": false,
+                          "type": {
+                            "arguments": [
+                              {
+                                "record": {
+                                  "key": "string",
+                                  "value": "string"
+                                }
+                              }
+                            ],
+                            "unresolvedReference": "Readonly"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
                 "providers": {
                   "optional": false,
-                  "type": "unknown"
+                  "type": {
+                    "elementType": {
+                      "intersection": [
+                        {
+                          "arguments": [
+                            {
+                              "indexedAccess": {
+                                "index": "number",
+                                "object": {
+                                  "indexedAccess": {
+                                    "index": {
+                                      "literal": "providers"
+                                    },
+                                    "object": {
+                                      "fields": {
+                                        "providers": {
+                                          "optional": false,
+                                          "type": {
+                                            "elementType": {
+                                              "fields": {
+                                                "entryFile": {
+                                                  "optional": false,
+                                                  "type": "string"
+                                                },
+                                                "exportName": {
+                                                  "optional": false,
+                                                  "type": "string"
+                                                },
+                                                "mode": {
+                                                  "optional": false,
+                                                  "type": {
+                                                    "literal": "on-mount"
+                                                  }
+                                                },
+                                                "modules": {
+                                                  "optional": false,
+                                                  "type": {
+                                                    "elementType": "string"
+                                                  }
+                                                },
+                                                "peers": {
+                                                  "optional": false,
+                                                  "type": {
+                                                    "fields": {
+                                                      "framework": {
+                                                        "optional": false,
+                                                        "type": {
+                                                          "union": [
+                                                            {
+                                                              "literal": "react"
+                                                            },
+                                                            {
+                                                              "literal": "vue"
+                                                            }
+                                                          ]
+                                                        }
+                                                      },
+                                                      "mode": {
+                                                        "optional": false,
+                                                        "type": {
+                                                          "literal": "per-host"
+                                                        }
+                                                      },
+                                                      "versions": {
+                                                        "optional": false,
+                                                        "type": {
+                                                          "arguments": [
+                                                            {
+                                                              "record": {
+                                                                "key": "string",
+                                                                "value": "string"
+                                                              }
+                                                            }
+                                                          ],
+                                                          "unresolvedReference": "Readonly"
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "phase": {
+                                                  "optional": false,
+                                                  "type": {
+                                                    "literal": "kernel.fabric.mount"
+                                                  }
+                                                },
+                                                "providerId": {
+                                                  "optional": false,
+                                                  "type": "string"
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "literal": "peers"
+                            }
+                          ],
+                          "unresolvedReference": "Omit"
+                        },
+                        {
+                          "fields": {
+                            "peers": {
+                              "optional": false,
+                              "type": {
+                                "fields": {
+                                  "groupId": {
+                                    "optional": false,
+                                    "type": "string"
+                                  },
+                                  "mode": {
+                                    "optional": false,
+                                    "type": {
+                                      "literal": "shared"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
                 }
               }
             }
           },
           "sourcePaths": [
-            "xtend-maraca/xtension-composition-contract.mjs"
+            "xtend-maraca/xtension-composition-runtime.d.ts"
           ],
           "symbols": [
-            "createLoadPlan"
+            "SharedXTensionLoadPlan"
           ],
           "evidence": [
             {
-              "type": "runtime-observation",
+              "type": "declared-type",
               "completeness": "partial",
               "authoritative": false,
-              "path": "xtend-maraca/xtension-composition-contract.mjs",
-              "symbol": "createLoadPlan"
+              "path": "xtend-maraca/xtension-composition-runtime.d.ts",
+              "symbol": "SharedXTensionLoadPlan"
             }
           ],
           "evidenceTypes": [
-            "runtime-observation"
+            "declared-type"
           ],
           "completeness": "partial",
           "authoritative": false
@@ -792016,7 +795190,7 @@
           },
           {
             "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
-            "sha256": "6193acd11abd5697ef9f6b271007c0e7f276aa14843abd98f83f1a68cd4ee517"
+            "sha256": "b35d99f57acb64264942e68e2f79d2c94e4289c94dfaa339c4e422214d264902"
           },
           {
             "path": "development/rmtx-a01/README.md",
@@ -792028,7 +795202,7 @@
           },
           {
             "path": "development/rmtx-a01/inventory.json",
-            "sha256": "57a592f6c796a3b7c59d27f710b18ec0ef5100a1feeaca0dc69132ef6e0af10f"
+            "sha256": "f550a5d025ac51240e5a9af36f8d44f6393a943af84a76708de01a9578a0f239"
           },
           {
             "path": "docs/de/rmt-vnext-authoring.md",
@@ -1018782,8 +1021956,8 @@
     },
     {
       "familyId": "xtend.maraca.xtension-composition-artifact",
-      "currentVersion": 4,
-      "activeSchemaId": "xtend.maraca.xtension-composition-artifact.v4",
+      "currentVersion": 5,
+      "activeSchemaId": "xtend.maraca.xtension-composition-artifact.v5",
       "versions": [
         {
           "schemaId": "xtend.maraca.xtension-composition-artifact.v1",
@@ -1018817,6 +1021991,15 @@
           "version": 4,
           "lifecycle": {
             "rollout": "planned",
+            "status": "deprecated"
+          },
+          "releasedFingerprintSetHash": null
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-composition-artifact.v5",
+          "version": 5,
+          "lifecycle": {
+            "rollout": "planned",
             "status": "active"
           },
           "releasedFingerprintSetHash": null
@@ -1018826,8 +1022009,8 @@
     },
     {
       "familyId": "xtend.maraca.xtension-composition-build-report",
-      "currentVersion": 4,
-      "activeSchemaId": "xtend.maraca.xtension-composition-build-report.v4",
+      "currentVersion": 5,
+      "activeSchemaId": "xtend.maraca.xtension-composition-build-report.v5",
       "versions": [
         {
           "schemaId": "xtend.maraca.xtension-composition-build-report.v1",
@@ -1018861,6 +1022044,15 @@
           "version": 4,
           "lifecycle": {
             "rollout": "planned",
+            "status": "deprecated"
+          },
+          "releasedFingerprintSetHash": null
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-composition-build-report.v5",
+          "version": 5,
+          "lifecycle": {
+            "rollout": "planned",
             "status": "active"
           },
           "releasedFingerprintSetHash": null
@@ -1018870,8 +1022062,8 @@
     },
     {
       "familyId": "xtend.maraca.xtension-composition-manifest",
-      "currentVersion": 3,
-      "activeSchemaId": "xtend.maraca.xtension-composition-manifest.v3",
+      "currentVersion": 4,
+      "activeSchemaId": "xtend.maraca.xtension-composition-manifest.v4",
       "versions": [
         {
           "schemaId": "xtend.maraca.xtension-composition-manifest.v1",
@@ -1018894,6 +1022086,15 @@
         {
           "schemaId": "xtend.maraca.xtension-composition-manifest.v3",
           "version": 3,
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "deprecated"
+          },
+          "releasedFingerprintSetHash": null
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-composition-manifest.v4",
+          "version": 4,
           "lifecycle": {
             "rollout": "planned",
             "status": "active"
@@ -1018973,12 +1022174,21 @@
     },
     {
       "familyId": "xtend.maraca.xtension-load-plan",
-      "currentVersion": 1,
-      "activeSchemaId": "xtend.maraca.xtension-load-plan.v1",
+      "currentVersion": 2,
+      "activeSchemaId": "xtend.maraca.xtension-load-plan.v2",
       "versions": [
         {
           "schemaId": "xtend.maraca.xtension-load-plan.v1",
           "version": 1,
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "deprecated"
+          },
+          "releasedFingerprintSetHash": null
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-load-plan.v2",
+          "version": 2,
           "lifecycle": {
             "rollout": "planned",
             "status": "active"
