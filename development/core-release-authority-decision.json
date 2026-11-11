@@ -4,8 +4,8 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "d29fab09a91a9f04842230fbff0dd1887bcbcd172990da17847fe21b9ee6c0a6",
-  "sourceMembershipSha256": "a989dd14abaf04211c420c62e5345e8817ad678e78cb5184ce0a450aa7491286",
+  "inventorySha256": "845645ee91f64884ef111902dc30eaaaf206b0de8505f0611fdfdc48fae62c2c",
+  "sourceMembershipSha256": "63146e685836171f7394d76cfabd7b548cfbd5481d28d31507776239df638d1a",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
@@ -549,7 +549,7 @@
         },
         {
           "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
-          "sha256": "b35d99f57acb64264942e68e2f79d2c94e4289c94dfaa339c4e422214d264902"
+          "sha256": "725401c1dfd3917fc99ae5d8248a3ae70ca6a1b0b905f24e5a56c0779fe0184a"
         },
         {
           "path": "development/rmtx-a01/README.md",
@@ -561,7 +561,7 @@
         },
         {
           "path": "development/rmtx-a01/inventory.json",
-          "sha256": "f550a5d025ac51240e5a9af36f8d44f6393a943af84a76708de01a9578a0f239"
+          "sha256": "225c1f28d864cfac932ed09db66fdcecade22f67c4b18deac686d85df8e5e1d6"
         },
         {
           "path": "docs/de/rmt-vnext-authoring.md",
@@ -1526,5 +1526,68 @@
     "publicationGuardRetired": false,
     "freshCommittedCaptureRequired": true,
     "rationale": "Scoped A04.3.3 review: composition API 5 adds manifest v4, artifact/report v5 and load-plan v2 for exact shared peer groups derived solely from the pinned provider graph. Per-factory groups share a normalized exact-version result across compatible providers while retaining independent Kernel/Fabric admission, host lifetimes, roots and grants. The last consumer evicts and aborts the group; revoked late results and errors cannot publish or remove a replacement. Failures allow a later admitted retry, and versions are rechecked per host. Complete legacy contracts retain per-host loading. Strict React/Vue/mixed budgets, packed consumers and 341 actual cases per jsdom/Chromium environment are mandatory. All prior authoritative/released fingerprint sets remain intact. CSP/HTTP delivery integrity and complete 0.9 acceptance remain pending. See development/rmtx-a04/peer-groups.md."
+  },
+  "a0434NativeESMDeliveryReview": {
+    "format": 1,
+    "date": "2026-11-11",
+    "status": "reviewed-unreleased-native-esm-delivery",
+    "stage": "A04.3.4",
+    "a04Complete": false,
+    "contract": "development/rmtx-a04/delivery.md",
+    "newSchemaIds": [
+      "xtend.maraca.xtension-composition-artifact.v6",
+      "xtend.maraca.xtension-composition-build-report.v6",
+      "xtend.maraca.xtension-composition-manifest.v5",
+      "xtend.maraca.xtension-delivery-plan.v1",
+      "xtend.maraca.xtension-delivery-policy.v1",
+      "xtend.xtensions.delivery-acceptance-report.v1"
+    ],
+    "scopedSchemaIds": [
+      "xtend.maraca.build-config.v5",
+      "xtend.maraca.xtension-composition-artifact.v5",
+      "xtend.maraca.xtension-composition-artifact.v6",
+      "xtend.maraca.xtension-composition-build-report.v5",
+      "xtend.maraca.xtension-composition-build-report.v6",
+      "xtend.maraca.xtension-composition-manifest.v4",
+      "xtend.maraca.xtension-composition-manifest.v5",
+      "xtend.maraca.xtension-delivery-plan.v1",
+      "xtend.maraca.xtension-delivery-policy.v1",
+      "xtend.maraca.xtension-load-plan.v2",
+      "xtend.xtensions.delivery-acceptance-report.v1",
+      "xtend.xtensions.work-budget-policy.v1"
+    ],
+    "manifestVersion": 5,
+    "artifactVersion": 6,
+    "buildReportVersion": 6,
+    "deliveryPolicyVersion": 1,
+    "deliveryPlanVersion": 1,
+    "deliveryAcceptanceReportVersion": 1,
+    "browserDeliveryCases": 12,
+    "productionByteIntegrityEnforced": false,
+    "loadPlanVersion": 2,
+    "buildApiVersion": "6.0.0",
+    "runtimeApiVersion": "6.0.0",
+    "peerLoading": "shared",
+    "cacheScope": "host-factory",
+    "lastConsumerEvicts": true,
+    "peerTransportAbortCooperative": true,
+    "nativeImportTransportAbortable": false,
+    "legacyContractsRetained": true,
+    "nativeKernelAbiChanged": false,
+    "browserAbiChanged": false,
+    "planRuntimeAbiChanged": false,
+    "sizeBudgetReportVersion": 2,
+    "referenceRegressionLimits": {
+      "frameworkBytes": 2200000,
+      "xtensionRuntimeBytes": 240000
+    },
+    "rootExportCount": 214,
+    "contractChecks": 18,
+    "runtimeCasesPerEnvironment": 341,
+    "compilerChecks": 88,
+    "acceptedForRelease": false,
+    "publicationGuardRetired": false,
+    "freshCommittedCaptureRequired": true,
+    "rationale": "Scoped A04.3.4 review: composition API 6 adds manifest v5, artifact/report v6, a closed same-origin external-ESM delivery policy v1 and content-addressed delivery-plan v1. Load-plan v2 and all legacy contracts remain complete. The deployment inventory binds companion/provider output bytes, enforcing HTML CSP instructions, JavaScript MIME and nosniff requirements without treating JSON as runtime authority. Twelve real HTTP/Chromium cases exercise permitted native graphs, blocked providers/helpers, MIME failure, prohibited execution sources and independent response-body digests; changed bytes remain detectable even when CSP admits the origin. Actual native Kernel/Fabric admission and independent host ownership remain mandatory. The new acceptance report v1 records observed test responses, not production byte-integrity enforcement. Strict unchanged budgets, packed consumers, 341 legacy/current runtime cases and 88 compiler checks remain mandatory. All previous authoritative/released fingerprint sets are preserved. Full application delivery integrity and complete 0.9 feature acceptance remain pending. See development/rmtx-a04/delivery.md."
   }
 }

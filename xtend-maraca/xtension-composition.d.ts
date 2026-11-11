@@ -1,7 +1,7 @@
 import type { MaracaBuildPlan } from './index';
 import type { XTensionCompositionManifest, XTensionCompositionArtifact, XTensionCompositionBindingRuntime } from './xtension-composition-runtime';
 export type { XTensionCompositionManifest, XTensionCompositionArtifact, XTensionCompositionProvider } from './xtension-composition-runtime';
-export const XTENSION_COMPOSITION_BUILD_API_VERSION: '5.0.0';
+export const XTENSION_COMPOSITION_BUILD_API_VERSION: '6.0.0';
 export interface XTensionCompositionBuildReport {
   readonly schema: 'xtend.maraca.xtension-composition-build-report.v1';
   readonly apiVersion: '1.0.0'; readonly ok: true;
@@ -57,9 +57,27 @@ export function buildMaracaXTensionComposition(options: {
   readonly manifest: import('./xtension-composition-runtime').SharedXTensionCompositionManifest;
   readonly bindingsRuntime: XTensionCompositionBindingRuntime; readonly rootDir: string; readonly outputDir: string;
 }): Promise<SharedXTensionCompositionBuildReport>;
+export type { DeliveryXTensionCompositionManifest, DeliveryXTensionCompositionArtifact, XTensionDeliveryPolicy } from './xtension-composition-runtime';
+export interface XTensionDeliveryPlan {
+  readonly schema: 'xtend.maraca.xtension-delivery-plan.v1'; readonly scope: 'composition-graph';
+  readonly entryFile: string; readonly mode: 'same-origin-external-esm';
+  readonly headers: { readonly 'Content-Security-Policy': string; readonly 'X-Content-Type-Options': 'nosniff' };
+  readonly javascriptContentType: 'text/javascript; charset=utf-8'; readonly runtimeDeliveryVerified: false;
+  readonly files: readonly { readonly fileName: string; readonly sha256: string; readonly bytes: number }[];
+}
+export interface DeliveryXTensionCompositionBuildReport extends Omit<XTensionCompositionBuildReport, 'schema' | 'apiVersion' | 'artifact'> {
+  readonly schema: 'xtend.maraca.xtension-composition-build-report.v6'; readonly apiVersion: '6.0.0';
+  readonly artifact: import('./xtension-composition-runtime').DeliveryXTensionCompositionArtifact;
+  readonly deliveryFile: string;
+}
+export function buildMaracaXTensionComposition(options: {
+  readonly plan: MaracaBuildPlan | import('./index').MaracaComposedBuildPlan;
+  readonly manifest: import('./xtension-composition-runtime').DeliveryXTensionCompositionManifest;
+  readonly bindingsRuntime: XTensionCompositionBindingRuntime; readonly rootDir: string; readonly outputDir: string;
+}): Promise<DeliveryXTensionCompositionBuildReport>;
 /** A manifest read from a versioned config keeps its union until the result is narrowed. */
 export function buildMaracaXTensionComposition(options: {
   readonly plan: MaracaBuildPlan | import('./index').MaracaComposedBuildPlan;
   readonly manifest: import('./xtension-composition-runtime').AnyXTensionCompositionManifest;
   readonly bindingsRuntime: XTensionCompositionBindingRuntime; readonly rootDir: string; readonly outputDir: string;
-}): Promise<XTensionCompositionBuildReport | IntegratedXTensionCompositionBuildReport | GraphXTensionCompositionBuildReport | DeferredXTensionCompositionBuildReport | SharedXTensionCompositionBuildReport>;
+}): Promise<XTensionCompositionBuildReport | IntegratedXTensionCompositionBuildReport | GraphXTensionCompositionBuildReport | DeferredXTensionCompositionBuildReport | SharedXTensionCompositionBuildReport | DeliveryXTensionCompositionBuildReport>;

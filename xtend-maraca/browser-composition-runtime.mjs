@@ -567,7 +567,7 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
       if (options.createXTensionHost !== undefined || options.xtensionBindingsRuntime !== undefined || options.xtensionCompositionPort !== undefined || options.adoptExisting === true) throw new TypeError('Automatic XTensions cannot use manual factories, binding runtimes or adoption.');
       if (!options.fabric || typeof options.fabric.createBoundary !== 'function' || !options.xtensions || Object.keys(options.xtensions).some(key => !['loadPeers', 'loadPeerGroup', 'grants'].includes(key))) throw new TypeError('Automatic XTensions require Fabric and explicit peer-loader/grant options.');
       const platform = dependencies.xtensionPlatform;
-      if (platform?.compositionRuntime?.XTENSION_COMPOSITION_API_VERSION !== '5.0.0') throw new TypeError('Automatic XTensions require the built platform API 5.');
+      if (platform?.compositionRuntime?.XTENSION_COMPOSITION_API_VERSION !== '6.0.0') throw new TypeError('Automatic XTensions require the built platform API 6.');
       compositionPort = platform.compositionRuntime.createMaracaXTensionCompositionPort({ plan: createRuntimePlan(config, {}), companion: dependencies.xtensionCompanion,
         bindingsRuntime: platform.bindingsRuntime, adapters: platform.adapters, loadPeers: options.xtensions.loadPeers, loadPeerGroup: options.xtensions.loadPeerGroup, grants: options.xtensions.grants });
     }

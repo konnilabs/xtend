@@ -54,4 +54,9 @@ function createSharedPairInput(framework, outputDir, extra = {}) {
   });
   return value;
 }
-module.exports = { createBuildInput, buildIntegratedReference, withProviderGraph, withDeferredProviders, withSharedPeers, createSharedPairInput };
+function withDeliveryProfile(input) {
+  const value = withSharedPeers(input);
+  value.xtensionComposition.schema = 'xtend.maraca.xtension-composition-manifest.v5';
+  value.xtensionComposition.delivery = { schema: 'xtend.maraca.xtension-delivery-policy.v1', mode: 'same-origin-external-esm' }; return value;
+}
+module.exports = { createBuildInput, buildIntegratedReference, withProviderGraph, withDeferredProviders, withSharedPeers, createSharedPairInput, withDeliveryProfile };

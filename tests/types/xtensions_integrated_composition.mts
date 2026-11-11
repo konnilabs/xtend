@@ -57,7 +57,7 @@ createMaracaBrowserCompositionRoot({ schema: 'xtend.maraca.browser-composition-r
 const invalidLegacy: XTensionCompositionManifest = { ...manifest, modules: graphManifest.modules };
 void [graphMajor, graphApi, invalidLegacy];
 const configReport = await buildMaracaXTensionComposition({ plan: graphPlan, manifest: graphPlan.xtensionComposition, bindingsRuntime, rootDir: '.', outputDir: 'dist' });
-const configReportSchema: 'xtend.maraca.xtension-composition-build-report.v5' | 'xtend.maraca.xtension-composition-build-report.v4' | 'xtend.maraca.xtension-composition-build-report.v1' | 'xtend.maraca.xtension-composition-build-report.v2' | 'xtend.maraca.xtension-composition-build-report.v3' = configReport.schema;
+const configReportSchema: 'xtend.maraca.xtension-composition-build-report.v6' | 'xtend.maraca.xtension-composition-build-report.v5' | 'xtend.maraca.xtension-composition-build-report.v4' | 'xtend.maraca.xtension-composition-build-report.v1' | 'xtend.maraca.xtension-composition-build-report.v2' | 'xtend.maraca.xtension-composition-build-report.v3' = configReport.schema;
 void configReportSchema;
 
 import type { DeferredXTensionCompositionManifest, DeferredXTensionHostCompositionOptions } from '@ccslabs/xtend/maraca/xtension-composition-runtime';
@@ -91,3 +91,21 @@ const sharedBypass: Pick<SharedXTensionHostCompositionOptions, 'loadPeers'> = { 
 const ambiguousBoot: MaracaXTensionBootOptions = { fabric: ports.fabric, xtensions: { loadPeers() {}, loadPeerGroup() {}, grants: {} } };
 const sameHostFactory: typeof createMaracaXTensionHostFactory = standaloneHostFactory;
 void [sharedMajor, sharedApi, sharedLoadPlan, sharedBypass, ambiguousBoot, sameHostFactory];
+
+import type { DeliveryXTensionCompositionManifest } from '@ccslabs/xtend/maraca/xtension-composition-runtime';
+import type { XTensionDeliveryPlan } from '@ccslabs/xtend/maraca/xtension-composition';
+declare const deliveryManifest: DeliveryXTensionCompositionManifest;
+const deliveryPlan = createMaracaBuildPlan({ source: 'app.rmt', xtensionComposition: deliveryManifest });
+const deliveryReport = await buildMaracaXTensionComposition({ plan: deliveryPlan, manifest: deliveryManifest, bindingsRuntime, rootDir: '.', outputDir: 'dist' });
+const deliveryMajor: 'xtend.maraca.xtension-composition-build-report.v6' = deliveryReport.schema;
+const deliveryApi: '6.0.0' = deliveryReport.artifact.apiVersion;
+const deliveryFile: string = deliveryReport.deliveryFile;
+const retainedLoadPlan: 'xtend.maraca.xtension-load-plan.v2' = deliveryReport.artifact.loadPlan.schema;
+const deliveryRuntimePlan = { ...deliveryPlan, xtensionComposition: deliveryReport.artifact };
+const deliveryPort = createMaracaXTensionCompositionPort({ plan: deliveryRuntimePlan, companion: { artifact: deliveryReport.artifact, createHostFactory() { return () => ({} as any); } }, bindingsRuntime, adapters: { react }, loadPeerGroup: async () => ({}), grants: {} });
+createMaracaPlanRuntime({ ...runtimeOptions, plan: deliveryRuntimePlan, xtensionCompositionPort: deliveryPort });
+declare const deployment: XTensionDeliveryPlan;
+const notAnAttestation: false = deployment.runtimeDeliveryVerified;
+// @ts-expect-error The delivery profile cannot enable arbitrary script origins.
+const unsafeDelivery: DeliveryXTensionCompositionManifest['delivery'] = { schema: 'xtend.maraca.xtension-delivery-policy.v1', mode: 'any-origin' };
+void [deliveryMajor, deliveryApi, deliveryFile, retainedLoadPlan, notAnAttestation, unsafeDelivery];

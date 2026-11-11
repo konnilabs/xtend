@@ -13,7 +13,7 @@ async function inspect() {
   try {
     await check('v4 shared policy builds v5 artifact/report and v2 immutable derived groups', async () => {
       capture = await tool.buildMaracaXTensionComposition({ plan, manifest, bindingsRuntime, rootDir: root, outputDir: path.join(temp, 'manual') });
-      assert.equal(tool.XTENSION_COMPOSITION_BUILD_API_VERSION, '5.0.0'); assert.equal(runtime.XTENSION_COMPOSITION_API_VERSION, '5.0.0');
+      assert.equal(tool.XTENSION_COMPOSITION_BUILD_API_VERSION, '6.0.0'); assert.equal(runtime.XTENSION_COMPOSITION_API_VERSION, '6.0.0');
       assert.equal(capture.schema, 'xtend.maraca.xtension-composition-build-report.v5'); assert.equal(capture.apiVersion, '5.0.0');
       const artifact = contract.validateArtifact(capture.artifact, plan, bindingsRuntime); assert.equal(artifact.loadPlan.schema, 'xtend.maraca.xtension-load-plan.v2');
       const group = artifact.loadPlan.peerGroups[0]; assert.equal(group.framework, 'react'); assert.deepEqual(group.versions, manifest.providers[0].peers);

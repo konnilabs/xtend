@@ -46,6 +46,15 @@ function runXTensionsRuntimeGate({ rootDir, browser = false } = {}) {
     context.assert(report.versions.react === peers.versions.react && report.versions.vue === peers.versions.vue,'Evidence uses the exact isolated lock versions');
     context.assert(report.exports.legacySynchronousContracts && report.exports.declarationExportParity && report.exports.browserConditionParity,'Legacy, declaration and condition contracts pass');
     if (browser) context.assert(Boolean(report.browser) && report.exports.actualBrowserParity && report.pageErrors.length === 0,'Real browser export parity and page errors are verified');
+    if (browser) {
+      const deliveryArtifact = path.join(rootDir,'.xtend-test-results','xtend-xtensions-delivery-report.json');
+      fs.rmSync(deliveryArtifact,{force:true});
+      const execution = spawnSync(process.execPath,['scripts/test_xtensions_delivery.cjs','--report',deliveryArtifact],{cwd:rootDir,env,encoding:'utf8',timeout:90000,maxBuffer:16*1024*1024});
+      context.assert(!execution.error && execution.status===0,`Actual HTTP/CSP delivery acceptance passes: ${execution.stderr || execution.stdout || execution.error || ''}`);
+      const delivery = JSON.parse(fs.readFileSync(deliveryArtifact,'utf8'));
+      context.assert(delivery.schema==='xtend.xtensions.delivery-acceptance-report.v1' && delivery.ok && delivery.node===process.version && delivery.checks>=12 && delivery.cases.every(row=>row.passed),'All native HTTP/CSP cases and the independent response-body audit are mandatory');
+      context.assert(delivery.productionByteIntegrityEnforced===false && delivery.cases.filter(row=>row.scenario==='tamper').every(row=>!row.responseAudit.matchesBuild && row.responseAudit.mismatches.length===1),'CSP origin checks cannot substitute for byte-integrity evidence');
+    }
     if (!browser) {
       const typing=spawnSync(process.execPath,[path.join(rootDir,'node_modules/typescript/bin/tsc'),'--strict','--noEmit','--skipLibCheck','--lib','es2022,dom','--module','node16','--moduleResolution','node16','tests/types/xtensions_runtime_adapters.ts','tests/types/xtensions_compiled_bindings.mts','tests/types/xtensions_url_history_contract.mts','tests/types/xtensions_kernel_runtime.mts','tests/types/xtensions_resource_graph.mts','tests/types/xtensions_work_budget.mts','tests/types/xtensions_capability_negotiation.mts','tests/types/xtensions_composition.mts','tests/types/xtensions_integrated_composition.mts'],{cwd:rootDir,encoding:'utf8',timeout:60000});
       context.assert(!typing.error && typing.status===0,`Actual Runtime public declarations and Fabric consumer compile strictly: ${typing.stderr || typing.stdout || typing.error || ''}`);

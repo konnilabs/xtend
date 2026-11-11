@@ -6,7 +6,7 @@ const hash = bytes => createHash('sha256').update(bytes).digest('hex');
  * Module evaluation creates bindings only; provider initialization stays in
  * admitted mount work. Function bodies remain trusted application code. */
 async function captureProviderGraph(root, manifest) {
-  const { resolveModuleSpecifier, validateModuleGraph, DEFERRED_MANIFEST_SCHEMA, SHARED_MANIFEST_SCHEMA } = await import('./xtension-composition-contract.mjs');
+  const { resolveModuleSpecifier, validateModuleGraph, DEFERRED_MANIFEST_SCHEMA, SHARED_MANIFEST_SCHEMA, DELIVERY_MANIFEST_SCHEMA } = await import('./xtension-composition-contract.mjs');
   const { parseAst } = require('rollup/parseAst');
   const captures = new Map();
   for (const pin of manifest.modules) {
@@ -41,7 +41,7 @@ async function captureProviderGraph(root, manifest) {
         if (statement.type === 'ExportNamedDeclaration') exported.add(declaration.id.name);
       }
     }
-    if ([DEFERRED_MANIFEST_SCHEMA, SHARED_MANIFEST_SCHEMA].includes(manifest.schema) && exported.has('then')) throw new TypeError('Deferred provider graphs cannot export then: native import would assimilate the namespace as a promise.');
+    if ([DEFERRED_MANIFEST_SCHEMA, SHARED_MANIFEST_SCHEMA, DELIVERY_MANIFEST_SCHEMA].includes(manifest.schema) && exported.has('then')) throw new TypeError('Deferred provider graphs cannot export then: native import would assimilate the namespace as a promise.');
     if (aliases.some(name => !functions.has(name))) throw new TypeError('Local exports must refer to locally declared synchronous functions.');
     if (imports.length > 256) throw new TypeError('Too many static imports in provider module.');
     walk(ast);

@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Shared, data-only contract. No framework, filesystem or kernel implementation.
+export const DELIVERY_MANIFEST_SCHEMA = 'xtend.maraca.xtension-composition-manifest.v5';
+export const DELIVERY_ARTIFACT_SCHEMA = 'xtend.maraca.xtension-composition-artifact.v6';
 export const SHARED_MANIFEST_SCHEMA = 'xtend.maraca.xtension-composition-manifest.v4';
 export const SHARED_ARTIFACT_SCHEMA = 'xtend.maraca.xtension-composition-artifact.v5';
 export const SHARED_LOAD_PLAN_SCHEMA = 'xtend.maraca.xtension-load-plan.v2';
@@ -69,14 +71,14 @@ export function planIdentity(plan, bindingsRuntime) {
   const identity = { schema: plan.schema, sourceHash: plan.sourceHash, program: copy(plan.orchestration.artifact), bindings: copy(bindings) };
   if (plan.schema === 'xtend.maraca.build-plan.v5') {
     const composition = plan.xtensionComposition;
-    identity.compositionManifest = normalizeManifest([INTEGRATED_ARTIFACT_SCHEMA, GRAPH_ARTIFACT_SCHEMA, DEFERRED_ARTIFACT_SCHEMA, SHARED_ARTIFACT_SCHEMA].includes(composition?.schema) ? composition.manifest : composition, identity);
+    identity.compositionManifest = normalizeManifest([INTEGRATED_ARTIFACT_SCHEMA, GRAPH_ARTIFACT_SCHEMA, DEFERRED_ARTIFACT_SCHEMA, SHARED_ARTIFACT_SCHEMA, DELIVERY_ARTIFACT_SCHEMA].includes(composition?.schema) ? composition.manifest : composition, identity);
   }
   return freeze(identity);
 }
 export function normalizeManifest(input, identity) {
-  json(input); const shared = input?.schema === SHARED_MANIFEST_SCHEMA, deferred = shared || input?.schema === DEFERRED_MANIFEST_SCHEMA, graph = deferred || input?.schema === GRAPH_MANIFEST_SCHEMA;
-  fields(input, graph ? ['schema', 'providers', 'hosts', 'modules', ...(deferred ? ['loading'] : [])] : ['schema', 'providers', 'hosts'], 'composition manifest');
-  if (![MANIFEST_SCHEMA, GRAPH_MANIFEST_SCHEMA, DEFERRED_MANIFEST_SCHEMA, SHARED_MANIFEST_SCHEMA].includes(input.schema) || !Array.isArray(input.providers) || !input.providers.length || input.providers.length > 64 || !Array.isArray(input.hosts) || input.hosts.length > 256) throw new TypeError('A bounded v1/v2/v3/v4 composition manifest is required.');
+  json(input); const delivery = input?.schema === DELIVERY_MANIFEST_SCHEMA, shared = delivery || input?.schema === SHARED_MANIFEST_SCHEMA, deferred = shared || input?.schema === DEFERRED_MANIFEST_SCHEMA, graph = deferred || input?.schema === GRAPH_MANIFEST_SCHEMA;
+  fields(input, graph ? ['schema', 'providers', 'hosts', 'modules', ...(deferred ? ['loading'] : []), ...(delivery ? ['delivery'] : [])] : ['schema', 'providers', 'hosts'], 'composition manifest');
+  if (![MANIFEST_SCHEMA, GRAPH_MANIFEST_SCHEMA, DEFERRED_MANIFEST_SCHEMA, SHARED_MANIFEST_SCHEMA, DELIVERY_MANIFEST_SCHEMA].includes(input.schema) || !Array.isArray(input.providers) || !input.providers.length || input.providers.length > 64 || !Array.isArray(input.hosts) || input.hosts.length > 256) throw new TypeError('A bounded v1/v2/v3/v4/v5 composition manifest is required.');
   const ids = new Set();
   const providers = input.providers.map(provider => {
     fields(provider, ['id', 'framework', 'version', 'entry', 'integrity', 'peers'], 'provider');
@@ -118,19 +120,23 @@ export function normalizeManifest(input, identity) {
     fields(input.loading, ['provider', 'peers'], 'loading policy');
     if (input.loading.provider !== 'on-mount' || input.loading.peers !== (shared ? 'shared' : 'per-host')) throw new TypeError('Manifest loading must match its explicit provider/peer version policy.');
   }
-  return freeze({ schema: input.schema, providers, hosts, ...(graph ? { modules } : {}), ...(deferred ? { loading: copy(input.loading) } : {}) });
+  if (delivery) {
+    fields(input.delivery, ['schema', 'mode'], 'delivery policy');
+    if (input.delivery.schema !== 'xtend.maraca.xtension-delivery-policy.v1' || input.delivery.mode !== 'same-origin-external-esm') throw new TypeError('An explicit same-origin external-ESM delivery policy is required.');
+  }
+  return freeze({ schema: input.schema, providers, hosts, ...(graph ? { modules } : {}), ...(deferred ? { loading: copy(input.loading) } : {}), ...(delivery ? { delivery: copy(input.delivery) } : {}) });
 }
 export function validateArtifact(input, plan, bindingsRuntime) {
-  json(input); const shared = input?.schema === SHARED_ARTIFACT_SCHEMA, deferred = shared || input?.schema === DEFERRED_ARTIFACT_SCHEMA, graph = deferred || input?.schema === GRAPH_ARTIFACT_SCHEMA;
+  json(input); const delivery = input?.schema === DELIVERY_ARTIFACT_SCHEMA, shared = delivery || input?.schema === SHARED_ARTIFACT_SCHEMA, deferred = shared || input?.schema === DEFERRED_ARTIFACT_SCHEMA, graph = deferred || input?.schema === GRAPH_ARTIFACT_SCHEMA;
   fields(input, ['schema', 'apiVersion', 'plan', 'manifest', 'providers', 'entryFile', 'runtimeExecutionVerified', ...(graph ? ['modules'] : []), ...(deferred ? ['loadPlan'] : [])], 'composition artifact');
   const integrated = input.schema === INTEGRATED_ARTIFACT_SCHEMA;
-  if ((!graph && !integrated && input.schema !== ARTIFACT_SCHEMA) || input.apiVersion !== (shared ? '5.0.0' : deferred ? '4.0.0' : graph ? '3.0.0' : integrated ? '2.0.0' : '1.0.0') || !(graph ? ['xtend.maraca.build-plan.v4', 'xtend.maraca.build-plan.v5'] : [integrated ? 'xtend.maraca.build-plan.v5' : 'xtend.maraca.build-plan.v4']).includes(input.plan?.schema) || input.runtimeExecutionVerified !== false || !/^xtend\.xtensions-[a-f0-9]{64}\.mjs$/.test(input.entryFile || '')) throw new TypeError('A version-matched v1/v2/v3/v4/v5 build composition artifact is required.');
+  if ((!graph && !integrated && input.schema !== ARTIFACT_SCHEMA) || input.apiVersion !== (delivery ? '6.0.0' : shared ? '5.0.0' : deferred ? '4.0.0' : graph ? '3.0.0' : integrated ? '2.0.0' : '1.0.0') || !(graph ? ['xtend.maraca.build-plan.v4', 'xtend.maraca.build-plan.v5'] : [integrated ? 'xtend.maraca.build-plan.v5' : 'xtend.maraca.build-plan.v4']).includes(input.plan?.schema) || input.runtimeExecutionVerified !== false || !/^xtend\.xtensions-[a-f0-9]{64}\.mjs$/.test(input.entryFile || '')) throw new TypeError('A version-matched v1/v2/v3/v4/v5/v6 build composition artifact is required.');
   const identity = planIdentity(plan, bindingsRuntime);
   if (canonical(input.plan) !== canonical(identity)) throw new TypeError('Composition artifact belongs to a different compiled source or binding contract.');
   const manifest = normalizeManifest(input.manifest, identity);
   if ((integrated || graph && identity.schema === 'xtend.maraca.build-plan.v5') && canonical(manifest) !== canonical(identity.compositionManifest)) throw new TypeError('The built provider manifest differs from the declared v5 composition.');
   if (!Array.isArray(input.providers) || input.providers.length !== manifest.providers.length) throw new TypeError('Provider build records must match the manifest.');
-  if (shared !== (manifest.schema === SHARED_MANIFEST_SCHEMA) || deferred !== [DEFERRED_MANIFEST_SCHEMA, SHARED_MANIFEST_SCHEMA].includes(manifest.schema) || graph !== [GRAPH_MANIFEST_SCHEMA, DEFERRED_MANIFEST_SCHEMA, SHARED_MANIFEST_SCHEMA].includes(manifest.schema)) throw new TypeError('The artifact and manifest graph versions must agree.');
+  if (delivery !== (manifest.schema === DELIVERY_MANIFEST_SCHEMA) || shared !== [SHARED_MANIFEST_SCHEMA, DELIVERY_MANIFEST_SCHEMA].includes(manifest.schema) || deferred !== [DEFERRED_MANIFEST_SCHEMA, SHARED_MANIFEST_SCHEMA, DELIVERY_MANIFEST_SCHEMA].includes(manifest.schema) || graph !== [GRAPH_MANIFEST_SCHEMA, DEFERRED_MANIFEST_SCHEMA, SHARED_MANIFEST_SCHEMA, DELIVERY_MANIFEST_SCHEMA].includes(manifest.schema)) throw new TypeError('The artifact and manifest graph versions must agree.');
   if (graph) validateModuleGraph(input.modules, manifest);
   input.providers.forEach((entry, index) => {
     fields(entry, ['id', 'sha256', 'fileName', ...(graph ? ['outputSha256'] : [])], 'provider build record');
@@ -183,7 +189,7 @@ export function validateModuleGraph(modules, manifest) {
 /** Pure derivation: executable imports and peer requests cannot add graph members. */
 export function createLoadPlan(manifest, modules, providers) {
   const byModule = new Map(modules.map(row => [row.module, row]));
-  const shared = manifest.schema === SHARED_MANIFEST_SCHEMA, groups = new Map();
+  const shared = [SHARED_MANIFEST_SCHEMA, DELIVERY_MANIFEST_SCHEMA].includes(manifest.schema), groups = new Map();
   if (shared) for (const provider of manifest.providers) {
     const key = canonical({ framework: provider.framework, versions: provider.peers });
     if (!groups.has(key)) groups.set(key, { framework: provider.framework, versions: copy(provider.peers), providerIds: [] });

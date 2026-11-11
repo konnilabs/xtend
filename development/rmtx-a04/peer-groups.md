@@ -64,4 +64,4 @@ Die tatsächlichen jsdom-/Chromium-Prüfungen ergänzen **23 A04.3.3-Fälle**. V
 
 Gepackte Root-/Compiler-/Maraca-Consumer bauen und booten den neuen Vertrag mit tatsächlichen externen React-/Vue-Peers und prüfen die öffentlichen Typen. Das Vorbereitungs-Gate umfasst **16** blockierende Prüfungen. Historische Inventare und bisherige autoritative/veröffentlichte Fingerprint-Sets bleiben erhalten.
 
-Nächster A04.3-Schritt sind explizite CSP-/Auslieferungsregeln und belastbare HTTP-Provenienz. Build-Digests und erfolgreiche native HTTP-Imports attestieren weiterhin keine unveränderten Laufzeitbytes. SSR/Adoption bleibt A05, RMTX-Syntax/DX A06; Angular-/Vanilla-Integration und vollständige 0.9-Abnahme benötigen eigene Nachweise.
+[A04.3.4](delivery.md) ergänzt explizite CSP-/Auslieferungsregeln und konkrete HTTP-Response-Beobachtungen. Die produktive Durchsetzung der Byte-Integrität über die gesamte Anwendung bleibt offen. Build-Digests und erfolgreiche native HTTP-Imports attestieren weiterhin keine unveränderten Laufzeitbytes. SSR/Adoption bleibt A05, RMTX-Syntax/DX A06; Angular-/Vanilla-Integration und vollständige 0.9-Abnahme benötigen eigene Nachweise.

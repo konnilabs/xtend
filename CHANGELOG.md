@@ -4,6 +4,7 @@ Alle sichtbaren Produktaenderungen werden in diesem Dokument gesammelt. XTend is
 
 ## Unreleased – 0.9.0
 
+- A04.3.4: Versioniertes CSP-/Deployment-Profil für native ESM derselben Origin, gebundenes Auslieferungsinventar und echte HTTP-/Chromium-Prüfungen einschließlich unabhängiger Response-Digests; API 6, Manifest v5 und Artefakt/Bericht v6. Produktive Byte-Integrität der vollständigen Anwendung bleibt offen.
 - A04.3.3: Exakt versionierte gemeinsame Peer-Auflösung zwischen kompatiblen Providern mit getrennten Host-Lifetimes, Cache-Verfall und Fehlerwiederholung; API 5, Manifest v4, Artefakt/Bericht v5 und Ladeplan v2. Bisherige Verträge, Kernel-/Fabric-Zulassung und feste Größenbudgets bleiben unterstützt.
 - A04.3.2: Versionierter Ladeplan und lokale native Provider-Importe erst im zugelassenen Kernel-/Fabric-Mount; gemeinsame Ladeversuche mit getrennten Host-Lifetimes, API 4, Manifest v3 und Artefakt/Bericht v4. Peers bleiben explizit pro Host; bisherige Verträge bleiben unterstützt.
 

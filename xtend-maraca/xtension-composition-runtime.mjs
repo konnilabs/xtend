@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { validateArtifact, canonical, freeze, copy, name, json } from './xtension-composition-contract.mjs';
-export const XTENSION_COMPOSITION_API_VERSION = '5.0.0';
+export const XTENSION_COMPOSITION_API_VERSION = '6.0.0';
 
 function capturePolicies(hosts, input) {
   const policies = new Map();
@@ -17,7 +17,7 @@ function capturePolicies(hosts, input) {
 }
 
 function capturePeerLoader(options, artifact) {
-  const shared = artifact.schema === 'xtend.maraca.xtension-composition-artifact.v5';
+  const shared = ['xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6'].includes(artifact.schema);
   const key = shared ? 'loadPeerGroup' : 'loadPeers', other = shared ? 'loadPeers' : 'loadPeerGroup';
   if (typeof options[key] !== 'function' || options[other] !== undefined) throw new TypeError('Exactly the peer loader port matching the artifact version is required.');
   return { [key]: options[key] };
@@ -70,7 +70,7 @@ function createSharedPeers(groups, providers, load) {
  * resulting port to its real controller/root and internally created Surfaces. */
 export function createMaracaXTensionCompositionPort(options) {
   const artifact = validateArtifact(options.companion?.artifact, options.plan, options.bindingsRuntime);
-  if (!['xtend.maraca.xtension-composition-artifact.v2', 'xtend.maraca.xtension-composition-artifact.v3', 'xtend.maraca.xtension-composition-artifact.v4', 'xtend.maraca.xtension-composition-artifact.v5'].includes(artifact.schema) || canonical(artifact) !== canonical(options.plan.xtensionComposition)) throw new TypeError('Integrated boot requires the exact built v2/v3/v4/v5 composition artifact.');
+  if (!['xtend.maraca.xtension-composition-artifact.v2', 'xtend.maraca.xtension-composition-artifact.v3', 'xtend.maraca.xtension-composition-artifact.v4', 'xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6'].includes(artifact.schema) || canonical(artifact) !== canonical(options.plan.xtensionComposition)) throw new TypeError('Integrated boot requires the exact built v2/v3/v4/v5/v6 composition artifact.');
   const createHostFactory = options.companion.createHostFactory;
   if (typeof createHostFactory !== 'function') throw new TypeError('The built companion and explicit peer loader are required.');
   const loaders = capturePeerLoader(options, artifact);
@@ -102,7 +102,7 @@ function waitForProvider(promise, signal) {
  * This composer neither fetches executable code nor treats a JSON hash as proof. */
 export function createMaracaXTensionHostFactory(options) {
   const artifact = validateArtifact(options.artifact, options.plan, options.bindingsRuntime);
-  const shared = artifact.schema === 'xtend.maraca.xtension-composition-artifact.v5', deferred = shared || artifact.schema === 'xtend.maraca.xtension-composition-artifact.v4';
+  const shared = ['xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6'].includes(artifact.schema), deferred = shared || artifact.schema === 'xtend.maraca.xtension-composition-artifact.v4';
   if ((deferred && options.providers !== undefined) || (!deferred && options.loadProviders !== undefined)) throw new TypeError('Provider namespace/loader ports must match the artifact version.');
   const loaders = capturePeerLoader(options, artifact), providerLoads = new Map();
   const providers = new Map(), policies = capturePolicies(artifact.manifest.hosts, options.grants);
