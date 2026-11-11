@@ -20,6 +20,7 @@ const CHECKS = Object.freeze([
   ['development/rmtx-a04/loading-inspect.cjs', '--check'],
   ['development/rmtx-a04/peer-inspect.cjs', '--check'],
   ['development/rmtx-a04/delivery-inspect.cjs', '--check'],
+  ['development/rmtx-a04/integrity-inspect.cjs', '--check'],
   ['scripts/sync_xtend_package_versions.js', '--check'],
   ['scripts/release/feature-scope.cjs', '--check-plan']
 ].map(command => Object.freeze(command)));

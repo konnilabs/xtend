@@ -7445,7 +7445,7 @@ async function buildMaracaBundleAsync(input = {}, options = {}) {
   writeJson(plan.outputs.bundleReport, bundleReport);
   writeJson(plan.outputs.sizeBudgetReport, sizeBudgetReport);
 
-  return {
+  const result = {
     schema: MARACA_BUNDLE_REPORT_SCHEMA,
     ok: bundleReport.ok && sizeBudgetReport.ok,
     status: bundleReport.ok && sizeBudgetReport.ok ? 'built' : 'built_over_budget',
@@ -7454,6 +7454,8 @@ async function buildMaracaBundleAsync(input = {}, options = {}) {
     bundleReport,
     sizeBudgetReport
   };
+  if (compositionBuild) require('./xtension-deployment').registerBuild(result);
+  return result;
 }
 
 const MARACA_TUNE_SEMANTIC_KEYS = Object.freeze([

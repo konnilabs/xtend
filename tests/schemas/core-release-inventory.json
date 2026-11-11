@@ -6782,6 +6782,24 @@
       "type": "same-id-multiple-shapes"
     },
     {
+      "reviewId": "polymorphic-64ed19b60623",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "All observed data/reference forms remain bound to shapePolicy; partial forms are not promoted to a complete authority."
+      },
+      "schemaIds": [
+        "xtend.maraca.xtension-deployment-manifest.v1"
+      ],
+      "rationale": "Scoped A04.3.5 review: public composition build API7 adds deployment API1 with closed config/manifest/result v1 and a separate real native-integrity acceptance report v1. Existing runtime API6, manifest v5, artifact/report v6, load-plan v2 and delivery-plan v1 retain complete semantics. Actual regular-build capture and explicit application pins produce a complete finite browser JavaScript inventory, native import-map integrity, external bootstrap SRI and hash-only CSP. Trusted document/headers and externally anchored manifest digest remain required. A private immutable HTTP snapshot serves exact bytes; restart loading verifies every member. Twenty-three actual HTTP/Chromium cases include full React/Vue/mixed boot, tampered bootstrap/peers/app/platform/kernel/companion/helper, missing metadata, existing Service Worker cache responses, changed redirect responses and unlisted modules. No final-URL attestation, PWA/AppServices integration or universal unsupported-browser claim is made. All previous authoritative/released fingerprint sets, strict reference ceilings, 341 runtime cases and 88 compiler checks remain mandatory. Complete 0.9 feature acceptance remains pending. See development/rmtx-a04/integrity.md.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "a0435-native-integrity-deployment"
+    },
+    {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
       "confidence": "medium",
@@ -11706,6 +11724,24 @@
       "type": "same-id-multiple-shapes"
     },
     {
+      "reviewId": "polymorphic-b1c08f4fab09",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "All observed data/reference forms remain bound to shapePolicy; partial forms are not promoted to a complete authority."
+      },
+      "schemaIds": [
+        "xtend.maraca.xtension-deployment-config.v1"
+      ],
+      "rationale": "Scoped A04.3.5 review: public composition build API7 adds deployment API1 with closed config/manifest/result v1 and a separate real native-integrity acceptance report v1. Existing runtime API6, manifest v5, artifact/report v6, load-plan v2 and delivery-plan v1 retain complete semantics. Actual regular-build capture and explicit application pins produce a complete finite browser JavaScript inventory, native import-map integrity, external bootstrap SRI and hash-only CSP. Trusted document/headers and externally anchored manifest digest remain required. A private immutable HTTP snapshot serves exact bytes; restart loading verifies every member. Twenty-three actual HTTP/Chromium cases include full React/Vue/mixed boot, tampered bootstrap/peers/app/platform/kernel/companion/helper, missing metadata, existing Service Worker cache responses, changed redirect responses and unlisted modules. No final-URL attestation, PWA/AppServices integration or universal unsupported-browser claim is made. All previous authoritative/released fingerprint sets, strict reference ceilings, 341 runtime cases and 88 compiler checks remain mandatory. Complete 0.9 feature acceptance remains pending. See development/rmtx-a04/integrity.md.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "a0435-native-integrity-deployment"
+    },
+    {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
       "confidence": "medium",
@@ -13280,6 +13316,24 @@
       ],
       "status": "accepted-polymorphic-for-inventory",
       "type": "same-id-multiple-shapes"
+    },
+    {
+      "reviewId": "polymorphic-c83782fd3946",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "All observed data/reference forms remain bound to shapePolicy; partial forms are not promoted to a complete authority."
+      },
+      "schemaIds": [
+        "xtend.maraca.xtension-deployment-result.v1"
+      ],
+      "rationale": "Scoped A04.3.5 review: public composition build API7 adds deployment API1 with closed config/manifest/result v1 and a separate real native-integrity acceptance report v1. Existing runtime API6, manifest v5, artifact/report v6, load-plan v2 and delivery-plan v1 retain complete semantics. Actual regular-build capture and explicit application pins produce a complete finite browser JavaScript inventory, native import-map integrity, external bootstrap SRI and hash-only CSP. Trusted document/headers and externally anchored manifest digest remain required. A private immutable HTTP snapshot serves exact bytes; restart loading verifies every member. Twenty-three actual HTTP/Chromium cases include full React/Vue/mixed boot, tampered bootstrap/peers/app/platform/kernel/companion/helper, missing metadata, existing Service Worker cache responses, changed redirect responses and unlisted modules. No final-URL attestation, PWA/AppServices integration or universal unsupported-browser claim is made. All previous authoritative/released fingerprint sets, strict reference ceilings, 341 runtime cases and 88 compiler checks remain mandatory. Complete 0.9 feature acceptance remains pending. See development/rmtx-a04/integrity.md.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "a0435-native-integrity-deployment"
     },
     {
       "reviewId": "polymorphic-c8bab910937a",
@@ -288809,7 +288863,7 @@
             "xtend-maraca/index.js"
           ],
           "symbols": [
-            "buildMaracaBundleAsync"
+            "result"
           ],
           "evidence": [
             {
@@ -288817,7 +288871,7 @@
               "completeness": "partial",
               "authoritative": false,
               "path": "xtend-maraca/index.js",
-              "symbol": "buildMaracaBundleAsync"
+              "symbol": "result"
             }
           ],
           "evidenceTypes": [
@@ -315489,6 +315543,11 @@
               "type": "symbol",
               "path": "xtend-maraca/index.js",
               "symbol": "createBundleReport"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/index.js",
+              "symbol": "result"
             }
           ]
         },
@@ -401971,6 +402030,21 @@
           ]
         },
         {
+          "application": "XTend Maraca",
+          "role": "reference",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-deployment.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "xtend-maraca/xtension-deployment.js",
+              "symbol": null
+            }
+          ]
+        },
+        {
           "application": "XTend Tests: Xtensions",
           "role": "assertion",
           "visibility": "test",
@@ -403985,6 +404059,1138 @@
         }
       ],
       "version": 1
+    },
+    {
+      "schemaId": "xtend.maraca.xtension-deployment-config.v1",
+      "familyId": "xtend.maraca.xtension-deployment-config",
+      "version": 1,
+      "kinds": [
+        "runtime-discriminator"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": null,
+      "description": "Unreleased A04.3.5 sealed native browser JavaScript deployment: explicit application pins, actual regular-build provenance, native SRI/import-map integrity, hash-only CSP and immutable HTTP snapshot. Trusted document/headers and an external manifest digest remain required. Prior contracts remain complete. Native browser evidence is separate; PWA/AppServices and complete 0.9 acceptance remain pending.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "xtend-maraca/xtension-composition.d.ts",
+        "symbol": "XTensionDeploymentConfig",
+        "definitionType": "typescript-declaration",
+        "role": "definition",
+        "visibility": "public"
+      },
+      "usages": [
+        {
+          "application": "XTend Build and Test Tooling",
+          "role": "producer",
+          "visibility": "internal",
+          "sourcePaths": [
+            "scripts/test_xtensions_integrity.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "scripts/test_xtensions_integrity.cjs",
+              "symbol": "built"
+            }
+          ]
+        },
+        {
+          "application": "XTend Development Contracts",
+          "role": "producer",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a04/integrity-inspect.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "development/rmtx-a04/integrity-inspect.cjs",
+              "symbol": "value"
+            }
+          ]
+        },
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a04/integrity-inspect.cjs",
+            "development/rmtx-a04/integrity.md"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "development/rmtx-a04/integrity-inspect.cjs",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "definition",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.d.ts"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-composition.d.ts",
+              "symbol": "XTensionDeploymentConfig"
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "producer",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.d.ts"
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "reference",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-deployment.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "xtend-maraca/xtension-deployment.js",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Types",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/types/xtensions_integrated_composition.mts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/types/xtensions_integrated_composition.mts",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Xtensions",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/xtensions/xtensions_consumer_package_suite.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/xtensions/xtensions_consumer_package_suite.js",
+              "symbol": null
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "polymorphic",
+        "decision": "reviewed-a0435-native-integrity-deployment",
+        "acceptedFingerprints": [
+          "sha256:59e5ec3b73998eeeb0d2a47c91922a6e54c1435d525642d881262f263fed49d5",
+          "sha256:94cf3309b7dfe42332b60fb5550e7c3a15c785c19d88cbfae5fbf74bd4088fe3",
+          "sha256:dc9a61b2acfa8d4fd1feb50e2d2740e065541230571c3cc54f98c10227ae9abe"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rationale": "Scoped A04.3.5 review: public composition build API7 adds deployment API1 with closed config/manifest/result v1 and a separate real native-integrity acceptance report v1. Existing runtime API6, manifest v5, artifact/report v6, load-plan v2 and delivery-plan v1 retain complete semantics. Actual regular-build capture and explicit application pins produce a complete finite browser JavaScript inventory, native import-map integrity, external bootstrap SRI and hash-only CSP. Trusted document/headers and externally anchored manifest digest remain required. A private immutable HTTP snapshot serves exact bytes; restart loading verifies every member. Twenty-three actual HTTP/Chromium cases include full React/Vue/mixed boot, tampered bootstrap/peers/app/platform/kernel/companion/helper, missing metadata, existing Service Worker cache responses, changed redirect responses and unlisted modules. No final-URL attestation, PWA/AppServices integration or universal unsupported-browser claim is made. All previous authoritative/released fingerprint sets, strict reference ceilings, 341 runtime cases and 88 compiler checks remain mandatory. Complete 0.9 feature acceptance remains pending. See development/rmtx-a04/integrity.md."
+      },
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:59e5ec3b73998eeeb0d2a47c91922a6e54c1435d525642d881262f263fed49d5",
+          "shape": {
+            "fieldCount": 4,
+            "fields": [
+              "application",
+              "build",
+              "outputDir",
+              "publicPath"
+            ],
+            "signature": "application:{\"unresolved\":\"applications[framework]\"}|build:{\"unresolved\":\"builds[framework]\"}|outputDir:unknown|publicPath:string",
+            "normalized": {
+              "fields": {
+                "application": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "applications[framework]"
+                  }
+                },
+                "build": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "builds[framework]"
+                  }
+                },
+                "outputDir": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "publicPath": {
+                  "optional": false,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "scripts/test_xtensions_integrity.cjs"
+          ],
+          "symbols": [
+            "built"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "scripts/test_xtensions_integrity.cjs",
+              "symbol": "built"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:94cf3309b7dfe42332b60fb5550e7c3a15c785c19d88cbfae5fbf74bd4088fe3",
+          "shape": {
+            "fieldCount": 4,
+            "fields": [
+              "application",
+              "build",
+              "outputDir",
+              "publicPath"
+            ],
+            "signature": "application:{bootstrap:unknown,modules:array<unknown>,rootDir:unknown}|build:{\"unresolved\":\"await maraca.buildMaracaBundleAsync(reference.withDeliveryProfile(reference.createBuildInput(framework,path.join(temp,'build-'+framework),{profile:framework==='vue'?'max':'production'})),{rootDir:root})\"}|outputDir:unknown|publicPath:string",
+            "normalized": {
+              "fields": {
+                "application": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "bootstrap": {
+                        "optional": false,
+                        "type": "unknown"
+                      },
+                      "modules": {
+                        "optional": false,
+                        "type": {
+                          "array": [
+                            "unknown"
+                          ]
+                        }
+                      },
+                      "rootDir": {
+                        "optional": false,
+                        "type": "unknown"
+                      }
+                    }
+                  }
+                },
+                "build": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "await maraca.buildMaracaBundleAsync(reference.withDeliveryProfile(reference.createBuildInput(framework,path.join(temp,'build-'+framework),{profile:framework==='vue'?'max':'production'})),{rootDir:root})"
+                  }
+                },
+                "outputDir": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "publicPath": {
+                  "optional": false,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "development/rmtx-a04/integrity-inspect.cjs"
+          ],
+          "symbols": [
+            "value"
+          ],
+          "evidence": [
+            {
+              "type": "docs",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "development/rmtx-a04/integrity-inspect.cjs",
+              "symbol": "value"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:dc9a61b2acfa8d4fd1feb50e2d2740e065541230571c3cc54f98c10227ae9abe",
+          "shape": {
+            "fieldCount": 4,
+            "fields": [
+              "application",
+              "build",
+              "outputDir",
+              "publicPath"
+            ],
+            "signature": "application:{bootstrap:{fileName:string,sha256:string},modules:array<{fileName:string,sha256:string}>,rootDir:string}|build:{ok:boolean,plan:{\"unresolved\":\"import('./index').MaracaComposedBuildPlan\"}}|outputDir:string|publicPath:string",
+            "normalized": {
+              "fields": {
+                "application": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "bootstrap": {
+                        "optional": false,
+                        "type": {
+                          "fields": {
+                            "fileName": {
+                              "optional": false,
+                              "type": "string"
+                            },
+                            "sha256": {
+                              "optional": false,
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "modules": {
+                        "optional": false,
+                        "type": {
+                          "elementType": {
+                            "fields": {
+                              "fileName": {
+                                "optional": false,
+                                "type": "string"
+                              },
+                              "sha256": {
+                                "optional": false,
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "rootDir": {
+                        "optional": false,
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "build": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "ok": {
+                        "optional": false,
+                        "type": "boolean"
+                      },
+                      "plan": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "import('./index').MaracaComposedBuildPlan"
+                        }
+                      }
+                    }
+                  }
+                },
+                "outputDir": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "publicPath": {
+                  "optional": false,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition.d.ts"
+          ],
+          "symbols": [
+            "XTensionDeploymentConfig"
+          ],
+          "evidence": [
+            {
+              "type": "declared-type",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtend-maraca/xtension-composition.d.ts",
+              "symbol": "XTensionDeploymentConfig"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        }
+      ]
+    },
+    {
+      "schemaId": "xtend.maraca.xtension-deployment-manifest.v1",
+      "familyId": "xtend.maraca.xtension-deployment-manifest",
+      "version": 1,
+      "kinds": [
+        "manifest-id",
+        "runtime-discriminator"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": "sha256:b0d6a4859b15143c4818868216eeaa7f7f409c8d60766b7f1dbe57de49a4b112",
+      "description": "Unreleased A04.3.5 sealed native browser JavaScript deployment: explicit application pins, actual regular-build provenance, native SRI/import-map integrity, hash-only CSP and immutable HTTP snapshot. Trusted document/headers and an external manifest digest remain required. Prior contracts remain complete. Native browser evidence is separate; PWA/AppServices and complete 0.9 acceptance remain pending.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "xtend-maraca/xtension-deployment.js",
+        "symbol": null,
+        "definitionType": "object-shape",
+        "role": "producer",
+        "visibility": "public"
+      },
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a04/integrity.md"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "development/rmtx-a04/integrity.md",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "definition",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.d.ts"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-composition.d.ts",
+              "symbol": "XTensionDeploymentManifest"
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "producer",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition.d.ts",
+            "xtend-maraca/xtension-deployment.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.d.ts"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-deployment.js",
+              "symbol": "manifest"
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "reference",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-deployment.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "xtend-maraca/xtension-deployment.js",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Types",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/types/xtensions_integrated_composition.mts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/types/xtensions_integrated_composition.mts",
+              "symbol": null
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "polymorphic",
+        "decision": "reviewed-a0435-native-integrity-deployment",
+        "acceptedFingerprints": [
+          "sha256:5bd746eef6eec1489d214acf1253338906bd7f89e14dbaa86508072d269bb82a",
+          "sha256:90a6c6f7d806a192ef8eee3584c39b2270d0d294d72c155ddca68bc39a3b8be3"
+        ],
+        "authoritativeFingerprints": [
+          "sha256:90a6c6f7d806a192ef8eee3584c39b2270d0d294d72c155ddca68bc39a3b8be3"
+        ],
+        "releasedFingerprintSetHash": "sha256:b0d6a4859b15143c4818868216eeaa7f7f409c8d60766b7f1dbe57de49a4b112",
+        "rationale": "Scoped A04.3.5 review: public composition build API7 adds deployment API1 with closed config/manifest/result v1 and a separate real native-integrity acceptance report v1. Existing runtime API6, manifest v5, artifact/report v6, load-plan v2 and delivery-plan v1 retain complete semantics. Actual regular-build capture and explicit application pins produce a complete finite browser JavaScript inventory, native import-map integrity, external bootstrap SRI and hash-only CSP. Trusted document/headers and externally anchored manifest digest remain required. A private immutable HTTP snapshot serves exact bytes; restart loading verifies every member. Twenty-three actual HTTP/Chromium cases include full React/Vue/mixed boot, tampered bootstrap/peers/app/platform/kernel/companion/helper, missing metadata, existing Service Worker cache responses, changed redirect responses and unlisted modules. No final-URL attestation, PWA/AppServices integration or universal unsupported-browser claim is made. All previous authoritative/released fingerprint sets, strict reference ceilings, 341 runtime cases and 88 compiler checks remain mandatory. Complete 0.9 feature acceptance remains pending. See development/rmtx-a04/integrity.md."
+      },
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:5bd746eef6eec1489d214acf1253338906bd7f89e14dbaa86508072d269bb82a",
+          "shape": {
+            "fieldCount": 6,
+            "fields": [
+              "apiVersion",
+              "bootstrap",
+              "documentFile",
+              "files",
+              "mode",
+              "publicPath"
+            ],
+            "signature": "apiVersion:string|bootstrap:{\"unresolved\":\"application.bootstrap.fileName\"}|documentFile:{\"unresolved\":\"capture.host\"}|files:unknown|mode:string|publicPath:{\"unresolved\":\"options.publicPath\"}",
+            "normalized": {
+              "fields": {
+                "apiVersion": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "bootstrap": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "application.bootstrap.fileName"
+                  }
+                },
+                "documentFile": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "capture.host"
+                  }
+                },
+                "files": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "mode": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "publicPath": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "options.publicPath"
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/xtension-deployment.js"
+          ],
+          "symbols": [
+            "manifest"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtend-maraca/xtension-deployment.js",
+              "symbol": "manifest"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:90a6c6f7d806a192ef8eee3584c39b2270d0d294d72c155ddca68bc39a3b8be3",
+          "shape": {
+            "fieldCount": 6,
+            "fields": [
+              "apiVersion",
+              "bootstrap",
+              "documentFile",
+              "files",
+              "mode",
+              "publicPath"
+            ],
+            "signature": "apiVersion:literal<\"1.0.0\">|bootstrap:string|documentFile:string|files:array<{bytes:number,fileName:string,sha256:string}>|mode:literal<\"native-sri-importmap\">|publicPath:string",
+            "normalized": {
+              "fields": {
+                "apiVersion": {
+                  "optional": false,
+                  "type": {
+                    "literal": "1.0.0"
+                  }
+                },
+                "bootstrap": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "documentFile": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "files": {
+                  "optional": false,
+                  "type": {
+                    "elementType": {
+                      "fields": {
+                        "bytes": {
+                          "optional": false,
+                          "type": "number"
+                        },
+                        "fileName": {
+                          "optional": false,
+                          "type": "string"
+                        },
+                        "sha256": {
+                          "optional": false,
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "mode": {
+                  "optional": false,
+                  "type": {
+                    "literal": "native-sri-importmap"
+                  }
+                },
+                "publicPath": {
+                  "optional": false,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition.d.ts"
+          ],
+          "symbols": [
+            "XTensionDeploymentManifest"
+          ],
+          "evidence": [
+            {
+              "type": "declared-type",
+              "completeness": "complete",
+              "authoritative": true,
+              "path": "xtend-maraca/xtension-composition.d.ts",
+              "symbol": "XTensionDeploymentManifest"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "completeness": "complete",
+          "authoritative": true
+        }
+      ]
+    },
+    {
+      "schemaId": "xtend.maraca.xtension-deployment-result.v1",
+      "familyId": "xtend.maraca.xtension-deployment-result",
+      "version": 1,
+      "kinds": [
+        "runtime-discriminator"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": null,
+      "description": "Unreleased A04.3.5 sealed native browser JavaScript deployment: explicit application pins, actual regular-build provenance, native SRI/import-map integrity, hash-only CSP and immutable HTTP snapshot. Trusted document/headers and an external manifest digest remain required. Prior contracts remain complete. Native browser evidence is separate; PWA/AppServices and complete 0.9 acceptance remain pending.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "xtend-maraca/xtension-deployment.js",
+        "symbol": null,
+        "definitionType": "object-shape",
+        "role": "producer",
+        "visibility": "public"
+      },
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a04/integrity.md"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "development/rmtx-a04/integrity.md",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "definition",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.d.ts"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-composition.d.ts",
+              "symbol": "XTensionDeploymentResult"
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "producer",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition.d.ts",
+            "xtend-maraca/xtension-deployment.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.d.ts"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-deployment.js",
+              "symbol": "result"
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "polymorphic",
+        "decision": "reviewed-a0435-native-integrity-deployment",
+        "acceptedFingerprints": [
+          "sha256:1c0ef44f82befbe0ec0feef45111b4bfc3a8238c821b226b77d994a66333d678",
+          "sha256:d34a1971ef2dac1c7665ee2a38ce5612fc227ad1e9122729903f28de7e3b117c"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rationale": "Scoped A04.3.5 review: public composition build API7 adds deployment API1 with closed config/manifest/result v1 and a separate real native-integrity acceptance report v1. Existing runtime API6, manifest v5, artifact/report v6, load-plan v2 and delivery-plan v1 retain complete semantics. Actual regular-build capture and explicit application pins produce a complete finite browser JavaScript inventory, native import-map integrity, external bootstrap SRI and hash-only CSP. Trusted document/headers and externally anchored manifest digest remain required. A private immutable HTTP snapshot serves exact bytes; restart loading verifies every member. Twenty-three actual HTTP/Chromium cases include full React/Vue/mixed boot, tampered bootstrap/peers/app/platform/kernel/companion/helper, missing metadata, existing Service Worker cache responses, changed redirect responses and unlisted modules. No final-URL attestation, PWA/AppServices integration or universal unsupported-browser claim is made. All previous authoritative/released fingerprint sets, strict reference ceilings, 341 runtime cases and 88 compiler checks remain mandatory. Complete 0.9 feature acceptance remains pending. See development/rmtx-a04/integrity.md."
+      },
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:1c0ef44f82befbe0ec0feef45111b4bfc3a8238c821b226b77d994a66333d678",
+          "shape": {
+            "fieldCount": 8,
+            "fields": [
+              "accounting",
+              "apiVersion",
+              "headers",
+              "manifest",
+              "manifestFile",
+              "manifestSha256",
+              "outputDir",
+              "runtimeExecutionVerified"
+            ],
+            "signature": "accounting?:{\"arguments\":[{\"fields\":{\"applicationBytes\":{\"optional\":false,\"type\":\"number\"},\"envelopeBytes\":{\"optional\":false,\"type\":\"number\"},\"frameworkBaselineBytes\":{\"optional\":false,\"type\":\"number\"},\"frameworkBytes\":{\"optional\":false,\"type\":\"number\"},\"totalBytes\":{\"optional\":false,\"type\":\"number\"},\"withinBudget\":{\"optional\":false,\"type\":\"boolean\"},\"xtensionRuntimeBytes\":{\"optional\":false,\"type\":\"number\"}}}],\"unresolvedReference\":\"Readonly\"}|apiVersion:literal<\"1.0.0\">|headers:{\"arguments\":[{\"fields\":{\"Cache-Control\":{\"optional\":false,\"type\":{\"literal\":\"no-store, no-transform\"}},\"Content-Security-Policy\":{\"optional\":false,\"type\":\"string\"},\"Integrity-Policy\":{\"optional\":false,\"type\":{\"literal\":\"blocked-destinations=(script)\"}},\"X-Content-Type-Options\":{\"optional\":false,\"type\":{\"literal\":\"nosniff\"}}}}],\"unresolvedReference\":\"Readonly\"}|manifest:{apiVersion:literal<\"1.0.0\">,bootstrap:string,documentFile:string,files:array<{bytes:number,fileName:string,sha256:string}>,mode:literal<\"native-sri-importmap\">,publicPath:string}|manifestFile:literal<\"xtend.deployment.json\">|manifestSha256:string|outputDir:string|runtimeExecutionVerified:literal<false>",
+            "normalized": {
+              "fields": {
+                "accounting": {
+                  "optional": true,
+                  "type": {
+                    "arguments": [
+                      {
+                        "fields": {
+                          "applicationBytes": {
+                            "optional": false,
+                            "type": "number"
+                          },
+                          "envelopeBytes": {
+                            "optional": false,
+                            "type": "number"
+                          },
+                          "frameworkBaselineBytes": {
+                            "optional": false,
+                            "type": "number"
+                          },
+                          "frameworkBytes": {
+                            "optional": false,
+                            "type": "number"
+                          },
+                          "totalBytes": {
+                            "optional": false,
+                            "type": "number"
+                          },
+                          "withinBudget": {
+                            "optional": false,
+                            "type": "boolean"
+                          },
+                          "xtensionRuntimeBytes": {
+                            "optional": false,
+                            "type": "number"
+                          }
+                        }
+                      }
+                    ],
+                    "unresolvedReference": "Readonly"
+                  }
+                },
+                "apiVersion": {
+                  "optional": false,
+                  "type": {
+                    "literal": "1.0.0"
+                  }
+                },
+                "headers": {
+                  "optional": false,
+                  "type": {
+                    "arguments": [
+                      {
+                        "fields": {
+                          "Cache-Control": {
+                            "optional": false,
+                            "type": {
+                              "literal": "no-store, no-transform"
+                            }
+                          },
+                          "Content-Security-Policy": {
+                            "optional": false,
+                            "type": "string"
+                          },
+                          "Integrity-Policy": {
+                            "optional": false,
+                            "type": {
+                              "literal": "blocked-destinations=(script)"
+                            }
+                          },
+                          "X-Content-Type-Options": {
+                            "optional": false,
+                            "type": {
+                              "literal": "nosniff"
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "unresolvedReference": "Readonly"
+                  }
+                },
+                "manifest": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "apiVersion": {
+                        "optional": false,
+                        "type": {
+                          "literal": "1.0.0"
+                        }
+                      },
+                      "bootstrap": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "documentFile": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "files": {
+                        "optional": false,
+                        "type": {
+                          "elementType": {
+                            "fields": {
+                              "bytes": {
+                                "optional": false,
+                                "type": "number"
+                              },
+                              "fileName": {
+                                "optional": false,
+                                "type": "string"
+                              },
+                              "sha256": {
+                                "optional": false,
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "mode": {
+                        "optional": false,
+                        "type": {
+                          "literal": "native-sri-importmap"
+                        }
+                      },
+                      "publicPath": {
+                        "optional": false,
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "manifestFile": {
+                  "optional": false,
+                  "type": {
+                    "literal": "xtend.deployment.json"
+                  }
+                },
+                "manifestSha256": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "outputDir": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "runtimeExecutionVerified": {
+                  "optional": false,
+                  "type": {
+                    "literal": false
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition.d.ts"
+          ],
+          "symbols": [
+            "XTensionDeploymentResult"
+          ],
+          "evidence": [
+            {
+              "type": "declared-type",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtend-maraca/xtension-composition.d.ts",
+              "symbol": "XTensionDeploymentResult"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:d34a1971ef2dac1c7665ee2a38ce5612fc227ad1e9122729903f28de7e3b117c",
+          "shape": {
+            "fieldCount": 7,
+            "fields": [
+              "apiVersion",
+              "headers",
+              "manifest",
+              "manifestFile",
+              "manifestSha256",
+              "outputDir",
+              "runtimeExecutionVerified"
+            ],
+            "signature": "apiVersion:string|headers:{\"unresolved\":\"envelope(manifest.publicPath, files, manifest.bootstrap).headers\"}|manifest:unknown|manifestFile:string|manifestSha256:unknown|outputDir:unknown|runtimeExecutionVerified:boolean",
+            "normalized": {
+              "fields": {
+                "apiVersion": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "headers": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "envelope(manifest.publicPath, files, manifest.bootstrap).headers"
+                  }
+                },
+                "manifest": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "manifestFile": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "manifestSha256": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "outputDir": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "runtimeExecutionVerified": {
+                  "optional": false,
+                  "type": "boolean"
+                }
+              },
+              "unresolvedSpreads": [
+                {
+                  "union": [
+                    {
+                      "fields": {
+                        "accounting": {
+                          "optional": false,
+                          "type": {
+                            "fields": {
+                              "applicationBytes": {
+                                "optional": false,
+                                "type": "unknown"
+                              },
+                              "envelopeBytes": {
+                                "optional": false,
+                                "type": {
+                                  "unresolved": "bytes-capture.rows.reduce((sum,row)=>sum+row.bytes,0)-applicationBytes"
+                                }
+                              },
+                              "frameworkBaselineBytes": {
+                                "optional": false,
+                                "type": {
+                                  "unresolved": "capture.budget.framework.baselineBytes"
+                                }
+                              },
+                              "frameworkBytes": {
+                                "optional": false,
+                                "type": {
+                                  "unresolved": "capture.budget.framework.bytes+overheadBytes"
+                                }
+                              },
+                              "totalBytes": {
+                                "optional": false,
+                                "type": "unknown"
+                              },
+                              "withinBudget": {
+                                "optional": false,
+                                "type": {
+                                  "unresolved": "frameworkBytes<capture.budget.framework.baselineBytes && capture.budget.xtensions.withinBudget"
+                                }
+                              },
+                              "xtensionRuntimeBytes": {
+                                "optional": false,
+                                "type": {
+                                  "unresolved": "capture.budget.xtensions.runtimeBytes"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "fields": {}
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/xtension-deployment.js"
+          ],
+          "symbols": [
+            "result"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtend-maraca/xtension-deployment.js",
+              "symbol": "result"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        }
+      ]
     },
     {
       "aliasOf": null,
@@ -799594,7 +800800,7 @@
           },
           {
             "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
-            "sha256": "725401c1dfd3917fc99ae5d8248a3ae70ca6a1b0b905f24e5a56c0779fe0184a"
+            "sha256": "fb674c1008f7bdae1ea516795ba5aa3b16b28644aa82a048f0a03f0aca4c18ff"
           },
           {
             "path": "development/rmtx-a01/README.md",
@@ -940464,6 +941670,21 @@
           ]
         },
         {
+          "application": "XTend Build and Test Tooling",
+          "role": "reference",
+          "visibility": "internal",
+          "sourcePaths": [
+            "scripts/test-runner/catalog.json"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "scripts/test-runner/catalog.json",
+              "pointer": "/"
+            }
+          ]
+        },
+        {
           "application": "XTend Development Contracts",
           "role": "documentation",
           "visibility": "docs",
@@ -953251,6 +954472,187 @@
         }
       ],
       "version": 1
+    },
+    {
+      "schemaId": "xtend.xtensions.integrity-acceptance-report.v1",
+      "familyId": "xtend.xtensions.integrity-acceptance-report",
+      "version": 1,
+      "kinds": [
+        "report-id",
+        "runtime-discriminator"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": null,
+      "description": "Unreleased A04.3.5 sealed native browser JavaScript deployment: explicit application pins, actual regular-build provenance, native SRI/import-map integrity, hash-only CSP and immutable HTTP snapshot. Trusted document/headers and an external manifest digest remain required. Prior contracts remain complete. Native browser evidence is separate; PWA/AppServices and complete 0.9 acceptance remain pending.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "scripts/test_xtensions_integrity.cjs",
+        "symbol": null,
+        "definitionType": "object-shape",
+        "role": "producer",
+        "visibility": "internal"
+      },
+      "usages": [
+        {
+          "application": "XTend Build and Test Tooling",
+          "role": "producer",
+          "visibility": "internal",
+          "sourcePaths": [
+            "scripts/test_xtensions_integrity.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "scripts/test_xtensions_integrity.cjs",
+              "symbol": "runIntegrityAcceptance"
+            }
+          ]
+        },
+        {
+          "application": "XTend Build and Test Tooling",
+          "role": "reference",
+          "visibility": "internal",
+          "sourcePaths": [
+            "scripts/test-runner/catalog.json"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "scripts/test-runner/catalog.json",
+              "pointer": "/"
+            }
+          ]
+        },
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a04/integrity.md"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "development/rmtx-a04/integrity.md",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Xtensions",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/xtensions/xtensions_runtime_gate_suite.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/xtensions/xtensions_runtime_gate_suite.js",
+              "symbol": null
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "single",
+        "decision": "reviewed-a0435-native-integrity-deployment",
+        "acceptedFingerprints": [
+          "sha256:e538bf6e8c5ebe23fc49ca4e1c7250ff817b4b7cf28c9748cd229d592a07ee1c"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rationale": "Scoped A04.3.5 review: public composition build API7 adds deployment API1 with closed config/manifest/result v1 and a separate real native-integrity acceptance report v1. Existing runtime API6, manifest v5, artifact/report v6, load-plan v2 and delivery-plan v1 retain complete semantics. Actual regular-build capture and explicit application pins produce a complete finite browser JavaScript inventory, native import-map integrity, external bootstrap SRI and hash-only CSP. Trusted document/headers and externally anchored manifest digest remain required. A private immutable HTTP snapshot serves exact bytes; restart loading verifies every member. Twenty-three actual HTTP/Chromium cases include full React/Vue/mixed boot, tampered bootstrap/peers/app/platform/kernel/companion/helper, missing metadata, existing Service Worker cache responses, changed redirect responses and unlisted modules. No final-URL attestation, PWA/AppServices integration or universal unsupported-browser claim is made. All previous authoritative/released fingerprint sets, strict reference ceilings, 341 runtime cases and 88 compiler checks remain mandatory. Complete 0.9 feature acceptance remains pending. See development/rmtx-a04/integrity.md."
+      },
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:e538bf6e8c5ebe23fc49ca4e1c7250ff817b4b7cf28c9748cd229d592a07ee1c",
+          "shape": {
+            "fieldCount": 8,
+            "fields": [
+              "browser",
+              "browserByteIntegrityEnforced",
+              "cases",
+              "checks",
+              "node",
+              "ok",
+              "scope",
+              "trustedDocumentRequired"
+            ],
+            "signature": "browser:{\"unresolved\":\"await browser.version()\"}|browserByteIntegrityEnforced:boolean|cases:array<>|checks:{\"unresolved\":\"cases.length\"}|node:{\"unresolved\":\"process.version\"}|ok:boolean|scope:string|trustedDocumentRequired:boolean",
+            "normalized": {
+              "fields": {
+                "browser": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "await browser.version()"
+                  }
+                },
+                "browserByteIntegrityEnforced": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "cases": {
+                  "optional": false,
+                  "type": {
+                    "array": []
+                  }
+                },
+                "checks": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "cases.length"
+                  }
+                },
+                "node": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "process.version"
+                  }
+                },
+                "ok": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "scope": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "trustedDocumentRequired": {
+                  "optional": false,
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "scripts/test_xtensions_integrity.cjs"
+          ],
+          "symbols": [
+            "runIntegrityAcceptance"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "scripts/test_xtensions_integrity.cjs",
+              "symbol": "runIntegrityAcceptance"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        }
+      ]
     },
     {
       "aliasOf": null,
@@ -1008826,7 +1010228,8 @@
           "role": "producer",
           "visibility": "internal",
           "sourcePaths": [
-            "scripts/test_xtensions_delivery.cjs"
+            "scripts/test_xtensions_delivery.cjs",
+            "scripts/test_xtensions_integrity.cjs"
           ],
           "interfaceReferences": [
             {
@@ -1026790,6 +1028193,57 @@
           "releasedFingerprintSetHash": "sha256:082ede512a50fb75b71fffaa9259f3794d371c4361a7463097932843792301de"
         }
       ]
+    },
+    {
+      "familyId": "xtend.maraca.xtension-deployment-config",
+      "currentVersion": 1,
+      "activeSchemaId": "xtend.maraca.xtension-deployment-config.v1",
+      "versions": [
+        {
+          "schemaId": "xtend.maraca.xtension-deployment-config.v1",
+          "version": 1,
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": null
+        }
+      ],
+      "tombstones": []
+    },
+    {
+      "familyId": "xtend.maraca.xtension-deployment-manifest",
+      "currentVersion": 1,
+      "activeSchemaId": "xtend.maraca.xtension-deployment-manifest.v1",
+      "versions": [
+        {
+          "schemaId": "xtend.maraca.xtension-deployment-manifest.v1",
+          "version": 1,
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": "sha256:b0d6a4859b15143c4818868216eeaa7f7f409c8d60766b7f1dbe57de49a4b112"
+        }
+      ],
+      "tombstones": []
+    },
+    {
+      "familyId": "xtend.maraca.xtension-deployment-result",
+      "currentVersion": 1,
+      "activeSchemaId": "xtend.maraca.xtension-deployment-result.v1",
+      "versions": [
+        {
+          "schemaId": "xtend.maraca.xtension-deployment-result.v1",
+          "version": 1,
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": null
+        }
+      ],
+      "tombstones": []
     },
     {
       "activeSchemaId": "xtend.maraca.xtension-diagnostic.v1",
@@ -1046128,6 +1047582,23 @@
           "releasedFingerprintSetHash": null
         }
       ]
+    },
+    {
+      "familyId": "xtend.xtensions.integrity-acceptance-report",
+      "currentVersion": 1,
+      "activeSchemaId": "xtend.xtensions.integrity-acceptance-report.v1",
+      "versions": [
+        {
+          "schemaId": "xtend.xtensions.integrity-acceptance-report.v1",
+          "version": 1,
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": null
+        }
+      ],
+      "tombstones": []
     },
     {
       "activeSchemaId": "xtend.xtensions.kernel-signal.v1",

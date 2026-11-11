@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { createHash } = require('node:crypto');
 const { TextDecoder } = require('node:util');
-const XTENSION_COMPOSITION_BUILD_API_VERSION = '6.0.0';
+const XTENSION_COMPOSITION_BUILD_API_VERSION = '7.0.0';
 const hash = value => createHash('sha256').update(value).digest('hex');
 function inspectSource(source, exportName) {
   const { parseAst } = require('rollup/parseAst');
@@ -72,8 +72,9 @@ async function buildMaracaXTensionComposition(options) {
     try { fs.writeFileSync(target, file.bytes, { flag: 'wx' }); }
     catch (error) { if (error.code !== 'EEXIST' || !fs.readFileSync(target).equals(file.bytes)) throw error; }
   }
-  return { schema: delivery ? 'xtend.maraca.xtension-composition-build-report.v6' : shared ? 'xtend.maraca.xtension-composition-build-report.v5' : deferred ? 'xtend.maraca.xtension-composition-build-report.v4' : graph ? 'xtend.maraca.xtension-composition-build-report.v3' : integrated ? 'xtend.maraca.xtension-composition-build-report.v2' : 'xtend.maraca.xtension-composition-build-report.v1', apiVersion: delivery ? XTENSION_COMPOSITION_BUILD_API_VERSION : shared ? '5.0.0' : deferred ? '4.0.0' : graph ? '3.0.0' : integrated ? '2.0.0' : '1.0.0', ok: true,
+  return { schema: delivery ? 'xtend.maraca.xtension-composition-build-report.v6' : shared ? 'xtend.maraca.xtension-composition-build-report.v5' : deferred ? 'xtend.maraca.xtension-composition-build-report.v4' : graph ? 'xtend.maraca.xtension-composition-build-report.v3' : integrated ? 'xtend.maraca.xtension-composition-build-report.v2' : 'xtend.maraca.xtension-composition-build-report.v1', apiVersion: delivery ? '6.0.0' : shared ? '5.0.0' : deferred ? '4.0.0' : graph ? '3.0.0' : integrated ? '2.0.0' : '1.0.0', ok: true,
     artifact, ...(delivery ? { deliveryFile } : {}), entryPath: path.join(output, entryFile), files: files.map(file => ({ fileName: file.fileName, sha256: file.sha256, bytes: file.bytes.length })),
     frameworkDependenciesBundled: false, runtimeExecutionVerified: false };
 }
-module.exports = { XTENSION_COMPOSITION_BUILD_API_VERSION, buildMaracaXTensionComposition };
+const { registerBuild: _registerBuild, ...deployment } = require('./xtension-deployment');
+module.exports = { XTENSION_COMPOSITION_BUILD_API_VERSION, buildMaracaXTensionComposition, ...deployment };

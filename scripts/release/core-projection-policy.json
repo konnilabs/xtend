@@ -1,7 +1,7 @@
 {
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "845645ee91f64884ef111902dc30eaaaf206b0de8505f0611fdfdc48fae62c2c",
+  "inventorySha256": "7252fe1b992a5ab064119e574846b07efd576b3ebaf2102861dfa23bc0695a71",
   "productivePaths": [
     ".codex",
     ".comments/XScaler ATC.png.xml",
@@ -1171,6 +1171,9 @@
     "development/rmtx-a04/integration-inspect.cjs",
     "development/rmtx-a04/integration-reference.cjs",
     "development/rmtx-a04/integration.md",
+    "development/rmtx-a04/integrity-evidence.json",
+    "development/rmtx-a04/integrity-inspect.cjs",
+    "development/rmtx-a04/integrity.md",
     "development/rmtx-a04/loading-evidence.json",
     "development/rmtx-a04/loading-inspect.cjs",
     "development/rmtx-a04/loading.md",
@@ -1812,6 +1815,7 @@
     "scripts/test-runner/vsix-smoke.js",
     "scripts/test-runner/worker.js",
     "scripts/test_xtensions_delivery.cjs",
+    "scripts/test_xtensions_integrity.cjs",
     "scripts/test_xtensions_runtime_adapters.cjs",
     "scripts/verify_ci_dependency_locks.js",
     "scripts/verify_docs_content_depth.js",
@@ -3462,6 +3466,7 @@
     "xtend-maraca/xtension-composition-runtime.mjs",
     "xtend-maraca/xtension-composition.d.ts",
     "xtend-maraca/xtension-composition.js",
+    "xtend-maraca/xtension-deployment.js",
     "xtend-maraca/xtension-platform-build.js",
     "xtend-maraca/xtension-provider-graph.js",
     "xtend-maraca/xtension-size-budget.js",
@@ -3633,7 +3638,7 @@
     "xtendrmt/rmt-surface-transition-runtime.js",
     "xtendrmt/rmt.schema.json"
   ],
-  "authorityDecisionSha256": "bd8f7fe2850a5008942e83b1c3af544573e12beac69e229d91794bbdcf3e4dc2",
+  "authorityDecisionSha256": "6fd3db7dd241e7e9d5ca85e56617ff583bddb407eaa0bd796642c3b72bdc03da",
   "note": "No union filtering or Core schema acceptance is inferred. Missing/pending exact projection blocks Core CI evidence and release preparation. Initial Candidate authority retirement remains a separate source guard.",
   "coreCandidateAuthoritySha256": "8fc57e4eb96a3a6fd0155234f06cc4b95879fc9d492fdaad8171e26345e4f865"
 }

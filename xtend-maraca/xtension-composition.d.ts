@@ -1,7 +1,7 @@
 import type { MaracaBuildPlan } from './index';
 import type { XTensionCompositionManifest, XTensionCompositionArtifact, XTensionCompositionBindingRuntime } from './xtension-composition-runtime';
 export type { XTensionCompositionManifest, XTensionCompositionArtifact, XTensionCompositionProvider } from './xtension-composition-runtime';
-export const XTENSION_COMPOSITION_BUILD_API_VERSION: '6.0.0';
+export const XTENSION_COMPOSITION_BUILD_API_VERSION: '7.0.0';
 export interface XTensionCompositionBuildReport {
   readonly schema: 'xtend.maraca.xtension-composition-build-report.v1';
   readonly apiVersion: '1.0.0'; readonly ok: true;
@@ -81,3 +81,34 @@ export function buildMaracaXTensionComposition(options: {
   readonly manifest: import('./xtension-composition-runtime').AnyXTensionCompositionManifest;
   readonly bindingsRuntime: XTensionCompositionBindingRuntime; readonly rootDir: string; readonly outputDir: string;
 }): Promise<XTensionCompositionBuildReport | IntegratedXTensionCompositionBuildReport | GraphXTensionCompositionBuildReport | DeferredXTensionCompositionBuildReport | SharedXTensionCompositionBuildReport | DeliveryXTensionCompositionBuildReport>;
+
+/** Node build/deployment API. Native browser execution keeps composition API6. */
+export const XTENSION_DEPLOYMENT_API_VERSION: '1.0.0';
+export interface XTensionDeploymentManifest {
+  readonly schema: 'xtend.maraca.xtension-deployment-manifest.v1'; readonly apiVersion: '1.0.0';
+  readonly mode: 'native-sri-importmap'; readonly publicPath: string;
+  readonly documentFile: string; readonly bootstrap: string;
+  readonly files: readonly { readonly fileName: string; readonly bytes: number; readonly sha256: string }[];
+}
+export interface XTensionDeploymentResult {
+  readonly schema: 'xtend.maraca.xtension-deployment-result.v1'; readonly apiVersion: '1.0.0';
+  readonly outputDir: string; readonly manifestFile: 'xtend.deployment.json'; readonly manifestSha256: string;
+  readonly manifest: XTensionDeploymentManifest;
+  readonly headers: Readonly<{ 'Content-Security-Policy': string; 'Integrity-Policy': 'blocked-destinations=(script)'; 'X-Content-Type-Options': 'nosniff'; 'Cache-Control': 'no-store, no-transform' }>;
+  readonly accounting?: Readonly<{ totalBytes: number; applicationBytes: number; envelopeBytes: number; frameworkBytes: number; frameworkBaselineBytes: number; xtensionRuntimeBytes: number; withinBudget: boolean }>;
+  readonly runtimeExecutionVerified: false;
+}
+export interface XTensionDeploymentConfig {
+  readonly schema: 'xtend.maraca.xtension-deployment-config.v1';
+  /** Actual successful object returned by the regular async build; JSON replay is rejected. */
+  readonly build: { readonly ok: boolean; readonly plan: import('./index').MaracaComposedBuildPlan };
+  readonly application: { readonly rootDir: string; readonly bootstrap: { readonly fileName: string; readonly sha256: string }; readonly modules: readonly { readonly fileName: string; readonly sha256: string }[] };
+  readonly publicPath: string; readonly outputDir: string;
+}
+export function buildMaracaXTensionDeployment(options: XTensionDeploymentConfig): XTensionDeploymentResult;
+/** The expected manifest digest must come from trusted deployment configuration. */
+export function loadMaracaXTensionDeployment(options: { readonly rootDir: string; readonly manifestSha256: string }): XTensionDeploymentResult;
+export function createMaracaXTensionDeploymentHandler(result: XTensionDeploymentResult): (
+  request: { readonly method?: string; readonly url?: string },
+  response: { setHeader(name: string, value: string | number): unknown; writeHead(status: number, headers?: Readonly<Record<string, string | number>>): unknown; end(body?: Uint8Array): unknown }
+) => boolean;

@@ -109,3 +109,15 @@ const notAnAttestation: false = deployment.runtimeDeliveryVerified;
 // @ts-expect-error The delivery profile cannot enable arbitrary script origins.
 const unsafeDelivery: DeliveryXTensionCompositionManifest['delivery'] = { schema: 'xtend.maraca.xtension-delivery-policy.v1', mode: 'any-origin' };
 void [deliveryMajor, deliveryApi, deliveryFile, retainedLoadPlan, notAnAttestation, unsafeDelivery];
+
+import { buildMaracaXTensionDeployment, loadMaracaXTensionDeployment, createMaracaXTensionDeploymentHandler, XTENSION_DEPLOYMENT_API_VERSION, type XTensionDeploymentConfig } from '@ccslabs/xtend/maraca/xtension-composition';
+import { buildMaracaXTensionDeployment as standaloneDeployment } from '@ccslabs/xtend-maraca/xtension-composition';
+const deploymentApi: '1.0.0' = XTENSION_DEPLOYMENT_API_VERSION;
+const deploymentOptions: XTensionDeploymentConfig = { schema: 'xtend.maraca.xtension-deployment-config.v1', build, application: { rootDir: '.', bootstrap: { fileName: 'app-bootstrap.mjs', sha256: '0'.repeat(64) }, modules: [] }, publicPath: '/release/', outputDir: 'sealed' };
+const sealed = buildMaracaXTensionDeployment(deploymentOptions);
+const sealSchema: 'xtend.maraca.xtension-deployment-manifest.v1' = sealed.manifest.schema;
+const sealedHandler = createMaracaXTensionDeploymentHandler(loadMaracaXTensionDeployment({ rootDir: sealed.outputDir, manifestSha256: sealed.manifestSha256 }));
+const sameDeployment: typeof buildMaracaXTensionDeployment = standaloneDeployment;
+// @ts-expect-error Loading a deployment requires an external trusted manifest digest.
+loadMaracaXTensionDeployment({ rootDir: 'sealed' });
+void [deploymentApi,sealSchema,sealedHandler,sameDeployment];

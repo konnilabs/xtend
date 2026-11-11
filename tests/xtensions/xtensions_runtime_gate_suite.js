@@ -54,6 +54,14 @@ function runXTensionsRuntimeGate({ rootDir, browser = false } = {}) {
       const delivery = JSON.parse(fs.readFileSync(deliveryArtifact,'utf8'));
       context.assert(delivery.schema==='xtend.xtensions.delivery-acceptance-report.v1' && delivery.ok && delivery.node===process.version && delivery.checks>=12 && delivery.cases.every(row=>row.passed),'All native HTTP/CSP cases and the independent response-body audit are mandatory');
       context.assert(delivery.productionByteIntegrityEnforced===false && delivery.cases.filter(row=>row.scenario==='tamper').every(row=>!row.responseAudit.matchesBuild && row.responseAudit.mismatches.length===1),'CSP origin checks cannot substitute for byte-integrity evidence');
+      const integrityArtifact = path.join(rootDir,'.xtend-test-results','xtend-xtensions-integrity-report.json');
+      fs.rmSync(integrityArtifact,{force:true});
+      const sealed = spawnSync(process.execPath,['scripts/test_xtensions_integrity.cjs','--report',integrityArtifact],{cwd:rootDir,env,encoding:'utf8',timeout:120000,maxBuffer:16*1024*1024});
+      context.assert(!sealed.error && sealed.status===0,`Actual native SRI/import-map acceptance passes: ${sealed.stderr || sealed.stdout || sealed.error || ''}`);
+      const integrity = JSON.parse(fs.readFileSync(integrityArtifact,'utf8'));
+      context.assert(integrity.schema==='xtend.xtensions.integrity-acceptance-report.v1' && integrity.ok && integrity.node===process.version && integrity.checks>=23 && integrity.cases.every(row=>row.passed),'All sealed native browser cases are mandatory');
+      context.assert(integrity.browserByteIntegrityEnforced===true && integrity.trustedDocumentRequired===true && integrity.scope==='sealed-browser-javascript-graph','Native byte enforcement explicitly retains the trusted document boundary');
+      for(const scenario of ['tamper-bootstrap','tamper-peers','tamper-app','tamper-platform','tamper-kernel','tamper-companion','tamper-helper','no-map','no-helper-pin','sw-tamper','sw-cache','redirect-tamper','unlisted']) context.assert(integrity.cases.some(row=>row.scenario===scenario),`Required native integrity scenario: ${scenario}`);
     }
     if (!browser) {
       const typing=spawnSync(process.execPath,[path.join(rootDir,'node_modules/typescript/bin/tsc'),'--strict','--noEmit','--skipLibCheck','--lib','es2022,dom','--module','node16','--moduleResolution','node16','tests/types/xtensions_runtime_adapters.ts','tests/types/xtensions_compiled_bindings.mts','tests/types/xtensions_url_history_contract.mts','tests/types/xtensions_kernel_runtime.mts','tests/types/xtensions_resource_graph.mts','tests/types/xtensions_work_budget.mts','tests/types/xtensions_capability_negotiation.mts','tests/types/xtensions_composition.mts','tests/types/xtensions_integrated_composition.mts'],{cwd:rootDir,encoding:'utf8',timeout:60000});

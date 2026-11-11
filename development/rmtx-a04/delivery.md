@@ -73,4 +73,4 @@ Die beiden Manipulationsfälle rendern weiterhin erfolgreich unter CSP, liefern 
 
 Das Vorbereitungs-Gate enthält nun 17 blockierende Prüfungen. Der tatsächliche Chromium-Runtime-Gate führt die zwölf HTTP-/CSP-Fälle zusätzlich zu den bisherigen 341 Runtime-Fällen und 88 Compilerprüfungen aus. jsdom ersetzt keine CSP-Durchsetzung. Gepackte Root-/Compiler-/Maraca-Consumer bauen und booten Manifest v5 und prüfen das neue Inventar sowie die öffentlichen Typen. Historische Inventare und bisherige autoritative/veröffentlichte Fingerprint-Sets bleiben erhalten.
 
-A04.3.5 setzt an der produktiven Durchsetzung und der vollständigen Auslieferungskette an. SSR/Adoption bleibt A05, RMTX-Syntax/DX A06. Der Abschnitt behauptet keine vollständige 0.9-Feature-Abnahme.
+[A04.3.5](integrity.md) implementiert darauf aufbauend einen separaten versiegelten Browser-JavaScript-Einstieg. Der hier dokumentierte Auslieferungsplan v1 bleibt bei seinem ursprünglichen Umfang und seinen bisherigen Nachweisaussagen. SSR/Adoption bleibt A05, RMTX-Syntax/DX A06. Der Abschnitt behauptet keine vollständige 0.9-Feature-Abnahme.

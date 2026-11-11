@@ -138,6 +138,7 @@
     "page-bootstrap.d.ts",
     "remote-surface.mjs",
     "remote-surface.d.ts",
+    "xtension-deployment.js",
     "xtension-composition.js",
     "xtension-composition.d.ts",
     "xtension-composition-runtime.mjs",

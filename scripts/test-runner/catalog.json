@@ -13662,6 +13662,18 @@
           "expectedMode": "chromium"
         },
         {
+          "path": ".xtend-test-results/xtend-xtensions-delivery-report.json",
+          "kind": "outcome",
+          "producer": "full_release",
+          "expectedSchema": "xtend.xtensions.delivery-acceptance-report.v1"
+        },
+        {
+          "path": ".xtend-test-results/xtend-xtensions-integrity-report.json",
+          "kind": "outcome",
+          "producer": "full_release",
+          "expectedSchema": "xtend.xtensions.integrity-acceptance-report.v1"
+        },
+        {
           "path": ".xtend-test-results/xtend-xtensions-consumer-package-report.json",
           "kind": "outcome",
           "producer": "full_release",
