@@ -132,8 +132,8 @@ const peers=createRequire(process.env.XTENSIONS_TEST_PEERS+'/package.json');
   const fs = require('node:fs'), path = require('node:path'), {createHash} = require('node:crypto');
   const compositionRuntime = await import('@ccslabs/xtend/maraca/xtension-composition-runtime');
   const maracaRuntime = await import('@ccslabs/xtend-maraca/xtension-composition-runtime');
-  assert.equal(maracaRuntime.XTENSION_COMPOSITION_API_VERSION, '3.0.0');
-  assert.equal(require('@ccslabs/xtend-maraca/xtension-composition').XTENSION_COMPOSITION_BUILD_API_VERSION, '3.0.0');
+  assert.equal(maracaRuntime.XTENSION_COMPOSITION_API_VERSION, '4.0.0');
+  assert.equal(require('@ccslabs/xtend-maraca/xtension-composition').XTENSION_COMPOSITION_BUILD_API_VERSION, '4.0.0');
   const compositionPlan = ${JSON.stringify(require('../../development/rmtx-a04/reference.cjs').createPlan())};
   const sources = ${JSON.stringify(Object.fromEntries(['react', 'vue'].map(framework => [framework, fs.readFileSync(path.join(rootDir, 'development/rmtx-a04/providers', framework + '-panel.mjs'), 'utf8')])))};
   const manifests = ${JSON.stringify(Object.fromEntries(['react', 'vue'].map(framework => [framework, require('../../development/rmtx-a04/reference.cjs').createManifest(framework)])))};
@@ -160,7 +160,7 @@ const peers=createRequire(process.env.XTENSIONS_TEST_PEERS+'/package.json');
    graph.dispose();controller.dispose();engine.disposeRoot('packed-composition');scheduler.dispose();root.remove();
   }
   for (const framework of ['react', 'vue']) {
-   const manifest = manifests[framework]; manifest.schema = 'xtend.maraca.xtension-composition-manifest.v2';
+   const manifest = manifests[framework]; manifest.schema = 'xtend.maraca.xtension-composition-manifest.v3'; manifest.loading = {provider:'on-mount',peers:'per-host'};
    const module = './' + framework + '.mjs', dependency = './' + framework + '-component.mjs';
    fs.writeFileSync(dependency, sources[framework].replace('createPanel', 'createComponent'));
    fs.writeFileSync(module, 'import { createComponent } from "' + dependency + '"; export function createPanel(peers) { return createComponent(peers); }');
@@ -173,7 +173,7 @@ const peers=createRequire(process.env.XTENSIONS_TEST_PEERS+'/package.json');
    const builder = require(framework === 'react' ? '@ccslabs/xtend/maraca' : '@ccslabs/xtend-maraca');
    const out = path.resolve('integrated-' + framework);
    const built = await builder.buildMaracaBundleAsync({sourceText:integratedSource,virtualSourcePath:'packed.rmt',xtensionBindings:compositionPlan.xtensionBindings,xtensionComposition:manifests[framework],out,orchestration:'strict',kernel:'strict',hydration:'off',validation:'off',transitions:'off',profile:framework==='react'?'production':'max',lazy:'none'},{rootDir:process.cwd()});
-   assert(built.ok, JSON.stringify(built.plan.diagnostics)); assert.equal(built.plan.schema,'xtend.maraca.build-plan.v5'); assert.equal(built.plan.xtensionComposition.schema,'xtend.maraca.xtension-composition-manifest.v2');assert.equal(built.sizeBudgetReport.schema,'xtend.maraca.size-budget-report.v2'); assert.equal(built.sizeBudgetReport.mode,'strict'); assert(built.sizeBudgetReport.xtensions.withinBudget);
+   assert(built.ok, JSON.stringify(built.plan.diagnostics)); assert.equal(built.plan.schema,'xtend.maraca.build-plan.v5'); assert.equal(built.plan.xtensionComposition.schema,'xtend.maraca.xtension-composition-manifest.v3');assert.equal(built.sizeBudgetReport.schema,'xtend.maraca.size-budget-report.v2'); assert.equal(built.sizeBudgetReport.mode,'strict'); assert(built.sizeBudgetReport.xtensions.withinBudget);
    const generated = await import(require('node:url').pathToFileURL(path.join(out,'xtend.maraca.mjs')));
    const root=document.createElement('main'); document.body.append(root); const app=generated.createXtendMaraca({windowTarget:window,documentTarget:document,platformTarget:{}});
    await app.boot({root,fabric:createXtendFabric(),xtensions:{loadPeers:()=>framework==='react'?{React,ReactDOM}:{Vue},grants:{'filter-panel':{work:{scan:{lane:'background'}},workBudget:{schema:'xtend.xtensions.work-budget-policy.v1',maxPending:1,work:{scan:{maxPending:1}}}}}}});

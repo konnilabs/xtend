@@ -171,7 +171,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   const composed = hasOwn(plan, 'xtensionComposition');
   const runtimeSchema = composed ? XTENSION_PLAN_RUNTIME_SCHEMA : PLAN_RUNTIME_SCHEMA;
   const compositionPort = options.xtensionCompositionPort;
-  if (composed && (plan.schema !== 'xtend.maraca.build-plan.v5' || !['xtend.maraca.xtension-composition-artifact.v2', 'xtend.maraca.xtension-composition-artifact.v3'].includes(plan.xtensionComposition?.schema) || compositionPort?.schema !== 'xtend.maraca.xtension-composition-port.v1' || typeof compositionPort.bind !== 'function')) throw new TypeError('Integrated XTensions require a v5 plan, v2/v3 artifact and the prepared composition port.');
+  if (composed && (plan.schema !== 'xtend.maraca.build-plan.v5' || !['xtend.maraca.xtension-composition-artifact.v2', 'xtend.maraca.xtension-composition-artifact.v3', 'xtend.maraca.xtension-composition-artifact.v4'].includes(plan.xtensionComposition?.schema) || compositionPort?.schema !== 'xtend.maraca.xtension-composition-port.v1' || typeof compositionPort.bind !== 'function')) throw new TypeError('Integrated XTensions require a v5 plan, v2/v3/v4 artifact and the prepared composition port.');
   if (composed && (options.createXTensionHost !== undefined || options.xtensionBindingsRuntime !== undefined || options.adoptExisting === true) || !composed && compositionPort !== undefined) throw new TypeError('Automatic and manual XTension composition cannot be mixed.');
   let createXTensionHost = options.createXTensionHost;
   let xtensionRoot = null;

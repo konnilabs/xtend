@@ -1,7 +1,7 @@
 {
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "649dcfe9cf6dba665612c46b94370484b8fbe05178b573b4739273ff173483b8",
+  "inventorySha256": "827fbb43a35f603039c6a49c7dad6313817047b57fb790a4fd3275e930d69adb",
   "productivePaths": [
     ".codex",
     ".comments/XScaler ATC.png.xml",
@@ -1168,6 +1168,9 @@
     "development/rmtx-a04/integration-inspect.cjs",
     "development/rmtx-a04/integration-reference.cjs",
     "development/rmtx-a04/integration.md",
+    "development/rmtx-a04/loading-evidence.json",
+    "development/rmtx-a04/loading-inspect.cjs",
+    "development/rmtx-a04/loading.md",
     "development/rmtx-a04/provider-graphs.md",
     "development/rmtx-a04/providers/controlled-react-panel.mjs",
     "development/rmtx-a04/providers/controlled-vue-panel.mjs",
@@ -3623,7 +3626,7 @@
     "xtendrmt/rmt-surface-transition-runtime.js",
     "xtendrmt/rmt.schema.json"
   ],
-  "authorityDecisionSha256": "f8095c5cbcf605bbaadc7ebb19d8ed9bad451ad441750dab0a8caf7fa960275b",
+  "authorityDecisionSha256": "75a1706c37cd2a532e02bc6087ea8a9e196365fab8b109336bc5b12cdd884da8",
   "note": "No union filtering or Core schema acceptance is inferred. Missing/pending exact projection blocks Core CI evidence and release preparation. Initial Candidate authority retirement remains a separate source guard.",
   "coreCandidateAuthoritySha256": "8fc57e4eb96a3a6fd0155234f06cc4b95879fc9d492fdaad8171e26345e4f865"
 }

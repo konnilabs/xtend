@@ -269,3 +269,5 @@ Lizenziert unter der Apache License 2.0. Siehe [LICENSE](../LICENSE).
 [Nach oben](#xtend-maraca) · [English](#english)
 
 A04.3.1 ergänzt **Kompositions-API 3**, Manifest v2 und Artefakt/Build-Bericht v3 für gepinnte lokale statische ESM-Providergraphen. Alle Module bleiben frei von Top-Level-Ausführung; Zyklen werden zurückgewiesen. Quell- und Ausgabedigests sowie gemeinsame Module fließen in die bestehenden strikten Größenbudgets ein. Manifest v1 und Artefakt/Bericht v1/v2 bleiben unterstützt. Vertrag und ausführbare Referenzen: [Provider-Modulgraphen](../development/rmtx-a04/provider-graphs.md).
+
+[A04.3.2](../development/rmtx-a04/loading.md) ergänzt Kompositions-API 4, Manifest v3, Artefakt/Bericht v4 und Ladeplan v1. Lokale Provider werden über feste native Imports erst im zugelassenen Kernel-/Fabric-Mount geladen; gemeinsame Ladeversuche besitzen getrennte Host-Lifetimes. Peers bleiben explizit pro Host. Bestehende Verträge und strikte Größenbudgets bleiben unterstützt.

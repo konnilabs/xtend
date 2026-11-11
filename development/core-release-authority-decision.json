@@ -4,8 +4,8 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "649dcfe9cf6dba665612c46b94370484b8fbe05178b573b4739273ff173483b8",
-  "sourceMembershipSha256": "a5918330aa316f12b5b010198bf0fdbf74458f3cc28007d5eec3ed4df215c3ae",
+  "inventorySha256": "827fbb43a35f603039c6a49c7dad6313817047b57fb790a4fd3275e930d69adb",
+  "sourceMembershipSha256": "ba1722f5dc2a656ac0b742fcbd269b2a42cc7dcc56e6282b9c5df60d54140c98",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
@@ -549,7 +549,7 @@
         },
         {
           "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
-          "sha256": "0f4b5305501fb3ff76dff718dbd769f4817ab26a55fd134020468d792f289441"
+          "sha256": "6193acd11abd5697ef9f6b271007c0e7f276aa14843abd98f83f1a68cd4ee517"
         },
         {
           "path": "development/rmtx-a01/README.md",
@@ -561,7 +561,7 @@
         },
         {
           "path": "development/rmtx-a01/inventory.json",
-          "sha256": "19eaa238bbce188c44b200c9f1ad9dee8499a8efb0b73ec8ae5a154a584a0734"
+          "sha256": "57a592f6c796a3b7c59d27f710b18ec0ef5100a1feeaca0dc69132ef6e0af10f"
         },
         {
           "path": "docs/de/rmt-vnext-authoring.md",
@@ -1424,5 +1424,54 @@
     "publicationGuardRetired": false,
     "freshCommittedCaptureRequired": true,
     "rationale": "Scoped A04.3.1 review: composition API 3 adds explicit manifest v2 and artifact/report v3 for pinned, closed, acyclic local static ESM provider graphs. All original bytes are captured before output; source and transformed-output provenance are separate, canonical module identities and shared imports are preserved. Whole-graph top-level restrictions retain native Kernel/Fabric/peer/factory admission and cancellation. Existing plan/config, Browser, PlanRuntime, Host and size-budget outer ABIs and every prior authoritative/released fingerprint set remain intact. Strict React/Vue/mixed budgets, packed consumers and 305 real cases per environment are mandatory. Loading/delivery strategy and complete 0.9 acceptance remain pending. See development/rmtx-a04/provider-graphs.md."
+  },
+  "a0432DeferredProviderLoadingReview": {
+    "format": 1,
+    "date": "2026-11-11",
+    "status": "reviewed-unreleased-deferred-provider-load-plan",
+    "stage": "A04.3.2",
+    "a04Complete": false,
+    "contract": "development/rmtx-a04/loading.md",
+    "newSchemaIds": [
+      "xtend.maraca.xtension-composition-artifact.v4",
+      "xtend.maraca.xtension-composition-build-report.v4",
+      "xtend.maraca.xtension-composition-manifest.v3",
+      "xtend.maraca.xtension-load-plan.v1"
+    ],
+    "scopedSchemaIds": [
+      "xtend.maraca.build-config.v5",
+      "xtend.maraca.xtension-composition-artifact.v3",
+      "xtend.maraca.xtension-composition-artifact.v4",
+      "xtend.maraca.xtension-composition-build-report.v3",
+      "xtend.maraca.xtension-composition-build-report.v4",
+      "xtend.maraca.xtension-composition-manifest.v2",
+      "xtend.maraca.xtension-composition-manifest.v3",
+      "xtend.maraca.xtension-load-plan.v1"
+    ],
+    "manifestVersion": 3,
+    "artifactVersion": 4,
+    "buildReportVersion": 4,
+    "loadPlanVersion": 1,
+    "buildApiVersion": "4.0.0",
+    "runtimeApiVersion": "4.0.0",
+    "peerLoading": "per-host",
+    "nativeImportTransportAbortable": false,
+    "legacyContractsRetained": true,
+    "nativeKernelAbiChanged": false,
+    "browserAbiChanged": false,
+    "planRuntimeAbiChanged": false,
+    "sizeBudgetReportVersion": 2,
+    "referenceRegressionLimits": {
+      "frameworkBytes": 2200000,
+      "xtensionRuntimeBytes": 240000
+    },
+    "rootExportCount": 214,
+    "contractChecks": 25,
+    "runtimeCasesPerEnvironment": 318,
+    "compilerChecks": 88,
+    "acceptedForRelease": false,
+    "publicationGuardRetired": false,
+    "freshCommittedCaptureRequired": true,
+    "rationale": "Scoped A04.3.2 review: composition API 4 adds explicit manifest v3, artifact/report v4 and load-plan v1 for native local provider imports started only in admitted Kernel/Fabric mount work. The exact transitive output closure, factory export, phase and external peer versions are derived from the pinned graph. Provider load attempts are shared per factory/provider with separate terminally fenced host waiters; peers remain explicit per host. Native import transport is not abortable and no CSP/HTTP byte attestation is claimed. Strict React/Vue/mixed budgets, real native HTTP imports, packed consumers and 318 actual cases per environment are mandatory. All prior contracts and authoritative/released fingerprint sets remain intact. Shared peer resolution, delivery integrity and complete 0.9 acceptance remain pending. See development/rmtx-a04/loading.md."
   }
 }

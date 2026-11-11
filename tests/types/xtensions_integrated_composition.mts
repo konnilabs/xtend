@@ -57,5 +57,18 @@ createMaracaBrowserCompositionRoot({ schema: 'xtend.maraca.browser-composition-r
 const invalidLegacy: XTensionCompositionManifest = { ...manifest, modules: graphManifest.modules };
 void [graphMajor, graphApi, invalidLegacy];
 const configReport = await buildMaracaXTensionComposition({ plan: graphPlan, manifest: graphPlan.xtensionComposition, bindingsRuntime, rootDir: '.', outputDir: 'dist' });
-const configReportSchema: 'xtend.maraca.xtension-composition-build-report.v1' | 'xtend.maraca.xtension-composition-build-report.v2' | 'xtend.maraca.xtension-composition-build-report.v3' = configReport.schema;
+const configReportSchema: 'xtend.maraca.xtension-composition-build-report.v4' | 'xtend.maraca.xtension-composition-build-report.v1' | 'xtend.maraca.xtension-composition-build-report.v2' | 'xtend.maraca.xtension-composition-build-report.v3' = configReport.schema;
 void configReportSchema;
+
+import type { DeferredXTensionCompositionManifest, DeferredXTensionHostCompositionOptions } from '@ccslabs/xtend/maraca/xtension-composition-runtime';
+declare const deferredManifest: DeferredXTensionCompositionManifest;
+const deferredPlan = createMaracaBuildPlan({ source: 'app.rmt', xtensionComposition: deferredManifest });
+const deferredReport = await buildMaracaXTensionComposition({ plan: deferredPlan, manifest: deferredManifest, bindingsRuntime, rootDir: '.', outputDir: 'dist' });
+const deferredMajor: 'xtend.maraca.xtension-composition-build-report.v4' = deferredReport.schema;
+const loadPlanMajor: 'xtend.maraca.xtension-load-plan.v1' = deferredReport.artifact.loadPlan.schema;
+const deferredRuntimePlan = { ...deferredPlan, xtensionComposition: deferredReport.artifact };
+const deferredPort = createMaracaXTensionCompositionPort({ plan: deferredRuntimePlan, companion: { artifact: deferredReport.artifact, createHostFactory() { return () => ({} as any); } }, bindingsRuntime, adapters: { react }, loadPeers: async () => ({}), grants: {} });
+createMaracaPlanRuntime({ ...runtimeOptions, plan: deferredRuntimePlan, xtensionCompositionPort: deferredPort });
+// @ts-expect-error Eager namespaces cannot replace a deferred provider loader.
+const deferredBypass: Pick<DeferredXTensionHostCompositionOptions, 'providers'> = { providers: {} };
+void [deferredMajor, loadPlanMajor, deferredBypass];

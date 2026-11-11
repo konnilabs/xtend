@@ -60,4 +60,4 @@ Das Vorbereitungs-Gate umfasst nun 14 blockierende Prüfungen. Historische Schem
 
 ## Nächste Grenze
 
-A04.3 führt mit expliziten Ladeplänen, Peer-Auflösung und Lazy-/CSP-/Auslieferungsnachweisen weiter. Framework-SSR/Adoption bleibt A05; RMTX-Syntax und DX bleiben A06. Angular, Vanilla und eine abweichende übergeordnete owning Surface benötigen eigene Integrationsnachweise.
+[A04.3.2](loading.md) ergänzt explizite Ladepläne und Provider-Importe beim Mount. Weitere Peer-/CSP-/Auslieferungsregeln bleiben offen. Framework-SSR/Adoption bleibt A05; RMTX-Syntax und DX bleiben A06. Angular, Vanilla und eine abweichende übergeordnete owning Surface benötigen eigene Integrationsnachweise.

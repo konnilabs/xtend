@@ -36,4 +36,9 @@ function withProviderGraph(input) {
   pin('./development/rmtx-a04/providers/graph/format.mjs');
   manifest.modules = [...modules.values()]; return value;
 }
-module.exports = { createBuildInput, buildIntegratedReference, withProviderGraph };
+function withDeferredProviders(input) {
+  const value = withProviderGraph(input);
+  value.xtensionComposition.schema = 'xtend.maraca.xtension-composition-manifest.v3';
+  value.xtensionComposition.loading = { provider: 'on-mount', peers: 'per-host' }; return value;
+}
+module.exports = { createBuildInput, buildIntegratedReference, withProviderGraph, withDeferredProviders };

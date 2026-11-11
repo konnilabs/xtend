@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { validateArtifact, canonical, freeze, copy, name, json } from './xtension-composition-contract.mjs';
-export const XTENSION_COMPOSITION_API_VERSION = '3.0.0';
+export const XTENSION_COMPOSITION_API_VERSION = '4.0.0';
 
 function capturePolicies(hosts, input) {
   const policies = new Map();
@@ -20,7 +20,7 @@ function capturePolicies(hosts, input) {
  * resulting port to its real controller/root and internally created Surfaces. */
 export function createMaracaXTensionCompositionPort(options) {
   const artifact = validateArtifact(options.companion?.artifact, options.plan, options.bindingsRuntime);
-  if (!['xtend.maraca.xtension-composition-artifact.v2', 'xtend.maraca.xtension-composition-artifact.v3'].includes(artifact.schema) || canonical(artifact) !== canonical(options.plan.xtensionComposition)) throw new TypeError('Integrated boot requires the exact built v2/v3 composition artifact.');
+  if (!['xtend.maraca.xtension-composition-artifact.v2', 'xtend.maraca.xtension-composition-artifact.v3', 'xtend.maraca.xtension-composition-artifact.v4'].includes(artifact.schema) || canonical(artifact) !== canonical(options.plan.xtensionComposition)) throw new TypeError('Integrated boot requires the exact built v2/v3/v4 composition artifact.');
   const createHostFactory = options.companion.createHostFactory;
   if (typeof createHostFactory !== 'function' || typeof options.loadPeers !== 'function') throw new TypeError('The built companion and explicit peer loader are required.');
   const policies = capturePolicies(artifact.manifest.hosts, options.grants);
@@ -36,17 +36,32 @@ export function createMaracaXTensionCompositionPort(options) {
   });
 }
 
+/** Native import cannot be cancelled. Revoke this waiter without cancelling a
+ * sibling's shared import, and fence every continuation before peers/factories. */
+function waitForProvider(promise, signal) {
+  if (signal.aborted) return Promise.reject(new DOMException('Provider lifetime was revoked.', 'AbortError'));
+  return new Promise((resolve, reject) => {
+    const cancel = () => { signal.removeEventListener('abort', cancel); reject(new DOMException('Provider lifetime was revoked.', 'AbortError')); };
+    signal.addEventListener('abort', cancel, { once: true });
+    promise.then(value => { signal.removeEventListener('abort', cancel); if (signal.aborted) cancel(); else resolve(value); }, error => { signal.removeEventListener('abort', cancel); reject(error); });
+  });
+}
+
 /** Platform ports and loaded provider namespaces are trusted application inputs.
  * This composer neither fetches executable code nor treats a JSON hash as proof. */
 export function createMaracaXTensionHostFactory(options) {
   const artifact = validateArtifact(options.artifact, options.plan, options.bindingsRuntime);
+  const deferred = artifact.schema === 'xtend.maraca.xtension-composition-artifact.v4';
+  if ((deferred && options.providers !== undefined) || (!deferred && options.loadProviders !== undefined)) throw new TypeError('Provider namespace/loader ports must match the artifact version.');
+  const providerLoads = new Map();
   const providers = new Map(), policies = capturePolicies(artifact.manifest.hosts, options.grants);
   for (const provider of artifact.manifest.providers) {
     const namespace = options.providers?.[provider.id], adapter = options.adapters?.[provider.framework];
     const create = adapter?.[provider.framework === 'react' ? 'createReactKernelRuntimeAdapter' : 'createVueKernelRuntimeAdapter'];
     const normalize = adapter?.[provider.framework === 'react' ? 'normalizeReactPeers' : 'normalizeVuePeers'];
-    if (typeof namespace?.[provider.entry.exportName] !== 'function' || typeof create !== 'function' || typeof normalize !== 'function') throw new TypeError('The built provider factory and actual React/Vue adapter ports are required.');
-    providers.set(provider.id, { definition: provider, factory: namespace[provider.entry.exportName], create, normalize });
+    const loadProvider = options.loadProviders?.[provider.id];
+    if ((deferred ? typeof loadProvider !== 'function' : typeof namespace?.[provider.entry.exportName] !== 'function') || typeof create !== 'function' || typeof normalize !== 'function') throw new TypeError('The built provider factory and actual React/Vue adapter ports are required.');
+    providers.set(provider.id, { definition: provider, factory: namespace?.[provider.entry.exportName], loadProvider, create, normalize });
   }
   if (typeof options.loadPeers !== 'function') throw new TypeError('An explicit external-peer loader is required.');
   const loadPeers = options.loadPeers, fabric = options.fabric;
@@ -75,11 +90,33 @@ export function createMaracaXTensionHostFactory(options) {
       policy: { events, allowedResources: grants.data.allowedResources, authorize: grants.authorize, validateProps: grants.validateProps },
       capabilityRequirements: definition.capabilityRequirements, expectedVersions: provider.definition.peers,
       async loadRuntime({ signal }) {
+        let factory = provider.factory;
+        if (deferred) {
+          if (signal.aborted) throw new DOMException('Provider lifetime was revoked.', 'AbortError');
+          let pending = providerLoads.get(provider.definition.id);
+          if (!pending) {
+            let resolveLoad, rejectLoad;
+            pending = new Promise((resolve, reject) => { resolveLoad = resolve; rejectLoad = reject; });
+            providerLoads.set(provider.definition.id, pending);
+            // Start the literal import synchronously in the admitted callback.
+            // Install the shared promise first, including for trusted reentry.
+            try {
+              Promise.resolve(provider.loadProvider()).then(namespace => {
+                const value = namespace?.[provider.definition.entry.exportName];
+                if (typeof value !== 'function') throw new TypeError('Loaded provider namespace lacks its declared factory export.');
+                return value;
+              }).then(resolveLoad, rejectLoad);
+            } catch (error) { rejectLoad(error); }
+            pending.catch(() => { if (providerLoads.get(provider.definition.id) === pending) providerLoads.delete(provider.definition.id); });
+          }
+          factory = await waitForProvider(pending, signal);
+        }
+        if (signal.aborted) throw new DOMException('Provider lifetime was revoked.', 'AbortError');
         const loaded = await loadPeers(Object.freeze({ provider: provider.definition, signal }));
         if (signal.aborted) throw new DOMException('Provider lifetime was revoked.', 'AbortError');
         peers = provider.normalize(loaded);
         for (const [key, version] of Object.entries(provider.definition.peers)) if (peers.versions[key] !== version) throw new TypeError(`External peer ${key} does not match the verified build manifest.`);
-        component = provider.factory(Object.freeze(framework === 'react' ? { React: peers.React, ReactDOM: peers.ReactDOM } : { Vue: peers.Vue }));
+        component = factory(Object.freeze(framework === 'react' ? { React: peers.React, ReactDOM: peers.ReactDOM } : { Vue: peers.Vue }));
         if (!component || !['function', 'object'].includes(typeof component) || typeof component.then === 'function') throw new TypeError('Provider factory must synchronously return a precompiled component.');
         if (signal.aborted) throw new DOMException('Provider lifetime was revoked.', 'AbortError');
         return loaded;

@@ -4,7 +4,7 @@ import type {
 } from '@ccslabs/xtend-compiler/xtensions/react-runtime-adapter';
 import type { XTensionBindingHostContext, XTensionStateBindingArtifact } from '@ccslabs/xtend-compiler/xtensions/state-binding';
 import type { MaracaBuildPlan } from './index';
-export const XTENSION_COMPOSITION_API_VERSION: '3.0.0';
+export const XTENSION_COMPOSITION_API_VERSION: '4.0.0';
 export type XTensionCompositionProvider = {
   readonly id: string;
   readonly version: string;
@@ -86,8 +86,8 @@ export interface MaracaXTensionCompositionPort {
   bind(ports: Pick<XTensionHostCompositionOptions, 'fabric' | 'kernelWork' | 'resourceGraph'> & { readonly plan: Parameters<typeof createMaracaXTensionCompositionPort>[0]['plan'] }): (context: XTensionCompositionHostContext) => NegotiatedRuntimeHostController;
 }
 export function createMaracaXTensionCompositionPort(options: {
-  readonly plan: Omit<import('./index').MaracaComposedBuildPlan, 'xtensionComposition'> & { readonly xtensionComposition: IntegratedXTensionCompositionArtifact | GraphXTensionCompositionArtifact };
-  readonly companion: { readonly artifact: IntegratedXTensionCompositionArtifact | GraphXTensionCompositionArtifact; createHostFactory(ports: any): (context: XTensionCompositionHostContext) => NegotiatedRuntimeHostController };
+  readonly plan: Omit<import('./index').MaracaComposedBuildPlan, 'xtensionComposition'> & { readonly xtensionComposition: IntegratedXTensionCompositionArtifact | GraphXTensionCompositionArtifact | DeferredXTensionCompositionArtifact };
+  readonly companion: { readonly artifact: IntegratedXTensionCompositionArtifact | GraphXTensionCompositionArtifact | DeferredXTensionCompositionArtifact; createHostFactory(ports: any): (context: XTensionCompositionHostContext) => NegotiatedRuntimeHostController };
   readonly bindingsRuntime: XTensionCompositionBindingRuntime;
   readonly adapters: XTensionHostCompositionOptions['adapters'];
   readonly loadPeers: XTensionHostCompositionOptions['loadPeers'];
@@ -99,7 +99,7 @@ export interface GraphXTensionCompositionManifest extends Omit<XTensionCompositi
   readonly schema: 'xtend.maraca.xtension-composition-manifest.v2';
   readonly modules: readonly { readonly module: string; readonly sha256: string }[];
 }
-export type AnyXTensionCompositionManifest = XTensionCompositionManifest | GraphXTensionCompositionManifest;
+export type AnyXTensionCompositionManifest = XTensionCompositionManifest | GraphXTensionCompositionManifest | DeferredXTensionCompositionManifest;
 export interface GraphXTensionCompositionArtifact extends Omit<XTensionCompositionArtifact, 'schema' | 'apiVersion' | 'plan' | 'manifest' | 'providers'> {
   readonly schema: 'xtend.maraca.xtension-composition-artifact.v3'; readonly apiVersion: '3.0.0';
   readonly plan: XTensionCompositionArtifact['plan'] | (Omit<XTensionCompositionArtifact['plan'], 'schema'> & { readonly schema: 'xtend.maraca.build-plan.v5'; readonly compositionManifest: GraphXTensionCompositionManifest });
@@ -116,3 +116,30 @@ export interface GraphXTensionHostCompositionOptions extends Omit<XTensionHostCo
   readonly plan: MaracaBuildPlan | import('./index').MaracaComposedBuildPlan;
 }
 export function createMaracaXTensionHostFactory(options: GraphXTensionHostCompositionOptions): (context: XTensionCompositionHostContext) => NegotiatedRuntimeHostController;
+
+export interface DeferredXTensionCompositionManifest extends Omit<GraphXTensionCompositionManifest, 'schema'> {
+  readonly schema: 'xtend.maraca.xtension-composition-manifest.v3';
+  readonly loading: { readonly provider: 'on-mount'; readonly peers: 'per-host' };
+}
+export interface XTensionLoadPlan {
+  readonly schema: 'xtend.maraca.xtension-load-plan.v1';
+  readonly providers: readonly {
+    readonly providerId: string; readonly mode: 'on-mount'; readonly phase: 'kernel.fabric.mount';
+    readonly entryFile: string; readonly exportName: string; readonly modules: readonly string[];
+    readonly peers: { readonly mode: 'per-host'; readonly framework: 'react' | 'vue'; readonly versions: Readonly<Record<string, string>> };
+  }[];
+}
+export interface DeferredXTensionCompositionArtifact extends Omit<GraphXTensionCompositionArtifact, 'schema' | 'apiVersion' | 'plan' | 'manifest'> {
+  readonly schema: 'xtend.maraca.xtension-composition-artifact.v4'; readonly apiVersion: '4.0.0';
+  readonly plan: XTensionCompositionArtifact['plan'] | (Omit<XTensionCompositionArtifact['plan'], 'schema'> & { readonly schema: 'xtend.maraca.build-plan.v5'; readonly compositionManifest: DeferredXTensionCompositionManifest });
+  readonly manifest: DeferredXTensionCompositionManifest;
+  readonly loadPlan: XTensionLoadPlan;
+}
+export interface DeferredXTensionHostCompositionOptions extends Omit<XTensionHostCompositionOptions, 'artifact' | 'plan' | 'providers'> {
+  readonly artifact: DeferredXTensionCompositionArtifact;
+  readonly plan: MaracaBuildPlan | import('./index').MaracaComposedBuildPlan;
+  readonly providers?: never;
+  /** Trusted native-import closures from the generated companion; imports cannot be transport-aborted. */
+  readonly loadProviders: Readonly<Record<string, () => unknown | Promise<unknown>>>;
+}
+export function createMaracaXTensionHostFactory(options: DeferredXTensionHostCompositionOptions): (context: XTensionCompositionHostContext) => NegotiatedRuntimeHostController;

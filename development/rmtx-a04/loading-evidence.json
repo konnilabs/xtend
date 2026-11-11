@@ -1,0 +1,74 @@
+{
+  "format": 1,
+  "stage": "A04.3.2-deferred-provider-load-plan",
+  "status": "implemented",
+  "manifestVersion": 3,
+  "artifactVersion": 4,
+  "buildReportVersion": 4,
+  "loadPlanVersion": 1,
+  "apiVersion": "4.0.0",
+  "peerLoading": "per-host",
+  "nativeImportTransportAbortable": false,
+  "runtimeExecutionVerified": false,
+  "acceptedForRelease": false,
+  "checks": 25,
+  "names": [
+    "explicit v3 policy builds a v4 companion with only literal deferred provider imports",
+    "load plan exactly binds reachable output files, export and external peer versions",
+    "reject missing loading policy before output",
+    "reject implicit eager policy before output",
+    "reject unimplemented peer cache before output",
+    "reject injected remote loader before output",
+    "reject legacy v2 cannot accept v3 policy before output",
+    "reject forged load-plan schema before runtime ports",
+    "reject forged load-plan missing provider before runtime ports",
+    "reject forged load-plan extra provider before runtime ports",
+    "reject forged load-plan entry path before runtime ports",
+    "reject forged load-plan missing transitive member before runtime ports",
+    "reject forged load-plan injected transitive member before runtime ports",
+    "reject forged load-plan execution phase before runtime ports",
+    "reject forged load-plan peer version before runtime ports",
+    "reject forged load-plan factory export before runtime ports",
+    "deferred artifacts reject eager namespace authority before grants or runtime ports",
+    "legacy graph artifacts reject deferred loader authority",
+    "deferred graph rejects declared then export before output",
+    "deferred graph rejects aliased then export before output",
+    "new manifest normalization is deterministic and retains full graph pins",
+    "react: strict regular build emits a deferred graph and enforces unchanged size limits",
+    "vue: strict regular build emits a deferred graph and enforces unchanged size limits",
+    "mixed: strict regular build emits a deferred graph and enforces unchanged size limits",
+    "real CLI build-config v5 produces the deferred v4 report and load plan"
+  ],
+  "sizes": {
+    "react": {
+      "frameworkBytes": 1988161,
+      "xtensionRuntimeBytes": 210303
+    },
+    "vue": {
+      "frameworkBytes": 1986126,
+      "xtensionRuntimeBytes": 208610
+    },
+    "mixed": {
+      "frameworkBytes": 2037544,
+      "xtensionRuntimeBytes": 233258
+    }
+  },
+  "sources": {
+    "xtend-maraca/xtension-provider-graph.js": "430489cfdc655bc6a38d25012563588d209fdee7b220f6a75fa3d9c4a312550e",
+    "xtend-maraca/xtension-composition.js": "67f31d2fc822b316d2a0e94a2cea6018c91a91910a156188255c7ac73eddf2bc",
+    "xtend-maraca/xtension-composition-contract.mjs": "e96a7cfdea2d51321375011a9c9b14c1949ed30a2eaa240ab179711afe63d86a",
+    "xtend-maraca/xtension-composition-runtime.mjs": "c5eb9a9985c3ef8df5c3a340a96129f1b9b63fb051c521a43ac9fbd67e63bf0c",
+    "xtend-maraca/xtension-composition.d.ts": "cb3ad66a13559d60e7b722fffc61c82ee0e6ca7c7c870627e097f87f406b002b",
+    "xtend-maraca/xtension-composition-runtime.d.ts": "5b786f838cdd57c5aa20a8ebe17375c97ed40191248d1abb404db154e9476fc7",
+    "xtend-maraca/xtension-size-budget.js": "c9483f0a9b234fa4b502637baee6115b19812d68313e4817a38e02c8845ad25c",
+    "xtend-maraca/browser-composition-runtime.mjs": "18fa5db0e04ea762c393be915ce401bc2c03444bcfdfab00558bb7c027052b59",
+    "xtend-maraca/plan-runtime.mjs": "723348a022e7ffabcd5b4d4d0115fcb60da8ef81098f9b80e44e4cc6fd787c6b",
+    "development/rmtx-a04/loading-inspect.cjs": "77ddb03ff81670070ec9a4c461fe606bd3121af90e7c25445dff3d49129bb854",
+    "development/rmtx-a04/integration-reference.cjs": "17f6a982e13e091bd16efee601e15c6ea8b6a70a52ade84e4e3e2e7da62b8068",
+    "scripts/test_xtensions_runtime_adapters.cjs": "bfe7f55b99cd22444c6f82a1ad884306ebc7628cfacadd6c3b56f5bba0f5db5e",
+    "tests/xtensions/integrated-composition-acceptance.js": "91bf4284ad9918c3b8f3261a061ac4c2f6656d6e6289eeb1e43c9d3d84c22a4b",
+    "tests/xtensions/xtensions_runtime_gate_suite.js": "7a3d0e6a1dafdd191b6c2bb92d715e1b475c7fb7cb48192d2757379bbb56ed67",
+    "tests/xtensions/xtensions_consumer_package_suite.js": "8eaab0b9e0d570179ae11fe74027cb5d938e7f6168f9b787b7d953eab31dd426",
+    "tests/types/xtensions_integrated_composition.mts": "f19215a8abe5331481b31dd2b045479a0a5db041689d88a56ee612d319606b15"
+  }
+}

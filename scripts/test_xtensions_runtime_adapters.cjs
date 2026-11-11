@@ -23,13 +23,14 @@ async function main() {
   const compositionReports = Object.fromEntries(await Promise.all(['react', 'vue'].map(async framework => [framework, await compositionReference.buildReference(compositionPlan, path.join(compositionTemp, framework), framework)])));
   const compositions = Object.fromEntries(await Promise.all(Object.entries(compositionReports).map(async ([framework, report]) => [framework, await import(require('node:url').pathToFileURL(report.entryPath).href)])));
   const integratedDirectories = {}, companionEntries = {};
-  for (const framework of ['react', 'vue', 'mixed']) {
-    const directory = path.join(compositionTemp, 'integrated-' + framework);
+  for (const key of ['react', 'vue', 'mixed', 'deferred-react', 'deferred-vue', 'deferred-mixed']) {
+    const framework = key.replace('deferred-', '');
+    const directory = path.join(compositionTemp, 'integrated-' + key);
     const reference = require('../development/rmtx-a04/integration-reference.cjs');
-    const built = await require('../xtend-maraca').buildMaracaBundleAsync(reference.withProviderGraph(reference.createBuildInput(framework, directory, { profile: framework === 'vue' ? 'max' : 'production' })), { rootDir: root });
+    const built = await require('../xtend-maraca').buildMaracaBundleAsync(reference[key.startsWith('deferred-') ? 'withDeferredProviders' : 'withProviderGraph'](reference.createBuildInput(framework, directory, { profile: framework === 'vue' ? 'max' : 'production' })), { rootDir: root });
     if (!built.ok) throw new Error('Integrated build failed: ' + JSON.stringify(built.plan.diagnostics));
-    integratedDirectories[framework] = directory;
-    companionEntries[framework] = JSON.parse(fs.readFileSync(path.join(directory, 'xtend.xtensions.report.json'))).artifact.entryFile;
+    integratedDirectories[key] = directory;
+    companionEntries[key] = JSON.parse(fs.readFileSync(path.join(directory, 'xtend.xtensions.report.json'))).artifact.entryFile;
   }
   let report;
   if (browser) {
@@ -52,9 +53,9 @@ async function main() {
       const companionEntries = ${JSON.stringify(companionEntries)};
       window.runAcceptance = async () => {
         const integratedApps = {};
-        for (const framework of ['react', 'vue', 'mixed']) {
+        for (const framework of ['react', 'vue', 'mixed', 'deferred-react', 'deferred-vue', 'deferred-mixed']) {
           const base = 'http://xtend.test/generated/' + framework + '/';
-          integratedApps[framework] = { entry: await import(base + 'xtend.maraca.mjs'), platform: (await import(base + 'runtime/xtension-platform.mjs')).default, companion: await import(base + companionEntries[framework]) };
+          integratedApps[framework] = { entry: await import(base + 'xtend.maraca.mjs'), platform: (await import(base + 'runtime/xtension-platform.mjs')).default, companion: await import(base + companionEntries[framework]), readProviderRequests: () => window.__readXTensionRequests(framework) };
         }
         return runRuntimeAcceptance({React,ReactDOM:{...client,version:dom.version},Vue,document,compiledBindingPlan,conditionalBindingPlan,repeatedBindingPlan,compositionPlan,compositions,integratedApps}); };`, resolveDir: root },
       nodePaths: [path.resolve(peerRoot, 'node_modules')], bundle: true, platform: 'browser', write: false,
@@ -62,9 +63,11 @@ async function main() {
     const instance = await chromium.launch({ executablePath: process.env.CHROME_BIN || '/usr/bin/chromium', headless: true });
     try {
       const page = await instance.newPage();
+      const requests = []; await page.exposeFunction('__readXTensionRequests', key => requests.filter(row => row.startsWith('/generated/' + key + '/providers/')));
       const errors = []; page.on('pageerror', (error) => errors.push(error.message));
       await page.route('http://xtend.test/**', route => {
-        const pathname = new URL(route.request().url()).pathname, match = pathname.match(/^\/generated\/(react|vue|mixed)\/(.+)$/);
+        const pathname = new URL(route.request().url()).pathname, match = pathname.match(/^\/generated\/((?:deferred-)?(?:react|vue|mixed))\/(.+)$/);
+        requests.push(pathname);
         if (match) {
           const directory = integratedDirectories[match[1]], file = path.resolve(directory, match[2]);
           if (!file.startsWith(directory + path.sep) || !fs.existsSync(file)) return route.fulfill({ status: 404, body: 'Missing generated asset' });
@@ -113,5 +116,5 @@ async function main() {
   if (!report.ok) process.exitCode = 1;
   } finally { fs.rmSync(compositionTemp, { recursive: true, force: true }); }
 }
-const deadline = setTimeout(() => { console.error('Runtime acceptance timed out before producing a complete report.'); process.exit(1); }, 60000);
+const deadline = setTimeout(() => { console.error('Runtime acceptance timed out before producing a complete report.'); process.exit(1); }, 90000);
 main().catch((error) => { console.error(error); process.exitCode = 1; }).finally(() => clearTimeout(deadline));
