@@ -137,8 +137,8 @@ const peers=createRequire(process.env.XTENSIONS_TEST_PEERS+'/package.json');
   const fs = require('node:fs'), path = require('node:path'), {createHash} = require('node:crypto');
   const compositionRuntime = await import('@ccslabs/xtend/maraca/xtension-composition-runtime');
   const maracaRuntime = await import('@ccslabs/xtend-maraca/xtension-composition-runtime');
-  assert.equal(maracaRuntime.XTENSION_COMPOSITION_API_VERSION, '6.0.0');
-  assert.equal(require('@ccslabs/xtend-maraca/xtension-composition').XTENSION_COMPOSITION_BUILD_API_VERSION, '9.0.0');
+  assert.equal(maracaRuntime.XTENSION_COMPOSITION_API_VERSION, '7.0.0');
+  assert.equal(require('@ccslabs/xtend-maraca/xtension-composition').XTENSION_COMPOSITION_BUILD_API_VERSION, '10.0.0');
   const compositionPlan = ${JSON.stringify(require('../../development/rmtx-a04/reference.cjs').createPlan())};
   const sources = ${JSON.stringify(Object.fromEntries(['react', 'vue'].map(framework => [framework, fs.readFileSync(path.join(rootDir, 'development/rmtx-a04/providers', framework + '-panel.mjs'), 'utf8')])))};
   const manifests = ${JSON.stringify(Object.fromEntries(['react', 'vue'].map(framework => [framework, require('../../development/rmtx-a04/reference.cjs').createManifest(framework)])))};
@@ -219,7 +219,7 @@ const peers=createRequire(process.env.XTENSIONS_TEST_PEERS+'/package.json');
    const generated = await import(require('node:url').pathToFileURL(path.join(out,'xtend.maraca.mjs')));
    const root=document.createElement('main'); document.body.append(root); const app=generated.createXtendMaraca({windowTarget:window,documentTarget:document,platformTarget:{}});
    await app.boot({root,fabric:createXtendFabric(),xtensions:{loadPeerGroup:()=>framework==='react'?{React,ReactDOM}:{Vue},grants:{'filter-panel':{work:{scan:{lane:'background'}},workBudget:{schema:'xtend.xtensions.work-budget-policy.v1',maxPending:1,work:{scan:{maxPending:1}}}}}}});
-   assert.equal(app.apiVersion,'6.0.0');assert.equal(app.facade.snapshot().schema,'xtend.maraca.plan-runtime.v8');assert.equal(root.querySelectorAll('input').length,3);
+   assert.equal(app.apiVersion,'7.0.0');assert.equal(app.facade.snapshot().schema,'xtend.maraca.plan-runtime.v8');assert.equal(root.querySelectorAll('input').length,3);
    app.dispose();await app.facade.whenXTensionsIdle();assert.equal(root.querySelectorAll('input').length,0);root.remove();
   }
  }finally{dom.window.close();}
@@ -241,7 +241,8 @@ import {createMaracaXTensionHostFactory as workspace} from '@ccslabs/xtend-marac
 const composition: typeof workspace = createMaracaXTensionHostFactory; void composition; void buildMaracaXTensionComposition;\n`);
     const integratedTyping=path.join(temp,'integrated-consumer.mts');
     fs.copyFileSync(path.join(rootDir,'tests/types/xtensions_integrated_composition.mts'),integratedTyping);
-    command(process.execPath,[path.join(rootDir,'node_modules/typescript/bin/tsc'),'--strict','--noEmit','--lib','es2022,dom','--module','node16','--moduleResolution','node16',typing,integratedTyping],{cwd:temp});
+    const ssrTyping=path.join(temp,'xtensions_ssr.mts');fs.copyFileSync(path.join(rootDir,'tests/types/xtensions_ssr.mts'),ssrTyping);
+    command(process.execPath,[path.join(rootDir,'node_modules/typescript/bin/tsc'),'--strict','--noEmit','--lib','es2022,dom','--module','node16','--moduleResolution','node16',typing,integratedTyping,ssrTyping],{cwd:temp});
     context.pass('Packed root/compiler state binding declarations resolve strictly without source-tree RMT imports');
     const { build } = require('esbuild');
     const bundle=await build({stdin:{contents:"import * as XTend from '@ccslabs/xtend'; import * as ReactAdapter from '@ccslabs/xtend/xtensions/react-runtime-adapter'; import * as VueAdapter from '@ccslabs/xtend/xtensions/vue-runtime-adapter'; import * as StateBinding from '@ccslabs/xtend/xtensions/state-binding'; import * as Composition from '@ccslabs/xtend/maraca/xtension-composition-runtime'; globalThis.consumer={XTend,ReactAdapter,VueAdapter,StateBinding,Composition};",resolveDir:temp},absWorkingDir:temp,bundle:true,platform:'browser',write:false,metafile:true});

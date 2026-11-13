@@ -104,3 +104,16 @@ export function createXTensionStateRegistry(options: {
   flush(): Promise<void>;
   dispose(): Promise<void>;
 };
+
+export const XTENSION_RESUME_STATE_BINDING_API_VERSION: '3.0.0';
+export interface XTensionResumeBoundInstance extends XTensionBoundInstance {
+  adopt(target?: Element): Promise<XTensionBindingSnapshot>;
+  replay(event: { type: string; payload: Readonly<Record<string, unknown>> }): unknown;
+  getSSRReport(): import('./runtime-host-controller').FrameworkSSRResult | null;
+}
+export function createXTensionResumeStateRegistry(options: Parameters<typeof createXTensionStateRegistry>[0]): {
+  readonly apiVersion: '3.0.0';
+  bind(definition: XTensionStateBinding, createHost: (context: XTensionBindingHostContext) => import('./runtime-host-controller').SSRRuntimeHostController): XTensionResumeBoundInstance;
+  flush(): Promise<void>;
+  dispose(): Promise<void>;
+};

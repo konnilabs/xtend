@@ -22,10 +22,10 @@ const portMajor: 'xtend.maraca.xtension-composition-port.v1' = port.schema;
 declare const runtimeOptions: Omit<ComposedMaracaPlanRuntimeOptions, 'plan' | 'xtensionCompositionPort'>;
 const runtime = createMaracaPlanRuntime({ ...runtimeOptions, plan: runtimePlan, xtensionCompositionPort: port });
 const runtimeMajor: typeof XTENSION_PLAN_RUNTIME_SCHEMA = runtime.snapshot().schema;
-const app = createMaracaBrowserCompositionRoot({ schema: 'xtend.maraca.browser-composition-root.v6', buildPlanSchema: plan.schema, xtensionComposition: report.artifact });
+const app = createMaracaBrowserCompositionRoot({ schema: 'xtend.maraca.browser-composition-root.v7', buildPlanSchema: plan.schema, xtensionComposition: report.artifact });
 const appMajor: typeof MARACA_XTENSION_BROWSER_API_VERSION = app.apiVersion;
 await app.boot({ fabric: ports.fabric, xtensions: { loadPeers: async () => ({}), grants: {} } });
-const snapshotMajor: typeof runtimeMajor = app.facade.snapshot().schema;
+const snapshotMajor: typeof runtimeMajor | 'xtend.maraca.plan-runtime.v9' = app.facade.snapshot().schema;
 // @ts-expect-error Automatic composition requires an explicit Fabric and peer/grant policy.
 app.boot({});
 // @ts-expect-error Manual factories cannot bypass the automatic composition contract.
@@ -52,7 +52,7 @@ const graphApi: '3.0.0' = graphReport.artifact.apiVersion;
 const graphRuntimePlan = { ...graphPlan, xtensionComposition: graphReport.artifact };
 const graphPort = createMaracaXTensionCompositionPort({ plan: graphRuntimePlan, companion: { artifact: graphReport.artifact, createHostFactory() { return () => ({} as any); } }, bindingsRuntime, adapters: { react }, loadPeers: async () => ({}), grants: {} });
 createMaracaPlanRuntime({ ...runtimeOptions, plan: graphRuntimePlan, xtensionCompositionPort: graphPort });
-createMaracaBrowserCompositionRoot({ schema: 'xtend.maraca.browser-composition-root.v6', buildPlanSchema: graphPlan.schema, xtensionComposition: graphReport.artifact });
+createMaracaBrowserCompositionRoot({ schema: 'xtend.maraca.browser-composition-root.v7', buildPlanSchema: graphPlan.schema, xtensionComposition: graphReport.artifact });
 // @ts-expect-error Legacy manifests cannot declare a transitive module inventory.
 const invalidLegacy: XTensionCompositionManifest = { ...manifest, modules: graphManifest.modules };
 void [graphMajor, graphApi, invalidLegacy];

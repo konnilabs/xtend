@@ -21,7 +21,7 @@ function requests(input) {
   if (result.features.some(key => !featureNames.includes(key))) throw new TypeError('Unknown runtime capability requirement.');
   return result;
 }
-function createHostCapabilityNegotiation(input, { framework, kernelCapabilities, graph, budget, allowedResources, events }) {
+function createHostCapabilityNegotiation(input, { framework, kernelCapabilities, graph, budget, allowedResources, events, ssr }) {
   data(input); fields(input, ['schema', 'framework', 'required', 'optional'], 'Host capability requirements');
   if (input.schema !== 'xtend.xtensions.host-capability-requirements.v1') throw new TypeError('Host capability requirements v1 is required.');
   if (input.framework !== undefined && !['react', 'vue', 'angular', 'vanilla'].includes(input.framework)) throw new TypeError('Unknown required framework.');
@@ -33,13 +33,13 @@ function createHostCapabilityNegotiation(input, { framework, kernelCapabilities,
   fields(events, Object.keys(events), 'Event grants');
   const eventNames = names(Object.keys(events), 'Event grants');
   Object.values(events).forEach(name);
-  const capabilities = freeze({ schema: 'xtend.xtensions.runtime-capabilities.v2', framework,
+  const capabilities = freeze({ schema: ssr ? 'xtend.xtensions.runtime-capabilities.v3' : 'xtend.xtensions.runtime-capabilities.v2', framework,
     profile: budget ? 'budget' : graph ? 'graph' : 'kernel',
     features: {
       'kernel.lifecycle': true, 'fabric.boundary': true, 'props.controlled': true,
       'work.named': true, 'resources.cooperative': true, 'cancellation.cooperative': true,
       'surface.lifecycle': graph, 'work.bounded': budget, 'work.pressure-budgets': budget,
-      'framework.internal-scheduling': false, 'execution.preemption': false, 'render.ssr': false, 'render.adoption': false
+      'framework.internal-scheduling': false, 'execution.preemption': false, 'render.ssr': ssr === 'server', 'render.adoption': ssr === 'client'
     },
     grants: { work: [...kernelCapabilities.namedWork], resources, events: eventNames }
   });
@@ -50,7 +50,7 @@ function createHostCapabilityNegotiation(input, { framework, kernelCapabilities,
   const satisfied = request => categories.every(key => !request[key].length);
   const ok = frameworkMatched && satisfied(missingRequired), status = !ok ? 'blocked' : satisfied(missingOptional) ? 'matched' : 'degraded';
   const requirements = freeze({ schema: input.schema, ...(input.framework === undefined ? {} : { framework: input.framework }), required, optional });
-  const report = freeze({ schema: 'xtend.xtensions.host-capability-negotiation.v1', stage: 'preflight', status, ok,
+  const report = freeze({ schema: ssr ? 'xtend.xtensions.host-capability-negotiation.v2' : 'xtend.xtensions.host-capability-negotiation.v1', stage: 'preflight', status, ok,
     framework, requiredFramework: input.framework ?? null, frameworkMatched,
     requirements, capabilities, missingRequired, missingOptional,
     // Negotiation does not load a runtime, prove a peer version, or grant more authority.

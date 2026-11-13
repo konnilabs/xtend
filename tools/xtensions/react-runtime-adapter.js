@@ -2,6 +2,7 @@
 // Local extraction provenance and third-party notices: ./NOTICE
 'use strict';
 
+const { createFrameworkSSRAdapter, normalizeFrameworkSSRPeers } = require('./framework-ssr');
 const { createRuntimeHostController } = require('./runtime-host-controller');
 const { inspectReactPayloadBoundary } = require('./react-payload-boundary');
 const { normalizeReactRuntimeBoundary } = require('./react-runtime-boundary');
@@ -63,4 +64,8 @@ function createReactKernelRuntimeAdapter(options = {}) {
     normalizeBoundary: normalizeReactRuntimeBoundary, inspectPayload: inspectReactPayloadBoundary,
     normalizePeers: normalizeReactPeers, create: createReactInstance });
 }
-module.exports = { createReactRuntimeAdapter, createReactKernelRuntimeAdapter, normalizeReactPeers };
+function normalizeReactSSRPeers(loaded) { return normalizeFrameworkSSRPeers('server', 'react', loaded, normalizeReactPeers); }
+function createReactSSRRuntimeAdapter(options = {}) {
+  return createFrameworkSSRAdapter(options, { framework: 'react', normalizeBoundary: normalizeReactRuntimeBoundary, inspectPayload: inspectReactPayloadBoundary, normalizePeers: normalizeReactPeers });
+}
+module.exports = { normalizeReactSSRPeers, createReactSSRRuntimeAdapter, createReactRuntimeAdapter, createReactKernelRuntimeAdapter, normalizeReactPeers };

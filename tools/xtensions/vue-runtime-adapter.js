@@ -2,6 +2,7 @@
 // Local extraction provenance and third-party notices: ./NOTICE
 'use strict';
 
+const { createFrameworkSSRAdapter, normalizeFrameworkSSRPeers } = require('./framework-ssr');
 const { createRuntimeHostController } = require('./runtime-host-controller');
 const { inspectVuePayloadBoundary } = require('./vue-payload-boundary');
 const { normalizeVueRuntimeBoundary } = require('./vue-runtime-boundary');
@@ -39,4 +40,8 @@ function createVueKernelRuntimeAdapter(options = {}) {
     normalizeBoundary: normalizeVueRuntimeBoundary, inspectPayload: inspectVuePayloadBoundary,
     normalizePeers: normalizeVuePeers, create: createVueInstance });
 }
-module.exports = { createVueRuntimeAdapter, createVueKernelRuntimeAdapter, normalizeVuePeers };
+function normalizeVueSSRPeers(loaded) { return normalizeFrameworkSSRPeers('server', 'vue', loaded, normalizeVuePeers); }
+function createVueSSRRuntimeAdapter(options = {}) {
+  return createFrameworkSSRAdapter(options, { framework: 'vue', normalizeBoundary: normalizeVueRuntimeBoundary, inspectPayload: inspectVuePayloadBoundary, normalizePeers: normalizeVuePeers });
+}
+module.exports = { normalizeVueSSRPeers, createVueSSRRuntimeAdapter, createVueRuntimeAdapter, createVueKernelRuntimeAdapter, normalizeVuePeers };

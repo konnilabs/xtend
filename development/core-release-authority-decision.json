@@ -4,8 +4,8 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "2180dccd9205354f8390f25b1c0ce75f71fe19618529541efdba00e58f024640",
-  "sourceMembershipSha256": "987253821ed890a590e9124ac4cfda5c4e0543d2c1b034673f5a46febd098bcb",
+  "inventorySha256": "58d7410438fb915bc6c70a23f67914b3020ca1cc1909ed10d2cd6c81d39d187a",
+  "sourceMembershipSha256": "430f5ed4aeae5172b4f943cc6f30a5ddf0e84ed41ab520a1020a7a4e63f27339",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
@@ -549,7 +549,7 @@
         },
         {
           "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
-          "sha256": "5e9b1dd77c3ac0fcb7598bb9de3bb1daab6121515dac76fd8e087e58afb68b82"
+          "sha256": "4e976a390e87b1284058696e0abfaba0722e1856e041df8e9c36c1323ae7445e"
         },
         {
           "path": "development/rmtx-a01/README.md",
@@ -561,7 +561,7 @@
         },
         {
           "path": "development/rmtx-a01/inventory.json",
-          "sha256": "225c1f28d864cfac932ed09db66fdcecade22f67c4b18deac686d85df8e5e1d6"
+          "sha256": "a31374a1e7abbf2c7c6e976b71eef687e93df7b0e28481a800fe52c4c435377c"
         },
         {
           "path": "docs/de/rmt-vnext-authoring.md",
@@ -1845,5 +1845,93 @@
     "publicationGuardRetired": false,
     "freshCommittedCaptureRequired": true,
     "rationale": "A04.3.7 same-version bugfix explicitly requested by Konni on 2026-11-13: overwrite the affected existing schemas rather than bump their versions. Build API9, deployment API3, config/manifest/result v3, runtime policy v2 and client API1 remain unchanged. A stable bounded same-origin advisory revision head discovers a newer deployment in one open tab without fetching an obsolete worker or granting worker/cache authority. Digest-anchored public snapshots load only a predecessor's own static closure; they need no ancestor, HTML, worker, discovery or private server bytes and cannot act as an active HTTP deployment. Natural activation, exact CSP and unanimous client consent remain enforced. Sixty-four real Chromium cases and twenty-nine build/restart checks include actual fresh-process restart after pruning and positive multi-client cache retirement. Browser tests now actually await asynchronous registration conditions. Only the two affected unreleased client/response baselines are updated in place; all other authority/released sets and historical inventory remain unchanged. Current strict size ceilings, native Kernel/Fabric admission, older data forms and pending full 0.9 acceptance remain explicit. See development/rmtx-a04/updates.md."
+  },
+  "a05FrameworkSSRReview": {
+    "format": 1,
+    "date": "2026-11-13",
+    "status": "reviewed-unreleased-versioned-extension",
+    "stage": "A05",
+    "contract": "development/rmtx-a05/README.md",
+    "newSchemaIds": [
+      "xtend.maraca.browser-composition-root.v7",
+      "xtend.maraca.plan-runtime.v9",
+      "xtend.maraca.xtension-composition-port.v2",
+      "xtend.maraca.xtension-ssr-intent.v1",
+      "xtend.maraca.xtension-ssr-options.v1",
+      "xtend.maraca.xtension-ssr-payload.v1",
+      "xtend.maraca.xtension-ssr-report.v1",
+      "xtend.maraca.xtension-ssr-response.v1",
+      "xtend.maraca.xtension-ssr-session.v1",
+      "xtend.maraca.xtension-ssr-snapshot.v1",
+      "xtend.xtensions.framework-ssr-result.v1",
+      "xtend.xtensions.host-capability-negotiation.v2",
+      "xtend.xtensions.react-runtime-adapter.v7",
+      "xtend.xtensions.runtime-capabilities.v3",
+      "xtend.xtensions.runtime-host-controller.v7",
+      "xtend.xtensions.ssr-acceptance-report.v1",
+      "xtend.xtensions.vue-runtime-adapter.v7"
+    ],
+    "supersededFamilyCurrents": [
+      "xtend.maraca.browser-composition-root.v6",
+      "xtend.maraca.plan-runtime.v8",
+      "xtend.maraca.xtension-composition-port.v1",
+      "xtend.xtensions.host-capability-negotiation.v1",
+      "xtend.xtensions.react-runtime-adapter.v6",
+      "xtend.xtensions.runtime-capabilities.v2",
+      "xtend.xtensions.runtime-host-controller.v6",
+      "xtend.xtensions.vue-runtime-adapter.v6"
+    ],
+    "scopedSchemaIds": [
+      "xtend.maraca.browser-composition-root.v6",
+      "xtend.maraca.browser-composition-root.v7",
+      "xtend.maraca.plan-runtime.v8",
+      "xtend.maraca.plan-runtime.v9",
+      "xtend.maraca.xtension-composition-port.v1",
+      "xtend.maraca.xtension-composition-port.v2",
+      "xtend.maraca.xtension-ssr-intent.v1",
+      "xtend.maraca.xtension-ssr-options.v1",
+      "xtend.maraca.xtension-ssr-payload.v1",
+      "xtend.maraca.xtension-ssr-report.v1",
+      "xtend.maraca.xtension-ssr-response.v1",
+      "xtend.maraca.xtension-ssr-session.v1",
+      "xtend.maraca.xtension-ssr-snapshot.v1",
+      "xtend.xtensions.framework-ssr-result.v1",
+      "xtend.xtensions.host-capability-negotiation.v1",
+      "xtend.xtensions.host-capability-negotiation.v2",
+      "xtend.xtensions.react-runtime-adapter.v6",
+      "xtend.xtensions.react-runtime-adapter.v7",
+      "xtend.xtensions.runtime-capabilities.v2",
+      "xtend.xtensions.runtime-capabilities.v3",
+      "xtend.xtensions.runtime-host-controller.v2",
+      "xtend.xtensions.runtime-host-controller.v6",
+      "xtend.xtensions.runtime-host-controller.v7",
+      "xtend.xtensions.ssr-acceptance-report.v1",
+      "xtend.xtensions.vue-runtime-adapter.v6",
+      "xtend.xtensions.vue-runtime-adapter.v7",
+      "xtend.xtensions.work-budget-policy.v1"
+    ],
+    "allPriorAuthoritySetsPreserved": 2208,
+    "buildApiVersion": "10.0.0",
+    "compositionApiVersion": "7.0.0",
+    "browserApiVersion": "7.0.0",
+    "hostApiVersion": "7.0.0",
+    "resumeBindingApiVersion": "3.0.0",
+    "ssrApiVersion": "1.0.0",
+    "contractChecks": 14,
+    "nativeSSRCasesMinimum": 84,
+    "ownership": "exclusive-container",
+    "signedSnapshotRequired": true,
+    "restoreBeforeReplay": true,
+    "referenceRegressionLimits": {
+      "frameworkBytes": 2200000,
+      "xtensionRuntimeBytes": 240000
+    },
+    "rootExportCount": 214,
+    "nativeKernelAbiChanged": false,
+    "legacySchemaOverwriteAuthorized": false,
+    "acceptedForRelease": false,
+    "publicationGuardRetired": false,
+    "freshCommittedCaptureRequired": true,
+    "rationale": "A05 reviewed opt-in React/Vue SSR and actual DOM adoption with a signed, source/provider/key-bound Model snapshot, restore before structured intent replay, and separately reported fresh-mount fallback. Versioned new contracts retain all previous authoritative and released fingerprint sets. Partial observations stay partial; this is not complete 0.9 acceptance. See development/rmtx-a05/README.md."
   }
 }

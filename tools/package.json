@@ -33,6 +33,7 @@
     "xtensions/react-runtime-adapter.*",
     "xtensions/vue-runtime-adapter.*",
     "xtensions/runtime-host-controller.*",
+    "xtensions/framework-ssr.*",
     "xtensions/state-binding*.*",
     "xtensions/url-state.*",
     "xtensions/url-state-contracts",

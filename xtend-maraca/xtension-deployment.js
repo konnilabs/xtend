@@ -57,7 +57,7 @@ function registerBuild(result) {
     const fileName = path.relative(path.resolve(result.plan.outputDir), path.resolve(file)).split(path.sep).join('/');
     return record(fileName, fs.readFileSync(file));
   }) : [];
-  builds.set(result, { root, rows: capture, host: path.basename(result.plan.outputs.host), budget: copy(result.sizeBudgetReport),
+  builds.set(result, { root, rows: capture, host: path.basename(result.plan.outputs.host), budget: copy(result.sizeBudgetReport), ssrEntry: path.basename(result.plan.outputs.entry), ssrLazy: result.plan.lazy,
     incompatible: !!pwa?.enabled || !!services?.enabled, services: !!services?.enabled, privateRows,
     servicePath: services?.enabled ? services.transport.basePath : null,
     pwa: pwa?.enabled ? { manifest: path.basename(pwa.outputs.manifest), worker: path.basename(pwa.outputs.serviceWorker), report: path.basename(pwa.outputs.report),
@@ -321,4 +321,12 @@ function createMaracaXTensionDeploymentHandler(result) {
     response.writeHead(200,{'Content-Type':result.manifest.pwa?.manifestFile===file?'application/manifest+json':type,'Content-Length':value.length});response.end(request.method==='HEAD'?undefined:Buffer.from(value));return true;
   };
 }
-module.exports={XTENSION_DEPLOYMENT_API_VERSION,buildMaracaXTensionDeployment,loadMaracaXTensionDeployment,loadMaracaXTensionDeploymentSnapshot,createMaracaXTensionDeploymentHandler,registerBuild};
+function captureSSRBuild(build) {
+  const capture = builds.get(build);
+  if (!capture || capture.incompatible || capture.ssrLazy !== 'none') throw new TypeError('SSR requires an actual successful delivery-profile build with lazy:none and separate PWA/AppServices composition.');
+  const files = new Map(capture.rows.filter(row => script(row.fileName)).map(row => { const bytes = readFile(capture.root, row.fileName); if (hash(bytes) !== row.sha256 || bytes.length !== row.bytes) throw new Error('SSR build bytes changed.'); return [row.fileName, bytes.toString('utf8')]; }));
+  graph(new Map([...files].map(([name, source]) => [name, Buffer.from(source)])));
+  if (!files.has(capture.ssrEntry)) throw new Error('SSR entry is outside the captured build.');
+  return { entry: capture.ssrEntry, files };
+}
+module.exports={captureSSRBuild,XTENSION_DEPLOYMENT_API_VERSION,buildMaracaXTensionDeployment,loadMaracaXTensionDeployment,loadMaracaXTensionDeploymentSnapshot,createMaracaXTensionDeploymentHandler,registerBuild};

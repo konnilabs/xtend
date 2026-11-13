@@ -88,13 +88,13 @@ async function inspect() {
         for (const mode of ['warn', 'off']) { value.plan.sizeBudgetMode = mode; const advisory = maraca.createMaracaSizeBudgetReport(value); assert(advisory.ok); assert.equal(advisory.framework.withinBudget, false); assert.equal(advisory.xtensions.enforced, false); }
       } finally { fs.writeFileSync(entry.path, bytes); value.plan.sizeBudgetMode = priorMode; }
     });
-    await check('unoptimized XTension delivery fails independently of the overall framework budget', async () => {
+    await check('an unminified XTension platform overrun fails independently of the overall framework budget', async () => {
       const terser = require('terser'), minify = terser.minify; let injected = false, denied;
       try {
-        // Fault injection for the original omission: the first minification call
-        // is the copied platform. All ordinary Rollup/kernel transforms run.
+        // The named-ESM projection can fit even without minification. Inject a
+        // real platform-byte overrun; ordinary Rollup/kernel transforms still run.
         terser.minify = async (...args) => {
-          if (!injected) { injected = true; assert.equal(typeof args[0], 'string'); assert(args[0].includes('XTENSION_COMPOSITION_API_VERSION')); return { code: args[0] }; }
+          if (!injected) { injected = true; assert.equal(typeof args[0], 'string'); assert(args[0].includes('XTENSION_COMPOSITION_API_VERSION')); return { code: args[0] + '\n/*' + 'x'.repeat(Math.max(0, 240001 - Buffer.byteLength(args[0]))) + '*/' }; }
           return minify(...args);
         };
         denied = await reference.buildIntegratedReference('react', path.join(temp, 'partial-minification'), { profile: 'production' });
@@ -129,7 +129,7 @@ async function inspect() {
     });
     const sources = ['xtend-maraca/index.js', 'xtend-maraca/index.d.ts', 'xtend-maraca/package.json', 'xtend-maraca/xtension-platform-build.js', 'xtend-maraca/xtension-size-budget.js', 'xtend-maraca/xtension-composition-contract.mjs', 'xtend-maraca/xtension-composition.js', 'xtend-maraca/xtension-composition-runtime.mjs', 'xtend-maraca/xtension-composition.d.ts', 'xtend-maraca/xtension-composition-runtime.d.ts', 'xtend-maraca/plan-runtime.mjs', 'xtend-maraca/plan-runtime.d.ts', 'xtend-maraca/abort-boundary.d.ts', 'xtend-maraca/browser-composition-runtime.mjs', 'xtend-maraca/browser-composition-runtime.d.ts', 'xtend-maraca/browser-host-adapter.mjs', 'development/rmtx-a04/integration-reference.cjs', 'development/rmtx-a04/integration-inspect.cjs', 'development/rmtx-a04/providers/controlled-react-panel.mjs', 'development/rmtx-a04/providers/controlled-vue-panel.mjs', 'tests/xtensions/integrated-composition-acceptance.js', 'tests/xtensions/xtensions_runtime_gate_suite.js', 'tests/xtensions/xtensions_consumer_package_suite.js', 'tests/types/xtensions_integrated_composition.mts', 'scripts/test_xtensions_runtime_adapters.cjs', 'scripts/check_release_preparation.cjs', 'tests/release/preparation-gates.test.cjs'];
     const report = { format: 1, stage: 'A04.2-regular-build-and-browser-boot', status: 'integrated-path-implemented', checks: names.length, names,
-      buildPlanVersion: 5, buildConfigVersion: 5, compositionApiVersion: '2.0.0', artifactVersion: 2, buildReportVersion: 2, compositionPortVersion: 1, browserApiVersion: '6.0.0', planRuntimeVersion: 8, hostApiVersion: '6.0.0', sizeBudgetReportVersion: 2, strictReferenceBudgetsVerified: true,
+      buildPlanVersion: 5, buildConfigVersion: 5, compositionApiVersion: '2.0.0', artifactVersion: 2, buildReportVersion: 2, compositionPortVersion: 1, browserApiVersion: '7.0.0', planRuntimeVersion: 8, hostApiVersion: '6.0.0', sizeBudgetReportVersion: 2, strictReferenceBudgetsVerified: true,
       automaticBrowserBootComposition: true, fabricRequired: true, runtimeExecutionInPreparationCheck: false, runtimeExecutionVerified: false, acceptedForRelease: false,
       referenceRegressionLimits: { frameworkBytes: 2200000, xtensionRuntimeBytes: 240000 },
       sizeBudgets: Object.fromEntries(Object.entries(builtReferences).map(([framework, { report }]) => [framework, { profile: report.plan.profile, mode: report.sizeBudgetReport.mode, baselineBytes: report.sizeBudgetReport.baselineBytes, frameworkBytes: report.sizeBudgetReport.framework.bytes, xtensionRuntimeBytes: report.sizeBudgetReport.xtensions.runtimeBytes, xtensionBaselineBytes: report.sizeBudgetReport.xtensions.baselineBytes }])),

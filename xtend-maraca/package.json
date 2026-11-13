@@ -149,7 +149,11 @@
     "xtension-composition-runtime.mjs",
     "xtension-composition-runtime.d.ts",
     "xtension-composition-contract.mjs",
+    "xtension-ssr-runtime.mjs",
+    "xtension-ssr.js",
+    "xtension-ssr.d.ts",
     "xtension-platform-build.js",
+    "xtension-platform-esm.js",
     "xtension-size-budget.js",
     "xtension-provider-graph.js"
   ],

@@ -158,7 +158,7 @@
     },
     {
       "file": "tools/xtensions/runtime-host-controller.d.ts",
-      "sha256": "b21b4c15d35e345b9228450c1825d78c13478931761741daa228144b744780d5"
+      "sha256": "b88df57206eae655721549bd699e8054e48189eea46e40c39f7bfc615a993e9b"
     },
     {
       "file": "tools/xtensions/signal-bridge-contract.d.ts",
@@ -166,7 +166,7 @@
     },
     {
       "file": "xtend-maraca/plan-runtime.mjs",
-      "sha256": "ea88e64fe980d04c371f7a9d575e995aa1eb520231a43db5b358fe81a4f1568b"
+      "sha256": "04dea8537742feb4c973a433d27e21a82b520fd04ec1c45f99c42c685fa9e01e"
     },
     {
       "file": "xtendrmt/contracts/portable-render.v2.json",
@@ -13167,6 +13167,134 @@
           "file": "tools/xtensions/runtime-host-controller.d.ts",
           "line": 308,
           "symbol": "<anonymous>"
+        },
+        {
+          "name": "FrameworkSSRResult",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "'xtend.xtensions.framework-ssr-result.v1'",
+              "declaration": "readonly schema: 'xtend.xtensions.framework-ssr-result.v1';"
+            },
+            {
+              "name": "framework",
+              "optional": false,
+              "type": "'react' | 'vue'",
+              "declaration": "readonly framework: 'react' | 'vue';"
+            },
+            {
+              "name": "status",
+              "optional": false,
+              "type": "'server-rendered' | 'resumed' | 'fallback-mounted' | 'mounted'",
+              "declaration": "readonly status: 'server-rendered' | 'resumed' | 'fallback-mounted' | 'mounted';"
+            },
+            {
+              "name": "nodeIdentityPreserved",
+              "optional": false,
+              "type": "boolean",
+              "declaration": "readonly nodeIdentityPreserved: boolean;"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 335,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "SSRRuntimeCapabilities",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "'xtend.xtensions.runtime-capabilities.v3'",
+              "declaration": "readonly schema: 'xtend.xtensions.runtime-capabilities.v3';"
+            },
+            {
+              "name": "features",
+              "optional": false,
+              "type": "Omit<NegotiatedRuntimeCapabilities['features'], 'render.ssr' | 'render.adoption'> & { readonly 'render.ssr': boolean; readonly 'render.adoption': boolean }",
+              "declaration": "readonly features: Omit<NegotiatedRuntimeCapabilities['features'], 'render.ssr' | 'render.adoption'> & { readonly 'render.ssr': boolean; readonly 'render.adoption': boolean };"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 345,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "SSRHostCapabilityNegotiation",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "'xtend.xtensions.host-capability-negotiation.v2'",
+              "declaration": "readonly schema: 'xtend.xtensions.host-capability-negotiation.v2';"
+            },
+            {
+              "name": "capabilities",
+              "optional": false,
+              "type": "SSRRuntimeCapabilities",
+              "declaration": "readonly capabilities: SSRRuntimeCapabilities;"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 349,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "SSRRuntimeHostController",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "'xtend.xtensions.runtime-host-controller.v7'",
+              "declaration": "readonly schema: 'xtend.xtensions.runtime-host-controller.v7';"
+            },
+            {
+              "name": "apiVersion",
+              "optional": false,
+              "type": "'7.0.0'",
+              "declaration": "readonly apiVersion: '7.0.0';"
+            },
+            {
+              "name": "adopt",
+              "optional": false,
+              "type": "Promise<RuntimeHostResult>",
+              "declaration": "adopt(target?: Element, props?: RuntimeProps): Promise<RuntimeHostResult>;"
+            },
+            {
+              "name": "getSSRReport",
+              "optional": false,
+              "type": "FrameworkSSRResult | null",
+              "declaration": "getSSRReport(): FrameworkSSRResult | null;"
+            },
+            {
+              "name": "getCapabilities",
+              "optional": false,
+              "type": "SSRRuntimeCapabilities",
+              "declaration": "getCapabilities(): SSRRuntimeCapabilities;"
+            },
+            {
+              "name": "getCapabilityNegotiation",
+              "optional": false,
+              "type": "SSRHostCapabilityNegotiation",
+              "declaration": "getCapabilityNegotiation(): SSRHostCapabilityNegotiation;"
+            },
+            {
+              "name": "snapshot",
+              "optional": false,
+              "type": "Omit<NegotiatedRuntimeHostSnapshot, 'capabilities' | 'capabilityNegotiation'> & { readonly capabilities: SSRRuntimeCapabilities; readonly capabilityNegotiation: SSRHostCapabilityNegotiation }",
+              "declaration": "snapshot(): Omit<NegotiatedRuntimeHostSnapshot, 'capabilities' | 'capabilityNegotiation'> & { readonly capabilities: SSRRuntimeCapabilities; readonly capabilityNegotiation: SSRHostCapabilityNegotiation };"
+            },
+            {
+              "name": "whenIdle",
+              "optional": false,
+              "type": "Promise<ReturnType<SSRRuntimeHostController['snapshot']>>",
+              "declaration": "whenIdle(): Promise<ReturnType<SSRRuntimeHostController['snapshot']>>;"
+            }
+          ],
+          "file": "tools/xtensions/runtime-host-controller.d.ts",
+          "line": 353,
+          "symbol": "<anonymous>"
         }
       ],
       "astFactories": [],
@@ -14044,17 +14172,24 @@
           "symbol": "<anonymous>"
         },
         {
+          "name": "SSR_XTENSION_PLAN_RUNTIME_SCHEMA",
+          "value": "xtend.maraca.plan-runtime.v9",
+          "file": "xtend-maraca/plan-runtime.mjs",
+          "line": 7,
+          "symbol": "<anonymous>"
+        },
+        {
           "name": "XTENSION_PLAN_RUNTIME_SCHEMA",
           "value": "xtend.maraca.plan-runtime.v8",
           "file": "xtend-maraca/plan-runtime.mjs",
-          "line": 7,
+          "line": 8,
           "symbol": "<anonymous>"
         },
         {
           "name": "DOM_COMMIT_SCHEMA",
           "value": "xtend.rmt.dom-commit-result.v1",
           "file": "xtend-maraca/plan-runtime.mjs",
-          "line": 9,
+          "line": 10,
           "symbol": "<anonymous>"
         }
       ],
@@ -14070,7 +14205,7 @@
             "writer:change"
           ],
           "file": "xtend-maraca/plan-runtime.mjs",
-          "line": 12,
+          "line": 13,
           "symbol": "<anonymous>"
         },
         {
@@ -14081,7 +14216,7 @@
             "hidden"
           ],
           "file": "xtend-maraca/plan-runtime.mjs",
-          "line": 103,
+          "line": 104,
           "symbol": "<anonymous>"
         },
         {
@@ -14095,7 +14230,7 @@
             "invalid"
           ],
           "file": "xtend-maraca/plan-runtime.mjs",
-          "line": 104,
+          "line": 105,
           "symbol": "<anonymous>"
         },
         {
@@ -14112,7 +14247,7 @@
             "will-change"
           ],
           "file": "xtend-maraca/plan-runtime.mjs",
-          "line": 105,
+          "line": 106,
           "symbol": "<anonymous>"
         }
       ],

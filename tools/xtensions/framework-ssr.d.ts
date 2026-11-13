@@ -1,0 +1,1 @@
+export const XTENSION_FRAMEWORK_SSR_API_VERSION: '1.0.0';

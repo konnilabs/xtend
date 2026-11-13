@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { createHash } = require('node:crypto');
 const { TextDecoder } = require('node:util');
-const XTENSION_COMPOSITION_BUILD_API_VERSION = '9.0.0';
+const XTENSION_COMPOSITION_BUILD_API_VERSION = '10.0.0';
 const hash = value => createHash('sha256').update(value).digest('hex');
 function inspectSource(source, exportName) {
   const { parseAst } = require('rollup/parseAst');
@@ -76,5 +76,5 @@ async function buildMaracaXTensionComposition(options) {
     artifact, ...(delivery ? { deliveryFile } : {}), entryPath: path.join(output, entryFile), files: files.map(file => ({ fileName: file.fileName, sha256: file.sha256, bytes: file.bytes.length })),
     frameworkDependenciesBundled: false, runtimeExecutionVerified: false };
 }
-const { registerBuild: _registerBuild, ...deployment } = require('./xtension-deployment');
-module.exports = { XTENSION_COMPOSITION_BUILD_API_VERSION, buildMaracaXTensionComposition, ...deployment };
+const { registerBuild: _registerBuild, captureSSRBuild: _captureSSRBuild, ...deployment } = require('./xtension-deployment');
+module.exports = { XTENSION_COMPOSITION_BUILD_API_VERSION, buildMaracaXTensionComposition, ...require('./xtension-ssr'), ...deployment };

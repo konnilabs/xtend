@@ -13,7 +13,7 @@ function runExportChecks() {
   const runtime = {}, all = {};
   const bindingName = '@ccslabs/xtend/xtensions/state-binding';
   const binding = require(bindingName);
-  assert.deepEqual(Object.keys(binding).sort(), ['XTENSION_STATE_BINDING_API_VERSION', 'XTENSION_STATE_BINDING_ARTIFACT_SCHEMA', 'XTENSION_STATE_BINDING_SCHEMA', 'createXTensionStateRegistry', 'materializeStateBindingArtifact', 'validateStateBinding', 'validateStateBindingArtifact']);
+  assert.deepEqual(Object.keys(binding).sort(), ['XTENSION_RESUME_STATE_BINDING_API_VERSION', 'XTENSION_STATE_BINDING_API_VERSION', 'XTENSION_STATE_BINDING_ARTIFACT_SCHEMA', 'XTENSION_STATE_BINDING_SCHEMA', 'createXTensionResumeStateRegistry', 'createXTensionStateRegistry', 'materializeStateBindingArtifact', 'validateStateBinding', 'validateStateBindingArtifact']);
   assert.equal(require('@ccslabs/xtend-compiler/xtensions/state-binding').createXTensionStateRegistry, binding.createXTensionStateRegistry);
   all[bindingName] = Object.entries(binding).map(([key, value]) => [key, typeof value]).sort();
   const url = require('@ccslabs/xtend/xtensions/url-state');
@@ -40,7 +40,7 @@ function runExportChecks() {
       all[name] = Object.entries(exports).map(([key, value]) => [key, typeof value]).sort();
       if (kind === 'runtime') {
         runtime[framework] = all[name];
-        assert.deepEqual(Object.keys(exports).sort(), [`create${title}KernelRuntimeAdapter`, `create${title}RuntimeAdapter`, `normalize${title}Peers`]);
+        assert.deepEqual(Object.keys(exports).sort(), [`create${title}KernelRuntimeAdapter`, `create${title}RuntimeAdapter`, `create${title}SSRRuntimeAdapter`, `normalize${title}Peers`, `normalize${title}SSRPeers`]);
         const declaration = fs.readFileSync(path.resolve(root, entry.types), 'utf8');
         const declared = [...declaration.matchAll(/export function (\w+)\(/g)].map((match) => match[1]).sort();
         assert.deepEqual([...new Set(declared)], Object.keys(exports).sort(), 'declarations describe every runtime value export, including typed overloads');

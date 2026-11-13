@@ -3,11 +3,14 @@
 
 const { XTENSION_STATE_BINDING_SCHEMA, validateStateBinding, addressKey, propsFrom, clone, freeze, data, record, typed } = require('./state-binding-contract');
 const { XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBindingArtifact, materializeStateBindingArtifact } = require('./state-binding-artifact');
-const { RUNTIME_HOST_CONTROLLER_SCHEMA, KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA, GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA, BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA, NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA } = require('./runtime-host-controller');
+const { SSR_RUNTIME_HOST_CONTROLLER_SCHEMA, RUNTIME_HOST_CONTROLLER_SCHEMA, KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA, GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA, BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA, NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA } = require('./runtime-host-controller');
 const XTENSION_STATE_BINDING_API_VERSION = '2.4.0';
+const XTENSION_RESUME_STATE_BINDING_API_VERSION = '3.0.0';
+function createXTensionStateRegistry(options) { return createStateRegistry(options, false); }
+function createXTensionResumeStateRegistry(options) { return createStateRegistry(options, true); }
 
 /** One registry per Model session. Factories and ports are trusted host capabilities. */
-function createXTensionStateRegistry({ modelReader, modelCommandPort, commandDispatcher, onDiagnostic } = {}) {
+function createStateRegistry({ modelReader, modelCommandPort, commandDispatcher, onDiagnostic } = {}, resumeEnabled) {
   if (!modelReader || typeof modelReader.snapshot !== 'function' || typeof modelReader.subscribe !== 'function' ||
     (!modelCommandPort || typeof modelCommandPort.apply !== 'function') && (!commandDispatcher || typeof commandDispatcher.dispatch !== 'function')) throw new TypeError('State bindings require Model reader and command ports.');
   if (commandDispatcher && modelCommandPort) throw new TypeError('A binding registry requires one command authority.');
@@ -36,6 +39,7 @@ function createXTensionStateRegistry({ modelReader, modelCommandPort, commandDis
     let desired = { props: propsFrom(current, definition), revision }, delivered = null;
     let phase = 'created', queue = Promise.resolve(), scheduled = false, delivering = false, host, disposal, failure = null;
     const diagnostics = [];
+    let acceptedIntents = 0;
     const pendingCommands = new Set(), abort = new AbortController();
     const cancelled = new Promise((resolve) => abort.signal.addEventListener('abort', () => resolve({ status: 'superseded' }), { once: true }));
     const live = () => entries.get(key) === entry && phase !== 'disposed' && phase !== 'failed';
@@ -90,7 +94,7 @@ function createXTensionStateRegistry({ modelReader, modelCommandPort, commandDis
       dispose,
       async flush() {
         let pending;
-        do { pending = queue; await pending; if ([GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA, BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA, NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA].includes(host?.schema)) await host.whenIdle(); } while (queue !== pending);
+        do { pending = queue; await pending; if ([GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA, BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA, NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA, ...(resumeEnabled ? [SSR_RUNTIME_HOST_CONTROLLER_SCHEMA] : [])].includes(host?.schema)) await host.whenIdle(); } while (queue !== pending);
         if (failure) throw failure;
       },
       commit(model, nextRevision) {
@@ -126,27 +130,30 @@ function createXTensionStateRegistry({ modelReader, modelCommandPort, commandDis
           }, (error) => { if (live()) report(error, 'intent'); }).finally(() => pendingCommands.delete(pending));
           pendingCommands.add(pending);
         } else modelCommandPort.apply({ operation: 'dispatch', command: spec.command, payload: commandPayload }, metadata);
-        return true;
+        acceptedIntents++; return true;
       } catch (error) { report(error, 'intent'); return false; }
     }
     try {
       host = createHost(freeze({ identity, ...ids, events, onEvent }));
-      if (!host || ![RUNTIME_HOST_CONTROLLER_SCHEMA, KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA, GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA, BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA, NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA].includes(host.schema) || !(host.schema === RUNTIME_HOST_CONTROLLER_SCHEMA ? /^2\./ : host.schema === KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA ? /^3\./ : host.schema === GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA ? /^4\./ : host.schema === BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA ? /^5\./ : /^6\./).test(host.apiVersion || '') ||
+      if (resumeEnabled && (host?.schema !== SSR_RUNTIME_HOST_CONTROLLER_SCHEMA || typeof host.adopt !== 'function' || typeof host.getSSRReport !== 'function')) throw new TypeError('Resume state bindings require a v7 host.');
+      if (!host || ![RUNTIME_HOST_CONTROLLER_SCHEMA, KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA, GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA, BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA, NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA, ...(resumeEnabled ? [SSR_RUNTIME_HOST_CONTROLLER_SCHEMA] : [])].includes(host.schema) || !(host.schema === RUNTIME_HOST_CONTROLLER_SCHEMA ? /^2\./ : host.schema === KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA ? /^3\./ : host.schema === GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA ? /^4\./ : host.schema === BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA ? /^5\./ : host.schema === SSR_RUNTIME_HOST_CONTROLLER_SCHEMA ? /^7\./ : /^6\./).test(host.apiVersion || '') ||
         ['mount', 'update', 'suspend', 'resume', 'unmount'].some((method) => typeof host[method] !== 'function') ||
-        [GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA, BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA, NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA].includes(host.schema) && typeof host.whenIdle !== 'function') throw new TypeError('The factory must return a version-matched v2, v3, v4, v5 or v6 runtime host controller.');
+        [GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA, BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA, NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA, ...(resumeEnabled ? [SSR_RUNTIME_HOST_CONTROLLER_SCHEMA] : [])].includes(host.schema) && typeof host.whenIdle !== 'function') throw new TypeError('The factory must return a version-matched v2, v3, v4, v5 or v6 runtime host controller.');
     } catch (error) { fail(error, 'createHost'); throw error; }
     return Object.freeze({
       identity,
       snapshot,
-      mount(target) {
-        return enqueue('mount', async () => {
-          if (phase !== 'created') throw new Error('A binding can only be mounted once.');
-          phase = 'mounting'; const initial = desired;
-          const result = await host.mount(target, initial.props);
-          if (!live()) return;
-          accepted(result); delivered = initial; phase = 'active'; await sync();
-        });
-      },
+      ...(resumeEnabled ? {
+        adopt: target => initialize(target, true),
+        replay(event) {
+          if (!live() || phase !== 'active') throw new Error('Replay requires an active binding.');
+          const before = acceptedIntents, result = host.emit(event);
+          if (result?.ok !== true || before === acceptedIntents) throw new Error('Replay intent was rejected by the binding.');
+          return result;
+        },
+        getSSRReport: () => host.getSSRReport()
+      } : {}),
+      mount: target => initialize(target, false),
       suspend(reason) {
         return enqueue('suspend', async () => {
           if (phase === 'suspended') return;
@@ -166,14 +173,23 @@ function createXTensionStateRegistry({ modelReader, modelCommandPort, commandDis
       },
       async whenIdle() {
         let pending;
-        do { await Promise.all([...pendingCommands]); pending = queue; await pending; if ([GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA, BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA, NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA].includes(host?.schema)) await host.whenIdle(); } while (queue !== pending || pendingCommands.size);
+        do { await Promise.all([...pendingCommands]); pending = queue; await pending; if ([GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA, BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA, NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA, ...(resumeEnabled ? [SSR_RUNTIME_HOST_CONTROLLER_SCHEMA] : [])].includes(host?.schema)) await host.whenIdle(); } while (queue !== pending || pendingCommands.size);
         if (failure) throw failure;
         return snapshot();
       },
       dispose
     });
+    function initialize(target, adopting) {
+        return enqueue('mount', async () => {
+          if (phase !== 'created') throw new Error('A binding can only be mounted once.');
+          phase = 'mounting'; const initial = desired;
+          const result = await (adopting ? host.adopt(target, initial.props) : host.mount(target, initial.props));
+          if (!live()) return;
+          accepted(result); delivered = initial; phase = 'active'; await sync();
+        });
+    }
   }
-  return Object.freeze({ apiVersion: XTENSION_STATE_BINDING_API_VERSION, bind, async flush() { await Promise.all([...entries.values()].map((entry) => entry.flush())); }, dispose() {
+  return Object.freeze({ apiVersion: resumeEnabled ? XTENSION_RESUME_STATE_BINDING_API_VERSION : XTENSION_STATE_BINDING_API_VERSION, bind, async flush() { await Promise.all([...entries.values()].map((entry) => entry.flush())); }, dispose() {
     if (closing) return closing;
     closed = true; unsubscribe();
     closing = Promise.all([...entries.values()].map((entry) => entry.dispose())).then(() => undefined);
@@ -181,4 +197,4 @@ function createXTensionStateRegistry({ modelReader, modelCommandPort, commandDis
   } });
 }
 
-module.exports = { XTENSION_STATE_BINDING_API_VERSION, XTENSION_STATE_BINDING_SCHEMA, XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBinding, validateStateBindingArtifact, materializeStateBindingArtifact, createXTensionStateRegistry };
+module.exports = { XTENSION_RESUME_STATE_BINDING_API_VERSION, createXTensionResumeStateRegistry, XTENSION_STATE_BINDING_API_VERSION, XTENSION_STATE_BINDING_SCHEMA, XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBinding, validateStateBindingArtifact, materializeStateBindingArtifact, createXTensionStateRegistry };

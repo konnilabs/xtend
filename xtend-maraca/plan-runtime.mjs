@@ -4,6 +4,7 @@ export { createMaracaAbortBoundary } from './abort-boundary.mjs';
 
 const LEGACY_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v3';
 const PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v7';
+const SSR_XTENSION_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v9';
 const XTENSION_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v8';
 let xtensionRootSequence = 0;
 const DOM_COMMIT_SCHEMA = 'xtend.rmt.dom-commit-result.v1';
@@ -169,10 +170,12 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   const orchestration = asRecord(plan.orchestration);
   const artifact = asRecord(orchestration.artifact || plan.artifact);
   const composed = hasOwn(plan, 'xtensionComposition');
-  const runtimeSchema = composed ? XTENSION_PLAN_RUNTIME_SCHEMA : PLAN_RUNTIME_SCHEMA;
   const compositionPort = options.xtensionCompositionPort;
-  if (composed && (plan.schema !== 'xtend.maraca.build-plan.v5' || !['xtend.maraca.xtension-composition-artifact.v2', 'xtend.maraca.xtension-composition-artifact.v3', 'xtend.maraca.xtension-composition-artifact.v4', 'xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6'].includes(plan.xtensionComposition?.schema) || compositionPort?.schema !== 'xtend.maraca.xtension-composition-port.v1' || typeof compositionPort.bind !== 'function')) throw new TypeError('Integrated XTensions require a v5 plan, v2/v3/v4/v5/v6 artifact and the prepared composition port.');
-  if (composed && (options.createXTensionHost !== undefined || options.xtensionBindingsRuntime !== undefined || options.adoptExisting === true) || !composed && compositionPort !== undefined) throw new TypeError('Automatic and manual XTension composition cannot be mixed.');
+  const ssrSession = compositionPort?.schema === 'xtend.maraca.xtension-composition-port.v2' ? compositionPort.ssrSession : null;
+  if (ssrSession && (ssrSession.schema !== 'xtend.maraca.xtension-ssr-session.v1' || compositionPort.resumeBindingsRuntime?.XTENSION_RESUME_STATE_BINDING_API_VERSION !== '3.0.0')) throw new TypeError('SSR requires the prepared v1 session and resume binding API 3.');
+  const runtimeSchema = ssrSession ? SSR_XTENSION_PLAN_RUNTIME_SCHEMA : composed ? XTENSION_PLAN_RUNTIME_SCHEMA : PLAN_RUNTIME_SCHEMA;
+  if (composed && (plan.schema !== 'xtend.maraca.build-plan.v5' || !['xtend.maraca.xtension-composition-artifact.v2', 'xtend.maraca.xtension-composition-artifact.v3', 'xtend.maraca.xtension-composition-artifact.v4', 'xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6'].includes(plan.xtensionComposition?.schema) || !['xtend.maraca.xtension-composition-port.v1', 'xtend.maraca.xtension-composition-port.v2'].includes(compositionPort?.schema) || typeof compositionPort.bind !== 'function')) throw new TypeError('Integrated XTensions require a v5 plan, v2/v3/v4/v5/v6 artifact and the prepared composition port.');
+  if (composed && (options.createXTensionHost !== undefined || options.xtensionBindingsRuntime !== undefined || options.adoptExisting === true && !ssrSession) || !composed && compositionPort !== undefined) throw new TypeError('Automatic and manual XTension composition cannot be mixed.');
   let createXTensionHost = options.createXTensionHost;
   let xtensionRoot = null;
   const bindingRuntime = composed ? compositionPort.bindingsRuntime : options.xtensionBindingsRuntime;
@@ -183,7 +186,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     }
     bindingArtifact = bindingRuntime.validateStateBindingArtifact(options.plan.xtensionBindings, artifact);
     if (bindingArtifact.bindings.length && !composed && typeof createXTensionHost !== 'function') throw new TypeError('Bound Maraca plans require a trusted createXTensionHost factory.');
-    if (options.adoptExisting === true && bindingArtifact.bindings.some((entry) => entry.presence || entry.repeat)) {
+    if (options.adoptExisting === true && !ssrSession && bindingArtifact.bindings.some((entry) => entry.presence || entry.repeat)) {
       throw new TypeError('Conditional XTension hosts require client rendering; adoption requires the separate restore contract.');
     }
   }
@@ -215,6 +218,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       for (const entry of removed) {
         boundXTensions.splice(boundXTensions.indexOf(entry), 1);
         // dispose() revokes callbacks synchronously, before awaiting foreign cleanup.
+        ssrSession?.retire(entry.instance.identity.address);
         const retirement = entry.instance.dispose('model-presence-removed');
         xtensionRetirements.add(retirement);
         retirement.finally(() => xtensionRetirements.delete(retirement)).catch(() => {});
@@ -240,7 +244,8 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         if (!container) throw new Error(`XTension host ${entry.surface} was not rendered.`);
         const instance = xtensionRegistry.bind(entry.binding, (context) => createXTensionHost(Object.freeze({ ...context, container, surface: entry.surface, hostSurface: entry.hostSurface, binding: entry.binding })));
         boundXTensions.push(Object.freeze({ surface: entry.surface, hostSurface: entry.hostSurface, instance }));
-        await raceDisposed(instance.mount(container));
+        ssrSession?.bind(entry, instance);
+        await raceDisposed(ssrSession?.shouldAdopt(entry) ? instance.adopt(container) : instance.mount(container));
       }
     } catch (error) {
       if (phase !== 'disposed') {
@@ -3128,6 +3133,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         if (typeof unsubscribe === 'function') disposers.add(unsubscribe);
       }
       const initialStateSnapshot = state.snapshot();
+      ssrSession?.confirmRestored(initialStateSnapshot);
       materializeSurfaces(initialStateSnapshot, {
         operation: options.adoptExisting === true
           ? 'maraca.boot.adopt-existing.surface-materialize'
@@ -3176,7 +3182,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         if (composed) createXTensionHost = compositionPort.bind({ plan, fabric: options.fabric,
           kernelWork: { scheduler: kernel.scheduler, rootId: xtensionRoot.rootId },
           resourceGraph: { kernel: xtensionRoot.kernel, surfaceGraph, surfaceController } });
-        xtensionRegistry = bindingRuntime.createXTensionStateRegistry({ modelReader,
+        xtensionRegistry = (ssrSession ? compositionPort.resumeBindingsRuntime.createXTensionResumeStateRegistry : bindingRuntime.createXTensionStateRegistry)({ modelReader,
           commandDispatcher: { dispatch: (command, payload, metadata, lifetime) => dispatchCommand(command, payload, metadata, lifetime) },
           onDiagnostic: (diagnostic) => recordDiagnostic('xtend.maraca.xtension.binding', 'error', diagnostic.message, diagnostic) });
         await mountPresentXTensions();
@@ -3187,6 +3193,8 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         assertCurrentBoot();
       }
       phase = 'ready';
+      if (ssrSession) await raceDisposed(ssrSession.finish());
+      assertCurrentBoot();
       publish('ready');
       return snapshot();
     })().catch((error) => {
@@ -3204,6 +3212,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   function snapshot() {
     return immutableClone({
       schema: runtimeSchema,
+      ...(ssrSession ? { xtensionSSR: ssrSession.getReport() } : {}),
       phase,
       generation,
       renderCount,
@@ -3371,6 +3380,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   function dispose() {
     if (phase === 'disposed') return false;
     phase = 'disposed';
+    ssrSession?.dispose();
     urlState?.dispose();
     urlViewSnapshot = null;
     generation += 1;
@@ -3398,6 +3408,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     dispatchCommand,
     restoreURLState,
     publishURLState,
+    ...(ssrSession ? { captureXTensionSSR: () => ssrSession.capture(modelReader.snapshot()) } : {}),
     getXTensionBindings: () => Object.freeze([...boundXTensions]),
     async whenXTensionsIdle() {
       let pending;
@@ -3446,5 +3457,5 @@ export async function bootMaracaPlan(options = {}) {
   return runtime;
 }
 
-export { PLAN_RUNTIME_SCHEMA, XTENSION_PLAN_RUNTIME_SCHEMA, LEGACY_PLAN_RUNTIME_SCHEMA };
-export default Object.freeze({ PLAN_RUNTIME_SCHEMA, XTENSION_PLAN_RUNTIME_SCHEMA, LEGACY_PLAN_RUNTIME_SCHEMA, createMaracaPlanRuntime, bootMaracaPlan });
+export { SSR_XTENSION_PLAN_RUNTIME_SCHEMA, PLAN_RUNTIME_SCHEMA, XTENSION_PLAN_RUNTIME_SCHEMA, LEGACY_PLAN_RUNTIME_SCHEMA };
+export default Object.freeze({ SSR_XTENSION_PLAN_RUNTIME_SCHEMA, PLAN_RUNTIME_SCHEMA, XTENSION_PLAN_RUNTIME_SCHEMA, LEGACY_PLAN_RUNTIME_SCHEMA, createMaracaPlanRuntime, bootMaracaPlan });

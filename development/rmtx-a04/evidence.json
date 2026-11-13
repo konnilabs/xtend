@@ -50,19 +50,19 @@
   ],
   "sources": {
     "xtend-maraca/xtension-composition-contract.mjs": "8a80c9d009976a19676e3fd72e0f9d1c95476306c5dc99ba593cda33bd107f3a",
-    "xtend-maraca/xtension-composition.js": "6adc629c7aff828d1bd9248c41c9331f6d83613c9bf5b0668335d3fc184a445b",
-    "xtend-maraca/xtension-composition-runtime.mjs": "d07919754cee2977bffd8c8b5ba51f39696ec8bcb81bda427612ae48742cc2f7",
-    "xtend-maraca/xtension-composition.d.ts": "834c1b7ea757ffcef420b3039095bf1607011cdeee7183fc79342a5690c4c4fb",
-    "xtend-maraca/xtension-composition-runtime.d.ts": "787065cd99162e29065cfd414081c4b71040daee06bab0da7bbac0ac97337738",
-    "xtend-maraca/package.json": "aca07636129d29813d12967c9d1f91d0993ceac9c3a0f3a967570135f54eb43c",
+    "xtend-maraca/xtension-composition.js": "8467a441e760817450ee65669b4406d3f5c7379180c10337288cb35fa73a6312",
+    "xtend-maraca/xtension-composition-runtime.mjs": "4d00cf08a11c32b3dbc5eb601c9b2d5f03f4174ac90dca656ac2bfd31210d988",
+    "xtend-maraca/xtension-composition.d.ts": "535dfcf7bbe2af9a997999122e353d0d4f087aaed5dbf08eee28c553fa68a778",
+    "xtend-maraca/xtension-composition-runtime.d.ts": "4725465b1e51ab04e29c14d292df6f7df25f07fed17763b1ebae767ea5694dbd",
+    "xtend-maraca/package.json": "82826850e3fb3f64a075c192321405c23a7acc4b2054fcc842ba98ca5d293fe6",
     "development/rmtx-a04/reference.cjs": "82f369fc789e991dc3f2dfe72b2b27ac651780a922e5e4c27a19fd4bd72085e0",
     "development/rmtx-a04/providers/react-panel.mjs": "2fdf0c08bc913cf4d93a9586ee5c4dbcb50a191b1f5432704bd53e3e2e7dea86",
     "development/rmtx-a04/providers/vue-panel.mjs": "5a971750223744c69381f36200352e94efdce782a81cef208c560c8a9d2fd171",
     "development/rmtx-a04/inspect.cjs": "6ae03d4a77556e3b6bacab9f678166649a9efd445f3c0ae6abf3585d0980c4d1",
-    "tests/xtensions/xtensions_consumer_package_suite.js": "b096a911c3d254fdf7fe7041c82183d6cae821320c6c7b3f25a284429673a43e",
+    "tests/xtensions/xtensions_consumer_package_suite.js": "26a41d339b0d083a5ad55258f8d4734ebfca0d365a750f2d2bbca510af5e94c3",
     "tests/xtensions/composition-maraca-acceptance.js": "8996a43c0225ee153398e6d955d87426f084ddccf7083c19ee775f7b9246854c",
-    "tests/types/xtensions_composition.mts": "e5610275eb228af4607472abe5d22727809ea8af935b97cd511d50b95d49bbf5",
+    "tests/types/xtensions_composition.mts": "d4ccc0b3ca60b267145db0772d3342eb982f98dc5b40d891176b9376824990cc",
     "scripts/test_xtensions_runtime_adapters.cjs": "d9df3dfd883ea4e46c87bb94359b4728602ca15d1c535205fcaa5755a42a39b8",
-    "tests/xtensions/xtensions_runtime_gate_suite.js": "cacd80c7613d41d438edf9bb54a5126108ce61d8c05e996c4d0578ec222a744a"
+    "tests/xtensions/xtensions_runtime_gate_suite.js": "7256f64a084a21120124e864d7eb0e3c88678417b99f362d086605e3208d929c"
   }
 }

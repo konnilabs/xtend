@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { validateArtifact, canonical, freeze, copy, name, json } from './xtension-composition-contract.mjs';
-export const XTENSION_COMPOSITION_API_VERSION = '6.0.0';
+export const XTENSION_COMPOSITION_API_VERSION = '7.0.0';
 
 function capturePolicies(hosts, input) {
   const policies = new Map();
@@ -58,7 +58,7 @@ function createSharedPeers(groups, providers, load) {
         Promise.resolve(load(Object.freeze({ group, signal: entry.controller.signal }))).then(loaded => {
           if (entry.controller.signal.aborted) return;
           const peers = verifiedPeers(providers.get(group.providerIds[0]), loaded);
-          if (!entry.controller.signal.aborted) entry.resolve(Object.freeze(group.framework === 'react' ? { React: peers.React, ReactDOM: peers.ReactDOM } : { Vue: peers.Vue }));
+          if (!entry.controller.signal.aborted) entry.resolve(Object.freeze(group.framework === 'react' ? { React: peers.React, ReactDOM: peers.ReactDOM, ...(peers.ReactDOMServer ? { ReactDOMServer: peers.ReactDOMServer } : {}) } : { Vue: peers.Vue, ...(peers.VueServerRenderer ? { VueServerRenderer: peers.VueServerRenderer, vueServerRendererVersion: peers.versions.vue } : {}) }));
         }).catch(fail);
       } catch (error) { fail(error); }
     }
@@ -78,10 +78,11 @@ export function createMaracaXTensionCompositionPort(options) {
   const grants = Object.freeze(Object.fromEntries([...policies].map(([id, policy]) => [id, Object.freeze({ ...policy.data, authorize: policy.authorize, validateProps: policy.validateProps })])));
   const adapters = Object.freeze(Object.fromEntries(Object.entries(options.adapters || {}).map(([id, api]) => [id, Object.freeze({ ...api })])));
   const plan = freeze(copy(options.plan)), bindingsRuntime = options.bindingsRuntime;
-  return Object.freeze({ schema: 'xtend.maraca.xtension-composition-port.v1', bindingsRuntime,
+  const ssrSession = options.ssr === undefined ? null : options.ssrRuntime.createMaracaXTensionSSRSession({ artifact, bindingsRuntime, resumeBindingsRuntime: options.resumeBindingsRuntime, options: options.ssr });
+  return Object.freeze({ schema: ssrSession ? 'xtend.maraca.xtension-composition-port.v2' : 'xtend.maraca.xtension-composition-port.v1', bindingsRuntime, ...(ssrSession ? { ssrSession, resumeBindingsRuntime: options.resumeBindingsRuntime } : {}),
     bind(ports) {
       validateArtifact(artifact, ports.plan, bindingsRuntime);
-      return createHostFactory({ ...ports, plan, bindingsRuntime, adapters, ...loaders, grants,
+      return createHostFactory({ ...ports, plan, bindingsRuntime, adapters, ...loaders, grants, ...(ssrSession ? { ssrSession } : {}),
         compositionRuntime: Object.freeze({ createMaracaXTensionHostFactory }) });
     }
   });
@@ -108,8 +109,8 @@ export function createMaracaXTensionHostFactory(options) {
   const providers = new Map(), policies = capturePolicies(artifact.manifest.hosts, options.grants);
   for (const provider of artifact.manifest.providers) {
     const namespace = options.providers?.[provider.id], adapter = options.adapters?.[provider.framework];
-    const create = adapter?.[provider.framework === 'react' ? 'createReactKernelRuntimeAdapter' : 'createVueKernelRuntimeAdapter'];
-    const normalize = adapter?.[provider.framework === 'react' ? 'normalizeReactPeers' : 'normalizeVuePeers'];
+    const create = adapter?.[options.ssrSession ? provider.framework === 'react' ? 'createReactSSRRuntimeAdapter' : 'createVueSSRRuntimeAdapter' : provider.framework === 'react' ? 'createReactKernelRuntimeAdapter' : 'createVueKernelRuntimeAdapter'];
+    const normalize = adapter?.[options.ssrSession?.mode === 'server' ? provider.framework === 'react' ? 'normalizeReactSSRPeers' : 'normalizeVueSSRPeers' : provider.framework === 'react' ? 'normalizeReactPeers' : 'normalizeVuePeers'];
     const loadProvider = options.loadProviders?.[provider.id];
     if ((deferred ? typeof loadProvider !== 'function' : typeof namespace?.[provider.entry.exportName] !== 'function') || typeof create !== 'function' || typeof normalize !== 'function') throw new TypeError('The built provider factory and actual React/Vue adapter ports are required.');
     providers.set(provider.id, { definition: provider, factory: namespace?.[provider.entry.exportName], loadProvider, create, normalize });
@@ -133,7 +134,8 @@ export function createMaracaXTensionHostFactory(options) {
       ? function ComposedReactHost(props) { return peers.React.createElement(component, props); }
       : { inheritAttrs: false, setup(_props, { attrs }) { return () => peers.Vue.h(component, { ...attrs }); } };
     return provider.create({ container: context.container, hostId: context.hostId, surfaceId: context.surfaceId, xtensionId: context.xtensionId,
-      onEvent: context.onEvent, component: proxy, fabric,
+      onEvent: options.ssrSession ? options.ssrSession.gate(context) : context.onEvent, component: proxy, fabric,
+      ...(options.ssrSession ? { ssr: options.ssrSession.hostContext(context, provider.definition) } : {}),
       kernelWork: { scheduler: kernelWork.scheduler, rootId: kernelWork.rootId, scope: context.xtensionId, ...(Object.hasOwn(grants.data, 'lifecycle') ? { lifecycle: grants.data.lifecycle } : {}), work: grants.data.work },
       resourceGraph: { ...resourceGraph, surfaceId: definition.ownerSurface },
       ...(Object.hasOwn(grants.data, 'workBudget') ? { workBudget: grants.data.workBudget } : {}),
@@ -166,7 +168,8 @@ export function createMaracaXTensionHostFactory(options) {
         if (signal.aborted) throw new DOMException('Provider lifetime was revoked.', 'AbortError');
         peers = verifiedPeers(provider, loaded);
         if (signal.aborted) throw new DOMException('Provider lifetime was revoked.', 'AbortError');
-        component = factory(Object.freeze(framework === 'react' ? { React: peers.React, ReactDOM: peers.ReactDOM } : { Vue: peers.Vue }));
+        component = factory(Object.freeze(framework === 'react' ? { React: peers.React, ReactDOM: peers.ReactDOM, ...(peers.ReactDOMServer ? { ReactDOMServer: peers.ReactDOMServer } : {}) } : { Vue: peers.Vue, ...(peers.VueServerRenderer ? { VueServerRenderer: peers.VueServerRenderer, vueServerRendererVersion: peers.versions.vue } : {}) }));
+        if (options.ssrSession && framework === 'vue' && [component, component?.setup].some(value => typeof value === 'function' && value.constructor?.name === 'AsyncFunction')) throw new TypeError('SSR v1 requires synchronous Vue root components.');
         if (!component || !['function', 'object'].includes(typeof component) || typeof component.then === 'function') throw new TypeError('Provider factory must synchronously return a precompiled component.');
         if (signal.aborted) throw new DOMException('Provider lifetime was revoked.', 'AbortError');
         return loaded;

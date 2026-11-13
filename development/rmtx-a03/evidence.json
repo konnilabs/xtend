@@ -35,19 +35,19 @@
   "requiredCompilerChecks": 88,
   "sources": {
     "tools/xtensions/kernel-work-scope.js": "2bc544e13567898f8c4eefd973c66e62c29f616477c103e21b28a0f39a716dc8",
-    "tools/xtensions/runtime-host-controller.js": "739261dbe4c3125780bade7cbc8ec1b6883e6a526468abf96f7a7e61c42bced6",
-    "tools/xtensions/runtime-host-controller.d.ts": "b21b4c15d35e345b9228450c1825d78c13478931761741daa228144b744780d5",
-    "tools/xtensions/react-runtime-adapter.js": "e4bb309b2c30371913957dcba74fde66068c7ac141b9e332a86482bce1388e45",
-    "tools/xtensions/react-runtime-adapter.d.ts": "3b43a4589d5d1f7e04d5db33bf920061019b778bae520656a1d4b80c21421b18",
-    "tools/xtensions/vue-runtime-adapter.js": "9de3d366c70dcffaa5bb79fc32dc79680989c0c5df62061b4122cde1bd9fbf2d",
-    "tools/xtensions/vue-runtime-adapter.d.ts": "03ea4ee91d276bb648b611cc811d36088c25ec25c1d1e4596fbbfd65b0c2515a",
-    "tools/xtensions/state-binding.js": "ea4b2e578d4ea9708c4c9abbf62b10b956cdc53a799757d4a66e263cf5d361f3",
-    "tools/xtensions/state-binding.d.ts": "64b96864a7a3ef2f3d78a943eb81e0d6ae99e03fcfc3042ed5a227a14461100f",
-    "xtend-maraca/plan-runtime.d.ts": "8035b4c5c6d93eb340c1ab325462b9c253050ba1604c8dd9ddc343059362ff88",
+    "tools/xtensions/runtime-host-controller.js": "9627d38ad20200c2c846a7eb057dec28f93cc012f63b76fa0c5a86de785a4574",
+    "tools/xtensions/runtime-host-controller.d.ts": "b88df57206eae655721549bd699e8054e48189eea46e40c39f7bfc615a993e9b",
+    "tools/xtensions/react-runtime-adapter.js": "e780ccdfcc00ca7d75bec3b2bdebb383e3caa2fc40d3bfdaf4bfe85995a0308a",
+    "tools/xtensions/react-runtime-adapter.d.ts": "10700c9d08f2e94a79168e89a57d0a77eba223c89491aaf6d50ebb1bc33074c0",
+    "tools/xtensions/vue-runtime-adapter.js": "d68a72b9782be8c3d705d10af40ca4a6576c3cc0e3a9884c8db02073c8b9745c",
+    "tools/xtensions/vue-runtime-adapter.d.ts": "f441bed2550894206df776eec5d3cbfece18adb92c1432060494b38bc80d699f",
+    "tools/xtensions/state-binding.js": "19b0f4266fc7546016eb68df9eec391b554ab22a96d5eb97d001c0efa047ca79",
+    "tools/xtensions/state-binding.d.ts": "d9d73412a744b3009f892da0d4ffb2e91bcbe0425a6ed88ecaaccefb3d435341",
+    "xtend-maraca/plan-runtime.d.ts": "ba594c4e6a2d1b15564bb7404d6566088c21bcb64df998cc80dd8107fb176060",
     "tests/xtensions/kernel-runtime-acceptance.js": "3e3d4b2f4e27d82b2e0bdda14e90a36ad7b34547a2044f6a089952558f24dfcb",
     "tests/xtensions/kernel-maraca-acceptance.js": "50344373ace1530805e5849219462dd425bf648bbcfb36b19ceecb24f0165291",
     "tests/types/xtensions_kernel_runtime.mts": "2741915e56a7e0ed65f7c0d571b3cae595a06074d312b92b4c39c4558b952b3b",
-    "tests/xtensions/xtensions_runtime_gate_suite.js": "cacd80c7613d41d438edf9bb54a5126108ce61d8c05e996c4d0578ec222a744a"
+    "tests/xtensions/xtensions_runtime_gate_suite.js": "7256f64a084a21120124e864d7eb0e3c88678417b99f362d086605e3208d929c"
   },
   "jobs": [
     {

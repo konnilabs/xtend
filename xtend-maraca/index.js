@@ -5341,7 +5341,7 @@ const MARACA_COMPONENT_COMMAND_SCHEMA = ${JSON.stringify(MARACA_COMPONENT_COMMAN
 const MARACA_COMPONENT_COMMAND_RESULT_SCHEMA = ${JSON.stringify(MARACA_COMPONENT_COMMAND_RESULT_SCHEMA)};
 
 const MARACA_BOOT_CONFIGURATION = freezeMaracaSnapshot({
-  schema: ${JSON.stringify(plan.xtensionComposition ? 'xtend.maraca.browser-composition-root.v6' : MARACA_BUNDLE_REPORT_SCHEMA)},
+  schema: ${JSON.stringify(plan.xtensionComposition ? 'xtend.maraca.browser-composition-root.v7' : MARACA_BUNDLE_REPORT_SCHEMA)},
   ${plan.xtensionComposition ? `buildPlanSchema: ${JSON.stringify(plan.schema)}, sourceHash: ${JSON.stringify(plan.sourceHash)}, xtensionComposition: XTendXTensionCompanion.artifact,` : ''}
   components: MARACA_COMPONENTS,
   surfaces: MARACA_SURFACES,

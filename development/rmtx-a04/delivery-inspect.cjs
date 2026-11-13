@@ -13,7 +13,7 @@ async function inspect() {
   try {
     await check('v5 manifest builds API6 artifact/report with explicit delivery inventory', async () => {
       capture = await tool.buildMaracaXTensionComposition({ plan, manifest, bindingsRuntime, rootDir: root, outputDir: path.join(temp, 'manual') });
-      assert.equal(tool.XTENSION_COMPOSITION_BUILD_API_VERSION, '9.0.0'); assert.equal(runtime.XTENSION_COMPOSITION_API_VERSION, '6.0.0');
+      assert.equal(tool.XTENSION_COMPOSITION_BUILD_API_VERSION, '10.0.0'); assert.equal(runtime.XTENSION_COMPOSITION_API_VERSION, '7.0.0');
       assert.equal(capture.schema, 'xtend.maraca.xtension-composition-build-report.v6'); assert.equal(capture.apiVersion, '6.0.0');
       const artifact = contract.validateArtifact(capture.artifact, plan, bindingsRuntime); assert.equal(artifact.apiVersion, '6.0.0'); assert.equal(artifact.loadPlan.schema, 'xtend.maraca.xtension-load-plan.v2'); assert(Object.isFrozen(artifact.manifest.delivery));
       const bytes = fs.readFileSync(path.join(temp, 'manual', capture.deliveryFile)), delivery = JSON.parse(bytes);

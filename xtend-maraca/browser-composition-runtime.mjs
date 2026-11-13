@@ -5,7 +5,7 @@ import {
   createMaracaBrowserHostAdapter
 } from './browser-host-adapter.mjs';
 export const MARACA_BROWSER_API_VERSION = '5.0.0';
-export const MARACA_XTENSION_BROWSER_API_VERSION = '6.0.0';
+export const MARACA_XTENSION_BROWSER_API_VERSION = '7.0.0';
 export const LEGACY_BROWSER_COMPOSITION_SCHEMA = 'xtend.maraca.browser-composition-root.v1';
 
 function clone(value) {
@@ -303,8 +303,9 @@ function createRuntimeConfiguration(config, options, host, handles) {
 export function createMaracaBrowserCompositionRoot(configuration = {}, dependencies = {}) {
   const config = freezeMaracaConfiguration(configuration || {});
   const composed = Object.hasOwn(config, 'xtensionComposition');
-  if (composed !== (config.schema === 'xtend.maraca.browser-composition-root.v6') || composed && config.buildPlanSchema !== 'xtend.maraca.build-plan.v5') throw new TypeError('Automatic XTension boot requires the versioned v6 configuration and v5 build plan.');
-  const apiVersion = composed ? MARACA_XTENSION_BROWSER_API_VERSION : MARACA_BROWSER_API_VERSION;
+  const ssrCapable = config.schema === 'xtend.maraca.browser-composition-root.v7';
+  if (composed !== (ssrCapable || config.schema === 'xtend.maraca.browser-composition-root.v6') || composed && config.buildPlanSchema !== 'xtend.maraca.build-plan.v5') throw new TypeError('Automatic XTension boot requires the versioned v6 configuration and v5 build plan.');
+  const apiVersion = composed ? ssrCapable ? MARACA_XTENSION_BROWSER_API_VERSION : '6.0.0' : MARACA_BROWSER_API_VERSION;
   const platformTarget = dependencies.platformTarget || dependencies['global' + 'Target'] || dependencies.windowTarget || {};
   const windowTarget = dependencies.windowTarget || platformTarget['window'] || platformTarget;
   const documentTarget = dependencies.documentTarget || platformTarget['document'] || null;
@@ -375,6 +376,7 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
     attempt.cleaned = true;
     if (typeof attempt.runtimeUnsubscribe === 'function') attempt.runtimeUnsubscribe();
     attempt.runtimeUnsubscribe = null;
+    closeHandle(disposed, 'xtensionSSR', attempt.compositionPort?.ssrSession);
     closeHandle(disposed, 'resume', attempt.resume);
     closeHandle(disposed, 'hydration', attempt.hydration);
     closeHandle(disposed, 'orchestration', attempt.runtime);
@@ -417,6 +419,11 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
       await xtensionDrain;
       assertActiveBoot(attempt);
       attempt.root = host.resolveRoot(options.root || null);
+      if (attempt.compositionPort?.ssrSession) {
+        const restored = await attempt.compositionPort.ssrSession.prepare(attempt.root);
+        assertActiveBoot(attempt);
+        options = { ...options, ...restored };
+      }
       attempt.appServices = createAppServicesPort(config, dependencies, options, host.publish);
       attempt.renderer = host.createRenderer(options);
       host.attachCss(attempt.root);
@@ -454,7 +461,7 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
       if (!serverPrerenderShell.active && !(config.orchestration && config.orchestration.enabled)) {
         host.renderCompatibility(attempt.root, attempt.renderer);
       }
-      if (composed && serverPrerenderShell.active) throw new TypeError('Automatic XTensions require client rendering; SSR/adoption belongs to the separate restore contract.');
+      if (composed && serverPrerenderShell.active && !attempt.compositionPort?.ssrSession) throw new TypeError('Automatic XTensions require client rendering; SSR/adoption belongs to the separate restore contract.');
       attempt.ownsKernel = !composed || !options.kernelController;
       attempt.kernel = composed && options.kernelController || host.createKernelController(options);
       attempt.hydration = host.createHydrationPort(attempt.root, options);
@@ -565,11 +572,12 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
     let compositionPort = null;
     if (composed) {
       if (options.createXTensionHost !== undefined || options.xtensionBindingsRuntime !== undefined || options.xtensionCompositionPort !== undefined || options.adoptExisting === true) throw new TypeError('Automatic XTensions cannot use manual factories, binding runtimes or adoption.');
-      if (!options.fabric || typeof options.fabric.createBoundary !== 'function' || !options.xtensions || Object.keys(options.xtensions).some(key => !['loadPeers', 'loadPeerGroup', 'grants'].includes(key))) throw new TypeError('Automatic XTensions require Fabric and explicit peer-loader/grant options.');
+      if (!options.fabric || typeof options.fabric.createBoundary !== 'function' || !options.xtensions || Object.keys(options.xtensions).some(key => !['loadPeers', 'loadPeerGroup', 'grants', 'ssr'].includes(key))) throw new TypeError('Automatic XTensions require Fabric and explicit peer-loader/grant options.');
+      if (options.xtensions.ssr !== undefined && !ssrCapable) throw new TypeError('SSR requires the v7 browser composition contract.');
       const platform = dependencies.xtensionPlatform;
-      if (platform?.compositionRuntime?.XTENSION_COMPOSITION_API_VERSION !== '6.0.0') throw new TypeError('Automatic XTensions require the built platform API 6.');
+      if (!(ssrCapable ? ['7.0.0'] : ['6.0.0', '7.0.0']).includes(platform?.compositionRuntime?.XTENSION_COMPOSITION_API_VERSION)) throw new TypeError('Automatic XTensions require the built platform API 7.');
       compositionPort = platform.compositionRuntime.createMaracaXTensionCompositionPort({ plan: createRuntimePlan(config, {}), companion: dependencies.xtensionCompanion,
-        bindingsRuntime: platform.bindingsRuntime, adapters: platform.adapters, loadPeers: options.xtensions.loadPeers, loadPeerGroup: options.xtensions.loadPeerGroup, grants: options.xtensions.grants });
+        bindingsRuntime: platform.bindingsRuntime, resumeBindingsRuntime: platform.resumeBindingsRuntime, ssrRuntime: platform.ssrRuntime, ssr: options.xtensions.ssr, adapters: platform.adapters, loadPeers: options.xtensions.loadPeers, loadPeerGroup: options.xtensions.loadPeerGroup, grants: options.xtensions.grants });
     }
     generation += 1;
     let rejectCancellation;
@@ -678,6 +686,10 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
       if (!runtime) throw new Error('Maraca orchestration is not booted.');
       return runtime.getSurfaceBoundary(id);
     },
+    captureXTensionSSR() {
+      if (!runtime || typeof runtime.captureXTensionSSR !== 'function') throw new Error('A completed server SSR request is required.');
+      return runtime.captureXTensionSSR();
+    },
     getXTensionBindings() {
       if (!runtime) throw new Error('Maraca orchestration is not booted.');
       return runtime.getXTensionBindings();
@@ -709,7 +721,7 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
   facade = deepFreeze(facadeMembers);
 
   return deepFreeze({
-    schema: composed ? 'xtend.maraca.browser-composition-root.v6' : 'xtend.maraca.browser-composition-root.v5',
+    schema: composed ? ssrCapable ? 'xtend.maraca.browser-composition-root.v7' : 'xtend.maraca.browser-composition-root.v6' : 'xtend.maraca.browser-composition-root.v5',
     apiVersion,
     config,
     facade,

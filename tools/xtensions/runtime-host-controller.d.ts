@@ -329,3 +329,34 @@ export interface NegotiatedRuntimeHostController {
   getCleanupRecords(): HostResourceCleanupRecord[];
   getEventRecords(): XTensionsSurfaceEvent[];
 }
+
+/** A05: separate SSR/adoption contract; v2–v6 retain empty-container mount. */
+export const SSR_RUNTIME_HOST_CONTROLLER_SCHEMA: 'xtend.xtensions.runtime-host-controller.v7';
+export interface FrameworkSSRResult {
+  readonly schema: 'xtend.xtensions.framework-ssr-result.v1';
+  readonly framework: 'react' | 'vue';
+  readonly status: 'server-rendered' | 'resumed' | 'fallback-mounted' | 'mounted';
+  readonly nodeIdentityPreserved: boolean;
+}
+export type SSRRuntimeHostOptions = (GraphRuntimeHostOptions | BudgetRuntimeHostOptions) & Pick<NegotiatedRuntimeHostOptions, 'capabilityRequirements'> & {
+  /** Trusted session capability, never accepted as mount/adoption data. */
+  readonly ssr: { readonly mode: 'server' | 'client'; readonly identifierPrefix: string; readonly fallback: 'reject' | 'mount'; validateTarget(target: Element, props: RuntimeProps): boolean };
+}
+export interface SSRRuntimeCapabilities extends Omit<NegotiatedRuntimeCapabilities, 'schema' | 'features'> {
+  readonly schema: 'xtend.xtensions.runtime-capabilities.v3';
+  readonly features: Omit<NegotiatedRuntimeCapabilities['features'], 'render.ssr' | 'render.adoption'> & { readonly 'render.ssr': boolean; readonly 'render.adoption': boolean };
+}
+export interface SSRHostCapabilityNegotiation extends Omit<HostCapabilityNegotiation, 'schema' | 'capabilities'> {
+  readonly schema: 'xtend.xtensions.host-capability-negotiation.v2';
+  readonly capabilities: SSRRuntimeCapabilities;
+}
+export interface SSRRuntimeHostController extends Omit<NegotiatedRuntimeHostController, 'schema' | 'apiVersion' | 'getCapabilities' | 'getCapabilityNegotiation' | 'snapshot' | 'whenIdle'> {
+  readonly schema: 'xtend.xtensions.runtime-host-controller.v7';
+  readonly apiVersion: '7.0.0';
+  adopt(target?: Element, props?: RuntimeProps): Promise<RuntimeHostResult>;
+  getSSRReport(): FrameworkSSRResult | null;
+  getCapabilities(): SSRRuntimeCapabilities;
+  getCapabilityNegotiation(): SSRHostCapabilityNegotiation;
+  snapshot(): Omit<NegotiatedRuntimeHostSnapshot, 'capabilities' | 'capabilityNegotiation'> & { readonly capabilities: SSRRuntimeCapabilities; readonly capabilityNegotiation: SSRHostCapabilityNegotiation };
+  whenIdle(): Promise<ReturnType<SSRRuntimeHostController['snapshot']>>;
+}

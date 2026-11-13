@@ -7,6 +7,7 @@ const RUNTIME_HOST_CONTROLLER_SCHEMA = 'xtend.xtensions.runtime-host-controller.
 const KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA = 'xtend.xtensions.runtime-host-controller.v3';
 const GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA = 'xtend.xtensions.runtime-host-controller.v4';
 const BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA = 'xtend.xtensions.runtime-host-controller.v5';
+const SSR_RUNTIME_HOST_CONTROLLER_SCHEMA = 'xtend.xtensions.runtime-host-controller.v7';
 const NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA = 'xtend.xtensions.runtime-host-controller.v6';
 const { createKernelWorkScope } = require('./kernel-work-scope');
 const { createResourceGraphBinding } = require('./resource-graph-binding');
@@ -69,6 +70,8 @@ function peerVersionMatches(version, range) {
 // Retained-instance/Fabric lifecycle extracted from xtend-tests src/controller.js.
 // Loading is single-flight and disposal invalidates work both before and after await.
 function createRuntimeHostController(options, driver) {
+  const ssrEnabled = !!driver.ssr;
+  if (ssrEnabled && driver.kernel !== true) throw new TypeError('SSR requires Kernel/Fabric orchestration.');
   const graphEnabled = Object.hasOwn(options, 'resourceGraph');
   const budgetEnabled = Object.hasOwn(options, 'workBudget');
   const negotiatedEnabled = Object.hasOwn(options, 'capabilityRequirements');
@@ -247,10 +250,7 @@ function createRuntimeHostController(options, driver) {
       }
     });
   }
-  const api = {
-    schema: negotiatedEnabled ? NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA : budgetEnabled ? BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA : graphEnabled ? GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA : kernel ? KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA : RUNTIME_HOST_CONTROLLER_SCHEMA,
-    apiVersion: negotiatedEnabled ? '6.0.0' : budgetEnabled ? '5.0.0' : graphEnabled ? '4.0.0' : kernel ? '3.0.0' : '2.0.0', adapterSchema: `xtend.xtensions.${framework}-runtime-adapter.v${negotiatedEnabled ? 6 : budgetEnabled ? 5 : graphEnabled ? 4 : kernel ? 3 : 2}`, framework,
-    mount(target = container, initialProps = {}, mountOptions = {}) {
+  function initializeMount(target = container, initialProps = {}, mountOptions = {}, adopting = false) {
       if (disposed) return Promise.resolve(result('mount', 'failed', { reason: 'already-destroyed' }));
       if (negotiation && !negotiation.report.ok) return Promise.resolve(result('mount', 'policy-blocked', {
         reason: 'capability-requirements-unsatisfied', negotiation: negotiation.report }));
@@ -260,10 +260,11 @@ function createRuntimeHostController(options, driver) {
       let nextProps;
       try {
         if (owners.has(container) && owners.get(container) !== api) throw new Error('Host container already has a runtime owner.');
-        if (!container || container.nodeType !== 1 || container === container.ownerDocument?.body || container === container.ownerDocument?.documentElement || container.childNodes.length) throw new Error('An empty, host-owned DOM element is required; SSR adoption is outside this adapter.');
+        if (!container || container.nodeType !== 1 || container === container.ownerDocument?.body || container === container.ownerDocument?.documentElement || !adopting && container.childNodes.length) throw new Error('An empty, host-owned DOM element is required; SSR adoption is outside this adapter.');
         if (Object.keys(mountOptions).some((key) => key !== 'lane')) throw new Error('Mount data cannot supply runtime, policy, or hydration authority.');
         if (!boundaryPolicy.ok) throw Object.assign(new Error('Runtime provider boundary rejected.'), { diagnostics: boundaryPolicy.diagnostics });
         nextProps = dataProps(initialProps);
+        if (adopting) driver.ssr.validateTarget(container, nextProps);
         permit('mount', nextProps);
         graph?.attach();
       } catch (error) { return Promise.resolve(result('mount', 'policy-blocked', {}, error.diagnostics || [diagnostic(error, 'mount')])); }
@@ -276,7 +277,8 @@ function createRuntimeHostController(options, driver) {
           const loaded = await Promise.race([Promise.resolve().then(() => typeof loadRuntime === 'function' ? loadRuntime(Object.freeze({ signal: abort.signal })) : peers).then((value) => ({ value })), cancelled]);
           if (loaded.cancelled || disposed || generation !== token) return result('mount', 'skipped', { reason: 'disposed-during-mount' });
           // Recheck ownership after the asynchronous provider returns.
-          if (container.childNodes.length) throw new Error('Host container changed while loading.');
+          if (adopting) driver.ssr.validateTarget(container, nextProps);
+          else if (container.childNodes.length) throw new Error('Host container changed while loading.');
           const runtime = driver.normalizePeers(loaded.value);
           for (const dependency of boundaryPolicy.dependencies) {
             const actual = runtime.versions[dependency.name];
@@ -288,7 +290,7 @@ function createRuntimeHostController(options, driver) {
           runtimeVersions = runtime.versions;
           if (!component) throw new TypeError('Host component is required.');
           instance = driver.create(runtime, component, container, facade, (error) => tearingDown
-            ? diagnostic(error, `cleanup:${framework}-root`) : api.reportError(error, { phase: 'render' }));
+            ? diagnostic(error, `cleanup:${framework}-root`) : api.reportError(error, { phase: 'render' }), { adopting, props: nextProps });
           const before = diagnostics.length;
           const rendered = await Promise.race([Promise.resolve(instance.render(nextProps)).then(() => ({ done: true })), cancelled]);
           if (fatalError) throw fatalError;
@@ -306,7 +308,11 @@ function createRuntimeHostController(options, driver) {
         } finally { pendingMount = null; }
       });
       return pendingMount;
-    },
+    }
+  const api = {
+    schema: ssrEnabled ? SSR_RUNTIME_HOST_CONTROLLER_SCHEMA : negotiatedEnabled ? NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA : budgetEnabled ? BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA : graphEnabled ? GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA : kernel ? KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA : RUNTIME_HOST_CONTROLLER_SCHEMA,
+    apiVersion: ssrEnabled ? '7.0.0' : negotiatedEnabled ? '6.0.0' : budgetEnabled ? '5.0.0' : graphEnabled ? '4.0.0' : kernel ? '3.0.0' : '2.0.0', adapterSchema: `xtend.xtensions.${framework}-runtime-adapter.v${ssrEnabled ? 7 : negotiatedEnabled ? 6 : budgetEnabled ? 5 : graphEnabled ? 4 : kernel ? 3 : 2}`, framework,
+    mount: (target = container, props = {}, options = {}) => initializeMount(target, props, options),
     update(signal = {}) {
       let next;
       try {
@@ -410,6 +416,10 @@ function createRuntimeHostController(options, driver) {
     getCleanupRecords: () => clone(cleanupRecords),
     getEventRecords: () => clone(eventRecords)
   };
+  if (ssrEnabled) {
+    api.adopt = (target = container, initialProps = {}) => initializeMount(target, initialProps, {}, true);
+    api.getSSRReport = () => instance?.ssrReport?.() || null;
+  }
   if (kernel) api.getCapabilities = () => negotiation?.capabilities || kernel.capabilities;
   if (graphEnabled || negotiatedEnabled) api.whenIdle = async () => {
     let pending;
@@ -443,10 +453,10 @@ function createRuntimeHostController(options, driver) {
   });
   if (negotiatedEnabled) {
     negotiation = createHostCapabilityNegotiation(options.capabilityRequirements, { framework, kernelCapabilities: kernel.capabilities,
-      graph: graphEnabled, budget: budgetEnabled, allowedResources, events });
+      graph: graphEnabled, budget: budgetEnabled, allowedResources, events, ...(ssrEnabled ? { ssr: driver.ssr.mode } : {}) });
     api.getCapabilityNegotiation = () => negotiation.report;
   }
   const facade = Object.freeze({ emit: api.emit, resources: Object.freeze({ register: resources.register }), ...(kernel ? { work: kernel.work } : {}) });
   return Object.freeze(api);
 }
-module.exports = { RUNTIME_HOST_CONTROLLER_SCHEMA, KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA, GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA, BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA, NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA, createRuntimeHostController };
+module.exports = { SSR_RUNTIME_HOST_CONTROLLER_SCHEMA, RUNTIME_HOST_CONTROLLER_SCHEMA, KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA, GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA, BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA, NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA, createRuntimeHostController };

@@ -1,7 +1,7 @@
 import type { MaracaBuildPlan } from './index';
 import type { XTensionCompositionManifest, XTensionCompositionArtifact, XTensionCompositionBindingRuntime } from './xtension-composition-runtime';
 export type { XTensionCompositionManifest, XTensionCompositionArtifact, XTensionCompositionProvider } from './xtension-composition-runtime';
-export const XTENSION_COMPOSITION_BUILD_API_VERSION: '9.0.0';
+export const XTENSION_COMPOSITION_BUILD_API_VERSION: '10.0.0';
 export interface XTensionCompositionBuildReport {
   readonly schema: 'xtend.maraca.xtension-composition-build-report.v1';
   readonly apiVersion: '1.0.0'; readonly ok: true;
@@ -174,3 +174,5 @@ export interface XTensionDeploymentSnapshot extends XTensionRetainedDeployment {
   readonly origin: string; readonly publicPath: string; readonly runtimeExecutionVerified: false;
 }
 export type {DeploymentUpdateClient, DeploymentUpdateReport, DeploymentHead} from './xtension-deployment-lifecycle-client.js';
+
+export * from './xtension-ssr';

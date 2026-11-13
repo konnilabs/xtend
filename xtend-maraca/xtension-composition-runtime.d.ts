@@ -4,7 +4,7 @@ import type {
 } from '@ccslabs/xtend-compiler/xtensions/react-runtime-adapter';
 import type { XTensionBindingHostContext, XTensionStateBindingArtifact } from '@ccslabs/xtend-compiler/xtensions/state-binding';
 import type { MaracaBuildPlan } from './index';
-export const XTENSION_COMPOSITION_API_VERSION: '6.0.0';
+export const XTENSION_COMPOSITION_API_VERSION: '7.0.0';
 export type XTensionCompositionProvider = {
   readonly id: string;
   readonly version: string;
@@ -194,3 +194,29 @@ export interface DeliveryXTensionHostCompositionOptions extends Omit<SharedXTens
   readonly artifact: DeliveryXTensionCompositionArtifact;
 }
 export function createMaracaXTensionHostFactory(options: DeliveryXTensionHostCompositionOptions): (context: XTensionCompositionHostContext) => NegotiatedRuntimeHostController;
+
+/** Live capabilities prepared by the generated platform, never snapshot JSON. */
+export interface MaracaXTensionSSRSession {
+  readonly schema: 'xtend.maraca.xtension-ssr-session.v1'; readonly mode: 'server' | 'client';
+  prepare(root: Element): Promise<{ readonly initialState?: Readonly<Record<string, unknown>>; readonly adoptExisting: boolean }>;
+  confirmRestored(snapshot: { readonly states: Readonly<Record<string, unknown>> }): void;
+  hostContext(context: XTensionCompositionHostContext, provider: XTensionCompositionProvider): import('@ccslabs/xtend-compiler/xtensions/react-runtime-adapter').SSRRuntimeHostOptions['ssr'];
+  gate(context: XTensionCompositionHostContext): XTensionBindingHostContext['onEvent'];
+  bind(entry: { readonly binding: import('@ccslabs/xtend-compiler/xtensions/state-binding').XTensionStateBinding }, instance: import('@ccslabs/xtend-compiler/xtensions/state-binding').XTensionResumeBoundInstance): void;
+  retire(address: XTensionBindingHostContext['identity']['address']): void;
+  shouldAdopt(entry: { readonly binding: import('@ccslabs/xtend-compiler/xtensions/state-binding').XTensionStateBinding }): boolean;
+  finish(): Promise<import('./xtension-ssr').XTensionSSRReport>;
+  capture(snapshot: { readonly states: Readonly<Record<string, unknown>> }): Promise<import('./xtension-ssr').XTensionSSRResponse>;
+  getReport(): import('./xtension-ssr').XTensionSSRReport | null;
+  dispose(): void;
+}
+export interface MaracaXTensionResumeBindingRuntime {
+  readonly XTENSION_RESUME_STATE_BINDING_API_VERSION: '3.0.0';
+  readonly createXTensionResumeStateRegistry: typeof import('@ccslabs/xtend-compiler/xtensions/state-binding').createXTensionResumeStateRegistry;
+}
+export interface MaracaXTensionSSRCompositionPort extends Omit<MaracaXTensionCompositionPort, 'schema' | 'bind'> {
+  readonly schema: 'xtend.maraca.xtension-composition-port.v2';
+  readonly ssrSession: MaracaXTensionSSRSession;
+  readonly resumeBindingsRuntime: MaracaXTensionResumeBindingRuntime;
+  bind(ports: Parameters<MaracaXTensionCompositionPort['bind']>[0]): (context: XTensionCompositionHostContext) => import('@ccslabs/xtend-compiler/xtensions/react-runtime-adapter').SSRRuntimeHostController;
+}

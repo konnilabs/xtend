@@ -47,6 +47,14 @@ function runXTensionsRuntimeGate({ rootDir, browser = false } = {}) {
     context.assert(report.exports.legacySynchronousContracts && report.exports.declarationExportParity && report.exports.browserConditionParity,'Legacy, declaration and condition contracts pass');
     if (browser) context.assert(Boolean(report.browser) && report.exports.actualBrowserParity && report.pageErrors.length === 0,'Real browser export parity and page errors are verified');
     if (browser) {
+      const ssrArtifact = path.join(rootDir, '.xtend-test-results', 'xtend-xtensions-ssr-report.json');
+      fs.rmSync(ssrArtifact, { force: true });
+      const ssrExecution = spawnSync(process.execPath, ['scripts/test_xtensions_ssr.cjs', '--report', ssrArtifact], { cwd: rootDir, env, encoding: 'utf8', timeout: 180000, maxBuffer: 16 * 1024 * 1024 });
+      context.assert(!ssrExecution.error && ssrExecution.status === 0, `Actual Node SSR/native adoption passes: ${ssrExecution.stderr || ssrExecution.stdout || ssrExecution.error || ''}`);
+      const ssr = JSON.parse(fs.readFileSync(ssrArtifact, 'utf8'));
+      context.assert(ssr.schema === 'xtend.xtensions.ssr-acceptance-report.v1' && ssr.ok && ssr.node === process.version && ssr.checks >= 84 && ssr.cases.every(row => row.passed), 'Actual SSR/restore/adoption/replay and separately reported fallback are mandatory');
+      context.assert(Object.values(ssr.sizes).every(row => Number.isFinite(row.frameworkBytes) && row.frameworkBytes <= 2200000 && row.runtimeBytes <= 240000), 'SSR JavaScript stays fully inside the unchanged framework/runtime ceilings');
+      context.assert(ssr.signedSnapshotRequired && ssr.restoreBeforeReplay && ssr.ownership === 'exclusive-container' && ssr.releaseAccepted === false, 'SSR retains signature, restore and bounded ownership contracts');
       const deliveryArtifact = path.join(rootDir,'.xtend-test-results','xtend-xtensions-delivery-report.json');
       fs.rmSync(deliveryArtifact,{force:true});
       const execution = spawnSync(process.execPath,['scripts/test_xtensions_delivery.cjs','--report',deliveryArtifact],{cwd:rootDir,env,encoding:'utf8',timeout:90000,maxBuffer:16*1024*1024});

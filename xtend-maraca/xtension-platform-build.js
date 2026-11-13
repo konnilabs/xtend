@@ -3,7 +3,7 @@
 const fs = require('node:fs'), path = require('node:path');
 
 // This bridge is deliberately limited to XTend's own CommonJS runtime closure.
-// Application providers retain the separate verified, import-free ESM contract.
+// Application providers retain their separate verified local ESM contract.
 async function buildXTensionPlatform(plan, rollup) {
   const entries = Object.fromEntries(['state-binding', ...new Set(plan.xtensionComposition.providers.map(provider => provider.framework + '-runtime-adapter'))].map(name =>
     [name, require.resolve('@ccslabs/xtend-compiler/xtensions/' + name, { paths: [plan.rootDir, __dirname] })]));
@@ -31,8 +31,10 @@ async function buildXTensionPlatform(plan, rollup) {
   Object.values(entries).forEach(capture);
   const virtual = '\0xtend-xtension-platform';
   const runtime = path.join(__dirname, 'xtension-composition-runtime.mjs');
-  const source = Object.entries(entries).map(([name, file], index) => `import api${index} from ${JSON.stringify(file)};`).join('\n') +
-    `\nimport * as compositionRuntime from ${JSON.stringify(runtime)};\nexport default Object.freeze({ bindingsRuntime: api0, compositionRuntime, adapters: Object.freeze({${Object.keys(entries).slice(1).map((name, index) => `${JSON.stringify(name.split('-')[0])}: api${index + 1}`).join(',')} }) });\n`;
+  const bindingContract = require.resolve(path.join(compilerRoot, 'xtensions/state-binding-contract'));
+  capture(bindingContract);
+  const source = `import * as bindingContract from ${JSON.stringify(bindingContract)};\nimport * as ssrRuntime from ${JSON.stringify(path.join(__dirname, 'xtension-ssr-runtime.mjs'))};\n` + Object.entries(entries).map(([name, file], index) => `import * as api${index} from ${JSON.stringify(file)};`).join('\n') +
+    `\nimport * as compositionRuntime from ${JSON.stringify(runtime)};\nexport default Object.freeze({ bindingsRuntime: Object.freeze({XTENSION_STATE_BINDING_API_VERSION:api0.XTENSION_STATE_BINDING_API_VERSION,validateStateBindingArtifact:api0.validateStateBindingArtifact,materializeStateBindingArtifact:api0.materializeStateBindingArtifact,createXTensionStateRegistry:api0.createXTensionStateRegistry}), compositionRuntime, ssrRuntime, resumeBindingsRuntime: Object.freeze({XTENSION_RESUME_STATE_BINDING_API_VERSION:api0.XTENSION_RESUME_STATE_BINDING_API_VERSION,createXTensionResumeStateRegistry:api0.createXTensionResumeStateRegistry,typed:bindingContract.typed,propsFrom:bindingContract.propsFrom}), adapters: Object.freeze({${Object.keys(entries).slice(1).map((name, index) => {const framework=name.split('-')[0],title=framework==='react'?'React':'Vue';return `${JSON.stringify(framework)}: Object.freeze({create${title}KernelRuntimeAdapter:api${index+1}.create${title}KernelRuntimeAdapter,normalize${title}Peers:api${index+1}.normalize${title}Peers,create${title}SSRRuntimeAdapter:api${index+1}.create${title}SSRRuntimeAdapter,normalize${title}SSRPeers:api${index+1}.normalize${title}SSRPeers})`;}).join(',')} }) });\n`;
   const bundle = await rollup.rollup({ input: virtual, plugins: [{
     name: 'xtend-owned-xtension-platform',
     resolveId(id) { return id === virtual ? id : null; },
@@ -45,9 +47,7 @@ async function buildXTensionPlatform(plan, rollup) {
         }
         return null;
       }
-      const imports = [...record.imports];
-      return imports.map(([name, target], index) => `import dependency${index} from ${JSON.stringify(target)};`).join('\n') +
-        `\nconst api = (() => { const module = { exports: {} }; const exports = module.exports; const dependencies = {${imports.map(([name], index) => `${JSON.stringify(name)}: dependency${index}`).join(',')}}; const require = id => { if (!Object.hasOwn(dependencies, id)) throw new TypeError('Unknown XTension platform dependency.'); return dependencies[id]; };\n${record.source}\nreturn module.exports; })();\nexport default api;`;
+      return require('./xtension-platform-esm').toESM(record.source,parseAst,name=>{const target=record.imports.get(name);if(!target)throw new TypeError('Unknown platform dependency.');return target;});
     }
   }] });
   try {

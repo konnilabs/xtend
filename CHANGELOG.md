@@ -4,6 +4,8 @@ Alle sichtbaren Produktaenderungen werden in diesem Dokument gesammelt. XTend is
 
 ## Unreleased – 0.9.0
 
+- A05: Echte React-/Vue-SSR unter Node und DOM-Adoption über Kernel, Fabric und Surface-Ressourcen. Signierte, quell- und schlüsselgebundene Model-Snapshots werden vor Intent-Replay wiederhergestellt; frischer Mount-Fallback bleibt ausdrücklich getrennt. Build-API 10, Composition-/Browser-/Host-API 7, Plan-Runtime v9, Resume-Registry 3 und SSR-Verträge v1; ältere Verträge und feste Größenbudgets bleiben erhalten. Das exklusive Container-Profil ersetzt keine vollständige 0.9-Abnahme.
+
 - A04.3.7-Bugfix: Update-Erkennung über einen stabilen Revisionshinweis sowie unabhängige öffentliche Vorgänger-Snapshots für begrenzte Rollouts und Neustarts nach Archivabbau. Bestehende v3-/Client-v1-Schemata werden korrigiert; API-Versionen bleiben erhalten.
 
 - A04.3.7: Unveränderliche Revisions-URLs, verifizierte und gesondert budgetierte Vorgänger-Snapshots sowie Update-Status und ausdrücklich bestätigter Cache-Abbau. Build-API 9, Deployment-API 3, Config/Manifest/Ergebnis v3, Runtimepolicy v2 und Client-/Nachrichten-API v1. Ältere Verträge bleiben erhalten; Worker aktivieren sich über den normalen Browser-Lebenszyklus.

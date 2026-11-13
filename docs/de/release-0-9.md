@@ -8,9 +8,9 @@
 | --- | --- | --- |
 | RMT Classic | Umbenennung und gemeinsamer Compilervertrag implementiert | Kompatibilität und Regressionen |
 | RMTX | Backend vorbereitet; Syntax und Frontend offen | Parser/Lowering, Editor, gemischte Projekte, Browser/SSR |
-| XTensions 2.0 | State/Actions, bedingte/wiederholte Hosts und URL/History; Kernel-Adapter begonnen | Kernel-Anbindung vertiefen; Provider-/Host-Kette und SSR/Resume offen |
+| XTensions 2.0 | State/Actions, URL/History, Kernel/Fabric, Provider-Kette und React-/Vue-SSR/Adoption implementiert | Weitere Frameworks, Cross-Framework-Ownership und vollständige 0.9-Abnahme |
 
-A03.4 ergänzt Fähigkeitsverhandlung (Host-API 6.0.0) über Kernel/Fabric. [Vertrag und Nachweise](../../development/rmtx-a03/README.md). Registry 2.4.0; Maraca v7; Browser-API 5.0.0; Classic-AST 1.0.0.
+[A05](../../development/rmtx-a05/README.md) ergänzt echte Node-SSR und signierten Model-Restore vor Adoption und Intent-Replay für exklusive React-/Vue-Container. Build-API 10; Composition-/Browser-/Host-API 7; SSR-Plan-Runtime v9 und Resume-Registry 3. Bisherige Verträge bleiben erhalten. Die reguläre Komposition verwendet weiterhin Plan-Runtime v8 und Registry 2.4.0; Classic-AST 1.0.0 bleibt unverändert.
 
 ## Releaseprüfung
 
@@ -24,4 +24,4 @@ npm run release:features:check
 
 ## Nächste Schritte
 
-[Bestandsaufnahme](../../development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md). [Classic-Vertrag](./rmt-classic-contract.md): Compilerbasis. Syntax und Adapterfähigkeiten sind offen.
+[Bestandsaufnahme](../../development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md). [Classic-Vertrag](./rmt-classic-contract.md): Compilerbasis. A06 adressiert als Nächstes RMTX-Syntax und DX; weitere Framework- und Ownership-Profile benötigen eigene Nachweise.

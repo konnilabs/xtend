@@ -301,7 +301,7 @@ async function runIntegratedCompositionAcceptance({ React, ReactDOM, Vue, docume
   for (const framework of ['react', 'vue']) {
     await test(`A04.2: ${framework} regular generated ESM boot composes real internal ports and typed Model delivery`, async () => {
       const f = fixture(framework); try {
-        equal([f.app.schema, f.app.apiVersion], ['xtend.maraca.browser-composition-root.v6', '6.0.0'], 'integrated browser contract is versioned');
+        equal([f.app.schema, f.app.apiVersion], ['xtend.maraca.browser-composition-root.v7', '7.0.0'], 'integrated browser contract is versioned');
         await f.app.boot(f.options); equal(f.app.facade.snapshot().schema, 'xtend.maraca.plan-runtime.v8', 'integrated plan runtime has its own major');
         equal(f.root.querySelectorAll('input').length, 3, 'real generated output mounts all keyed roots');
         const controller = f.controllers[0], native = controller.native;
