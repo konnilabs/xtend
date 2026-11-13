@@ -1,0 +1,46 @@
+{
+  "format": 1,
+  "version": "1.0.0",
+  "caseId": "product-details",
+  "documentId": "a06-product-details",
+  "ownerSurface": "product-details",
+  "payloadSchema": "xtend.schemas.xtension.intent.v1",
+  "hosts": [
+    {
+      "declarationId": "product-gallery",
+      "targetSurface": "product-gallery-host",
+      "providerId": "react-product-gallery",
+      "componentVersion": "1.0.0",
+      "framework": "react",
+      "providerModule": "./development/rmtx-a06/providers/react-gallery.mjs",
+      "peers": { "react": "18.3.1", "react-dom": "18.3.1" },
+      "lane": "visible",
+      "presence": { "state": "hosts", "path": ["gallery"] },
+      "props": {
+        "images": { "state": "product", "path": ["images"], "type": "array", "items": { "type": "string" } },
+        "selectedImageId": { "state": "product", "path": ["selectedImageId"], "type": "string" }
+      },
+      "intents": {
+        "selectImage": { "command": "product.selectImage", "fields": { "imageId": { "type": "string" } } }
+      }
+    },
+    {
+      "declarationId": "product-reviews",
+      "targetSurface": "product-reviews-host",
+      "providerId": "vue-product-reviews",
+      "componentVersion": "1.0.0",
+      "framework": "vue",
+      "providerModule": "./development/rmtx-a06/providers/vue-reviews.mjs",
+      "peers": { "vue": "3.5.43" },
+      "lane": "idle",
+      "presence": { "state": "hosts", "path": ["reviews"] },
+      "props": {
+        "productId": { "state": "product", "path": ["id"], "type": "string" },
+        "sort": { "state": "product", "path": ["reviewsSort"], "type": "string" }
+      },
+      "intents": {
+        "changeSort": { "command": "product.changeSort", "fields": { "sort": { "type": "string" } } }
+      }
+    }
+  ]
+}

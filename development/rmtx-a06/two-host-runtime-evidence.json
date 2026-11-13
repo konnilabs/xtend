@@ -1,0 +1,96 @@
+{
+  "format": 1,
+  "version": "1.0.0",
+  "date": "2026-11-14",
+  "stage": "A06.1a-two-host-reference",
+  "contractEvidenceSha256": "89124ed3aad60c607ba05aed40208035e606a39b217237847a1a40949f932420",
+  "runs": [
+    {
+      "format": 1,
+      "version": "1.0.0",
+      "stage": "A06.1a-two-host-reference",
+      "mode": "jsdom",
+      "node": "v24.18.0",
+      "versions": {
+        "react": "18.3.1",
+        "vue": "3.5.43"
+      },
+      "browserVersion": null,
+      "pageErrors": [],
+      "passed": true,
+      "cases": 8,
+      "names": [
+        "two actual framework roots share one native resource owner and retain separate targets",
+        "framework events run declared Actions and return controlled props through XTend State",
+        "unknown, mistyped, extra-field and forged-source intents do not write Model",
+        "common Surface close stages latest Model props and resume preserves both roots",
+        "removing one host preserves its sibling and invalidates old intents across reincarnation",
+        "common Surface destroy immediately revokes both scopes and late provider completion",
+        "common Surface destroy cancels active work on both hosts and fences result callbacks",
+        "source lane requests do not manufacture trusted application grants"
+      ],
+      "automaticCompositionSupported": false,
+      "ssrAcceptancePerformed": false,
+      "acceptedForRelease": false
+    },
+    {
+      "format": 1,
+      "version": "1.0.0",
+      "stage": "A06.1a-two-host-reference",
+      "mode": "jsdom",
+      "node": "v26.5.0",
+      "versions": {
+        "react": "18.3.1",
+        "vue": "3.5.43"
+      },
+      "browserVersion": null,
+      "pageErrors": [],
+      "passed": true,
+      "cases": 8,
+      "names": [
+        "two actual framework roots share one native resource owner and retain separate targets",
+        "framework events run declared Actions and return controlled props through XTend State",
+        "unknown, mistyped, extra-field and forged-source intents do not write Model",
+        "common Surface close stages latest Model props and resume preserves both roots",
+        "removing one host preserves its sibling and invalidates old intents across reincarnation",
+        "common Surface destroy immediately revokes both scopes and late provider completion",
+        "common Surface destroy cancels active work on both hosts and fences result callbacks",
+        "source lane requests do not manufacture trusted application grants"
+      ],
+      "automaticCompositionSupported": false,
+      "ssrAcceptancePerformed": false,
+      "acceptedForRelease": false
+    },
+    {
+      "format": 1,
+      "version": "1.0.0",
+      "stage": "A06.1a-two-host-reference",
+      "mode": "chromium",
+      "node": "v24.18.0",
+      "versions": {
+        "react": "18.3.1",
+        "vue": "3.5.43"
+      },
+      "browserVersion": "155.0.8059.79",
+      "pageErrors": [],
+      "passed": true,
+      "cases": 8,
+      "names": [
+        "two actual framework roots share one native resource owner and retain separate targets",
+        "framework events run declared Actions and return controlled props through XTend State",
+        "unknown, mistyped, extra-field and forged-source intents do not write Model",
+        "common Surface close stages latest Model props and resume preserves both roots",
+        "removing one host preserves its sibling and invalidates old intents across reincarnation",
+        "common Surface destroy immediately revokes both scopes and late provider completion",
+        "common Surface destroy cancels active work on both hosts and fences result callbacks",
+        "source lane requests do not manufacture trusted application grants"
+      ],
+      "automaticCompositionSupported": false,
+      "ssrAcceptancePerformed": false,
+      "acceptedForRelease": false
+    }
+  ],
+  "automaticCompositionSupported": false,
+  "ssrAcceptancePerformed": false,
+  "acceptedForRelease": false
+}

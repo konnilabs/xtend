@@ -861163,7 +861163,8 @@
             "development/rmtx-a02/controlled-filters.js",
             "development/rmtx-a03/README.md",
             "development/rmtx-a03/capability-inspect.cjs",
-            "development/rmtx-a03/capability-negotiation.md"
+            "development/rmtx-a03/capability-negotiation.md",
+            "development/rmtx-a06/two-host.contract.json"
           ],
           "interfaceReferences": [
             {
@@ -963809,7 +963810,9 @@
           "visibility": "docs",
           "sourcePaths": [
             "development/rmtx-a03/capability-inspect.cjs",
-            "development/rmtx-a04/reference.cjs"
+            "development/rmtx-a04/reference.cjs",
+            "development/rmtx-a06/two-host-inspect.cjs",
+            "development/rmtx-a06/two-host-runtime.mjs"
           ],
           "interfaceReferences": [
             {
@@ -963821,6 +963824,16 @@
               "type": "symbol",
               "path": "development/rmtx-a04/reference.cjs",
               "symbol": "createManifest"
+            },
+            {
+              "type": "symbol",
+              "path": "development/rmtx-a06/two-host-inspect.cjs",
+              "symbol": "inspect"
+            },
+            {
+              "type": "symbol",
+              "path": "development/rmtx-a06/two-host-runtime.mjs",
+              "symbol": "createXTensionHost"
             }
           ]
         },
@@ -963832,7 +963845,9 @@
             "development/rmtx-a01/inventory.json",
             "development/rmtx-a03/capability-inspect.cjs",
             "development/rmtx-a03/capability-negotiation.md",
-            "development/rmtx-a04/reference.cjs"
+            "development/rmtx-a04/reference.cjs",
+            "development/rmtx-a06/two-host-inspect.cjs",
+            "development/rmtx-a06/two-host-runtime.mjs"
           ],
           "interfaceReferences": [
             {
@@ -963967,9 +963982,11 @@
         "decision": "reviewed-a041-local-provider-composition",
         "acceptedFingerprints": [
           "sha256:0c3d77be3711b0d5d66643297c45a5992a0a0c9cccfd7a91dde172e5f4fc8140",
+          "sha256:1de6b70ab0b6c7415bbcfc159f231b0c97aed63998e415096de30bee0db380f8",
           "sha256:2510387d32a7ab776e7ed1657453edd73e361965e881a9272fda78029680d90e",
           "sha256:3c6329c0e8e054493a56520a8ee3ef24850a1d0df3a0240c2f5b7fb9a1062a0e",
           "sha256:536c936e4befbd25a96d4e67cb55e306cf689fc19a2f0e00352f5ebc892e78dd",
+          "sha256:8d29b09b338cbc33402c47558aac336fd755337d3c62cf5d10a07d1a85c66231",
           "sha256:cac82b9db9558844e4009bf7c49334dc7d68186620e71e1ff3274dcac92ca3dd"
         ],
         "authoritativeFingerprints": [
@@ -964044,6 +964061,46 @@
               "authoritative": false,
               "path": "development/rmtx-a03/capability-inspect.cjs",
               "symbol": "required"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
+          ],
+          "completeness": "complete",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:1de6b70ab0b6c7415bbcfc159f231b0c97aed63998e415096de30bee0db380f8",
+          "shape": {
+            "fieldCount": 1,
+            "fields": [
+              "required"
+            ],
+            "signature": "required:{}",
+            "normalized": {
+              "fields": {
+                "required": {
+                  "optional": false,
+                  "type": {
+                    "fields": {}
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "development/rmtx-a06/two-host-inspect.cjs"
+          ],
+          "symbols": [
+            "inspect"
+          ],
+          "evidence": [
+            {
+              "type": "docs",
+              "completeness": "complete",
+              "authoritative": false,
+              "path": "development/rmtx-a06/two-host-inspect.cjs",
+              "symbol": "inspect"
             }
           ],
           "evidenceTypes": [
@@ -964447,6 +964504,74 @@
           ],
           "completeness": "complete",
           "authoritative": true
+        },
+        {
+          "hash": "sha256:8d29b09b338cbc33402c47558aac336fd755337d3c62cf5d10a07d1a85c66231",
+          "shape": {
+            "fieldCount": 2,
+            "fields": [
+              "framework",
+              "required"
+            ],
+            "signature": "framework:{\"unresolved\":\"definition.framework\"}|required:{events:unknown,features:array<string>,work:array<string>}",
+            "normalized": {
+              "fields": {
+                "framework": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "definition.framework"
+                  }
+                },
+                "required": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "events": {
+                        "optional": false,
+                        "type": "unknown"
+                      },
+                      "features": {
+                        "optional": false,
+                        "type": {
+                          "array": [
+                            "string"
+                          ]
+                        }
+                      },
+                      "work": {
+                        "optional": false,
+                        "type": {
+                          "array": [
+                            "string"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "development/rmtx-a06/two-host-runtime.mjs"
+          ],
+          "symbols": [
+            "createXTensionHost"
+          ],
+          "evidence": [
+            {
+              "type": "docs",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "development/rmtx-a06/two-host-runtime.mjs",
+              "symbol": "createXTensionHost"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
+          ],
+          "completeness": "partial",
+          "authoritative": false
         },
         {
           "hash": "sha256:cac82b9db9558844e4009bf7c49334dc7d68186620e71e1ff3274dcac92ca3dd",

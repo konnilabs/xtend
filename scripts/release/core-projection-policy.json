@@ -1,7 +1,7 @@
 {
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "58d7410438fb915bc6c70a23f67914b3020ca1cc1909ed10d2cd6c81d39d187a",
+  "inventorySha256": "89c7fc8af1a7d6ec22dc53af2b50dcbfe45d6abdb9e487b19b1f4ac65307d1e6",
   "productivePaths": [
     ".codex",
     ".comments/XScaler ATC.png.xml",
@@ -1205,6 +1205,21 @@
     "development/rmtx-a05/README.md",
     "development/rmtx-a05/evidence.json",
     "development/rmtx-a05/inspect.cjs",
+    "development/rmtx-a06/providers/react-gallery.mjs",
+    "development/rmtx-a06/providers/vue-reviews.mjs",
+    "development/rmtx-a06/syntax-and-jsx-sideloading-assessment.md",
+    "development/rmtx-a06/two-host-acceptance.mjs",
+    "development/rmtx-a06/two-host-case.md",
+    "development/rmtx-a06/two-host-evidence.json",
+    "development/rmtx-a06/two-host-inspect.cjs",
+    "development/rmtx-a06/two-host-reference.cjs",
+    "development/rmtx-a06/two-host-runtime-evidence.json",
+    "development/rmtx-a06/two-host-runtime.mjs",
+    "development/rmtx-a06/two-host-test.cjs",
+    "development/rmtx-a06/two-host.candidate.tsx",
+    "development/rmtx-a06/two-host.contract.json",
+    "development/rmtx-a06/two-host.rmt",
+    "development/rmtx-a06/two-host.types.d.ts",
     "docs/.htaccess",
     "docs/assets/rmt-stack-topography.svg",
     "docs/de/README.md",
@@ -3663,7 +3678,7 @@
     "xtendrmt/rmt-surface-transition-runtime.js",
     "xtendrmt/rmt.schema.json"
   ],
-  "authorityDecisionSha256": "ed8d2a1fd96178528eb4ea391b9d52fac4e02ec29454bf794e9cf9c4b5c575da",
+  "authorityDecisionSha256": "63c1cd6c202757fe1997b69dcba8ba20a2a8f57d3777179d74d287085e80cb4b",
   "note": "No union filtering or Core schema acceptance is inferred. Missing/pending exact projection blocks Core CI evidence and release preparation. Initial Candidate authority retirement remains a separate source guard.",
   "coreCandidateAuthoritySha256": "8fc57e4eb96a3a6fd0155234f06cc4b95879fc9d492fdaad8171e26345e4f865"
 }

@@ -1,0 +1,34 @@
+// Executable Classic counterpart; the TSX file is a syntax candidate only.
+template product.details {
+  state product type object preserve {
+    initial { id "p1"; images ["front", "back"]; selectedImageId "front"; reviewsSort "recent" }
+  }
+  state hosts type object preserve {
+    initial { gallery true; reviews true }
+  }
+  action product.selectImage {
+    input imageId string
+    reduce state.product.selectedImageId = input.imageId
+  }
+  action product.changeSort {
+    input sort string
+    reduce state.product.reviewsSort = input.sort
+  }
+  action hosts.replace {
+    input hosts object
+    reduce state.hosts = input.hosts
+  }
+  portal surface.root root "#xtend-maraca-root" layer surface
+  surface product-details kind region component section {
+    portal surface.root
+    lane visible { mount product-header }
+  }
+  surface product-gallery-host kind region component div {
+    portal surface.root
+    lane visible { mount product-gallery }
+  }
+  surface product-reviews-host kind region component div {
+    portal surface.root
+    lane idle { mount product-reviews }
+  }
+}

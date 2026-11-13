@@ -4,8 +4,8 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "58d7410438fb915bc6c70a23f67914b3020ca1cc1909ed10d2cd6c81d39d187a",
-  "sourceMembershipSha256": "430f5ed4aeae5172b4f943cc6f30a5ddf0e84ed41ab520a1020a7a4e63f27339",
+  "inventorySha256": "89c7fc8af1a7d6ec22dc53af2b50dcbfe45d6abdb9e487b19b1f4ac65307d1e6",
+  "sourceMembershipSha256": "0dbb3e868077982a6325e1f8da9dae3db9495d587dc0758a139d31f9076d883c",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
@@ -1933,5 +1933,89 @@
     "publicationGuardRetired": false,
     "freshCommittedCaptureRequired": true,
     "rationale": "A05 reviewed opt-in React/Vue SSR and actual DOM adoption with a signed, source/provider/key-bound Model snapshot, restore before structured intent replay, and separately reported fresh-mount fallback. Versioned new contracts retain all previous authoritative and released fingerprint sets. Partial observations stay partial; this is not complete 0.9 acceptance. See development/rmtx-a05/README.md."
+  },
+  "a06SyntaxAssessment": {
+    "date": "2026-11-13",
+    "report": "development/rmtx-a06/syntax-and-jsx-sideloading-assessment.md",
+    "reportSha256": "1082ed6f7a32c04605df66e965c2e5250233c0512784e9818c1a78d6a9859d88",
+    "sourceBaseSha": "e73d30c681973f29ff7f736dceb4a3141aab5183",
+    "kind": "non-binding-report",
+    "syntaxDecisionStatus": "open",
+    "newSchemaIds": [],
+    "apiVersionsChanged": false,
+    "mechanicalProbesPerNodeLane": 11,
+    "probeNodeVersions": [
+      "24.18.0",
+      "26.5.0"
+    ],
+    "nativeRMTXFrontendImplemented": false,
+    "agentBenchmarkPerformed": false,
+    "externalReviewEvaluation": {
+      "date": "2026-11-14",
+      "section": "13",
+      "sourceDocument": "RMTX-A06-Architekturfeedback-XTensions-2.0.md",
+      "sourceDocumentSha256": "b96587675f5bdf9141e252450e1d98407a66115e6bb9ec6c93ff49e4523968d5",
+      "status": "evaluated-not-adopted-as-adr",
+      "mechanicalProbesPerNodeLane": 7,
+      "probeNodeVersions": [
+        "24.18.0",
+        "26.5.0"
+      ],
+      "nativeRMTXFrontendImplemented": false,
+      "hostABIChanged": false,
+      "agentBenchmarkPerformed": false
+    }
+  },
+  "a06TwoHostReference": {
+    "date": "2026-11-14",
+    "status": "experimental-explicit-host-reference",
+    "contractVersion": "1.0.0",
+    "contract": "development/rmtx-a06/two-host.contract.json",
+    "contractSha256": "591b6b17d4083317fbae1c5e15a1ba797652a2206a89a1e83d710d8f42ffa765",
+    "contractEvidence": "development/rmtx-a06/two-host-evidence.json",
+    "runtimeEvidence": "development/rmtx-a06/two-host-runtime-evidence.json",
+    "contractChecks": 26,
+    "runtimeCasesPerEnvironment": 8,
+    "legacyApiVersionsChanged": false,
+    "newPublicSchemaIds": [],
+    "automaticCompositionSupported": false,
+    "syntaxDecisionStatus": "open",
+    "ssrAcceptancePerformed": false,
+    "acceptedForRelease": false,
+    "inventoryObservationReview": {
+      "previousInventorySha256": "58d7410438fb915bc6c70a23f67914b3020ca1cc1909ed10d2cd6c81d39d187a",
+      "inventorySha256": "89c7fc8af1a7d6ec22dc53af2b50dcbfe45d6abdb9e487b19b1f4ac65307d1e6",
+      "changes": [
+        {
+          "schemaId": "xtend.schemas.xtension.intent.v1",
+          "newUsagePaths": [
+            "development/rmtx-a06/two-host.contract.json"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "authoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.xtensions.host-capability-requirements.v1",
+          "newUsagePaths": [
+            "development/rmtx-a06/two-host-inspect.cjs",
+            "development/rmtx-a06/two-host-runtime.mjs"
+          ],
+          "newNonAuthoritativeFingerprints": [
+            {
+              "hash": "sha256:1de6b70ab0b6c7415bbcfc159f231b0c97aed63998e415096de30bee0db380f8",
+              "completeness": "complete"
+            },
+            {
+              "hash": "sha256:8d29b09b338cbc33402c47558aac336fd755337d3c62cf5d10a07d1a85c66231",
+              "completeness": "partial"
+            }
+          ],
+          "authoritativeFingerprintsUnchanged": true
+        }
+      ],
+      "newSchemaIds": [],
+      "authoritativeDefinitionsChanged": false,
+      "releasedFingerprintSetsChanged": false
+    }
   }
 }
