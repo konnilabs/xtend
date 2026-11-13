@@ -2,8 +2,8 @@
 'use strict';
 const fs = require('node:fs'), path = require('node:path'), { createHash } = require('node:crypto');
 const { json, fields, freeze, copy } = require('./xtension-composition-contract.mjs');
-const builds = new WeakMap(), deployments = new WeakMap();
-const pwaTools = require('./xtension-deployment-pwa'), updates = require('./xtension-deployment-updates');
+const builds = new WeakMap(), deployments = new WeakMap(), snapshots = new WeakMap();
+const pwaTools = require('./xtension-deployment-pwa'), updates = require('./xtension-deployment-updates'), lifecycle = require('./xtension-deployment-lifecycle');
 const XTENSION_DEPLOYMENT_API_VERSION = '3.0.0', manifestFile = 'xtend.deployment.json';
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const sri = digest => 'sha256-' + Buffer.from(digest, 'hex').toString('base64');
@@ -73,16 +73,23 @@ function resultFor(root, manifest, files, manifestBytes, accounting, serverRoot,
   deployments.set(result, new Map([...retainedFiles,...files].map(([file,bytes])=>[file,Buffer.from(bytes)])));
   return result;
 }
-function retainedFor(results, origin, publicPath, budget) {
+function retainedFor(results, origin, publicPath, budget, allowSnapshots = false) {
   if(!Array.isArray(results)||results.length>8||!Number.isSafeInteger(budget)||budget<0||budget>64*1024*1024)throw new TypeError('A bounded explicit retained deployment list and byte budget are required.');
   const files=new Map(),descriptors=[],seen=new Set();
   for(const result of results){
+    const snapshot=allowSnapshots&&snapshots.get(result);
+    if(snapshot){
+      if(result.origin!==origin||result.publicPath!==publicPath||seen.has(result.manifestSha256))throw new TypeError('Retained snapshots require distinct verified bytes in the same origin/scope.');
+      seen.add(result.manifestSha256);
+      for(const [file,bytes]of snapshot){if(files.has(file)&&!files.get(file).equals(bytes))throw new TypeError('Retained unversioned URLs conflict.');files.set(file,bytes);}
+      const {manifestSha256,revision,cacheName,pins,files:rows}=result;descriptors.push({manifestSha256,revision,cacheName,pins,files:rows});continue;
+    }
     const captured=deployments.get(result),manifest=result?.manifest;
     if(!captured||manifest.origin!==origin||manifest.publicPath!==publicPath||seen.has(result.manifestSha256))throw new TypeError('Retained deployments require distinct verified snapshots in the same origin/scope.');
     seen.add(result.manifestSha256);
     const own=new Map(manifest.files.map(row=>[row.fileName,captured.get(row.fileName)])),rows=[];
     for(const row of manifest.files){
-      if(row.fileName===manifest.documentFile||row.fileName===manifest.pwa?.workerFile)continue;
+      if(row.fileName===manifest.documentFile||row.fileName===manifest.pwa?.workerFile||row.fileName===manifest.headFile)continue;
       const value=own.get(row.fileName);if(!value||value.length!==row.bytes||hash(value)!==row.sha256)throw new TypeError('Retained snapshot mismatch.');
       if(files.has(row.fileName)&&!files.get(row.fileName).equals(value))throw new TypeError('Retained unversioned URLs conflict.');files.set(row.fileName,value);rows.push({...row});
     }
@@ -141,19 +148,20 @@ function buildMaracaXTensionDeployment(options) {
   }
   for (const pin of [application.bootstrap,...application.modules]) {
     fields(pin,['fileName','sha256'],'application module');
-    if (v2 && (!publicMember(pin.fileName || '') || pin.fileName === pwaTools.workerFile || v3 && [updates.clientFile,updates.declarationFile].includes(pin.fileName)))throw new TypeError('Application modules cannot occupy private or worker paths.');
+    if (v2 && (!publicMember(pin.fileName || '') || pin.fileName === pwaTools.workerFile || v3 && [updates.clientFile,updates.declarationFile].includes(pin.fileName) || v3 && [lifecycle.headFile,lifecycle.protocolFile].includes(pin.fileName)))throw new TypeError('Application modules cannot occupy private or worker paths.');
     if (!script(pin.fileName || '') || !/^[a-f0-9]{64}$/.test(pin.sha256 || '') || files.has(pin.fileName)) throw new TypeError('Application modules require unique explicit JavaScript pins.');
     const bytes = readFile(appRoot,pin.fileName);
     if (hash(bytes) !== pin.sha256) throw new TypeError('Application module integrity mismatch.');
     files.set(pin.fileName, bytes);
   }
   if (files.has(manifestFile) || files.size > 2048) throw new TypeError('Deployment inventory is bounded and reserves its manifest filename.');
-  const retained=v3?retainedFor(options.retainedDeployments,options.origin,options.publicPath,options.retainedByteBudget):{files:new Map(),descriptors:[],bytes:0};
-  const revision=v3?updates.revisionFor(options,files,retained.descriptors):undefined;
+  const retained=v3?retainedFor(options.retainedDeployments,options.origin,options.publicPath,options.retainedByteBudget,v3):{files:new Map(),descriptors:[],bytes:0};
+  const revision=v3?lifecycle.revisionFor(options,files,retained.descriptors):undefined;
   if(v3){
     if(files.has(updates.clientFile)||files.has(updates.declarationFile))throw new TypeError('Reserved deployment client outputs.');
     const metadata={origin:options.origin,publicPath:options.publicPath,runtime:options.runtime,revision};
-    files.set(updates.clientFile,updates.clientSource(metadata));files.set(updates.declarationFile,updates.declarations());
+    if(files.has(lifecycle.protocolFile)||files.has(lifecycle.headFile))throw new TypeError('Reserved lifecycle outputs.');files.set(lifecycle.protocolFile,updates.clientSource(metadata));
+    files.set(updates.clientFile,lifecycle.clientSource(metadata));files.set(updates.declarationFile,lifecycle.declarations());
   }
   graph(files);
   const host = files.get(capture.host), source = '<script type="module" src="./xtend.maraca.mjs"></script>';
@@ -162,6 +170,7 @@ function buildMaracaXTensionDeployment(options) {
     publicPath:options.publicPath,documentFile:capture.host,bootstrap:application.bootstrap.fileName,
     ...(v2 ? {origin:options.origin,runtime:copy(options.runtime),servicePath:capture.servicePath,serverFiles:[...privateFiles].map(([file,bytes])=>record(file,bytes)).sort((a,b)=>a.fileName<b.fileName?-1:1),pwa:null} : {}) };
   if(v3)Object.assign(manifest,{revision,retained:retained.descriptors,retainedByteBudget:options.retainedByteBudget});
+  if(v3)manifest.headFile=lifecycle.headFile;
   if(v2 && capture.services && (manifest.servicePath===manifest.publicPath.slice(0,-1)||[...files.keys()].some(file=>(manifest.publicPath+file).startsWith(manifest.servicePath+'/'))))throw new TypeError('Service routes cannot overlap public static files.');
   if(v2 && capture.pwa){
     if(files.has(pwaTools.offlineFile))throw new TypeError('Reserved sealed fallback path.');
@@ -179,6 +188,7 @@ function buildMaracaXTensionDeployment(options) {
   let document=host.toString().replace(source,tags);
   if(v3)document=document.replace(/(href|src)="\.\/([^"]+)"/g,(match,attribute,file)=>files.has(revision.assetRoot+file)?attribute+'="'+options.publicPath+revision.assetRoot+file+'"':match);
   files.set(capture.host,Buffer.from(document));
+  if(v3)files.set(lifecycle.headFile,lifecycle.headSource(manifest));
   if(v3)for(const [file,value]of retained.files)if(files.has(file)&&!files.get(file).equals(value))throw new TypeError('Current and retained URL bytes conflict.');
   if(files.size>2048||[...files.values()].reduce((sum,value)=>sum+value.length,0)>256*1024*1024)throw new TypeError('Deployment inventory exceeds its bound.');
   manifest.files=[...files].map(([file,bytes])=>record(file,bytes)).sort((a,b)=>a.fileName<b.fileName?-1:1);
@@ -217,7 +227,7 @@ function loadMaracaXTensionDeployment(options) {
   const v3=manifest.schema==='xtend.maraca.xtension-deployment-manifest.v3';
   const v2=v3||manifest.schema==='xtend.maraca.xtension-deployment-manifest.v2';
   if(!v3&&'retainedDeployments' in options)throw new TypeError('Legacy deployments retain their original load contract.');
-  fields(manifest,['schema','apiVersion','mode','publicPath','documentFile','bootstrap','files',...(v2?['origin','runtime','servicePath','serverFiles','pwa']:[]),...(v3?['revision','retained','retainedByteBudget']:[])],'deployment manifest');
+  fields(manifest,['schema','apiVersion','mode','publicPath','documentFile','bootstrap','files',...(v2?['origin','runtime','servicePath','serverFiles','pwa']:[]),...(v3?['revision','retained','retainedByteBudget','headFile']:[])],'deployment manifest');
   if(!v2 && 'serverRootDir' in options)throw new TypeError('Legacy deployment has no private server root.');
   if (!v2 && manifest.schema !== 'xtend.maraca.xtension-deployment-manifest.v1' || manifest.apiVersion !== (v3?'3.0.0':v2 ? '2.0.0' : '1.0.0') || manifest.mode !== 'native-sri-importmap' || !/^\/(?:[A-Za-z0-9_-]+\/)*$/.test(manifest.publicPath || '') || !Array.isArray(manifest.files) || !manifest.files.length || manifest.files.length>2048) throw new TypeError('A bounded version-matched native deployment manifest is required.');
   const files = new Map();
@@ -242,9 +252,11 @@ function loadMaracaXTensionDeployment(options) {
     }else if(manifest.serverFiles.length||manifest.servicePath!==null||options.serverRootDir!==undefined)throw new TypeError('Disabled services have no private partition.');
     if(v3){
       fields(manifest.revision,['schema','id','assetRoot','clientFile'],'deployment revision');
-      const r=manifest.revision;if(r.schema!=='xtend.maraca.xtension-deployment-revision.v1'||!/^[a-f0-9]{64}$/.test(r.id)||r.assetRoot!=='_xtend/'+r.id+'/'||r.clientFile!==r.assetRoot+updates.clientFile||!manifest.bootstrap.startsWith(r.assetRoot)||[...files.keys()].some(file=>file!==manifest.documentFile&&!file.startsWith(r.assetRoot)))throw new TypeError('Invalid revision-owned graph.');
-      if(!files.get(r.clientFile)?.equals(updates.clientSource(manifest))||!files.get(r.assetRoot+updates.declarationFile)?.equals(updates.declarations()))throw new TypeError('Deployment client differs from the closed protocol.');
-      retained=retainedFor(options.retainedDeployments||[],manifest.origin,manifest.publicPath,manifest.retainedByteBudget);
+      const current=manifest.headFile!==undefined,r=manifest.revision;
+      if(r.schema!=='xtend.maraca.xtension-deployment-revision.v1'||!/^[a-f0-9]{64}$/.test(r.id)||r.assetRoot!=='_xtend/'+r.id+'/'||r.clientFile!==r.assetRoot+updates.clientFile||!manifest.bootstrap.startsWith(r.assetRoot)||[...files.keys()].some(file=>file!==manifest.documentFile&&file!==manifest.headFile&&!file.startsWith(r.assetRoot)))throw new TypeError('Invalid revision-owned graph.');
+      if(current&&(manifest.headFile!==lifecycle.headFile||!files.get(manifest.headFile)?.equals(lifecycle.headSource(manifest))||!files.get(r.assetRoot+lifecycle.protocolFile)?.equals(updates.clientSource(manifest))))throw new TypeError('Deployment discovery differs from its closed same-origin metadata.');
+      if(!files.get(r.clientFile)?.equals((current?lifecycle:updates).clientSource(manifest))||!files.get(r.assetRoot+updates.declarationFile)?.equals((current?lifecycle:updates).declarations()))throw new TypeError('Deployment client differs from the closed protocol.');
+      retained=retainedFor(options.retainedDeployments||[],manifest.origin,manifest.publicPath,manifest.retainedByteBudget,true);
       if(JSON.stringify(retained.descriptors)!==JSON.stringify(manifest.retained))throw new TypeError('Retained deployment pins require their exact verified snapshots.');
       for(const [file,value]of retained.files)if(files.has(file)&&!files.get(file).equals(value))throw new TypeError('Current/retained URL collision.');
       if(manifest.servicePath&&[...retained.files.keys()].some(file=>(manifest.publicPath+file).startsWith(manifest.servicePath+'/')))throw new TypeError('Service/static revision routes cannot overlap.');
@@ -259,6 +271,35 @@ function loadMaracaXTensionDeployment(options) {
   const {tags}=envelope(manifest.publicPath,files,manifest.bootstrap,manifest);
   if(files.get(manifest.documentFile).toString().split(tags).length!==2)throw new TypeError('Deployment host lacks the exact native integrity envelope.');
   return resultFor(root,manifest,files,bytes,undefined,serverRoot,retained.files);
+}
+/** A digest-anchored public projection, never an active deployment or a worker
+ * registration capability. Ancestor, HTML, worker and private bytes are unused. */
+function loadMaracaXTensionDeploymentSnapshot(options) {
+  fields(options,['rootDir','manifestSha256'],'static deployment snapshot');
+  if(!/^[a-f0-9]{64}$/.test(options.manifestSha256||''))throw new TypeError('A trusted deployment manifest digest is required.');
+  const root=fs.realpathSync(options.rootDir),bytes=readFile(root,manifestFile);
+  if(bytes.length>2*1024*1024||hash(bytes)!==options.manifestSha256)throw new TypeError('Static snapshot manifest differs from the trusted digest.');
+  const manifest=JSON.parse(bytes);json(manifest);const v3=manifest.schema==='xtend.maraca.xtension-deployment-manifest.v3';
+  fields(manifest,['schema','apiVersion','mode','publicPath','documentFile','bootstrap','files','origin','runtime','servicePath','serverFiles','pwa',...(v3?['revision','retained','retainedByteBudget','headFile']:[])],'snapshot manifest');
+  if(!v3&&manifest.schema!=='xtend.maraca.xtension-deployment-manifest.v2'||manifest.apiVersion!==(v3?'3.0.0':'2.0.0')||manifest.mode!=='native-sri-importmap'||!/^\/(?:[A-Za-z0-9_-]+\/)*$/.test(manifest.publicPath||'')||!safePath(manifest.documentFile)||!manifest.documentFile.endsWith('.html')||!safePath(manifest.bootstrap)||!script(manifest.bootstrap)||!Array.isArray(manifest.files)||!manifest.files.length||manifest.files.length>2048)throw new TypeError('A bounded version-matched public snapshot is required.');
+  pwaTools.validateOrigin(manifest.origin);(v3?updates:pwaTools).validatePolicy(manifest.runtime);
+  if(!Array.isArray(manifest.serverFiles)||manifest.serverFiles.length>2048||manifest.runtime.appServices==='separate-server'&&(!manifest.serverFiles.length||!servicePath(manifest.servicePath))||manifest.runtime.appServices==='disabled'&&(manifest.serverFiles.length||manifest.servicePath!==null))throw new TypeError('Invalid private snapshot metadata.');
+  if(v3){const r=manifest.revision;fields(r,['schema','id','assetRoot','clientFile'],'snapshot revision');if(r.schema!=='xtend.maraca.xtension-deployment-revision.v1'||!/^[a-f0-9]{64}$/.test(r.id)||r.assetRoot!=='_xtend/'+r.id+'/'||r.clientFile!==r.assetRoot+updates.clientFile||!Array.isArray(manifest.retained)||manifest.retained.length>8||!Number.isSafeInteger(manifest.retainedByteBudget)||manifest.retainedByteBudget<0||manifest.retainedByteBudget>64*1024*1024||manifest.headFile!==undefined&&manifest.headFile!==lifecycle.headFile)throw new TypeError('Invalid snapshot revision metadata.');}
+  const files=new Map(),rows=[],seen=new Set();let total=0;
+  for(const row of manifest.files){
+    fields(row,['fileName','bytes','sha256'],'snapshot file');
+    if(!safePath(row.fileName)||seen.has(row.fileName)||!Number.isSafeInteger(row.bytes)||row.bytes<0||row.bytes>64*1024*1024||!/^[a-f0-9]{64}$/.test(row.sha256||''))throw new TypeError('Invalid static snapshot file.');seen.add(row.fileName);
+    if(v3&&row.fileName!==manifest.documentFile&&row.fileName!==manifest.headFile&&!row.fileName.startsWith(manifest.revision.assetRoot))throw new TypeError('Snapshot files require their revision namespace.');
+    if(row.fileName===manifest.documentFile||row.fileName===manifest.pwa?.workerFile||row.fileName===manifest.headFile)continue;
+    if(!publicMember(v3?row.fileName.slice(manifest.revision.assetRoot.length):row.fileName))throw new TypeError('Static snapshots cannot contain private artifacts.');
+    const value=readFile(root,row.fileName);total+=value.length;if(value.length!==row.bytes||hash(value)!==row.sha256||total>64*1024*1024)throw new TypeError('Static snapshot bytes differ from their bounded trusted manifest.');files.set(row.fileName,value);rows.push({...row});
+  }
+  if(!seen.has(manifest.documentFile)||!files.has(manifest.bootstrap))throw new TypeError('Snapshot roots are absent.');graph(files);
+  const pwa=manifest.pwa?(v3?updates:pwaTools).pwaFor(manifest,files):null;
+  if(manifest.runtime.pwa==='verified-static-cache'&&!pwa||manifest.runtime.pwa==='disabled'&&manifest.pwa!==null)throw new TypeError('Snapshot PWA metadata is absent.');
+  if(pwa){const expected={workerFile:pwa.workerFile,offlineFile:pwa.offlineFile,manifestFile:pwa.manifestFile,cacheName:pwa.cacheName};fields(manifest.pwa,Object.keys(expected),'snapshot PWA');if(Object.entries(expected).some(([key,value])=>manifest.pwa[key]!==value))throw new TypeError('Snapshot cache authority differs from its verified public bytes.');}
+  const result=freeze({schema:'xtend.maraca.xtension-deployment-snapshot.v1',apiVersion:'1.0.0',manifestSha256:options.manifestSha256,origin:manifest.origin,publicPath:manifest.publicPath,revision:manifest.revision?.id||'legacy-'+options.manifestSha256,cacheName:pwa?.cacheName||null,pins:pwa?.pins||{},files:rows,runtimeExecutionVerified:false});
+  snapshots.set(result,new Map([...files].map(([file,value])=>[file,Buffer.from(value)])));return result;
 }
 function createMaracaXTensionDeploymentHandler(result) {
   const files = deployments.get(result);
@@ -280,4 +321,4 @@ function createMaracaXTensionDeploymentHandler(result) {
     response.writeHead(200,{'Content-Type':result.manifest.pwa?.manifestFile===file?'application/manifest+json':type,'Content-Length':value.length});response.end(request.method==='HEAD'?undefined:Buffer.from(value));return true;
   };
 }
-module.exports={XTENSION_DEPLOYMENT_API_VERSION,buildMaracaXTensionDeployment,loadMaracaXTensionDeployment,createMaracaXTensionDeploymentHandler,registerBuild};
+module.exports={XTENSION_DEPLOYMENT_API_VERSION,buildMaracaXTensionDeployment,loadMaracaXTensionDeployment,loadMaracaXTensionDeploymentSnapshot,createMaracaXTensionDeploymentHandler,registerBuild};

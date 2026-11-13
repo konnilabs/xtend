@@ -8977,6 +8977,24 @@
       "type": "same-id-multiple-shapes"
     },
     {
+      "reviewId": "polymorphic-8719519724ff",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "Explicitly reviewed current and legacy forms share their existing unreleased IDs; partial observations remain partial."
+      },
+      "schemaIds": [
+        "xtend.maraca.xtension-deployment-snapshot.v1"
+      ],
+      "rationale": "A04.3.7 same-version bugfix explicitly requested by Konni on 2026-11-13: overwrite the affected existing schemas rather than bump their versions. Build API9, deployment API3, config/manifest/result v3, runtime policy v2 and client API1 remain unchanged. A stable bounded same-origin advisory revision head discovers a newer deployment in one open tab without fetching an obsolete worker or granting worker/cache authority. Digest-anchored public snapshots load only a predecessor's own static closure; they need no ancestor, HTML, worker, discovery or private server bytes and cannot act as an active HTTP deployment. Natural activation, exact CSP and unanimous client consent remain enforced. Sixty-four real Chromium cases and twenty-nine build/restart checks include actual fresh-process restart after pruning and positive multi-client cache retirement. Browser tests now actually await asynchronous registration conditions. Only the two affected unreleased client/response baselines are updated in place; all other authority/released sets and historical inventory remain unchanged. Current strict size ceilings, native Kernel/Fabric admission, older data forms and pending full 0.9 acceptance remain explicit. See development/rmtx-a04/updates.md.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "a0437-same-version-bugfix"
+    },
+    {
       "baseline": "inventory-v2",
       "baselineAccepted": true,
       "confidence": "medium",
@@ -11128,6 +11146,24 @@
       ],
       "status": "accepted-polymorphic-for-inventory",
       "type": "same-id-multiple-shapes"
+    },
+    {
+      "reviewId": "polymorphic-a6a7ff5ec4d6",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "Explicitly reviewed current and legacy forms share their existing unreleased IDs; partial observations remain partial."
+      },
+      "schemaIds": [
+        "xtend.maraca.xtension-deployment-update-response.v1"
+      ],
+      "rationale": "A04.3.7 same-version bugfix explicitly requested by Konni on 2026-11-13: overwrite the affected existing schemas rather than bump their versions. Build API9, deployment API3, config/manifest/result v3, runtime policy v2 and client API1 remain unchanged. A stable bounded same-origin advisory revision head discovers a newer deployment in one open tab without fetching an obsolete worker or granting worker/cache authority. Digest-anchored public snapshots load only a predecessor's own static closure; they need no ancestor, HTML, worker, discovery or private server bytes and cannot act as an active HTTP deployment. Natural activation, exact CSP and unanimous client consent remain enforced. Sixty-four real Chromium cases and twenty-nine build/restart checks include actual fresh-process restart after pruning and positive multi-client cache retirement. Browser tests now actually await asynchronous registration conditions. Only the two affected unreleased client/response baselines are updated in place; all other authority/released sets and historical inventory remain unchanged. Current strict size ceilings, native Kernel/Fabric admission, older data forms and pending full 0.9 acceptance remain explicit. See development/rmtx-a04/updates.md.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "a0437-same-version-bugfix"
     },
     {
       "baseline": "inventory-v2",
@@ -14486,6 +14522,24 @@
       ],
       "status": "accepted-polymorphic-for-inventory",
       "type": "same-id-multiple-shapes"
+    },
+    {
+      "reviewId": "polymorphic-d6179f987575",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "Explicitly reviewed current and legacy forms share their existing unreleased IDs; partial observations remain partial."
+      },
+      "schemaIds": [
+        "xtend.maraca.xtension-deployment-head.v1"
+      ],
+      "rationale": "A04.3.7 same-version bugfix explicitly requested by Konni on 2026-11-13: overwrite the affected existing schemas rather than bump their versions. Build API9, deployment API3, config/manifest/result v3, runtime policy v2 and client API1 remain unchanged. A stable bounded same-origin advisory revision head discovers a newer deployment in one open tab without fetching an obsolete worker or granting worker/cache authority. Digest-anchored public snapshots load only a predecessor's own static closure; they need no ancestor, HTML, worker, discovery or private server bytes and cannot act as an active HTTP deployment. Natural activation, exact CSP and unanimous client consent remain enforced. Sixty-four real Chromium cases and twenty-nine build/restart checks include actual fresh-process restart after pruning and positive multi-client cache retirement. Browser tests now actually await asynchronous registration conditions. Only the two affected unreleased client/response baselines are updated in place; all other authority/released sets and historical inventory remain unchanged. Current strict size ceilings, native Kernel/Fabric admission, older data forms and pending full 0.9 acceptance remain explicit. See development/rmtx-a04/updates.md.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "a0437-same-version-bugfix"
     },
     {
       "baseline": "inventory-v2",
@@ -404233,11 +404287,11 @@
       },
       "aliasOf": null,
       "replacedBy": null,
-      "releasedFingerprintSetHash": "sha256:320473ea79ca20397813e74968533c07adc6d2cbcd39bf9c3228dad4d7472f34",
-      "description": "Unreleased A04.3.7 coordinated deployment: revision-isolated browser graphs, explicit verified history budgets and nonce-bound client consent for owned CacheStorage retirement. Complete earlier contracts remain supported. Natural activation and document/worker trust remain explicit; full offline app state and complete 0.9 acceptance are pending. Partial observations are not promoted to complete authority.",
+      "releasedFingerprintSetHash": "sha256:5d5655e7a5d3f5df8f648e2e3d12f7402afb11e17eb5c82b61ff0c80c6265a1f",
+      "description": "Corrected in place at the user's explicit request: current advisory discovery metadata/response fields and supported pre-fix v3/protocol forms share the existing version. No publication or broader schema exemption is inferred.",
       "descriptionStatus": "curated",
       "canonicalDefinition": {
-        "path": "xtend-maraca/xtension-deployment-updates.js",
+        "path": "xtend-maraca/xtension-deployment-lifecycle.js",
         "symbol": null,
         "definitionType": "object-shape",
         "role": "producer",
@@ -404264,13 +404318,19 @@
           "role": "definition",
           "visibility": "public",
           "sourcePaths": [
-            "xtend-maraca/xtension-deployment-client.d.ts"
+            "xtend-maraca/xtension-deployment-client.d.ts",
+            "xtend-maraca/xtension-deployment-lifecycle-client.d.ts"
           ],
           "interfaceReferences": [
             {
               "type": "symbol",
               "path": "xtend-maraca/xtension-deployment-client.d.ts",
               "symbol": "DeploymentClientMetadata"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-deployment-lifecycle-client.d.ts",
+              "symbol": "DeploymentLifecycleMetadata"
             }
           ]
         },
@@ -404280,9 +404340,16 @@
           "visibility": "public",
           "sourcePaths": [
             "xtend-maraca/xtension-deployment-client.d.ts",
+            "xtend-maraca/xtension-deployment-lifecycle-client.d.ts",
+            "xtend-maraca/xtension-deployment-lifecycle.js",
             "xtend-maraca/xtension-deployment-updates.js"
           ],
           "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-deployment-lifecycle.js",
+              "symbol": "metadata"
+            },
             {
               "type": "symbol",
               "path": "xtend-maraca/xtension-deployment-updates.js",
@@ -404293,18 +404360,89 @@
       ],
       "shapePolicy": {
         "mode": "polymorphic",
-        "decision": "reviewed-a0437-coordinated-updates",
+        "decision": "reviewed-a0437-same-version-bugfix",
         "acceptedFingerprints": [
+          "sha256:110507ba1def9a436375cd6e86204c3691e1fb93bf04e55926377a20767451a0",
           "sha256:ae76e4ae1b1b19f543b628aaef3af3e92a04f1ea01089a6e7356cb6440ee21ab",
+          "sha256:b439088b6dc61a2ce08ba7eba17d5486cfb48067eaa068d0742787ac8811de78",
           "sha256:d1e57bf33886b10981c43df719e681764494423fae57245f9fa37a3ecf66a647"
         ],
         "authoritativeFingerprints": [
-          "sha256:ae76e4ae1b1b19f543b628aaef3af3e92a04f1ea01089a6e7356cb6440ee21ab"
+          "sha256:ae76e4ae1b1b19f543b628aaef3af3e92a04f1ea01089a6e7356cb6440ee21ab",
+          "sha256:b439088b6dc61a2ce08ba7eba17d5486cfb48067eaa068d0742787ac8811de78"
         ],
-        "releasedFingerprintSetHash": "sha256:320473ea79ca20397813e74968533c07adc6d2cbcd39bf9c3228dad4d7472f34",
-        "rationale": "Scoped A04.3.7 review: build API9 and deployment API3 add config/manifest/result v3, runtime policy v2, revision/client metadata v1 and versioned request/response/challenge/acknowledgement v1. Complete earlier deployment and runtime contracts remain supported. Revision-isolated static URLs and explicitly byte-budgeted verified predecessor snapshots preserve concurrent graphs. A generated pinned browser client supplies update status and explicit retirement readiness. The active worker queries all in-scope windows, validates fresh nonce-bound per-client acknowledgements, rechecks client membership and holds navigation behind a retirement barrier. Unknown/busy/stale clients or pending updates block deletion; timeout is rejection. Only exact trusted predecessor cache names are candidates. Natural activation, no forced takeover, no automatic reload or server archive deletion. Forty real Chromium/HTTP cases include React/Vue/mixed coexistence, genuine Kernel/Fabric mounts, old-byte recovery, missing/replayed acknowledgements, private cache authority rejection and real deployment-v2 migration. Twenty-two contract checks, unchanged active reference limits, 341 retained runtime cases and 88 compiler checks remain mandatory. All previous authoritative/released sets are preserved. Document/worker trust, script-free offline fallback and pending complete 0.9 acceptance remain explicit. See development/rmtx-a04/updates.md."
+        "releasedFingerprintSetHash": "sha256:5d5655e7a5d3f5df8f648e2e3d12f7402afb11e17eb5c82b61ff0c80c6265a1f",
+        "rationale": "A04.3.7 same-version bugfix explicitly requested by Konni on 2026-11-13: overwrite the affected existing schemas rather than bump their versions. Build API9, deployment API3, config/manifest/result v3, runtime policy v2 and client API1 remain unchanged. A stable bounded same-origin advisory revision head discovers a newer deployment in one open tab without fetching an obsolete worker or granting worker/cache authority. Digest-anchored public snapshots load only a predecessor's own static closure; they need no ancestor, HTML, worker, discovery or private server bytes and cannot act as an active HTTP deployment. Natural activation, exact CSP and unanimous client consent remain enforced. Sixty-four real Chromium cases and twenty-nine build/restart checks include actual fresh-process restart after pruning and positive multi-client cache retirement. Browser tests now actually await asynchronous registration conditions. Only the two affected unreleased client/response baselines are updated in place; all other authority/released sets and historical inventory remain unchanged. Current strict size ceilings, native Kernel/Fabric admission, older data forms and pending full 0.9 acceptance remain explicit. See development/rmtx-a04/updates.md."
       },
       "shapeFingerprints": [
+        {
+          "hash": "sha256:110507ba1def9a436375cd6e86204c3691e1fb93bf04e55926377a20767451a0",
+          "shape": {
+            "fieldCount": 5,
+            "fields": [
+              "acknowledgementTimeoutMs",
+              "headUrl",
+              "revision",
+              "scope",
+              "workerUrl"
+            ],
+            "signature": "acknowledgementTimeoutMs:{\"unresolved\":\"manifest.runtime.acknowledgementTimeoutMs\"}|headUrl:{\"unresolved\":\"manifest.origin+manifest.publicPath+headFile\"}|revision:{\"unresolved\":\"manifest.revision.id\"}|scope:{\"unresolved\":\"manifest.origin+manifest.publicPath\"}|workerUrl:{\"unresolved\":\"manifest.origin+manifest.publicPath+manifest.revision.assetRoot+pwa.workerFile\"}",
+            "normalized": {
+              "fields": {
+                "acknowledgementTimeoutMs": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "manifest.runtime.acknowledgementTimeoutMs"
+                  }
+                },
+                "headUrl": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "manifest.origin+manifest.publicPath+headFile"
+                  }
+                },
+                "revision": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "manifest.revision.id"
+                  }
+                },
+                "scope": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "manifest.origin+manifest.publicPath"
+                  }
+                },
+                "workerUrl": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "manifest.origin+manifest.publicPath+manifest.revision.assetRoot+pwa.workerFile"
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/xtension-deployment-lifecycle.js"
+          ],
+          "symbols": [
+            "metadata"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtend-maraca/xtension-deployment-lifecycle.js",
+              "symbol": "metadata"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
         {
           "hash": "sha256:ae76e4ae1b1b19f543b628aaef3af3e92a04f1ea01089a6e7356cb6440ee21ab",
           "shape": {
@@ -404350,6 +404488,64 @@
               "authoritative": true,
               "path": "xtend-maraca/xtension-deployment-client.d.ts",
               "symbol": "DeploymentClientMetadata"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "completeness": "complete",
+          "authoritative": true
+        },
+        {
+          "hash": "sha256:b439088b6dc61a2ce08ba7eba17d5486cfb48067eaa068d0742787ac8811de78",
+          "shape": {
+            "fieldCount": 5,
+            "fields": [
+              "acknowledgementTimeoutMs",
+              "headUrl",
+              "revision",
+              "scope",
+              "workerUrl"
+            ],
+            "signature": "acknowledgementTimeoutMs:number|headUrl:string|revision:string|scope:string|workerUrl:string",
+            "normalized": {
+              "fields": {
+                "acknowledgementTimeoutMs": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "headUrl": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "revision": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "scope": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "workerUrl": {
+                  "optional": false,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/xtension-deployment-lifecycle-client.d.ts"
+          ],
+          "symbols": [
+            "DeploymentLifecycleMetadata"
+          ],
+          "evidence": [
+            {
+              "type": "declared-type",
+              "completeness": "complete",
+              "authoritative": true,
+              "path": "xtend-maraca/xtension-deployment-lifecycle-client.d.ts",
+              "symbol": "DeploymentLifecycleMetadata"
             }
           ],
           "evidenceTypes": [
@@ -405675,167 +405871,18 @@
       ],
       "shapePolicy": {
         "mode": "polymorphic",
-        "decision": "reviewed-a0437-coordinated-updates",
+        "decision": "reviewed-a0437-same-version-bugfix",
         "acceptedFingerprints": [
-          "sha256:108d47cabb77751d927e6a36187c5e0e75732dbb1a9bf88f2315f4f2c5ae81d6",
           "sha256:156a340913ada088902d6af8c6c287c2bd7a44ecc360109b8a629c32e66b0178",
-          "sha256:6df674e73cc67b0ee994a70544115c4ef95ac268433e67a6b88fd4f164a7a71e",
-          "sha256:a4e5c3486b0f52ac836a782d0b25cafc26cba033c175cc958de2adfaf90e9d8f"
+          "sha256:604a9a700483b61a80317851aedc4418d23f1cf3a3423fd06b36c321545eb3ce",
+          "sha256:a4e5c3486b0f52ac836a782d0b25cafc26cba033c175cc958de2adfaf90e9d8f",
+          "sha256:c1fbac47abbc0e715c2d771edf7cb3b4eba41fcb4b7ba0a9b1be2a4f22210759"
         ],
         "authoritativeFingerprints": [],
         "releasedFingerprintSetHash": null,
-        "rationale": "Scoped A04.3.7 review: build API9 and deployment API3 add config/manifest/result v3, runtime policy v2, revision/client metadata v1 and versioned request/response/challenge/acknowledgement v1. Complete earlier deployment and runtime contracts remain supported. Revision-isolated static URLs and explicitly byte-budgeted verified predecessor snapshots preserve concurrent graphs. A generated pinned browser client supplies update status and explicit retirement readiness. The active worker queries all in-scope windows, validates fresh nonce-bound per-client acknowledgements, rechecks client membership and holds navigation behind a retirement barrier. Unknown/busy/stale clients or pending updates block deletion; timeout is rejection. Only exact trusted predecessor cache names are candidates. Natural activation, no forced takeover, no automatic reload or server archive deletion. Forty real Chromium/HTTP cases include React/Vue/mixed coexistence, genuine Kernel/Fabric mounts, old-byte recovery, missing/replayed acknowledgements, private cache authority rejection and real deployment-v2 migration. Twenty-two contract checks, unchanged active reference limits, 341 retained runtime cases and 88 compiler checks remain mandatory. All previous authoritative/released sets are preserved. Document/worker trust, script-free offline fallback and pending complete 0.9 acceptance remain explicit. See development/rmtx-a04/updates.md."
+        "rationale": "A04.3.7 same-version bugfix explicitly requested by Konni on 2026-11-13: overwrite the affected existing schemas rather than bump their versions. Build API9, deployment API3, config/manifest/result v3, runtime policy v2 and client API1 remain unchanged. A stable bounded same-origin advisory revision head discovers a newer deployment in one open tab without fetching an obsolete worker or granting worker/cache authority. Digest-anchored public snapshots load only a predecessor's own static closure; they need no ancestor, HTML, worker, discovery or private server bytes and cannot act as an active HTTP deployment. Natural activation, exact CSP and unanimous client consent remain enforced. Sixty-four real Chromium cases and twenty-nine build/restart checks include actual fresh-process restart after pruning and positive multi-client cache retirement. Browser tests now actually await asynchronous registration conditions. Only the two affected unreleased client/response baselines are updated in place; all other authority/released sets and historical inventory remain unchanged. Current strict size ceilings, native Kernel/Fabric admission, older data forms and pending full 0.9 acceptance remain explicit. See development/rmtx-a04/updates.md."
       },
       "shapeFingerprints": [
-        {
-          "hash": "sha256:108d47cabb77751d927e6a36187c5e0e75732dbb1a9bf88f2315f4f2c5ae81d6",
-          "shape": {
-            "fieldCount": 8,
-            "fields": [
-              "application",
-              "build",
-              "origin",
-              "outputDir",
-              "publicPath",
-              "retainedByteBudget",
-              "retainedDeployments",
-              "runtime"
-            ],
-            "signature": "application:{bootstrap:{fileName:string,sha256:unknown},modules:array<{fileName:string,sha256:unknown}>,rootDir:unknown}|build:{\"unresolved\":\"await require('../xtend-maraca').buildMaracaBundleAsync(fixture.input,{rootDir:fixture.rootDir})\"}|origin:{\"unresolved\":\"'http://127.0.0.1:'+server.address().port\"}|outputDir:unknown|publicPath:{\"unresolved\":\"'/updates/'+framework+'/'\"}|retainedByteBudget:union<number>|retainedDeployments:array<{\"unresolved\":\"...versions\"}>|runtime:{acknowledgementTimeoutMs:number,appServices:string,pwa:string,updates:string}",
-            "normalized": {
-              "fields": {
-                "application": {
-                  "optional": false,
-                  "type": {
-                    "fields": {
-                      "bootstrap": {
-                        "optional": false,
-                        "type": {
-                          "fields": {
-                            "fileName": {
-                              "optional": false,
-                              "type": "string"
-                            },
-                            "sha256": {
-                              "optional": false,
-                              "type": "unknown"
-                            }
-                          }
-                        }
-                      },
-                      "modules": {
-                        "optional": false,
-                        "type": {
-                          "array": [
-                            {
-                              "fields": {
-                                "fileName": {
-                                  "optional": false,
-                                  "type": "string"
-                                },
-                                "sha256": {
-                                  "optional": false,
-                                  "type": "unknown"
-                                }
-                              }
-                            }
-                          ]
-                        }
-                      },
-                      "rootDir": {
-                        "optional": false,
-                        "type": "unknown"
-                      }
-                    }
-                  }
-                },
-                "build": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "await require('../xtend-maraca').buildMaracaBundleAsync(fixture.input,{rootDir:fixture.rootDir})"
-                  }
-                },
-                "origin": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "'http://127.0.0.1:'+server.address().port"
-                  }
-                },
-                "outputDir": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "publicPath": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "'/updates/'+framework+'/'"
-                  }
-                },
-                "retainedByteBudget": {
-                  "optional": false,
-                  "type": {
-                    "union": [
-                      "number"
-                    ]
-                  }
-                },
-                "retainedDeployments": {
-                  "optional": false,
-                  "type": {
-                    "array": [
-                      {
-                        "unresolved": "...versions"
-                      }
-                    ]
-                  }
-                },
-                "runtime": {
-                  "optional": false,
-                  "type": {
-                    "fields": {
-                      "acknowledgementTimeoutMs": {
-                        "optional": false,
-                        "type": "number"
-                      },
-                      "appServices": {
-                        "optional": false,
-                        "type": "string"
-                      },
-                      "pwa": {
-                        "optional": false,
-                        "type": "string"
-                      },
-                      "updates": {
-                        "optional": false,
-                        "type": "string"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "sourcePaths": [
-            "scripts/test_xtensions_updates.cjs"
-          ],
-          "symbols": [
-            "config"
-          ],
-          "evidence": [
-            {
-              "type": "runtime-observation",
-              "completeness": "partial",
-              "authoritative": false,
-              "path": "scripts/test_xtensions_updates.cjs",
-              "symbol": "config"
-            }
-          ],
-          "evidenceTypes": [
-            "runtime-observation"
-          ],
-          "completeness": "partial",
-          "authoritative": false
-        },
         {
           "hash": "sha256:156a340913ada088902d6af8c6c287c2bd7a44ecc360109b8a629c32e66b0178",
           "shape": {
@@ -405980,7 +406027,289 @@
           "authoritative": false
         },
         {
-          "hash": "sha256:6df674e73cc67b0ee994a70544115c4ef95ac268433e67a6b88fd4f164a7a71e",
+          "hash": "sha256:604a9a700483b61a80317851aedc4418d23f1cf3a3423fd06b36c321545eb3ce",
+          "shape": {
+            "fieldCount": 8,
+            "fields": [
+              "application",
+              "build",
+              "origin",
+              "outputDir",
+              "publicPath",
+              "retainedByteBudget",
+              "retainedDeployments",
+              "runtime"
+            ],
+            "signature": "application:{bootstrap:{fileName:string,sha256:unknown},modules:array<{fileName:string,sha256:unknown}>,rootDir:unknown}|build:{\"unresolved\":\"await require('../xtend-maraca').buildMaracaBundleAsync(fixture.input,{rootDir:fixture.rootDir})\"}|origin:{\"unresolved\":\"'http://127.0.0.1:'+server.address().port\"}|outputDir:unknown|publicPath:{\"unresolved\":\"'/updates/'+framework+'/'\"}|retainedByteBudget:union<number>|retainedDeployments:union<array<unknown>|array<{\"unresolved\":\"...versions\"}>>|runtime:{acknowledgementTimeoutMs:number,appServices:string,pwa:string,updates:string}",
+            "normalized": {
+              "fields": {
+                "application": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "bootstrap": {
+                        "optional": false,
+                        "type": {
+                          "fields": {
+                            "fileName": {
+                              "optional": false,
+                              "type": "string"
+                            },
+                            "sha256": {
+                              "optional": false,
+                              "type": "unknown"
+                            }
+                          }
+                        }
+                      },
+                      "modules": {
+                        "optional": false,
+                        "type": {
+                          "array": [
+                            {
+                              "fields": {
+                                "fileName": {
+                                  "optional": false,
+                                  "type": "string"
+                                },
+                                "sha256": {
+                                  "optional": false,
+                                  "type": "unknown"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "rootDir": {
+                        "optional": false,
+                        "type": "unknown"
+                      }
+                    }
+                  }
+                },
+                "build": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "await require('../xtend-maraca').buildMaracaBundleAsync(fixture.input,{rootDir:fixture.rootDir})"
+                  }
+                },
+                "origin": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "'http://127.0.0.1:'+server.address().port"
+                  }
+                },
+                "outputDir": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "publicPath": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "'/updates/'+framework+'/'"
+                  }
+                },
+                "retainedByteBudget": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      "number"
+                    ]
+                  }
+                },
+                "retainedDeployments": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "array": [
+                          "unknown"
+                        ]
+                      },
+                      {
+                        "array": [
+                          {
+                            "unresolved": "...versions"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "runtime": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "acknowledgementTimeoutMs": {
+                        "optional": false,
+                        "type": "number"
+                      },
+                      "appServices": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "pwa": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "updates": {
+                        "optional": false,
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "scripts/test_xtensions_updates.cjs"
+          ],
+          "symbols": [
+            "config"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "scripts/test_xtensions_updates.cjs",
+              "symbol": "config"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:a4e5c3486b0f52ac836a782d0b25cafc26cba033c175cc958de2adfaf90e9d8f",
+          "shape": {
+            "fieldCount": 8,
+            "fields": [
+              "application",
+              "build",
+              "origin",
+              "outputDir",
+              "publicPath",
+              "retainedByteBudget",
+              "retainedDeployments",
+              "runtime"
+            ],
+            "signature": "application:{bootstrap:{fileName:string,sha256:unknown},modules:array<>,rootDir:unknown}|build:{\"unresolved\":\"await require('../../xtend-maraca').buildMaracaBundleAsync(fixture.input,{rootDir:fixture.rootDir})\"}|origin:string|outputDir:unknown|publicPath:string|retainedByteBudget:number|retainedDeployments:array<>|runtime:{acknowledgementTimeoutMs:number,appServices:string,pwa:string,updates:string}",
+            "normalized": {
+              "fields": {
+                "application": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "bootstrap": {
+                        "optional": false,
+                        "type": {
+                          "fields": {
+                            "fileName": {
+                              "optional": false,
+                              "type": "string"
+                            },
+                            "sha256": {
+                              "optional": false,
+                              "type": "unknown"
+                            }
+                          }
+                        }
+                      },
+                      "modules": {
+                        "optional": false,
+                        "type": {
+                          "array": []
+                        }
+                      },
+                      "rootDir": {
+                        "optional": false,
+                        "type": "unknown"
+                      }
+                    }
+                  }
+                },
+                "build": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "await require('../../xtend-maraca').buildMaracaBundleAsync(fixture.input,{rootDir:fixture.rootDir})"
+                  }
+                },
+                "origin": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "outputDir": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "publicPath": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "retainedByteBudget": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "retainedDeployments": {
+                  "optional": false,
+                  "type": {
+                    "array": []
+                  }
+                },
+                "runtime": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "acknowledgementTimeoutMs": {
+                        "optional": false,
+                        "type": "number"
+                      },
+                      "appServices": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "pwa": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "updates": {
+                        "optional": false,
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "development/rmtx-a04/updates-inspect.cjs"
+          ],
+          "symbols": [
+            "value"
+          ],
+          "evidence": [
+            {
+              "type": "docs",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "development/rmtx-a04/updates-inspect.cjs",
+              "symbol": "value"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:c1fbac47abbc0e715c2d771edf7cb3b4eba41fcb4b7ba0a9b1be2a4f22210759",
           "shape": {
             "fieldCount": 3,
             "fields": [
@@ -405988,7 +406317,7 @@
               "retainedDeployments",
               "runtime"
             ],
-            "signature": "retainedByteBudget:number|retainedDeployments:array<union<{accounting?:intersection<{\"arguments\":[{\"fields\":{\"hostedBytes\":{\"optional\":false,\"type\":\"number\"},\"retainedBytes\":{\"optional\":false,\"type\":\"number\"}}}],\"unresolvedReference\":\"Readonly\"}&{\"arguments\":[{\"indexedAccess\":{\"index\":{\"literal\":\"accounting\"},\"object\":{\"fields\":{\"accounting\":{\"optional\":true,\"type\":{\"intersection\":[{\"arguments\":[{\"fields\":{\"publicBytes\":{\"optional\":false,\"type\":\"number\"},\"pwaWorkerBytes\":{\"optional\":false,\"type\":\"number\"},\"serverBytes\":{\"optional\":false,\"type\":\"number\"}}}],\"unresolvedReference\":\"Readonly\"},{\"arguments\":[{\"indexedAccess\":{\"index\":{\"literal\":\"accounting\"},\"object\":{\"fields\":{\"accounting\":{\"optional\":true,\"type\":{\"arguments\":[{\"fields\":{\"applicationBytes\":{\"optional\":false,\"type\":\"number\"},\"envelopeBytes\":{\"optional\":false,\"type\":\"number\"},\"frameworkBaselineBytes\":{\"optional\":false,\"type\":\"number\"},\"frameworkBytes\":{\"optional\":false,\"type\":\"number\"},\"totalBytes\":{\"optional\":false,\"type\":\"number\"},\"withinBudget\":{\"optional\":false,\"type\":\"boolean\"},\"xtensionRuntimeBytes\":{\"optional\":false,\"type\":\"number\"}}}],\"unresolvedReference\":\"Readonly\"}},\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"1.0.0\"}},\"headers\":{\"optional\":false,\"type\":{\"arguments\":[{\"fields\":{\"Cache-Control\":{\"optional\":false,\"type\":{\"literal\":\"no-store, no-transform\"}},\"Content-Security-Policy\":{\"optional\":false,\"type\":\"string\"},\"Integrity-Policy\":{\"optional\":false,\"type\":{\"literal\":\"blocked-destinations=(script)\"}},\"X-Content-Type-Options\":{\"optional\":false,\"type\":{\"literal\":\"nosniff\"}}}}],\"unresolvedReference\":\"Readonly\"}},\"manifest\":{\"optional\":false,\"type\":{\"fields\":{\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"1.0.0\"}},\"bootstrap\":{\"optional\":false,\"type\":\"string\"},\"documentFile\":{\"optional\":false,\"type\":\"string\"},\"files\":{\"optional\":false,\"type\":{\"elementType\":{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"fileName\":{\"optional\":false,\"type\":\"string\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}}},\"mode\":{\"optional\":false,\"type\":{\"literal\":\"native-sri-importmap\"}},\"publicPath\":{\"optional\":false,\"type\":\"string\"}}}},\"manifestFile\":{\"optional\":false,\"type\":{\"literal\":\"xtend.deployment.json\"}},\"manifestSha256\":{\"optional\":false,\"type\":\"string\"},\"outputDir\":{\"optional\":false,\"type\":\"string\"},\"runtimeExecutionVerified\":{\"optional\":false,\"type\":{\"literal\":false}}}}}}],\"unresolvedReference\":\"NonNullable\"}]}},\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"2.0.0\"}},\"manifest\":{\"optional\":false,\"type\":{\"fields\":{\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"2.0.0\"}},\"origin\":{\"optional\":false,\"type\":\"string\"},\"pwa\":{\"optional\":false,\"type\":{\"union\":[{\"arguments\":[{\"fields\":{\"cacheName\":{\"optional\":false,\"type\":\"string\"},\"manifestFile\":{\"optional\":false,\"type\":\"string\"},\"offlineFile\":{\"optional\":false,\"type\":{\"literal\":\"xtend.sealed-offline.html\"}},\"workerFile\":{\"optional\":false,\"type\":{\"literal\":\"xtend.sealed-service-worker.js\"}}}}],\"unresolvedReference\":\"Readonly\"},{\"literal\":null}]}},\"runtime\":{\"optional\":false,\"type\":{\"fields\":{\"appServices\":{\"optional\":false,\"type\":{\"union\":[{\"literal\":\"disabled\"},{\"literal\":\"separate-server\"}]}},\"pwa\":{\"optional\":false,\"type\":{\"union\":[{\"literal\":\"disabled\"},{\"literal\":\"verified-static-cache\"}]}}}}},\"serverFiles\":{\"optional\":false,\"type\":{\"elementType\":{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"fileName\":{\"optional\":false,\"type\":\"string\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}}},\"servicePath\":{\"optional\":false,\"type\":{\"union\":[\"string\",{\"literal\":null}]}}},\"unresolvedSpreads\":[{\"arguments\":[{\"fields\":{\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"1.0.0\"}},\"bootstrap\":{\"optional\":false,\"type\":\"string\"},\"documentFile\":{\"optional\":false,\"type\":\"string\"},\"files\":{\"optional\":false,\"type\":{\"elementType\":{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"fileName\":{\"optional\":false,\"type\":\"string\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}}},\"mode\":{\"optional\":false,\"type\":{\"literal\":\"native-sri-importmap\"}},\"publicPath\":{\"optional\":false,\"type\":\"string\"}}},{\"union\":[{\"literal\":\"apiVersion\"},{\"literal\":\"schema\"}]}],\"unresolvedReference\":\"Omit\"}]}},\"serverOutputDir\":{\"optional\":true,\"type\":\"string\"}},\"unresolvedSpreads\":[{\"arguments\":[{\"fields\":{\"accounting\":{\"optional\":true,\"type\":{\"arguments\":[{\"fields\":{\"applicationBytes\":{\"optional\":false,\"type\":\"number\"},\"envelopeBytes\":{\"optional\":false,\"type\":\"number\"},\"frameworkBaselineBytes\":{\"optional\":false,\"type\":\"number\"},\"frameworkBytes\":{\"optional\":false,\"type\":\"number\"},\"totalBytes\":{\"optional\":false,\"type\":\"number\"},\"withinBudget\":{\"optional\":false,\"type\":\"boolean\"},\"xtensionRuntimeBytes\":{\"optional\":false,\"type\":\"number\"}}}],\"unresolvedReference\":\"Readonly\"}},\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"1.0.0\"}},\"headers\":{\"optional\":false,\"type\":{\"arguments\":[{\"fields\":{\"Cache-Control\":{\"optional\":false,\"type\":{\"literal\":\"no-store, no-transform\"}},\"Content-Security-Policy\":{\"optional\":false,\"type\":\"string\"},\"Integrity-Policy\":{\"optional\":false,\"type\":{\"literal\":\"blocked-destinations=(script)\"}},\"X-Content-Type-Options\":{\"optional\":false,\"type\":{\"literal\":\"nosniff\"}}}}],\"unresolvedReference\":\"Readonly\"}},\"manifest\":{\"optional\":false,\"type\":{\"fields\":{\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"1.0.0\"}},\"bootstrap\":{\"optional\":false,\"type\":\"string\"},\"documentFile\":{\"optional\":false,\"type\":\"string\"},\"files\":{\"optional\":false,\"type\":{\"elementType\":{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"fileName\":{\"optional\":false,\"type\":\"string\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}}},\"mode\":{\"optional\":false,\"type\":{\"literal\":\"native-sri-importmap\"}},\"publicPath\":{\"optional\":false,\"type\":\"string\"}}}},\"manifestFile\":{\"optional\":false,\"type\":{\"literal\":\"xtend.deployment.json\"}},\"manifestSha256\":{\"optional\":false,\"type\":\"string\"},\"outputDir\":{\"optional\":false,\"type\":\"string\"},\"runtimeExecutionVerified\":{\"optional\":false,\"type\":{\"literal\":false}}}},{\"union\":[{\"literal\":\"accounting\"},{\"literal\":\"apiVersion\"},{\"literal\":\"manifest\"},{\"literal\":\"schema\"}]}],\"unresolvedReference\":\"Omit\"}]}}}],\"unresolvedReference\":\"NonNullable\"}>,apiVersion:literal<\"3.0.0\">,manifest:{apiVersion:literal<\"3.0.0\">,pwa:{\"arguments\":[{\"fields\":{\"cacheName\":{\"optional\":false,\"type\":\"string\"},\"manifestFile\":{\"optional\":false,\"type\":\"string\"},\"offlineFile\":{\"optional\":false,\"type\":\"string\"},\"workerFile\":{\"optional\":false,\"type\":\"string\"}}}],\"unresolvedReference\":\"Readonly\"},retained:array<{cacheName:union<string|literal<null>>,files:array<{\"arguments\":[{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"fileName\":{\"optional\":false,\"type\":\"string\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}],\"unresolvedReference\":\"Readonly\"}>,manifestSha256:string,pins:{\"arguments\":[{\"record\":{\"key\":\"string\",\"value\":{\"arguments\":[{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}],\"unresolvedReference\":\"Readonly\"}}}],\"unresolvedReference\":\"Readonly\"},revision:string}>,retainedByteBudget:number,revision:{assetRoot:string,clientFile:string,id:string},runtime:{acknowledgementTimeoutMs:number,pwa:literal<\"verified-static-cache\">,updates:literal<\"coordinated\">}}}|{accounting?:intersection<{\"arguments\":[{\"fields\":{\"publicBytes\":{\"optional\":false,\"type\":\"number\"},\"pwaWorkerBytes\":{\"optional\":false,\"type\":\"number\"},\"serverBytes\":{\"optional\":false,\"type\":\"number\"}}}],\"unresolvedReference\":\"Readonly\"}&{\"arguments\":[{\"indexedAccess\":{\"index\":{\"literal\":\"accounting\"},\"object\":{\"fields\":{\"accounting\":{\"optional\":true,\"type\":{\"arguments\":[{\"fields\":{\"applicationBytes\":{\"optional\":false,\"type\":\"number\"},\"envelopeBytes\":{\"optional\":false,\"type\":\"number\"},\"frameworkBaselineBytes\":{\"optional\":false,\"type\":\"number\"},\"frameworkBytes\":{\"optional\":false,\"type\":\"number\"},\"totalBytes\":{\"optional\":false,\"type\":\"number\"},\"withinBudget\":{\"optional\":false,\"type\":\"boolean\"},\"xtensionRuntimeBytes\":{\"optional\":false,\"type\":\"number\"}}}],\"unresolvedReference\":\"Readonly\"}},\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"1.0.0\"}},\"headers\":{\"optional\":false,\"type\":{\"arguments\":[{\"fields\":{\"Cache-Control\":{\"optional\":false,\"type\":{\"literal\":\"no-store, no-transform\"}},\"Content-Security-Policy\":{\"optional\":false,\"type\":\"string\"},\"Integrity-Policy\":{\"optional\":false,\"type\":{\"literal\":\"blocked-destinations=(script)\"}},\"X-Content-Type-Options\":{\"optional\":false,\"type\":{\"literal\":\"nosniff\"}}}}],\"unresolvedReference\":\"Readonly\"}},\"manifest\":{\"optional\":false,\"type\":{\"fields\":{\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"1.0.0\"}},\"bootstrap\":{\"optional\":false,\"type\":\"string\"},\"documentFile\":{\"optional\":false,\"type\":\"string\"},\"files\":{\"optional\":false,\"type\":{\"elementType\":{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"fileName\":{\"optional\":false,\"type\":\"string\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}}},\"mode\":{\"optional\":false,\"type\":{\"literal\":\"native-sri-importmap\"}},\"publicPath\":{\"optional\":false,\"type\":\"string\"}}}},\"manifestFile\":{\"optional\":false,\"type\":{\"literal\":\"xtend.deployment.json\"}},\"manifestSha256\":{\"optional\":false,\"type\":\"string\"},\"outputDir\":{\"optional\":false,\"type\":\"string\"},\"runtimeExecutionVerified\":{\"optional\":false,\"type\":{\"literal\":false}}}}}}],\"unresolvedReference\":\"NonNullable\"}>,apiVersion:literal<\"2.0.0\">,manifest:{apiVersion:literal<\"2.0.0\">,origin:string,pwa:union<{\"arguments\":[{\"fields\":{\"cacheName\":{\"optional\":false,\"type\":\"string\"},\"manifestFile\":{\"optional\":false,\"type\":\"string\"},\"offlineFile\":{\"optional\":false,\"type\":{\"literal\":\"xtend.sealed-offline.html\"}},\"workerFile\":{\"optional\":false,\"type\":{\"literal\":\"xtend.sealed-service-worker.js\"}}}}],\"unresolvedReference\":\"Readonly\"}|literal<null>>,runtime:{appServices:union<literal<\"disabled\">|literal<\"separate-server\">>,pwa:union<literal<\"disabled\">|literal<\"verified-static-cache\">>},serverFiles:array<{bytes:number,fileName:string,sha256:string}>,servicePath:union<string|literal<null>>},serverOutputDir?:string}>>|runtime:{acknowledgementTimeoutMs:number,pwa:literal<\"verified-static-cache\">,updates:literal<\"coordinated\">}",
+            "signature": "retainedByteBudget:number|retainedDeployments:array<union<{accounting?:intersection<{\"arguments\":[{\"fields\":{\"hostedBytes\":{\"optional\":false,\"type\":\"number\"},\"retainedBytes\":{\"optional\":false,\"type\":\"number\"}}}],\"unresolvedReference\":\"Readonly\"}&{\"arguments\":[{\"indexedAccess\":{\"index\":{\"literal\":\"accounting\"},\"object\":{\"fields\":{\"accounting\":{\"optional\":true,\"type\":{\"intersection\":[{\"arguments\":[{\"fields\":{\"publicBytes\":{\"optional\":false,\"type\":\"number\"},\"pwaWorkerBytes\":{\"optional\":false,\"type\":\"number\"},\"serverBytes\":{\"optional\":false,\"type\":\"number\"}}}],\"unresolvedReference\":\"Readonly\"},{\"arguments\":[{\"indexedAccess\":{\"index\":{\"literal\":\"accounting\"},\"object\":{\"fields\":{\"accounting\":{\"optional\":true,\"type\":{\"arguments\":[{\"fields\":{\"applicationBytes\":{\"optional\":false,\"type\":\"number\"},\"envelopeBytes\":{\"optional\":false,\"type\":\"number\"},\"frameworkBaselineBytes\":{\"optional\":false,\"type\":\"number\"},\"frameworkBytes\":{\"optional\":false,\"type\":\"number\"},\"totalBytes\":{\"optional\":false,\"type\":\"number\"},\"withinBudget\":{\"optional\":false,\"type\":\"boolean\"},\"xtensionRuntimeBytes\":{\"optional\":false,\"type\":\"number\"}}}],\"unresolvedReference\":\"Readonly\"}},\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"1.0.0\"}},\"headers\":{\"optional\":false,\"type\":{\"arguments\":[{\"fields\":{\"Cache-Control\":{\"optional\":false,\"type\":{\"literal\":\"no-store, no-transform\"}},\"Content-Security-Policy\":{\"optional\":false,\"type\":\"string\"},\"Integrity-Policy\":{\"optional\":false,\"type\":{\"literal\":\"blocked-destinations=(script)\"}},\"X-Content-Type-Options\":{\"optional\":false,\"type\":{\"literal\":\"nosniff\"}}}}],\"unresolvedReference\":\"Readonly\"}},\"manifest\":{\"optional\":false,\"type\":{\"fields\":{\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"1.0.0\"}},\"bootstrap\":{\"optional\":false,\"type\":\"string\"},\"documentFile\":{\"optional\":false,\"type\":\"string\"},\"files\":{\"optional\":false,\"type\":{\"elementType\":{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"fileName\":{\"optional\":false,\"type\":\"string\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}}},\"mode\":{\"optional\":false,\"type\":{\"literal\":\"native-sri-importmap\"}},\"publicPath\":{\"optional\":false,\"type\":\"string\"}}}},\"manifestFile\":{\"optional\":false,\"type\":{\"literal\":\"xtend.deployment.json\"}},\"manifestSha256\":{\"optional\":false,\"type\":\"string\"},\"outputDir\":{\"optional\":false,\"type\":\"string\"},\"runtimeExecutionVerified\":{\"optional\":false,\"type\":{\"literal\":false}}}}}}],\"unresolvedReference\":\"NonNullable\"}]}},\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"2.0.0\"}},\"manifest\":{\"optional\":false,\"type\":{\"fields\":{\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"2.0.0\"}},\"origin\":{\"optional\":false,\"type\":\"string\"},\"pwa\":{\"optional\":false,\"type\":{\"union\":[{\"arguments\":[{\"fields\":{\"cacheName\":{\"optional\":false,\"type\":\"string\"},\"manifestFile\":{\"optional\":false,\"type\":\"string\"},\"offlineFile\":{\"optional\":false,\"type\":{\"literal\":\"xtend.sealed-offline.html\"}},\"workerFile\":{\"optional\":false,\"type\":{\"literal\":\"xtend.sealed-service-worker.js\"}}}}],\"unresolvedReference\":\"Readonly\"},{\"literal\":null}]}},\"runtime\":{\"optional\":false,\"type\":{\"fields\":{\"appServices\":{\"optional\":false,\"type\":{\"union\":[{\"literal\":\"disabled\"},{\"literal\":\"separate-server\"}]}},\"pwa\":{\"optional\":false,\"type\":{\"union\":[{\"literal\":\"disabled\"},{\"literal\":\"verified-static-cache\"}]}}}}},\"serverFiles\":{\"optional\":false,\"type\":{\"elementType\":{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"fileName\":{\"optional\":false,\"type\":\"string\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}}},\"servicePath\":{\"optional\":false,\"type\":{\"union\":[\"string\",{\"literal\":null}]}}},\"unresolvedSpreads\":[{\"arguments\":[{\"fields\":{\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"1.0.0\"}},\"bootstrap\":{\"optional\":false,\"type\":\"string\"},\"documentFile\":{\"optional\":false,\"type\":\"string\"},\"files\":{\"optional\":false,\"type\":{\"elementType\":{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"fileName\":{\"optional\":false,\"type\":\"string\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}}},\"mode\":{\"optional\":false,\"type\":{\"literal\":\"native-sri-importmap\"}},\"publicPath\":{\"optional\":false,\"type\":\"string\"}}},{\"union\":[{\"literal\":\"apiVersion\"},{\"literal\":\"schema\"}]}],\"unresolvedReference\":\"Omit\"}]}},\"serverOutputDir\":{\"optional\":true,\"type\":\"string\"}},\"unresolvedSpreads\":[{\"arguments\":[{\"fields\":{\"accounting\":{\"optional\":true,\"type\":{\"arguments\":[{\"fields\":{\"applicationBytes\":{\"optional\":false,\"type\":\"number\"},\"envelopeBytes\":{\"optional\":false,\"type\":\"number\"},\"frameworkBaselineBytes\":{\"optional\":false,\"type\":\"number\"},\"frameworkBytes\":{\"optional\":false,\"type\":\"number\"},\"totalBytes\":{\"optional\":false,\"type\":\"number\"},\"withinBudget\":{\"optional\":false,\"type\":\"boolean\"},\"xtensionRuntimeBytes\":{\"optional\":false,\"type\":\"number\"}}}],\"unresolvedReference\":\"Readonly\"}},\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"1.0.0\"}},\"headers\":{\"optional\":false,\"type\":{\"arguments\":[{\"fields\":{\"Cache-Control\":{\"optional\":false,\"type\":{\"literal\":\"no-store, no-transform\"}},\"Content-Security-Policy\":{\"optional\":false,\"type\":\"string\"},\"Integrity-Policy\":{\"optional\":false,\"type\":{\"literal\":\"blocked-destinations=(script)\"}},\"X-Content-Type-Options\":{\"optional\":false,\"type\":{\"literal\":\"nosniff\"}}}}],\"unresolvedReference\":\"Readonly\"}},\"manifest\":{\"optional\":false,\"type\":{\"fields\":{\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"1.0.0\"}},\"bootstrap\":{\"optional\":false,\"type\":\"string\"},\"documentFile\":{\"optional\":false,\"type\":\"string\"},\"files\":{\"optional\":false,\"type\":{\"elementType\":{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"fileName\":{\"optional\":false,\"type\":\"string\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}}},\"mode\":{\"optional\":false,\"type\":{\"literal\":\"native-sri-importmap\"}},\"publicPath\":{\"optional\":false,\"type\":\"string\"}}}},\"manifestFile\":{\"optional\":false,\"type\":{\"literal\":\"xtend.deployment.json\"}},\"manifestSha256\":{\"optional\":false,\"type\":\"string\"},\"outputDir\":{\"optional\":false,\"type\":\"string\"},\"runtimeExecutionVerified\":{\"optional\":false,\"type\":{\"literal\":false}}}},{\"union\":[{\"literal\":\"accounting\"},{\"literal\":\"apiVersion\"},{\"literal\":\"manifest\"},{\"literal\":\"schema\"}]}],\"unresolvedReference\":\"Omit\"}]}}}],\"unresolvedReference\":\"NonNullable\"}>,apiVersion:literal<\"3.0.0\">,manifest:{apiVersion:literal<\"3.0.0\">,headFile?:literal<\"xtend.deployment-head.json\">,pwa:{\"arguments\":[{\"fields\":{\"cacheName\":{\"optional\":false,\"type\":\"string\"},\"manifestFile\":{\"optional\":false,\"type\":\"string\"},\"offlineFile\":{\"optional\":false,\"type\":\"string\"},\"workerFile\":{\"optional\":false,\"type\":\"string\"}}}],\"unresolvedReference\":\"Readonly\"},retained:array<{cacheName:union<string|literal<null>>,files:array<{\"arguments\":[{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"fileName\":{\"optional\":false,\"type\":\"string\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}],\"unresolvedReference\":\"Readonly\"}>,manifestSha256:string,pins:{\"arguments\":[{\"record\":{\"key\":\"string\",\"value\":{\"arguments\":[{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}],\"unresolvedReference\":\"Readonly\"}}}],\"unresolvedReference\":\"Readonly\"},revision:string}>,retainedByteBudget:number,revision:{assetRoot:string,clientFile:string,id:string},runtime:{acknowledgementTimeoutMs:number,pwa:literal<\"verified-static-cache\">,updates:literal<\"coordinated\">}}}|{accounting?:intersection<{\"arguments\":[{\"fields\":{\"publicBytes\":{\"optional\":false,\"type\":\"number\"},\"pwaWorkerBytes\":{\"optional\":false,\"type\":\"number\"},\"serverBytes\":{\"optional\":false,\"type\":\"number\"}}}],\"unresolvedReference\":\"Readonly\"}&{\"arguments\":[{\"indexedAccess\":{\"index\":{\"literal\":\"accounting\"},\"object\":{\"fields\":{\"accounting\":{\"optional\":true,\"type\":{\"arguments\":[{\"fields\":{\"applicationBytes\":{\"optional\":false,\"type\":\"number\"},\"envelopeBytes\":{\"optional\":false,\"type\":\"number\"},\"frameworkBaselineBytes\":{\"optional\":false,\"type\":\"number\"},\"frameworkBytes\":{\"optional\":false,\"type\":\"number\"},\"totalBytes\":{\"optional\":false,\"type\":\"number\"},\"withinBudget\":{\"optional\":false,\"type\":\"boolean\"},\"xtensionRuntimeBytes\":{\"optional\":false,\"type\":\"number\"}}}],\"unresolvedReference\":\"Readonly\"}},\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"1.0.0\"}},\"headers\":{\"optional\":false,\"type\":{\"arguments\":[{\"fields\":{\"Cache-Control\":{\"optional\":false,\"type\":{\"literal\":\"no-store, no-transform\"}},\"Content-Security-Policy\":{\"optional\":false,\"type\":\"string\"},\"Integrity-Policy\":{\"optional\":false,\"type\":{\"literal\":\"blocked-destinations=(script)\"}},\"X-Content-Type-Options\":{\"optional\":false,\"type\":{\"literal\":\"nosniff\"}}}}],\"unresolvedReference\":\"Readonly\"}},\"manifest\":{\"optional\":false,\"type\":{\"fields\":{\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"1.0.0\"}},\"bootstrap\":{\"optional\":false,\"type\":\"string\"},\"documentFile\":{\"optional\":false,\"type\":\"string\"},\"files\":{\"optional\":false,\"type\":{\"elementType\":{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"fileName\":{\"optional\":false,\"type\":\"string\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}}},\"mode\":{\"optional\":false,\"type\":{\"literal\":\"native-sri-importmap\"}},\"publicPath\":{\"optional\":false,\"type\":\"string\"}}}},\"manifestFile\":{\"optional\":false,\"type\":{\"literal\":\"xtend.deployment.json\"}},\"manifestSha256\":{\"optional\":false,\"type\":\"string\"},\"outputDir\":{\"optional\":false,\"type\":\"string\"},\"runtimeExecutionVerified\":{\"optional\":false,\"type\":{\"literal\":false}}}}}}],\"unresolvedReference\":\"NonNullable\"}>,apiVersion:literal<\"2.0.0\">,manifest:{apiVersion:literal<\"2.0.0\">,origin:string,pwa:union<{\"arguments\":[{\"fields\":{\"cacheName\":{\"optional\":false,\"type\":\"string\"},\"manifestFile\":{\"optional\":false,\"type\":\"string\"},\"offlineFile\":{\"optional\":false,\"type\":{\"literal\":\"xtend.sealed-offline.html\"}},\"workerFile\":{\"optional\":false,\"type\":{\"literal\":\"xtend.sealed-service-worker.js\"}}}}],\"unresolvedReference\":\"Readonly\"}|literal<null>>,runtime:{appServices:union<literal<\"disabled\">|literal<\"separate-server\">>,pwa:union<literal<\"disabled\">|literal<\"verified-static-cache\">>},serverFiles:array<{bytes:number,fileName:string,sha256:string}>,servicePath:union<string|literal<null>>},serverOutputDir?:string}|{apiVersion:literal<\"1.0.0\">,cacheName:union<string|literal<null>>,files:array<{\"arguments\":[{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"fileName\":{\"optional\":false,\"type\":\"string\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}],\"unresolvedReference\":\"Readonly\"}>,manifestSha256:string,origin:string,pins:{\"arguments\":[{\"record\":{\"key\":\"string\",\"value\":{\"arguments\":[{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}],\"unresolvedReference\":\"Readonly\"}}}],\"unresolvedReference\":\"Readonly\"},publicPath:string,revision:string,runtimeExecutionVerified:literal<false>}>>|runtime:{acknowledgementTimeoutMs:number,pwa:literal<\"verified-static-cache\">,updates:literal<\"coordinated\">}",
             "normalized": {
               "fields": {
                 "retainedByteBudget": {
@@ -406628,6 +406957,12 @@
                                     "optional": false,
                                     "type": {
                                       "literal": "3.0.0"
+                                    }
+                                  },
+                                  "headFile": {
+                                    "optional": true,
+                                    "type": {
+                                      "literal": "xtend.deployment-head.json"
                                     }
                                   },
                                   "pwa": {
@@ -408221,6 +408556,105 @@
                               "unresolvedReference": "Omit"
                             }
                           ]
+                        },
+                        {
+                          "fields": {
+                            "apiVersion": {
+                              "optional": false,
+                              "type": {
+                                "literal": "1.0.0"
+                              }
+                            },
+                            "cacheName": {
+                              "optional": false,
+                              "type": {
+                                "union": [
+                                  "string",
+                                  {
+                                    "literal": null
+                                  }
+                                ]
+                              }
+                            },
+                            "files": {
+                              "optional": false,
+                              "type": {
+                                "elementType": {
+                                  "arguments": [
+                                    {
+                                      "fields": {
+                                        "bytes": {
+                                          "optional": false,
+                                          "type": "number"
+                                        },
+                                        "fileName": {
+                                          "optional": false,
+                                          "type": "string"
+                                        },
+                                        "sha256": {
+                                          "optional": false,
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "unresolvedReference": "Readonly"
+                                }
+                              }
+                            },
+                            "manifestSha256": {
+                              "optional": false,
+                              "type": "string"
+                            },
+                            "origin": {
+                              "optional": false,
+                              "type": "string"
+                            },
+                            "pins": {
+                              "optional": false,
+                              "type": {
+                                "arguments": [
+                                  {
+                                    "record": {
+                                      "key": "string",
+                                      "value": {
+                                        "arguments": [
+                                          {
+                                            "fields": {
+                                              "bytes": {
+                                                "optional": false,
+                                                "type": "number"
+                                              },
+                                              "sha256": {
+                                                "optional": false,
+                                                "type": "string"
+                                              }
+                                            }
+                                          }
+                                        ],
+                                        "unresolvedReference": "Readonly"
+                                      }
+                                    }
+                                  }
+                                ],
+                                "unresolvedReference": "Readonly"
+                              }
+                            },
+                            "publicPath": {
+                              "optional": false,
+                              "type": "string"
+                            },
+                            "revision": {
+                              "optional": false,
+                              "type": "string"
+                            },
+                            "runtimeExecutionVerified": {
+                              "optional": false,
+                              "type": {
+                                "literal": false
+                              }
+                            }
+                          }
                         }
                       ]
                     }
@@ -408463,130 +408897,224 @@
           ],
           "completeness": "partial",
           "authoritative": false
+        }
+      ]
+    },
+    {
+      "schemaId": "xtend.maraca.xtension-deployment-head.v1",
+      "familyId": "xtend.maraca.xtension-deployment-head",
+      "version": 1,
+      "kinds": [
+        "runtime-discriminator"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": "sha256:55717c4e104a20b3cf44557f6bcbf5ac69ab5b512500bb698d235330e363ca03",
+      "description": "A04.3.7 bugfix: bounded same-origin advisory revision discovery and digest-anchored independent public predecessor snapshots. No executable update or active-handler authority is inferred from metadata. Partial observations do not become complete authority.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "xtend-maraca/xtension-deployment-lifecycle.js",
+        "symbol": null,
+        "definitionType": "object-shape",
+        "role": "producer",
+        "visibility": "public"
+      },
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a04/updates-inspect.cjs",
+            "development/rmtx-a04/updates.md"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "development/rmtx-a04/updates-inspect.cjs",
+              "symbol": null
+            }
+          ]
         },
         {
-          "hash": "sha256:a4e5c3486b0f52ac836a782d0b25cafc26cba033c175cc958de2adfaf90e9d8f",
+          "application": "XTend Maraca",
+          "role": "definition",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-deployment-lifecycle-client.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-deployment-lifecycle-client.d.ts",
+              "symbol": "DeploymentHead"
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "producer",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-deployment-lifecycle-client.d.ts",
+            "xtend-maraca/xtension-deployment-lifecycle.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-deployment-lifecycle.js",
+              "symbol": "headSource"
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "reference",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-deployment-lifecycle.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "xtend-maraca/xtension-deployment-lifecycle.js",
+              "symbol": null
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "polymorphic",
+        "decision": "reviewed-a0437-same-version-bugfix",
+        "acceptedFingerprints": [
+          "sha256:540153767c23afddf26094682afc9d614b2011b95e84d7b8aadac7a5737a8b79",
+          "sha256:54e8c908b743e8a3a3cce35dc4872f0050349670d70c77865a98df4020f274b8"
+        ],
+        "authoritativeFingerprints": [
+          "sha256:54e8c908b743e8a3a3cce35dc4872f0050349670d70c77865a98df4020f274b8"
+        ],
+        "releasedFingerprintSetHash": "sha256:55717c4e104a20b3cf44557f6bcbf5ac69ab5b512500bb698d235330e363ca03",
+        "rationale": "A04.3.7 same-version bugfix explicitly requested by Konni on 2026-11-13: overwrite the affected existing schemas rather than bump their versions. Build API9, deployment API3, config/manifest/result v3, runtime policy v2 and client API1 remain unchanged. A stable bounded same-origin advisory revision head discovers a newer deployment in one open tab without fetching an obsolete worker or granting worker/cache authority. Digest-anchored public snapshots load only a predecessor's own static closure; they need no ancestor, HTML, worker, discovery or private server bytes and cannot act as an active HTTP deployment. Natural activation, exact CSP and unanimous client consent remain enforced. Sixty-four real Chromium cases and twenty-nine build/restart checks include actual fresh-process restart after pruning and positive multi-client cache retirement. Browser tests now actually await asynchronous registration conditions. Only the two affected unreleased client/response baselines are updated in place; all other authority/released sets and historical inventory remain unchanged. Current strict size ceilings, native Kernel/Fabric admission, older data forms and pending full 0.9 acceptance remain explicit. See development/rmtx-a04/updates.md."
+      },
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:540153767c23afddf26094682afc9d614b2011b95e84d7b8aadac7a5737a8b79",
           "shape": {
-            "fieldCount": 8,
+            "fieldCount": 4,
             "fields": [
-              "application",
-              "build",
-              "origin",
-              "outputDir",
-              "publicPath",
-              "retainedByteBudget",
-              "retainedDeployments",
-              "runtime"
+              "documentUrl",
+              "revision",
+              "scope",
+              "workerUrl"
             ],
-            "signature": "application:{bootstrap:{fileName:string,sha256:unknown},modules:array<>,rootDir:unknown}|build:{\"unresolved\":\"await require('../../xtend-maraca').buildMaracaBundleAsync(fixture.input,{rootDir:fixture.rootDir})\"}|origin:string|outputDir:unknown|publicPath:string|retainedByteBudget:number|retainedDeployments:array<>|runtime:{acknowledgementTimeoutMs:number,appServices:string,pwa:string,updates:string}",
+            "signature": "documentUrl:{\"unresolved\":\"manifest.origin+manifest.publicPath\"}|revision:{\"unresolved\":\"manifest.revision.id\"}|scope:{\"unresolved\":\"manifest.origin+manifest.publicPath\"}|workerUrl:{\"unresolved\":\"manifest.origin+manifest.publicPath+manifest.revision.assetRoot+pwa.workerFile\"}",
             "normalized": {
               "fields": {
-                "application": {
+                "documentUrl": {
                   "optional": false,
                   "type": {
-                    "fields": {
-                      "bootstrap": {
-                        "optional": false,
-                        "type": {
-                          "fields": {
-                            "fileName": {
-                              "optional": false,
-                              "type": "string"
-                            },
-                            "sha256": {
-                              "optional": false,
-                              "type": "unknown"
-                            }
-                          }
-                        }
-                      },
-                      "modules": {
-                        "optional": false,
-                        "type": {
-                          "array": []
-                        }
-                      },
-                      "rootDir": {
-                        "optional": false,
-                        "type": "unknown"
-                      }
-                    }
+                    "unresolved": "manifest.origin+manifest.publicPath"
                   }
                 },
-                "build": {
+                "revision": {
                   "optional": false,
                   "type": {
-                    "unresolved": "await require('../../xtend-maraca').buildMaracaBundleAsync(fixture.input,{rootDir:fixture.rootDir})"
+                    "unresolved": "manifest.revision.id"
                   }
                 },
-                "origin": {
-                  "optional": false,
-                  "type": "string"
-                },
-                "outputDir": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "publicPath": {
-                  "optional": false,
-                  "type": "string"
-                },
-                "retainedByteBudget": {
-                  "optional": false,
-                  "type": "number"
-                },
-                "retainedDeployments": {
+                "scope": {
                   "optional": false,
                   "type": {
-                    "array": []
+                    "unresolved": "manifest.origin+manifest.publicPath"
                   }
                 },
-                "runtime": {
+                "workerUrl": {
                   "optional": false,
                   "type": {
-                    "fields": {
-                      "acknowledgementTimeoutMs": {
-                        "optional": false,
-                        "type": "number"
-                      },
-                      "appServices": {
-                        "optional": false,
-                        "type": "string"
-                      },
-                      "pwa": {
-                        "optional": false,
-                        "type": "string"
-                      },
-                      "updates": {
-                        "optional": false,
-                        "type": "string"
-                      }
-                    }
+                    "unresolved": "manifest.origin+manifest.publicPath+manifest.revision.assetRoot+pwa.workerFile"
                   }
                 }
               }
             }
           },
           "sourcePaths": [
-            "development/rmtx-a04/updates-inspect.cjs"
+            "xtend-maraca/xtension-deployment-lifecycle.js"
           ],
           "symbols": [
-            "value"
+            "headSource"
           ],
           "evidence": [
             {
-              "type": "docs",
+              "type": "runtime-observation",
               "completeness": "partial",
               "authoritative": false,
-              "path": "development/rmtx-a04/updates-inspect.cjs",
-              "symbol": "value"
+              "path": "xtend-maraca/xtension-deployment-lifecycle.js",
+              "symbol": "headSource"
             }
           ],
           "evidenceTypes": [
-            "docs"
+            "runtime-observation"
           ],
           "completeness": "partial",
           "authoritative": false
+        },
+        {
+          "hash": "sha256:54e8c908b743e8a3a3cce35dc4872f0050349670d70c77865a98df4020f274b8",
+          "shape": {
+            "fieldCount": 4,
+            "fields": [
+              "documentUrl",
+              "revision",
+              "scope",
+              "workerUrl"
+            ],
+            "signature": "documentUrl:string|revision:string|scope:string|workerUrl:string",
+            "normalized": {
+              "fields": {
+                "documentUrl": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "revision": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "scope": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "workerUrl": {
+                  "optional": false,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/xtension-deployment-lifecycle-client.d.ts"
+          ],
+          "symbols": [
+            "DeploymentHead"
+          ],
+          "evidence": [
+            {
+              "type": "declared-type",
+              "completeness": "complete",
+              "authoritative": true,
+              "path": "xtend-maraca/xtension-deployment-lifecycle-client.d.ts",
+              "symbol": "DeploymentHead"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "completeness": "complete",
+          "authoritative": true
         }
       ]
     },
@@ -409301,34 +409829,41 @@
       ],
       "shapePolicy": {
         "mode": "single",
-        "decision": "reviewed-a0437-coordinated-updates",
+        "decision": "reviewed-a0437-same-version-bugfix",
         "acceptedFingerprints": [
-          "sha256:aaa8342fdcb2cbcaca713f0049da7d8ee3efbf46f54d0778951d275852935c77"
+          "sha256:7feb3c6ef4963ae72a82b6089e9879a9d98f2ba6366e6c36aa3518c760f168a7"
         ],
         "authoritativeFingerprints": [],
         "releasedFingerprintSetHash": null,
-        "rationale": "Scoped A04.3.7 review: build API9 and deployment API3 add config/manifest/result v3, runtime policy v2, revision/client metadata v1 and versioned request/response/challenge/acknowledgement v1. Complete earlier deployment and runtime contracts remain supported. Revision-isolated static URLs and explicitly byte-budgeted verified predecessor snapshots preserve concurrent graphs. A generated pinned browser client supplies update status and explicit retirement readiness. The active worker queries all in-scope windows, validates fresh nonce-bound per-client acknowledgements, rechecks client membership and holds navigation behind a retirement barrier. Unknown/busy/stale clients or pending updates block deletion; timeout is rejection. Only exact trusted predecessor cache names are candidates. Natural activation, no forced takeover, no automatic reload or server archive deletion. Forty real Chromium/HTTP cases include React/Vue/mixed coexistence, genuine Kernel/Fabric mounts, old-byte recovery, missing/replayed acknowledgements, private cache authority rejection and real deployment-v2 migration. Twenty-two contract checks, unchanged active reference limits, 341 retained runtime cases and 88 compiler checks remain mandatory. All previous authoritative/released sets are preserved. Document/worker trust, script-free offline fallback and pending complete 0.9 acceptance remain explicit. See development/rmtx-a04/updates.md."
+        "rationale": "A04.3.7 same-version bugfix explicitly requested by Konni on 2026-11-13: overwrite the affected existing schemas rather than bump their versions. Build API9, deployment API3, config/manifest/result v3, runtime policy v2 and client API1 remain unchanged. A stable bounded same-origin advisory revision head discovers a newer deployment in one open tab without fetching an obsolete worker or granting worker/cache authority. Digest-anchored public snapshots load only a predecessor's own static closure; they need no ancestor, HTML, worker, discovery or private server bytes and cannot act as an active HTTP deployment. Natural activation, exact CSP and unanimous client consent remain enforced. Sixty-four real Chromium cases and twenty-nine build/restart checks include actual fresh-process restart after pruning and positive multi-client cache retirement. Browser tests now actually await asynchronous registration conditions. Only the two affected unreleased client/response baselines are updated in place; all other authority/released sets and historical inventory remain unchanged. Current strict size ceilings, native Kernel/Fabric admission, older data forms and pending full 0.9 acceptance remain explicit. See development/rmtx-a04/updates.md."
       },
       "shapeFingerprints": [
         {
-          "hash": "sha256:aaa8342fdcb2cbcaca713f0049da7d8ee3efbf46f54d0778951d275852935c77",
+          "hash": "sha256:7feb3c6ef4963ae72a82b6089e9879a9d98f2ba6366e6c36aa3518c760f168a7",
           "shape": {
-            "fieldCount": 6,
+            "fieldCount": 7,
             "fields": [
               "apiVersion",
+              "headFile",
               "pwa",
               "retained",
               "retainedByteBudget",
               "revision",
               "runtime"
             ],
-            "signature": "apiVersion:literal<\"3.0.0\">|pwa:{\"arguments\":[{\"fields\":{\"cacheName\":{\"optional\":false,\"type\":\"string\"},\"manifestFile\":{\"optional\":false,\"type\":\"string\"},\"offlineFile\":{\"optional\":false,\"type\":\"string\"},\"workerFile\":{\"optional\":false,\"type\":\"string\"}}}],\"unresolvedReference\":\"Readonly\"}|retained:array<{cacheName:union<string|literal<null>>,files:array<{\"arguments\":[{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"fileName\":{\"optional\":false,\"type\":\"string\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}],\"unresolvedReference\":\"Readonly\"}>,manifestSha256:string,pins:{\"arguments\":[{\"record\":{\"key\":\"string\",\"value\":{\"arguments\":[{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}],\"unresolvedReference\":\"Readonly\"}}}],\"unresolvedReference\":\"Readonly\"},revision:string}>|retainedByteBudget:number|revision:{assetRoot:string,clientFile:string,id:string}|runtime:{acknowledgementTimeoutMs:number,pwa:literal<\"verified-static-cache\">,updates:literal<\"coordinated\">}",
+            "signature": "apiVersion:literal<\"3.0.0\">|headFile?:literal<\"xtend.deployment-head.json\">|pwa:{\"arguments\":[{\"fields\":{\"cacheName\":{\"optional\":false,\"type\":\"string\"},\"manifestFile\":{\"optional\":false,\"type\":\"string\"},\"offlineFile\":{\"optional\":false,\"type\":\"string\"},\"workerFile\":{\"optional\":false,\"type\":\"string\"}}}],\"unresolvedReference\":\"Readonly\"}|retained:array<{cacheName:union<string|literal<null>>,files:array<{\"arguments\":[{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"fileName\":{\"optional\":false,\"type\":\"string\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}],\"unresolvedReference\":\"Readonly\"}>,manifestSha256:string,pins:{\"arguments\":[{\"record\":{\"key\":\"string\",\"value\":{\"arguments\":[{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}],\"unresolvedReference\":\"Readonly\"}}}],\"unresolvedReference\":\"Readonly\"},revision:string}>|retainedByteBudget:number|revision:{assetRoot:string,clientFile:string,id:string}|runtime:{acknowledgementTimeoutMs:number,pwa:literal<\"verified-static-cache\">,updates:literal<\"coordinated\">}",
             "normalized": {
               "fields": {
                 "apiVersion": {
                   "optional": false,
                   "type": {
                     "literal": "3.0.0"
+                  }
+                },
+                "headFile": {
+                  "optional": true,
+                  "type": {
+                    "literal": "xtend.deployment-head.json"
                   }
                 },
                 "pwa": {
@@ -410870,17 +411405,17 @@
       ],
       "shapePolicy": {
         "mode": "single",
-        "decision": "reviewed-a0437-coordinated-updates",
+        "decision": "reviewed-a0437-same-version-bugfix",
         "acceptedFingerprints": [
-          "sha256:a96336b64171b7033b4b8fabe552d79a833b17dbef16a7444ff2ab7b3aa170ec"
+          "sha256:6523a7f2806cacd2ac54c5d0a915fe70673ebe6b9957366a288eedabcf4971ae"
         ],
         "authoritativeFingerprints": [],
         "releasedFingerprintSetHash": null,
-        "rationale": "Scoped A04.3.7 review: build API9 and deployment API3 add config/manifest/result v3, runtime policy v2, revision/client metadata v1 and versioned request/response/challenge/acknowledgement v1. Complete earlier deployment and runtime contracts remain supported. Revision-isolated static URLs and explicitly byte-budgeted verified predecessor snapshots preserve concurrent graphs. A generated pinned browser client supplies update status and explicit retirement readiness. The active worker queries all in-scope windows, validates fresh nonce-bound per-client acknowledgements, rechecks client membership and holds navigation behind a retirement barrier. Unknown/busy/stale clients or pending updates block deletion; timeout is rejection. Only exact trusted predecessor cache names are candidates. Natural activation, no forced takeover, no automatic reload or server archive deletion. Forty real Chromium/HTTP cases include React/Vue/mixed coexistence, genuine Kernel/Fabric mounts, old-byte recovery, missing/replayed acknowledgements, private cache authority rejection and real deployment-v2 migration. Twenty-two contract checks, unchanged active reference limits, 341 retained runtime cases and 88 compiler checks remain mandatory. All previous authoritative/released sets are preserved. Document/worker trust, script-free offline fallback and pending complete 0.9 acceptance remain explicit. See development/rmtx-a04/updates.md."
+        "rationale": "A04.3.7 same-version bugfix explicitly requested by Konni on 2026-11-13: overwrite the affected existing schemas rather than bump their versions. Build API9, deployment API3, config/manifest/result v3, runtime policy v2 and client API1 remain unchanged. A stable bounded same-origin advisory revision head discovers a newer deployment in one open tab without fetching an obsolete worker or granting worker/cache authority. Digest-anchored public snapshots load only a predecessor's own static closure; they need no ancestor, HTML, worker, discovery or private server bytes and cannot act as an active HTTP deployment. Natural activation, exact CSP and unanimous client consent remain enforced. Sixty-four real Chromium cases and twenty-nine build/restart checks include actual fresh-process restart after pruning and positive multi-client cache retirement. Browser tests now actually await asynchronous registration conditions. Only the two affected unreleased client/response baselines are updated in place; all other authority/released sets and historical inventory remain unchanged. Current strict size ceilings, native Kernel/Fabric admission, older data forms and pending full 0.9 acceptance remain explicit. See development/rmtx-a04/updates.md."
       },
       "shapeFingerprints": [
         {
-          "hash": "sha256:a96336b64171b7033b4b8fabe552d79a833b17dbef16a7444ff2ab7b3aa170ec",
+          "hash": "sha256:6523a7f2806cacd2ac54c5d0a915fe70673ebe6b9957366a288eedabcf4971ae",
           "shape": {
             "fieldCount": 3,
             "fields": [
@@ -410888,7 +411423,7 @@
               "apiVersion",
               "manifest"
             ],
-            "signature": "accounting?:intersection<{\"arguments\":[{\"fields\":{\"hostedBytes\":{\"optional\":false,\"type\":\"number\"},\"retainedBytes\":{\"optional\":false,\"type\":\"number\"}}}],\"unresolvedReference\":\"Readonly\"}&{\"arguments\":[{\"indexedAccess\":{\"index\":{\"literal\":\"accounting\"},\"object\":{\"fields\":{\"accounting\":{\"optional\":true,\"type\":{\"intersection\":[{\"arguments\":[{\"fields\":{\"publicBytes\":{\"optional\":false,\"type\":\"number\"},\"pwaWorkerBytes\":{\"optional\":false,\"type\":\"number\"},\"serverBytes\":{\"optional\":false,\"type\":\"number\"}}}],\"unresolvedReference\":\"Readonly\"},{\"arguments\":[{\"indexedAccess\":{\"index\":{\"literal\":\"accounting\"},\"object\":{\"fields\":{\"accounting\":{\"optional\":true,\"type\":{\"arguments\":[{\"fields\":{\"applicationBytes\":{\"optional\":false,\"type\":\"number\"},\"envelopeBytes\":{\"optional\":false,\"type\":\"number\"},\"frameworkBaselineBytes\":{\"optional\":false,\"type\":\"number\"},\"frameworkBytes\":{\"optional\":false,\"type\":\"number\"},\"totalBytes\":{\"optional\":false,\"type\":\"number\"},\"withinBudget\":{\"optional\":false,\"type\":\"boolean\"},\"xtensionRuntimeBytes\":{\"optional\":false,\"type\":\"number\"}}}],\"unresolvedReference\":\"Readonly\"}},\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"1.0.0\"}},\"headers\":{\"optional\":false,\"type\":{\"arguments\":[{\"fields\":{\"Cache-Control\":{\"optional\":false,\"type\":{\"literal\":\"no-store, no-transform\"}},\"Content-Security-Policy\":{\"optional\":false,\"type\":\"string\"},\"Integrity-Policy\":{\"optional\":false,\"type\":{\"literal\":\"blocked-destinations=(script)\"}},\"X-Content-Type-Options\":{\"optional\":false,\"type\":{\"literal\":\"nosniff\"}}}}],\"unresolvedReference\":\"Readonly\"}},\"manifest\":{\"optional\":false,\"type\":{\"fields\":{\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"1.0.0\"}},\"bootstrap\":{\"optional\":false,\"type\":\"string\"},\"documentFile\":{\"optional\":false,\"type\":\"string\"},\"files\":{\"optional\":false,\"type\":{\"elementType\":{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"fileName\":{\"optional\":false,\"type\":\"string\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}}},\"mode\":{\"optional\":false,\"type\":{\"literal\":\"native-sri-importmap\"}},\"publicPath\":{\"optional\":false,\"type\":\"string\"}}}},\"manifestFile\":{\"optional\":false,\"type\":{\"literal\":\"xtend.deployment.json\"}},\"manifestSha256\":{\"optional\":false,\"type\":\"string\"},\"outputDir\":{\"optional\":false,\"type\":\"string\"},\"runtimeExecutionVerified\":{\"optional\":false,\"type\":{\"literal\":false}}}}}}],\"unresolvedReference\":\"NonNullable\"}]}},\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"2.0.0\"}},\"manifest\":{\"optional\":false,\"type\":{\"fields\":{\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"2.0.0\"}},\"origin\":{\"optional\":false,\"type\":\"string\"},\"pwa\":{\"optional\":false,\"type\":{\"union\":[{\"arguments\":[{\"fields\":{\"cacheName\":{\"optional\":false,\"type\":\"string\"},\"manifestFile\":{\"optional\":false,\"type\":\"string\"},\"offlineFile\":{\"optional\":false,\"type\":{\"literal\":\"xtend.sealed-offline.html\"}},\"workerFile\":{\"optional\":false,\"type\":{\"literal\":\"xtend.sealed-service-worker.js\"}}}}],\"unresolvedReference\":\"Readonly\"},{\"literal\":null}]}},\"runtime\":{\"optional\":false,\"type\":{\"fields\":{\"appServices\":{\"optional\":false,\"type\":{\"union\":[{\"literal\":\"disabled\"},{\"literal\":\"separate-server\"}]}},\"pwa\":{\"optional\":false,\"type\":{\"union\":[{\"literal\":\"disabled\"},{\"literal\":\"verified-static-cache\"}]}}}}},\"serverFiles\":{\"optional\":false,\"type\":{\"elementType\":{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"fileName\":{\"optional\":false,\"type\":\"string\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}}},\"servicePath\":{\"optional\":false,\"type\":{\"union\":[\"string\",{\"literal\":null}]}}},\"unresolvedSpreads\":[{\"arguments\":[{\"fields\":{\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"1.0.0\"}},\"bootstrap\":{\"optional\":false,\"type\":\"string\"},\"documentFile\":{\"optional\":false,\"type\":\"string\"},\"files\":{\"optional\":false,\"type\":{\"elementType\":{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"fileName\":{\"optional\":false,\"type\":\"string\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}}},\"mode\":{\"optional\":false,\"type\":{\"literal\":\"native-sri-importmap\"}},\"publicPath\":{\"optional\":false,\"type\":\"string\"}}},{\"union\":[{\"literal\":\"apiVersion\"},{\"literal\":\"schema\"}]}],\"unresolvedReference\":\"Omit\"}]}},\"serverOutputDir\":{\"optional\":true,\"type\":\"string\"}},\"unresolvedSpreads\":[{\"arguments\":[{\"fields\":{\"accounting\":{\"optional\":true,\"type\":{\"arguments\":[{\"fields\":{\"applicationBytes\":{\"optional\":false,\"type\":\"number\"},\"envelopeBytes\":{\"optional\":false,\"type\":\"number\"},\"frameworkBaselineBytes\":{\"optional\":false,\"type\":\"number\"},\"frameworkBytes\":{\"optional\":false,\"type\":\"number\"},\"totalBytes\":{\"optional\":false,\"type\":\"number\"},\"withinBudget\":{\"optional\":false,\"type\":\"boolean\"},\"xtensionRuntimeBytes\":{\"optional\":false,\"type\":\"number\"}}}],\"unresolvedReference\":\"Readonly\"}},\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"1.0.0\"}},\"headers\":{\"optional\":false,\"type\":{\"arguments\":[{\"fields\":{\"Cache-Control\":{\"optional\":false,\"type\":{\"literal\":\"no-store, no-transform\"}},\"Content-Security-Policy\":{\"optional\":false,\"type\":\"string\"},\"Integrity-Policy\":{\"optional\":false,\"type\":{\"literal\":\"blocked-destinations=(script)\"}},\"X-Content-Type-Options\":{\"optional\":false,\"type\":{\"literal\":\"nosniff\"}}}}],\"unresolvedReference\":\"Readonly\"}},\"manifest\":{\"optional\":false,\"type\":{\"fields\":{\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"1.0.0\"}},\"bootstrap\":{\"optional\":false,\"type\":\"string\"},\"documentFile\":{\"optional\":false,\"type\":\"string\"},\"files\":{\"optional\":false,\"type\":{\"elementType\":{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"fileName\":{\"optional\":false,\"type\":\"string\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}}},\"mode\":{\"optional\":false,\"type\":{\"literal\":\"native-sri-importmap\"}},\"publicPath\":{\"optional\":false,\"type\":\"string\"}}}},\"manifestFile\":{\"optional\":false,\"type\":{\"literal\":\"xtend.deployment.json\"}},\"manifestSha256\":{\"optional\":false,\"type\":\"string\"},\"outputDir\":{\"optional\":false,\"type\":\"string\"},\"runtimeExecutionVerified\":{\"optional\":false,\"type\":{\"literal\":false}}}},{\"union\":[{\"literal\":\"accounting\"},{\"literal\":\"apiVersion\"},{\"literal\":\"manifest\"},{\"literal\":\"schema\"}]}],\"unresolvedReference\":\"Omit\"}]}}}],\"unresolvedReference\":\"NonNullable\"}>|apiVersion:literal<\"3.0.0\">|manifest:{apiVersion:literal<\"3.0.0\">,pwa:{\"arguments\":[{\"fields\":{\"cacheName\":{\"optional\":false,\"type\":\"string\"},\"manifestFile\":{\"optional\":false,\"type\":\"string\"},\"offlineFile\":{\"optional\":false,\"type\":\"string\"},\"workerFile\":{\"optional\":false,\"type\":\"string\"}}}],\"unresolvedReference\":\"Readonly\"},retained:array<{cacheName:union<string|literal<null>>,files:array<{\"arguments\":[{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"fileName\":{\"optional\":false,\"type\":\"string\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}],\"unresolvedReference\":\"Readonly\"}>,manifestSha256:string,pins:{\"arguments\":[{\"record\":{\"key\":\"string\",\"value\":{\"arguments\":[{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}],\"unresolvedReference\":\"Readonly\"}}}],\"unresolvedReference\":\"Readonly\"},revision:string}>,retainedByteBudget:number,revision:{assetRoot:string,clientFile:string,id:string},runtime:{acknowledgementTimeoutMs:number,pwa:literal<\"verified-static-cache\">,updates:literal<\"coordinated\">}}",
+            "signature": "accounting?:intersection<{\"arguments\":[{\"fields\":{\"hostedBytes\":{\"optional\":false,\"type\":\"number\"},\"retainedBytes\":{\"optional\":false,\"type\":\"number\"}}}],\"unresolvedReference\":\"Readonly\"}&{\"arguments\":[{\"indexedAccess\":{\"index\":{\"literal\":\"accounting\"},\"object\":{\"fields\":{\"accounting\":{\"optional\":true,\"type\":{\"intersection\":[{\"arguments\":[{\"fields\":{\"publicBytes\":{\"optional\":false,\"type\":\"number\"},\"pwaWorkerBytes\":{\"optional\":false,\"type\":\"number\"},\"serverBytes\":{\"optional\":false,\"type\":\"number\"}}}],\"unresolvedReference\":\"Readonly\"},{\"arguments\":[{\"indexedAccess\":{\"index\":{\"literal\":\"accounting\"},\"object\":{\"fields\":{\"accounting\":{\"optional\":true,\"type\":{\"arguments\":[{\"fields\":{\"applicationBytes\":{\"optional\":false,\"type\":\"number\"},\"envelopeBytes\":{\"optional\":false,\"type\":\"number\"},\"frameworkBaselineBytes\":{\"optional\":false,\"type\":\"number\"},\"frameworkBytes\":{\"optional\":false,\"type\":\"number\"},\"totalBytes\":{\"optional\":false,\"type\":\"number\"},\"withinBudget\":{\"optional\":false,\"type\":\"boolean\"},\"xtensionRuntimeBytes\":{\"optional\":false,\"type\":\"number\"}}}],\"unresolvedReference\":\"Readonly\"}},\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"1.0.0\"}},\"headers\":{\"optional\":false,\"type\":{\"arguments\":[{\"fields\":{\"Cache-Control\":{\"optional\":false,\"type\":{\"literal\":\"no-store, no-transform\"}},\"Content-Security-Policy\":{\"optional\":false,\"type\":\"string\"},\"Integrity-Policy\":{\"optional\":false,\"type\":{\"literal\":\"blocked-destinations=(script)\"}},\"X-Content-Type-Options\":{\"optional\":false,\"type\":{\"literal\":\"nosniff\"}}}}],\"unresolvedReference\":\"Readonly\"}},\"manifest\":{\"optional\":false,\"type\":{\"fields\":{\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"1.0.0\"}},\"bootstrap\":{\"optional\":false,\"type\":\"string\"},\"documentFile\":{\"optional\":false,\"type\":\"string\"},\"files\":{\"optional\":false,\"type\":{\"elementType\":{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"fileName\":{\"optional\":false,\"type\":\"string\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}}},\"mode\":{\"optional\":false,\"type\":{\"literal\":\"native-sri-importmap\"}},\"publicPath\":{\"optional\":false,\"type\":\"string\"}}}},\"manifestFile\":{\"optional\":false,\"type\":{\"literal\":\"xtend.deployment.json\"}},\"manifestSha256\":{\"optional\":false,\"type\":\"string\"},\"outputDir\":{\"optional\":false,\"type\":\"string\"},\"runtimeExecutionVerified\":{\"optional\":false,\"type\":{\"literal\":false}}}}}}],\"unresolvedReference\":\"NonNullable\"}]}},\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"2.0.0\"}},\"manifest\":{\"optional\":false,\"type\":{\"fields\":{\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"2.0.0\"}},\"origin\":{\"optional\":false,\"type\":\"string\"},\"pwa\":{\"optional\":false,\"type\":{\"union\":[{\"arguments\":[{\"fields\":{\"cacheName\":{\"optional\":false,\"type\":\"string\"},\"manifestFile\":{\"optional\":false,\"type\":\"string\"},\"offlineFile\":{\"optional\":false,\"type\":{\"literal\":\"xtend.sealed-offline.html\"}},\"workerFile\":{\"optional\":false,\"type\":{\"literal\":\"xtend.sealed-service-worker.js\"}}}}],\"unresolvedReference\":\"Readonly\"},{\"literal\":null}]}},\"runtime\":{\"optional\":false,\"type\":{\"fields\":{\"appServices\":{\"optional\":false,\"type\":{\"union\":[{\"literal\":\"disabled\"},{\"literal\":\"separate-server\"}]}},\"pwa\":{\"optional\":false,\"type\":{\"union\":[{\"literal\":\"disabled\"},{\"literal\":\"verified-static-cache\"}]}}}}},\"serverFiles\":{\"optional\":false,\"type\":{\"elementType\":{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"fileName\":{\"optional\":false,\"type\":\"string\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}}},\"servicePath\":{\"optional\":false,\"type\":{\"union\":[\"string\",{\"literal\":null}]}}},\"unresolvedSpreads\":[{\"arguments\":[{\"fields\":{\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"1.0.0\"}},\"bootstrap\":{\"optional\":false,\"type\":\"string\"},\"documentFile\":{\"optional\":false,\"type\":\"string\"},\"files\":{\"optional\":false,\"type\":{\"elementType\":{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"fileName\":{\"optional\":false,\"type\":\"string\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}}},\"mode\":{\"optional\":false,\"type\":{\"literal\":\"native-sri-importmap\"}},\"publicPath\":{\"optional\":false,\"type\":\"string\"}}},{\"union\":[{\"literal\":\"apiVersion\"},{\"literal\":\"schema\"}]}],\"unresolvedReference\":\"Omit\"}]}},\"serverOutputDir\":{\"optional\":true,\"type\":\"string\"}},\"unresolvedSpreads\":[{\"arguments\":[{\"fields\":{\"accounting\":{\"optional\":true,\"type\":{\"arguments\":[{\"fields\":{\"applicationBytes\":{\"optional\":false,\"type\":\"number\"},\"envelopeBytes\":{\"optional\":false,\"type\":\"number\"},\"frameworkBaselineBytes\":{\"optional\":false,\"type\":\"number\"},\"frameworkBytes\":{\"optional\":false,\"type\":\"number\"},\"totalBytes\":{\"optional\":false,\"type\":\"number\"},\"withinBudget\":{\"optional\":false,\"type\":\"boolean\"},\"xtensionRuntimeBytes\":{\"optional\":false,\"type\":\"number\"}}}],\"unresolvedReference\":\"Readonly\"}},\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"1.0.0\"}},\"headers\":{\"optional\":false,\"type\":{\"arguments\":[{\"fields\":{\"Cache-Control\":{\"optional\":false,\"type\":{\"literal\":\"no-store, no-transform\"}},\"Content-Security-Policy\":{\"optional\":false,\"type\":\"string\"},\"Integrity-Policy\":{\"optional\":false,\"type\":{\"literal\":\"blocked-destinations=(script)\"}},\"X-Content-Type-Options\":{\"optional\":false,\"type\":{\"literal\":\"nosniff\"}}}}],\"unresolvedReference\":\"Readonly\"}},\"manifest\":{\"optional\":false,\"type\":{\"fields\":{\"apiVersion\":{\"optional\":false,\"type\":{\"literal\":\"1.0.0\"}},\"bootstrap\":{\"optional\":false,\"type\":\"string\"},\"documentFile\":{\"optional\":false,\"type\":\"string\"},\"files\":{\"optional\":false,\"type\":{\"elementType\":{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"fileName\":{\"optional\":false,\"type\":\"string\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}}},\"mode\":{\"optional\":false,\"type\":{\"literal\":\"native-sri-importmap\"}},\"publicPath\":{\"optional\":false,\"type\":\"string\"}}}},\"manifestFile\":{\"optional\":false,\"type\":{\"literal\":\"xtend.deployment.json\"}},\"manifestSha256\":{\"optional\":false,\"type\":\"string\"},\"outputDir\":{\"optional\":false,\"type\":\"string\"},\"runtimeExecutionVerified\":{\"optional\":false,\"type\":{\"literal\":false}}}},{\"union\":[{\"literal\":\"accounting\"},{\"literal\":\"apiVersion\"},{\"literal\":\"manifest\"},{\"literal\":\"schema\"}]}],\"unresolvedReference\":\"Omit\"}]}}}],\"unresolvedReference\":\"NonNullable\"}>|apiVersion:literal<\"3.0.0\">|manifest:{apiVersion:literal<\"3.0.0\">,headFile?:literal<\"xtend.deployment-head.json\">,pwa:{\"arguments\":[{\"fields\":{\"cacheName\":{\"optional\":false,\"type\":\"string\"},\"manifestFile\":{\"optional\":false,\"type\":\"string\"},\"offlineFile\":{\"optional\":false,\"type\":\"string\"},\"workerFile\":{\"optional\":false,\"type\":\"string\"}}}],\"unresolvedReference\":\"Readonly\"},retained:array<{cacheName:union<string|literal<null>>,files:array<{\"arguments\":[{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"fileName\":{\"optional\":false,\"type\":\"string\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}],\"unresolvedReference\":\"Readonly\"}>,manifestSha256:string,pins:{\"arguments\":[{\"record\":{\"key\":\"string\",\"value\":{\"arguments\":[{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}],\"unresolvedReference\":\"Readonly\"}}}],\"unresolvedReference\":\"Readonly\"},revision:string}>,retainedByteBudget:number,revision:{assetRoot:string,clientFile:string,id:string},runtime:{acknowledgementTimeoutMs:number,pwa:literal<\"verified-static-cache\">,updates:literal<\"coordinated\">}}",
             "normalized": {
               "fields": {
                 "accounting": {
@@ -411517,6 +412052,12 @@
                         "optional": false,
                         "type": {
                           "literal": "3.0.0"
+                        }
+                      },
+                      "headFile": {
+                        "optional": true,
+                        "type": {
+                          "literal": "xtend.deployment-head.json"
                         }
                       },
                       "pwa": {
@@ -412577,7 +413118,7 @@
       "description": "Unreleased A04.3.7 coordinated deployment: revision-isolated browser graphs, explicit verified history budgets and nonce-bound client consent for owned CacheStorage retirement. Complete earlier contracts remain supported. Natural activation and document/worker trust remain explicit; full offline app state and complete 0.9 acceptance are pending. Partial observations are not promoted to complete authority.",
       "descriptionStatus": "curated",
       "canonicalDefinition": {
-        "path": "xtend-maraca/xtension-deployment-updates.js",
+        "path": "xtend-maraca/xtension-deployment-lifecycle.js",
         "symbol": null,
         "definitionType": "object-shape",
         "role": "producer",
@@ -412630,6 +413171,7 @@
           "visibility": "public",
           "sourcePaths": [
             "xtend-maraca/xtension-composition.d.ts",
+            "xtend-maraca/xtension-deployment-lifecycle.js",
             "xtend-maraca/xtension-deployment-updates.js"
           ],
           "interfaceReferences": [
@@ -412642,6 +413184,11 @@
               "type": "package-export",
               "module": "@ccslabs/xtend/maraca/xtension-composition",
               "path": "xtend-maraca/xtension-composition.d.ts"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-deployment-lifecycle.js",
+              "symbol": "revisionFor"
             },
             {
               "type": "symbol",
@@ -412668,16 +413215,17 @@
       ],
       "shapePolicy": {
         "mode": "polymorphic",
-        "decision": "reviewed-a0437-coordinated-updates",
+        "decision": "reviewed-a0437-same-version-bugfix",
         "acceptedFingerprints": [
           "sha256:082a50865ab6eb338438120ba7d6d70271aec51af6acd3b69ca8e7b51e80d02e",
+          "sha256:3fd242389726ef9d0c3978cc06e2e69b239d4aaa8f1cde1358a4172d76607b96",
           "sha256:bd759744a1b2be9d29633beb3957608ea849a92fb189b15b5bbf41e5310d7016"
         ],
         "authoritativeFingerprints": [
           "sha256:bd759744a1b2be9d29633beb3957608ea849a92fb189b15b5bbf41e5310d7016"
         ],
         "releasedFingerprintSetHash": "sha256:6c4ea8418614ebec640d2a6d45a726a453a59a09ccf674b7e261639d27da6b09",
-        "rationale": "Scoped A04.3.7 review: build API9 and deployment API3 add config/manifest/result v3, runtime policy v2, revision/client metadata v1 and versioned request/response/challenge/acknowledgement v1. Complete earlier deployment and runtime contracts remain supported. Revision-isolated static URLs and explicitly byte-budgeted verified predecessor snapshots preserve concurrent graphs. A generated pinned browser client supplies update status and explicit retirement readiness. The active worker queries all in-scope windows, validates fresh nonce-bound per-client acknowledgements, rechecks client membership and holds navigation behind a retirement barrier. Unknown/busy/stale clients or pending updates block deletion; timeout is rejection. Only exact trusted predecessor cache names are candidates. Natural activation, no forced takeover, no automatic reload or server archive deletion. Forty real Chromium/HTTP cases include React/Vue/mixed coexistence, genuine Kernel/Fabric mounts, old-byte recovery, missing/replayed acknowledgements, private cache authority rejection and real deployment-v2 migration. Twenty-two contract checks, unchanged active reference limits, 341 retained runtime cases and 88 compiler checks remain mandatory. All previous authoritative/released sets are preserved. Document/worker trust, script-free offline fallback and pending complete 0.9 acceptance remain explicit. See development/rmtx-a04/updates.md."
+        "rationale": "A04.3.7 same-version bugfix explicitly requested by Konni on 2026-11-13: overwrite the affected existing schemas rather than bump their versions. Build API9, deployment API3, config/manifest/result v3, runtime policy v2 and client API1 remain unchanged. A stable bounded same-origin advisory revision head discovers a newer deployment in one open tab without fetching an obsolete worker or granting worker/cache authority. Digest-anchored public snapshots load only a predecessor's own static closure; they need no ancestor, HTML, worker, discovery or private server bytes and cannot act as an active HTTP deployment. Natural activation, exact CSP and unanimous client consent remain enforced. Sixty-four real Chromium cases and twenty-nine build/restart checks include actual fresh-process restart after pruning and positive multi-client cache retirement. Browser tests now actually await asynchronous registration conditions. Only the two affected unreleased client/response baselines are updated in place; all other authority/released sets and historical inventory remain unchanged. Current strict size ceilings, native Kernel/Fabric admission, older data forms and pending full 0.9 acceptance remain explicit. See development/rmtx-a04/updates.md."
       },
       "shapeFingerprints": [
         {
@@ -412723,6 +413271,58 @@
               "completeness": "partial",
               "authoritative": false,
               "path": "xtend-maraca/xtension-deployment-updates.js",
+              "symbol": "revisionFor"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:3fd242389726ef9d0c3978cc06e2e69b239d4aaa8f1cde1358a4172d76607b96",
+          "shape": {
+            "fieldCount": 3,
+            "fields": [
+              "assetRoot",
+              "clientFile",
+              "id"
+            ],
+            "signature": "assetRoot:{\"unresolved\":\"'_xtend/'+id+'/'\"}|clientFile:{\"unresolved\":\"'_xtend/'+id+'/'+updates.clientFile\"}|id:unknown",
+            "normalized": {
+              "fields": {
+                "assetRoot": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "'_xtend/'+id+'/'"
+                  }
+                },
+                "clientFile": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "'_xtend/'+id+'/'+updates.clientFile"
+                  }
+                },
+                "id": {
+                  "optional": false,
+                  "type": "unknown"
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/xtension-deployment-lifecycle.js"
+          ],
+          "symbols": [
+            "revisionFor"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtend-maraca/xtension-deployment-lifecycle.js",
               "symbol": "revisionFor"
             }
           ],
@@ -413509,6 +414109,342 @@
       ]
     },
     {
+      "schemaId": "xtend.maraca.xtension-deployment-snapshot.v1",
+      "familyId": "xtend.maraca.xtension-deployment-snapshot",
+      "version": 1,
+      "kinds": [
+        "runtime-discriminator"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": null,
+      "description": "A04.3.7 bugfix: bounded same-origin advisory revision discovery and digest-anchored independent public predecessor snapshots. No executable update or active-handler authority is inferred from metadata. Partial observations do not become complete authority.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "xtend-maraca/xtension-deployment.js",
+        "symbol": null,
+        "definitionType": "object-shape",
+        "role": "producer",
+        "visibility": "public"
+      },
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a04/updates-inspect.cjs",
+            "development/rmtx-a04/updates.md"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "development/rmtx-a04/updates-inspect.cjs",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "definition",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.d.ts"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-composition.d.ts",
+              "symbol": "XTensionDeploymentSnapshot"
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "producer",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition.d.ts",
+            "xtend-maraca/xtension-deployment.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/xtension-composition",
+              "path": "xtend-maraca/xtension-composition.d.ts"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-deployment.js",
+              "symbol": "result"
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "polymorphic",
+        "decision": "reviewed-a0437-same-version-bugfix",
+        "acceptedFingerprints": [
+          "sha256:3f215c955e254f249584a12bea7b91d940bfa3d405f34ea0d9ab0bbf8260d848",
+          "sha256:7db7b3caf9b58dbbba217f60a40392d75d0df21a54531687e2d7b7b40d118e50"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rationale": "A04.3.7 same-version bugfix explicitly requested by Konni on 2026-11-13: overwrite the affected existing schemas rather than bump their versions. Build API9, deployment API3, config/manifest/result v3, runtime policy v2 and client API1 remain unchanged. A stable bounded same-origin advisory revision head discovers a newer deployment in one open tab without fetching an obsolete worker or granting worker/cache authority. Digest-anchored public snapshots load only a predecessor's own static closure; they need no ancestor, HTML, worker, discovery or private server bytes and cannot act as an active HTTP deployment. Natural activation, exact CSP and unanimous client consent remain enforced. Sixty-four real Chromium cases and twenty-nine build/restart checks include actual fresh-process restart after pruning and positive multi-client cache retirement. Browser tests now actually await asynchronous registration conditions. Only the two affected unreleased client/response baselines are updated in place; all other authority/released sets and historical inventory remain unchanged. Current strict size ceilings, native Kernel/Fabric admission, older data forms and pending full 0.9 acceptance remain explicit. See development/rmtx-a04/updates.md."
+      },
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:3f215c955e254f249584a12bea7b91d940bfa3d405f34ea0d9ab0bbf8260d848",
+          "shape": {
+            "fieldCount": 9,
+            "fields": [
+              "apiVersion",
+              "cacheName",
+              "files",
+              "manifestSha256",
+              "origin",
+              "pins",
+              "publicPath",
+              "revision",
+              "runtimeExecutionVerified"
+            ],
+            "signature": "apiVersion:literal<\"1.0.0\">|cacheName:union<string|literal<null>>|files:array<{\"arguments\":[{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"fileName\":{\"optional\":false,\"type\":\"string\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}],\"unresolvedReference\":\"Readonly\"}>|manifestSha256:string|origin:string|pins:{\"arguments\":[{\"record\":{\"key\":\"string\",\"value\":{\"arguments\":[{\"fields\":{\"bytes\":{\"optional\":false,\"type\":\"number\"},\"sha256\":{\"optional\":false,\"type\":\"string\"}}}],\"unresolvedReference\":\"Readonly\"}}}],\"unresolvedReference\":\"Readonly\"}|publicPath:string|revision:string|runtimeExecutionVerified:literal<false>",
+            "normalized": {
+              "fields": {
+                "apiVersion": {
+                  "optional": false,
+                  "type": {
+                    "literal": "1.0.0"
+                  }
+                },
+                "cacheName": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      "string",
+                      {
+                        "literal": null
+                      }
+                    ]
+                  }
+                },
+                "files": {
+                  "optional": false,
+                  "type": {
+                    "elementType": {
+                      "arguments": [
+                        {
+                          "fields": {
+                            "bytes": {
+                              "optional": false,
+                              "type": "number"
+                            },
+                            "fileName": {
+                              "optional": false,
+                              "type": "string"
+                            },
+                            "sha256": {
+                              "optional": false,
+                              "type": "string"
+                            }
+                          }
+                        }
+                      ],
+                      "unresolvedReference": "Readonly"
+                    }
+                  }
+                },
+                "manifestSha256": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "origin": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "pins": {
+                  "optional": false,
+                  "type": {
+                    "arguments": [
+                      {
+                        "record": {
+                          "key": "string",
+                          "value": {
+                            "arguments": [
+                              {
+                                "fields": {
+                                  "bytes": {
+                                    "optional": false,
+                                    "type": "number"
+                                  },
+                                  "sha256": {
+                                    "optional": false,
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            ],
+                            "unresolvedReference": "Readonly"
+                          }
+                        }
+                      }
+                    ],
+                    "unresolvedReference": "Readonly"
+                  }
+                },
+                "publicPath": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "revision": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "runtimeExecutionVerified": {
+                  "optional": false,
+                  "type": {
+                    "literal": false
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/xtension-composition.d.ts"
+          ],
+          "symbols": [
+            "XTensionDeploymentSnapshot"
+          ],
+          "evidence": [
+            {
+              "type": "declared-type",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtend-maraca/xtension-composition.d.ts",
+              "symbol": "XTensionDeploymentSnapshot"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:7db7b3caf9b58dbbba217f60a40392d75d0df21a54531687e2d7b7b40d118e50",
+          "shape": {
+            "fieldCount": 9,
+            "fields": [
+              "apiVersion",
+              "cacheName",
+              "files",
+              "manifestSha256",
+              "origin",
+              "pins",
+              "publicPath",
+              "revision",
+              "runtimeExecutionVerified"
+            ],
+            "signature": "apiVersion:string|cacheName:{\"unresolved\":\"pwa?.cacheName||null\"}|files:array<>|manifestSha256:{\"unresolved\":\"options.manifestSha256\"}|origin:{\"unresolved\":\"manifest.origin\"}|pins:{\"unresolved\":\"pwa?.pins||{}\"}|publicPath:{\"unresolved\":\"manifest.publicPath\"}|revision:{\"unresolved\":\"manifest.revision?.id||'legacy-'+options.manifestSha256\"}|runtimeExecutionVerified:boolean",
+            "normalized": {
+              "fields": {
+                "apiVersion": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "cacheName": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "pwa?.cacheName||null"
+                  }
+                },
+                "files": {
+                  "optional": false,
+                  "type": {
+                    "array": []
+                  }
+                },
+                "manifestSha256": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "options.manifestSha256"
+                  }
+                },
+                "origin": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "manifest.origin"
+                  }
+                },
+                "pins": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "pwa?.pins||{}"
+                  }
+                },
+                "publicPath": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "manifest.publicPath"
+                  }
+                },
+                "revision": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "manifest.revision?.id||'legacy-'+options.manifestSha256"
+                  }
+                },
+                "runtimeExecutionVerified": {
+                  "optional": false,
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/xtension-deployment.js"
+          ],
+          "symbols": [
+            "result"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "xtend-maraca/xtension-deployment.js",
+              "symbol": "result"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        }
+      ]
+    },
+    {
       "schemaId": "xtend.maraca.xtension-deployment-update-ack.v1",
       "familyId": "xtend.maraca.xtension-deployment-update-ack",
       "version": 1,
@@ -413598,16 +414534,17 @@
       ],
       "shapePolicy": {
         "mode": "polymorphic",
-        "decision": "reviewed-a0437-coordinated-updates",
+        "decision": "reviewed-a0437-same-version-bugfix",
         "acceptedFingerprints": [
           "sha256:2b5ca583c85006c790c66fbb66b1bf45723d28ecc8ec296556e052b5b7b7e821",
-          "sha256:7dc4dfd4d4bed29d6c32455756b4aad1668e3810caf9ce6ea5a7ffe8e6d01a2f"
+          "sha256:7dc4dfd4d4bed29d6c32455756b4aad1668e3810caf9ce6ea5a7ffe8e6d01a2f",
+          "sha256:b0841c6316dc9fab5d136b6e926161ad281b86e59ea62fe455fa48324298645b"
         ],
         "authoritativeFingerprints": [
           "sha256:7dc4dfd4d4bed29d6c32455756b4aad1668e3810caf9ce6ea5a7ffe8e6d01a2f"
         ],
         "releasedFingerprintSetHash": "sha256:7f1eb4d495e18600625b28e92cbfb9642c5462c8647d7415c61d744d949e67f9",
-        "rationale": "Scoped A04.3.7 review: build API9 and deployment API3 add config/manifest/result v3, runtime policy v2, revision/client metadata v1 and versioned request/response/challenge/acknowledgement v1. Complete earlier deployment and runtime contracts remain supported. Revision-isolated static URLs and explicitly byte-budgeted verified predecessor snapshots preserve concurrent graphs. A generated pinned browser client supplies update status and explicit retirement readiness. The active worker queries all in-scope windows, validates fresh nonce-bound per-client acknowledgements, rechecks client membership and holds navigation behind a retirement barrier. Unknown/busy/stale clients or pending updates block deletion; timeout is rejection. Only exact trusted predecessor cache names are candidates. Natural activation, no forced takeover, no automatic reload or server archive deletion. Forty real Chromium/HTTP cases include React/Vue/mixed coexistence, genuine Kernel/Fabric mounts, old-byte recovery, missing/replayed acknowledgements, private cache authority rejection and real deployment-v2 migration. Twenty-two contract checks, unchanged active reference limits, 341 retained runtime cases and 88 compiler checks remain mandatory. All previous authoritative/released sets are preserved. Document/worker trust, script-free offline fallback and pending complete 0.9 acceptance remain explicit. See development/rmtx-a04/updates.md."
+        "rationale": "A04.3.7 same-version bugfix explicitly requested by Konni on 2026-11-13: overwrite the affected existing schemas rather than bump their versions. Build API9, deployment API3, config/manifest/result v3, runtime policy v2 and client API1 remain unchanged. A stable bounded same-origin advisory revision head discovers a newer deployment in one open tab without fetching an obsolete worker or granting worker/cache authority. Digest-anchored public snapshots load only a predecessor's own static closure; they need no ancestor, HTML, worker, discovery or private server bytes and cannot act as an active HTTP deployment. Natural activation, exact CSP and unanimous client consent remain enforced. Sixty-four real Chromium cases and twenty-nine build/restart checks include actual fresh-process restart after pruning and positive multi-client cache retirement. Browser tests now actually await asynchronous registration conditions. Only the two affected unreleased client/response baselines are updated in place; all other authority/released sets and historical inventory remain unchanged. Current strict size ceilings, native Kernel/Fabric admission, older data forms and pending full 0.9 acceptance remain explicit. See development/rmtx-a04/updates.md."
       },
       "shapeFingerprints": [
         {
@@ -413707,6 +414644,58 @@
           ],
           "completeness": "complete",
           "authoritative": true
+        },
+        {
+          "hash": "sha256:b0841c6316dc9fab5d136b6e926161ad281b86e59ea62fe455fa48324298645b",
+          "shape": {
+            "fieldCount": 3,
+            "fields": [
+              "nonce",
+              "ready",
+              "revision"
+            ],
+            "signature": "nonce:{\"unresolved\":\"data.nonce\"}|ready:boolean|revision:{\"unresolved\":\"data.revision\"}",
+            "normalized": {
+              "fields": {
+                "nonce": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "data.nonce"
+                  }
+                },
+                "ready": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "revision": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "data.revision"
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "scripts/test_xtensions_updates.cjs"
+          ],
+          "symbols": [
+            "runUpdatesAcceptance"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "scripts/test_xtensions_updates.cjs",
+              "symbol": "runUpdatesAcceptance"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
         }
       ]
     },
@@ -413739,6 +414728,21 @@
         {
           "application": "XTend Build and Test Tooling",
           "role": "producer",
+          "visibility": "internal",
+          "sourcePaths": [
+            "scripts/test_xtensions_updates.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "scripts/test_xtensions_updates.cjs",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Build and Test Tooling",
+          "role": "reference",
           "visibility": "internal",
           "sourcePaths": [
             "scripts/test_xtensions_updates.cjs"
@@ -414147,8 +415151,8 @@
       },
       "aliasOf": null,
       "replacedBy": null,
-      "releasedFingerprintSetHash": "sha256:7315fc567a2c33a1634cbb2c123c3e32c632d29eb654265b323ba29b14174f2c",
-      "description": "Unreleased A04.3.7 coordinated deployment: revision-isolated browser graphs, explicit verified history budgets and nonce-bound client consent for owned CacheStorage retirement. Complete earlier contracts remain supported. Natural activation and document/worker trust remain explicit; full offline app state and complete 0.9 acceptance are pending. Partial observations are not promoted to complete authority.",
+      "releasedFingerprintSetHash": "sha256:fb969bd5d7d9897be690312350cb3620d74165703e2b6c39fdd6320797d213db",
+      "description": "Corrected in place at the user's explicit request: current advisory discovery metadata/response fields and supported pre-fix v3/protocol forms share the existing version. No publication or broader schema exemption is inferred.",
       "descriptionStatus": "curated",
       "canonicalDefinition": {
         "path": "xtend-maraca/xtension-deployment-client.d.ts",
@@ -414178,12 +415182,18 @@
           "role": "definition",
           "visibility": "public",
           "sourcePaths": [
-            "xtend-maraca/xtension-deployment-client.d.ts"
+            "xtend-maraca/xtension-deployment-client.d.ts",
+            "xtend-maraca/xtension-deployment-lifecycle-client.d.ts"
           ],
           "interfaceReferences": [
             {
               "type": "symbol",
               "path": "xtend-maraca/xtension-deployment-client.d.ts",
+              "symbol": "DeploymentUpdateReport"
+            },
+            {
+              "type": "symbol",
+              "path": "xtend-maraca/xtension-deployment-lifecycle-client.d.ts",
               "symbol": "DeploymentUpdateReport"
             }
           ]
@@ -414194,6 +415204,8 @@
           "visibility": "public",
           "sourcePaths": [
             "xtend-maraca/xtension-deployment-client.d.ts",
+            "xtend-maraca/xtension-deployment-lifecycle-client.d.ts",
+            "xtend-maraca/xtension-deployment-lifecycle.js",
             "xtend-maraca/xtension-deployment-updates.js"
           ],
           "interfaceReferences": [
@@ -414221,16 +415233,18 @@
         }
       ],
       "shapePolicy": {
-        "mode": "single",
-        "decision": "reviewed-a0437-coordinated-updates",
+        "mode": "polymorphic",
+        "decision": "reviewed-a0437-same-version-bugfix",
         "acceptedFingerprints": [
-          "sha256:1ed9d2570286cf5313345fd60d44e28d3b9fb38db359b726a88e7d096f1d664f"
+          "sha256:1ed9d2570286cf5313345fd60d44e28d3b9fb38db359b726a88e7d096f1d664f",
+          "sha256:8b1a0a00fe64626c53aa600b10fac30cca91ea5bda776a44ef709c0429b1011f"
         ],
         "authoritativeFingerprints": [
-          "sha256:1ed9d2570286cf5313345fd60d44e28d3b9fb38db359b726a88e7d096f1d664f"
+          "sha256:1ed9d2570286cf5313345fd60d44e28d3b9fb38db359b726a88e7d096f1d664f",
+          "sha256:8b1a0a00fe64626c53aa600b10fac30cca91ea5bda776a44ef709c0429b1011f"
         ],
-        "releasedFingerprintSetHash": "sha256:7315fc567a2c33a1634cbb2c123c3e32c632d29eb654265b323ba29b14174f2c",
-        "rationale": "Scoped A04.3.7 review: build API9 and deployment API3 add config/manifest/result v3, runtime policy v2, revision/client metadata v1 and versioned request/response/challenge/acknowledgement v1. Complete earlier deployment and runtime contracts remain supported. Revision-isolated static URLs and explicitly byte-budgeted verified predecessor snapshots preserve concurrent graphs. A generated pinned browser client supplies update status and explicit retirement readiness. The active worker queries all in-scope windows, validates fresh nonce-bound per-client acknowledgements, rechecks client membership and holds navigation behind a retirement barrier. Unknown/busy/stale clients or pending updates block deletion; timeout is rejection. Only exact trusted predecessor cache names are candidates. Natural activation, no forced takeover, no automatic reload or server archive deletion. Forty real Chromium/HTTP cases include React/Vue/mixed coexistence, genuine Kernel/Fabric mounts, old-byte recovery, missing/replayed acknowledgements, private cache authority rejection and real deployment-v2 migration. Twenty-two contract checks, unchanged active reference limits, 341 retained runtime cases and 88 compiler checks remain mandatory. All previous authoritative/released sets are preserved. Document/worker trust, script-free offline fallback and pending complete 0.9 acceptance remain explicit. See development/rmtx-a04/updates.md."
+        "releasedFingerprintSetHash": "sha256:fb969bd5d7d9897be690312350cb3620d74165703e2b6c39fdd6320797d213db",
+        "rationale": "A04.3.7 same-version bugfix explicitly requested by Konni on 2026-11-13: overwrite the affected existing schemas rather than bump their versions. Build API9, deployment API3, config/manifest/result v3, runtime policy v2 and client API1 remain unchanged. A stable bounded same-origin advisory revision head discovers a newer deployment in one open tab without fetching an obsolete worker or granting worker/cache authority. Digest-anchored public snapshots load only a predecessor's own static closure; they need no ancestor, HTML, worker, discovery or private server bytes and cannot act as an active HTTP deployment. Natural activation, exact CSP and unanimous client consent remain enforced. Sixty-four real Chromium cases and twenty-nine build/restart checks include actual fresh-process restart after pruning and positive multi-client cache retirement. Browser tests now actually await asynchronous registration conditions. Only the two affected unreleased client/response baselines are updated in place; all other authority/released sets and historical inventory remain unchanged. Current strict size ceilings, native Kernel/Fabric admission, older data forms and pending full 0.9 acceptance remain explicit. See development/rmtx-a04/updates.md."
       },
       "shapeFingerprints": [
         {
@@ -414326,6 +415340,147 @@
               "completeness": "complete",
               "authoritative": true,
               "path": "xtend-maraca/xtension-deployment-client.d.ts",
+              "symbol": "DeploymentUpdateReport"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "completeness": "complete",
+          "authoritative": true
+        },
+        {
+          "hash": "sha256:8b1a0a00fe64626c53aa600b10fac30cca91ea5bda776a44ef709c0429b1011f",
+          "shape": {
+            "fieldCount": 13,
+            "fields": [
+              "action",
+              "candidates",
+              "currentRevision",
+              "deleted",
+              "documentUrl",
+              "reason",
+              "requestId",
+              "requiresDocumentNavigation",
+              "revision",
+              "status",
+              "updateAvailable",
+              "waiting",
+              "workerUrl"
+            ],
+            "signature": "action:union<literal<\"collect\">|literal<\"status\">>|candidates:array<string>|currentRevision?:string|deleted:array<string>|documentUrl?:union<string|literal<null>>|reason:union<string|literal<null>>|requestId:string|requiresDocumentNavigation?:boolean|revision:string|status:union<literal<\"blocked\">|literal<\"ok\">>|updateAvailable?:boolean|waiting:boolean|workerUrl?:union<string|literal<null>>",
+            "normalized": {
+              "fields": {
+                "action": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "literal": "collect"
+                      },
+                      {
+                        "literal": "status"
+                      }
+                    ]
+                  }
+                },
+                "candidates": {
+                  "optional": false,
+                  "type": {
+                    "elementType": "string"
+                  }
+                },
+                "currentRevision": {
+                  "optional": true,
+                  "type": "string"
+                },
+                "deleted": {
+                  "optional": false,
+                  "type": {
+                    "elementType": "string"
+                  }
+                },
+                "documentUrl": {
+                  "optional": true,
+                  "type": {
+                    "union": [
+                      "string",
+                      {
+                        "literal": null
+                      }
+                    ]
+                  }
+                },
+                "reason": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      "string",
+                      {
+                        "literal": null
+                      }
+                    ]
+                  }
+                },
+                "requestId": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "requiresDocumentNavigation": {
+                  "optional": true,
+                  "type": "boolean"
+                },
+                "revision": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "status": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "literal": "blocked"
+                      },
+                      {
+                        "literal": "ok"
+                      }
+                    ]
+                  }
+                },
+                "updateAvailable": {
+                  "optional": true,
+                  "type": "boolean"
+                },
+                "waiting": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "workerUrl": {
+                  "optional": true,
+                  "type": {
+                    "union": [
+                      "string",
+                      {
+                        "literal": null
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "xtend-maraca/xtension-deployment-lifecycle-client.d.ts"
+          ],
+          "symbols": [
+            "DeploymentUpdateReport"
+          ],
+          "evidence": [
+            {
+              "type": "declared-type",
+              "completeness": "complete",
+              "authoritative": true,
+              "path": "xtend-maraca/xtension-deployment-lifecycle-client.d.ts",
               "symbol": "DeploymentUpdateReport"
             }
           ],
@@ -1037740,7 +1038895,7 @@
             "rollout": "planned",
             "status": "active"
           },
-          "releasedFingerprintSetHash": "sha256:320473ea79ca20397813e74968533c07adc6d2cbcd39bf9c3228dad4d7472f34"
+          "releasedFingerprintSetHash": "sha256:5d5655e7a5d3f5df8f648e2e3d12f7402afb11e17eb5c82b61ff0c80c6265a1f"
         }
       ],
       "tombstones": []
@@ -1037776,6 +1038931,23 @@
             "status": "active"
           },
           "releasedFingerprintSetHash": null
+        }
+      ],
+      "tombstones": []
+    },
+    {
+      "familyId": "xtend.maraca.xtension-deployment-head",
+      "currentVersion": 1,
+      "activeSchemaId": "xtend.maraca.xtension-deployment-head.v1",
+      "versions": [
+        {
+          "schemaId": "xtend.maraca.xtension-deployment-head.v1",
+          "version": 1,
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": "sha256:55717c4e104a20b3cf44557f6bcbf5ac69ab5b512500bb698d235330e363ca03"
         }
       ],
       "tombstones": []
@@ -1037894,6 +1039066,23 @@
       "tombstones": []
     },
     {
+      "familyId": "xtend.maraca.xtension-deployment-snapshot",
+      "currentVersion": 1,
+      "activeSchemaId": "xtend.maraca.xtension-deployment-snapshot.v1",
+      "versions": [
+        {
+          "schemaId": "xtend.maraca.xtension-deployment-snapshot.v1",
+          "version": 1,
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": null
+        }
+      ],
+      "tombstones": []
+    },
+    {
       "familyId": "xtend.maraca.xtension-deployment-update-ack",
       "currentVersion": 1,
       "activeSchemaId": "xtend.maraca.xtension-deployment-update-ack.v1",
@@ -1037956,7 +1039145,7 @@
             "rollout": "planned",
             "status": "active"
           },
-          "releasedFingerprintSetHash": "sha256:7315fc567a2c33a1634cbb2c123c3e32c632d29eb654265b323ba29b14174f2c"
+          "releasedFingerprintSetHash": "sha256:fb969bd5d7d9897be690312350cb3620d74165703e2b6c39fdd6320797d213db"
         }
       ],
       "tombstones": []

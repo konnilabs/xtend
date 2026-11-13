@@ -4,8 +4,8 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "6de5e96c31b5dad18544f149d6d64d1043ff2220a76432e16249ef594a9e93fc",
-  "sourceMembershipSha256": "99fa9bb6324a4213cefbd23e3d6347b3c9f61f712c9828e357a73dc7870c1d26",
+  "inventorySha256": "2180dccd9205354f8390f25b1c0ce75f71fe19618529541efdba00e58f024640",
+  "sourceMembershipSha256": "987253821ed890a590e9124ac4cfda5c4e0543d2c1b034673f5a46febd098bcb",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
@@ -1780,5 +1780,70 @@
     "publicationGuardRetired": false,
     "freshCommittedCaptureRequired": true,
     "rationale": "Scoped A04.3.7 review: build API9 and deployment API3 add config/manifest/result v3, runtime policy v2, revision/client metadata v1 and versioned request/response/challenge/acknowledgement v1. Complete earlier deployment and runtime contracts remain supported. Revision-isolated static URLs and explicitly byte-budgeted verified predecessor snapshots preserve concurrent graphs. A generated pinned browser client supplies update status and explicit retirement readiness. The active worker queries all in-scope windows, validates fresh nonce-bound per-client acknowledgements, rechecks client membership and holds navigation behind a retirement barrier. Unknown/busy/stale clients or pending updates block deletion; timeout is rejection. Only exact trusted predecessor cache names are candidates. Natural activation, no forced takeover, no automatic reload or server archive deletion. Forty real Chromium/HTTP cases include React/Vue/mixed coexistence, genuine Kernel/Fabric mounts, old-byte recovery, missing/replayed acknowledgements, private cache authority rejection and real deployment-v2 migration. Twenty-two contract checks, unchanged active reference limits, 341 retained runtime cases and 88 compiler checks remain mandatory. All previous authoritative/released sets are preserved. Document/worker trust, script-free offline fallback and pending complete 0.9 acceptance remain explicit. See development/rmtx-a04/updates.md."
+  },
+  "a0437SameVersionBugfixReview": {
+    "format": 1,
+    "date": "2026-11-13",
+    "status": "reviewed-unreleased-same-version-bugfix",
+    "stage": "A04.3.7",
+    "a04Complete": false,
+    "contract": "development/rmtx-a04/updates.md",
+    "userAuthorizedSameVersionCorrection": true,
+    "authorization": "The user explicitly requested overwriting the existing affected schemas for this concrete bugfix rather than increasing their versions.",
+    "updatedAuthoritySchemaIds": [
+      "xtend.maraca.xtension-deployment-client.v1",
+      "xtend.maraca.xtension-deployment-update-response.v1"
+    ],
+    "newSchemaIds": [
+      "xtend.maraca.xtension-deployment-head.v1",
+      "xtend.maraca.xtension-deployment-snapshot.v1"
+    ],
+    "scopedSchemaIds": [
+      "xtend.maraca.xtension-deployment-client.v1",
+      "xtend.maraca.xtension-deployment-config.v3",
+      "xtend.maraca.xtension-deployment-head.v1",
+      "xtend.maraca.xtension-deployment-manifest.v3",
+      "xtend.maraca.xtension-deployment-result.v3",
+      "xtend.maraca.xtension-deployment-revision.v1",
+      "xtend.maraca.xtension-deployment-snapshot.v1",
+      "xtend.maraca.xtension-deployment-update-ack.v1",
+      "xtend.maraca.xtension-deployment-update-challenge.v1",
+      "xtend.maraca.xtension-deployment-update-response.v1"
+    ],
+    "authorityChanges": [
+      {
+        "schemaId": "xtend.maraca.xtension-deployment-client.v1",
+        "before": "sha256:320473ea79ca20397813e74968533c07adc6d2cbcd39bf9c3228dad4d7472f34",
+        "after": "sha256:5d5655e7a5d3f5df8f648e2e3d12f7402afb11e17eb5c82b61ff0c80c6265a1f"
+      },
+      {
+        "schemaId": "xtend.maraca.xtension-deployment-update-response.v1",
+        "before": "sha256:7315fc567a2c33a1634cbb2c123c3e32c632d29eb654265b323ba29b14174f2c",
+        "after": "sha256:fb969bd5d7d9897be690312350cb3620d74165703e2b6c39fdd6320797d213db"
+      }
+    ],
+    "otherAuthoritySetsPreserved": 2204,
+    "buildApiVersion": "9.0.0",
+    "deploymentApiVersion": "3.0.0",
+    "runtimeApiVersion": "6.0.0",
+    "clientApiVersion": "1.0.0",
+    "browserUpdateCases": 64,
+    "contractChecks": 29,
+    "activation": "natural",
+    "retirement": "explicit-unanimous-client-ack",
+    "discovery": "same-origin-advisory-head",
+    "snapshot": "digest-anchored-own-public-closure",
+    "freshProcessRestartAfterPruning": true,
+    "referenceRegressionLimits": {
+      "frameworkBytes": 2200000,
+      "xtensionRuntimeBytes": 240000
+    },
+    "rootExportCount": 214,
+    "nativeKernelAbiChanged": false,
+    "browserCompositionAbiChanged": false,
+    "acceptedForRelease": false,
+    "publicationGuardRetired": false,
+    "freshCommittedCaptureRequired": true,
+    "rationale": "A04.3.7 same-version bugfix explicitly requested by Konni on 2026-11-13: overwrite the affected existing schemas rather than bump their versions. Build API9, deployment API3, config/manifest/result v3, runtime policy v2 and client API1 remain unchanged. A stable bounded same-origin advisory revision head discovers a newer deployment in one open tab without fetching an obsolete worker or granting worker/cache authority. Digest-anchored public snapshots load only a predecessor's own static closure; they need no ancestor, HTML, worker, discovery or private server bytes and cannot act as an active HTTP deployment. Natural activation, exact CSP and unanimous client consent remain enforced. Sixty-four real Chromium cases and twenty-nine build/restart checks include actual fresh-process restart after pruning and positive multi-client cache retirement. Browser tests now actually await asynchronous registration conditions. Only the two affected unreleased client/response baselines are updated in place; all other authority/released sets and historical inventory remain unchanged. Current strict size ceilings, native Kernel/Fabric admission, older data forms and pending full 0.9 acceptance remain explicit. See development/rmtx-a04/updates.md."
   }
 }

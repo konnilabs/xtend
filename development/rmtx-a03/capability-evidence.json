@@ -45,7 +45,7 @@
     "tests/xtensions/capability-negotiation-acceptance.js": "9652752c186e6aae55a400ac3587060a9c7588f979f6d66521e2bf0f6408caaf",
     "tests/xtensions/capability-negotiation-maraca-acceptance.js": "3a42e8a9fe380882ac6c5a42c7ea854f5ebbc44473c1b757fbe65c1d973f150c",
     "tests/types/xtensions_capability_negotiation.mts": "9c6373428ecdd1c71df8be31ed130ad49b2bd6c3e45259be7db1bfaa2bd95648",
-    "tests/xtensions/xtensions_runtime_gate_suite.js": "68df4d9cdad27c057109666223ca4e5c91700f2abb968bf4700555688b585d81",
-    "tests/xtensions/xtensions_consumer_package_suite.js": "c267b9bd2eebaca0939a9856701f33bf5346ae7dff6bfd950c05590239635ea9"
+    "tests/xtensions/xtensions_runtime_gate_suite.js": "cacd80c7613d41d438edf9bb54a5126108ce61d8c05e996c4d0578ec222a744a",
+    "tests/xtensions/xtensions_consumer_package_suite.js": "b096a911c3d254fdf7fe7041c82183d6cae821320c6c7b3f25a284429673a43e"
   }
 }

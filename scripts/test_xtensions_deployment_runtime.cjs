@@ -66,7 +66,7 @@ async function runDeploymentRuntimeAcceptance({rootDir=path.resolve(__dirname,'.
     await page.goto(origin+prefix);await page.waitForFunction(()=>window.__runtimeStats?.done,null,{timeout:20000});
     let stats=await page.evaluate(()=>window.__runtimeStats);assert(stats.booted,stats.error);assert(stats.pwaRegistered);assert.equal(stats.inputs,entry.framework==='mixed'?2:3);assert.equal(stats.factories,stats.inputs);assert(stats.admissions>0);assert.equal(stats.afterDispose,0);if(entry.framework!=='mixed')assert((globalThis.__XTendA0436ServerCalls||0)>before);
     if(entry.scenario.startsWith('install-')){
-     await page.waitForFunction(async()=>{const r=await navigator.serviceWorker.getRegistration();return !r||!r.installing&&!r.waiting&&!r.active;},null,{timeout:15000});
+     await page.evaluate(async()=>{const until=performance.now()+15000;while(performance.now()<until){const r=await navigator.serviceWorker.getRegistration();if(!r||!r.installing&&!r.waiting&&!r.active)return;await new Promise(resolve=>setTimeout(resolve,25));}throw Error('Rejected worker registration did not settle');});
      assert.equal(await page.evaluate(()=>!!navigator.serviceWorker.controller),false);
     }else{
      await page.waitForFunction(()=>!!navigator.serviceWorker.controller,null,{timeout:20000});

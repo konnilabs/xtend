@@ -32,7 +32,7 @@
     "components/xrouter-url-state.js": "248da47a1bbc3e9b78d6712ece71d528bfcdabe7258de3dfd80a3e6e24cfc005",
     "components/xrouter-url-state.d.ts": "31b0fe7adef1d172153677970a81aa9df34147be2315672f4a96d33eb0bd3818",
     "tests/xtensions/url-state-maraca-acceptance.js": "6173882864115203429b624f7b52f722b8a24549b3f7217f8a75fc68929e44a3",
-    "tests/xtensions/xtensions_runtime_gate_suite.js": "68df4d9cdad27c057109666223ca4e5c91700f2abb968bf4700555688b585d81",
+    "tests/xtensions/xtensions_runtime_gate_suite.js": "cacd80c7613d41d438edf9bb54a5126108ce61d8c05e996c4d0578ec222a744a",
     "scripts/test_xtensions_runtime_adapters.cjs": "d9df3dfd883ea4e46c87bb94359b4728602ca15d1c535205fcaa5755a42a39b8"
   }
 }

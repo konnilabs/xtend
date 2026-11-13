@@ -108,8 +108,9 @@ export interface XTensionDeploymentConfig {
 export function buildMaracaXTensionDeployment(options: XTensionDeploymentConfig): XTensionDeploymentResult;
 export function buildMaracaXTensionDeployment(options: XTensionRuntimeDeploymentConfig): XTensionRuntimeDeploymentResult;
 export function buildMaracaXTensionDeployment(options: XTensionCoordinatedDeploymentConfig): XTensionCoordinatedDeploymentResult;
+export function loadMaracaXTensionDeploymentSnapshot(options: { readonly rootDir: string; readonly manifestSha256: string }): XTensionDeploymentSnapshot;
 /** The expected manifest digest must come from trusted deployment configuration. */
-export function loadMaracaXTensionDeployment(options: { readonly rootDir: string; readonly manifestSha256: string; readonly serverRootDir?: string; readonly retainedDeployments?: readonly (XTensionRuntimeDeploymentResult | XTensionCoordinatedDeploymentResult)[] }): XTensionDeploymentResult | XTensionRuntimeDeploymentResult | XTensionCoordinatedDeploymentResult;
+export function loadMaracaXTensionDeployment(options: { readonly rootDir: string; readonly manifestSha256: string; readonly serverRootDir?: string; readonly retainedDeployments?: readonly (XTensionRuntimeDeploymentResult | XTensionCoordinatedDeploymentResult | XTensionDeploymentSnapshot)[] }): XTensionDeploymentResult | XTensionRuntimeDeploymentResult | XTensionCoordinatedDeploymentResult;
 export function createMaracaXTensionDeploymentHandler(result: XTensionDeploymentResult | XTensionRuntimeDeploymentResult | XTensionCoordinatedDeploymentResult): (
   request: { readonly method?: string; readonly url?: string },
   response: { setHeader(name: string, value: string | number): unknown; writeHead(status: number, headers?: Readonly<Record<string, string | number>>): unknown; end(body?: Uint8Array): unknown }
@@ -145,7 +146,7 @@ export interface XTensionCoordinatedRuntimePolicy extends Omit<XTensionDeploymen
 }
 export interface XTensionCoordinatedDeploymentConfig extends Omit<XTensionRuntimeDeploymentConfig, 'schema' | 'runtime'> {
   readonly schema: 'xtend.maraca.xtension-deployment-config.v3'; readonly runtime: XTensionCoordinatedRuntimePolicy;
-  readonly retainedDeployments: readonly (XTensionRuntimeDeploymentResult | XTensionCoordinatedDeploymentResult)[];
+  readonly retainedDeployments: readonly (XTensionRuntimeDeploymentResult | XTensionCoordinatedDeploymentResult | XTensionDeploymentSnapshot)[];
   readonly retainedByteBudget: number;
 }
 export interface XTensionDeploymentRevision {
@@ -160,6 +161,7 @@ export interface XTensionCoordinatedDeploymentManifest extends Omit<XTensionRunt
   readonly schema: 'xtend.maraca.xtension-deployment-manifest.v3'; readonly apiVersion: '3.0.0';
   readonly runtime: XTensionCoordinatedRuntimePolicy; readonly revision: XTensionDeploymentRevision;
   readonly retained: readonly XTensionRetainedDeployment[]; readonly retainedByteBudget: number;
+  readonly headFile?: 'xtend.deployment-head.json';
   readonly pwa: Readonly<{workerFile: string; offlineFile: string; manifestFile: string; cacheName: string}>;
 }
 export interface XTensionCoordinatedDeploymentResult extends Omit<XTensionRuntimeDeploymentResult, 'schema' | 'apiVersion' | 'manifest' | 'accounting'> {
@@ -167,4 +169,8 @@ export interface XTensionCoordinatedDeploymentResult extends Omit<XTensionRuntim
   readonly manifest: XTensionCoordinatedDeploymentManifest;
   readonly accounting?: NonNullable<XTensionRuntimeDeploymentResult['accounting']> & Readonly<{retainedBytes: number; hostedBytes: number}>;
 }
-export type {DeploymentUpdateClient, DeploymentUpdateReport} from './xtension-deployment-client.js';
+export interface XTensionDeploymentSnapshot extends XTensionRetainedDeployment {
+  readonly schema: 'xtend.maraca.xtension-deployment-snapshot.v1'; readonly apiVersion: '1.0.0';
+  readonly origin: string; readonly publicPath: string; readonly runtimeExecutionVerified: false;
+}
+export type {DeploymentUpdateClient, DeploymentUpdateReport, DeploymentHead} from './xtension-deployment-lifecycle-client.js';

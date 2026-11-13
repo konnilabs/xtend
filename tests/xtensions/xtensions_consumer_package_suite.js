@@ -49,6 +49,7 @@ async function runXTensionsConsumerPackageSuite({ rootDir } = {}) {
       assert(fs.existsSync(path.join(target, 'xtension-deployment-pwa.js')));
       assert(fs.existsSync(path.join(target, 'xtension-deployment-updates.js')));
       assert(fs.existsSync(path.join(target, 'xtension-deployment-client.d.ts')));
+      assert(fs.existsSync(path.join(target, 'xtension-deployment-lifecycle.js')));assert(fs.existsSync(path.join(target, 'xtension-deployment-lifecycle-client.d.ts')));
       context.pass('Packed Maraca contains both versioned A04 APIs and their private data contract');
     }
     const fixture=path.join(temp,'consumer.cjs');
@@ -209,7 +210,11 @@ const peers=createRequire(process.env.XTENSIONS_TEST_PEERS+'/package.json');
     const updateConfig={schema:'xtend.maraca.xtension-deployment-config.v3',build:updateBuild,application:{rootDir:appDir,bootstrap:{fileName:'bootstrap.mjs',sha256:createHash('sha256').update(code).digest('hex')},modules:[]},origin:'https://packed.test',publicPath:'/updates/',outputDir:path.resolve('updates-a'),runtime:{schema:'xtend.maraca.xtension-deployment-runtime-policy.v2',pwa:'verified-static-cache',appServices:'disabled',updates:'coordinated',acknowledgementTimeoutMs:300},retainedDeployments:[],retainedByteBudget:0};
     const previous=deployment.buildMaracaXTensionDeployment(updateConfig),updated=deployment.buildMaracaXTensionDeployment({...updateConfig,outputDir:path.resolve('updates-b'),retainedDeployments:[previous],retainedByteBudget:5_000_000});
     assert.equal(updated.apiVersion,'3.0.0');assert.notEqual(previous.manifest.revision.id,updated.manifest.revision.id);assert(fs.existsSync(path.join(updated.outputDir,updated.manifest.revision.clientFile)));
-    const restarted=deployment.loadMaracaXTensionDeployment({rootDir:updated.outputDir,manifestSha256:updated.manifestSha256,retainedDeployments:[previous]});assert.equal(restarted.manifest.retained.length,1);
+    const restarted=deployment.loadMaracaXTensionDeployment({rootDir:updated.outputDir,manifestSha256:updated.manifestSha256,retainedDeployments:[previous]});
+    const snapshot=deployment.loadMaracaXTensionDeploymentSnapshot({rootDir:updated.outputDir,manifestSha256:updated.manifestSha256});
+    const final=deployment.buildMaracaXTensionDeployment({...updateConfig,outputDir:path.resolve('updates-c'),retainedDeployments:[snapshot],retainedByteBudget:5_000_000});
+    fs.rmSync(previous.outputDir,{recursive:true});for(const file of [updated.manifest.documentFile,updated.manifest.pwa.workerFile,updated.manifest.headFile])fs.rmSync(path.join(updated.outputDir,file));
+    const archived=deployment.loadMaracaXTensionDeploymentSnapshot({rootDir:updated.outputDir,manifestSha256:updated.manifestSha256});const latest=deployment.loadMaracaXTensionDeployment({rootDir:final.outputDir,manifestSha256:final.manifestSha256,retainedDeployments:[archived]});assert.equal(latest.manifest.retained.length,1);assert.equal(latest.manifest.headFile,'xtend.deployment-head.json');assert.equal(restarted.manifest.retained.length,1);
    }
    const generated = await import(require('node:url').pathToFileURL(path.join(out,'xtend.maraca.mjs')));
    const root=document.createElement('main'); document.body.append(root); const app=generated.createXtendMaraca({windowTarget:window,documentTarget:document,platformTarget:{}});

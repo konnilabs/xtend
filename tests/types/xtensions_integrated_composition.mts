@@ -151,3 +151,12 @@ const forcedUpdate: XTensionCoordinatedDeploymentConfig['runtime']={schema:'xten
 // @ts-expect-error Retained snapshots require an explicit storage budget.
 const unbudgetedUpdate: XTensionCoordinatedDeploymentConfig={...runtimeDeploymentOptions,schema:'xtend.maraca.xtension-deployment-config.v3',runtime:coordinatedOptions.runtime,retainedDeployments:[]};
 void [coordinatedApi,coordinatedSchema,revisionId,retainedBytes,updateStatus,forcedUpdate,unbudgetedUpdate];
+
+import { loadMaracaXTensionDeploymentSnapshot, type XTensionDeploymentSnapshot } from '@ccslabs/xtend/maraca/xtension-composition';
+const staticHistory: XTensionDeploymentSnapshot=loadMaracaXTensionDeploymentSnapshot({rootDir:'old-public',manifestSha256:'0'.repeat(64)});
+const withStaticHistory=buildMaracaXTensionDeployment({...coordinatedOptions,retainedDeployments:[staticHistory]});
+const advisory: Promise<DeploymentUpdateReport>=deploymentClient.checkForUpdate();
+const headFile: 'xtend.deployment-head.json'|undefined=withStaticHistory.manifest.headFile;
+// @ts-expect-error A public snapshot cannot act as an active HTTP deployment.
+createMaracaXTensionDeploymentHandler(staticHistory);
+void [advisory,headFile];

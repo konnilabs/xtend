@@ -60,6 +60,24 @@ const loaded = loadMaracaXTensionDeployment({
 const handler = createMaracaXTensionDeploymentHandler(loaded);
 ```
 
+Für länger laufende Rollouts wird eine vorgehaltene Revision als eigener öffentlicher Snapshot geladen:
+
+```js
+const previous = loadMaracaXTensionDeploymentSnapshot({
+  rootDir: previousPublicDir,
+  manifestSha256: trustedPreviousDigest
+});
+const loaded = loadMaracaXTensionDeployment({
+  rootDir: currentPublicDir,
+  manifestSha256: trustedCurrentDigest,
+  retainedDeployments: [previous]
+});
+```
+
+Der Snapshot prüft den unabhängig gesicherten Manifestdigest, die eigenen öffentlichen Dateibytes, Modulabschlüsse, Namespace und die daraus abgeleiteten Cache-Pins. Er benötigt keine Archive seiner Vorfahren, keine HTML-/Worker-/Revisionshinweis-Datei und keine privaten Serverdateien des Vorgängers. So kann C ausdrücklich nur B vorhalten und nach dem Entfernen von A auch in einem frischen Prozess starten. Der Snapshot besitzt einen privaten Byte-Capture und kann weder durch JSON-Replay ersetzt noch als aktiver HTTP-Handler verwendet werden. Der vollständige aktive Deployment-Lader behält seine vollständigen Prüfungen.
+
+Die Korrektur ersetzt die betroffenen **bestehenden v3-/Client-v1-Schemaformen ausdrücklich ohne Versionssprung**. Build-API 9, Deployment-API 3 und Client-API 1 bleiben erhalten. `headFile` sowie die beratenden Antwortfelder ergänzen diese Verträge; die neuen Datenarten heißen `xtend.maraca.xtension-deployment-head.v1` und `xtend.maraca.xtension-deployment-snapshot.v1`. Bereits versiegelte v3-Deployments ohne Revisionshinweis bleiben ladbar. Neu erzeugte v3-Deployments enthalten den korrigierten Client und dessen vollständig gepinntes Protokollmodul.
+
 Aktive AppServices bleiben über `appServices: 'separate-server'`, einen getrennten privaten Ausgabeordner und den entsprechenden `serverRootDir` unterstützt. Statische Historie ersetzt weder die Ausführung älterer Serverimplementierungen noch die Versionskompatibilität einer Anwendungs-API. Der Betreiber hält die während eines Rollouts benötigten Versionen ausdrücklich vor.
 
 ## Browserintegration
@@ -89,7 +107,7 @@ const collected = await updates.collectRetiredCaches();
 
 Der Bereitschaftszustand beginnt mit `false`. Die Anwendung gibt ihn erst frei, wenn sie während einer Abbaurunde keine widersprechende Arbeit beginnen wird. Sie widerruft die Zusage vor neuer Arbeit mit `setReadyForRetirement(false)`. `dispose()` entfernt den Nachrichtenempfänger und widerruft noch offene Zusagen. Der Client führt keine Kernel- oder Fabric-Aktionen selbst aus und entsorgt keine Framework-Roots automatisch.
 
-`status()` fragt den aktiven Worker ab. `checkForUpdate()` stößt die reguläre Updateprüfung an und fragt einen vorhandenen wartenden Worker ab; eine laufende Installation kann eine spätere erneute Abfrage erfordern. `collectRetiredCaches()` richtet sich an den aktiven Worker der eigenen Revision. Fehlende, redundante oder nicht passende Worker führen zu einem blockierten Ergebnis. Es gibt keinen automatischen Seitenreload und keinen `skipWaiting`-Befehl.
+`status()` fragt den aktiven Worker ab. `checkForUpdate()` liest den stabilen Revisionshinweis `xtend.deployment-head.json` derselben Origin ohne HTTP-Cache und ohne Redirects. Damit erkennt ein einzelner offener Tab eine neu ausgelieferte Revision, bevor ein zweiter Tab deren Worker registriert hat. `updateAvailable` und `requiresDocumentNavigation` zeigen den erforderlichen Dokumentwechsel an; `documentUrl` benennt ausschließlich den stabilen eigenen Einstieg. Der Hinweis ist beratend und erteilt keine Ausführungs- oder Cache-Löschrechte. Der Client registriert darüber keinen Worker und navigiert nicht selbst. `collectRetiredCaches()` richtet sich an den aktiven Worker der eigenen Revision. Fehlende, redundante oder nicht passende Worker führen zu einem blockierten Ergebnis. Es gibt keinen automatischen Seitenreload und keinen `skipWaiting`-Befehl.
 
 ## Aktivierung und Client-Zustimmung
 
@@ -119,8 +137,8 @@ Dokument, Header, Worker-Einstieg und unabhängig gesicherte Deploymentdigests b
 
 ## Nachweise und Grenze
 
-[`updates-inspect.cjs`](updates-inspect.cjs) und [`updates-evidence.json`](updates-evidence.json) prüfen 22 Revisions-/Build-/Neustartverträge, Pakettypen und feste aktuelle Größenreferenzen. Das Vorbereitungs-Gate enthält 20 blockierende Prüfungen. Die gepackten Root-/Compiler-/Maraca-Pakete erzeugen und laden die neue Revision einschließlich einer expliziten Historie.
+[`updates-inspect.cjs`](updates-inspect.cjs) und [`updates-evidence.json`](updates-evidence.json) prüfen 29 Revisions-/Build-/Neustartverträge, Pakettypen und feste aktuelle Größenreferenzen. Das Vorbereitungs-Gate enthält 20 blockierende Prüfungen. Die gepackten Root-/Compiler-/Maraca-Pakete erzeugen und laden die neue Revision einschließlich einer expliziten Historie.
 
-[`test_xtensions_updates.cjs`](../../scripts/test_xtensions_updates.cjs) ergänzt **40 tatsächliche Browserfälle**: React/Vue/Mixed laufen in gleichzeitig geöffneten Revisionen; Cache-Misses laden verifizierte Vorgängerbytes; der wartende oder falsche Controller kann keinen Abbau auslösen; beschäftigte und unbekannte Clients sowie alte Bestätigungen blockieren; nur bestätigte eigene Cache-Namen werden gelöscht; aktuelle Graphen und fremde Caches bleiben nutzbar. Vier Fälle prüfen zusätzlich den tatsächlichen Übergang von Deployment v2 nach v3. Kernel-/Fabric-Zulassung und getrennte Framework-Roots werden weiterhin tatsächlich ausgeführt.
+[`test_xtensions_updates.cjs`](../../scripts/test_xtensions_updates.cjs) ergänzt **64 tatsächliche Browserfälle**: React/Vue/Mixed laufen in gleichzeitig geöffneten Revisionen; Cache-Misses laden verifizierte Vorgängerbytes; der wartende oder falsche Controller kann keinen Abbau auslösen; beschäftigte und unbekannte Clients sowie alte Bestätigungen blockieren; nur bestätigte eigene Cache-Namen werden gelöscht; aktuelle Graphen und fremde Caches bleiben nutzbar. Vier Fälle prüfen zusätzlich den tatsächlichen Übergang von Deployment v2 nach v3. Weitere Regressionen prüfen die Erkennung im einzelnen Tab, fehlende/fremde/umgeleitete Revisionshinweise, mehrere aktuelle Clients, widerrufene Zusagen, konkurrierenden Cache-Abbau und den Drei-Revisions-Rollout nach dem Entfernen überholter Artefakte. Der Build-Nachweis startet dafür zusätzlich einen frischen Node-Prozess. Kernel-/Fabric-Zulassung und getrennte Framework-Roots werden weiterhin tatsächlich ausgeführt.
 
-Die bisherigen 341 Runtime-Fälle, 88 Compilerprüfungen und separaten Integritäts-/PWA-Fälle bleiben verbindlich. Historische Inventare und alle bisherigen autoritativen/veröffentlichten Fingerprint-Sets bleiben erhalten. Vollständige 0.9-Feature-Abnahme, SSR/Adoption (A05) und RMTX-Syntax/DX (A06) bleiben eigenständige Arbeit.
+Die bisherigen 341 Runtime-Fälle, 88 Compilerprüfungen und separaten Integritäts-/PWA-Fälle bleiben verbindlich. Historische Inventare und veröffentlichte Legacy-Fingerprint-Sets bleiben erhalten. Die noch unveröffentlichten Client-v1- und Antwort-v1-Baselines werden für diesen ausdrücklich freigegebenen Bugfix unter denselben Kennungen aktualisiert. Vollständige 0.9-Feature-Abnahme, SSR/Adoption (A05) und RMTX-Syntax/DX (A06) bleiben eigenständige Arbeit.

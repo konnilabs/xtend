@@ -6,16 +6,17 @@ const hash=b=>createHash('sha256').update(b).digest('hex');
 async function runUpdatesAcceptance({rootDir=path.resolve(__dirname,'..'),peerRoot=process.env.XTENSIONS_TEST_PEERS,executablePath=process.env.CHROME_BIN}={}){
  if(!peerRoot||!executablePath)throw Error('Update acceptance requires isolated real peers and Chromium; no skip is allowed.');
  const temp=fs.mkdtempSync(path.join(os.tmpdir(),'xtend-a0437-browser-')),peers=createRequire(path.join(peerRoot,'package.json')),api=require('../xtend-maraca/xtension-composition'),reference=require('../development/rmtx-a04/runtime-reference.cjs');
- const routes=new Map(),cases=[];let server,browser;
+ const routes=new Map(),cases=[],requests=[];let server,browser;
+ async function waitForWorker(page,scope,url,state){await page.evaluate(async({scope,url,state})=>{const until=performance.now()+20000;while(performance.now()<until){const r=await navigator.serviceWorker.getRegistration(scope),worker=r?.[state];if(worker?.scriptURL===url&&!r.installing&&(state==='waiting'?worker.state==='installed':worker.state==='activated'&&!r.waiting))return;await new Promise(resolve=>setTimeout(resolve,25));}throw Error('Expected '+state+' worker did not settle: '+url);},{scope,url,state});}
  try{
   const vendor=await require('esbuild').build({stdin:{contents:`import React from 'react';import * as client from 'react-dom/client';import * as dom from 'react-dom';import * as Vue from 'vue';const ReactDOM={...client,version:dom.version};export {React,ReactDOM,Vue};`,resolveDir:rootDir},nodePaths:[path.join(peerRoot,'node_modules')],bundle:true,format:'esm',platform:'browser',write:false,define:{'process.env.NODE_ENV':'"production"',__VUE_OPTIONS_API__:'true',__VUE_PROD_DEVTOOLS__:'false',__VUE_PROD_HYDRATION_MISMATCH_DETAILS__:'false'}});
-  server=http.createServer((req,res)=>{if(req.url==='/control.html'){res.writeHead(200,{'Content-Type':'text/html'});return res.end('<!doctype html><title>Outside application scope</title>');}if(req.url.endsWith('/unknown.html')){res.writeHead(200,{'Content-Type':'text/html'});return res.end('<!doctype html><title>Unannounced client</title>');}const route=[...routes].find(([prefix])=>req.url.startsWith(prefix));if(!route||!route[1].handler(req,res)){res.writeHead(404);res.end();}});
+  server=http.createServer((req,res)=>{requests.push(req.url);if(req.url==='/control.html'){res.writeHead(200,{'Content-Type':'text/html'});return res.end('<!doctype html><title>Outside application scope</title>');}if(req.url.endsWith('/unknown.html')){res.writeHead(200,{'Content-Type':'text/html'});return res.end('<!doctype html><title>Unannounced client</title>');}const route=[...routes].find(([prefix])=>req.url.startsWith(prefix));if(route?.[1].headOverride&&req.url===route[0]+route[1].current.manifest.headFile){const value=route[1].headOverride;res.writeHead(value.status,{'Content-Type':'application/json','Cache-Control':'no-store',...(value.location?{Location:value.location}:{})});return res.end(value.body||'');}if(!route||!route[1].handler(req,res)){res.writeHead(404);res.end();}});
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));const origin='http://127.0.0.1:'+server.address().port;
   for(const framework of ['react','vue','mixed']){
    const directory=path.join(temp,framework);fs.mkdirSync(directory);const fixture=reference.createRuntimeReference(framework,directory,{services:false});
    const build=await require('../xtend-maraca').buildMaracaBundleAsync(fixture.input,{rootDir:fixture.rootDir});assert(build.ok,JSON.stringify(build.plan.diagnostics));const prefix='/updates/'+framework+'/';
    const versions=[];
-   for(const label of ['A','B',...(framework==='react'?['L']:[])]){
+   for(const label of ['A','B','C',...(framework==='react'?['L']:[])]){
     const legacy=label==='L';
     const app=path.join(directory,label);fs.mkdirSync(app);fs.writeFileSync(path.join(app,'vendor.mjs'),vendor.outputFiles[0].contents);
     const bootstrap=await require('esbuild').build({stdin:{contents:`
@@ -33,12 +34,12 @@ async function runUpdatesAcceptance({rootDir=path.resolve(__dirname,'..'),peerRo
        window.__releaseUpdate=async()=>{app.dispose();await app.facade.whenXTensionsIdle();stats.afterDispose=document.querySelectorAll('input').length;window.__updateClient?.setReadyForRetirement(true);};
       }catch(error){stats.error=String(error);}finally{stats.done=true;delete globalThis.__XTendA043Observe;}return stats;})();`,resolveDir:rootDir},external:['./vendor.mjs','./xtend.deployment-client.mjs'],bundle:true,format:'esm',platform:'browser',write:false});
     fs.writeFileSync(path.join(app,'bootstrap.mjs'),bootstrap.outputFiles[0].contents);
-    const config={schema:'xtend.maraca.xtension-deployment-config.v3',build,application:{rootDir:app,bootstrap:{fileName:'bootstrap.mjs',sha256:hash(bootstrap.outputFiles[0].contents)},modules:[{fileName:'vendor.mjs',sha256:hash(vendor.outputFiles[0].contents)}]},origin,publicPath:prefix,outputDir:path.join(directory,'public-'+label),runtime:{schema:'xtend.maraca.xtension-deployment-runtime-policy.v2',pwa:'verified-static-cache',appServices:'disabled',updates:'coordinated',acknowledgementTimeoutMs:300},retainedDeployments:[...versions],retainedByteBudget:label==='A'?0:5_000_000};
+    const config={schema:'xtend.maraca.xtension-deployment-config.v3',build,application:{rootDir:app,bootstrap:{fileName:'bootstrap.mjs',sha256:hash(bootstrap.outputFiles[0].contents)},modules:[{fileName:'vendor.mjs',sha256:hash(vendor.outputFiles[0].contents)}]},origin,publicPath:prefix,outputDir:path.join(directory,'public-'+label),runtime:{schema:'xtend.maraca.xtension-deployment-runtime-policy.v2',pwa:'verified-static-cache',appServices:'disabled',updates:'coordinated',acknowledgementTimeoutMs:300},retainedDeployments:label==='C'?[api.loadMaracaXTensionDeploymentSnapshot({rootDir:versions[1].outputDir,manifestSha256:versions[1].manifestSha256})]:[...versions],retainedByteBudget:label==='A'?0:5_000_000};
     if(legacy){config.schema='xtend.maraca.xtension-deployment-config.v2';config.publicPath='/updates/legacy/';config.runtime={schema:'xtend.maraca.xtension-deployment-runtime-policy.v1',pwa:'verified-static-cache',appServices:'disabled'};delete config.retainedDeployments;delete config.retainedByteBudget;}
     const sealed=api.buildMaracaXTensionDeployment(config);
     assert(sealed.accounting.frameworkBytes<=2200000);assert(sealed.accounting.xtensionRuntimeBytes<=240000);versions.push(sealed);
    }
-   const [a,b,legacy]=versions;routes.set(prefix,{a,b,current:a,handler:api.createMaracaXTensionDeploymentHandler(a)});
+   const [a,b,c,legacy]=versions;routes.set(prefix,{a,b,c,current:a,handler:api.createMaracaXTensionDeploymentHandler(a)});
    if(legacy){const app=path.join(directory,'B');const migrated=api.buildMaracaXTensionDeployment({schema:'xtend.maraca.xtension-deployment-config.v3',build,application:{rootDir:app,bootstrap:{fileName:'bootstrap.mjs',sha256:hash(fs.readFileSync(path.join(app,'bootstrap.mjs')))},modules:[{fileName:'vendor.mjs',sha256:hash(vendor.outputFiles[0].contents)}]},origin,publicPath:'/updates/legacy/',outputDir:path.join(directory,'public-migrated'),runtime:{schema:'xtend.maraca.xtension-deployment-runtime-policy.v2',pwa:'verified-static-cache',appServices:'disabled',updates:'coordinated',acknowledgementTimeoutMs:300},retainedDeployments:[legacy],retainedByteBudget:5_000_000});routes.set('/updates/legacy/',{legacy:true,a:legacy,b:migrated,handler:api.createMaracaXTensionDeploymentHandler(legacy)});}
   }
   browser=await peers('playwright').chromium.launch({executablePath,headless:true});
@@ -50,39 +51,62 @@ async function runUpdatesAcceptance({rootDir=path.resolve(__dirname,'..'),peerRo
     const control=await context.newPage();await control.goto(origin+'/control.html');
     if(route.legacy){
      const old=await open('L');await old.waitForFunction(()=>!!navigator.serviceWorker.controller);route.handler=api.createMaracaXTensionDeploymentHandler(route.b);const upgraded=await open('B');
-     await upgraded.waitForFunction(async scope=>!!(await navigator.serviceWorker.getRegistration(scope))?.waiting,origin+prefix);record('legacy-v2-and-v3-coexist');
+     await waitForWorker(upgraded,origin+prefix,origin+prefix+route.b.manifest.pwa.workerFile,'waiting');record('legacy-v2-and-v3-coexist');
      const blocked=await upgraded.evaluate(()=>window.__updateClient.collectRetiredCaches());assert.equal(blocked.status,'blocked');assert.equal(blocked.deleted.length,0);record('legacy-controller-has-no-retirement-authority');
      const status=await upgraded.evaluate(()=>window.__updateClient.checkForUpdate());assert.equal(status.revision,route.b.manifest.revision.id);assert(status.waiting);record('legacy-upgrade-status');
      await old.evaluate(()=>window.__releaseUpdate());await upgraded.evaluate(()=>window.__releaseUpdate());await old.close();await upgraded.close();
-     await control.waitForFunction(async({scope,url})=>{const r=await navigator.serviceWorker.getRegistration(scope);return r?.active?.state==='activated'&&r.active.scriptURL===url&&!r.waiting&&!r.installing;},{scope:origin+prefix,url:origin+prefix+route.b.manifest.pwa.workerFile},{timeout:20000});
+     await waitForWorker(control,origin+prefix,origin+prefix+route.b.manifest.pwa.workerFile,'active');
      const current=await open('B');await current.waitForFunction(()=>!!navigator.serviceWorker.controller);await current.evaluate(()=>window.__releaseUpdate());const retired=await current.evaluate(()=>window.__updateClient.collectRetiredCaches());assert.equal(retired.status,'ok');assert.deepEqual(retired.deleted,[route.a.manifest.pwa.cacheName]);record('legacy-cache-retires-after-natural-activation');continue;
     }
     const pageA=await open('A');await pageA.waitForFunction(()=>!!navigator.serviceWorker.controller);
     await pageA.evaluate(async()=>{await(await caches.open('unrelated-application-cache')).put('/unrelated',new Response('keep'));});
+    const unchanged=await pageA.evaluate(()=>window.__updateClient.checkForUpdate());assert.equal(unchanged.status,'ok');assert.equal(unchanged.updateAvailable,false);assert.equal(unchanged.requiresDocumentNavigation,false);record('current-revision-discovery');
+    if(framework==='react'){
+     const head=JSON.parse(fs.readFileSync(path.join(route.a.outputDir,route.a.manifest.headFile)));
+     for(const [scenario,value,reason]of [
+      ['foreign-head-rejected',{status:200,body:JSON.stringify({...head,documentUrl:'https://foreign.invalid/'})},'invalid-head'],
+      ['missing-head-blocks-discovery',{status:404},'head-unavailable'],
+      ['redirected-head-rejected',{status:302,location:origin+'/control.html'},'head-unavailable']
+     ]){route.headOverride=value;const failed=await pageA.evaluate(()=>window.__updateClient.checkForUpdate());assert.equal(failed.reason,reason);assert.equal(failed.updateAvailable,false);record(scenario);}delete route.headOverride;
+    }
     route.current=route.b;route.handler=api.createMaracaXTensionDeploymentHandler(route.b);
-    const pageB=await open('B');await pageB.waitForFunction(async scope=>!!(await navigator.serviceWorker.getRegistration(scope))?.waiting,origin+prefix);
+    const start=requests.length,discovery=await pageA.evaluate(()=>window.__updateClient.checkForUpdate());assert.equal(discovery.status,'ok');assert.equal(discovery.revision,route.b.manifest.revision.id);assert.equal(discovery.updateAvailable,true);assert.equal(discovery.requiresDocumentNavigation,true);assert.equal(discovery.waiting,false);assert.equal(await pageA.evaluate(()=>window.__updateStats.label),'A');assert(!requests.slice(start).some(url=>url.endsWith('/xtend.sealed-service-worker.js')));record('single-tab-discovers-new-revision');
+    const pageB=await open('B');await waitForWorker(pageB,origin+prefix,origin+prefix+route.b.manifest.pwa.workerFile,'waiting');
     assert.equal(await pageA.locator('input').count(),framework==='mixed'?2:3);assert.equal(await pageB.locator('input').count(),framework==='mixed'?2:3);
     record('coexisting-revisions',{revisionA:route.a.manifest.revision.id,revisionB:route.b.manifest.revision.id,accounting:route.b.accounting});
-    const pending=await pageA.evaluate(()=>window.__updateClient.checkForUpdate());assert.equal(pending.status,'ok');assert.equal(pending.revision,route.b.manifest.revision.id);assert(pending.waiting);record('observable-waiting-update');
+    const pending=await pageA.evaluate(()=>window.__updateClient.checkForUpdate());assert.equal(pending.status,'ok');assert.equal(pending.revision,route.b.manifest.revision.id);assert(pending.waiting,JSON.stringify(pending));record('observable-waiting-update');
     const oldFile=route.a.manifest.bootstrap,oldUrl=origin+prefix+oldFile;
     const oldBytes=await pageA.evaluate(async({cacheName,url})=>{await(await caches.open(cacheName)).delete(url);return Array.from(new Uint8Array(await(await fetch(url,{cache:'no-store'})).arrayBuffer()));},{cacheName:route.a.manifest.pwa.cacheName,url:oldUrl});
     assert.equal(hash(Buffer.from(oldBytes)),route.a.manifest.files.find(row=>row.fileName===oldFile).sha256);record('retained-response-recovery');
     const premature=await pageB.evaluate(()=>window.__updateClient.collectRetiredCaches());assert.equal(premature.status,'blocked');assert.equal(premature.deleted.length,0);record('old-controller-blocks-retirement');
     const waiting=await pageB.evaluate(async({scope,revision})=>{const r=await navigator.serviceWorker.getRegistration(scope),channel=new MessageChannel();return new Promise(resolve=>{channel.port1.onmessage=e=>resolve(e.data);r.waiting.postMessage({schema:'xtend.maraca.xtension-deployment-update-request.v1',requestId:crypto.randomUUID(),action:'collect',revision},[channel.port2]);});},{scope:origin+prefix,revision:route.b.manifest.revision.id});assert.equal(waiting.reason,'update-in-progress');assert.equal(waiting.deleted.length,0);record('waiting-worker-cannot-collect');
     await pageA.evaluate(()=>window.__releaseUpdate());await pageB.evaluate(()=>window.__releaseUpdate());await pageA.close();await pageB.close();
-    await control.waitForFunction(async({scope,url})=>{const r=await navigator.serviceWorker.getRegistration(scope);return r?.active?.state==='activated'&&r.active.scriptURL===url&&!r.waiting&&!r.installing;},{scope:origin+prefix,url:origin+prefix+route.b.manifest.pwa.workerFile},{timeout:20000});
+    await waitForWorker(control,origin+prefix,origin+prefix+route.b.manifest.pwa.workerFile,'active');
     const current=await open('B');await current.waitForFunction(()=>!!navigator.serviceWorker.controller);
     let report=await current.evaluate(()=>window.__updateClient.collectRetiredCaches());assert.equal(report.reason,'client-not-ready');assert.equal(report.deleted.length,0);record('busy-client-blocks-retirement');
     await current.evaluate(()=>window.__releaseUpdate());assert.equal(await current.locator('input').count(),0);
+    const second=await open('B');report=await current.evaluate(()=>window.__updateClient.collectRetiredCaches());assert.equal(report.reason,'client-not-ready');assert.equal(report.deleted.length,0);record('second-current-client-blocks-retirement');await second.evaluate(()=>window.__releaseUpdate());
     const unknown=await context.newPage();await unknown.goto(origin+prefix+'unknown.html');
     report=await current.evaluate(()=>window.__updateClient.collectRetiredCaches());assert.equal(report.reason,'client-not-ready');assert.equal(report.deleted.length,0);record('unknown-client-blocks-retirement');
     await unknown.evaluate(()=>navigator.serviceWorker.addEventListener('message',event=>{if(event.data?.schema==='xtend.maraca.xtension-deployment-update-challenge.v1')event.ports[0].postMessage({schema:'xtend.maraca.xtension-deployment-update-ack.v1',nonce:'replayed',revision:event.data.revision,ready:true});}));
     report=await current.evaluate(()=>window.__updateClient.collectRetiredCaches());assert.equal(report.reason,'client-not-ready');assert.equal(report.deleted.length,0);record('replayed-acknowledgement-rejected');await unknown.close();
+    const held=await context.newPage();await held.goto(origin+prefix+'unknown.html');await held.evaluate(()=>navigator.serviceWorker.addEventListener('message',event=>{if(event.data?.schema==='xtend.maraca.xtension-deployment-update-challenge.v1')window.heldChallenge={data:event.data,port:event.ports[0]};}));
+    const collecting=current.evaluate(()=>window.__updateClient.collectRetiredCaches());await held.waitForFunction(()=>!!window.heldChallenge);
+    const concurrent=await current.evaluate(()=>window.__updateClient.collectRetiredCaches());assert.equal(concurrent.reason,'retirement-in-progress');assert.equal(concurrent.deleted.length,0);record('concurrent-retirement-blocked');
+    await held.evaluate(()=>{const {port,data}=window.heldChallenge;port.postMessage({cancel:true});port.postMessage({schema:'xtend.maraca.xtension-deployment-update-ack.v1',nonce:data.nonce,revision:data.revision,ready:true});});
+    const revoked=await collecting;assert.equal(revoked.status,'blocked');assert.equal(revoked.deleted.length,0);record('revoked-client-lease-blocks-retirement');await held.close();
     const forged=await current.evaluate(async({revision})=>{const channel=new MessageChannel();return new Promise(resolve=>{channel.port1.onmessage=e=>resolve(e.data);navigator.serviceWorker.controller.postMessage({schema:'xtend.maraca.xtension-deployment-update-request.v1',requestId:crypto.randomUUID(),action:'collect',revision,cacheNames:['unrelated-application-cache']},[channel.port2]);});},{revision:route.b.manifest.revision.id});assert.equal(forged.reason,'invalid-request');record('arbitrary-cache-authority-rejected');
     report=await current.evaluate(()=>window.__updateClient.collectRetiredCaches());assert.equal(report.status,'ok',JSON.stringify(report));assert.deepEqual(report.deleted,[route.a.manifest.pwa.cacheName]);
     const keys=await current.evaluate(()=>caches.keys());assert(!keys.includes(route.a.manifest.pwa.cacheName));assert(keys.includes(route.b.manifest.pwa.cacheName));assert(keys.includes('unrelated-application-cache'));record('unanimous-current-clients-retire-only-owned-cache',{report});
     const restored=await current.evaluate(async url=>Array.from(new Uint8Array(await(await fetch(url)).arrayBuffer())),oldUrl);assert.equal(hash(Buffer.from(restored)),route.a.manifest.files.find(row=>row.fileName===oldFile).sha256);record('late-retained-request-still-verified');
     const fresh=await open('B');assert(records.includes(origin+prefix+route.b.manifest.revision.clientFile));await fresh.evaluate(()=>window.__releaseUpdate());record('current-graph-remains-usable');
+    fs.rmSync(route.a.outputDir,{recursive:true});for(const file of [route.b.manifest.documentFile,route.b.manifest.pwa.workerFile,route.b.manifest.headFile])fs.rmSync(path.join(route.b.outputDir,file));
+    const snapshot=api.loadMaracaXTensionDeploymentSnapshot({rootDir:route.b.outputDir,manifestSha256:route.b.manifestSha256});
+    const restarted=api.loadMaracaXTensionDeployment({rootDir:route.c.outputDir,manifestSha256:route.c.manifestSha256,retainedDeployments:[snapshot]});route.current=restarted;route.handler=api.createMaracaXTensionDeploymentHandler(restarted);
+    const pageC=await open('C');await waitForWorker(pageC,origin+prefix,origin+prefix+route.c.manifest.pwa.workerFile,'waiting');record('snapshot-restart-without-ancestor');
+    await pageC.evaluate(()=>window.__releaseUpdate());await current.close();await second.close();await fresh.close();await pageC.close();
+    await waitForWorker(control,origin+prefix,origin+prefix+route.c.manifest.pwa.workerFile,'active');
+    const final=await open('C');await final.waitForFunction(()=>!!navigator.serviceWorker.controller);await final.evaluate(()=>window.__releaseUpdate());const finalReport=await final.evaluate(()=>window.__updateClient.collectRetiredCaches());assert.equal(finalReport.status,'ok');assert.deepEqual(finalReport.deleted,[route.b.manifest.pwa.cacheName]);record('snapshot-cache-retirement-after-natural-activation');
    }finally{await context.close();}
   }
   return {schema:'xtend.xtensions.deployment-update-acceptance-report.v1',ok:true,node:process.version,browser:await browser.version(),checks:cases.length,nativeBrowserExecution:true,activation:'natural',retirement:'explicit-unanimous-client-ack',trustedDocumentRequired:true,trustedWorkerRequired:true,workerRegistrationIntegrityEnforced:false,cases};

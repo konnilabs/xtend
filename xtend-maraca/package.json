@@ -142,6 +142,8 @@
     "xtension-deployment-pwa.js",
     "xtension-deployment-updates.js",
     "xtension-deployment-client.d.ts",
+    "xtension-deployment-lifecycle.js",
+    "xtension-deployment-lifecycle-client.d.ts",
     "xtension-composition.js",
     "xtension-composition.d.ts",
     "xtension-composition-runtime.mjs",

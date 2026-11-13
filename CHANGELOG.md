@@ -4,6 +4,8 @@ Alle sichtbaren Produktaenderungen werden in diesem Dokument gesammelt. XTend is
 
 ## Unreleased – 0.9.0
 
+- A04.3.7-Bugfix: Update-Erkennung über einen stabilen Revisionshinweis sowie unabhängige öffentliche Vorgänger-Snapshots für begrenzte Rollouts und Neustarts nach Archivabbau. Bestehende v3-/Client-v1-Schemata werden korrigiert; API-Versionen bleiben erhalten.
+
 - A04.3.7: Unveränderliche Revisions-URLs, verifizierte und gesondert budgetierte Vorgänger-Snapshots sowie Update-Status und ausdrücklich bestätigter Cache-Abbau. Build-API 9, Deployment-API 3, Config/Manifest/Ergebnis v3, Runtimepolicy v2 und Client-/Nachrichten-API v1. Ältere Verträge bleiben erhalten; Worker aktivieren sich über den normalen Browser-Lebenszyklus.
 
 - A04.3.6: Expliziter PWA-/AppServices-Auslieferungsvertrag mit geprüften statischen Caches, fester Offline-Seite und getrennten privaten Server-Artefakten. Build-API 8, Deployment-API 2 und Config/Manifest/Ergebnis v2; bestehende Runtime und Datenverträge bleiben erhalten. Dokument und Worker-Einstieg bleiben vertrauenswürdige Betriebskomponenten.

@@ -41,7 +41,7 @@
     "tests/xtensions/work-budget-acceptance.js": "7fcd2ab8138daad09452fe73af31f880d3c6d8f81164c8378022e69763140fe1",
     "tests/xtensions/work-budget-maraca-acceptance.js": "864b8aa6ccee6d9aeb896999cb2a2ffa3c683d5632a0ef45a0e6fc1e0d4e6a80",
     "tests/types/xtensions_work_budget.mts": "b486b8d98c90bae96d1e0c7e38bb7a2e5961ca84612767aa8049825b43f3bef8",
-    "tests/xtensions/xtensions_runtime_gate_suite.js": "68df4d9cdad27c057109666223ca4e5c91700f2abb968bf4700555688b585d81",
-    "tests/xtensions/xtensions_consumer_package_suite.js": "c267b9bd2eebaca0939a9856701f33bf5346ae7dff6bfd950c05590239635ea9"
+    "tests/xtensions/xtensions_runtime_gate_suite.js": "cacd80c7613d41d438edf9bb54a5126108ce61d8c05e996c4d0578ec222a744a",
+    "tests/xtensions/xtensions_consumer_package_suite.js": "b096a911c3d254fdf7fe7041c82183d6cae821320c6c7b3f25a284429673a43e"
   }
 }
