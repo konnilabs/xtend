@@ -55,10 +55,10 @@
   },
   "sources": {
     "xtend-maraca/xtension-provider-graph.js": "88e743125c895af00052994448f0d13dd5a866ca1959e74f3e9a8f015a45a049",
-    "xtend-maraca/xtension-composition.js": "b1ea2939c96a47d5b7e1619e7d13980182237f5fa9d00e4bf4cccbd80718fec1",
+    "xtend-maraca/xtension-composition.js": "6adc629c7aff828d1bd9248c41c9331f6d83613c9bf5b0668335d3fc184a445b",
     "xtend-maraca/xtension-composition-contract.mjs": "8a80c9d009976a19676e3fd72e0f9d1c95476306c5dc99ba593cda33bd107f3a",
     "xtend-maraca/xtension-composition-runtime.mjs": "d07919754cee2977bffd8c8b5ba51f39696ec8bcb81bda427612ae48742cc2f7",
-    "xtend-maraca/xtension-composition.d.ts": "832a9ba81164a82da59f930eb4047e1b047d71a2455e2c35bdeb4570a0bf0a66",
+    "xtend-maraca/xtension-composition.d.ts": "5e22eeac729f4bc400ada8cbb7f4e67ecd49232145aa6145fef897dd72d50cbb",
     "xtend-maraca/xtension-composition-runtime.d.ts": "787065cd99162e29065cfd414081c4b71040daee06bab0da7bbac0ac97337738",
     "xtend-maraca/xtension-size-budget.js": "bdc3d5742fcc6357cb36ee0a0109e69f5c92978d6a9b3dd2dcd97403fc43746d",
     "xtend-maraca/browser-composition-runtime.mjs": "2cb7b8af45fbd52eb46ef6664d45253abcccf98649d154e16ccf7ae8fb3c4ece",
@@ -67,8 +67,8 @@
     "development/rmtx-a04/integration-reference.cjs": "58ff4d03422edf792c84ba9166830de20c412b12aabe802b223f346c1f4773a8",
     "scripts/test_xtensions_runtime_adapters.cjs": "d9df3dfd883ea4e46c87bb94359b4728602ca15d1c535205fcaa5755a42a39b8",
     "tests/xtensions/integrated-composition-acceptance.js": "a939fbd228a5718b059d9fa24f2b172f548ead74360b7a7baee3d6bf94c9d65f",
-    "tests/xtensions/xtensions_runtime_gate_suite.js": "19a3f15282e43fd5ad6f5993e6acd58b27fc0d285e8ff80fcab12550758fbbdf",
-    "tests/xtensions/xtensions_consumer_package_suite.js": "d8e575b55cf7bf604a7bf6dfdc3c318fe9f1652db2c929bfed32b60909e5afdb",
-    "tests/types/xtensions_integrated_composition.mts": "55fa0c3ccdc936ef71f37d459b8bd63f10b8c7ff565512a505770621133e5ee7"
+    "tests/xtensions/xtensions_runtime_gate_suite.js": "68df4d9cdad27c057109666223ca4e5c91700f2abb968bf4700555688b585d81",
+    "tests/xtensions/xtensions_consumer_package_suite.js": "c267b9bd2eebaca0939a9856701f33bf5346ae7dff6bfd950c05590239635ea9",
+    "tests/types/xtensions_integrated_composition.mts": "1aa08bae12254fbfb42f59abab97f4c1347a2c136c5604e65930922b6077c7cb"
   }
 }

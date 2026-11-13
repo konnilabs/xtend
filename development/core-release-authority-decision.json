@@ -4,8 +4,8 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "1946b77534c01763d84a6c181407359fd19c6b5871ba61a9ce4f2b4c47927fad",
-  "sourceMembershipSha256": "b1f14a6c5447c4f48a875eae71248281fa4b9621dcd91d459ab9ed93aeafd16d",
+  "inventorySha256": "6de5e96c31b5dad18544f149d6d64d1043ff2220a76432e16249ef594a9e93fc",
+  "sourceMembershipSha256": "99fa9bb6324a4213cefbd23e3d6347b3c9f61f712c9828e357a73dc7870c1d26",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
@@ -549,7 +549,7 @@
         },
         {
           "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
-          "sha256": "7ca3e2dc9758f0c72313994c5337622ad25d3f72d1f5b24e5920ca2e89af8827"
+          "sha256": "5e9b1dd77c3ac0fcb7598bb9de3bb1daab6121515dac76fd8e087e58afb68b82"
         },
         {
           "path": "development/rmtx-a01/README.md",
@@ -1708,5 +1708,77 @@
     "publicationGuardRetired": false,
     "freshCommittedCaptureRequired": true,
     "rationale": "Scoped A04.3.6 review: build API8 and deployment API2 add config/manifest/result v2, a closed runtime policy v1 and a separate actual PWA/AppServices acceptance report v1. Complete deployment v1 data/API1 and every earlier composition/runtime contract remain supported. Public immutable browser files and private actual AppServices artifacts are separately pinned and emitted to disjoint roots. The new worker caches only a finite static inventory, validates network/cache bytes, refuses redirects, keeps navigation and API data off cache, and provides only a script-free offline fallback. Document/headers, externally anchored manifest digest and worker registration remain trusted origin operations; native registration SRI is explicitly not asserted. Existing worker imports/module workers/UI coprocessors are excluded by the new opt-in policy. Ten real HTTP/Chromium cases prove native Kernel/Fabric hosts, actual compiled RMT-to-Node AppServices transport, private HTTP rejection, verified cache responses, cache/install tampering, redirect rejection, network-only API and offline fallback. Twenty-four contract checks, all previous authoritative/released sets, unchanged strict reference ceilings, 341 retained runtime cases and 88 compiler checks remain mandatory. Coordinated updates/cache retirement, full offline application state and complete 0.9 acceptance remain pending. See development/rmtx-a04/runtime.md."
+  },
+  "a0437CoordinatedUpdatesReview": {
+    "format": 1,
+    "date": "2026-11-13",
+    "status": "reviewed-unreleased-coordinated-updates",
+    "stage": "A04.3.7",
+    "a04Complete": false,
+    "contract": "development/rmtx-a04/updates.md",
+    "newSchemaIds": [
+      "xtend.maraca.xtension-deployment-client.v1",
+      "xtend.maraca.xtension-deployment-config.v3",
+      "xtend.maraca.xtension-deployment-manifest.v3",
+      "xtend.maraca.xtension-deployment-result.v3",
+      "xtend.maraca.xtension-deployment-revision.v1",
+      "xtend.maraca.xtension-deployment-runtime-policy.v2",
+      "xtend.maraca.xtension-deployment-update-ack.v1",
+      "xtend.maraca.xtension-deployment-update-challenge.v1",
+      "xtend.maraca.xtension-deployment-update-request.v1",
+      "xtend.maraca.xtension-deployment-update-response.v1",
+      "xtend.xtensions.deployment-update-acceptance-report.v1"
+    ],
+    "scopedSchemaIds": [
+      "xtend.maraca.xtension-deployment-client.v1",
+      "xtend.maraca.xtension-deployment-config.v2",
+      "xtend.maraca.xtension-deployment-config.v3",
+      "xtend.maraca.xtension-deployment-manifest.v2",
+      "xtend.maraca.xtension-deployment-manifest.v3",
+      "xtend.maraca.xtension-deployment-result.v2",
+      "xtend.maraca.xtension-deployment-result.v3",
+      "xtend.maraca.xtension-deployment-revision.v1",
+      "xtend.maraca.xtension-deployment-runtime-policy.v1",
+      "xtend.maraca.xtension-deployment-runtime-policy.v2",
+      "xtend.maraca.xtension-deployment-update-ack.v1",
+      "xtend.maraca.xtension-deployment-update-challenge.v1",
+      "xtend.maraca.xtension-deployment-update-request.v1",
+      "xtend.maraca.xtension-deployment-update-response.v1",
+      "xtend.xtensions.deployment-update-acceptance-report.v1",
+      "xtend.xtensions.work-budget-policy.v1"
+    ],
+    "buildApiVersion": "9.0.0",
+    "deploymentApiVersion": "3.0.0",
+    "runtimeApiVersion": "6.0.0",
+    "clientApiVersion": "1.0.0",
+    "deploymentConfigVersion": 3,
+    "deploymentManifestVersion": 3,
+    "deploymentResultVersion": 3,
+    "runtimePolicyVersion": 2,
+    "updateProtocolVersion": 1,
+    "browserUpdateCases": 40,
+    "contractChecks": 22,
+    "activation": "natural",
+    "retirement": "explicit-unanimous-client-ack",
+    "currentGraphByteIntegrityEnforced": true,
+    "trustedDocumentRequired": true,
+    "trustedWorkerRequired": true,
+    "workerRegistrationIntegrityEnforced": false,
+    "legacyContractsRetained": true,
+    "nativeKernelAbiChanged": false,
+    "browserCompositionAbiChanged": false,
+    "planRuntimeAbiChanged": false,
+    "referenceRegressionLimits": {
+      "frameworkBytes": 2200000,
+      "xtensionRuntimeBytes": 240000
+    },
+    "retainedStorageExplicitlyBudgeted": true,
+    "rootExportCount": 214,
+    "runtimeCasesPerEnvironment": 341,
+    "compilerChecks": 88,
+    "acceptedForRelease": false,
+    "publicationGuardRetired": false,
+    "freshCommittedCaptureRequired": true,
+    "rationale": "Scoped A04.3.7 review: build API9 and deployment API3 add config/manifest/result v3, runtime policy v2, revision/client metadata v1 and versioned request/response/challenge/acknowledgement v1. Complete earlier deployment and runtime contracts remain supported. Revision-isolated static URLs and explicitly byte-budgeted verified predecessor snapshots preserve concurrent graphs. A generated pinned browser client supplies update status and explicit retirement readiness. The active worker queries all in-scope windows, validates fresh nonce-bound per-client acknowledgements, rechecks client membership and holds navigation behind a retirement barrier. Unknown/busy/stale clients or pending updates block deletion; timeout is rejection. Only exact trusted predecessor cache names are candidates. Natural activation, no forced takeover, no automatic reload or server archive deletion. Forty real Chromium/HTTP cases include React/Vue/mixed coexistence, genuine Kernel/Fabric mounts, old-byte recovery, missing/replayed acknowledgements, private cache authority rejection and real deployment-v2 migration. Twenty-two contract checks, unchanged active reference limits, 341 retained runtime cases and 88 compiler checks remain mandatory. All previous authoritative/released sets are preserved. Document/worker trust, script-free offline fallback and pending complete 0.9 acceptance remain explicit. See development/rmtx-a04/updates.md."
   }
 }

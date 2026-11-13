@@ -112,7 +112,7 @@ void [deliveryMajor, deliveryApi, deliveryFile, retainedLoadPlan, notAnAttestati
 
 import { buildMaracaXTensionDeployment, loadMaracaXTensionDeployment, createMaracaXTensionDeploymentHandler, XTENSION_DEPLOYMENT_API_VERSION, type XTensionDeploymentConfig } from '@ccslabs/xtend/maraca/xtension-composition';
 import { buildMaracaXTensionDeployment as standaloneDeployment } from '@ccslabs/xtend-maraca/xtension-composition';
-const deploymentApi: '2.0.0' = XTENSION_DEPLOYMENT_API_VERSION;
+const deploymentApi: '3.0.0' = XTENSION_DEPLOYMENT_API_VERSION;
 const deploymentOptions: XTensionDeploymentConfig = { schema: 'xtend.maraca.xtension-deployment-config.v1', build, application: { rootDir: '.', bootstrap: { fileName: 'app-bootstrap.mjs', sha256: '0'.repeat(64) }, modules: [] }, publicPath: '/release/', outputDir: 'sealed' };
 const sealed = buildMaracaXTensionDeployment(deploymentOptions);
 const sealSchema: 'xtend.maraca.xtension-deployment-manifest.v1' = sealed.manifest.schema;
@@ -135,3 +135,19 @@ const unsafeRuntimePolicy: XTensionDeploymentRuntimePolicy = { schema: 'xtend.ma
 // @ts-expect-error The v1 configuration retains its original closed shape.
 const unsafeLegacyDeployment: XTensionDeploymentConfig = { ...deploymentOptions, runtime: runtimePolicy };
 void [runtimeDeploymentApi,runtimeDeploymentSchema,publicBytes,unsafeRuntimePolicy,unsafeLegacyDeployment];
+
+import type {XTensionCoordinatedDeploymentConfig, DeploymentUpdateClient, DeploymentUpdateReport} from '@ccslabs/xtend/maraca/xtension-composition';
+const coordinatedOptions: XTensionCoordinatedDeploymentConfig = {...runtimeDeploymentOptions, schema:'xtend.maraca.xtension-deployment-config.v3', runtime:{schema:'xtend.maraca.xtension-deployment-runtime-policy.v2',pwa:'verified-static-cache',appServices:'separate-server',updates:'coordinated',acknowledgementTimeoutMs:1000},retainedDeployments:[runtimeDeployment],retainedByteBudget:5_000_000};
+const coordinated=buildMaracaXTensionDeployment(coordinatedOptions);
+const coordinatedApi: '3.0.0'=coordinated.apiVersion;
+const coordinatedSchema: 'xtend.maraca.xtension-deployment-manifest.v3'=coordinated.manifest.schema;
+const revisionId: string=coordinated.manifest.revision.id;
+const retainedBytes: number|undefined=coordinated.accounting?.retainedBytes;
+declare const deploymentClient: DeploymentUpdateClient;
+deploymentClient.setReadyForRetirement(true);
+const updateStatus: Promise<DeploymentUpdateReport>=deploymentClient.collectRetiredCaches();
+// @ts-expect-error Forced takeover is not an activation policy.
+const forcedUpdate: XTensionCoordinatedDeploymentConfig['runtime']={schema:'xtend.maraca.xtension-deployment-runtime-policy.v2',pwa:'verified-static-cache',appServices:'disabled',updates:'force',acknowledgementTimeoutMs:1000};
+// @ts-expect-error Retained snapshots require an explicit storage budget.
+const unbudgetedUpdate: XTensionCoordinatedDeploymentConfig={...runtimeDeploymentOptions,schema:'xtend.maraca.xtension-deployment-config.v3',runtime:coordinatedOptions.runtime,retainedDeployments:[]};
+void [coordinatedApi,coordinatedSchema,revisionId,retainedBytes,updateStatus,forcedUpdate,unbudgetedUpdate];

@@ -26,6 +26,7 @@ test('development checks validate Classic drift, observations, versions and scop
     ['development/rmtx-a04/delivery-inspect.cjs', '--check'],
     ['development/rmtx-a04/integrity-inspect.cjs', '--check'],
     ['development/rmtx-a04/runtime-inspect.cjs', '--check'],
+    ['development/rmtx-a04/updates-inspect.cjs', '--check'],
     ['scripts/sync_xtend_package_versions.js', '--check'],
     ['scripts/release/feature-scope.cjs', '--check-plan']
   ]);
@@ -48,7 +49,7 @@ test('GitHub development owners and nightly execute the same blocking preparatio
   const normal = fs.readFileSync(path.join(root, '.github/workflows/xtend-default-gates.yml'), 'utf8');
   const nightly = fs.readFileSync(path.join(root, '.github/workflows/xtend-nightly-build.yml'), 'utf8');
   const migration = fs.readFileSync(path.join(root, '.github/workflows/xtend-migration-completion.yml'), 'utf8');
-  for (const name of ['delivery', 'integrity', 'deployment-runtime']) {
+  for (const name of ['delivery', 'integrity', 'deployment-runtime', 'deployment-update']) {
     const artifact = `.xtend-test-results/xtend-xtensions-${name}-report.json`;
     for (const source of [normal, migration, nightly]) assert(source.includes(artifact), `${name} browser evidence is uploaded`);
     assert(catalog.ci['ci-nightly'].artifacts.some(row => row.path === artifact && row.producer === 'full_release' && row.expectedSchema === `xtend.xtensions.${name}-acceptance-report.v1`));
