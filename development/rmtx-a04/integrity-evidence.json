@@ -90,7 +90,7 @@
     "tests/xtensions/xtensions_runtime_gate_suite.js": "7256f64a084a21120124e864d7eb0e3c88678417b99f362d086605e3208d929c",
     "tests/xtensions/xtensions_consumer_package_suite.js": "26a41d339b0d083a5ad55258f8d4734ebfca0d365a750f2d2bbca510af5e94c3",
     "tests/types/xtensions_integrated_composition.mts": "6bb32e620f235a4ee044da7ba6ddd3731f8c5dfde7ba045a84cf6fec1bedde84",
-    "scripts/check_release_preparation.cjs": "b7448023e347cd4f2e3be866e08e477afe0592c059364dd7d70db85e7687c58b",
-    "tests/release/preparation-gates.test.cjs": "a608a36ce7f69ff2554272092d5b1aa04ab7dfc8f9ef351693ffcb9b4707a8fe"
+    "scripts/check_release_preparation.cjs": "6fd090ff30d0daecefa639b8eef30b1d5dac3bf4710b5254be9fd342f0f32a03",
+    "tests/release/preparation-gates.test.cjs": "0a074d58ec94023cfb883da23451e5789620a21507463316b9d96df3e6fbb699"
   }
 }

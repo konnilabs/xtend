@@ -553,3 +553,142 @@ Die Manifest-Proben prüfen nur den Daten-/Referenzvertrag mit einem synthetisch
 **Folgearbeit vom 14. November 2026:** Der [Zwei-Host-Fall mit Contract 1.0.0](two-host-case.md) konkretisiert R1/R6 aus der Rückprüfung. Ein kompilierbares Classic-Gegenstück, versionierte Props-/Intent-Daten, generierte Provider-Typen und echte React-/Vue-Prüfungen zeigen zwei getrennte Renderziele am selben vorhandenen A03-Surface-/Kernel-Owner. Der TSX-Kandidat bleibt ein Entwurf.
 
 Die Referenz verwendet den expliziten Host-Pfad. Die automatische A04-Owner-/Renderziel-Abbildung wird weiterhin vom Legacy-Vertrag abgewiesen und als nächster Implementierungsabschnitt behandelt. SSR/Adoption dieses konkreten Zwei-Host-Falls, allgemeine native TSX-Komponenten und eine vergleichende DX-/AX-Abnahme werden durch den neuen Nachweis nicht vorweggenommen.
+
+## 15. Prüfung der weiteren externen KI-Risikoanalyse
+
+**Stand: 14. November 2026; Codebasis: Commit `57d5dc8925a568cd7c8be43b0cc760a6a7bbc36b`.** Grundlage ist der in der Unterhaltung übermittelte Sechs-Punkte-Report. Er wird als unbestätigte externe Hypothesensammlung bewertet. Seine Empfehlungen begründen weder eine Syntaxentscheidung noch einen Implementierungsauftrag. Der Arbeitsbaum war zu Beginn der Prüfung sauber; der A06.1a-Fall war inzwischen committet.
+
+### 15.1 Ergebnisübersicht
+
+**Der Report benennt relevante Entwurfsfragen, überschätzt aber mehrere aktuelle Gefahren und vermischt Referenzsyntax, Binding-Runtime, Framework-Verhalten und Deployment.** Insbesondere fehlen weder die heutige Payload-Prüfung noch das Runtime-Keying. Die stärkste bestätigte Lücke betrifft die allgemeine, providerseitig autoritative Verbindung von Komponenteninterface, Aufrufstelle und Runtime-Props. Der Fall-Contract ist dafür ein erster Nachweis, noch kein fertiges plattformweites Modell.
+
+| Externer Punkt | Befund im Zwischenstand | Reales verbleibendes Risiko |
+| --- | --- | --- |
+| 1. Dependency-Tracking | Der Kandidat akzeptiert nur direkte Model-Pfade. Die Registry liest bei Model-Commits die deklarierten Props erneut und unterdrückt unveränderte Lieferungen. Ein beliebiges `.filter(...)` ist aktuell abgewiesen. | Ausdrucks-/Projektionsvertrag und effizientere Abhängigkeitsauswertung vor einer Erweiterung festlegen. „Filter sind nicht statisch analysierbar“ ist zu pauschal. |
+| 2. Intent-Payload | Event, Quelle, Lifetime, Schema-Marker, exakte Felder und Typen werden vor Action-Dispatch geprüft. Der Compiler vergleicht Action-Inputs mit der Bindung. | Kurzsyntax benötigt eine eindeutige Mapping-/Typquelle; Feldumbenennungen und fachliche Wertregeln sind nicht automatisch gelöst. Kein belegter offener Kanal für beliebige ungeprüfte Action-Payloads. |
+| 3. Provider↔Props/Intents | Generierte Typen und Provider-Typechecking existieren für den Fall. Eine unabhängige Provider-Interface-Map und allgemeine TSX-Aufrufstellenprüfung existieren noch nicht. | Bestätigte Integrationslücke. Ein vom Aufrufer erweiterter Contract kann bei Vue undeclared Attributes bis ins DOM weiterreichen. |
+| 4. Children/Slots/lokaler State | Native Children am XTension-Tag sind in der Fixture-Prüfung verboten. Framework-internes Rendering und lokaler State bleiben Framework-Verantwortung. | Cross-Ownership-Slots und Persistenz lokalen States brauchen eigene Verträge. Die Annahme „Frameworks liefern nur Templates“ trifft nicht zu. |
+| 5. Lane | Der Fall dokumentiert eine Lifecycle-Lane. Provider-Initialisierung/Rendering laufen im zugelassenen Kernel-/Fabric-Job; Fetch und Modulbereitstellung hängen vom Ladeprofil ab. | Keine allgemeine Wartezeitgarantie, kein automatischer Sichtbarkeitstrigger und kein geometrischer Layout-Vertrag. Das sind konkrete Policy-/UX-Fragen. |
+| 6. Randfälle | Fehler/Cleanup und optionale Timeouts sind vorhanden; A05 bindet Resume an exakte Quelle/Komposition. Wiederholte typisierte Adressen sind seit A02 vorhanden. | Sichtbare Fallback-/Retry-Policy, gewollte State-Migration zwischen Deployments und RMTX-Lowering von Wiederholungen bleiben eigenständige Aufgaben. |
+
+### 15.2 Props-Ausdrücke: Korrektheit und Optimierung unterscheiden
+
+Im [Kandidatenprüfer](two-host-reference.cjs) werden Props als explizite Objektliterale mit direkten `model`-Member-Pfaden geprüft. Aufrufe, dynamische Zugriffe, Spreads und Getter sind in diesem Probeumfang nicht zulässig. Das ist weiterhin eine Fixture-Konsistenzprüfung, kein allgemeiner RMTX-Compiler.
+
+Die [Binding-Registry](../../tools/xtensions/state-binding.js) besitzt heute keinen zur Laufzeit ermittelten JavaScript-Lesegraphen. Sie übernimmt den autoritativen committeten Model-Snapshot, berechnet die Props für ihre Einträge erneut und vergleicht die vollständigen Prop-Daten vor der Framework-Lieferung. [Pfadleser und Typprüfung](../../tools/xtensions/state-binding-contract.js) arbeiten dabei auf den ausdrücklich angegebenen State-Pfaden. Dadurch benötigt dieser Pfad **für seine aktuelle Korrektheit keine minimale Dependency-Menge pro Ausdruck**. Eine breite Subscription mit vollständiger Neuberechnung kann korrekt sein, kostet aber mit vielen Hosts oder großen JSON-Werten mehr Rechen-/Kopierarbeit.
+
+Der externe Report formuliert die Grenze von `.filter(...)` zu absolut. Für ein begrenztes, bekanntes Array-Filter-Muster mit reinem Callback könnte ein Compiler die gesamte Eingabekollektion und weitere gelesene Model-Pfade konservativ als Abhängigkeiten erfassen. Die genaue Menge einzelner gelesener Elemente muss er dafür nicht kennen. Für beliebige JavaScript-Helper, mutable Fremdobjekte, unbekannte Methoden oder dynamische Closures ist das hingegen kein automatischer Schluss.
+
+Die vorhandene [Selector-/Transform-Runtime](../../xtendrmt/rmt-state-selector-runtime.js) unterstützt bereits deklaratives Filtern und Mapping ohne Ausführung eines JSX-Callbacks. Das liefert wiederverwendbare Semantik, **noch keine direkte Selector-Quelle in der heutigen XTension-Props-Bindung**: Diese verlangt State-Pfade. Eine entsprechende Erweiterung müsste über einen überprüften und versionierten Binding-/Projektionsvertrag erfolgen.
+
+**Bewertung:** Für den aktuellen Pfad kein reproduzierter Missed-Update-Fehler aus fehlendem Runtime-Tracking. Real sind die Performancefrage und die zukünftige Ausdrucksgrenze. Eine sinnvolle erste Sprache kann direkte Pfade und ausdrücklich definierte deklarative Projektionen verwenden. Unbekannte Ausdrücke dürfen nicht still eine andere Tracking- oder Ausführungssemantik erhalten.
+
+### 15.3 Intent-Payload: Bereits geprüft, Mapping bleibt zu vervollständigen
+
+Die kurze TSX-Form `{ action: "product.selectImage" }` erhält ihre Bedeutung im Referenzfall aus dem [Contract](two-host.contract.json). Dort stehen der Eventname, die Ziel-Action und exakt `{ imageId: string }`. Die [Referenzabsenkung](two-host-reference.cjs) erzeugt daraus Binding-Daten mit `command`, `payloadSchema` und `fields`. Es gilt derzeit **benanntes Feld-zu-Feld-Mapping**, kein freies Weiterreichen eines positionalen React-/Vue-Callbackarguments. Der echte Provider verpackt das Framework-Event zuerst als deklarierten Intent.
+
+Der [Artefaktvalidator](../../tools/xtensions/state-binding-artifact.js) gleicht die gebundenen Feldnamen und Typen mit den Inputs einer existierenden Business-Action ab. Die [Registry](../../tools/xtensions/state-binding.js) prüft vor dem Dispatch die aktive Lifetime, die konkrete Quelle, Event und Marker, endliche JSON-Daten, die exakt deklarierten Felder und ihre Typen. Bei Wiederholungen stammen `keyFields` aus der vertrauenswürdigen Adresse und sind von Provider-Feldern getrennt. Die bereits vorhandenen acht A06-Laufzeitfälle mit negativen Intent-Fällen wurden an diesem Commit erneut erfolgreich ausgeführt.
+
+Die Empfehlung „Payload-Schema verlangen“ ist deshalb als Anforderung sinnvoll, als Beschreibung einer fehlenden aktuellen Boundary aber falsch. Ein separat benannter Schema-Identifier **pro Event** ist eine mögliche Herkunfts-/Versionierungsentscheidung. Die heutige Prüfung funktioniert mit generischem Marker **plus** dem konkreten geschlossenen Feldvertrag; der Marker allein validiert nichts. Eine zusätzliche ID ersetzt die Feld-/Runtime-Prüfung nicht.
+
+Zwei echte Fragen bleiben:
+
+- Für andere Provider kann etwa `selectedId` auf `imageId` abzubilden sein. Die aktuelle Referenz definiert keine allgemeine Feldtransformationssprache. Eine Kurzform muss solche Unterschiede entweder eindeutig ableiten oder ausdrücklich deklarieren; mehrdeutige Fälle müssen scheitern.
+- Typgültigkeit ist keine vollständige Fachvalidierung. Die Probe konnte `imageId: "not-in-images"` als gültigen String an die Referenz-Action liefern. Falls das Produkt verlangt, dass die Auswahl in der aktuellen Bilderliste enthalten ist, benötigt diese Action eine entsprechende Regel. Das ist eine bedingte fachliche Lücke, kein Beleg dafür, dass ungeprüfte Typen oder frei gewählte Commands akzeptiert würden.
+
+### 15.4 Provider-Typen und Vue-Fallthrough: Konkrete Erweiterungslücke
+
+`provider="react-product-gallery"` ist ein String-Literal. Daraus folgt **nicht**, dass TypeScript die passenden Props grundsätzlich nicht prüfen könnte: Eine deklarierte Union oder generierte Map kann die Provider-ID mit den zugehörigen Props-/Intent-Typen verbinden. Eine isolierte TSX-Probe akzeptierte die passende Kombination und meldete für den falschen Prop-Typ TS2322. Diese Probe ist keine bereits integrierte RMTX-Deklarationsmap. [TypeScript: Discriminated Unions](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions).
+
+Im Bestand erzeugt [renderTypes](two-host-reference.cjs) die [Props-/Intent-Interfaces](two-host.types.d.ts) aus demselben aufrufseitigen Fall-Contract. Der [Inspector](two-host-inspect.cjs) prüft die tatsächlichen Provider mit `checkJs` gegen diese Interfaces und vergleicht den eigenen Kandidaten mit dem Contract. Das erkennt einige Inkonsistenzen, begründet aber keine vom Aufrufer unabhängige, autoritative Provider-Schnittstelle. Der Runtime-Arraywert `props` des Vue-Providers wird dadurch auch nicht automatisch aus dem Contract erzeugt.
+
+**Reproduzierte Erweiterungsprobe:** Dem Vue-Eintrag des Contracts wurde zusätzlich `title` aus `product.id` als String-Prop gegeben. Die Absenkung akzeptierte die Bindung. Der [Vue-Provider](providers/vue-reviews.mjs) deklarierte weiterhin nur `productId`, `sort` und `xtension`. Im tatsächlichen A06-Runtime-Pfad erschien anschließend `title="p1"` am Root-Label. Der unveränderte Fall-Contract reicht kein solches Feld hinein; damit ist kein bestehender Fremddaten-Durchgriff am normalen Fall nachgewiesen.
+
+Die Ursache entspricht Vues dokumentierter Attributvererbung. Ein äußeres `inheritAttrs:false` reicht nicht aus, wenn dessen Wrapper die Attribute ausdrücklich an eine innere Komponente weitergibt und diese undeclared Props ihrerseits erbt. Eine TypeScript-Map allein schaltet dieses Runtime-Verhalten nicht aus. [Vue: Fallthrough Attributes](https://vuejs.org/guide/components/attrs.html).
+
+**Priorität hoch vor dem allgemeinen Frontend:** Ein versionierter Interface-Vertrag muss aus dem Provider-Paket beziehungsweise einer unabhängig gepflegten Provider-Schnittstelle stammen. Die Aufrufstelle wählt diesen Vertrag und bindet ihn, statt ihn beliebig zu erweitern. Daraus können Aufrufstellen-Typen, Runtime-Validatoren und eine ausdrückliche Attr-/Slot-Policy erzeugt oder geprüft werden. Provider-Code, Interface-Version und Interface-/Code-Digests müssen zusammenpassen. Deklarationen dürfen dabei keine zusätzlichen Host-Grants erteilen.
+
+Eine separate deklarative Interface-Datei passt eher zum vorhandenen Funktionsmodul-/Graph-Profil als das beliebige Ausführen einer Provider-Factory im Compiler, um deren Metadaten zu ermitteln. Die genaue Ablage und das Versionsformat sind noch zu entwerfen. Bewusst erlaubtes Attribute-Fallthrough kann Teil eines Provider-Vertrags sein; unbegrenztes automatisches Durchreichen ist keine notwendige Folge guter Vue-DX. Eine solche Schnittstelle bleibt eine Architekturgrenze für vertrauenswürdigen Code, keine Same-Realm-Sicherheits-Sandbox.
+
+### 15.5 Children, Slots und lokaler Zustand
+
+Hier vermischt der externe Text zwei Ebenen:
+
+- **Native RMTX-Children eines Provider-Hosts:** Der Kandidatenprüfer weist `<RMT.XTension>…</RMT.XTension>` bereits ab. Auch der bestehende Binding-Vertrag verlangt einen leeren RMT-Renderhost. RMT darf dessen Framework-Unterbaum nicht parallel beschreiben oder verändern.
+- **Framework-interne Children/Slots:** Komponenten innerhalb des Providers dürfen ihre eigenen React-Children oder Vue-Slots verwenden, solange sie ihre Ownership-Grenze einhalten. Ein Slot aus fremder RMT-/Framework-Ownership ist damit noch nicht unterstützt. Eine verschachtelte `RMT.Surface` schafft allein keinen solchen Übergabevertrag.
+
+React und Vue laufen hier als tatsächliche Frameworks, nicht als reine Template-Lieferanten. Die vorhandenen [A03-Tests](../../tests/xtensions/kernel-runtime-acceptance.js) verwenden `useState` beziehungsweise `ref` und prüfen ausdrücklich lokale Updates während kooperativer Host-Suspension, ohne einen zusätzlichen Kernel-Job zu behaupten. Lokaler Framework-State und private Watch-/Effect-Schritte bleiben außerhalb der granulären Kernel-Steuerung. React beschreibt `useState` entsprechend als Komponenten-State mit eigenem Re-Rendering. [React-Referenz](https://react.dev/reference/react/useState).
+
+**Richtige Invariante:** Ein als kontrolliert deklariertes Feld hat genau eine schreibende Model-Autorität; der Provider erhält dessen Wert und sendet Intents. Anderer lokaler State darf existieren, wird aber ohne Vertrag weder deep-linkbar noch durch den RMT-Model-Restore persistiert. Für das bereits begrenzte A05-Profil gelten zusätzlich die dokumentierten SSR-Grenzen.
+
+Eine globale Beschränkung von `useState`, `ref` oder Watchern auf Hover/Fokus/Animation ist derzeit weder implementiert noch notwendig aus dieser Architektur ableitbar. Das wäre eine zusätzliche Plattformpolitik mit Folgen für die Übernahme üblicher Drittkomponenten. Sinnvoll ist dagegen, die Zuordnung kontrollierter, lokaler und gegebenenfalls ausdrücklich zu persistierender Felder offenzulegen. Native RMTX-Ausdrücke und Framework-Provider bleiben dabei getrennte Ausführungsprofile.
+
+### 15.6 Lane: Priorität ist kein Lade- oder Hydrationstrigger
+
+Die [A06-Komposition](two-host-runtime.mjs) setzt die vom vertrauenswürdigen Host bestätigte Lane als `kernelWork.lifecycle.lane`. Der [Host-Controller](../../tools/xtensions/runtime-host-controller.js) und [Work-Scope](../../tools/xtensions/kernel-work-scope.js) verwenden sie für Mount, Update, Suspend und Resume. Die Provider-/Peer-Initialisierung befindet sich innerhalb des zugelassenen Mount-Jobs und seiner Fabric-Boundary. A05 verwendet für die Adoption ebenfalls den Mount-Lifecycle-Pfad mit separater Adoptionsautorität und DOM-Prüfung.
+
+Das bedeutet nicht, dass jedes Laden erst in dieser Lane beginnt:
+
+- In der A06-Referenz sind die Provider-Module statisch importiert; ihre Bytes und Funktionsbindungen sind vor dem Mount verfügbar. Erst die Factory wird im zugelassenen Pfad aufgerufen.
+- Im ausdrücklich verzögerten [A04-Kompositionsprofil](../../xtend-maraca/xtension-composition-runtime.mjs) beginnt der Provider-Import innerhalb des zugelassenen Mount-Pfads. Das ist eine zusätzliche Ladepolicy, keine Eigenschaft des Worts `idle`.
+- Im [Scheduler](../../xtendrmt/rmt-kernel-scheduler.js) sind Lane und Host-Dispatch-Strategie getrennt. Eine Idle-Callback-Barriere benötigt `strategy: "idle"`; die XTension-Lifecycle-Policy setzt das nicht automatisch. Die Probe führte `visible` vor `idle` aus und rief keinen bereitgestellten Idle-Callback-Port auf. `visible` registriert ebenso keinen Viewport-Observer.
+
+Die A06-Dokumentation benennt bereits Lifecycle-Lanes. Die kürzere Syntax allein kann trotzdem falsche Erwartungen erzeugen. Für das allgemeine Sprach-/Komponentenprofil sind Priorität, Fetch-Policy, Aktivierung und SSR-Adoption ausdrücklich auseinanderzuhalten. Bei SSR liegt Markup tatsächlich schon vor, aber daraus folgt keine bereits implementierte unabhängige „Interaktivität erst in Lane X“-Policy. Der aktuelle A05-Handoff wartet auf die vorgeschriebene Adoption, bevor die gehaltenen Intents wiedergegeben werden.
+
+**Echte offene Punkte:** Der Scheduler hat Priorisierung und Aging, aber die A06-Referenz setzt keine positive Lifecycle-Timeout-Grenze und verspricht keine maximale Wartezeit. Ein positiver `timeoutMs` wird bereits unterstützt und kann auch einen queued Job abbrechen; ein Probejob wurde vor seinem Callback als `aborted` beendet. Das liefert noch keine UX-Fallback-/Retry-Regel. Synchron nicht kooperierendes JavaScript wird dadurch nicht hart unterbrochen.
+
+Für leere/lazy Hosts und Ersatzdarstellungen fehlt außerdem ein einheitlicher geometrischer Reservierungs-/Placeholder-Vertrag. Die vorhandenen Byte-Größenbudgets sind keine Layout-Shift-Budgets. Eine solche Reservierung kann in nativer Layout-/CSS-Struktur oder im Komponentenprofil liegen; sie muss nicht zwingend ein Kernel-Attribut werden. In dieser Prüfung wurde kein CLS-Wert gemessen und kein tatsächlicher Layout-Shift des bestehenden Falls behauptet.
+
+### 15.7 Randfälle einzeln bewerten
+
+**Fehler, Timeout und Fallback:** Strukturierte Host-Fehler, Diagnosekanäle, Cancellation, terminales Cleanup und optionale Scheduler-Timeouts existieren. Eine plattformweit deklarierte sichtbare Ersatzdarstellung, Retry- oder maximale Wartepolicy pro RMTX-Host ist damit noch nicht implementiert. Das ist eine reale Produkt-/UX-Lücke. Der bereits vorhandene A05-Fallback `mount` ist enger: Er erlaubt bei gültiger Snapshot-/Shell-Autorität den ausgewiesenen frischen Mount eines abweichenden Framework-Unterbaums. Er ist keine generische Fehlerbehandlung und kein Umgehen ungültiger Signaturen, Provider oder Quellen. Siehe [SSR-Session](../../xtend-maraca/xtension-ssr-runtime.mjs) und [Framework-SSR-Adapter](../../tools/xtensions/framework-ssr.js).
+
+**Props-Version und Resume über Deployments:** Der A05-Payload wird vor der Adoption unter anderem an Source-Hash, vollständigen Composition-Digest, Provider-/Peer-Identität, Model-State und daraus berechnete Props gebunden. Der Digest umfasst auch die Bindungsdaten. Geänderte Code-/Interface-/Binding-Bytes werden nicht automatisch als kompatible vorherige Auslieferung fortgesetzt. Die Gefahr „alte Props werden wegen einer fehlenden separaten Props-Version ungeprüft an neuen Code gegeben“ ist für diesen Pfad deshalb nicht belegt.
+
+Ein providerseitiger Interface-Vertrag braucht trotzdem eine bewusste Version und Herkunft. Soll **kompatibler State-Transfer zwischen unterschiedlichen Deployments** unterstützt werden, benötigt das eine ausdrückliche Kompatibilitäts-/Migrationsentscheidung; das heutige exakte A05-Resume ist keine solche Migration. Die Zwei-Host-Referenz hat ihren eigenen SSR-Handoff weiterhin nicht nachgewiesen. Diese Prüfung führte weder einen neuen SSR-Lauf noch Deployment-Migrationstests aus.
+
+**Keying in Schleifen:** [A02s Wiederholungsreferenz](../rmtx-a02/repeated-filters.rmt), [Materialisierung](../../tools/xtensions/state-binding-artifact.js) und [Adressencoder](../../tools/xtensions/state-binding-contract.js) unterscheiden bereits Dokument, Deklaration und verschachtelte typisierte Keys. Der konkrete Renderhost wird daraus materialisiert; die Registry-Inkarnation bezeichnet zusätzlich eine neue Lifetime. Die Probe bestätigte drei Hosts, unterschiedliche Adressen für numerisches `1` und textuelles `"1"` sowie unveränderte Adressen beim Reordering.
+
+`declarationId` kann damit der stabile Schlüssel **einer Deklaration** bleiben. Er muss nicht pro Loop-Element textuell verändert werden. Noch offen ist, wie ein tatsächliches RMTX-Frontend seinen Item-Scope und `keyBy` auf diese vorhandenen Daten absenkt und fehlende/duplizierte Keys an der Originalquelle meldet. Die neue Syntax darf die typisierte Adresse nicht aus bereits normalisierten React-Keys oder Arrayindizes rekonstruieren.
+
+### 15.8 Konsequenz für die weitere Arbeit
+
+Der externe Report ist kein Grund, den nativen TSX-Kandidaten zu verwerfen oder jetzt Runtime-Tracking beziehungsweise eine neue Framework-Template-Runtime einzuführen. Vor einer Syntax-ADR sind besonders folgende Arbeiten sinnvoll:
+
+1. **Provider-eigenen Interface-Vertrag konkretisieren:** Props, Intent-Payloads, gegebenenfalls Feldmapping, Attr-/Slot-Policy und Version/Herkunft getrennt von der Aufrufstelle definieren. Daraus Runtime-Prüfung und TypeScript-Deklarationsmap konsistent ableiten. Die Vue-Erweiterungsprobe als Negativfall übernehmen.
+2. **Automatische Owner-/Renderziel-Abbildung fortführen:** Der in A06.1a isolierte gemeinsame Owner ist weiterhin eine reale offene Integration durch A04 und A05. Die neue KI-Liste ersetzt diesen bereits belegten Befund nicht.
+3. **Expression-Subset festlegen:** Zunächst direkte Pfade, anschließend bewusst entworfene deklarative Projektionen. Eine konservative korrekte Neuberechnung ist von einer späteren Dependency-Optimierung zu trennen; unbekannte JavaScript-Semantik darf keinen stillen Fallback erhalten.
+4. **Lifecycle-/Lade-/UX-Policy ergänzen:** Lane-Zweck, Deadline/Abbruch, sichtbarer Fallback, Retry und Layoutreservierung definieren. Bestehende SSR-Autoritätsgrenzen beibehalten; Migration separat entscheiden.
+5. **Wiederholungen im Frontend auf den Bestand abbilden:** Key-Vertrag und Diagnosen spezifizieren; vorhandene Runtime-Identität und Cancellation weiterverwenden.
+
+Für Menschen und Agenten sind hier besonders die Verwechslungen von Lane/Trigger, Typprüfung/Fachregel und Provider-/Aufrufstellenautorität relevant. Ob eine konkrete Syntax diese Fehler tatsächlich reduziert, bleibt eine DX-/AX-Hypothese. In dieser Prüfung wurde kein Agentenbenchmark durchgeführt.
+
+### 15.9 Prüfmaterial und Grenzen
+
+Am angegebenen Commit liefen die **acht bestehenden A06-Laufzeitfälle erneut erfolgreich** mit echten React-/Vue-Roots in jsdom. Zusätzlich wurden **neun gezielte Proben** unter Node **24.18.0**, TypeScript **5.9.3**, React **18.3.1** und Vue **3.5.43** durchgeführt:
+
+1. `.filter(...)` in nativen Kandidat-Props wird abgewiesen.
+2. Ein vorhandener deklarativer RMT-Selector filtert ein Model-Array ohne JSX-Callback.
+3. Eine isolierte TSX-Deklaration verbindet Provider-String-Literale mit Props und erkennt den falschen Typ.
+4. Die Referenz-Action nimmt einen typgültigen, nicht in `images` vorkommenden String an.
+5. Ein im aufrufseitigen Contract zusätzlich erlaubtes, vom Vue-Provider nicht deklariertes `title` erscheint im Root-DOM.
+6. Native JSX-Children am XTension-Tag werden abgewiesen.
+7. Lane `idle` verwendet ohne entsprechende Strategie keinen Idle-Callback und folgt der Priorisierung.
+8. Ein positiver Timeout bricht einen wartenden Job vor Callback-Ausführung ab.
+9. Vorhandene wiederholte Bindungen behalten typisierte Keys und ihre Adressen beim Reordering.
+
+Die Prüfpakete wurden aus dem lokalen npm-Cache ausschließlich unter `/tmp/rmtx-risk-review` bereitgestellt; Manifest und Lockfile des Repositories blieben unverändert. Temporäre Eingaben/Ergebnisse: `probes.cjs`, `results.json` und `baseline.json` in diesem Verzeichnis. Die typisierte Map ist ein isoliertes Sprachbeispiel, kein neues SDK. Die Vue-Probe verändert nur einen kopierten Contract in einer frischen Test-Lifetime. Es wurden keine Provider-/Runtime-Änderungen, neue Schemas oder Syntaxentscheidungen vorgenommen; ebenso keine erneute Chromium-, SSR-, Deployment- oder AX-Abnahme. Die beschriebenen Beobachtungen und Gegenbeispiele stehen vollständig im Bericht, damit die Bewertung nicht von den temporären Dateien allein abhängt.
+
+## 16. Umsetzung der Komponentenschnittstelle – A06.1b
+
+Stand: **14. November 2026**. Auf die Bewertung in Abschnitt 15 folgt eine Implementierung des providerseitigen Vertrags. Die dort beschriebenen Proben bleiben Beobachtungen des vorherigen Stands; insbesondere ist die damals erfolgreiche Vue-`title`-Erweiterung jetzt ein abgewiesener Negativfall. Einzelheiten stehen in der [Schnittstellendokumentation](component-interface.md).
+
+- **Unabhängige Herkunft:** Deklarative Provider-Dateien definieren Props, Intent-Payloads, Framework/Peers, Komponenten- und Interface-Version, Code-Einstieg und Ownership. Der vertrauenswürdige Katalog pinnt die Interface-Bytes, das Interface die Code-Bytes. Die Aufrufstelle darf ausschließlich passende Referenzen, Model-Pfade und Action-Zuordnungen liefern. Die neue Schema-ID ist `xtend.xtensions.component-interface.v1`, Helfer-API und Provider-Interfaces beginnen bei **1.0.0**. Case/Referenz-API und die geänderten Komponenten steigen auf **2.0.0**; [Case v1](two-host.contract.v1.json) und seine Nachweise bleiben historisch erhalten.
+- **Ein Vertrag für Compile- und Runtime:** Daraus werden bestehende State-Bindings und die Provider-ID-Typmap erzeugt. Die echten Provider, der tatsächliche TSX-Kandidat und negative Aufrufstellen werden typgeprüft. Bei jeder Props-Lieferung gilt der geschlossene Provider-Vertrag. Vue leitet seine deklarierte Props-Liste daraus ab und deaktiviert Attributvererbung.
+- **Ausdrückliches Intent-Mapping:** Der Vue-Provider emittiert `{ order: string }`; die Aufrufstelle ordnet das auf den Action-Parameter `sort` ab. Die ursprüngliche Payload wird vor dem Mapping geprüft, die normalisierte Payload anschließend vom bestehenden Binding-/Action-Pfad. Vollständige eindeutige Feldzuordnung ist erforderlich; ausführbare Transformationen sind nicht Teil dieses Profils.
+- **Erfasste Bytes statt Metadatenausführung:** Der Build-Helfer prüft JSON und den vorhandenen Provider-Graph, ohne eine Factory aufzurufen. Node- und Browser-Referenz laden ausschließlich erfasste Providerbytes. Das erste Profil unterstützt eigenständige synchrone Funktionsmodule; die automatische A04-Auslieferung ist damit noch nicht erweitert.
+- **Ownership bleibt explizit:** Kontrollierte Props haben Model-Autorität, Children/Slots bleiben provider-eigen. Lokaler Framework-State bleibt möglich. Kernel, Fabric, gemeinsamer Surface-Owner und unabhängige Host-Lifetimes bleiben der vorhandene Ausführungsweg.
+
+Die [25 Schnittstellentests](../../tests/xtensions/component-interface.test.cjs) bestehen unter Node **24.18.0** und **26.5.0**; zusätzlich bestehen die **26 Referenzprüfungen** unter beiden Versionen. **13 echte React-/Vue-Laufzeitfälle je Umgebung** bestehen in jsdom unter beiden Node-Versionen sowie in Chromium. Sie umfassen die manipulierte Aufrufstelle, die geschlossene Runtime-Prop-Lieferung, direktes Vue-Fallthrough, validiertes Feldmapping und eine falsche Interface-Referenz. Die deterministischen A06-Prüfungen sind nun Teil des Vorbereitungsgates. [Contract-Nachweis](two-host-evidence.json) und [Laufzeitnachweis](two-host-runtime-evidence.json) halten Quellenbindung und beobachtete Ergebnisse fest.
+
+Dies schließt den providerseitigen Vertrags- und Vue-Fallthrough-Befund im expliziten Referenzprofil. Automatische Owner-/Renderziel-Abbildung durch A04, der A05-Handoff dieses Profils, allgemeine RMTX-Symbolauflösung, Ausdrucksprojektionen sowie Lade-/Deadline-/Fallback-/Layoutpolicy bleiben eigene Folgeabschnitte. Es wurde keine endgültige RMTX-Syntax, keine Deployment-Migration und keine vollständige 0.9-Feature-Abnahme beschlossen.

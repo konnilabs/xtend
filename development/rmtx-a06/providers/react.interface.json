@@ -1,0 +1,42 @@
+{
+  "schema": "xtend.xtensions.component-interface.v1",
+  "providerId": "react-product-gallery",
+  "version": "1.0.0",
+  "componentVersion": "2.0.0",
+  "framework": "react",
+  "entry": {
+    "module": "./development/rmtx-a06/providers/react-gallery.mjs",
+    "exportName": "createComponent",
+    "sha256": "9846140e741d787f0feef302fb3ca3ef75e7519dd54a7fc1f0fd9448cb07df37"
+  },
+  "peers": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "props": {
+    "images": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "selectedImageId": {
+      "type": "string"
+    }
+  },
+  "intents": {
+    "selectImage": {
+      "payloadSchema": "xtend.schemas.xtension.intent.v1",
+      "fields": {
+        "imageId": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "ownership": {
+    "attributes": "declared-props-only",
+    "children": "provider-owned",
+    "slots": "provider-owned"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "format": 1,
+  "version": "1.0.0",
+  "interfaces": [
+    {
+      "file": "./development/rmtx-a06/providers/react.interface.json",
+      "sha256": "45394fbe58a8f81445891526967d691786ef1ecf2fd6eb08e520e69322c76539"
+    },
+    {
+      "file": "./development/rmtx-a06/providers/vue.interface.json",
+      "sha256": "30de14608052cdd250f1f56b06fa0b5c7df8dda73803d5d5daa96355e5a6f1e4"
+    }
+  ]
+}

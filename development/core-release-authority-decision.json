@@ -4,8 +4,8 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "89c7fc8af1a7d6ec22dc53af2b50dcbfe45d6abdb9e487b19b1f4ac65307d1e6",
-  "sourceMembershipSha256": "0dbb3e868077982a6325e1f8da9dae3db9495d587dc0758a139d31f9076d883c",
+  "inventorySha256": "3b9d2f237157cc1ac16cf0b6ed947aa6bdbb1ad101657e913b0e56a7491a2929",
+  "sourceMembershipSha256": "9a27df96d099504165cd5fc791dccea9a1fbad0bd8c79a2a47875edcd803246b",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
@@ -672,7 +672,7 @@
   "a02StateBindingReview": {
     "status": "user-requested-scoped-development-gates",
     "date": "2026-11-08",
-    "request": "A02 starten: Instanz-/State-Vertrag und ausführbare Referenzintegration.",
+    "request": "A02 starten: Instanz-/State-Vertrag und ausf\u00fchrbare Referenzintegration.",
     "scope": "Five new Core source members; first unreleased XTension state-binding declaration; unchanged payloads of all existing schemas and refreshed source-byte bindings. Compiler/Maraca artifact lowering, kernel delivery and URL/SSR semantics remain pending.",
     "previousInventorySha256": "b479bb134bbf15372315ae18679b360983affc11200fb78324707787b91ab0e9",
     "reviewDocument": "development/rmtx-a02/README.md",
@@ -683,7 +683,7 @@
   "a022CompilerBindingReview": {
     "status": "user-requested-scoped-development-gates",
     "date": "2026-11-08",
-    "request": "A02.2 starten und geänderte Schema-/API-Verträge gegenüber Legacy versionieren.",
+    "request": "A02.2 starten und ge\u00e4nderte Schema-/API-Vertr\u00e4ge gegen\u00fcber Legacy versionieren.",
     "scope": "Compiled Source/AST binding sidecar, static Maraca Action/Model/View/React path, explicit schema/API version transitions, preserved released Legacy v3 declaration and regenerated documentation assets. Only scoped non-authoritative observations change for existing contracts.",
     "versionTransitions": {
       "xtend.maraca.build-plan.v1": "xtend.maraca.build-plan.v2",
@@ -774,7 +774,7 @@
   "a023ConditionalHostReview": {
     "status": "user-requested-scoped-development-gates",
     "date": "2026-11-09",
-    "request": "A02 an der nächsten offenen Stelle fortsetzen; geänderte Schema-/API-Verträge gegenüber Legacy versionieren.",
+    "request": "A02 an der n\u00e4chsten offenen Stelle fortsetzen; ge\u00e4nderte Schema-/API-Vertr\u00e4ge gegen\u00fcber Legacy versionieren.",
     "scope": "Model-owned boolean presence for static keyed host templates, conditional lifetimes, stale intent revocation, unmount before DOM removal, deferred mounts for superseded Views and current command/props cleanup barriers. Repeated hosts, URL/history and adoption/restore remain open.",
     "sourceBindingRefresh": [
       "xtend.rmt.vnext.ast.v1"
@@ -884,7 +884,7 @@
   "a024RepeatedHostReview": {
     "status": "user-requested-scoped-development-gates",
     "date": "2026-11-09",
-    "request": "Wiederholte Hosts mit stabilen Elementschlüsseln starten; geänderte Schema-/API-Verträge gemäß bestehender Anweisung gegenüber Legacy versionieren.",
+    "request": "Wiederholte Hosts mit stabilen Elementschl\u00fcsseln starten; ge\u00e4nderte Schema-/API-Vertr\u00e4ge gem\u00e4\u00df bestehender Anweisung gegen\u00fcber Legacy versionieren.",
     "scope": "Nested Model-array scopes with typed stable item keys, shared compiler/runtime materialization, v2 keyed prop paths and trusted intent key fields, concrete host identities, retained lifetimes across reorder and safe removal. Static and conditional Legacy contracts remain closed. Native template event/resource instancing, full Surface/kernel registration and URL/history/adoption remain open.",
     "sourceBindingRefresh": [
       "xtend.rmt.vnext.ast.v1"
@@ -1937,7 +1937,7 @@
   "a06SyntaxAssessment": {
     "date": "2026-11-13",
     "report": "development/rmtx-a06/syntax-and-jsx-sideloading-assessment.md",
-    "reportSha256": "1082ed6f7a32c04605df66e965c2e5250233c0512784e9818c1a78d6a9859d88",
+    "reportSha256": "b7402657841b321f79555115744a1124a02a1d450f35ce640e4dd372000d5278",
     "sourceBaseSha": "e73d30c681973f29ff7f736dceb4a3141aab5183",
     "kind": "non-binding-report",
     "syntaxDecisionStatus": "open",
@@ -1964,16 +1964,34 @@
       "nativeRMTXFrontendImplemented": false,
       "hostABIChanged": false,
       "agentBenchmarkPerformed": false
+    },
+    "unconfirmedAIRiskReview": {
+      "date": "2026-11-14",
+      "section": "15",
+      "sourceBaseSha": "57d5dc8925a568cd7c8be43b0cc760a6a7bbc36b",
+      "inputStatus": "unconfirmed-external-user-supplied-ai-artifact",
+      "status": "evaluated-not-adopted-as-adr",
+      "targetedProbes": 9,
+      "existingRuntimeCasesRerun": 8,
+      "nodeVersion": "24.18.0",
+      "typescript": "5.9.3",
+      "react": "18.3.1",
+      "vue": "3.5.43",
+      "runtimeChangesImplemented": false,
+      "newSchemaIds": [],
+      "chromiumRerun": false,
+      "ssrRerun": false,
+      "agentBenchmarkPerformed": false
     }
   },
   "a06TwoHostReference": {
     "date": "2026-11-14",
-    "status": "experimental-explicit-host-reference",
+    "status": "historical-experimental-explicit-host-reference",
     "contractVersion": "1.0.0",
-    "contract": "development/rmtx-a06/two-host.contract.json",
+    "contract": "development/rmtx-a06/two-host.contract.v1.json",
     "contractSha256": "591b6b17d4083317fbae1c5e15a1ba797652a2206a89a1e83d710d8f42ffa765",
-    "contractEvidence": "development/rmtx-a06/two-host-evidence.json",
-    "runtimeEvidence": "development/rmtx-a06/two-host-runtime-evidence.json",
+    "contractEvidence": "development/rmtx-a06/two-host-evidence.v1.json",
+    "runtimeEvidence": "development/rmtx-a06/two-host-runtime-evidence.v1.json",
     "contractChecks": 26,
     "runtimeCasesPerEnvironment": 8,
     "legacyApiVersionsChanged": false,
@@ -2016,6 +2034,86 @@
       "newSchemaIds": [],
       "authoritativeDefinitionsChanged": false,
       "releasedFingerprintSetsChanged": false
+    },
+    "sourceBaseSha": "57d5dc8925a568cd7c8be43b0cc760a6a7bbc36b"
+  },
+  "a06ComponentInterfaceReview": {
+    "date": "2026-11-14",
+    "status": "implemented-explicit-host-reference",
+    "sourceBaseSha": "57d5dc8925a568cd7c8be43b0cc760a6a7bbc36b",
+    "documentation": "development/rmtx-a06/component-interface.md",
+    "schemaId": "xtend.xtensions.component-interface.v1",
+    "schemaVersion": 1,
+    "helperApiVersion": "1.0.0",
+    "providerInterfaceVersion": "1.0.0",
+    "componentVersion": "2.0.0",
+    "referenceApiVersion": "2.0.0",
+    "contractVersion": "2.0.0",
+    "contract": "development/rmtx-a06/two-host.contract.json",
+    "contractSha256": "14d47e62da4878434308346c74a5ce268cb29856bdcc20a30e0749664492187a",
+    "contractEvidence": "development/rmtx-a06/two-host-evidence.json",
+    "runtimeEvidence": "development/rmtx-a06/two-host-runtime-evidence.json",
+    "componentTestsPerNodeLane": 25,
+    "contractChecksPerNodeLane": 26,
+    "runtimeCasesPerEnvironment": 13,
+    "nodeVersions": [
+      "24.18.0",
+      "26.5.0"
+    ],
+    "chromiumVersion": "155.0.8059.79",
+    "typescript": "5.9.3",
+    "react": "18.3.1",
+    "vue": "3.5.43",
+    "esbuild": "0.28.2",
+    "providerOwnedClosedContract": true,
+    "capturedCodeBytesOnly": true,
+    "rawPayloadValidatedBeforeMapping": true,
+    "vueFallthroughBlocked": true,
+    "newPublicPackageExports": false,
+    "legacyApiVersionsChanged": false,
+    "automaticCompositionSupported": false,
+    "syntaxDecisionStatus": "open",
+    "ssrAcceptancePerformed": false,
+    "acceptedForRelease": false,
+    "inventoryObservationReview": {
+      "previousInventorySha256": "89c7fc8af1a7d6ec22dc53af2b50dcbfe45d6abdb9e487b19b1f4ac65307d1e6",
+      "inventorySha256": "3b9d2f237157cc1ac16cf0b6ed947aa6bdbb1ad101657e913b0e56a7491a2929",
+      "changes": [
+        {
+          "schemaId": "xtend.schemas.xtension.intent.v1",
+          "newUsagePaths": [
+            "development/rmtx-a06/providers/react.interface.json",
+            "development/rmtx-a06/providers/vue.interface.json",
+            "development/rmtx-a06/two-host.contract.v1.json"
+          ],
+          "removedUsagePaths": [
+            "development/rmtx-a06/two-host.contract.json"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "authoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.xtensions.host-capability-requirements.v1",
+          "newUsagePaths": [],
+          "removedUsagePaths": [],
+          "newNonAuthoritativeFingerprints": [
+            {
+              "hash": "sha256:9b1b4916c7fc4bf39e3cc1c817c828824a529158756655a23761c5b9050ed962",
+              "completeness": "partial"
+            }
+          ],
+          "authoritativeFingerprintsUnchanged": true
+        }
+      ],
+      "newSchemaIds": [
+        "xtend.xtensions.component-interface.v1"
+      ],
+      "newAuthorityFingerprints": [
+        "sha256:4c8cbd36a17a3f7631817dae182f54cceba40fab94d1f5221680ad8f326ece86"
+      ],
+      "existingAuthoritativeDefinitionsChanged": false,
+      "existingReleasedFingerprintSetsChanged": false,
+      "historicalInventoryChanged": false
     }
   }
 }

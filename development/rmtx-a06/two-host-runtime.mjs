@@ -17,10 +17,10 @@ import bindingRuntime from '../../tools/xtensions/state-binding.js';
 import reactAdapter from '../../tools/xtensions/react-runtime-adapter.js';
 import vueAdapter from '../../tools/xtensions/vue-runtime-adapter.js';
 import fabricApi from '../../fabric/xtend-fabric.js';
-import { createComponent as createGallery } from './providers/react-gallery.mjs';
-import { createComponent as createReviews } from './providers/vue-reviews.mjs';
+import componentInterfaces from '../../tools/xtensions/component-interface.js';
 
-export function createTwoHostCase({ lowered, document, React, ReactDOM, Vue, waitForProvider } = {}) {
+export function createTwoHostCase({ lowered, providerCatalog, factories, document, React, ReactDOM, Vue, waitForProvider } = {}) {
+  if (lowered?.apiVersion !== '2.0.0' || providerCatalog?.apiVersion !== '1.0.0' || !factories) throw new TypeError('A06 reference API 2 requires an independently captured provider catalog and factories.');
   const previousState = xtendState.snapshot().data;
   const root = document.createElement('main'); root.id = 'xtend-maraca-root'; document.body.append(root);
   const scheduler = createRmtKernelScheduler({ preferPostTask: false });
@@ -31,8 +31,8 @@ export function createTwoHostCase({ lowered, document, React, ReactDOM, Vue, wai
   let graph;
   // Independent, trusted application grants; JSX requests do not create them.
   const implementations = {
-    'react-product-gallery': { framework: 'react', lane: 'visible', create: createGallery, peers: { React, ReactDOM } },
-    'vue-product-reviews': { framework: 'vue', lane: 'idle', create: createReviews, peers: { Vue } }
+    'react-product-gallery': { framework: 'react', lane: 'visible', peers: { React, ReactDOM } },
+    'vue-product-reviews': { framework: 'vue', lane: 'idle', peers: { Vue } }
   };
   const runtime = createMaracaPlanRuntime({ plan: lowered.plan, root, scheduler, fabric, surfaceController: controller,
     hydrateOnBoot: false, ensureComponentsOnBoot: false, stateProjectionTarget: xtendState,
@@ -43,26 +43,40 @@ export function createTwoHostCase({ lowered, document, React, ReactDOM, Vue, wai
     createXTensionHost(context) {
       const definition = lowered.hosts.find(host => host.declarationId === context.identity.address.declarationId);
       if (!definition || context.surface !== definition.targetSurface) throw new TypeError('A06 host binding does not match its declared target.');
+      const captured = providerCatalog.resolve({ providerId: definition.providerId, interfaceVersion: definition.interfaceVersion,
+        interfaceSha256: definition.interfaceSha256, componentVersion: definition.componentVersion });
+      const iface = captured.definition;
+      const resolved = componentInterfaces.resolveComponentBinding(iface, { address: context.identity.address, props: definition.props, intents: definition.intents });
+      if (componentInterfaces.canonical(resolved.binding) !== componentInterfaces.canonical(context.binding)) throw new TypeError('Runtime binding differs from the independently captured provider contract.');
       const implementation = implementations[definition.providerId];
-      if (!implementation || implementation.framework !== definition.framework || implementation.lane !== definition.lane) throw new TypeError('A06 source requests do not match application grants.');
-      const react = definition.framework === 'react', entry = { context, definition };
+      if (!implementation || implementation.framework !== iface.framework || implementation.lane !== definition.lane || typeof factories[definition.providerId] !== 'function') throw new TypeError('A06 source requests do not match application grants.');
+      const react = iface.framework === 'react', entry = { context, definition, componentInterface: iface };
       const factory = react ? reactAdapter.createReactKernelRuntimeAdapter : vueAdapter.createVueKernelRuntimeAdapter;
       entry.host = factory({ container: context.container, hostId: context.hostId, surfaceId: context.surfaceId, xtensionId: context.xtensionId,
         component: react ? props => { entry.facade = props.xtension; return React.createElement(entry.component, props); }
           : { inheritAttrs: false, setup(_props, { attrs }) { return () => { entry.facade = attrs.xtension; return Vue.h(entry.component, { ...attrs }); }; } },
-        fabric, expectedVersions: definition.peers,
+        fabric, expectedVersions: iface.peers,
         kernelWork: { scheduler, rootId, scope: context.xtensionId, lifecycle: { lane: implementation.lane }, work: { inspect: { lane: 'background', maxChunkMs: 2 } } },
         // Trusted host composition supplies ownership; source data cannot obtain ports.
         resourceGraph: { kernel, surfaceGraph: graph, surfaceController: controller, surfaceId: lowered.ownerSurface },
-        capabilityRequirements: { schema: 'xtend.xtensions.host-capability-requirements.v1', framework: definition.framework,
+        capabilityRequirements: { schema: 'xtend.xtensions.host-capability-requirements.v1', framework: iface.framework,
           required: { features: ['kernel.lifecycle', 'fabric.boundary', 'surface.lifecycle', 'props.controlled'], events: Object.keys(context.events), work: ['inspect'] } },
-        policy: { events: context.events },
-        onEvent(event) { commands.push({ declarationId: definition.declarationId, event: event.event }); return context.onEvent(event); },
+        policy: { events: context.events, validateProps(props) { return componentInterfaces.assertComponentProps(iface, props); } },
+        onEvent(event) {
+          const route = Object.hasOwn(resolved.routes, event.event) && resolved.routes[event.event];
+          if (!route || event.payloadSchema !== route.payloadSchema) throw new TypeError('Component event does not match a captured intent route.');
+          const payload = componentInterfaces.mapComponentIntent(iface, event.event, event.payload, route.payload);
+          const accepted = context.onEvent({ ...event, payload });
+          if (accepted) commands.push({ declarationId: definition.declarationId, event: event.event });
+          return accepted;
+        },
         async loadRuntime({ signal }) {
           await waitForProvider?.({ definition, signal });
           if (signal.aborted) throw new Error('A06 provider lifetime ended.');
           const peers = implementation.peers;
-          entry.component = implementation.create(peers);
+          const actual = (react ? reactAdapter.normalizeReactPeers : vueAdapter.normalizeVuePeers)(peers);
+          if (Object.entries(iface.peers).some(([name, version]) => actual.versions[name] !== version)) throw new TypeError('Component peers differ from the captured interface.');
+          entry.component = factories[definition.providerId]({ ...peers, componentInterface: iface });
           return peers;
         }
       });

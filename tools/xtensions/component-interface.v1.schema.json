@@ -1,0 +1,300 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "xtend.xtensions.component-interface.v1",
+  "title": "XTension provider-owned component interface v1",
+  "definitions": {
+    "valueRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "string",
+            "number",
+            "boolean",
+            "json",
+            "object",
+            "array"
+          ]
+        },
+        "nullable": {
+          "type": "boolean"
+        },
+        "fields": {
+          "type": "object",
+          "maxProperties": 64,
+          "propertyNames": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!__proto__$|prototype$|constructor$)\\S(?:[\\s\\S]*\\S)?$"
+          },
+          "additionalProperties": {
+            "$ref": "#/definitions/valueRule"
+          }
+        },
+        "items": {
+          "$ref": "#/definitions/valueRule"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "object"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "fields"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "fields"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "array"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "items"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "items"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "xtend.xtensions.component-interface.v1"
+    },
+    "providerId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{0,63}$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "componentVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "framework": {
+      "enum": [
+        "react",
+        "vue"
+      ]
+    },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "module": {
+          "type": "string",
+          "pattern": "^\\./(?:[a-zA-Z0-9_-]+/)*[a-zA-Z0-9_.-]+\\.(?:mjs|js)$"
+        },
+        "exportName": {
+          "type": "string",
+          "pattern": "^[a-zA-Z_$][\\w$]*$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": [
+        "module",
+        "exportName",
+        "sha256"
+      ]
+    },
+    "peers": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "react": {
+              "type": "string",
+              "pattern": "^(18|19)\\.\\d+\\.\\d+$"
+            },
+            "react-dom": {
+              "type": "string",
+              "pattern": "^(18|19)\\.\\d+\\.\\d+$"
+            }
+          },
+          "required": [
+            "react",
+            "react-dom"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "vue": {
+              "type": "string",
+              "pattern": "^3\\.\\d+\\.\\d+$"
+            }
+          },
+          "required": [
+            "vue"
+          ]
+        }
+      ]
+    },
+    "props": {
+      "type": "object",
+      "maxProperties": 64,
+      "propertyNames": {
+        "allOf": [
+          {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!__proto__$|prototype$|constructor$)\\S(?:[\\s\\S]*\\S)?$"
+          },
+          {
+            "not": {
+              "enum": [
+                "xtension",
+                "key",
+                "ref",
+                "children",
+                "slots",
+                "dangerouslySetInnerHTML",
+                "innerHTML",
+                "outerHTML",
+                "srcdoc"
+              ]
+            }
+          }
+        ]
+      },
+      "additionalProperties": {
+        "$ref": "#/definitions/valueRule"
+      }
+    },
+    "intents": {
+      "type": "object",
+      "maxProperties": 64,
+      "propertyNames": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^(?!__proto__$|prototype$|constructor$)\\S(?:[\\s\\S]*\\S)?$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "payloadSchema": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!__proto__$|prototype$|constructor$)\\S(?:[\\s\\S]*\\S)?$"
+          },
+          "fields": {
+            "type": "object",
+            "maxProperties": 64,
+            "propertyNames": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^(?!__proto__$|prototype$|constructor$)\\S(?:[\\s\\S]*\\S)?$"
+            },
+            "additionalProperties": {
+              "$ref": "#/definitions/valueRule"
+            }
+          }
+        },
+        "required": [
+          "payloadSchema",
+          "fields"
+        ]
+      }
+    },
+    "ownership": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "attributes": {
+          "const": "declared-props-only"
+        },
+        "children": {
+          "const": "provider-owned"
+        },
+        "slots": {
+          "const": "provider-owned"
+        }
+      },
+      "required": [
+        "attributes",
+        "children",
+        "slots"
+      ]
+    }
+  },
+  "required": [
+    "schema",
+    "providerId",
+    "version",
+    "componentVersion",
+    "framework",
+    "entry",
+    "peers",
+    "props",
+    "intents",
+    "ownership"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "framework": {
+            "const": "react"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "peers": {
+            "required": [
+              "react",
+              "react-dom"
+            ]
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "peers": {
+            "required": [
+              "vue"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

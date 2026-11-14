@@ -118,5 +118,49 @@ export async function runTwoHostAcceptance(options) {
     finally { await f.close(); }
     check(rejected, 'request/grant mismatch is rejected');
   });
+  await test('caller-added Vue title is blocked before provider delivery even in tampered plan data', async () => {
+    const lowered = JSON.parse(JSON.stringify(options.lowered));
+    lowered.hosts[1].props.title = { state: 'product', path: ['id'] };
+    lowered.plan.xtensionBindings.bindings[1].binding.props.title = { state: 'product', path: ['id'], type: 'string' };
+    const f = fixture({ lowered }); let rejected = false;
+    try { await f.runtime.boot(); } catch { rejected = true; }
+    finally { await f.close(); }
+    check(rejected, 'independent provider interface rejects caller widening');
+    check(!f.hosts.some(entry => entry.definition.declarationId === 'product-reviews'), 'rejected Vue host never reaches its factory');
+  });
+  await test('runtime update guard prevents unknown attributes from reaching an existing Vue root', async () => {
+    const f = await ready(); try {
+      const entry = f.latest('product-reviews');
+      const result = await entry.host.update({ type: 'props.update', props: { productId: 'p1', sort: 'recent', title: 'leak' } });
+      check(result.status !== 'ok', 'undeclared prop delivery rejected');
+      check(!entry.context.container.querySelector('[title="leak"]'), 'unknown title never appears in DOM');
+    } finally { await f.close(); }
+  });
+  await test('provider-owned Vue prop declaration and disabled inheritance prevent direct fallthrough', async () => {
+    const iface = options.providerCatalog.entries().find(entry => entry.definition.framework === 'vue').definition;
+    const component = options.factories[iface.providerId]({ Vue: options.Vue, componentInterface: iface });
+    equal(component.props, [...Object.keys(iface.props), 'xtension'], 'runtime props derive from provider interface');
+    const target = options.document.createElement('div'); options.document.body.append(target);
+    const app = options.Vue.createApp(component, { productId: 'p1', sort: 'recent', title: 'leak', xtension: { emit() {} } });
+    try { app.mount(target); await options.Vue.nextTick(); check(!target.querySelector('[title="leak"]'), 'undeclared Vue attribute is not inherited'); }
+    finally { app.unmount(); target.remove(); }
+  });
+  await test('provider order field maps to Action sort; old and malformed payloads cannot dispatch', async () => {
+    const f = await ready(); try {
+      const entry = f.latest('product-reviews'), before = f.runtime.model.getState('product');
+      for (const payload of [{ sort: 'rating' }, { order: 42 }, { order: 'rating', command: 'other' }]) {
+        check(entry.host.emit({ type: 'changeSort', payload }).ok === false, 'provider payload rejected before mapping');
+        await f.idle(); equal(f.runtime.model.getState('product'), before, 'invalid payload produces no Model commit');
+      }
+      check(entry.host.emit({ type: 'changeSort', payload: { order: 'rating' } }).ok === true, 'valid provider payload accepted');
+      await f.idle(); equal(f.runtime.model.getState('product').reviewsSort, 'rating', 'mapped Action field commits');
+    } finally { await f.close(); }
+  });
+  await test('runtime refuses a forged interface pin from serialized call-site data', async () => {
+    const lowered = JSON.parse(JSON.stringify(options.lowered)); lowered.hosts[0].interfaceSha256 = '0'.repeat(64);
+    const f = fixture({ lowered }); let rejected = false;
+    try { await f.runtime.boot(); } catch { rejected = true; } finally { await f.close(); }
+    check(rejected, 'trusted runtime catalog rejects forged interface reference');
+  });
   return { passed: true, cases: results.length, names: results };
 }

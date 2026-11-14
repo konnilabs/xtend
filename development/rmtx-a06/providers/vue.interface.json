@@ -1,0 +1,38 @@
+{
+  "schema": "xtend.xtensions.component-interface.v1",
+  "providerId": "vue-product-reviews",
+  "version": "1.0.0",
+  "componentVersion": "2.0.0",
+  "framework": "vue",
+  "entry": {
+    "module": "./development/rmtx-a06/providers/vue-reviews.mjs",
+    "exportName": "createComponent",
+    "sha256": "71e48dfdb1e797493aba0748e9777b9cb3afdbee6faf90c217df3f88aa239db8"
+  },
+  "peers": {
+    "vue": "3.5.43"
+  },
+  "props": {
+    "productId": {
+      "type": "string"
+    },
+    "sort": {
+      "type": "string"
+    }
+  },
+  "intents": {
+    "changeSort": {
+      "payloadSchema": "xtend.schemas.xtension.intent.v1",
+      "fields": {
+        "order": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "ownership": {
+    "attributes": "declared-props-only",
+    "children": "provider-owned",
+    "slots": "provider-owned"
+  }
+}

@@ -1,14 +1,14 @@
 {
-  "format": 1,
-  "version": "1.0.0",
+  "format": 2,
+  "version": "2.0.0",
   "date": "2026-11-14",
-  "stage": "A06.1a-two-host-reference",
-  "contractEvidenceSha256": "89124ed3aad60c607ba05aed40208035e606a39b217237847a1a40949f932420",
+  "stage": "A06.1b-provider-component-interface",
+  "contractEvidenceSha256": "677531b4af5b095feb26848905657b55d23841fd6df9e04d70d3cb3543e6e3d3",
   "runs": [
     {
-      "format": 1,
-      "version": "1.0.0",
-      "stage": "A06.1a-two-host-reference",
+      "format": 2,
+      "version": "2.0.0",
+      "stage": "A06.1b-provider-component-interface",
       "mode": "jsdom",
       "node": "v24.18.0",
       "versions": {
@@ -18,7 +18,7 @@
       "browserVersion": null,
       "pageErrors": [],
       "passed": true,
-      "cases": 8,
+      "cases": 13,
       "names": [
         "two actual framework roots share one native resource owner and retain separate targets",
         "framework events run declared Actions and return controlled props through XTend State",
@@ -27,16 +27,21 @@
         "removing one host preserves its sibling and invalidates old intents across reincarnation",
         "common Surface destroy immediately revokes both scopes and late provider completion",
         "common Surface destroy cancels active work on both hosts and fences result callbacks",
-        "source lane requests do not manufacture trusted application grants"
+        "source lane requests do not manufacture trusted application grants",
+        "caller-added Vue title is blocked before provider delivery even in tampered plan data",
+        "runtime update guard prevents unknown attributes from reaching an existing Vue root",
+        "provider-owned Vue prop declaration and disabled inheritance prevent direct fallthrough",
+        "provider order field maps to Action sort; old and malformed payloads cannot dispatch",
+        "runtime refuses a forged interface pin from serialized call-site data"
       ],
       "automaticCompositionSupported": false,
       "ssrAcceptancePerformed": false,
       "acceptedForRelease": false
     },
     {
-      "format": 1,
-      "version": "1.0.0",
-      "stage": "A06.1a-two-host-reference",
+      "format": 2,
+      "version": "2.0.0",
+      "stage": "A06.1b-provider-component-interface",
       "mode": "jsdom",
       "node": "v26.5.0",
       "versions": {
@@ -46,7 +51,7 @@
       "browserVersion": null,
       "pageErrors": [],
       "passed": true,
-      "cases": 8,
+      "cases": 13,
       "names": [
         "two actual framework roots share one native resource owner and retain separate targets",
         "framework events run declared Actions and return controlled props through XTend State",
@@ -55,16 +60,21 @@
         "removing one host preserves its sibling and invalidates old intents across reincarnation",
         "common Surface destroy immediately revokes both scopes and late provider completion",
         "common Surface destroy cancels active work on both hosts and fences result callbacks",
-        "source lane requests do not manufacture trusted application grants"
+        "source lane requests do not manufacture trusted application grants",
+        "caller-added Vue title is blocked before provider delivery even in tampered plan data",
+        "runtime update guard prevents unknown attributes from reaching an existing Vue root",
+        "provider-owned Vue prop declaration and disabled inheritance prevent direct fallthrough",
+        "provider order field maps to Action sort; old and malformed payloads cannot dispatch",
+        "runtime refuses a forged interface pin from serialized call-site data"
       ],
       "automaticCompositionSupported": false,
       "ssrAcceptancePerformed": false,
       "acceptedForRelease": false
     },
     {
-      "format": 1,
-      "version": "1.0.0",
-      "stage": "A06.1a-two-host-reference",
+      "format": 2,
+      "version": "2.0.0",
+      "stage": "A06.1b-provider-component-interface",
       "mode": "chromium",
       "node": "v24.18.0",
       "versions": {
@@ -74,7 +84,7 @@
       "browserVersion": "155.0.8059.79",
       "pageErrors": [],
       "passed": true,
-      "cases": 8,
+      "cases": 13,
       "names": [
         "two actual framework roots share one native resource owner and retain separate targets",
         "framework events run declared Actions and return controlled props through XTend State",
@@ -83,7 +93,12 @@
         "removing one host preserves its sibling and invalidates old intents across reincarnation",
         "common Surface destroy immediately revokes both scopes and late provider completion",
         "common Surface destroy cancels active work on both hosts and fences result callbacks",
-        "source lane requests do not manufacture trusted application grants"
+        "source lane requests do not manufacture trusted application grants",
+        "caller-added Vue title is blocked before provider delivery even in tampered plan data",
+        "runtime update guard prevents unknown attributes from reaching an existing Vue root",
+        "provider-owned Vue prop declaration and disabled inheritance prevent direct fallthrough",
+        "provider order field maps to Action sort; old and malformed payloads cannot dispatch",
+        "runtime refuses a forged interface pin from serialized call-site data"
       ],
       "automaticCompositionSupported": false,
       "ssrAcceptancePerformed": false,

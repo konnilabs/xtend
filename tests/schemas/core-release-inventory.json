@@ -18517,6 +18517,24 @@
       ],
       "status": "open",
       "type": "parallel-fixture-shape"
+    },
+    {
+      "baseline": "a06-provider-component-interface-v1-initial-review",
+      "baselineAccepted": true,
+      "confidence": "medium",
+      "origin": "scanner",
+      "rationale": "Static analysis observes 4 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "Initial v1 authority is the complete closed JSON Schema. The TypeScript declaration is partial static evidence; React/Vue JSON instances are non-authoritative values of the framework-discriminated contract. Exact fingerprint sets are bound; no legacy schema authority is changed."
+      },
+      "reviewId": "polymorphic-63055e22c307",
+      "schemaIds": [
+        "xtend.xtensions.component-interface.v1"
+      ],
+      "status": "accepted-polymorphic-for-inventory",
+      "type": "same-id-multiple-shapes"
     }
   ],
   "entries": [
@@ -861154,8 +861172,14 @@
       "usages": [
         {
           "application": "XTend Development Contracts",
+          "interfaceReferences": [
+            {
+              "path": "development/XTensions-Runtime-Adapters-WP1.md",
+              "symbol": null,
+              "type": "repo-symbol"
+            }
+          ],
           "role": "documentation",
-          "visibility": "docs",
           "sourcePaths": [
             "development/XTensions-Runtime-Adapters-WP1.md",
             "development/rmtx-a02/bindings.v1.json",
@@ -861164,76 +861188,72 @@
             "development/rmtx-a03/README.md",
             "development/rmtx-a03/capability-inspect.cjs",
             "development/rmtx-a03/capability-negotiation.md",
-            "development/rmtx-a06/two-host.contract.json"
+            "development/rmtx-a06/providers/react.interface.json",
+            "development/rmtx-a06/providers/vue.interface.json",
+            "development/rmtx-a06/two-host.contract.v1.json"
           ],
-          "interfaceReferences": [
-            {
-              "type": "repo-symbol",
-              "path": "development/XTensions-Runtime-Adapters-WP1.md",
-              "symbol": null
-            }
-          ]
+          "visibility": "docs"
         },
         {
           "application": "XTend Tests: Fixtures",
+          "interfaceReferences": [
+            {
+              "path": "tests/fixtures/xtensions/signal-bridge-valid.json",
+              "pointer": "/",
+              "type": "json-pointer"
+            }
+          ],
           "role": "fixture",
-          "visibility": "fixture",
           "sourcePaths": [
             "tests/fixtures/xtensions/signal-bridge-valid.json"
           ],
-          "interfaceReferences": [
-            {
-              "type": "json-pointer",
-              "path": "tests/fixtures/xtensions/signal-bridge-valid.json",
-              "pointer": "/"
-            }
-          ]
+          "visibility": "fixture"
         },
         {
           "application": "XTend Tests: Types",
+          "interfaceReferences": [
+            {
+              "path": "tests/types/xtensions_runtime_adapters.ts",
+              "symbol": null,
+              "type": "repo-symbol"
+            }
+          ],
           "role": "assertion",
-          "visibility": "test",
           "sourcePaths": [
             "tests/types/xtensions_runtime_adapters.ts"
           ],
-          "interfaceReferences": [
-            {
-              "type": "repo-symbol",
-              "path": "tests/types/xtensions_runtime_adapters.ts",
-              "symbol": null
-            }
-          ]
+          "visibility": "test"
         },
         {
           "application": "XTend Tests: Xtensions",
+          "interfaceReferences": [
+            {
+              "path": "tests/xtensions/capability-negotiation-acceptance.js",
+              "symbol": null,
+              "type": "repo-symbol"
+            }
+          ],
           "role": "assertion",
-          "visibility": "test",
           "sourcePaths": [
             "tests/xtensions/capability-negotiation-acceptance.js",
             "tests/xtensions/runtime-adapter-acceptance.js"
           ],
-          "interfaceReferences": [
-            {
-              "type": "repo-symbol",
-              "path": "tests/xtensions/capability-negotiation-acceptance.js",
-              "symbol": null
-            }
-          ]
+          "visibility": "test"
         },
         {
           "application": "XTensions",
+          "interfaceReferences": [
+            {
+              "module": "@ccslabs/xtend/xtensions/signal-bridge-contract",
+              "path": "tools/xtensions/signal-bridge-contract.js",
+              "type": "package-export"
+            }
+          ],
           "role": "reference",
-          "visibility": "internal",
           "sourcePaths": [
             "tools/xtensions/signal-bridge-contract.js"
           ],
-          "interfaceReferences": [
-            {
-              "type": "package-export",
-              "module": "@ccslabs/xtend/xtensions/signal-bridge-contract",
-              "path": "tools/xtensions/signal-bridge-contract.js"
-            }
-          ]
+          "visibility": "internal"
         }
       ],
       "version": 1
@@ -954634,6 +954654,1286 @@
     {
       "aliasOf": null,
       "canonicalDefinition": {
+        "definitionType": "json-schema",
+        "path": "tools/xtensions/component-interface.v1.schema.json",
+        "role": "definition",
+        "symbol": null,
+        "visibility": "internal"
+      },
+      "description": "Initial A06.1b provider-owned closed component interface. Pinned declarative props, intent payloads and ownership feed existing state bindings, generated types and runtime guards. Internal explicit two-host profile; automatic A04 composition, A05 handoff and 0.9 acceptance remain pending.",
+      "descriptionStatus": "curated",
+      "familyId": "xtend.xtensions.component-interface",
+      "kinds": [
+        "json-schema"
+      ],
+      "lifecycle": {
+        "rollout": "planned",
+        "status": "active"
+      },
+      "releasedFingerprintSetHash": "sha256:2020edf804890ce6f825451d1559fc1f2573433c707120ed008c1a7eec40348f",
+      "replacedBy": null,
+      "schemaId": "xtend.xtensions.component-interface.v1",
+      "shapeFingerprints": [
+        {
+          "authoritative": false,
+          "completeness": "complete",
+          "evidence": [
+            {
+              "authoritative": false,
+              "completeness": "complete",
+              "path": "development/rmtx-a06/providers/react.interface.json",
+              "symbol": "/",
+              "type": "docs"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
+          ],
+          "hash": "sha256:2d37d2d7922b6733db666281b963101cda4afb30cc0ab3d8b943da46f421d9fa",
+          "shape": {
+            "fieldCount": 9,
+            "fields": [
+              "componentVersion",
+              "entry",
+              "framework",
+              "intents",
+              "ownership",
+              "peers",
+              "props",
+              "providerId",
+              "version"
+            ],
+            "normalized": {
+              "fields": {
+                "componentVersion": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "entry": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "exportName": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "module": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "sha256": {
+                        "optional": false,
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "framework": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "intents": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "selectImage": {
+                        "optional": false,
+                        "type": {
+                          "fields": {
+                            "fields": {
+                              "optional": false,
+                              "type": {
+                                "fields": {
+                                  "imageId": {
+                                    "optional": false,
+                                    "type": {
+                                      "fields": {
+                                        "type": {
+                                          "optional": false,
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "payloadSchema": {
+                              "optional": false,
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "ownership": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "attributes": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "children": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "slots": {
+                        "optional": false,
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "peers": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "react": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "react-dom": {
+                        "optional": false,
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "props": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "images": {
+                        "optional": false,
+                        "type": {
+                          "fields": {
+                            "items": {
+                              "optional": false,
+                              "type": {
+                                "fields": {
+                                  "type": {
+                                    "optional": false,
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            },
+                            "type": {
+                              "optional": false,
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "selectedImageId": {
+                        "optional": false,
+                        "type": {
+                          "fields": {
+                            "type": {
+                              "optional": false,
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "providerId": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "version": {
+                  "optional": false,
+                  "type": "string"
+                }
+              }
+            },
+            "signature": "componentVersion:string|entry:{exportName:string,module:string,sha256:string}|framework:string|intents:{selectImage:{fields:{imageId:{type:string}},payloadSchema:string}}|ownership:{attributes:string,children:string,slots:string}|peers:{react:string,react-dom:string}|props:{images:{items:{type:string},type:string},selectedImageId:{type:string}}|providerId:string|version:string"
+          },
+          "sourcePaths": [
+            "development/rmtx-a06/providers/react.interface.json"
+          ],
+          "symbols": [
+            "/"
+          ]
+        },
+        {
+          "authoritative": false,
+          "completeness": "complete",
+          "evidence": [
+            {
+              "authoritative": false,
+              "completeness": "complete",
+              "path": "development/rmtx-a06/providers/vue.interface.json",
+              "symbol": "/",
+              "type": "docs"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
+          ],
+          "hash": "sha256:493b57b7df95d60f677a319676a0846ebad39970d49c54b2f80e89a35ae35d18",
+          "shape": {
+            "fieldCount": 9,
+            "fields": [
+              "componentVersion",
+              "entry",
+              "framework",
+              "intents",
+              "ownership",
+              "peers",
+              "props",
+              "providerId",
+              "version"
+            ],
+            "normalized": {
+              "fields": {
+                "componentVersion": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "entry": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "exportName": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "module": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "sha256": {
+                        "optional": false,
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "framework": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "intents": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "changeSort": {
+                        "optional": false,
+                        "type": {
+                          "fields": {
+                            "fields": {
+                              "optional": false,
+                              "type": {
+                                "fields": {
+                                  "order": {
+                                    "optional": false,
+                                    "type": {
+                                      "fields": {
+                                        "type": {
+                                          "optional": false,
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "payloadSchema": {
+                              "optional": false,
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "ownership": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "attributes": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "children": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "slots": {
+                        "optional": false,
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "peers": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "vue": {
+                        "optional": false,
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "props": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "productId": {
+                        "optional": false,
+                        "type": {
+                          "fields": {
+                            "type": {
+                              "optional": false,
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "sort": {
+                        "optional": false,
+                        "type": {
+                          "fields": {
+                            "type": {
+                              "optional": false,
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "providerId": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "version": {
+                  "optional": false,
+                  "type": "string"
+                }
+              }
+            },
+            "signature": "componentVersion:string|entry:{exportName:string,module:string,sha256:string}|framework:string|intents:{changeSort:{fields:{order:{type:string}},payloadSchema:string}}|ownership:{attributes:string,children:string,slots:string}|peers:{vue:string}|props:{productId:{type:string},sort:{type:string}}|providerId:string|version:string"
+          },
+          "sourcePaths": [
+            "development/rmtx-a06/providers/vue.interface.json"
+          ],
+          "symbols": [
+            "/"
+          ]
+        },
+        {
+          "authoritative": true,
+          "completeness": "complete",
+          "evidence": [
+            {
+              "authoritative": true,
+              "completeness": "complete",
+              "path": "tools/xtensions/component-interface.v1.schema.json",
+              "symbol": null,
+              "type": "formal-schema"
+            }
+          ],
+          "evidenceTypes": [
+            "formal-schema"
+          ],
+          "hash": "sha256:4c8cbd36a17a3f7631817dae182f54cceba40fab94d1f5221680ad8f326ece86",
+          "shape": {
+            "fieldCount": 1,
+            "fields": [
+              "$formalSchema"
+            ],
+            "normalized": {
+              "fields": {
+                "$formalSchema": {
+                  "optional": false,
+                  "type": {
+                    "$schema": "http://json-schema.org/draft-07/schema#",
+                    "additionalProperties": false,
+                    "allOf": [
+                      {
+                        "else": {
+                          "properties": {
+                            "peers": {
+                              "required": [
+                                "vue"
+                              ]
+                            }
+                          }
+                        },
+                        "if": {
+                          "properties": {
+                            "framework": {
+                              "const": "react"
+                            }
+                          }
+                        },
+                        "then": {
+                          "properties": {
+                            "peers": {
+                              "required": [
+                                "react",
+                                "react-dom"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "definitions": {
+                      "valueRule": {
+                        "additionalProperties": false,
+                        "allOf": [
+                          {
+                            "else": {
+                              "not": {
+                                "required": [
+                                  "fields"
+                                ]
+                              }
+                            },
+                            "if": {
+                              "properties": {
+                                "type": {
+                                  "const": "object"
+                                }
+                              }
+                            },
+                            "then": {
+                              "required": [
+                                "fields"
+                              ]
+                            }
+                          },
+                          {
+                            "else": {
+                              "not": {
+                                "required": [
+                                  "items"
+                                ]
+                              }
+                            },
+                            "if": {
+                              "properties": {
+                                "type": {
+                                  "const": "array"
+                                }
+                              }
+                            },
+                            "then": {
+                              "required": [
+                                "items"
+                              ]
+                            }
+                          }
+                        ],
+                        "properties": {
+                          "fields": {
+                            "additionalProperties": {
+                              "$ref": "#/definitions/valueRule"
+                            },
+                            "maxProperties": 64,
+                            "propertyNames": {
+                              "minLength": 1,
+                              "pattern": "^(?!__proto__$|prototype$|constructor$)\\S(?:[\\s\\S]*\\S)?$",
+                              "type": "string"
+                            },
+                            "type": "object"
+                          },
+                          "items": {
+                            "$ref": "#/definitions/valueRule"
+                          },
+                          "nullable": {
+                            "type": "boolean"
+                          },
+                          "type": {
+                            "enum": [
+                              "array",
+                              "boolean",
+                              "json",
+                              "number",
+                              "object",
+                              "string"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "type"
+                        ],
+                        "type": "object"
+                      }
+                    },
+                    "properties": {
+                      "componentVersion": {
+                        "pattern": "^\\d+\\.\\d+\\.\\d+$",
+                        "type": "string"
+                      },
+                      "entry": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "exportName": {
+                            "pattern": "^[a-zA-Z_$][\\w$]*$",
+                            "type": "string"
+                          },
+                          "module": {
+                            "pattern": "^\\./(?:[a-zA-Z0-9_-]+/)*[a-zA-Z0-9_.-]+\\.(?:mjs|js)$",
+                            "type": "string"
+                          },
+                          "sha256": {
+                            "pattern": "^[a-f0-9]{64}$",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "exportName",
+                          "module",
+                          "sha256"
+                        ],
+                        "type": "object"
+                      },
+                      "framework": {
+                        "enum": [
+                          "react",
+                          "vue"
+                        ]
+                      },
+                      "intents": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "fields": {
+                              "additionalProperties": {
+                                "$ref": "#/definitions/valueRule"
+                              },
+                              "maxProperties": 64,
+                              "propertyNames": {
+                                "minLength": 1,
+                                "pattern": "^(?!__proto__$|prototype$|constructor$)\\S(?:[\\s\\S]*\\S)?$",
+                                "type": "string"
+                              },
+                              "type": "object"
+                            },
+                            "payloadSchema": {
+                              "minLength": 1,
+                              "pattern": "^(?!__proto__$|prototype$|constructor$)\\S(?:[\\s\\S]*\\S)?$",
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "fields",
+                            "payloadSchema"
+                          ],
+                          "type": "object"
+                        },
+                        "maxProperties": 64,
+                        "propertyNames": {
+                          "minLength": 1,
+                          "pattern": "^(?!__proto__$|prototype$|constructor$)\\S(?:[\\s\\S]*\\S)?$",
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "ownership": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "attributes": {
+                            "const": "declared-props-only"
+                          },
+                          "children": {
+                            "const": "provider-owned"
+                          },
+                          "slots": {
+                            "const": "provider-owned"
+                          }
+                        },
+                        "required": [
+                          "attributes",
+                          "children",
+                          "slots"
+                        ],
+                        "type": "object"
+                      },
+                      "peers": {
+                        "oneOf": [
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "react": {
+                                "pattern": "^(18|19)\\.\\d+\\.\\d+$",
+                                "type": "string"
+                              },
+                              "react-dom": {
+                                "pattern": "^(18|19)\\.\\d+\\.\\d+$",
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "react",
+                              "react-dom"
+                            ],
+                            "type": "object"
+                          },
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "vue": {
+                                "pattern": "^3\\.\\d+\\.\\d+$",
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "vue"
+                            ],
+                            "type": "object"
+                          }
+                        ]
+                      },
+                      "props": {
+                        "additionalProperties": {
+                          "$ref": "#/definitions/valueRule"
+                        },
+                        "maxProperties": 64,
+                        "propertyNames": {
+                          "allOf": [
+                            {
+                              "minLength": 1,
+                              "pattern": "^(?!__proto__$|prototype$|constructor$)\\S(?:[\\s\\S]*\\S)?$",
+                              "type": "string"
+                            },
+                            {
+                              "not": {
+                                "enum": [
+                                  "children",
+                                  "dangerouslySetInnerHTML",
+                                  "innerHTML",
+                                  "key",
+                                  "outerHTML",
+                                  "ref",
+                                  "slots",
+                                  "srcdoc",
+                                  "xtension"
+                                ]
+                              }
+                            }
+                          ]
+                        },
+                        "type": "object"
+                      },
+                      "providerId": {
+                        "pattern": "^[a-z][a-z0-9-]{0,63}$",
+                        "type": "string"
+                      },
+                      "schema": {
+                        "const": "xtend.xtensions.component-interface.v1"
+                      },
+                      "version": {
+                        "pattern": "^\\d+\\.\\d+\\.\\d+$",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "componentVersion",
+                      "entry",
+                      "framework",
+                      "intents",
+                      "ownership",
+                      "peers",
+                      "props",
+                      "providerId",
+                      "schema",
+                      "version"
+                    ],
+                    "type": "object"
+                  }
+                }
+              },
+              "formalSchema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "additionalProperties": false,
+                "allOf": [
+                  {
+                    "else": {
+                      "properties": {
+                        "peers": {
+                          "required": [
+                            "vue"
+                          ]
+                        }
+                      }
+                    },
+                    "if": {
+                      "properties": {
+                        "framework": {
+                          "const": "react"
+                        }
+                      }
+                    },
+                    "then": {
+                      "properties": {
+                        "peers": {
+                          "required": [
+                            "react",
+                            "react-dom"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                ],
+                "definitions": {
+                  "valueRule": {
+                    "additionalProperties": false,
+                    "allOf": [
+                      {
+                        "else": {
+                          "not": {
+                            "required": [
+                              "fields"
+                            ]
+                          }
+                        },
+                        "if": {
+                          "properties": {
+                            "type": {
+                              "const": "object"
+                            }
+                          }
+                        },
+                        "then": {
+                          "required": [
+                            "fields"
+                          ]
+                        }
+                      },
+                      {
+                        "else": {
+                          "not": {
+                            "required": [
+                              "items"
+                            ]
+                          }
+                        },
+                        "if": {
+                          "properties": {
+                            "type": {
+                              "const": "array"
+                            }
+                          }
+                        },
+                        "then": {
+                          "required": [
+                            "items"
+                          ]
+                        }
+                      }
+                    ],
+                    "properties": {
+                      "fields": {
+                        "additionalProperties": {
+                          "$ref": "#/definitions/valueRule"
+                        },
+                        "maxProperties": 64,
+                        "propertyNames": {
+                          "minLength": 1,
+                          "pattern": "^(?!__proto__$|prototype$|constructor$)\\S(?:[\\s\\S]*\\S)?$",
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "items": {
+                        "$ref": "#/definitions/valueRule"
+                      },
+                      "nullable": {
+                        "type": "boolean"
+                      },
+                      "type": {
+                        "enum": [
+                          "array",
+                          "boolean",
+                          "json",
+                          "number",
+                          "object",
+                          "string"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "type"
+                    ],
+                    "type": "object"
+                  }
+                },
+                "properties": {
+                  "componentVersion": {
+                    "pattern": "^\\d+\\.\\d+\\.\\d+$",
+                    "type": "string"
+                  },
+                  "entry": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "exportName": {
+                        "pattern": "^[a-zA-Z_$][\\w$]*$",
+                        "type": "string"
+                      },
+                      "module": {
+                        "pattern": "^\\./(?:[a-zA-Z0-9_-]+/)*[a-zA-Z0-9_.-]+\\.(?:mjs|js)$",
+                        "type": "string"
+                      },
+                      "sha256": {
+                        "pattern": "^[a-f0-9]{64}$",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "exportName",
+                      "module",
+                      "sha256"
+                    ],
+                    "type": "object"
+                  },
+                  "framework": {
+                    "enum": [
+                      "react",
+                      "vue"
+                    ]
+                  },
+                  "intents": {
+                    "additionalProperties": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "fields": {
+                          "additionalProperties": {
+                            "$ref": "#/definitions/valueRule"
+                          },
+                          "maxProperties": 64,
+                          "propertyNames": {
+                            "minLength": 1,
+                            "pattern": "^(?!__proto__$|prototype$|constructor$)\\S(?:[\\s\\S]*\\S)?$",
+                            "type": "string"
+                          },
+                          "type": "object"
+                        },
+                        "payloadSchema": {
+                          "minLength": 1,
+                          "pattern": "^(?!__proto__$|prototype$|constructor$)\\S(?:[\\s\\S]*\\S)?$",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "fields",
+                        "payloadSchema"
+                      ],
+                      "type": "object"
+                    },
+                    "maxProperties": 64,
+                    "propertyNames": {
+                      "minLength": 1,
+                      "pattern": "^(?!__proto__$|prototype$|constructor$)\\S(?:[\\s\\S]*\\S)?$",
+                      "type": "string"
+                    },
+                    "type": "object"
+                  },
+                  "ownership": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "attributes": {
+                        "const": "declared-props-only"
+                      },
+                      "children": {
+                        "const": "provider-owned"
+                      },
+                      "slots": {
+                        "const": "provider-owned"
+                      }
+                    },
+                    "required": [
+                      "attributes",
+                      "children",
+                      "slots"
+                    ],
+                    "type": "object"
+                  },
+                  "peers": {
+                    "oneOf": [
+                      {
+                        "additionalProperties": false,
+                        "properties": {
+                          "react": {
+                            "pattern": "^(18|19)\\.\\d+\\.\\d+$",
+                            "type": "string"
+                          },
+                          "react-dom": {
+                            "pattern": "^(18|19)\\.\\d+\\.\\d+$",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "react",
+                          "react-dom"
+                        ],
+                        "type": "object"
+                      },
+                      {
+                        "additionalProperties": false,
+                        "properties": {
+                          "vue": {
+                            "pattern": "^3\\.\\d+\\.\\d+$",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "vue"
+                        ],
+                        "type": "object"
+                      }
+                    ]
+                  },
+                  "props": {
+                    "additionalProperties": {
+                      "$ref": "#/definitions/valueRule"
+                    },
+                    "maxProperties": 64,
+                    "propertyNames": {
+                      "allOf": [
+                        {
+                          "minLength": 1,
+                          "pattern": "^(?!__proto__$|prototype$|constructor$)\\S(?:[\\s\\S]*\\S)?$",
+                          "type": "string"
+                        },
+                        {
+                          "not": {
+                            "enum": [
+                              "children",
+                              "dangerouslySetInnerHTML",
+                              "innerHTML",
+                              "key",
+                              "outerHTML",
+                              "ref",
+                              "slots",
+                              "srcdoc",
+                              "xtension"
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    "type": "object"
+                  },
+                  "providerId": {
+                    "pattern": "^[a-z][a-z0-9-]{0,63}$",
+                    "type": "string"
+                  },
+                  "schema": {
+                    "const": "xtend.xtensions.component-interface.v1"
+                  },
+                  "version": {
+                    "pattern": "^\\d+\\.\\d+\\.\\d+$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "componentVersion",
+                  "entry",
+                  "framework",
+                  "intents",
+                  "ownership",
+                  "peers",
+                  "props",
+                  "providerId",
+                  "schema",
+                  "version"
+                ],
+                "type": "object"
+              }
+            },
+            "signature": "$formalSchema:{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"additionalProperties\":false,\"allOf\":[{\"else\":{\"properties\":{\"peers\":{\"required\":[\"vue\"]}}},\"if\":{\"properties\":{\"framework\":{\"const\":\"react\"}}},\"then\":{\"properties\":{\"peers\":{\"required\":[\"react\",\"react-dom\"]}}}}],\"definitions\":{\"valueRule\":{\"additionalProperties\":false,\"allOf\":[{\"else\":{\"not\":{\"required\":[\"fields\"]}},\"if\":{\"properties\":{\"type\":{\"const\":\"object\"}}},\"then\":{\"required\":[\"fields\"]}},{\"else\":{\"not\":{\"required\":[\"items\"]}},\"if\":{\"properties\":{\"type\":{\"const\":\"array\"}}},\"then\":{\"required\":[\"items\"]}}],\"properties\":{\"fields\":{\"additionalProperties\":{\"$ref\":\"#/definitions/valueRule\"},\"maxProperties\":64,\"propertyNames\":{\"minLength\":1,\"pattern\":\"^(?!__proto__$|prototype$|constructor$)\\\\S(?:[\\\\s\\\\S]*\\\\S)?$\",\"type\":\"string\"},\"type\":\"object\"},\"items\":{\"$ref\":\"#/definitions/valueRule\"},\"nullable\":{\"type\":\"boolean\"},\"type\":{\"enum\":[\"array\",\"boolean\",\"json\",\"number\",\"object\",\"string\"]}},\"required\":[\"type\"],\"type\":\"object\"}},\"properties\":{\"componentVersion\":{\"pattern\":\"^\\\\d+\\\\.\\\\d+\\\\.\\\\d+$\",\"type\":\"string\"},\"entry\":{\"additionalProperties\":false,\"properties\":{\"exportName\":{\"pattern\":\"^[a-zA-Z_$][\\\\w$]*$\",\"type\":\"string\"},\"module\":{\"pattern\":\"^\\\\./(?:[a-zA-Z0-9_-]+/)*[a-zA-Z0-9_.-]+\\\\.(?:mjs|js)$\",\"type\":\"string\"},\"sha256\":{\"pattern\":\"^[a-f0-9]{64}$\",\"type\":\"string\"}},\"required\":[\"exportName\",\"module\",\"sha256\"],\"type\":\"object\"},\"framework\":{\"enum\":[\"react\",\"vue\"]},\"intents\":{\"additionalProperties\":{\"additionalProperties\":false,\"properties\":{\"fields\":{\"additionalProperties\":{\"$ref\":\"#/definitions/valueRule\"},\"maxProperties\":64,\"propertyNames\":{\"minLength\":1,\"pattern\":\"^(?!__proto__$|prototype$|constructor$)\\\\S(?:[\\\\s\\\\S]*\\\\S)?$\",\"type\":\"string\"},\"type\":\"object\"},\"payloadSchema\":{\"minLength\":1,\"pattern\":\"^(?!__proto__$|prototype$|constructor$)\\\\S(?:[\\\\s\\\\S]*\\\\S)?$\",\"type\":\"string\"}},\"required\":[\"fields\",\"payloadSchema\"],\"type\":\"object\"},\"maxProperties\":64,\"propertyNames\":{\"minLength\":1,\"pattern\":\"^(?!__proto__$|prototype$|constructor$)\\\\S(?:[\\\\s\\\\S]*\\\\S)?$\",\"type\":\"string\"},\"type\":\"object\"},\"ownership\":{\"additionalProperties\":false,\"properties\":{\"attributes\":{\"const\":\"declared-props-only\"},\"children\":{\"const\":\"provider-owned\"},\"slots\":{\"const\":\"provider-owned\"}},\"required\":[\"attributes\",\"children\",\"slots\"],\"type\":\"object\"},\"peers\":{\"oneOf\":[{\"additionalProperties\":false,\"properties\":{\"react\":{\"pattern\":\"^(18|19)\\\\.\\\\d+\\\\.\\\\d+$\",\"type\":\"string\"},\"react-dom\":{\"pattern\":\"^(18|19)\\\\.\\\\d+\\\\.\\\\d+$\",\"type\":\"string\"}},\"required\":[\"react\",\"react-dom\"],\"type\":\"object\"},{\"additionalProperties\":false,\"properties\":{\"vue\":{\"pattern\":\"^3\\\\.\\\\d+\\\\.\\\\d+$\",\"type\":\"string\"}},\"required\":[\"vue\"],\"type\":\"object\"}]},\"props\":{\"additionalProperties\":{\"$ref\":\"#/definitions/valueRule\"},\"maxProperties\":64,\"propertyNames\":{\"allOf\":[{\"minLength\":1,\"pattern\":\"^(?!__proto__$|prototype$|constructor$)\\\\S(?:[\\\\s\\\\S]*\\\\S)?$\",\"type\":\"string\"},{\"not\":{\"enum\":[\"children\",\"dangerouslySetInnerHTML\",\"innerHTML\",\"key\",\"outerHTML\",\"ref\",\"slots\",\"srcdoc\",\"xtension\"]}}]},\"type\":\"object\"},\"providerId\":{\"pattern\":\"^[a-z][a-z0-9-]{0,63}$\",\"type\":\"string\"},\"schema\":{\"const\":\"xtend.xtensions.component-interface.v1\"},\"version\":{\"pattern\":\"^\\\\d+\\\\.\\\\d+\\\\.\\\\d+$\",\"type\":\"string\"}},\"required\":[\"componentVersion\",\"entry\",\"framework\",\"intents\",\"ownership\",\"peers\",\"props\",\"providerId\",\"schema\",\"version\"],\"type\":\"object\"}"
+          },
+          "sourcePaths": [
+            "tools/xtensions/component-interface.v1.schema.json"
+          ],
+          "symbols": []
+        },
+        {
+          "authoritative": false,
+          "completeness": "partial",
+          "evidence": [
+            {
+              "authoritative": false,
+              "completeness": "partial",
+              "path": "tools/xtensions/component-interface.d.ts",
+              "symbol": "ComponentInterface",
+              "type": "declared-type"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "hash": "sha256:75d83ce57de4b71da2513e75eeac62e4c91d6ea5ed7e4116417bc6743f56cdfa",
+          "shape": {
+            "fieldCount": 9,
+            "fields": [
+              "componentVersion",
+              "entry",
+              "framework",
+              "intents",
+              "ownership",
+              "peers",
+              "props",
+              "providerId",
+              "version"
+            ],
+            "normalized": {
+              "fields": {
+                "componentVersion": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "entry": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "exportName": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "module": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "sha256": {
+                        "optional": false,
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "framework": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "literal": "react"
+                      },
+                      {
+                        "literal": "vue"
+                      }
+                    ]
+                  }
+                },
+                "intents": {
+                  "optional": false,
+                  "type": {
+                    "arguments": [
+                      {
+                        "record": {
+                          "key": "string",
+                          "value": {
+                            "fields": {
+                              "fields": {
+                                "optional": false,
+                                "type": {
+                                  "arguments": [
+                                    {
+                                      "record": {
+                                        "key": "string",
+                                        "value": {
+                                          "arguments": [],
+                                          "unresolvedReference": "XTensionValueRule"
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "unresolvedReference": "Readonly"
+                                }
+                              },
+                              "payloadSchema": {
+                                "optional": false,
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "unresolvedReference": "Readonly"
+                  }
+                },
+                "ownership": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "attributes": {
+                        "optional": false,
+                        "type": {
+                          "literal": "declared-props-only"
+                        }
+                      },
+                      "children": {
+                        "optional": false,
+                        "type": {
+                          "literal": "provider-owned"
+                        }
+                      },
+                      "slots": {
+                        "optional": false,
+                        "type": {
+                          "literal": "provider-owned"
+                        }
+                      }
+                    }
+                  }
+                },
+                "peers": {
+                  "optional": false,
+                  "type": {
+                    "arguments": [
+                      {
+                        "record": {
+                          "key": "string",
+                          "value": "string"
+                        }
+                      }
+                    ],
+                    "unresolvedReference": "Readonly"
+                  }
+                },
+                "props": {
+                  "optional": false,
+                  "type": {
+                    "arguments": [
+                      {
+                        "record": {
+                          "key": "string",
+                          "value": {
+                            "arguments": [],
+                            "unresolvedReference": "XTensionValueRule"
+                          }
+                        }
+                      }
+                    ],
+                    "unresolvedReference": "Readonly"
+                  }
+                },
+                "providerId": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "version": {
+                  "optional": false,
+                  "type": "string"
+                }
+              }
+            },
+            "signature": "componentVersion:string|entry:{exportName:string,module:string,sha256:string}|framework:union<literal<\"react\">|literal<\"vue\">>|intents:{\"arguments\":[{\"record\":{\"key\":\"string\",\"value\":{\"fields\":{\"fields\":{\"optional\":false,\"type\":{\"arguments\":[{\"record\":{\"key\":\"string\",\"value\":{\"arguments\":[],\"unresolvedReference\":\"XTensionValueRule\"}}}],\"unresolvedReference\":\"Readonly\"}},\"payloadSchema\":{\"optional\":false,\"type\":\"string\"}}}}}],\"unresolvedReference\":\"Readonly\"}|ownership:{attributes:literal<\"declared-props-only\">,children:literal<\"provider-owned\">,slots:literal<\"provider-owned\">}|peers:{\"arguments\":[{\"record\":{\"key\":\"string\",\"value\":\"string\"}}],\"unresolvedReference\":\"Readonly\"}|props:{\"arguments\":[{\"record\":{\"key\":\"string\",\"value\":{\"arguments\":[],\"unresolvedReference\":\"XTensionValueRule\"}}}],\"unresolvedReference\":\"Readonly\"}|providerId:string|version:string"
+          },
+          "sourcePaths": [
+            "tools/xtensions/component-interface.d.ts"
+          ],
+          "symbols": [
+            "ComponentInterface"
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "acceptedFingerprints": [
+          "sha256:2d37d2d7922b6733db666281b963101cda4afb30cc0ab3d8b943da46f421d9fa",
+          "sha256:493b57b7df95d60f677a319676a0846ebad39970d49c54b2f80e89a35ae35d18",
+          "sha256:4c8cbd36a17a3f7631817dae182f54cceba40fab94d1f5221680ad8f326ece86",
+          "sha256:75d83ce57de4b71da2513e75eeac62e4c91d6ea5ed7e4116417bc6743f56cdfa"
+        ],
+        "authoritativeFingerprints": [
+          "sha256:4c8cbd36a17a3f7631817dae182f54cceba40fab94d1f5221680ad8f326ece86"
+        ],
+        "decision": "a06-provider-component-interface-v1-initial-review",
+        "mode": "polymorphic",
+        "rationale": "Initial v1 authority is the complete closed JSON Schema. The TypeScript declaration is partial static evidence; React/Vue JSON instances are non-authoritative values of the framework-discriminated contract. Exact fingerprint sets are bound; no legacy schema authority is changed.",
+        "releasedFingerprintSetHash": "sha256:2020edf804890ce6f825451d1559fc1f2573433c707120ed008c1a7eec40348f"
+      },
+      "status": "active",
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "interfaceReferences": [
+            {
+              "path": "development/rmtx-a06/providers/react.interface.json",
+              "pointer": "/",
+              "type": "json-pointer"
+            },
+            {
+              "path": "development/rmtx-a06/providers/vue.interface.json",
+              "pointer": "/",
+              "type": "json-pointer"
+            }
+          ],
+          "role": "documentation",
+          "sourcePaths": [
+            "development/rmtx-a06/component-interface.md",
+            "development/rmtx-a06/providers/react.interface.json",
+            "development/rmtx-a06/providers/vue.interface.json",
+            "development/rmtx-a06/syntax-and-jsx-sideloading-assessment.md"
+          ],
+          "visibility": "docs"
+        },
+        {
+          "application": "XTensions",
+          "interfaceReferences": [
+            {
+              "path": "tools/xtensions/component-interface.d.ts",
+              "symbol": "COMPONENT_INTERFACE_SCHEMA",
+              "type": "symbol"
+            },
+            {
+              "path": "tools/xtensions/component-interface.d.ts",
+              "symbol": "ComponentInterface",
+              "type": "symbol"
+            },
+            {
+              "path": "tools/xtensions/component-interface.js",
+              "symbol": "COMPONENT_INTERFACE_SCHEMA",
+              "type": "symbol"
+            }
+          ],
+          "role": "definition",
+          "sourcePaths": [
+            "tools/xtensions/component-interface.d.ts",
+            "tools/xtensions/component-interface.js",
+            "tools/xtensions/component-interface.v1.schema.json"
+          ],
+          "visibility": "internal"
+        },
+        {
+          "application": "XTensions",
+          "interfaceReferences": [
+            {
+              "path": "tools/xtensions/component-interface.d.ts",
+              "symbol": null,
+              "type": "repo-symbol"
+            }
+          ],
+          "role": "producer",
+          "sourcePaths": [
+            "tools/xtensions/component-interface.d.ts",
+            "tools/xtensions/component-interface.v1.schema.json"
+          ],
+          "visibility": "internal"
+        }
+      ],
+      "version": 1
+    },
+    {
+      "aliasOf": null,
+      "canonicalDefinition": {
         "path": "scripts/test-runner/catalog.json",
         "symbol": null,
         "definitionType": "identifier-reference",
@@ -963986,7 +965286,7 @@
           "sha256:2510387d32a7ab776e7ed1657453edd73e361965e881a9272fda78029680d90e",
           "sha256:3c6329c0e8e054493a56520a8ee3ef24850a1d0df3a0240c2f5b7fb9a1062a0e",
           "sha256:536c936e4befbd25a96d4e67cb55e306cf689fc19a2f0e00352f5ebc892e78dd",
-          "sha256:8d29b09b338cbc33402c47558aac336fd755337d3c62cf5d10a07d1a85c66231",
+          "sha256:9b1b4916c7fc4bf39e3cc1c817c828824a529158756655a23761c5b9050ed962",
           "sha256:cac82b9db9558844e4009bf7c49334dc7d68186620e71e1ff3274dcac92ca3dd"
         ],
         "authoritativeFingerprints": [
@@ -964506,20 +965806,33 @@
           "authoritative": true
         },
         {
-          "hash": "sha256:8d29b09b338cbc33402c47558aac336fd755337d3c62cf5d10a07d1a85c66231",
+          "authoritative": false,
+          "completeness": "partial",
+          "evidence": [
+            {
+              "authoritative": false,
+              "completeness": "partial",
+              "path": "development/rmtx-a06/two-host-runtime.mjs",
+              "symbol": "createXTensionHost",
+              "type": "docs"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
+          ],
+          "hash": "sha256:9b1b4916c7fc4bf39e3cc1c817c828824a529158756655a23761c5b9050ed962",
           "shape": {
             "fieldCount": 2,
             "fields": [
               "framework",
               "required"
             ],
-            "signature": "framework:{\"unresolved\":\"definition.framework\"}|required:{events:unknown,features:array<string>,work:array<string>}",
             "normalized": {
               "fields": {
                 "framework": {
                   "optional": false,
                   "type": {
-                    "unresolved": "definition.framework"
+                    "unresolved": "iface.framework"
                   }
                 },
                 "required": {
@@ -964550,28 +965863,15 @@
                   }
                 }
               }
-            }
+            },
+            "signature": "framework:{\"unresolved\":\"iface.framework\"}|required:{events:unknown,features:array<string>,work:array<string>}"
           },
           "sourcePaths": [
             "development/rmtx-a06/two-host-runtime.mjs"
           ],
           "symbols": [
             "createXTensionHost"
-          ],
-          "evidence": [
-            {
-              "type": "docs",
-              "completeness": "partial",
-              "authoritative": false,
-              "path": "development/rmtx-a06/two-host-runtime.mjs",
-              "symbol": "createXTensionHost"
-            }
-          ],
-          "evidenceTypes": [
-            "docs"
-          ],
-          "completeness": "partial",
-          "authoritative": false
+          ]
         },
         {
           "hash": "sha256:cac82b9db9558844e4009bf7c49334dc7d68186620e71e1ff3274dcac92ca3dd",
@@ -1031400,8 +1032700,6 @@
   },
   "excludedCandidates": [
     {
-      "identifier": "http://json-schema.org/draft-07/schema#",
-      "reason": "External JSON Schema dialect URI; it selects a validator dialect and is not an XTend schema entity.",
       "evidencePaths": [
         "contracts/release/artifact-v2.schema.json",
         "contracts/release/canary-v2.schema.json",
@@ -1031411,6 +1032709,7 @@
         "development/rmtx-a02/url-history/restore-plan.v1.schema.json",
         "development/rmtx-a02/url-history/state.v1.schema.json",
         "tools/rmt-language/contracts/classic-ast.v1.schema.json",
+        "tools/xtensions/component-interface.v1.schema.json",
         "tools/xtensions/url-state-contracts/history-proposal.v1.schema.json",
         "tools/xtensions/url-state-contracts/policy.v1.schema.json",
         "tools/xtensions/url-state-contracts/restore-plan.v1.schema.json",
@@ -1031423,11 +1032722,11 @@
         "xtendrmt/contracts/page-wire.v2.json",
         "xtendrmt/contracts/portable-render.v2.json",
         "xtendrmt/contracts/ssr-coverage.v1.json"
-      ]
+      ],
+      "identifier": "http://json-schema.org/draft-07/schema#",
+      "reason": "External JSON Schema dialect URI; it selects a validator dialect and is not an XTend schema entity."
     },
     {
-      "identifier": "https://json-schema.org/draft/2020-12/schema",
-      "reason": "External JSON Schema dialect URI; it selects a validator dialect and is not an XTend schema entity.",
       "evidencePaths": [
         "docs/generated/shell/runtime/fastpass.schema.json",
         "xscaler/schemas/atc-handoff.schema.json",
@@ -1031439,7 +1032738,9 @@
         "xtend-maraca/fastpass.schema.json",
         "xtendrmt/kernel/templates/rmt.schema.json",
         "xtendrmt/rmt.schema.json"
-      ]
+      ],
+      "identifier": "https://json-schema.org/draft/2020-12/schema",
+      "reason": "External JSON Schema dialect URI; it selects a validator dialect and is not an XTend schema entity."
     }
   ],
   "inventoryVersion": 2,
@@ -1064968,6 +1066269,23 @@
             "status": "active"
           },
           "releasedFingerprintSetHash": null
+        }
+      ]
+    },
+    {
+      "activeSchemaId": "xtend.xtensions.component-interface.v1",
+      "currentVersion": 1,
+      "familyId": "xtend.xtensions.component-interface",
+      "tombstones": [],
+      "versions": [
+        {
+          "lifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "releasedFingerprintSetHash": "sha256:2020edf804890ce6f825451d1559fc1f2573433c707120ed008c1a7eec40348f",
+          "schemaId": "xtend.xtensions.component-interface.v1",
+          "version": 1
         }
       ]
     },

@@ -1,4 +1,4 @@
-/** @param {{React: {createElement: (...args: any[]) => any}}} peers */
+/** @param {{React: {createElement: (...args: any[]) => any}, componentInterface: import('../../../tools/xtensions/component-interface.js').ComponentInterface}} peers */
 export function createComponent({ React }) {
   /** @param {import('../two-host.types.js').ProductGalleryProps} props */
   return function ProductGallery({ images, selectedImageId, xtension }) {

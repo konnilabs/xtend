@@ -15,6 +15,6 @@
     provider="vue-product-reviews"
     lane="idle"
     props={{ productId: model.product.id, sort: model.product.reviewsSort }}
-    intents={{ changeSort: { action: "product.changeSort" } }}
+    intents={{ changeSort: { action: "product.changeSort", payload: { sort: "order" } } }}
   />
 </RMT.Surface>;

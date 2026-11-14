@@ -5,8 +5,9 @@ const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 async function inspect({ write = false, check = false } = {}) {
   const root = path.resolve(__dirname, '../..'), ts = require('typescript'), checks = [];
   const verify = async (name, fn) => { await fn(); checks.push(name); };
-  const lowered = reference.lowerContract(), contract = reference.readContract(), records = reference.providerRecords(lowered);
-  const typePath = path.join(__dirname, 'two-host.types.d.ts'), types = reference.renderTypes(lowered);
+  const { lowered, capture } = await reference.prepareCase(), contract = reference.readContract(), records = capture.providers;
+  const lower = value => reference.lowerContract(value, capture.catalog);
+  const typePath = path.join(__dirname, 'two-host.types.d.ts'), types = reference.renderTypes(capture.catalog);
   if (write) fs.writeFileSync(typePath, types);
   await verify('generated component types exactly match the versioned data contract', () => assert.equal(fs.readFileSync(typePath, 'utf8'), types));
   await verify('two compiled target surfaces map to one explicit common owner', () => {
@@ -42,34 +43,37 @@ async function inspect({ write = false, check = false } = {}) {
     })) }, { bindings: lowered.bindings }), /exact declared owning Surface/);
   });
   for (const [name, mutate] of [
-    ['unknown contract version', value => { value.version = '2.0.0'; }],
+    ['unknown contract version', value => { value.version = '3.0.0'; }],
     ['unknown contract field', value => { value.scheduler = {}; }],
     ['duplicate declaration', value => { value.hosts[1].declarationId = value.hosts[0].declarationId; }],
     ['duplicate target', value => { value.hosts[1].targetSurface = value.hosts[0].targetSurface; }],
     ['undeclared owner', value => { value.ownerSurface = 'missing'; }],
-    ['unsupported framework', value => { value.hosts[0].framework = 'angular'; }],
-    ['unpinned peer', value => { value.hosts[0].peers.react = '^18'; }],
+    ['unsupported call-site framework override', value => { value.hosts[0].framework = 'angular'; }],
+    ['unpinned peer', value => { value.hosts[0].peers = { react: '^18' }; }],
     ['provider path escape', value => { value.hosts[0].providerModule = './../escape.mjs'; }],
     ['source grant', value => { value.hosts[0].scheduler = {}; }],
     ['unknown lane', value => { value.hosts[0].lane = 'invented'; }],
     ['missing Model path', value => { value.hosts[0].props.selectedImageId.path = ['missing']; }],
     ['wrong prop type', value => { value.hosts[0].props.selectedImageId.type = 'number'; }],
     ['unknown Action', value => { value.hosts[0].intents.selectImage.command = 'missing'; }],
-    ['mismatched Action input', value => { value.hosts[0].intents.selectImage.fields.imageId.type = 'number'; }],
-    ['extra intent payload field', value => { value.hosts[0].intents.selectImage.fields.command = { type: 'string' }; }]
-  ]) await verify('reject ' + name, () => { const value = structuredClone(contract); mutate(value); assert.throws(() => reference.lowerContract(value)); });
+    ['mismatched Action input', value => { value.hosts[0].intents.selectImage.payload = { imageId: 'unknown' }; }],
+    ['extra intent payload field', value => { value.hosts[0].intents.selectImage.fields = { command: { type: 'string' } }; }]
+  ]) await verify('reject ' + name, () => { const value = structuredClone(contract); mutate(value); assert.throws(() => lower(value)); });
   await verify('contract accessors are rejected without execution', () => {
     let calls = 0; const value = structuredClone(contract); Object.defineProperty(value, 'ownerSurface', { enumerable: true, get() { calls++; return contract.ownerSurface; } });
-    assert.throws(() => reference.lowerContract(value)); assert.equal(calls, 0);
+    assert.throws(() => lower(value)); assert.equal(calls, 0);
   });
-  const files = ['two-host.contract.json', 'two-host.rmt', 'two-host.candidate.tsx', 'two-host.types.d.ts', 'two-host-reference.cjs', 'two-host-runtime.mjs', 'two-host-acceptance.mjs', 'two-host-inspect.cjs', 'two-host-test.cjs', 'providers/react-gallery.mjs', 'providers/vue-reviews.mjs'];
-  const result = { format: 1, version: '1.0.0', stage: 'A06.1a-two-host-reference', contractVersion: contract.version,
+  const files = ['two-host.contract.json', 'two-host.rmt', 'two-host.candidate.tsx', 'two-host.types.d.ts', 'two-host-reference.cjs', 'two-host-runtime.mjs', 'two-host-acceptance.mjs', 'two-host-inspect.cjs', 'two-host-test.cjs', 'providers/react-gallery.mjs', 'providers/vue-reviews.mjs', 'providers/catalog.json', 'providers/react.interface.json', 'providers/vue.interface.json'].map(file => 'development/rmtx-a06/' + file).concat([
+    'tools/xtensions/component-interface.js', 'tools/xtensions/component-interface.d.ts', 'tools/xtensions/component-interface.v1.schema.json', 'tools/xtensions/component-interface-build.js',
+    'tests/xtensions/component-interface.test.cjs', 'tests/types/xtensions_component_interface.tsx', 'tests/types/xtensions_component_candidate.d.ts', 'scripts/check_release_preparation.cjs', 'tests/release/preparation-gates.test.cjs'
+  ]);
+  const result = { format: 2, version: '2.0.0', stage: 'A06.1b-provider-component-interface', contractVersion: contract.version,
     checks: checks.length, names: checks, automaticCompositionSupported: false, syntaxDecisionStatus: 'open',
     runtimeExecutionInContractCheck: false, acceptedForRelease: false,
-    sources: Object.fromEntries(files.map(file => [file, hash(fs.readFileSync(path.join(__dirname, file)))])) };
+    sources: Object.fromEntries(files.map(file => [file, hash(fs.readFileSync(path.join(root, file)))])) };
   const text = JSON.stringify(result, null, 2) + '\n', output = path.join(__dirname, 'two-host-evidence.json');
   if (write) fs.writeFileSync(output, text); if (check) assert.equal(fs.readFileSync(output, 'utf8'), text, 'A06 case contract/source drift');
-  console.log(`A06.1a: ${checks.length} contract/compiler/provider checks; automatic shared-owner composition remains open.`);
+  console.log(`A06.1b: ${checks.length} contract/compiler/provider checks; automatic shared-owner composition remains open.`);
   return result;
 }
 if (require.main === module) inspect({ write: process.argv.includes('--write'), check: process.argv.includes('--check') }).catch(error => { console.error(error); process.exitCode = 1; });
