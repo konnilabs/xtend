@@ -1,6 +1,6 @@
 # A06.1b – Zwei Hosts mit providerseitiger Komponentenschnittstelle
 
-Stand: **14. November 2026**. Referenzvertrag und Referenz-API **2.0.0**, Provider-Interface **1.0.0**. Die [Schnittstellendokumentation](component-interface.md) beschreibt die neue Trennung von Provider-Vertrag und Aufrufstelle. Syntaxentscheidung und automatische Maraca-Komposition für diesen Fall bleiben offen.
+Stand: **14. November 2026**. Referenzvertrag und Referenz-API **2.0.0**, Provider-Interface **1.0.0**. Die [Schnittstellendokumentation](component-interface.md) beschreibt die neue Trennung von Provider-Vertrag und Aufrufstelle. Die zusätzliche [automatische Maraca-Komposition](automatic-composition.md) ist seit dem 15. November 2026 für den statischen Fall implementiert. Diese Datei beschreibt weiterhin die explizite Referenz; die Syntaxentscheidung bleibt offen.
 
 Die Referenz zeigt eine React-Galerie und einen Vue-Bewertungsbereich mit getrennten Renderzielen, eigener Binding-Identität und **derselben owning Surface `product-details`**. Beide nutzen denselben vorhandenen RMT-Microkernel, Fabric, Surface-Controller und Model-/Action-Pfad. Der gemeinsame Owner wird im vertrauenswürdigen Anwendungshost ausdrücklich injiziert. Dafür entstehen keine neue Host-ABI und kein zweiter Scheduler, Graph oder State-Writer.
 
@@ -78,11 +78,15 @@ Abgedeckt werden geschlossene Contract-Felder und Versionen, korrekte Model-/Act
 
 Lokaler Nachweis: **26 Contract-/Compiler-/Provider-/Typprüfungen** unter beiden Node-Versionen sowie **13 echte React-/Vue-Fälle je Lauf** unter Node 24.18.0 und 26.5.0 in jsdom und im vorhandenen Chromium. Für A06.1b wird TypeScript 5.9.3 mit esbuild 0.28.2 verwendet; die ältere A06.1a-Beobachtung mit esbuild 0.25.12 bleibt im v1-Nachweis historisch erhalten. Die konkreten Testberichte werden vom Runner mit Node-, Peer- und Browserversion geschrieben. Contract-/Typ-/Interface-Prüfungen sind im blockierenden Vorbereitungsgate enthalten. Die Framework-Läufe bleiben über die eigenen Kommandos reproduzierbar und sind kein vollständiger 0.9-Release-Nachweis.
 
-## Offen für die nächsten A06-Abschnitte
+## Anschlussfragen der expliziten Referenz
 
-1. Die automatische Owner-/Renderziel-Abbildung mit ihrer Versionierungsstrategie entscheiden und implementieren; bisherige APIs/Schemata bleiben hier unverändert.
+1. Die automatische Owner-/Renderziel-Abbildung ist inzwischen im [A04-Profil](automatic-composition.md) mit eigenen neuen Vertragsversionen umgesetzt. Der hiesige explizite Vertrag bleibt eigenständig.
 2. Den jetzt implementierten providerseitigen Komponentenvertrag in ein allgemeines RMTX-Frontend integrieren. Die hiesige Typ-/Fixture-Prüfung ersetzt keine allgemeine Symbolauflösung oder sichere Cross-File-Rename-Funktion.
 3. Den gleichen vollständigen Fall in A und C gegenüberstellen, einschließlich Model, Actions und Policies. Die kurze TSX-Ansicht darf nicht allein als DX-/AX-Gewinn gelten.
 4. Den Zwei-Host-Fall gesondert durch A05 mit signiertem Restore, tatsächlicher SSR-Adoption und Replay führen. Diese Referenz prüft noch keinen solchen Handoff; sie erweitert A05 weder um async Komponenten noch um Portale oder neue Deploymentprofile.
 
 Der vorherige Case und seine Nachweise sind als v1-Dateien historisch erhalten. Dies ist eine ausführbare Implementierungsgrundlage für A06.1b, keine abschließende Syntax-ADR, kein freigegebenes öffentliches Komponenten-API und keine vollständige Feature-Abnahme von XTend 0.9.
+
+## Automatische A04-Abbildung am 15. November 2026
+
+Die hier beschriebene explizite Referenz bleibt reproduzierbar. Zusätzlich implementiert der [automatische A04-Pfad](automatic-composition.md) nun den statischen Zwei-Host-Fall mit getrennten Renderzielen und gemeinsamem Owner. Die erste offene Position oben ist damit für dieses begrenzte Profil erledigt. Die A05-Adoption des Profils und Wiederholungen mit konkreten Keys bleiben gesondert nachzuweisen; die frühere Legacy-Abweisung bleibt weiterhin korrekt.

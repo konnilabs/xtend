@@ -49,7 +49,7 @@ function envelope(publicPath, files, bootstrap, context) {
 /** Private registration from the successful regular build, before it returns.
  * Neither serialized build reports nor caller-supplied digests create this brand. */
 function registerBuild(result) {
-  if (!result.ok || result.plan.xtensionComposition?.schema !== 'xtend.maraca.xtension-composition-manifest.v5') return;
+  if (!result.ok || !['xtend.maraca.xtension-composition-manifest.v5', 'xtend.maraca.xtension-composition-manifest.v6'].includes(result.plan.xtensionComposition?.schema)) return;
   const root = fs.realpathSync(result.plan.outputDir), rows = result.sizeBudgetReport.accounting.files;
   const capture = rows.map(row => { const bytes = fs.readFileSync(path.join(root, row.fileName)); if (hash(bytes) !== row.sha256 || bytes.length !== row.bytes) throw new TypeError('Actual build bytes changed before deployment registration.'); return { ...row }; });
   const services = result.plan.services, pwa = result.plan.pwa;

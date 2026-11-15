@@ -4,8 +4,8 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "3b9d2f237157cc1ac16cf0b6ed947aa6bdbb1ad101657e913b0e56a7491a2929",
-  "sourceMembershipSha256": "9a27df96d099504165cd5fc791dccea9a1fbad0bd8c79a2a47875edcd803246b",
+  "inventorySha256": "79f7b9a4026645920f4f87e42c2feae369f543e4b0d9b6930444dcad8a5cdf55",
+  "sourceMembershipSha256": "f553b729eab036cc2ad50ec83411863c48193a2dde69d83f9e702920ba623d29",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
@@ -561,7 +561,7 @@
         },
         {
           "path": "development/rmtx-a01/inventory.json",
-          "sha256": "a31374a1e7abbf2c7c6e976b71eef687e93df7b0e28481a800fe52c4c435377c"
+          "sha256": "53aea5fcf2a8762db589ca5714c13db04ea8144b43a05dbb5933aa538a32180a"
         },
         {
           "path": "docs/de/rmt-vnext-authoring.md",
@@ -1937,7 +1937,7 @@
   "a06SyntaxAssessment": {
     "date": "2026-11-13",
     "report": "development/rmtx-a06/syntax-and-jsx-sideloading-assessment.md",
-    "reportSha256": "b7402657841b321f79555115744a1124a02a1d450f35ce640e4dd372000d5278",
+    "reportSha256": "15969d266aa53b6aee198b12d25c51f0ace24426774ac9ee0a12ad06b94ffb19",
     "sourceBaseSha": "e73d30c681973f29ff7f736dceb4a3141aab5183",
     "kind": "non-binding-report",
     "syntaxDecisionStatus": "open",
@@ -2114,6 +2114,279 @@
       "existingAuthoritativeDefinitionsChanged": false,
       "existingReleasedFingerprintSetsChanged": false,
       "historicalInventoryChanged": false
+    }
+  },
+  "a04ComponentOwnershipReview": {
+    "date": "2026-11-15",
+    "status": "implemented-static-component-profile",
+    "sourceBaseSha": "7a91bf69bb1d00b31e22c76eadbd0e2aa42a303f",
+    "documentation": "development/rmtx-a06/automatic-composition.md",
+    "documentationSha256": "e2d3d527ca072cb8b8bf616fbf018a6d5a117489a86025c1d186f07f78390ae8",
+    "contractEvidence": "development/rmtx-a06/automatic-evidence.json",
+    "runtimeEvidence": "development/rmtx-a06/automatic-runtime-evidence.json",
+    "newSchemaIds": [
+      "xtend.maraca.build-config.v6",
+      "xtend.maraca.build-plan.v6",
+      "xtend.maraca.browser-composition-root.v8",
+      "xtend.maraca.plan-runtime.v10",
+      "xtend.maraca.xtension-composition-artifact.v7",
+      "xtend.maraca.xtension-composition-build-report.v7",
+      "xtend.maraca.xtension-composition-manifest.v6",
+      "xtend.maraca.xtension-composition-port.v3"
+    ],
+    "buildApiVersion": "11.0.0",
+    "compositionApiVersion": "8.0.0",
+    "browserApiVersion": "8.0.0",
+    "componentInterfaceApiVersion": "1.0.0",
+    "componentCaptureApiVersion": "2.0.0",
+    "publicCompilerInterfaceExport": true,
+    "componentContractTestsPerNodeLane": 16,
+    "regularBuildChecks": 6,
+    "runtimeCasesPerEnvironment": 8,
+    "legacyA06RuntimeCasesPerEnvironment": 13,
+    "legacySSRRegressionChecks": 84,
+    "nodeVersions": [
+      "24.18.0",
+      "26.5.0"
+    ],
+    "typescript": "5.9.3",
+    "rollup": "4.60.4",
+    "terser": "5.48.0",
+    "esbuild": "0.28.2",
+    "react": "18.3.1",
+    "vue": "3.5.43",
+    "chromium": "155.0.8059.79",
+    "nativeSealedDeliveryVerified": true,
+    "relativeSizeBudgetEnforced": true,
+    "componentProfileReferenceRuntimeCeiling": 280000,
+    "legacyReferenceRuntimeCeiling": 240000,
+    "scope": "static-unkeyed-declarations-with-conditional-presence",
+    "legacyDataProfilesRetained": true,
+    "automaticCompositionSupported": true,
+    "componentProfileSSRSupported": false,
+    "componentProfileRepeatedKeysSupported": false,
+    "syntaxDecisionStatus": "open",
+    "acceptedForRelease": false,
+    "inventoryObservationReview": {
+      "previousInventorySha256": "3b9d2f237157cc1ac16cf0b6ed947aa6bdbb1ad101657e913b0e56a7491a2929",
+      "inventorySha256": "79f7b9a4026645920f4f87e42c2feae369f543e4b0d9b6930444dcad8a5cdf55",
+      "newSchemaIds": [
+        "xtend.maraca.browser-composition-root.v8",
+        "xtend.maraca.build-config.v6",
+        "xtend.maraca.build-plan.v6",
+        "xtend.maraca.plan-runtime.v10",
+        "xtend.maraca.xtension-composition-artifact.v7",
+        "xtend.maraca.xtension-composition-build-report.v7",
+        "xtend.maraca.xtension-composition-manifest.v6",
+        "xtend.maraca.xtension-composition-port.v3"
+      ],
+      "changes": [
+        {
+          "schemaId": "xtend.maraca.browser-composition-root.v7",
+          "fields": [
+            "canonicalDefinition",
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.maraca.build-config.v5",
+          "fields": [
+            "shapeFingerprints",
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [
+            {
+              "hash": "sha256:6995d5ceb9bab3ffca754e32999d5ffa48acdf07af0338af2a44d555bd5e04f4",
+              "completeness": "partial"
+            }
+          ],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.maraca.build-plan.v5",
+          "fields": [
+            "shapeFingerprints",
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.maraca.size-budget-report.v2",
+          "fields": [
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-composition-manifest.v2",
+          "fields": [
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-composition-manifest.v5",
+          "fields": [
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-delivery-policy.v1",
+          "fields": [
+            "canonicalDefinition",
+            "shapeFingerprints",
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-deployment-config.v1",
+          "fields": [
+            "shapeFingerprints",
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [
+            {
+              "hash": "sha256:30f03e823d2f0294246d735ddf2438badbea2f9ed16e1579b313fe2593eaea55",
+              "completeness": "partial"
+            }
+          ],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.xtensions.component-interface.v1",
+          "fields": [
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.xtensions.host-capability-requirements.v1",
+          "fields": [
+            "shapeFingerprints",
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [
+            {
+              "hash": "sha256:97064b0c1ff51f5f2e92bba4b1769271dcf0f292458d7a55e849b5ba991d3229",
+              "completeness": "partial"
+            }
+          ],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.xtensions.state-binding.v2",
+          "fields": [
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        }
+      ],
+      "existingAuthoritativeDefinitionsChanged": false,
+      "existingReleasedFingerprintSetsChanged": false,
+      "historicalInventoryChanged": false
+    },
+    "compatibilityLifecycleReview": {
+      "reason": "single-current-version-per-family",
+      "changes": [
+        {
+          "schemaId": "xtend.maraca.browser-composition-root.v7",
+          "previousLifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "legacyCompatibilityRetained": true,
+          "retired": false
+        },
+        {
+          "schemaId": "xtend.maraca.build-config.v5",
+          "previousLifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "legacyCompatibilityRetained": true,
+          "retired": false
+        },
+        {
+          "schemaId": "xtend.maraca.build-plan.v5",
+          "previousLifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "legacyCompatibilityRetained": true,
+          "retired": false
+        },
+        {
+          "schemaId": "xtend.maraca.plan-runtime.v9",
+          "previousLifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "legacyCompatibilityRetained": true,
+          "retired": false
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-composition-artifact.v6",
+          "previousLifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "legacyCompatibilityRetained": true,
+          "retired": false
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-composition-build-report.v6",
+          "previousLifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "legacyCompatibilityRetained": true,
+          "retired": false
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-composition-manifest.v5",
+          "previousLifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "legacyCompatibilityRetained": true,
+          "retired": false
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-composition-port.v2",
+          "previousLifecycle": {
+            "rollout": "planned",
+            "status": "active"
+          },
+          "legacyCompatibilityRetained": true,
+          "retired": false
+        }
+      ],
+      "existingRuntimeReadProfilesRetained": true,
+      "automaticMigration": false
+    },
+    "classicObservationSourceBindingReview": {
+      "sources": [
+        {
+          "path": "development/rmtx-a01/inventory.json",
+          "previousSha256": "a31374a1e7abbf2c7c6e976b71eef687e93df7b0e28481a800fe52c4c435377c",
+          "sha256": "53aea5fcf2a8762db589ca5714c13db04ea8144b43a05dbb5933aa538a32180a"
+        }
+      ],
+      "schemaId": "xtend.rmt.vnext.ast.v1",
+      "authoritativeFingerprintsUnchanged": true,
+      "formalASTSchemaChanged": false,
+      "releasedStatusChanged": false
     }
   }
 }

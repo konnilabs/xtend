@@ -46,6 +46,10 @@ export function createMaracaBrowserCompositionRoot(configuration: Readonly<Recor
   schema: 'xtend.maraca.browser-composition-root.v6'; buildPlanSchema: 'xtend.maraca.build-plan.v5'; xtensionComposition: import('./xtension-composition-runtime').IntegratedXTensionCompositionArtifact | import('./xtension-composition-runtime').GraphXTensionCompositionArtifact | import('./xtension-composition-runtime').DeferredXTensionCompositionArtifact | import('./xtension-composition-runtime').SharedXTensionCompositionArtifact | import('./xtension-composition-runtime').DeliveryXTensionCompositionArtifact;
 }, dependencies?: Readonly<Record<string, unknown>>): ComposedMaracaBrowserCompositionRoot;
 
+export function createMaracaBrowserCompositionRoot(configuration: Readonly<Record<string, unknown>> & {
+  schema: 'xtend.maraca.browser-composition-root.v8'; buildPlanSchema: 'xtend.maraca.build-plan.v6'; xtensionComposition: import('./xtension-composition-runtime').ComponentXTensionCompositionArtifact;
+}, dependencies?: Readonly<Record<string, unknown>>): ComponentMaracaBrowserCompositionRoot;
+
 export function createMaracaBrowserCompositionRoot(
   configuration?: Readonly<Record<string, unknown>>,
   dependencies?: Readonly<{
@@ -56,7 +60,7 @@ export function createMaracaBrowserCompositionRoot(
   }>
 ): MaracaBrowserCompositionRoot;
 
-export const MARACA_XTENSION_BROWSER_API_VERSION: '7.0.0';
+export const MARACA_XTENSION_BROWSER_API_VERSION: '8.0.0';
 export interface MaracaXTensionBootOptions extends Record<string, unknown> {
   readonly fabric: import('./xtension-composition-runtime').XTensionHostCompositionOptions['fabric'];
   readonly xtensions: Pick<import('./xtension-composition-runtime').XTensionHostCompositionOptions, 'grants'> & import('./xtension-composition-runtime').XTensionPeerLoaderOptions;
@@ -88,4 +92,15 @@ export interface SSRComposedMaracaBrowserCompositionRoot extends Omit<ComposedMa
   readonly apiVersion: '7.0.0'; readonly schema: 'xtend.maraca.browser-composition-root.v7';
   readonly facade: SSRComposedMaracaBrowserFacade;
   boot(options: MaracaXTensionSSRBootOptions): ReturnType<SSRComposedMaracaBrowserFacade['boot']>;
+}
+
+export interface ComponentMaracaBrowserFacade extends Omit<ComposedMaracaBrowserFacade, 'apiVersion' | 'orchestration' | 'snapshot' | 'subscribe'> {
+  readonly apiVersion: '8.0.0'; readonly orchestration: ComponentMaracaBrowserFacade;
+  snapshot(): import('./plan-runtime').ComponentMaracaPlanRuntimeSnapshot;
+  subscribe(listener: (snapshot: import('./plan-runtime').ComponentMaracaPlanRuntimeSnapshot) => void): () => void;
+}
+export interface ComponentMaracaBrowserCompositionRoot extends Omit<ComposedMaracaBrowserCompositionRoot, 'apiVersion' | 'schema' | 'facade' | 'boot'> {
+  readonly apiVersion: '8.0.0'; readonly schema: 'xtend.maraca.browser-composition-root.v8';
+  readonly facade: ComponentMaracaBrowserFacade;
+  boot(options: MaracaXTensionBootOptions): ReturnType<ComponentMaracaBrowserFacade['boot']>;
 }

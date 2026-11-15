@@ -4,7 +4,7 @@ import type {
 } from '@ccslabs/xtend-compiler/xtensions/react-runtime-adapter';
 import type { XTensionBindingHostContext, XTensionStateBindingArtifact } from '@ccslabs/xtend-compiler/xtensions/state-binding';
 import type { MaracaBuildPlan } from './index';
-export const XTENSION_COMPOSITION_API_VERSION: '7.0.0';
+export const XTENSION_COMPOSITION_API_VERSION: '8.0.0';
 export type XTensionCompositionProvider = {
   readonly id: string;
   readonly version: string;
@@ -220,3 +220,36 @@ export interface MaracaXTensionSSRCompositionPort extends Omit<MaracaXTensionCom
   readonly resumeBindingsRuntime: MaracaXTensionResumeBindingRuntime;
   bind(ports: Parameters<MaracaXTensionCompositionPort['bind']>[0]): (context: XTensionCompositionHostContext) => import('@ccslabs/xtend-compiler/xtensions/react-runtime-adapter').SSRRuntimeHostController;
 }
+
+/** A04 component profile: provider-owned interfaces and separate owner/render target. */
+export interface ComponentXTensionCompositionManifest extends Omit<DeliveryXTensionCompositionManifest, 'schema' | 'hosts'> {
+  readonly schema: 'xtend.maraca.xtension-composition-manifest.v6';
+  readonly interfaces: readonly { readonly providerId: string; readonly file: string; readonly sha256: string }[];
+  readonly hosts: readonly (XTensionCompositionManifest['hosts'][number] & {
+    readonly targetSurface: string; readonly interfaceVersion: string; readonly interfaceSha256: string;
+    readonly intents: import('@ccslabs/xtend-compiler/xtensions/component-interface').ComponentBindingRequest['intents'];
+  })[];
+}
+export interface ComponentXTensionCompositionArtifact extends Omit<DeliveryXTensionCompositionArtifact, 'schema' | 'apiVersion' | 'plan' | 'manifest'> {
+  readonly schema: 'xtend.maraca.xtension-composition-artifact.v7'; readonly apiVersion: '7.0.0';
+  readonly manifest: ComponentXTensionCompositionManifest;
+  readonly plan: Omit<XTensionCompositionArtifact['plan'], 'schema'> & { readonly schema: 'xtend.maraca.build-plan.v6'; readonly compositionManifest: ComponentXTensionCompositionManifest };
+  readonly componentInterfaces: readonly (import('@ccslabs/xtend-compiler/xtensions/component-interface').ComponentInterfaceCapture & { readonly fileName: string; readonly sourceBytes: number })[];
+}
+export interface ComponentXTensionHostCompositionOptions extends Omit<SharedXTensionHostCompositionOptions, 'artifact' | 'plan'> {
+  readonly artifact: ComponentXTensionCompositionArtifact;
+  readonly plan: Omit<import('./index').MaracaComponentBuildPlan, 'xtensionComposition'> & { readonly xtensionComposition: ComponentXTensionCompositionManifest | ComponentXTensionCompositionArtifact };
+  readonly componentInterfaceRuntime: typeof import('@ccslabs/xtend-compiler/xtensions/component-interface');
+  readonly ssrSession?: never;
+}
+export interface MaracaComponentXTensionCompositionPort extends Omit<MaracaXTensionCompositionPort, 'schema' | 'bind'> {
+  readonly schema: 'xtend.maraca.xtension-composition-port.v3';
+  bind(ports: Parameters<MaracaXTensionCompositionPort['bind']>[0]): (context: ComponentXTensionHostContext) => NegotiatedRuntimeHostController;
+}
+export type ComponentXTensionHostContext = Omit<XTensionCompositionHostContext, 'binding'> & { readonly binding: import('@ccslabs/xtend-compiler/xtensions/state-binding').XTensionKeyedStateBinding };
+export function createMaracaXTensionHostFactory(options: ComponentXTensionHostCompositionOptions): (context: ComponentXTensionHostContext) => NegotiatedRuntimeHostController;
+export function createMaracaXTensionCompositionPort(options: Omit<ComponentXTensionHostCompositionOptions, 'artifact' | 'plan' | 'fabric' | 'kernelWork' | 'resourceGraph' | 'loadProviders'> & {
+  readonly plan: Omit<import('./index').MaracaComponentBuildPlan, 'xtensionComposition'> & { readonly xtensionComposition: ComponentXTensionCompositionArtifact };
+  readonly companion: { readonly artifact: ComponentXTensionCompositionArtifact; createHostFactory(ports: any): (context: ComponentXTensionHostContext) => NegotiatedRuntimeHostController };
+  readonly ssr?: never;
+}): MaracaComponentXTensionCompositionPort;

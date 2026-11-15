@@ -376,7 +376,7 @@ export declare function bootMaracaPlan(options: SSRComposedMaracaPlanRuntimeOpti
 export declare function bootMaracaPlan(options: ComposedMaracaPlanRuntimeOptions): Promise<ComposedMaracaPlanRuntime>;
 export declare function bootMaracaPlan(options: MaracaPlanRuntimeOptions): Promise<MaracaPlanRuntime>;
 
-declare const api: Readonly<{ SSR_XTENSION_PLAN_RUNTIME_SCHEMA: typeof SSR_XTENSION_PLAN_RUNTIME_SCHEMA; PLAN_RUNTIME_SCHEMA: typeof PLAN_RUNTIME_SCHEMA; XTENSION_PLAN_RUNTIME_SCHEMA: typeof XTENSION_PLAN_RUNTIME_SCHEMA; LEGACY_PLAN_RUNTIME_SCHEMA: typeof LEGACY_PLAN_RUNTIME_SCHEMA; createMaracaPlanRuntime: typeof createMaracaPlanRuntime; bootMaracaPlan: typeof bootMaracaPlan }>;
+declare const api: Readonly<{ COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA: typeof COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA; SSR_XTENSION_PLAN_RUNTIME_SCHEMA: typeof SSR_XTENSION_PLAN_RUNTIME_SCHEMA; PLAN_RUNTIME_SCHEMA: typeof PLAN_RUNTIME_SCHEMA; XTENSION_PLAN_RUNTIME_SCHEMA: typeof XTENSION_PLAN_RUNTIME_SCHEMA; LEGACY_PLAN_RUNTIME_SCHEMA: typeof LEGACY_PLAN_RUNTIME_SCHEMA; createMaracaPlanRuntime: typeof createMaracaPlanRuntime; bootMaracaPlan: typeof bootMaracaPlan }>;
 export default api;
 
 /** Separate opt-in v8 contract; manual v7 options, runtime and snapshots remain intact. */
@@ -413,3 +413,18 @@ export interface SSRComposedMaracaPlanRuntimeOptions extends Omit<ComposedMaraca
   xtensionCompositionPort: import('./xtension-composition-runtime').MaracaXTensionSSRCompositionPort;
   adoptExisting?: boolean;
 }
+
+export const COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA: 'xtend.maraca.plan-runtime.v10';
+export interface ComponentMaracaPlanRuntimeSnapshot extends Omit<ComposedMaracaPlanRuntimeSnapshot, 'schema'> { readonly schema: 'xtend.maraca.plan-runtime.v10' }
+export interface ComponentMaracaPlanRuntime extends Omit<ComposedMaracaPlanRuntime, 'schema' | 'boot' | 'snapshot' | 'subscribe'> {
+  readonly schema: 'xtend.maraca.plan-runtime.v10';
+  boot(): Promise<ComponentMaracaPlanRuntimeSnapshot>;
+  snapshot(): ComponentMaracaPlanRuntimeSnapshot;
+  subscribe(listener: (snapshot: ComponentMaracaPlanRuntimeSnapshot) => void): () => void;
+}
+export interface ComponentMaracaPlanRuntimeOptions extends Omit<ComposedMaracaPlanRuntimeOptions, 'plan' | 'xtensionCompositionPort'> {
+  plan: Record<string, unknown> & { schema: 'xtend.maraca.build-plan.v6'; xtensionComposition: import('./xtension-composition-runtime').ComponentXTensionCompositionArtifact };
+  xtensionCompositionPort: import('./xtension-composition-runtime').MaracaComponentXTensionCompositionPort;
+}
+export function createMaracaPlanRuntime(options: ComponentMaracaPlanRuntimeOptions): ComponentMaracaPlanRuntime;
+export function bootMaracaPlan(options: ComponentMaracaPlanRuntimeOptions): Promise<ComponentMaracaPlanRuntime>;

@@ -74,7 +74,7 @@ function apply(plan, legacy, bundleFiles) {
     sourcePaths.add(source.absolutePath); sourceNames.add(source.source);
     sourceFiles.push({ source: source.source, bytes: source.bytes, sha256: source.sha256, additional: !legacyPaths.has(source.absolutePath) });
   }
-  const graph = ['xtend.maraca.xtension-composition-artifact.v3', 'xtend.maraca.xtension-composition-artifact.v4', 'xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6'].includes(artifact.schema);
+  const graph = ['xtend.maraca.xtension-composition-artifact.v3', 'xtend.maraca.xtension-composition-artifact.v4', 'xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6', 'xtend.maraca.xtension-composition-artifact.v7'].includes(artifact.schema);
   for (const provider of graph ? artifact.modules : artifact.providers) {
     const bytes = contents.get(provider.fileName);
     if (!bytes || hash(bytes) !== (graph ? provider.outputSha256 : provider.sha256)) throw new TypeError('Missing captured provider bytes.');
@@ -83,6 +83,11 @@ function apply(plan, legacy, bundleFiles) {
       sourcePaths.add(sourcePath);
       sourceFiles.push({ source: 'provider/' + (graph ? provider.module.slice(2) : provider.id), bytes: graph ? provider.sourceBytes : bytes.length, sha256: provider.sha256, additional: !legacyPaths.has(sourcePath) });
     }
+  }
+  for (const row of artifact.componentInterfaces || []) {
+    const bytes = contents.get(row.fileName);
+    if (!bytes || bytes.length !== row.sourceBytes || hash(bytes) !== row.interfaceSha256) throw new TypeError('Captured component interface bytes are missing or changed.');
+    sourceFiles.push({ source: 'interface/' + row.definition.providerId, bytes: bytes.length, sha256: row.interfaceSha256, additional: true });
   }
   sourceFiles.sort((a, b) => a.source.localeCompare(b.source));
   const contract = Buffer.from(JSON.stringify(artifact));

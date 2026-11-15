@@ -1,0 +1,97 @@
+{
+  "format": 1,
+  "version": "1.0.0",
+  "date": "2026-11-15",
+  "stage": "A04-component-ownership",
+  "contractEvidenceSha256": "86681f48eeea7140f581215bd67e87efb1b00f50df02d10b04c3937c6d1e8886",
+  "runs": [
+    {
+      "format": 1,
+      "version": "1.0.0",
+      "stage": "A04-component-ownership",
+      "mode": "jsdom-native-esm",
+      "node": "v24.18.0",
+      "browserVersion": null,
+      "pageErrors": [],
+      "versions": {
+        "react": "18.3.1",
+        "vue": "3.5.43"
+      },
+      "passed": true,
+      "cases": 8,
+      "names": [
+        "generated v8 browser app boots both providers with exact component interfaces through Kernel/Fabric",
+        "provider events update Model/XTend State and preserve the sibling framework root",
+        "common owner close/resume controls both hosts and stages the latest controlled values",
+        "conditional removal retains sibling and revokes the former callback across reincarnation",
+        "runtime rejects extra props and invalid raw Vue payloads before dispatch",
+        "common owner destruction immediately cancels work and releases both native resource leases",
+        "destroying the shared owner during native provider loading fences both late roots",
+        "disposing a pending automatic boot fences late provider imports and releases native ownership"
+      ],
+      "automaticCompositionSupported": true,
+      "ssrAcceptancePerformed": false,
+      "acceptedForRelease": false
+    },
+    {
+      "format": 1,
+      "version": "1.0.0",
+      "stage": "A04-component-ownership",
+      "mode": "jsdom-native-esm",
+      "node": "v26.5.0",
+      "browserVersion": null,
+      "pageErrors": [],
+      "versions": {
+        "react": "18.3.1",
+        "vue": "3.5.43"
+      },
+      "passed": true,
+      "cases": 8,
+      "names": [
+        "generated v8 browser app boots both providers with exact component interfaces through Kernel/Fabric",
+        "provider events update Model/XTend State and preserve the sibling framework root",
+        "common owner close/resume controls both hosts and stages the latest controlled values",
+        "conditional removal retains sibling and revokes the former callback across reincarnation",
+        "runtime rejects extra props and invalid raw Vue payloads before dispatch",
+        "common owner destruction immediately cancels work and releases both native resource leases",
+        "destroying the shared owner during native provider loading fences both late roots",
+        "disposing a pending automatic boot fences late provider imports and releases native ownership"
+      ],
+      "automaticCompositionSupported": true,
+      "ssrAcceptancePerformed": false,
+      "acceptedForRelease": false
+    },
+    {
+      "format": 1,
+      "version": "1.0.0",
+      "stage": "A04-component-ownership",
+      "mode": "chromium-sealed-native-esm",
+      "node": "v24.18.0",
+      "browserVersion": "155.0.8059.79",
+      "pageErrors": [],
+      "versions": {
+        "react": "18.3.1",
+        "vue": "3.5.43"
+      },
+      "passed": true,
+      "cases": 8,
+      "names": [
+        "generated v8 browser app boots both providers with exact component interfaces through Kernel/Fabric",
+        "provider events update Model/XTend State and preserve the sibling framework root",
+        "common owner close/resume controls both hosts and stages the latest controlled values",
+        "conditional removal retains sibling and revokes the former callback across reincarnation",
+        "runtime rejects extra props and invalid raw Vue payloads before dispatch",
+        "common owner destruction immediately cancels work and releases both native resource leases",
+        "destroying the shared owner during native provider loading fences both late roots",
+        "disposing a pending automatic boot fences late provider imports and releases native ownership"
+      ],
+      "automaticCompositionSupported": true,
+      "ssrAcceptancePerformed": false,
+      "acceptedForRelease": false
+    }
+  ],
+  "automaticCompositionSupported": true,
+  "scope": "static-unkeyed-declarations-with-conditional-presence",
+  "ssrAcceptancePerformed": false,
+  "acceptedForRelease": false
+}

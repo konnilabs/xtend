@@ -28,7 +28,7 @@ function toESM(source,parseAst,resolve){
  if(!exported)throw new TypeError('Platform module has no static exports.');
  for(const edit of edits.sort((a,b)=>b.start-a.start))source=source.slice(0,edit.start)+edit.text+source.slice(edit.end);
  // No unresolved CommonJS machinery or computed load is permitted in output.
- function check(node){if(!node||typeof node!=='object')return;if(node.type==='Identifier'&&['require','module','exports'].includes(node.name))throw new TypeError('Unconverted CommonJS platform operation.');for(const value of Object.values(node))if(Array.isArray(value))value.forEach(check);else if(value&&typeof value==='object')check(value);}
+ function check(node,parent){if(!node||typeof node!=='object')return;const propertyName=parent&&!parent.computed&&(parent.type==='MemberExpression'&&parent.property===node||parent.type==='Property'&&parent.key===node&&parent.value!==node);if(node.type==='Identifier'&&!propertyName&&['require','module','exports'].includes(node.name))throw new TypeError('Unconverted CommonJS platform operation.');for(const value of Object.values(node))if(Array.isArray(value))value.forEach(child=>check(child,node));else if(value&&typeof value==='object')check(value,node);}
  check(parseAst(source));return source;
 }
 module.exports={toESM};

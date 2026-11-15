@@ -36,12 +36,12 @@
     "tools/xtensions/vue-runtime-adapter.d.ts": "f441bed2550894206df776eec5d3cbfece18adb92c1432060494b38bc80d699f",
     "tools/xtensions/state-binding.js": "19b0f4266fc7546016eb68df9eec391b554ab22a96d5eb97d001c0efa047ca79",
     "tools/xtensions/state-binding.d.ts": "d9d73412a744b3009f892da0d4ffb2e91bcbe0425a6ed88ecaaccefb3d435341",
-    "tools/package.json": "6a8f0de8f64b1a96fffe35221133779efdf59bf8e6e84a4deca878ef4ed3d5a5",
-    "xtend-maraca/plan-runtime.d.ts": "ba594c4e6a2d1b15564bb7404d6566088c21bcb64df998cc80dd8107fb176060",
+    "tools/package.json": "5ba8082739322f2e20861609b36144aa80616f85364a9135c903004f188a5e08",
+    "xtend-maraca/plan-runtime.d.ts": "2294eb80323251057dc541c286279602498a2f2dd206bba624e23294c390ba84",
     "tests/xtensions/work-budget-acceptance.js": "7fcd2ab8138daad09452fe73af31f880d3c6d8f81164c8378022e69763140fe1",
     "tests/xtensions/work-budget-maraca-acceptance.js": "864b8aa6ccee6d9aeb896999cb2a2ffa3c683d5632a0ef45a0e6fc1e0d4e6a80",
     "tests/types/xtensions_work_budget.mts": "b486b8d98c90bae96d1e0c7e38bb7a2e5961ca84612767aa8049825b43f3bef8",
     "tests/xtensions/xtensions_runtime_gate_suite.js": "7256f64a084a21120124e864d7eb0e3c88678417b99f362d086605e3208d929c",
-    "tests/xtensions/xtensions_consumer_package_suite.js": "26a41d339b0d083a5ad55258f8d4734ebfca0d365a750f2d2bbca510af5e94c3"
+    "tests/xtensions/xtensions_consumer_package_suite.js": "f77a2c835b378a1c1e3234fcd8290d62d9414274304b4025505741e0536a5ad7"
   }
 }

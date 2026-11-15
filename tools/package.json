@@ -56,7 +56,8 @@
     "tooling-bridge.d.ts",
     "tooling-bridge-cli.js",
     "tooling-bridge-client.php",
-    "package.json"
+    "package.json",
+    "xtensions/component-interface*.*"
   ],
   "exports": {
     ".": {
@@ -157,6 +158,10 @@
     "./xtensions/vue-runtime-adapter": {
       "types": "./xtensions/vue-runtime-adapter.d.ts",
       "default": "./xtensions/vue-runtime-adapter.js"
+    },
+    "./xtensions/component-interface": {
+      "types": "./xtensions/component-interface.d.ts",
+      "default": "./xtensions/component-interface.js"
     }
   },
   "publishConfig": {

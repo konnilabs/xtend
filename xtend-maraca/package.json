@@ -155,7 +155,8 @@
     "xtension-platform-build.js",
     "xtension-platform-esm.js",
     "xtension-size-budget.js",
-    "xtension-provider-graph.js"
+    "xtension-provider-graph.js",
+    "xtension-component-binding.mjs"
   ],
   "engines": {
     "node": ">=24"

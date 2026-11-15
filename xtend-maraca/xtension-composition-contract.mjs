@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Shared, data-only contract. No framework, filesystem or kernel implementation.
+export const COMPONENT_MANIFEST_SCHEMA = 'xtend.maraca.xtension-composition-manifest.v6';
+export const COMPONENT_ARTIFACT_SCHEMA = 'xtend.maraca.xtension-composition-artifact.v7';
 export const DELIVERY_MANIFEST_SCHEMA = 'xtend.maraca.xtension-composition-manifest.v5';
 export const DELIVERY_ARTIFACT_SCHEMA = 'xtend.maraca.xtension-composition-artifact.v6';
 export const SHARED_MANIFEST_SCHEMA = 'xtend.maraca.xtension-composition-manifest.v4';
@@ -64,21 +66,22 @@ function requirements(value, framework) {
   return result;
 }
 export function planIdentity(plan, bindingsRuntime) {
-  if (!plan || !['xtend.maraca.build-plan.v4', 'xtend.maraca.build-plan.v5'].includes(plan.schema) || plan.ok !== true || !/^[a-f0-9]{64}$/.test(plan.sourceHash || '') || !plan.orchestration?.enabled) throw new TypeError('An enabled, valid Maraca v4/v5 build plan is required.');
+  if (!plan || !['xtend.maraca.build-plan.v4', 'xtend.maraca.build-plan.v5', 'xtend.maraca.build-plan.v6'].includes(plan.schema) || plan.ok !== true || !/^[a-f0-9]{64}$/.test(plan.sourceHash || '') || !plan.orchestration?.enabled) throw new TypeError('An enabled, valid Maraca v4/v5/v6 build plan is required.');
   if (bindingsRuntime?.XTENSION_STATE_BINDING_API_VERSION !== '2.4.0' || typeof bindingsRuntime.validateStateBindingArtifact !== 'function') throw new TypeError('The explicit state-binding API 2.4 runtime is required.');
   const bindings = bindingsRuntime.validateStateBindingArtifact(plan.xtensionBindings, plan.orchestration.artifact);
   if (!bindings.bindings.length) throw new TypeError('Composition requires at least one binding declaration.');
   const identity = { schema: plan.schema, sourceHash: plan.sourceHash, program: copy(plan.orchestration.artifact), bindings: copy(bindings) };
-  if (plan.schema === 'xtend.maraca.build-plan.v5') {
+  if (['xtend.maraca.build-plan.v5', 'xtend.maraca.build-plan.v6'].includes(plan.schema)) {
     const composition = plan.xtensionComposition;
-    identity.compositionManifest = normalizeManifest([INTEGRATED_ARTIFACT_SCHEMA, GRAPH_ARTIFACT_SCHEMA, DEFERRED_ARTIFACT_SCHEMA, SHARED_ARTIFACT_SCHEMA, DELIVERY_ARTIFACT_SCHEMA].includes(composition?.schema) ? composition.manifest : composition, identity);
+    identity.compositionManifest = normalizeManifest([INTEGRATED_ARTIFACT_SCHEMA, GRAPH_ARTIFACT_SCHEMA, DEFERRED_ARTIFACT_SCHEMA, SHARED_ARTIFACT_SCHEMA, DELIVERY_ARTIFACT_SCHEMA, COMPONENT_ARTIFACT_SCHEMA].includes(composition?.schema) ? composition.manifest : composition, identity);
   }
   return freeze(identity);
 }
 export function normalizeManifest(input, identity) {
-  json(input); const delivery = input?.schema === DELIVERY_MANIFEST_SCHEMA, shared = delivery || input?.schema === SHARED_MANIFEST_SCHEMA, deferred = shared || input?.schema === DEFERRED_MANIFEST_SCHEMA, graph = deferred || input?.schema === GRAPH_MANIFEST_SCHEMA;
-  fields(input, graph ? ['schema', 'providers', 'hosts', 'modules', ...(deferred ? ['loading'] : []), ...(delivery ? ['delivery'] : [])] : ['schema', 'providers', 'hosts'], 'composition manifest');
-  if (![MANIFEST_SCHEMA, GRAPH_MANIFEST_SCHEMA, DEFERRED_MANIFEST_SCHEMA, SHARED_MANIFEST_SCHEMA, DELIVERY_MANIFEST_SCHEMA].includes(input.schema) || !Array.isArray(input.providers) || !input.providers.length || input.providers.length > 64 || !Array.isArray(input.hosts) || input.hosts.length > 256) throw new TypeError('A bounded v1/v2/v3/v4/v5 composition manifest is required.');
+  json(input); const component = input?.schema === COMPONENT_MANIFEST_SCHEMA, delivery = component || input?.schema === DELIVERY_MANIFEST_SCHEMA, shared = delivery || input?.schema === SHARED_MANIFEST_SCHEMA, deferred = shared || input?.schema === DEFERRED_MANIFEST_SCHEMA, graph = deferred || input?.schema === GRAPH_MANIFEST_SCHEMA;
+  fields(input, graph ? ['schema', 'providers', 'hosts', 'modules', ...(deferred ? ['loading'] : []), ...(delivery ? ['delivery'] : []), ...(component ? ['interfaces'] : [])] : ['schema', 'providers', 'hosts'], 'composition manifest');
+  if (![MANIFEST_SCHEMA, GRAPH_MANIFEST_SCHEMA, DEFERRED_MANIFEST_SCHEMA, SHARED_MANIFEST_SCHEMA, DELIVERY_MANIFEST_SCHEMA, COMPONENT_MANIFEST_SCHEMA].includes(input.schema) || !Array.isArray(input.providers) || !input.providers.length || input.providers.length > 64 || !Array.isArray(input.hosts) || input.hosts.length > 256) throw new TypeError('A bounded v1/v2/v3/v4/v5/v6 composition manifest is required.');
+  if (component && identity.schema !== undefined && identity.schema !== 'xtend.maraca.build-plan.v6' || !component && identity.schema === 'xtend.maraca.build-plan.v6') throw new TypeError('Component profile and build-plan v6 must be selected together.');
   const ids = new Set();
   const providers = input.providers.map(provider => {
     fields(provider, ['id', 'framework', 'version', 'entry', 'integrity', 'peers'], 'provider');
@@ -97,12 +100,17 @@ export function normalizeManifest(input, identity) {
   const declarations = new Map(identity.bindings.bindings.map(entry => [entry.binding.address.declarationId, entry]));
   if (declarations.size !== identity.bindings.bindings.length) throw new TypeError('Declaration IDs must uniquely identify composition entries.');
   const used = new Set(), hosts = input.hosts.map(host => {
-    fields(host, ['declarationId', 'providerId', 'ownerSurface', 'capabilityRequirements'], 'host composition');
+    fields(host, ['declarationId', 'providerId', 'ownerSurface', 'capabilityRequirements', ...(component ? ['targetSurface', 'interfaceVersion', 'interfaceSha256', 'intents'] : [])], 'host composition');
     name(host.declarationId); name(host.ownerSurface);
     const binding = declarations.get(host.declarationId), provider = providers.find(entry => entry.id === host.providerId);
-    if (!binding || !provider || used.has(host.declarationId) || host.ownerSurface !== binding.surface) throw new TypeError('Each binding requires one provider and its exact declared owning Surface.');
+    if (!binding || !provider || used.has(host.declarationId) || (!component && host.ownerSurface !== binding.surface)) throw new TypeError('Each binding requires one provider and its exact declared owning Surface.');
+    if (component) {
+      if (host.targetSurface !== binding.surface || !identity.program?.surfaces?.some(surface => surface.id === host.ownerSurface) || binding.repeat || binding.binding.address.keys.length) throw new TypeError('Component v6 requires a declared owner, exact render target and a static unkeyed declaration.');
+      if (!/^\d+\.\d+\.\d+$/.test(host.interfaceVersion || '') || !digest(host.interfaceSha256)) throw new TypeError('A pinned component interface reference is required.');
+      fields(host.intents, Object.keys(binding.binding.intents), 'component intent routes');
+    }
     used.add(host.declarationId);
-    return { declarationId: host.declarationId, providerId: host.providerId, ownerSurface: host.ownerSurface, capabilityRequirements: requirements(host.capabilityRequirements, provider.framework) };
+    return { declarationId: host.declarationId, providerId: host.providerId, ownerSurface: host.ownerSurface, capabilityRequirements: requirements(host.capabilityRequirements, provider.framework), ...(component ? { targetSurface: host.targetSurface, interfaceVersion: host.interfaceVersion, interfaceSha256: host.interfaceSha256, intents: copy(host.intents) } : {}) };
   }).sort((a, b) => a.declarationId < b.declarationId ? -1 : 1);
   if (used.size !== declarations.size || providers.some(provider => !hosts.some(host => host.providerId === provider.id))) throw new TypeError('Composition must cover all bindings and use every provider.');
   let modules;
@@ -124,19 +132,37 @@ export function normalizeManifest(input, identity) {
     fields(input.delivery, ['schema', 'mode'], 'delivery policy');
     if (input.delivery.schema !== 'xtend.maraca.xtension-delivery-policy.v1' || input.delivery.mode !== 'same-origin-external-esm') throw new TypeError('An explicit same-origin external-ESM delivery policy is required.');
   }
-  return freeze({ schema: input.schema, providers, hosts, ...(graph ? { modules } : {}), ...(deferred ? { loading: copy(input.loading) } : {}), ...(delivery ? { delivery: copy(input.delivery) } : {}) });
+  let interfaces;
+  if (component) {
+    if (!Array.isArray(input.interfaces) || input.interfaces.length !== providers.length) throw new TypeError('Every component provider requires exactly one pinned interface file.');
+    const used = new Set(), paths = new Set();
+    interfaces = input.interfaces.map(pin => {
+      fields(pin, ['providerId', 'file', 'sha256'], 'component interface pin');
+      if (!ids.has(pin.providerId) || used.has(pin.providerId) || paths.has(pin.file) || !/^\.\/(?:[a-zA-Z0-9_-]+\/)*[a-zA-Z0-9_.-]+\.json$/.test(pin.file || '') || !digest(pin.sha256) || hosts.some(host => host.providerId === pin.providerId && host.interfaceSha256 !== pin.sha256)) throw new TypeError('Interface pins must uniquely cover provider IDs and match their host references.');
+      used.add(pin.providerId); paths.add(pin.file); return copy(pin);
+    }).sort((a,b) => a.providerId < b.providerId ? -1 : 1);
+  }
+  return freeze({ schema: input.schema, providers, hosts, ...(component ? { interfaces } : {}), ...(graph ? { modules } : {}), ...(deferred ? { loading: copy(input.loading) } : {}), ...(delivery ? { delivery: copy(input.delivery) } : {}) });
 }
 export function validateArtifact(input, plan, bindingsRuntime) {
-  json(input); const delivery = input?.schema === DELIVERY_ARTIFACT_SCHEMA, shared = delivery || input?.schema === SHARED_ARTIFACT_SCHEMA, deferred = shared || input?.schema === DEFERRED_ARTIFACT_SCHEMA, graph = deferred || input?.schema === GRAPH_ARTIFACT_SCHEMA;
-  fields(input, ['schema', 'apiVersion', 'plan', 'manifest', 'providers', 'entryFile', 'runtimeExecutionVerified', ...(graph ? ['modules'] : []), ...(deferred ? ['loadPlan'] : [])], 'composition artifact');
+  json(input); const component = input?.schema === COMPONENT_ARTIFACT_SCHEMA, delivery = component || input?.schema === DELIVERY_ARTIFACT_SCHEMA, shared = delivery || input?.schema === SHARED_ARTIFACT_SCHEMA, deferred = shared || input?.schema === DEFERRED_ARTIFACT_SCHEMA, graph = deferred || input?.schema === GRAPH_ARTIFACT_SCHEMA;
+  fields(input, ['schema', 'apiVersion', 'plan', 'manifest', 'providers', 'entryFile', 'runtimeExecutionVerified', ...(graph ? ['modules'] : []), ...(deferred ? ['loadPlan'] : []), ...(component ? ['componentInterfaces'] : [])], 'composition artifact');
   const integrated = input.schema === INTEGRATED_ARTIFACT_SCHEMA;
-  if ((!graph && !integrated && input.schema !== ARTIFACT_SCHEMA) || input.apiVersion !== (delivery ? '6.0.0' : shared ? '5.0.0' : deferred ? '4.0.0' : graph ? '3.0.0' : integrated ? '2.0.0' : '1.0.0') || !(graph ? ['xtend.maraca.build-plan.v4', 'xtend.maraca.build-plan.v5'] : [integrated ? 'xtend.maraca.build-plan.v5' : 'xtend.maraca.build-plan.v4']).includes(input.plan?.schema) || input.runtimeExecutionVerified !== false || !/^xtend\.xtensions-[a-f0-9]{64}\.mjs$/.test(input.entryFile || '')) throw new TypeError('A version-matched v1/v2/v3/v4/v5/v6 build composition artifact is required.');
+  if ((!graph && !integrated && input.schema !== ARTIFACT_SCHEMA) || input.apiVersion !== (component ? '7.0.0' : delivery ? '6.0.0' : shared ? '5.0.0' : deferred ? '4.0.0' : graph ? '3.0.0' : integrated ? '2.0.0' : '1.0.0') || !(component ? ['xtend.maraca.build-plan.v6'] : graph ? ['xtend.maraca.build-plan.v4', 'xtend.maraca.build-plan.v5'] : [integrated ? 'xtend.maraca.build-plan.v5' : 'xtend.maraca.build-plan.v4']).includes(input.plan?.schema) || input.runtimeExecutionVerified !== false || !/^xtend\.xtensions-[a-f0-9]{64}\.mjs$/.test(input.entryFile || '')) throw new TypeError('A version-matched v1/v2/v3/v4/v5/v6/v7 build composition artifact is required.');
   const identity = planIdentity(plan, bindingsRuntime);
   if (canonical(input.plan) !== canonical(identity)) throw new TypeError('Composition artifact belongs to a different compiled source or binding contract.');
   const manifest = normalizeManifest(input.manifest, identity);
-  if ((integrated || graph && identity.schema === 'xtend.maraca.build-plan.v5') && canonical(manifest) !== canonical(identity.compositionManifest)) throw new TypeError('The built provider manifest differs from the declared v5 composition.');
+  if ((integrated || graph && ['xtend.maraca.build-plan.v5','xtend.maraca.build-plan.v6'].includes(identity.schema)) && canonical(manifest) !== canonical(identity.compositionManifest)) throw new TypeError('The built provider manifest differs from the declared composition.');
   if (!Array.isArray(input.providers) || input.providers.length !== manifest.providers.length) throw new TypeError('Provider build records must match the manifest.');
-  if (delivery !== (manifest.schema === DELIVERY_MANIFEST_SCHEMA) || shared !== [SHARED_MANIFEST_SCHEMA, DELIVERY_MANIFEST_SCHEMA].includes(manifest.schema) || deferred !== [DEFERRED_MANIFEST_SCHEMA, SHARED_MANIFEST_SCHEMA, DELIVERY_MANIFEST_SCHEMA].includes(manifest.schema) || graph !== [GRAPH_MANIFEST_SCHEMA, DEFERRED_MANIFEST_SCHEMA, SHARED_MANIFEST_SCHEMA, DELIVERY_MANIFEST_SCHEMA].includes(manifest.schema)) throw new TypeError('The artifact and manifest graph versions must agree.');
+  if (component !== (manifest.schema === COMPONENT_MANIFEST_SCHEMA) || delivery !== [DELIVERY_MANIFEST_SCHEMA, COMPONENT_MANIFEST_SCHEMA].includes(manifest.schema) || shared !== [SHARED_MANIFEST_SCHEMA, DELIVERY_MANIFEST_SCHEMA, COMPONENT_MANIFEST_SCHEMA].includes(manifest.schema) || deferred !== [DEFERRED_MANIFEST_SCHEMA, SHARED_MANIFEST_SCHEMA, DELIVERY_MANIFEST_SCHEMA, COMPONENT_MANIFEST_SCHEMA].includes(manifest.schema) || graph !== [GRAPH_MANIFEST_SCHEMA, DEFERRED_MANIFEST_SCHEMA, SHARED_MANIFEST_SCHEMA, DELIVERY_MANIFEST_SCHEMA, COMPONENT_MANIFEST_SCHEMA].includes(manifest.schema)) throw new TypeError('The artifact and manifest graph versions must agree.');
+  if (component) {
+    if (!Array.isArray(input.componentInterfaces) || input.componentInterfaces.length !== manifest.interfaces.length) throw new TypeError('Captured component interfaces must cover their pinned manifest.');
+    input.componentInterfaces.forEach((row, index) => {
+      fields(row, ['definition', 'interfaceSha256', 'moduleSha256', 'sourceBytes', 'fileName'], 'captured component interface');
+      const pin = manifest.interfaces[index], provider = manifest.providers.find(p => p.id === pin.providerId);
+      if (row.definition?.providerId !== pin.providerId || row.interfaceSha256 !== pin.sha256 || row.moduleSha256 !== provider.integrity.sha256 || !Number.isSafeInteger(row.sourceBytes) || row.sourceBytes < 0 || row.sourceBytes > 65536 || row.fileName !== `interfaces/${pin.providerId}-${pin.sha256}.json`) throw new TypeError('Component interface capture differs from its pinned provider.');
+    });
+  }
   if (graph) validateModuleGraph(input.modules, manifest);
   input.providers.forEach((entry, index) => {
     fields(entry, ['id', 'sha256', 'fileName', ...(graph ? ['outputSha256'] : [])], 'provider build record');
@@ -189,7 +215,7 @@ export function validateModuleGraph(modules, manifest) {
 /** Pure derivation: executable imports and peer requests cannot add graph members. */
 export function createLoadPlan(manifest, modules, providers) {
   const byModule = new Map(modules.map(row => [row.module, row]));
-  const shared = [SHARED_MANIFEST_SCHEMA, DELIVERY_MANIFEST_SCHEMA].includes(manifest.schema), groups = new Map();
+  const shared = [SHARED_MANIFEST_SCHEMA, DELIVERY_MANIFEST_SCHEMA, COMPONENT_MANIFEST_SCHEMA].includes(manifest.schema), groups = new Map();
   if (shared) for (const provider of manifest.providers) {
     const key = canonical({ framework: provider.framework, versions: provider.peers });
     if (!groups.has(key)) groups.set(key, { framework: provider.framework, versions: copy(provider.peers), providerIds: [] });

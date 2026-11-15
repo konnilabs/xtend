@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { validateArtifact, canonical, freeze, copy, name, json } from './xtension-composition-contract.mjs';
-export const XTENSION_COMPOSITION_API_VERSION = '7.0.0';
+import { validateComponentBindings } from './xtension-component-binding.mjs';
+export const XTENSION_COMPOSITION_API_VERSION = '8.0.0';
 
 function capturePolicies(hosts, input) {
   const policies = new Map();
@@ -17,7 +18,7 @@ function capturePolicies(hosts, input) {
 }
 
 function capturePeerLoader(options, artifact) {
-  const shared = ['xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6'].includes(artifact.schema);
+  const shared = ['xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6', 'xtend.maraca.xtension-composition-artifact.v7'].includes(artifact.schema);
   const key = shared ? 'loadPeerGroup' : 'loadPeers', other = shared ? 'loadPeers' : 'loadPeerGroup';
   if (typeof options[key] !== 'function' || options[other] !== undefined) throw new TypeError('Exactly the peer loader port matching the artifact version is required.');
   return { [key]: options[key] };
@@ -70,7 +71,11 @@ function createSharedPeers(groups, providers, load) {
  * resulting port to its real controller/root and internally created Surfaces. */
 export function createMaracaXTensionCompositionPort(options) {
   const artifact = validateArtifact(options.companion?.artifact, options.plan, options.bindingsRuntime);
-  if (!['xtend.maraca.xtension-composition-artifact.v2', 'xtend.maraca.xtension-composition-artifact.v3', 'xtend.maraca.xtension-composition-artifact.v4', 'xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6'].includes(artifact.schema) || canonical(artifact) !== canonical(options.plan.xtensionComposition)) throw new TypeError('Integrated boot requires the exact built v2/v3/v4/v5/v6 composition artifact.');
+  if (!['xtend.maraca.xtension-composition-artifact.v2', 'xtend.maraca.xtension-composition-artifact.v3', 'xtend.maraca.xtension-composition-artifact.v4', 'xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6', 'xtend.maraca.xtension-composition-artifact.v7'].includes(artifact.schema) || canonical(artifact) !== canonical(options.plan.xtensionComposition)) throw new TypeError('Integrated boot requires its exact versioned composition artifact.');
+  const component = artifact.schema === 'xtend.maraca.xtension-composition-artifact.v7';
+  if (component && options.ssr !== undefined) throw new TypeError('Component ownership v7 requires a separate A05 SSR handoff.');
+  const componentInterfaceRuntime = component ? Object.freeze({ ...options.componentInterfaceRuntime }) : null;
+  if (component) validateComponentBindings(artifact, componentInterfaceRuntime);
   const createHostFactory = options.companion.createHostFactory;
   if (typeof createHostFactory !== 'function') throw new TypeError('The built companion and explicit peer loader are required.');
   const loaders = capturePeerLoader(options, artifact);
@@ -79,10 +84,10 @@ export function createMaracaXTensionCompositionPort(options) {
   const adapters = Object.freeze(Object.fromEntries(Object.entries(options.adapters || {}).map(([id, api]) => [id, Object.freeze({ ...api })])));
   const plan = freeze(copy(options.plan)), bindingsRuntime = options.bindingsRuntime;
   const ssrSession = options.ssr === undefined ? null : options.ssrRuntime.createMaracaXTensionSSRSession({ artifact, bindingsRuntime, resumeBindingsRuntime: options.resumeBindingsRuntime, options: options.ssr });
-  return Object.freeze({ schema: ssrSession ? 'xtend.maraca.xtension-composition-port.v2' : 'xtend.maraca.xtension-composition-port.v1', bindingsRuntime, ...(ssrSession ? { ssrSession, resumeBindingsRuntime: options.resumeBindingsRuntime } : {}),
+  return Object.freeze({ schema: component ? 'xtend.maraca.xtension-composition-port.v3' : ssrSession ? 'xtend.maraca.xtension-composition-port.v2' : 'xtend.maraca.xtension-composition-port.v1', bindingsRuntime, ...(ssrSession ? { ssrSession, resumeBindingsRuntime: options.resumeBindingsRuntime } : {}),
     bind(ports) {
       validateArtifact(artifact, ports.plan, bindingsRuntime);
-      return createHostFactory({ ...ports, plan, bindingsRuntime, adapters, ...loaders, grants, ...(ssrSession ? { ssrSession } : {}),
+      return createHostFactory({ ...ports, plan, bindingsRuntime, adapters, ...(component ? { componentInterfaceRuntime } : {}), ...loaders, grants, ...(ssrSession ? { ssrSession } : {}),
         compositionRuntime: Object.freeze({ createMaracaXTensionHostFactory }) });
     }
   });
@@ -103,8 +108,12 @@ function waitForProvider(promise, signal) {
  * This composer neither fetches executable code nor treats a JSON hash as proof. */
 export function createMaracaXTensionHostFactory(options) {
   const artifact = validateArtifact(options.artifact, options.plan, options.bindingsRuntime);
-  const shared = ['xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6'].includes(artifact.schema), deferred = shared || artifact.schema === 'xtend.maraca.xtension-composition-artifact.v4';
+  const shared = ['xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6', 'xtend.maraca.xtension-composition-artifact.v7'].includes(artifact.schema), deferred = shared || artifact.schema === 'xtend.maraca.xtension-composition-artifact.v4';
   if ((deferred && options.providers !== undefined) || (!deferred && options.loadProviders !== undefined)) throw new TypeError('Provider namespace/loader ports must match the artifact version.');
+  const componentProfile = artifact.schema === 'xtend.maraca.xtension-composition-artifact.v7';
+  if (componentProfile && options.ssrSession) throw new TypeError('Component ownership v7 requires a separate A05 SSR handoff.');
+  const componentInterfaceRuntime = componentProfile ? Object.freeze({ ...options.componentInterfaceRuntime }) : null;
+  const components = componentProfile ? validateComponentBindings(artifact, componentInterfaceRuntime) : null;
   const loaders = capturePeerLoader(options, artifact), providerLoads = new Map();
   const providers = new Map(), policies = capturePolicies(artifact.manifest.hosts, options.grants);
   for (const provider of artifact.manifest.providers) {
@@ -125,6 +134,8 @@ export function createMaracaXTensionHostFactory(options) {
     const binding = artifact.plan.bindings.bindings.find(entry => entry.binding.address.declarationId === declarationId);
     const events = Object.fromEntries(Object.entries(binding?.binding.intents || {}).map(([key, value]) => [key, value.payloadSchema]));
     if (!definition || context.identity.address.documentId !== artifact.plan.bindings.documentId || context.surface !== binding.surface || context.binding?.address && canonical(context.binding.address) !== canonical(context.identity.address) || canonical(context.events) !== canonical(events) || typeof context.onEvent !== 'function') throw new TypeError('Only the matching registry/Maraca binding context may select a composed host.');
+    const componentContract = components?.get(declarationId);
+    if (componentContract && canonical(context.binding) !== canonical(binding.binding)) throw new TypeError('Concrete component binding differs from the captured declaration.');
     name(context.xtensionId); name(context.hostId); name(context.surfaceId);
     const provider = providers.get(definition.providerId), grants = policies.get(declarationId), framework = provider.definition.framework;
     let component, peers;
@@ -133,13 +144,19 @@ export function createMaracaXTensionHostFactory(options) {
     const proxy = framework === 'react'
       ? function ComposedReactHost(props) { return peers.React.createElement(component, props); }
       : { inheritAttrs: false, setup(_props, { attrs }) { return () => peers.Vue.h(component, { ...attrs }); } };
+    const receive = options.ssrSession ? options.ssrSession.gate(context) : context.onEvent;
+    const onEvent = componentContract ? event => {
+      const route = componentContract.resolved.routes[event.event];
+      if (!route || event.payloadSchema !== route.payloadSchema) throw new TypeError('Unknown captured component intent.');
+      return receive({ ...event, payload: componentInterfaceRuntime.mapComponentIntent(componentContract.definition, event.event, event.payload, route.payload) });
+    } : receive;
     return provider.create({ container: context.container, hostId: context.hostId, surfaceId: context.surfaceId, xtensionId: context.xtensionId,
-      onEvent: options.ssrSession ? options.ssrSession.gate(context) : context.onEvent, component: proxy, fabric,
+      onEvent, component: proxy, fabric,
       ...(options.ssrSession ? { ssr: options.ssrSession.hostContext(context, provider.definition) } : {}),
       kernelWork: { scheduler: kernelWork.scheduler, rootId: kernelWork.rootId, scope: context.xtensionId, ...(Object.hasOwn(grants.data, 'lifecycle') ? { lifecycle: grants.data.lifecycle } : {}), work: grants.data.work },
       resourceGraph: { ...resourceGraph, surfaceId: definition.ownerSurface },
       ...(Object.hasOwn(grants.data, 'workBudget') ? { workBudget: grants.data.workBudget } : {}),
-      policy: { events, allowedResources: grants.data.allowedResources, authorize: grants.authorize, validateProps: grants.validateProps },
+      policy: { events, allowedResources: grants.data.allowedResources, authorize: grants.authorize, validateProps: componentContract ? props => { componentInterfaceRuntime.assertComponentProps(componentContract.definition, props); return grants.validateProps ? grants.validateProps(props) : true; } : grants.validateProps },
       capabilityRequirements: definition.capabilityRequirements, expectedVersions: provider.definition.peers,
       async loadRuntime({ signal }) {
         let factory = provider.factory;
@@ -168,7 +185,8 @@ export function createMaracaXTensionHostFactory(options) {
         if (signal.aborted) throw new DOMException('Provider lifetime was revoked.', 'AbortError');
         peers = verifiedPeers(provider, loaded);
         if (signal.aborted) throw new DOMException('Provider lifetime was revoked.', 'AbortError');
-        component = factory(Object.freeze(framework === 'react' ? { React: peers.React, ReactDOM: peers.ReactDOM, ...(peers.ReactDOMServer ? { ReactDOMServer: peers.ReactDOMServer } : {}) } : { Vue: peers.Vue, ...(peers.VueServerRenderer ? { VueServerRenderer: peers.VueServerRenderer, vueServerRendererVersion: peers.versions.vue } : {}) }));
+        const interfaceContext = componentContract ? { componentInterface: componentContract.definition } : {};
+        component = factory(Object.freeze(framework === 'react' ? { ...interfaceContext, React: peers.React, ReactDOM: peers.ReactDOM, ...(peers.ReactDOMServer ? { ReactDOMServer: peers.ReactDOMServer } : {}) } : { ...interfaceContext, Vue: peers.Vue, ...(peers.VueServerRenderer ? { VueServerRenderer: peers.VueServerRenderer, vueServerRendererVersion: peers.versions.vue } : {}) }));
         if (options.ssrSession && framework === 'vue' && [component, component?.setup].some(value => typeof value === 'function' && value.constructor?.name === 'AsyncFunction')) throw new TypeError('SSR v1 requires synchronous Vue root components.');
         if (!component || !['function', 'object'].includes(typeof component) || typeof component.then === 'function') throw new TypeError('Provider factory must synchronously return a precompiled component.');
         if (signal.aborted) throw new DOMException('Provider lifetime was revoked.', 'AbortError');

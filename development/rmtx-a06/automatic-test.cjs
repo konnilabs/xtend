@@ -1,0 +1,31 @@
+'use strict';
+const path=require('node:path'),fs=require('node:fs'),os=require('node:os'),{pathToFileURL}=require('node:url'),{createRequire}=require('node:module');
+async function run(){
+ const peerRoot=process.env.XTENSIONS_TEST_PEERS;if(!peerRoot)throw Error('XTENSIONS_TEST_PEERS is required.');const peers=createRequire(path.join(path.resolve(peerRoot),'package.json'));
+ const temp=fs.mkdtempSync(path.join(os.tmpdir(),'xtend-a06-auto-')),browserMode=process.argv.includes('--browser');let dom,browser;
+ try{
+  const buildDir=path.join(temp,'build');const build=await require('./automatic-reference.cjs').build(buildDir);if(!build.ok)throw Error(build.status+JSON.stringify(build.plan.diagnostics));
+  const entryFile=path.basename(build.plan.outputs.entry),composition=JSON.parse(fs.readFileSync(path.join(buildDir,'xtend.xtensions.report.json'))),artifact=composition.artifact;
+  let result,browserVersion=null;const pageErrors=[];
+  if(browserMode){
+   if(!process.env.CHROME_BIN)throw Error('CHROME_BIN is required.');
+   // Only test orchestration is bundled; generated app/platform/companion/providers remain actual native HTTP ESM.
+   const harness=await peers('esbuild').build({stdin:{contents:`import React from 'react';import * as client from 'react-dom/client';import * as dom from 'react-dom';import * as Vue from 'vue';import {runAutomaticAcceptance} from './automatic-acceptance.mjs';import fabricApi from '../../fabric/xtend-fabric.js';import * as kernelModule from '../../xtendrmt/rmt-kernel-orchestration-controller.js';import * as surfaces from '../../xtendrmt/rmt-surface-resource-graph-runtime.js';import {xtendState} from '../../components/xtend-state.js';window.runAutomatic=source=>runAutomaticAcceptance({source,document,React,ReactDOM:{...client,version:dom.version},Vue,createFabric:fabricApi.createXtendFabric,kernelModule,surfaces,state:xtendState});`,resolveDir:__dirname},nodePaths:[path.join(peerRoot,'node_modules')],bundle:true,platform:'browser',format:'iife',write:false,define:{'process.env.NODE_ENV':'"production"',__VUE_OPTIONS_API__:'true',__VUE_PROD_DEVTOOLS__:'false',__VUE_PROD_HYDRATION_MISMATCH_DETAILS__:'true'}});
+   const appRoot=path.join(temp,'application');fs.mkdirSync(appRoot);fs.writeFileSync(path.join(appRoot,'test-harness.js'),harness.outputFiles[0].text);
+   const bootstrap=`import './test-harness.js';window.__XTendMaracaDisableAutoBoot=true;const [entry,companion,platform]=await Promise.all([import('./${entryFile}'),import('./${artifact.entryFile}'),import('./runtime/xtension-platform.mjs')]);window.testResult=await window.runAutomatic({entry,companion,platform:platform.default});`;fs.writeFileSync(path.join(appRoot,'test-bootstrap.mjs'),bootstrap);
+   const deployment=require('../../xtend-maraca/xtension-composition'),hash=value=>require('node:crypto').createHash('sha256').update(value).digest('hex');
+   let handler=(_req,res)=>res.writeHead(503).end();const server=require('node:http').createServer((req,res)=>handler(req,res));await new Promise(done=>server.listen(0,'127.0.0.1',done));
+   const origin='http://127.0.0.1:'+server.address().port;
+   const sealed=deployment.buildMaracaXTensionDeployment({schema:'xtend.maraca.xtension-deployment-config.v1',build,application:{rootDir:appRoot,bootstrap:{fileName:'test-bootstrap.mjs',sha256:hash(bootstrap)},modules:[{fileName:'test-harness.js',sha256:hash(harness.outputFiles[0].text)}]},publicPath:'/runtime/',outputDir:path.join(temp,'public')});
+   handler=deployment.createMaracaXTensionDeploymentHandler(sealed);
+   try{browser=await peers('playwright').chromium.launch({executablePath:process.env.CHROME_BIN,headless:true,args:['--no-sandbox']});browserVersion=browser.version();const page=await browser.newPage();page.on('pageerror',error=>pageErrors.push(String(error)));await page.goto(origin+'/runtime/'+sealed.manifest.documentFile);await page.waitForFunction(()=>window.testResult,{timeout:30000});result=await page.evaluate(()=>window.testResult);if(pageErrors.length)throw Error(pageErrors.join('\n'));}finally{await browser?.close();await new Promise(done=>server.close(done));}
+  }else{
+   const {JSDOM}=peers('jsdom');dom=new JSDOM('<!doctype html>',{url:'http://xtend.test/a06-auto',pretendToBeVisual:true});
+   for(const key of ['window','document','Node','Element','HTMLElement','SVGElement','navigator','MutationObserver','Event','CustomEvent'])Object.defineProperty(globalThis,key,{configurable:true,value:dom.window[key]});
+   const [entry,companion,platform,{runAutomaticAcceptance},fabric,kernelModule,surfaces,{xtendState}]=await Promise.all([import(pathToFileURL(path.join(buildDir,entryFile))),import(pathToFileURL(path.join(buildDir,artifact.entryFile))),import(pathToFileURL(path.join(buildDir,'runtime/xtension-platform.mjs'))),import('./automatic-acceptance.mjs'),import('../../fabric/xtend-fabric.js'),import('../../xtendrmt/rmt-kernel-orchestration-controller.js'),import('../../xtendrmt/rmt-surface-resource-graph-runtime.js'),import('../../components/xtend-state.js')]);
+   let timer;try{result=await Promise.race([runAutomaticAcceptance({source:{entry,companion,platform:platform.default},document:dom.window.document,React:peers('react'),ReactDOM:{...peers('react-dom/client'),version:peers('react-dom').version},Vue:peers('vue'),createFabric:fabric.default.createXtendFabric,kernelModule,surfaces,state:xtendState}),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('Automatic acceptance timed out')),30000);})]);}finally{clearTimeout(timer);}
+  }
+  const report={format:1,version:'1.0.0',stage:'A04-component-ownership',mode:browserMode?'chromium-sealed-native-esm':'jsdom-native-esm',node:process.version,browserVersion,pageErrors,versions:{react:peers('react/package.json').version,vue:peers('vue/package.json').version},...result};const idx=process.argv.indexOf('--output');if(idx>=0)fs.writeFileSync(path.resolve(process.argv[idx+1]),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));return report;
+ }finally{dom?.window.close();fs.rmSync(temp,{recursive:true,force:true});}
+}
+if(require.main===module)run().catch(error=>{console.error(error);process.exitCode=1;});module.exports={run};

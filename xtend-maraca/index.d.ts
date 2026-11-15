@@ -1136,6 +1136,25 @@ export interface MaracaTuneReport {
   diagnostics: MaracaDiagnostic[];
 }
 
+export const MARACA_COMPONENT_BUILD_PLAN_SCHEMA: 'xtend.maraca.build-plan.v6';
+export const MARACA_COMPONENT_BUILD_CONFIG_SCHEMA: 'xtend.maraca.build-config.v6';
+export type MaracaComponentBuildInput = MaracaBuildInput & { xtensionComposition: import('./xtension-composition-runtime').ComponentXTensionCompositionManifest };
+export interface MaracaComponentBuildPlan extends Omit<MaracaBuildPlan, 'schema'> {
+  schema: typeof MARACA_COMPONENT_BUILD_PLAN_SCHEMA;
+  sourceHash: string;
+  xtensionComposition: import('./xtension-composition-runtime').ComponentXTensionCompositionManifest;
+}
+export interface MaracaComponentBuildConfig extends Omit<MaracaBuildConfig, 'schema' | 'options'> {
+  schema: typeof MARACA_COMPONENT_BUILD_CONFIG_SCHEMA;
+  options: MaracaComponentBuildInput;
+}
+export function createMaracaBuildPlan(input: MaracaComponentBuildInput, options?: MaracaRunOptions): MaracaComponentBuildPlan;
+export function buildMaracaBundleAsync(input: MaracaComponentBuildInput, options?: MaracaRunOptions): Promise<{
+  schema: typeof MARACA_BUNDLE_REPORT_SCHEMA; ok: boolean; status: string; plan: MaracaComponentBuildPlan;
+  bundleReport: MaracaBundleReport | null; sizeBudgetReport: MaracaXTensionSizeBudgetReport | null;
+}>;
+export function createMaracaTuneConfig(input: Record<string, unknown> & { options: MaracaComponentBuildInput }): MaracaComponentBuildConfig;
+
 export type MaracaComposedBuildInput = MaracaBuildInput & { xtensionComposition: import('./xtension-composition-runtime').AnyXTensionCompositionManifest };
 export interface MaracaComposedBuildPlan extends Omit<MaracaBuildPlan, 'schema'> {
   schema: typeof MARACA_XTENSION_BUILD_PLAN_SCHEMA;
@@ -1147,7 +1166,7 @@ export interface MaracaComposedBuildConfig extends Omit<MaracaBuildConfig, 'sche
   options: MaracaComposedBuildInput;
 }
 export function createMaracaBuildPlan(input: MaracaComposedBuildInput, options?: MaracaRunOptions): MaracaComposedBuildPlan;
-export function createMaracaBuildPlan(input: MaracaBuildInput & { config: string }, options?: MaracaRunOptions): MaracaBuildPlan | MaracaComposedBuildPlan;
+export function createMaracaBuildPlan(input: MaracaBuildInput & { config: string }, options?: MaracaRunOptions): MaracaBuildPlan | MaracaComposedBuildPlan | MaracaComponentBuildPlan;
 export function createMaracaBuildPlan(input?: string | MaracaBuildInput, options?: MaracaRunOptions): MaracaBuildPlan;
 export function invokeMaracaComponentCommand<T = unknown>(
   root: {
@@ -1172,7 +1191,7 @@ export function buildMaracaBundleAsync(input: MaracaComposedBuildInput, options?
   bundleReport: MaracaBundleReport | null; sizeBudgetReport: MaracaXTensionSizeBudgetReport | null;
 }>;
 export function buildMaracaBundleAsync(input: MaracaBuildInput & { config: string }, options?: MaracaRunOptions): Promise<{
-  schema: typeof MARACA_BUNDLE_REPORT_SCHEMA; ok: boolean; status: string; plan: MaracaBuildPlan | MaracaComposedBuildPlan;
+  schema: typeof MARACA_BUNDLE_REPORT_SCHEMA; ok: boolean; status: string; plan: MaracaBuildPlan | MaracaComposedBuildPlan | MaracaComponentBuildPlan;
   bundleReport: MaracaBundleReport | null; sizeBudgetReport: MaracaSizeBudgetReport | MaracaXTensionSizeBudgetReport | null;
 }>;
 export function buildMaracaBundleAsync(input?: string | MaracaBuildInput, options?: MaracaRunOptions): Promise<{
@@ -1262,6 +1281,9 @@ export function createMaracaProductionBundleClosure(
 ): MaracaProductionBundleClosureReport;
 /** A v5 call requires the same plan object and output membership captured by the
  * actual async build; serialized plans/reports cannot replace that provenance. */
+export function createMaracaSizeBudgetReport(input: {
+  plan: MaracaComponentBuildPlan; entryPath: string; entryBytes: number; bundleFiles: Array<Record<string, unknown>>;
+}): MaracaXTensionSizeBudgetReport;
 export function createMaracaSizeBudgetReport(input: {
   plan: MaracaComposedBuildPlan; entryPath: string; entryBytes: number; bundleFiles: Array<Record<string, unknown>>;
 }): MaracaXTensionSizeBudgetReport;

@@ -5,6 +5,7 @@ export { createMaracaAbortBoundary } from './abort-boundary.mjs';
 const LEGACY_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v3';
 const PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v7';
 const SSR_XTENSION_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v9';
+const COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v10';
 const XTENSION_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v8';
 let xtensionRootSequence = 0;
 const DOM_COMMIT_SCHEMA = 'xtend.rmt.dom-commit-result.v1';
@@ -173,8 +174,10 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   const compositionPort = options.xtensionCompositionPort;
   const ssrSession = compositionPort?.schema === 'xtend.maraca.xtension-composition-port.v2' ? compositionPort.ssrSession : null;
   if (ssrSession && (ssrSession.schema !== 'xtend.maraca.xtension-ssr-session.v1' || compositionPort.resumeBindingsRuntime?.XTENSION_RESUME_STATE_BINDING_API_VERSION !== '3.0.0')) throw new TypeError('SSR requires the prepared v1 session and resume binding API 3.');
-  const runtimeSchema = ssrSession ? SSR_XTENSION_PLAN_RUNTIME_SCHEMA : composed ? XTENSION_PLAN_RUNTIME_SCHEMA : PLAN_RUNTIME_SCHEMA;
-  if (composed && (plan.schema !== 'xtend.maraca.build-plan.v5' || !['xtend.maraca.xtension-composition-artifact.v2', 'xtend.maraca.xtension-composition-artifact.v3', 'xtend.maraca.xtension-composition-artifact.v4', 'xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6'].includes(plan.xtensionComposition?.schema) || !['xtend.maraca.xtension-composition-port.v1', 'xtend.maraca.xtension-composition-port.v2'].includes(compositionPort?.schema) || typeof compositionPort.bind !== 'function')) throw new TypeError('Integrated XTensions require a v5 plan, v2/v3/v4/v5/v6 artifact and the prepared composition port.');
+  const componentProfile = plan.xtensionComposition?.schema === 'xtend.maraca.xtension-composition-artifact.v7';
+  const runtimeSchema = componentProfile ? COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA : ssrSession ? SSR_XTENSION_PLAN_RUNTIME_SCHEMA : composed ? XTENSION_PLAN_RUNTIME_SCHEMA : PLAN_RUNTIME_SCHEMA;
+  if (composed && (plan.schema !== (componentProfile ? 'xtend.maraca.build-plan.v6' : 'xtend.maraca.build-plan.v5') || !['xtend.maraca.xtension-composition-artifact.v2', 'xtend.maraca.xtension-composition-artifact.v3', 'xtend.maraca.xtension-composition-artifact.v4', 'xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6', 'xtend.maraca.xtension-composition-artifact.v7'].includes(plan.xtensionComposition?.schema) || !['xtend.maraca.xtension-composition-port.v1', 'xtend.maraca.xtension-composition-port.v2', 'xtend.maraca.xtension-composition-port.v3'].includes(compositionPort?.schema) || typeof compositionPort.bind !== 'function')) throw new TypeError('Integrated XTensions require a version-matched v5/v6 plan, artifact and prepared composition port.');
+  if (componentProfile !== (compositionPort?.schema === 'xtend.maraca.xtension-composition-port.v3')) throw new TypeError('Component artifacts require their explicit v3 composition port.');
   if (composed && (options.createXTensionHost !== undefined || options.xtensionBindingsRuntime !== undefined || options.adoptExisting === true && !ssrSession) || !composed && compositionPort !== undefined) throw new TypeError('Automatic and manual XTension composition cannot be mixed.');
   let createXTensionHost = options.createXTensionHost;
   let xtensionRoot = null;
@@ -3457,5 +3460,5 @@ export async function bootMaracaPlan(options = {}) {
   return runtime;
 }
 
-export { SSR_XTENSION_PLAN_RUNTIME_SCHEMA, PLAN_RUNTIME_SCHEMA, XTENSION_PLAN_RUNTIME_SCHEMA, LEGACY_PLAN_RUNTIME_SCHEMA };
-export default Object.freeze({ SSR_XTENSION_PLAN_RUNTIME_SCHEMA, PLAN_RUNTIME_SCHEMA, XTENSION_PLAN_RUNTIME_SCHEMA, LEGACY_PLAN_RUNTIME_SCHEMA, createMaracaPlanRuntime, bootMaracaPlan });
+export { COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA, SSR_XTENSION_PLAN_RUNTIME_SCHEMA, PLAN_RUNTIME_SCHEMA, XTENSION_PLAN_RUNTIME_SCHEMA, LEGACY_PLAN_RUNTIME_SCHEMA };
+export default Object.freeze({ COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA, SSR_XTENSION_PLAN_RUNTIME_SCHEMA, PLAN_RUNTIME_SCHEMA, XTENSION_PLAN_RUNTIME_SCHEMA, LEGACY_PLAN_RUNTIME_SCHEMA, createMaracaPlanRuntime, bootMaracaPlan });

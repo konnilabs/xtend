@@ -1,19 +1,19 @@
 # A06.1b – Providerseitige Komponentenschnittstelle
 
-Stand: **14. November 2026**. Der providerseitige Vertrag, seine Byte-Erfassung, die Binding-Absenkung, Runtime-Guards und die generierte Provider-Typmap sind implementiert und in die explizite A06-Referenz eingebunden. Die automatische A04-Komposition, deren neue Owner-/Renderziel-Zuordnung und der A05-Handoff dieses Profils bleiben eigene Folgeabschnitte. RMTX-Syntax und 0.9-Feature-Abnahme bleiben offen.
+Stand: **15. November 2026**. Der providerseitige Vertrag, seine Byte-Erfassung, die Binding-Absenkung, Runtime-Guards und die generierte Provider-Typmap sind implementiert. Zusätzlich zur expliziten A06-Referenz bindet der [automatische A04-Pfad](automatic-composition.md) jetzt statische Deklarationen mit getrenntem Owner/Renderziel ein. Der A05-Handoff dieses Profils bleibt ein Folgeabschnitt. RMTX-Syntax und 0.9-Feature-Abnahme bleiben offen.
 
 ## Versionen und Abgrenzung
 
 | Bereich | Stand |
 | --- | --- |
 | Neuer interner Interface-Datentyp | `xtend.xtensions.component-interface.v1`; [formales Schema](../../tools/xtensions/component-interface.v1.schema.json) |
-| Neuer Runtime-/Build-Helfer | API **1.0.0**; [Runtime](../../tools/xtensions/component-interface.js), [Typen](../../tools/xtensions/component-interface.d.ts), [Build-Capture](../../tools/xtensions/component-interface-build.js) |
+| Runtime-Helfer / interner Build-Capture | API **1.0.0** / **2.0.0**; [Runtime](../../tools/xtensions/component-interface.js), [Typen](../../tools/xtensions/component-interface.d.ts), [Build-Capture](../../tools/xtensions/component-interface-build.js) |
 | Provider-Interface-Versionen | Jeweils **1.0.0**, erstmals unabhängig von der Aufrufstelle definiert |
 | Referenz-Provider | Komponenten **2.0.0**: zusätzlicher Interface-Kontext; Vue emittiert `order`, das auf Action-Parameter `sort` abgebildet wird |
 | A06-Fall und Referenz-API | **2.0.0**, `format: 2`; [Aufrufstellenvertrag](two-host.contract.json) |
 | Vorheriger Stand | [Case v1](two-host.contract.v1.json), [Contract-Nachweis v1](two-host-evidence.v1.json), [Laufzeitnachweis v1](two-host-runtime-evidence.v1.json) bleiben historische Artefakte des Commits `57d5dc8925a568cd7c8be43b0cc760a6a7bbc36b`. Die neue Absenkung interpretiert sie nicht still als v2. |
 
-Die bestehenden Classic-, State-Binding-, Host-, Maraca- und statischen Introspektionsverträge werden nicht in-place erweitert. Das bisherige statische Introspektionsformat beschreibt akzeptierte/emittierte Kennungen; es wird nicht still zum neuen geschlossenen Props-/Payload-Vertrag umgedeutet. Die neuen Helfer sind in diesem Abschnitt interne Module und noch keine zusätzlichen Paket-Export-Einstiege oder ein vollständiges RMTX-SDK.
+Die bestehenden Classic-, State-Binding-, Host-, Maraca- und statischen Introspektionsverträge werden nicht in-place erweitert. Das bisherige statische Introspektionsformat beschreibt akzeptierte/emittierte Kennungen; es wird nicht still zum neuen geschlossenen Props-/Payload-Vertrag umgedeutet. Der reine Runtime-Helfer hat einen eigenen Compiler-Paketexport `@ccslabs/xtend-compiler/xtensions/component-interface`. Der Build-Capture bleibt intern; ein vollständiges RMTX-SDK ist damit nicht eingeführt.
 
 ## Eigentümer und Datenfluss
 
@@ -33,7 +33,7 @@ Der Aufrufer kann weder zusätzliche Props noch eigene Prop-/Payload-Typen in di
 
 Beim Capture wird kein Provider initialisiert. Für die Node-Referenz lädt `loadFactories()` ausschließlich die bereits erfassten Modulbytes; ein nachträglicher Dateiaustausch ändert die geladene Factory nicht. Der Browser-Test bündelt über `capturedComponentPlugin()` ebenfalls nur diese Bytes. Der Plugin-Einstieg akzeptiert nur ein tatsächliches Capture-Objekt, keinen deserialisierten Build-Bericht.
 
-Das sind Build-/Test-Transportwege dieses expliziten Profils. Der Node-Datenmodul-Import ist keine neue Browser-Delivery-Policy. Eine Produktionsintegration muss Interface- und Code-Dateien zusätzlich durch die vorhandenen A04-Delivery-/Integritäts-/Cache-Verträge führen. Ein Hash in beliebigem JSON ist weder Vertrauensbeweis noch Ausführungsautorität. Catalog- und Factory-Ports bleiben vertrauenswürdige Host-Eingaben; Same-Realm-Code erhält dadurch keine harte Sicherheits-Sandbox.
+Das sind Build-/Test-Transportwege dieses expliziten Profils. Der Node-Datenmodul-Import ist keine neue Browser-Delivery-Policy. Der [automatische A04-Pfad](automatic-composition.md) führt Interface- und Code-Dateien zusätzlich durch die vorhandenen Delivery-/Integritäts-/Cache-Verträge. Ein Hash in beliebigem JSON ist weder Vertrauensbeweis noch Ausführungsautorität. Catalog- und Factory-Ports bleiben vertrauenswürdige Host-Eingaben; Same-Realm-Code erhält dadurch keine harte Sicherheits-Sandbox.
 
 ## Compile-Time-Verbindung
 
@@ -89,4 +89,8 @@ Die zwei statischen Prüfungen sind zusätzlich im blockierenden `check:release-
 
 Nach Änderungen werden zuerst Provider-Code und -Interface samt Versionierung geprüft, dann die Katalog-Pins sowie die Aufrufstellen-Pins bewusst aktualisiert. `two-host-inspect.cjs --write` erzeugt die abgeleiteten Typen und Quellenbindung neu; es erfindet keine neuen Provider-Schnittstellen und keine neuen Runtime-Ergebnisse.
 
-Als Nächstes kann die automatische Owner-/Renderziel-Abbildung diesen Interface-Capture übernehmen und bis A05 weiterreichen. Neue Importgraphen, optionale Props/Defaults, öffentliche Paket-Einstiege, allgemeine RMTX-Referenzauflösung und kompatible Deployment-Migration benötigen eigene Verträge und Nachweise. Der aktuelle Schritt entscheidet die RMTX-Grammatik nicht vorab und ersetzt keine vollständige XTend-0.9-Feature-Abnahme.
+Die automatische Owner-/Renderziel-Abbildung übernimmt diesen Interface-Capture inzwischen für das begrenzte statische Profil. Als Nächstes muss dessen A05-Handoff folgen. Neue Importgraphen, optionale Props/Defaults, öffentliche Paket-Einstiege, allgemeine RMTX-Referenzauflösung und kompatible Deployment-Migration benötigen eigene Verträge und Nachweise. Der aktuelle Schritt entscheidet die RMTX-Grammatik nicht vorab und ersetzt keine vollständige XTend-0.9-Feature-Abnahme.
+
+## Automatischer Anschluss am 15. November 2026
+
+Der [A04-Restabschnitt](automatic-composition.md) bindet diesen Vertrag jetzt in den regulären Build und Browserpfad ein. Der Runtime-/Interface-Vertrag bleibt v1 / API 1.0.0; der interne Build-Capture steigt für den Byte-Transport auf API 2.0.0. Der reine Runtime-Helfer erhält einen eigenen Compiler-Paketexport. Das automatische Profil hat eigene neue Manifest-/Artefakt-/Runtime-Versionen und unterstützt zunächst statische Deklarationen mit Conditional-Presence. Sein A05-Handoff und seine Key-Scope-Abbildung bleiben Folgearbeiten. Die vorherigen Abschnitte dokumentieren den A06.1b-Ausgangsstand.
