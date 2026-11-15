@@ -11,9 +11,11 @@ export function validateComponentBindings(artifact, api) {
     const { definition } = catalog.resolve({ providerId: host.providerId, interfaceVersion: host.interfaceVersion, interfaceSha256: host.interfaceSha256, componentVersion: provider.version });
     if (canonical({ framework: definition.framework, entry: { module: definition.entry.module, exportName: definition.entry.exportName }, peers: definition.peers, sha256: definition.entry.sha256 }) !== canonical({ framework: provider.framework, entry: provider.entry, peers: provider.peers, sha256: provider.integrity.sha256 })) throw new TypeError('Provider metadata differs from its captured component interface.');
     const entry = artifact.plan.bindings.bindings.find(row => row.binding.address.declarationId === host.declarationId);
-    const props = Object.fromEntries(Object.entries(entry.binding.props).map(([key, value]) => [key, { state: value.state, path: value.path }]));
-    const resolved = api.resolveComponentBinding(definition, { address: entry.binding.address, props, intents: host.intents });
-    if (canonical(resolved.binding) !== canonical(entry.binding)) throw new TypeError('Compiled binding differs from the provider-owned component contract.');
+    const scoped = artifact.schema === 'xtend.maraca.xtension-composition-artifact.v8';
+    const props = Object.fromEntries(Object.entries(entry.binding.props).map(([key, value]) => [key, { state: value.state, path: scoped ? [] : value.path }]));
+    const resolved = api.resolveComponentBinding(definition, { address: entry.binding.address, props, intents: scoped ? Object.fromEntries(Object.entries(host.intents).map(([name, {keyFields, ...route}])=>[name,route])) : host.intents });
+    const expected = scoped ? { ...resolved.binding, props: Object.fromEntries(Object.entries(resolved.binding.props).map(([key,value])=>[key,{...value,path:entry.binding.props[key].path}])), intents: Object.fromEntries(Object.entries(resolved.binding.intents).map(([name,value])=>[name,{...value,...(Object.hasOwn(host.intents[name],'keyFields')?{keyFields:host.intents[name].keyFields}:{})}])) } : resolved.binding;
+    if (canonical(expected) !== canonical(entry.binding)) throw new TypeError('Compiled binding differs from the provider-owned component contract.');
     bindings.set(host.declarationId, Object.freeze({ definition, resolved }));
   }
   return bindings;

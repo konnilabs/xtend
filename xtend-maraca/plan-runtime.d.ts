@@ -376,7 +376,7 @@ export declare function bootMaracaPlan(options: SSRComposedMaracaPlanRuntimeOpti
 export declare function bootMaracaPlan(options: ComposedMaracaPlanRuntimeOptions): Promise<ComposedMaracaPlanRuntime>;
 export declare function bootMaracaPlan(options: MaracaPlanRuntimeOptions): Promise<MaracaPlanRuntime>;
 
-declare const api: Readonly<{ COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA: typeof COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA; SSR_XTENSION_PLAN_RUNTIME_SCHEMA: typeof SSR_XTENSION_PLAN_RUNTIME_SCHEMA; PLAN_RUNTIME_SCHEMA: typeof PLAN_RUNTIME_SCHEMA; XTENSION_PLAN_RUNTIME_SCHEMA: typeof XTENSION_PLAN_RUNTIME_SCHEMA; LEGACY_PLAN_RUNTIME_SCHEMA: typeof LEGACY_PLAN_RUNTIME_SCHEMA; createMaracaPlanRuntime: typeof createMaracaPlanRuntime; bootMaracaPlan: typeof bootMaracaPlan }>;
+declare const api: Readonly<{ SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA:typeof SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA;COMPONENT_SSR_PLAN_RUNTIME_SCHEMA:typeof COMPONENT_SSR_PLAN_RUNTIME_SCHEMA;COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA: typeof COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA; SSR_XTENSION_PLAN_RUNTIME_SCHEMA: typeof SSR_XTENSION_PLAN_RUNTIME_SCHEMA; PLAN_RUNTIME_SCHEMA: typeof PLAN_RUNTIME_SCHEMA; XTENSION_PLAN_RUNTIME_SCHEMA: typeof XTENSION_PLAN_RUNTIME_SCHEMA; LEGACY_PLAN_RUNTIME_SCHEMA: typeof LEGACY_PLAN_RUNTIME_SCHEMA; createMaracaPlanRuntime: typeof createMaracaPlanRuntime; bootMaracaPlan: typeof bootMaracaPlan }>;
 export default api;
 
 /** Separate opt-in v8 contract; manual v7 options, runtime and snapshots remain intact. */
@@ -428,3 +428,16 @@ export interface ComponentMaracaPlanRuntimeOptions extends Omit<ComposedMaracaPl
 }
 export function createMaracaPlanRuntime(options: ComponentMaracaPlanRuntimeOptions): ComponentMaracaPlanRuntime;
 export function bootMaracaPlan(options: ComponentMaracaPlanRuntimeOptions): Promise<ComponentMaracaPlanRuntime>;
+
+export const SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA:'xtend.maraca.plan-runtime.v11';
+export const COMPONENT_SSR_PLAN_RUNTIME_SCHEMA:'xtend.maraca.plan-runtime.v12';
+export interface ScopedComponentSnapshot extends Omit<ComponentMaracaPlanRuntimeSnapshot,'schema'> {readonly schema:'xtend.maraca.plan-runtime.v11'}
+export interface ComponentSSRSnapshot extends Omit<ScopedComponentSnapshot,'schema'> {readonly schema:'xtend.maraca.plan-runtime.v12';readonly xtensionSSR:import('./xtension-ssr').ComponentSSRReport|null}
+export interface ScopedComponentRuntime extends Omit<ComponentMaracaPlanRuntime,'schema'|'boot'|'snapshot'|'subscribe'> {readonly schema:'xtend.maraca.plan-runtime.v11';boot():Promise<ScopedComponentSnapshot>;snapshot():ScopedComponentSnapshot;subscribe(listener:(snapshot:ScopedComponentSnapshot)=>void):()=>void}
+export interface ComponentSSRRuntime extends Omit<ScopedComponentRuntime,'schema'|'boot'|'snapshot'|'subscribe'> {readonly schema:'xtend.maraca.plan-runtime.v12';boot():Promise<ComponentSSRSnapshot>;snapshot():ComponentSSRSnapshot;subscribe(listener:(snapshot:ComponentSSRSnapshot)=>void):()=>void;captureXTensionSSR():Promise<import('./xtension-ssr').ComponentSSRResponse>}
+export interface ScopedComponentRuntimeOptions extends Omit<ComponentMaracaPlanRuntimeOptions,'plan'|'xtensionCompositionPort'> {plan:Record<string,unknown>&{schema:'xtend.maraca.build-plan.v7';xtensionComposition:import('./xtension-composition-runtime').ScopedComponentArtifact};xtensionCompositionPort:import('./xtension-composition-runtime').MaracaScopedComponentPort}
+export interface ComponentSSRRuntimeOptions extends Omit<ScopedComponentRuntimeOptions,'xtensionCompositionPort'|'adoptExisting'> {xtensionCompositionPort:import('./xtension-composition-runtime').MaracaScopedSSRPort;adoptExisting?:boolean}
+export function createMaracaPlanRuntime(options:ScopedComponentRuntimeOptions):ScopedComponentRuntime;
+export function createMaracaPlanRuntime(options:ComponentSSRRuntimeOptions):ComponentSSRRuntime;
+export function bootMaracaPlan(options:ScopedComponentRuntimeOptions):Promise<ScopedComponentRuntime>;
+export function bootMaracaPlan(options:ComponentSSRRuntimeOptions):Promise<ComponentSSRRuntime>;

@@ -5,6 +5,8 @@ export { createMaracaAbortBoundary } from './abort-boundary.mjs';
 const LEGACY_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v3';
 const PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v7';
 const SSR_XTENSION_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v9';
+const SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v11';
+const COMPONENT_SSR_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v12';
 const COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v10';
 const XTENSION_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v8';
 let xtensionRootSequence = 0;
@@ -172,12 +174,13 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   const artifact = asRecord(orchestration.artifact || plan.artifact);
   const composed = hasOwn(plan, 'xtensionComposition');
   const compositionPort = options.xtensionCompositionPort;
-  const ssrSession = compositionPort?.schema === 'xtend.maraca.xtension-composition-port.v2' ? compositionPort.ssrSession : null;
-  if (ssrSession && (ssrSession.schema !== 'xtend.maraca.xtension-ssr-session.v1' || compositionPort.resumeBindingsRuntime?.XTENSION_RESUME_STATE_BINDING_API_VERSION !== '3.0.0')) throw new TypeError('SSR requires the prepared v1 session and resume binding API 3.');
-  const componentProfile = plan.xtensionComposition?.schema === 'xtend.maraca.xtension-composition-artifact.v7';
-  const runtimeSchema = componentProfile ? COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA : ssrSession ? SSR_XTENSION_PLAN_RUNTIME_SCHEMA : composed ? XTENSION_PLAN_RUNTIME_SCHEMA : PLAN_RUNTIME_SCHEMA;
-  if (composed && (plan.schema !== (componentProfile ? 'xtend.maraca.build-plan.v6' : 'xtend.maraca.build-plan.v5') || !['xtend.maraca.xtension-composition-artifact.v2', 'xtend.maraca.xtension-composition-artifact.v3', 'xtend.maraca.xtension-composition-artifact.v4', 'xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6', 'xtend.maraca.xtension-composition-artifact.v7'].includes(plan.xtensionComposition?.schema) || !['xtend.maraca.xtension-composition-port.v1', 'xtend.maraca.xtension-composition-port.v2', 'xtend.maraca.xtension-composition-port.v3'].includes(compositionPort?.schema) || typeof compositionPort.bind !== 'function')) throw new TypeError('Integrated XTensions require a version-matched v5/v6 plan, artifact and prepared composition port.');
-  if (componentProfile !== (compositionPort?.schema === 'xtend.maraca.xtension-composition-port.v3')) throw new TypeError('Component artifacts require their explicit v3 composition port.');
+  const ssrSession = ['xtend.maraca.xtension-composition-port.v2','xtend.maraca.xtension-composition-port.v5'].includes(compositionPort?.schema) ? compositionPort.ssrSession : null;
+  if (compositionPort?.schema === 'xtend.maraca.xtension-composition-port.v5' && !ssrSession) throw new TypeError('The component SSR port requires its v2 session.');
+  if (ssrSession && (ssrSession.schema !== (compositionPort.schema === 'xtend.maraca.xtension-composition-port.v5' ? 'xtend.maraca.xtension-ssr-session.v2' : 'xtend.maraca.xtension-ssr-session.v1') || compositionPort.resumeBindingsRuntime?.XTENSION_RESUME_STATE_BINDING_API_VERSION !== '3.0.0')) throw new TypeError('SSR requires the prepared v1 session and resume binding API 3.');
+  const scoped = plan.xtensionComposition?.schema === 'xtend.maraca.xtension-composition-artifact.v8', componentProfile = scoped || plan.xtensionComposition?.schema === 'xtend.maraca.xtension-composition-artifact.v7';
+  const runtimeSchema = scoped ? ssrSession ? COMPONENT_SSR_PLAN_RUNTIME_SCHEMA : SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA : componentProfile ? COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA : ssrSession ? SSR_XTENSION_PLAN_RUNTIME_SCHEMA : composed ? XTENSION_PLAN_RUNTIME_SCHEMA : PLAN_RUNTIME_SCHEMA;
+  if (composed && (plan.schema !== (scoped ? 'xtend.maraca.build-plan.v7' : componentProfile ? 'xtend.maraca.build-plan.v6' : 'xtend.maraca.build-plan.v5') || !['xtend.maraca.xtension-composition-artifact.v2', 'xtend.maraca.xtension-composition-artifact.v3', 'xtend.maraca.xtension-composition-artifact.v4', 'xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6', 'xtend.maraca.xtension-composition-artifact.v7','xtend.maraca.xtension-composition-artifact.v8'].includes(plan.xtensionComposition?.schema) || !['xtend.maraca.xtension-composition-port.v1', 'xtend.maraca.xtension-composition-port.v2', 'xtend.maraca.xtension-composition-port.v3','xtend.maraca.xtension-composition-port.v4','xtend.maraca.xtension-composition-port.v5'].includes(compositionPort?.schema) || typeof compositionPort.bind !== 'function')) throw new TypeError('Integrated XTensions require a version-matched v5/v6/v7 plan, artifact and prepared composition port.');
+  if (composed && !(scoped ? ['xtend.maraca.xtension-composition-port.v4','xtend.maraca.xtension-composition-port.v5'] : componentProfile ? ['xtend.maraca.xtension-composition-port.v3'] : ['xtend.maraca.xtension-composition-port.v1','xtend.maraca.xtension-composition-port.v2']).includes(compositionPort?.schema)) throw new TypeError('The composition port must match its profile.');
   if (composed && (options.createXTensionHost !== undefined || options.xtensionBindingsRuntime !== undefined || options.adoptExisting === true && !ssrSession) || !composed && compositionPort !== undefined) throw new TypeError('Automatic and manual XTension composition cannot be mixed.');
   let createXTensionHost = options.createXTensionHost;
   let xtensionRoot = null;
@@ -3184,7 +3187,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       if (bindingArtifact?.bindings.length) {
         if (composed) createXTensionHost = compositionPort.bind({ plan, fabric: options.fabric,
           kernelWork: { scheduler: kernel.scheduler, rootId: xtensionRoot.rootId },
-          resourceGraph: { kernel: xtensionRoot.kernel, surfaceGraph, surfaceController } });
+          resourceGraph: { kernel: xtensionRoot.kernel, surfaceGraph, surfaceController }, ...(scoped ? { resolveHostBinding(address) { const key=JSON.stringify([address.documentId,address.declarationId,address.keys]); return presentXTensionEntries(modelReader.snapshot()).find(entry=>JSON.stringify([entry.binding.address.documentId,entry.binding.address.declarationId,entry.binding.address.keys])===key); } } : {}) });
         xtensionRegistry = (ssrSession ? compositionPort.resumeBindingsRuntime.createXTensionResumeStateRegistry : bindingRuntime.createXTensionStateRegistry)({ modelReader,
           commandDispatcher: { dispatch: (command, payload, metadata, lifetime) => dispatchCommand(command, payload, metadata, lifetime) },
           onDiagnostic: (diagnostic) => recordDiagnostic('xtend.maraca.xtension.binding', 'error', diagnostic.message, diagnostic) });
@@ -3460,5 +3463,5 @@ export async function bootMaracaPlan(options = {}) {
   return runtime;
 }
 
-export { COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA, SSR_XTENSION_PLAN_RUNTIME_SCHEMA, PLAN_RUNTIME_SCHEMA, XTENSION_PLAN_RUNTIME_SCHEMA, LEGACY_PLAN_RUNTIME_SCHEMA };
-export default Object.freeze({ COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA, SSR_XTENSION_PLAN_RUNTIME_SCHEMA, PLAN_RUNTIME_SCHEMA, XTENSION_PLAN_RUNTIME_SCHEMA, LEGACY_PLAN_RUNTIME_SCHEMA, createMaracaPlanRuntime, bootMaracaPlan });
+export { SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA, COMPONENT_SSR_PLAN_RUNTIME_SCHEMA, COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA, SSR_XTENSION_PLAN_RUNTIME_SCHEMA, PLAN_RUNTIME_SCHEMA, XTENSION_PLAN_RUNTIME_SCHEMA, LEGACY_PLAN_RUNTIME_SCHEMA };
+export default Object.freeze({ SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA, COMPONENT_SSR_PLAN_RUNTIME_SCHEMA, COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA, SSR_XTENSION_PLAN_RUNTIME_SCHEMA, PLAN_RUNTIME_SCHEMA, XTENSION_PLAN_RUNTIME_SCHEMA, LEGACY_PLAN_RUNTIME_SCHEMA, createMaracaPlanRuntime, bootMaracaPlan });

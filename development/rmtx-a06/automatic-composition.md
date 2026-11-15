@@ -1,5 +1,7 @@
 # A04-Restabschnitt – Automatische Komponentenkomposition
 
+**Aktualisierung der Folgeabschnitte:** [Key-Scopes und Komponenten-SSR v2](scoped-components.md) sind inzwischen in einem eigenen neuen Profil implementiert. Der nachfolgende Text dokumentiert den jeweiligen vorherigen, weiterhin reproduzierbaren Vertragsstand.
+
 Stand: **15. November 2026**. Der Zwei-Host-Fall wird jetzt durch den regulären Maraca-Build und den erzeugten Browser-Einstieg ausgeführt. React-Galerie und Vue-Bewertungen besitzen getrennte Renderziele und dieselbe owning Surface `product-details`. Provider-Interfaces, Intent-Mapping und Runtime-Guards aus A06 sind Bestandteil dieses automatischen Profils. Der A05-Handoff dieses Profils bleibt offen.
 
 ## Versionierter Vertrag

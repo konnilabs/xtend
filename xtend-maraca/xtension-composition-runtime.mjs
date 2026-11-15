@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { validateArtifact, canonical, freeze, copy, name, json } from './xtension-composition-contract.mjs';
 import { validateComponentBindings } from './xtension-component-binding.mjs';
-export const XTENSION_COMPOSITION_API_VERSION = '8.0.0';
+export const XTENSION_COMPOSITION_API_VERSION = '9.0.0';
 
 function capturePolicies(hosts, input) {
   const policies = new Map();
@@ -18,7 +18,7 @@ function capturePolicies(hosts, input) {
 }
 
 function capturePeerLoader(options, artifact) {
-  const shared = ['xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6', 'xtend.maraca.xtension-composition-artifact.v7'].includes(artifact.schema);
+  const shared = ['xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6', 'xtend.maraca.xtension-composition-artifact.v7','xtend.maraca.xtension-composition-artifact.v8'].includes(artifact.schema);
   const key = shared ? 'loadPeerGroup' : 'loadPeers', other = shared ? 'loadPeers' : 'loadPeerGroup';
   if (typeof options[key] !== 'function' || options[other] !== undefined) throw new TypeError('Exactly the peer loader port matching the artifact version is required.');
   return { [key]: options[key] };
@@ -71,9 +71,9 @@ function createSharedPeers(groups, providers, load) {
  * resulting port to its real controller/root and internally created Surfaces. */
 export function createMaracaXTensionCompositionPort(options) {
   const artifact = validateArtifact(options.companion?.artifact, options.plan, options.bindingsRuntime);
-  if (!['xtend.maraca.xtension-composition-artifact.v2', 'xtend.maraca.xtension-composition-artifact.v3', 'xtend.maraca.xtension-composition-artifact.v4', 'xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6', 'xtend.maraca.xtension-composition-artifact.v7'].includes(artifact.schema) || canonical(artifact) !== canonical(options.plan.xtensionComposition)) throw new TypeError('Integrated boot requires its exact versioned composition artifact.');
-  const component = artifact.schema === 'xtend.maraca.xtension-composition-artifact.v7';
-  if (component && options.ssr !== undefined) throw new TypeError('Component ownership v7 requires a separate A05 SSR handoff.');
+  if (!['xtend.maraca.xtension-composition-artifact.v2', 'xtend.maraca.xtension-composition-artifact.v3', 'xtend.maraca.xtension-composition-artifact.v4', 'xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6', 'xtend.maraca.xtension-composition-artifact.v7','xtend.maraca.xtension-composition-artifact.v8'].includes(artifact.schema) || canonical(artifact) !== canonical(options.plan.xtensionComposition)) throw new TypeError('Integrated boot requires its exact versioned composition artifact.');
+  const scoped = artifact.schema === 'xtend.maraca.xtension-composition-artifact.v8', component = scoped || artifact.schema === 'xtend.maraca.xtension-composition-artifact.v7';
+  if (component && !scoped && options.ssr !== undefined) throw new TypeError('Component ownership v7 requires a separate A05 SSR handoff.');
   const componentInterfaceRuntime = component ? Object.freeze({ ...options.componentInterfaceRuntime }) : null;
   if (component) validateComponentBindings(artifact, componentInterfaceRuntime);
   const createHostFactory = options.companion.createHostFactory;
@@ -83,8 +83,8 @@ export function createMaracaXTensionCompositionPort(options) {
   const grants = Object.freeze(Object.fromEntries([...policies].map(([id, policy]) => [id, Object.freeze({ ...policy.data, authorize: policy.authorize, validateProps: policy.validateProps })])));
   const adapters = Object.freeze(Object.fromEntries(Object.entries(options.adapters || {}).map(([id, api]) => [id, Object.freeze({ ...api })])));
   const plan = freeze(copy(options.plan)), bindingsRuntime = options.bindingsRuntime;
-  const ssrSession = options.ssr === undefined ? null : options.ssrRuntime.createMaracaXTensionSSRSession({ artifact, bindingsRuntime, resumeBindingsRuntime: options.resumeBindingsRuntime, options: options.ssr });
-  return Object.freeze({ schema: component ? 'xtend.maraca.xtension-composition-port.v3' : ssrSession ? 'xtend.maraca.xtension-composition-port.v2' : 'xtend.maraca.xtension-composition-port.v1', bindingsRuntime, ...(ssrSession ? { ssrSession, resumeBindingsRuntime: options.resumeBindingsRuntime } : {}),
+  const ssrSession = options.ssr === undefined ? null : options.ssrRuntime.createMaracaXTensionSSRSession({ artifact, bindingsRuntime, resumeBindingsRuntime: options.resumeBindingsRuntime, options: options.ssr, ...(scoped ? { componentInterfaceRuntime } : {}) });
+  return Object.freeze({ schema: scoped ? ssrSession ? 'xtend.maraca.xtension-composition-port.v5' : 'xtend.maraca.xtension-composition-port.v4' : component ? 'xtend.maraca.xtension-composition-port.v3' : ssrSession ? 'xtend.maraca.xtension-composition-port.v2' : 'xtend.maraca.xtension-composition-port.v1', bindingsRuntime, ...(ssrSession ? { ssrSession, resumeBindingsRuntime: options.resumeBindingsRuntime } : {}),
     bind(ports) {
       validateArtifact(artifact, ports.plan, bindingsRuntime);
       return createHostFactory({ ...ports, plan, bindingsRuntime, adapters, ...(component ? { componentInterfaceRuntime } : {}), ...loaders, grants, ...(ssrSession ? { ssrSession } : {}),
@@ -108,10 +108,10 @@ function waitForProvider(promise, signal) {
  * This composer neither fetches executable code nor treats a JSON hash as proof. */
 export function createMaracaXTensionHostFactory(options) {
   const artifact = validateArtifact(options.artifact, options.plan, options.bindingsRuntime);
-  const shared = ['xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6', 'xtend.maraca.xtension-composition-artifact.v7'].includes(artifact.schema), deferred = shared || artifact.schema === 'xtend.maraca.xtension-composition-artifact.v4';
+  const shared = ['xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6', 'xtend.maraca.xtension-composition-artifact.v7','xtend.maraca.xtension-composition-artifact.v8'].includes(artifact.schema), deferred = shared || artifact.schema === 'xtend.maraca.xtension-composition-artifact.v4';
   if ((deferred && options.providers !== undefined) || (!deferred && options.loadProviders !== undefined)) throw new TypeError('Provider namespace/loader ports must match the artifact version.');
-  const componentProfile = artifact.schema === 'xtend.maraca.xtension-composition-artifact.v7';
-  if (componentProfile && options.ssrSession) throw new TypeError('Component ownership v7 requires a separate A05 SSR handoff.');
+  const scoped = artifact.schema === 'xtend.maraca.xtension-composition-artifact.v8', componentProfile = scoped || artifact.schema === 'xtend.maraca.xtension-composition-artifact.v7';
+  if (componentProfile && !scoped && options.ssrSession) throw new TypeError('Component ownership v7 requires a separate A05 SSR handoff.');
   const componentInterfaceRuntime = componentProfile ? Object.freeze({ ...options.componentInterfaceRuntime }) : null;
   const components = componentProfile ? validateComponentBindings(artifact, componentInterfaceRuntime) : null;
   const loaders = capturePeerLoader(options, artifact), providerLoads = new Map();
@@ -125,6 +125,8 @@ export function createMaracaXTensionHostFactory(options) {
     providers.set(provider.id, { definition: provider, factory: namespace?.[provider.entry.exportName], loadProvider, create, normalize });
   }
   const loadPeers = shared ? createSharedPeers(artifact.loadPlan.peerGroups, providers, loaders.loadPeerGroup) : loaders.loadPeers, fabric = options.fabric;
+  if (scoped && typeof options.resolveHostBinding !== 'function') throw new TypeError('Scoped components require the live Maraca materialization port.');
+  const resolveHostBinding = options.resolveHostBinding;
   const kernelWork = Object.freeze({ ...options.kernelWork }), resourceGraph = Object.freeze({ ...options.resourceGraph });
   name(kernelWork.rootId);
   if (!fabric || typeof fabric.createBoundary !== 'function' || !kernelWork.scheduler || !resourceGraph.kernel || !resourceGraph.surfaceGraph || !resourceGraph.surfaceController) throw new TypeError('Shared native Kernel, Fabric and Surface ports are required.');
@@ -135,7 +137,9 @@ export function createMaracaXTensionHostFactory(options) {
     const events = Object.fromEntries(Object.entries(binding?.binding.intents || {}).map(([key, value]) => [key, value.payloadSchema]));
     if (!definition || context.identity.address.documentId !== artifact.plan.bindings.documentId || context.surface !== binding.surface || context.binding?.address && canonical(context.binding.address) !== canonical(context.identity.address) || canonical(context.events) !== canonical(events) || typeof context.onEvent !== 'function') throw new TypeError('Only the matching registry/Maraca binding context may select a composed host.');
     const componentContract = components?.get(declarationId);
-    if (componentContract && canonical(context.binding) !== canonical(binding.binding)) throw new TypeError('Concrete component binding differs from the captured declaration.');
+    const concrete = scoped ? resolveHostBinding(context.identity.address) : binding;
+    if (scoped && (!concrete || concrete.surface !== definition.targetSurface || concrete.hostSurface !== context.hostSurface)) throw new TypeError('The concrete component host is absent from the live Model materialization.');
+    if (componentContract && canonical(context.binding) !== canonical(concrete.binding)) throw new TypeError('Concrete component binding differs from the captured declaration.');
     name(context.xtensionId); name(context.hostId); name(context.surfaceId);
     const provider = providers.get(definition.providerId), grants = policies.get(declarationId), framework = provider.definition.framework;
     let component, peers;
@@ -144,12 +148,13 @@ export function createMaracaXTensionHostFactory(options) {
     const proxy = framework === 'react'
       ? function ComposedReactHost(props) { return peers.React.createElement(component, props); }
       : { inheritAttrs: false, setup(_props, { attrs }) { return () => peers.Vue.h(component, { ...attrs }); } };
-    const receive = options.ssrSession ? options.ssrSession.gate(context) : context.onEvent;
-    const onEvent = componentContract ? event => {
-      const route = componentContract.resolved.routes[event.event];
+    const normalizeEvent = componentContract ? event => {
+      const route = Object.hasOwn(componentContract.resolved.routes,event.event) && componentContract.resolved.routes[event.event];
       if (!route || event.payloadSchema !== route.payloadSchema) throw new TypeError('Unknown captured component intent.');
-      return receive({ ...event, payload: componentInterfaceRuntime.mapComponentIntent(componentContract.definition, event.event, event.payload, route.payload) });
-    } : receive;
+      return { ...event, payload: componentInterfaceRuntime.mapComponentIntent(componentContract.definition, event.event, event.payload, route.payload) };
+    } : event => event;
+    const onEvent = scoped && options.ssrSession ? options.ssrSession.gate(context,normalizeEvent)
+      : options.ssrSession ? options.ssrSession.gate(context) : event => context.onEvent(normalizeEvent(event));
     return provider.create({ container: context.container, hostId: context.hostId, surfaceId: context.surfaceId, xtensionId: context.xtensionId,
       onEvent, component: proxy, fabric,
       ...(options.ssrSession ? { ssr: options.ssrSession.hostContext(context, provider.definition) } : {}),

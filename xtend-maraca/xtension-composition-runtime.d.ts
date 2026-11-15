@@ -4,7 +4,7 @@ import type {
 } from '@ccslabs/xtend-compiler/xtensions/react-runtime-adapter';
 import type { XTensionBindingHostContext, XTensionStateBindingArtifact } from '@ccslabs/xtend-compiler/xtensions/state-binding';
 import type { MaracaBuildPlan } from './index';
-export const XTENSION_COMPOSITION_API_VERSION: '8.0.0';
+export const XTENSION_COMPOSITION_API_VERSION: '9.0.0';
 export type XTensionCompositionProvider = {
   readonly id: string;
   readonly version: string;
@@ -80,10 +80,11 @@ export interface IntegratedXTensionHostCompositionOptions extends Omit<XTensionH
   readonly plan: import('./index').MaracaComposedBuildPlan;
 }
 export function createMaracaXTensionHostFactory(options: IntegratedXTensionHostCompositionOptions): (context: XTensionCompositionHostContext) => NegotiatedRuntimeHostController;
+export type LegacyCompositionBoundPlan = Omit<import('./index').MaracaComposedBuildPlan,'xtensionComposition'> & {readonly xtensionComposition:IntegratedXTensionCompositionArtifact|GraphXTensionCompositionArtifact|DeferredXTensionCompositionArtifact|SharedXTensionCompositionArtifact|DeliveryXTensionCompositionArtifact};
 export interface MaracaXTensionCompositionPort {
   readonly schema: 'xtend.maraca.xtension-composition-port.v1';
   readonly bindingsRuntime: XTensionCompositionBindingRuntime;
-  bind(ports: Pick<XTensionHostCompositionOptions, 'fabric' | 'kernelWork' | 'resourceGraph'> & { readonly plan: Parameters<typeof createMaracaXTensionCompositionPort>[0]['plan'] }): (context: XTensionCompositionHostContext) => NegotiatedRuntimeHostController;
+  bind(ports: Pick<XTensionHostCompositionOptions, 'fabric' | 'kernelWork' | 'resourceGraph'> & { readonly plan: LegacyCompositionBoundPlan }): (context: XTensionCompositionHostContext) => NegotiatedRuntimeHostController;
 }
 export type XTensionPeerLoaderOptions =
   | { readonly loadPeers: XTensionHostCompositionOptions['loadPeers']; readonly loadPeerGroup?: never }
@@ -244,7 +245,7 @@ export interface ComponentXTensionHostCompositionOptions extends Omit<SharedXTen
 }
 export interface MaracaComponentXTensionCompositionPort extends Omit<MaracaXTensionCompositionPort, 'schema' | 'bind'> {
   readonly schema: 'xtend.maraca.xtension-composition-port.v3';
-  bind(ports: Parameters<MaracaXTensionCompositionPort['bind']>[0]): (context: ComponentXTensionHostContext) => NegotiatedRuntimeHostController;
+  bind(ports: Omit<Parameters<MaracaXTensionCompositionPort['bind']>[0],'plan'> & {readonly plan:ComponentXTensionHostCompositionOptions['plan']}): (context: ComponentXTensionHostContext) => NegotiatedRuntimeHostController;
 }
 export type ComponentXTensionHostContext = Omit<XTensionCompositionHostContext, 'binding'> & { readonly binding: import('@ccslabs/xtend-compiler/xtensions/state-binding').XTensionKeyedStateBinding };
 export function createMaracaXTensionHostFactory(options: ComponentXTensionHostCompositionOptions): (context: ComponentXTensionHostContext) => NegotiatedRuntimeHostController;
@@ -253,3 +254,43 @@ export function createMaracaXTensionCompositionPort(options: Omit<ComponentXTens
   readonly companion: { readonly artifact: ComponentXTensionCompositionArtifact; createHostFactory(ports: any): (context: ComponentXTensionHostContext) => NegotiatedRuntimeHostController };
   readonly ssr?: never;
 }): MaracaComponentXTensionCompositionPort;
+
+/** Key scopes and SSR v2 are explicit additions; the static v6 manifest stays closed. */
+export interface ScopedComponentManifest extends Omit<ComponentXTensionCompositionManifest,'schema'> { readonly schema:'xtend.maraca.xtension-composition-manifest.v7' }
+export interface ScopedComponentArtifact extends Omit<ComponentXTensionCompositionArtifact,'schema'|'apiVersion'|'plan'|'manifest'> {
+  readonly schema:'xtend.maraca.xtension-composition-artifact.v8'; readonly apiVersion:'8.0.0'; readonly manifest:ScopedComponentManifest;
+  readonly plan: Omit<ComponentXTensionCompositionArtifact['plan'],'schema'|'compositionManifest'> & {readonly schema:'xtend.maraca.build-plan.v7';readonly compositionManifest:ScopedComponentManifest};
+}
+export type ScopedComponentHostContext = ComponentXTensionHostContext & {readonly hostSurface:string};
+export interface ScopedComponentHostOptions extends Omit<ComponentXTensionHostCompositionOptions,'artifact'|'plan'> {
+  readonly artifact:ScopedComponentArtifact;
+  readonly plan:Omit<import('./index').MaracaScopedComponentBuildPlan,'xtensionComposition'> & {readonly xtensionComposition:ScopedComponentManifest|ScopedComponentArtifact};
+  resolveHostBinding(address:XTensionBindingHostContext['identity']['address']): ReturnType<XTensionCompositionBindingRuntime['materializeStateBindingArtifact']>[number]|undefined;
+}
+export interface ScopedComponentPorts extends Omit<ParametersOfLegacyPort,'plan'> {readonly plan:ScopedComponentHostOptions['plan']; resolveHostBinding:ScopedComponentHostOptions['resolveHostBinding'] }
+type ParametersOfLegacyPort=Parameters<MaracaXTensionCompositionPort['bind']>[0];
+export interface MaracaScopedComponentPort extends Omit<MaracaComponentXTensionCompositionPort,'schema'|'bind'> {
+  readonly schema:'xtend.maraca.xtension-composition-port.v4';
+  bind(ports:ScopedComponentPorts):(context:ScopedComponentHostContext)=>NegotiatedRuntimeHostController;
+}
+export interface MaracaScopedSSRSession extends Omit<MaracaXTensionSSRSession,'schema'|'gate'|'finish'|'capture'|'getReport'> {
+  readonly schema:'xtend.maraca.xtension-ssr-session.v2';
+  gate(context:ScopedComponentHostContext,normalizeEvent:(event:any)=>any):XTensionBindingHostContext['onEvent'];
+  finish():Promise<import('./xtension-ssr').ComponentSSRReport>;
+  capture(snapshot:{readonly states:Readonly<Record<string,unknown>>}):Promise<import('./xtension-ssr').ComponentSSRResponse>;
+  getReport():import('./xtension-ssr').ComponentSSRReport|null;
+}
+export interface MaracaScopedSSRPort extends Omit<MaracaScopedComponentPort,'schema'|'bind'> {
+  readonly schema:'xtend.maraca.xtension-composition-port.v5';readonly ssrSession:MaracaScopedSSRSession;readonly resumeBindingsRuntime:MaracaXTensionResumeBindingRuntime;
+  bind(ports:ScopedComponentPorts):(context:ScopedComponentHostContext)=>import('@ccslabs/xtend-compiler/xtensions/react-runtime-adapter').SSRRuntimeHostController;
+}
+export function createMaracaXTensionHostFactory(options:ScopedComponentHostOptions):(context:ScopedComponentHostContext)=>NegotiatedRuntimeHostController;
+export type ScopedComponentPortOptions = Omit<ScopedComponentHostOptions,'artifact'|'plan'|'fabric'|'kernelWork'|'resourceGraph'|'loadProviders'|'resolveHostBinding'> & {
+  readonly plan:Omit<import('./index').MaracaScopedComponentBuildPlan,'xtensionComposition'> & {readonly xtensionComposition:ScopedComponentArtifact};
+  readonly companion:{readonly artifact:ScopedComponentArtifact;createHostFactory(ports:any):(context:ScopedComponentHostContext)=>NegotiatedRuntimeHostController|import('@ccslabs/xtend-compiler/xtensions/react-runtime-adapter').SSRRuntimeHostController};
+};
+export function createMaracaXTensionCompositionPort(options:ScopedComponentPortOptions & {readonly ssr?:never}):MaracaScopedComponentPort;
+export function createMaracaXTensionCompositionPort(options:ScopedComponentPortOptions & {readonly ssr:import('./xtension-ssr').ComponentSSRClientOptions|import('./xtension-ssr').ComponentSSRServerOptions;readonly ssrRuntime:Readonly<Record<string,unknown>>;readonly resumeBindingsRuntime:MaracaXTensionResumeBindingRuntime}):MaracaScopedSSRPort;
+
+export interface ScopedComponentSSRHostOptions extends Omit<ScopedComponentHostOptions,'ssrSession'> {readonly ssrSession:MaracaScopedSSRSession}
+export function createMaracaXTensionHostFactory(options:ScopedComponentSSRHostOptions):(context:ScopedComponentHostContext)=>import('@ccslabs/xtend-compiler/xtensions/react-runtime-adapter').SSRRuntimeHostController;

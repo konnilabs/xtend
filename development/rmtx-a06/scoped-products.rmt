@@ -1,0 +1,35 @@
+// Versioned component profile: two provider declarations, nested typed keys.
+template scoped.products {
+  state catalog type object preserve {
+    initial { items [
+      { id "g"; products [
+        { id 1; slug "numeric"; images ["front" "back"]; selectedImageId "front"; reviewsSort "recent"; enabled true }
+        { id "1"; slug "text"; images ["front" "back"]; selectedImageId "front"; reviewsSort "recent"; enabled true }
+      ] }
+      { id "h"; products [
+        { id 1; slug "other-parent"; images ["front" "back"]; selectedImageId "front"; reviewsSort "recent"; enabled true }
+      ] }
+    ] }
+  }
+  datasource image.update from endpoint "/catalog/image" { method POST; contract CatalogResult; result record }
+  datasource reviews.update from endpoint "/catalog/sort" { method POST; contract CatalogResult; result record }
+  action image.select {
+    input groupId json
+    input productId json
+    input imageId string
+    effect fetch datasource image.update
+    reduce state.catalog = result.catalog
+  }
+  action reviews.sort {
+    input groupId json
+    input productId json
+    input sort string
+    effect fetch datasource reviews.update
+    reduce state.catalog = result.catalog
+  }
+  action catalog.replace { input catalog object; reduce state.catalog = input.catalog }
+  portal surface.root root "#xtend-maraca-root" layer surface
+  surface product-details kind region component section { portal surface.root; lane visible { mount product-header } }
+  surface product-gallery-host kind region component div { portal surface.root; lane visible { mount product-gallery } }
+  surface product-reviews-host kind region component div { portal surface.root; lane idle { mount product-reviews } }
+}

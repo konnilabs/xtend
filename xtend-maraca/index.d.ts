@@ -1136,6 +1136,16 @@ export interface MaracaTuneReport {
   diagnostics: MaracaDiagnostic[];
 }
 
+export const MARACA_SCOPED_COMPONENT_BUILD_PLAN_SCHEMA:'xtend.maraca.build-plan.v7';
+export const MARACA_SCOPED_COMPONENT_BUILD_CONFIG_SCHEMA:'xtend.maraca.build-config.v7';
+export type MaracaScopedComponentBuildInput=MaracaBuildInput & {xtensionComposition:import('./xtension-composition-runtime').ScopedComponentManifest};
+export interface MaracaScopedComponentBuildPlan extends Omit<MaracaComponentBuildPlan,'schema'|'xtensionComposition'> {schema:typeof MARACA_SCOPED_COMPONENT_BUILD_PLAN_SCHEMA;xtensionComposition:import('./xtension-composition-runtime').ScopedComponentManifest}
+export interface MaracaScopedComponentBuildConfig extends Omit<MaracaComponentBuildConfig,'schema'|'options'> {schema:typeof MARACA_SCOPED_COMPONENT_BUILD_CONFIG_SCHEMA;options:MaracaScopedComponentBuildInput}
+export function createMaracaBuildPlan(input:MaracaScopedComponentBuildInput,options?:MaracaRunOptions):MaracaScopedComponentBuildPlan;
+export function buildMaracaBundleAsync(input:MaracaScopedComponentBuildInput,options?:MaracaRunOptions):Promise<{schema:typeof MARACA_BUNDLE_REPORT_SCHEMA;ok:boolean;status:string;plan:MaracaScopedComponentBuildPlan;bundleReport:MaracaBundleReport|null;sizeBudgetReport:MaracaXTensionSizeBudgetReport|null}>;
+export function createMaracaTuneConfig(input:Record<string,unknown>&{options:MaracaScopedComponentBuildInput}):MaracaScopedComponentBuildConfig;
+export function createMaracaSizeBudgetReport(input:{plan:MaracaScopedComponentBuildPlan;entryPath:string;entryBytes:number;bundleFiles:Array<Record<string,unknown>>}):MaracaXTensionSizeBudgetReport;
+
 export const MARACA_COMPONENT_BUILD_PLAN_SCHEMA: 'xtend.maraca.build-plan.v6';
 export const MARACA_COMPONENT_BUILD_CONFIG_SCHEMA: 'xtend.maraca.build-config.v6';
 export type MaracaComponentBuildInput = MaracaBuildInput & { xtensionComposition: import('./xtension-composition-runtime').ComponentXTensionCompositionManifest };
@@ -1166,7 +1176,7 @@ export interface MaracaComposedBuildConfig extends Omit<MaracaBuildConfig, 'sche
   options: MaracaComposedBuildInput;
 }
 export function createMaracaBuildPlan(input: MaracaComposedBuildInput, options?: MaracaRunOptions): MaracaComposedBuildPlan;
-export function createMaracaBuildPlan(input: MaracaBuildInput & { config: string }, options?: MaracaRunOptions): MaracaBuildPlan | MaracaComposedBuildPlan | MaracaComponentBuildPlan;
+export function createMaracaBuildPlan(input: MaracaBuildInput & { config: string }, options?: MaracaRunOptions): MaracaBuildPlan | MaracaComposedBuildPlan | MaracaComponentBuildPlan | MaracaScopedComponentBuildPlan;
 export function createMaracaBuildPlan(input?: string | MaracaBuildInput, options?: MaracaRunOptions): MaracaBuildPlan;
 export function invokeMaracaComponentCommand<T = unknown>(
   root: {
@@ -1191,7 +1201,7 @@ export function buildMaracaBundleAsync(input: MaracaComposedBuildInput, options?
   bundleReport: MaracaBundleReport | null; sizeBudgetReport: MaracaXTensionSizeBudgetReport | null;
 }>;
 export function buildMaracaBundleAsync(input: MaracaBuildInput & { config: string }, options?: MaracaRunOptions): Promise<{
-  schema: typeof MARACA_BUNDLE_REPORT_SCHEMA; ok: boolean; status: string; plan: MaracaBuildPlan | MaracaComposedBuildPlan | MaracaComponentBuildPlan;
+  schema: typeof MARACA_BUNDLE_REPORT_SCHEMA; ok: boolean; status: string; plan: MaracaBuildPlan | MaracaComposedBuildPlan | MaracaComponentBuildPlan | MaracaScopedComponentBuildPlan;
   bundleReport: MaracaBundleReport | null; sizeBudgetReport: MaracaSizeBudgetReport | MaracaXTensionSizeBudgetReport | null;
 }>;
 export function buildMaracaBundleAsync(input?: string | MaracaBuildInput, options?: MaracaRunOptions): Promise<{

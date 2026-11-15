@@ -13692,6 +13692,18 @@
           "expectedSchema": "xtend.xtensions.ssr-acceptance-report.v1"
         },
         {
+          "path": ".xtend-test-results/xtend-component-scopes-report.json",
+          "kind": "outcome",
+          "producer": "full_release",
+          "expectedSchema": "xtend.xtensions.component-scope-acceptance.v1"
+        },
+        {
+          "path": ".xtend-test-results/xtend-component-ssr-report.json",
+          "kind": "outcome",
+          "producer": "full_release",
+          "expectedSchema": "xtend.xtensions.component-ssr-acceptance.v1"
+        },
+        {
           "path": ".xtend-test-results/xtend-xtensions-consumer-package-report.json",
           "kind": "outcome",
           "producer": "full_release",

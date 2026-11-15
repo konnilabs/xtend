@@ -1,7 +1,7 @@
 import type { MaracaBuildPlan } from './index';
 import type { XTensionCompositionManifest, XTensionCompositionArtifact, XTensionCompositionBindingRuntime } from './xtension-composition-runtime';
 export type { XTensionCompositionManifest, XTensionCompositionArtifact, XTensionCompositionProvider } from './xtension-composition-runtime';
-export const XTENSION_COMPOSITION_BUILD_API_VERSION: '11.0.0';
+export const XTENSION_COMPOSITION_BUILD_API_VERSION: '12.0.0';
 export interface XTensionCompositionBuildReport {
   readonly schema: 'xtend.maraca.xtension-composition-build-report.v1';
   readonly apiVersion: '1.0.0'; readonly ok: true;
@@ -85,6 +85,11 @@ export function buildMaracaXTensionComposition(options: {
   readonly manifest: import('./xtension-composition-runtime').ComponentXTensionCompositionManifest;
   readonly bindingsRuntime: XTensionCompositionBindingRuntime; readonly rootDir: string; readonly outputDir: string;
 }): Promise<ComponentXTensionCompositionBuildReport>;
+
+export interface ScopedComponentBuildReport extends Omit<ComponentXTensionCompositionBuildReport,'schema'|'apiVersion'|'artifact'> {
+ readonly schema:'xtend.maraca.xtension-composition-build-report.v8';readonly apiVersion:'8.0.0';readonly artifact:import('./xtension-composition-runtime').ScopedComponentArtifact;
+}
+export function buildMaracaXTensionComposition(options:{readonly plan:import('./index').MaracaScopedComponentBuildPlan;readonly manifest:import('./xtension-composition-runtime').ScopedComponentManifest;readonly bindingsRuntime:XTensionCompositionBindingRuntime;readonly rootDir:string;readonly outputDir:string}):Promise<ScopedComponentBuildReport>;
 
 /** A manifest read from a versioned config keeps its union until the result is narrowed. */
 export function buildMaracaXTensionComposition(options: {

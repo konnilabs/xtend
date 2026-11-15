@@ -39,12 +39,12 @@
     "tools/xtensions/vue-runtime-adapter.d.ts": "f441bed2550894206df776eec5d3cbfece18adb92c1432060494b38bc80d699f",
     "tools/xtensions/state-binding.js": "19b0f4266fc7546016eb68df9eec391b554ab22a96d5eb97d001c0efa047ca79",
     "tools/xtensions/state-binding.d.ts": "d9d73412a744b3009f892da0d4ffb2e91bcbe0425a6ed88ecaaccefb3d435341",
-    "xtend-maraca/plan-runtime.d.ts": "2294eb80323251057dc541c286279602498a2f2dd206bba624e23294c390ba84",
+    "xtend-maraca/plan-runtime.d.ts": "c2565c8ebfd0dcd5653b8ea4d921ea78ee8ff1a674394d5126b9606093526da3",
     "tests/xtensions/resource-graph-acceptance.js": "b0273e06199aa8c9c5cf8038bbd80146d078259137e6a7e3e6fa45fb7aa59714",
     "tests/xtensions/resource-graph-maraca-acceptance.js": "0483e2b7add52963cc8911fd3da04954d16210d7fda681248580fdfdac034225",
     "tests/types/xtensions_resource_graph.mts": "a8e92658829f2ee4444534a717393bf48269e858eb521457650d6e9dee9e06a9",
-    "tests/xtensions/xtensions_runtime_gate_suite.js": "7256f64a084a21120124e864d7eb0e3c88678417b99f362d086605e3208d929c",
-    "tests/xtensions/xtensions_consumer_package_suite.js": "f77a2c835b378a1c1e3234fcd8290d62d9414274304b4025505741e0536a5ad7",
+    "tests/xtensions/xtensions_runtime_gate_suite.js": "c8096abef6ee2f5ae04c000bd06e0f9aebaf7853bfe8f07e5f497f733ff04811",
+    "tests/xtensions/xtensions_consumer_package_suite.js": "033badcea1aa05beb0cc33134618f7f29cf76105d95e6a333dd360017d600545",
     "tests/xtensions/runtime-adapter-exports.cjs": "5e4f31865018c6309ce2bfd9e0943c30f9f0373f21c31dfae76f1629cbcf63ef"
   }
 }

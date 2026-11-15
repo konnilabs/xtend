@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "date": "2026-11-15",
   "stage": "A06.1b-provider-component-interface",
-  "contractEvidenceSha256": "7f1e7c38c52ca3f93207d52fad91f27943c3398551d59915ac821bfe20e14890",
+  "contractEvidenceSha256": "bc8974188204b62c8139e041b1173bf8dfecc3c02c7caa4d882814bd64709d5d",
   "runs": [
     {
       "format": 2,

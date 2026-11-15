@@ -1,5 +1,7 @@
 # A06.1b – Zwei Hosts mit providerseitiger Komponentenschnittstelle
 
+**Aktualisierung der Folgeabschnitte:** [Key-Scopes und Komponenten-SSR v2](scoped-components.md) sind inzwischen in einem eigenen neuen Profil implementiert. Der nachfolgende Text dokumentiert den jeweiligen vorherigen, weiterhin reproduzierbaren Vertragsstand.
+
 Stand: **14. November 2026**. Referenzvertrag und Referenz-API **2.0.0**, Provider-Interface **1.0.0**. Die [Schnittstellendokumentation](component-interface.md) beschreibt die neue Trennung von Provider-Vertrag und Aufrufstelle. Die zusätzliche [automatische Maraca-Komposition](automatic-composition.md) ist seit dem 15. November 2026 für den statischen Fall implementiert. Diese Datei beschreibt weiterhin die explizite Referenz; die Syntaxentscheidung bleibt offen.
 
 Die Referenz zeigt eine React-Galerie und einen Vue-Bewertungsbereich mit getrennten Renderzielen, eigener Binding-Identität und **derselben owning Surface `product-details`**. Beide nutzen denselben vorhandenen RMT-Microkernel, Fabric, Surface-Controller und Model-/Action-Pfad. Der gemeinsame Owner wird im vertrauenswürdigen Anwendungshost ausdrücklich injiziert. Dafür entstehen keine neue Host-ABI und kein zweiter Scheduler, Graph oder State-Writer.

@@ -21,18 +21,18 @@
     "tools/xtensions/url-state-contracts/state.v1.schema.json": "8a569847a037c463aa26b8cfa46f660a20b3a0afc7ede5de1dbd57bfa32a57d8",
     "tools/xtensions/url-state-contracts/restore-plan.v1.schema.json": "57d5ea6e30f2378a66f418e5d601e201ac2bc552b719be1bd8d94d03877aeab0",
     "tools/xtensions/url-state-contracts/history-proposal.v1.schema.json": "63aadd491141cd781ebcacaf4a903421e079cdedae89689531efd41c65d8f1b0",
-    "xtend-maraca/plan-runtime.mjs": "349ac0979f70ec8b244243252c9e8777be1ff7c60baeca00984364113386960a",
-    "xtend-maraca/plan-runtime.d.ts": "2294eb80323251057dc541c286279602498a2f2dd206bba624e23294c390ba84",
+    "xtend-maraca/plan-runtime.mjs": "5ef870125990dc60b8612386e94d08bcfef32273e9aef886a5e911694be91b24",
+    "xtend-maraca/plan-runtime.d.ts": "c2565c8ebfd0dcd5653b8ea4d921ea78ee8ff1a674394d5126b9606093526da3",
     "xtend-maraca/plan-runtime.v6.d.ts": "7b67cdeaba29fafe8512571ac9d05b0e04073c207b2b78fb8a2ff7593f98530d",
-    "xtend-maraca/browser-composition-runtime.mjs": "282cd915e93eaeb1141cae145077c992debb26b51b7703aa8774ff7db045224c",
-    "xtend-maraca/browser-composition-runtime.d.ts": "39a0b3f7887d44914c8556860ffe439d128c7060000df258cc887f27b1e23a7c",
+    "xtend-maraca/browser-composition-runtime.mjs": "945873b3bc254db756998f2170392b9b254a9ca0835d9b52448e66da8a24ebbe",
+    "xtend-maraca/browser-composition-runtime.d.ts": "0bbc0a1d17ce936447db360cfd16ddd1128b2a342329ea2b2a6e1b6db4b5860f",
     "xtend-maraca/browser-composition-runtime.v4.d.ts": "80a9bf76c8e9fb837755a09a5c48a344fdcd7da0d96ce23f275ed35a819c807a",
     "components/xrouter.js": "2a71b2dc3b2ba3ea40d06a24d3cddb4a38ad2c73b056ddffeb466399f27a1bd6",
     "components/xrouter.d.ts": "0d307adda22cc421470637299662c6ef28b9be717cb684e629453dd2f0120a2e",
     "components/xrouter-url-state.js": "248da47a1bbc3e9b78d6712ece71d528bfcdabe7258de3dfd80a3e6e24cfc005",
     "components/xrouter-url-state.d.ts": "31b0fe7adef1d172153677970a81aa9df34147be2315672f4a96d33eb0bd3818",
     "tests/xtensions/url-state-maraca-acceptance.js": "6173882864115203429b624f7b52f722b8a24549b3f7217f8a75fc68929e44a3",
-    "tests/xtensions/xtensions_runtime_gate_suite.js": "7256f64a084a21120124e864d7eb0e3c88678417b99f362d086605e3208d929c",
+    "tests/xtensions/xtensions_runtime_gate_suite.js": "c8096abef6ee2f5ae04c000bd06e0f9aebaf7853bfe8f07e5f497f733ff04811",
     "scripts/test_xtensions_runtime_adapters.cjs": "d9df3dfd883ea4e46c87bb94359b4728602ca15d1c535205fcaa5755a42a39b8"
   }
 }

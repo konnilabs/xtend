@@ -340,6 +340,8 @@ jobs:
             .xtend-test-results/xtend-xtensions-deployment-runtime-report.json
             .xtend-test-results/xtend-xtensions-deployment-update-report.json
             .xtend-test-results/xtend-xtensions-ssr-report.json
+            .xtend-test-results/xtend-component-scopes-report.json
+            .xtend-test-results/xtend-component-ssr-report.json
             .xtend-test-results/xtend-xtensions-consumer-package-report.json
             .xtend-test-results/xtend-xtensions-runtime-gate-report.json
             .xtend-test-results/xtend-dev-surface-report.json
@@ -620,6 +622,8 @@ jobs:
             .xtend-test-results/xtend-xtensions-deployment-runtime-report.json
             .xtend-test-results/xtend-xtensions-deployment-update-report.json
             .xtend-test-results/xtend-xtensions-ssr-report.json
+            .xtend-test-results/xtend-component-scopes-report.json
+            .xtend-test-results/xtend-component-ssr-report.json
             .xtend-test-results/xtend-xtensions-consumer-package-report.json
             .xtend-test-results/xtend-xtensions-runtime-gate-report.json
             .xtend-test-results/xtend-dev-surface-report.json

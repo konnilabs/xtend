@@ -1,7 +1,7 @@
 {
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "79f7b9a4026645920f4f87e42c2feae369f543e4b0d9b6930444dcad8a5cdf55",
+  "inventorySha256": "f074f4678a5480492524ac705506e8c96bdf2c86d559a827a7fc2b937b10d276",
   "productivePaths": [
     ".codex",
     ".comments/XScaler ATC.png.xml",
@@ -1218,6 +1218,17 @@
     "development/rmtx-a06/providers/react.interface.json",
     "development/rmtx-a06/providers/vue-reviews.mjs",
     "development/rmtx-a06/providers/vue.interface.json",
+    "development/rmtx-a06/scoped-acceptance.mjs",
+    "development/rmtx-a06/scoped-components.md",
+    "development/rmtx-a06/scoped-evidence.json",
+    "development/rmtx-a06/scoped-fixture.mjs",
+    "development/rmtx-a06/scoped-inspect.cjs",
+    "development/rmtx-a06/scoped-model.cjs",
+    "development/rmtx-a06/scoped-products.rmt",
+    "development/rmtx-a06/scoped-reference.cjs",
+    "development/rmtx-a06/scoped-runtime-evidence.json",
+    "development/rmtx-a06/scoped-ssr-test.cjs",
+    "development/rmtx-a06/scoped-test.cjs",
     "development/rmtx-a06/syntax-and-jsx-sideloading-assessment.md",
     "development/rmtx-a06/two-host-acceptance.mjs",
     "development/rmtx-a06/two-host-case.md",
@@ -2893,6 +2904,7 @@
     "tests/types/xtensions_kernel_runtime.mts",
     "tests/types/xtensions_resource_graph.mts",
     "tests/types/xtensions_runtime_adapters.ts",
+    "tests/types/xtensions_scoped_components.mts",
     "tests/types/xtensions_ssr.mts",
     "tests/types/xtensions_url_history_contract.mts",
     "tests/types/xtensions_work_budget.mts",
@@ -2926,6 +2938,7 @@
     "tests/xtensions/runtime-adapter-exports.cjs",
     "tests/xtensions/runtime-peers/package-lock.json",
     "tests/xtensions/runtime-peers/package.json",
+    "tests/xtensions/scoped-components.test.cjs",
     "tests/xtensions/state-binding-acceptance.js",
     "tests/xtensions/url-history-acceptance.js",
     "tests/xtensions/url-history-contract-checks.cjs",
@@ -3702,7 +3715,7 @@
     "xtendrmt/rmt-surface-transition-runtime.js",
     "xtendrmt/rmt.schema.json"
   ],
-  "authorityDecisionSha256": "ac10dac4e8b8762e5f47a2e5f6de80063ce77f821b69973e250e3ea45331285a",
+  "authorityDecisionSha256": "16a0c08cfaf234d2e10e7bedae03ef47b7e194cd713f8fd412ab4840811571ee",
   "note": "No union filtering or Core schema acceptance is inferred. Missing/pending exact projection blocks Core CI evidence and release preparation. Initial Candidate authority retirement remains a separate source guard.",
   "coreCandidateAuthoritySha256": "8fc57e4eb96a3a6fd0155234f06cc4b95879fc9d492fdaad8171e26345e4f865"
 }

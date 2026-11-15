@@ -14,7 +14,7 @@ const builtPlanMajor: typeof planMajor = build.plan.schema;
 const report = await buildMaracaXTensionComposition({ plan, manifest, bindingsRuntime, rootDir: '.', outputDir: 'dist' });
 const reportMajor: 'xtend.maraca.xtension-composition-build-report.v2' = report.schema;
 const artifactMajor: '2.0.0' = report.artifact.apiVersion;
-declare const companion: Parameters<typeof createMaracaXTensionCompositionPort>[0]['companion'];
+declare const companion: {readonly artifact:typeof report.artifact;createHostFactory(ports:unknown):(context:import('@ccslabs/xtend/maraca/xtension-composition-runtime').XTensionCompositionHostContext)=>import('@ccslabs/xtend-compiler/xtensions/react-runtime-adapter').NegotiatedRuntimeHostController};
 declare const ports: Pick<XTensionHostCompositionOptions, 'fabric' | 'kernelWork' | 'resourceGraph'>;
 const runtimePlan = { ...plan, xtensionComposition: report.artifact };
 const port = createMaracaXTensionCompositionPort({ plan: runtimePlan, companion, bindingsRuntime, adapters: { react }, loadPeers: async () => ({}), grants: {} });
@@ -23,7 +23,8 @@ declare const runtimeOptions: Omit<ComposedMaracaPlanRuntimeOptions, 'plan' | 'x
 const runtime = createMaracaPlanRuntime({ ...runtimeOptions, plan: runtimePlan, xtensionCompositionPort: port });
 const runtimeMajor: typeof XTENSION_PLAN_RUNTIME_SCHEMA = runtime.snapshot().schema;
 const app = createMaracaBrowserCompositionRoot({ schema: 'xtend.maraca.browser-composition-root.v7', buildPlanSchema: plan.schema, xtensionComposition: report.artifact });
-const appMajor: typeof MARACA_XTENSION_BROWSER_API_VERSION = app.apiVersion;
+// The legacy browser instance retains API 7 while the module also exposes newer profiles.
+const appMajor: '7.0.0' = app.apiVersion;
 await app.boot({ fabric: ports.fabric, xtensions: { loadPeers: async () => ({}), grants: {} } });
 const snapshotMajor: typeof runtimeMajor | 'xtend.maraca.plan-runtime.v9' = app.facade.snapshot().schema;
 // @ts-expect-error Automatic composition requires an explicit Fabric and peer/grant policy.

@@ -1,5 +1,7 @@
 # A06.1b – Providerseitige Komponentenschnittstelle
 
+**Aktualisierung der Folgeabschnitte:** [Key-Scopes und Komponenten-SSR v2](scoped-components.md) sind inzwischen in einem eigenen neuen Profil implementiert. Der nachfolgende Text dokumentiert den jeweiligen vorherigen, weiterhin reproduzierbaren Vertragsstand.
+
 Stand: **15. November 2026**. Der providerseitige Vertrag, seine Byte-Erfassung, die Binding-Absenkung, Runtime-Guards und die generierte Provider-Typmap sind implementiert. Zusätzlich zur expliziten A06-Referenz bindet der [automatische A04-Pfad](automatic-composition.md) jetzt statische Deklarationen mit getrenntem Owner/Renderziel ein. Der A05-Handoff dieses Profils bleibt ein Folgeabschnitt. RMTX-Syntax und 0.9-Feature-Abnahme bleiben offen.
 
 ## Versionen und Abgrenzung

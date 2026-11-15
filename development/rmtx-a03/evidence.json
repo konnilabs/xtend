@@ -43,11 +43,11 @@
     "tools/xtensions/vue-runtime-adapter.d.ts": "f441bed2550894206df776eec5d3cbfece18adb92c1432060494b38bc80d699f",
     "tools/xtensions/state-binding.js": "19b0f4266fc7546016eb68df9eec391b554ab22a96d5eb97d001c0efa047ca79",
     "tools/xtensions/state-binding.d.ts": "d9d73412a744b3009f892da0d4ffb2e91bcbe0425a6ed88ecaaccefb3d435341",
-    "xtend-maraca/plan-runtime.d.ts": "2294eb80323251057dc541c286279602498a2f2dd206bba624e23294c390ba84",
+    "xtend-maraca/plan-runtime.d.ts": "c2565c8ebfd0dcd5653b8ea4d921ea78ee8ff1a674394d5126b9606093526da3",
     "tests/xtensions/kernel-runtime-acceptance.js": "3e3d4b2f4e27d82b2e0bdda14e90a36ad7b34547a2044f6a089952558f24dfcb",
     "tests/xtensions/kernel-maraca-acceptance.js": "50344373ace1530805e5849219462dd425bf648bbcfb36b19ceecb24f0165291",
     "tests/types/xtensions_kernel_runtime.mts": "2741915e56a7e0ed65f7c0d571b3cae595a06074d312b92b4c39c4558b952b3b",
-    "tests/xtensions/xtensions_runtime_gate_suite.js": "7256f64a084a21120124e864d7eb0e3c88678417b99f362d086605e3208d929c"
+    "tests/xtensions/xtensions_runtime_gate_suite.js": "c8096abef6ee2f5ae04c000bd06e0f9aebaf7853bfe8f07e5f497f733ff04811"
   },
   "jobs": [
     {

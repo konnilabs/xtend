@@ -33,7 +33,7 @@ async function buildXTensionPlatform(plan, rollup) {
   const runtime = path.join(__dirname, 'xtension-composition-runtime.mjs');
   const bindingContract = require.resolve(path.join(compilerRoot, 'xtensions/state-binding-contract'));
   capture(bindingContract);
-  const componentProfile = plan.xtensionComposition.schema === 'xtend.maraca.xtension-composition-manifest.v6';
+  const componentProfile = ['xtend.maraca.xtension-composition-manifest.v6','xtend.maraca.xtension-composition-manifest.v7'].includes(plan.xtensionComposition.schema);
   const componentFile = path.join(compilerRoot, 'xtensions/component-interface.js');
   if (componentProfile) capture(componentFile);
   const componentImport = componentProfile ? `import * as componentInterfaceRuntime from ${JSON.stringify(componentFile)};\n` : '';

@@ -4,8 +4,8 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "79f7b9a4026645920f4f87e42c2feae369f543e4b0d9b6930444dcad8a5cdf55",
-  "sourceMembershipSha256": "f553b729eab036cc2ad50ec83411863c48193a2dde69d83f9e702920ba623d29",
+  "inventorySha256": "f074f4678a5480492524ac705506e8c96bdf2c86d559a827a7fc2b937b10d276",
+  "sourceMembershipSha256": "87a8235e56321a979a48661933eb2ef43adcdfb9d9d15c7caedf37290c178bdd",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
@@ -561,7 +561,7 @@
         },
         {
           "path": "development/rmtx-a01/inventory.json",
-          "sha256": "53aea5fcf2a8762db589ca5714c13db04ea8144b43a05dbb5933aa538a32180a"
+          "sha256": "98cf43fd5e41e52e63d78135273d313e523a56c425062f81c7160c522a598b6f"
         },
         {
           "path": "docs/de/rmt-vnext-authoring.md",
@@ -672,7 +672,7 @@
   "a02StateBindingReview": {
     "status": "user-requested-scoped-development-gates",
     "date": "2026-11-08",
-    "request": "A02 starten: Instanz-/State-Vertrag und ausf\u00fchrbare Referenzintegration.",
+    "request": "A02 starten: Instanz-/State-Vertrag und ausführbare Referenzintegration.",
     "scope": "Five new Core source members; first unreleased XTension state-binding declaration; unchanged payloads of all existing schemas and refreshed source-byte bindings. Compiler/Maraca artifact lowering, kernel delivery and URL/SSR semantics remain pending.",
     "previousInventorySha256": "b479bb134bbf15372315ae18679b360983affc11200fb78324707787b91ab0e9",
     "reviewDocument": "development/rmtx-a02/README.md",
@@ -683,7 +683,7 @@
   "a022CompilerBindingReview": {
     "status": "user-requested-scoped-development-gates",
     "date": "2026-11-08",
-    "request": "A02.2 starten und ge\u00e4nderte Schema-/API-Vertr\u00e4ge gegen\u00fcber Legacy versionieren.",
+    "request": "A02.2 starten und geänderte Schema-/API-Verträge gegenüber Legacy versionieren.",
     "scope": "Compiled Source/AST binding sidecar, static Maraca Action/Model/View/React path, explicit schema/API version transitions, preserved released Legacy v3 declaration and regenerated documentation assets. Only scoped non-authoritative observations change for existing contracts.",
     "versionTransitions": {
       "xtend.maraca.build-plan.v1": "xtend.maraca.build-plan.v2",
@@ -774,7 +774,7 @@
   "a023ConditionalHostReview": {
     "status": "user-requested-scoped-development-gates",
     "date": "2026-11-09",
-    "request": "A02 an der n\u00e4chsten offenen Stelle fortsetzen; ge\u00e4nderte Schema-/API-Vertr\u00e4ge gegen\u00fcber Legacy versionieren.",
+    "request": "A02 an der nächsten offenen Stelle fortsetzen; geänderte Schema-/API-Verträge gegenüber Legacy versionieren.",
     "scope": "Model-owned boolean presence for static keyed host templates, conditional lifetimes, stale intent revocation, unmount before DOM removal, deferred mounts for superseded Views and current command/props cleanup barriers. Repeated hosts, URL/history and adoption/restore remain open.",
     "sourceBindingRefresh": [
       "xtend.rmt.vnext.ast.v1"
@@ -884,7 +884,7 @@
   "a024RepeatedHostReview": {
     "status": "user-requested-scoped-development-gates",
     "date": "2026-11-09",
-    "request": "Wiederholte Hosts mit stabilen Elementschl\u00fcsseln starten; ge\u00e4nderte Schema-/API-Vertr\u00e4ge gem\u00e4\u00df bestehender Anweisung gegen\u00fcber Legacy versionieren.",
+    "request": "Wiederholte Hosts mit stabilen Elementschlüsseln starten; geänderte Schema-/API-Verträge gemäß bestehender Anweisung gegenüber Legacy versionieren.",
     "scope": "Nested Model-array scopes with typed stable item keys, shared compiler/runtime materialization, v2 keyed prop paths and trusted intent key fields, concrete host identities, retained lifetimes across reorder and safe removal. Static and conditional Legacy contracts remain closed. Native template event/resource instancing, full Surface/kernel registration and URL/history/adoption remain open.",
     "sourceBindingRefresh": [
       "xtend.rmt.vnext.ast.v1"
@@ -2387,6 +2387,490 @@
       "authoritativeFingerprintsUnchanged": true,
       "formalASTSchemaChanged": false,
       "releasedStatusChanged": false
+    }
+  },
+  "a05ScopedComponentReview": {
+    "date": "2026-11-15",
+    "status": "implemented-scoped-component-csr-and-ssr-profile",
+    "sourceBaseSha": "f3b2ab338b19d033ce18f5261183d61f27b27eb4",
+    "documentation": "development/rmtx-a06/scoped-components.md",
+    "documentationSha256": "7cd76197b6f7bbbb9ccd9846bd1777861643cbbf35f19887d4738164864a0746",
+    "contractEvidence": "development/rmtx-a06/scoped-evidence.json",
+    "contractEvidenceSha256": "230acd85d39f85b008e2deb55a85968d2f198eedc249885920d36e337309a418",
+    "runtimeEvidence": "development/rmtx-a06/scoped-runtime-evidence.json",
+    "runtimeEvidenceSha256": "7eb4a77377095c33fb9cbe57cd721fd0299384fc0100ad00608973c447000ff3",
+    "buildApiVersion": "12.0.0",
+    "compositionApiVersion": "9.0.0",
+    "browserApiVersion": "9.0.0",
+    "ssrApiVersion": "2.0.0",
+    "componentInterfaceApiVersion": "1.0.0",
+    "componentCaptureApiVersion": "2.0.0",
+    "buildPlanVersion": 7,
+    "buildConfigVersion": 7,
+    "manifestVersion": 7,
+    "artifactVersion": 8,
+    "buildReportVersion": 8,
+    "browserRootVersion": 9,
+    "csrPortVersion": 4,
+    "ssrPortVersion": 5,
+    "csrRuntimeVersion": 11,
+    "ssrRuntimeVersion": 12,
+    "ssrWireVersion": 2,
+    "componentContractTestsPerNodeLane": 9,
+    "regularBuildChecks": 7,
+    "csrCasesPerEnvironment": 6,
+    "ssrCasesPerNodeEnvironment": 35,
+    "legacyStaticCasesPerEnvironment": 8,
+    "legacyManualCasesPerEnvironment": 13,
+    "legacySSRRegressionChecks": 84,
+    "nodeVersions": [
+      "24.18.0",
+      "26.5.0"
+    ],
+    "typescript": "5.9.3",
+    "rollup": "4.60.4",
+    "terser": "5.48.0",
+    "esbuild": "0.28.2",
+    "react": "18.3.1",
+    "vue": "3.5.43",
+    "chromium": "155.0.8059.79",
+    "nativeSealedJavaScriptVerified": true,
+    "trustedServerComposedDocument": true,
+    "relativeSizeBudgetEnforced": true,
+    "componentProfileReferenceRuntimeCeiling": 280000,
+    "frameworkReferenceCeiling": 2200000,
+    "legacyReferenceRuntimeCeiling": 240000,
+    "scope": "nested-typed-repeat-scopes-with-provider-owned-interface-and-synchronous-exclusive-container-ssr",
+    "legacyDataProfilesRetained": true,
+    "fabricAndNativeResourceGraphRetained": true,
+    "componentProfileSSRSupported": true,
+    "componentProfileRepeatedKeysSupported": true,
+    "providerPayloadsReplayedThroughNormalHostEventPort": true,
+    "entireReplayBatchValidatedBeforeFirstCommand": true,
+    "syntaxDecisionStatus": "open",
+    "acceptedForRelease": false,
+    "classicObservationSourceBindingReview": {
+      "sources": [
+        {
+          "path": "development/rmtx-a01/inventory.json",
+          "previousSha256": "53aea5fcf2a8762db589ca5714c13db04ea8144b43a05dbb5933aa538a32180a",
+          "sha256": "98cf43fd5e41e52e63d78135273d313e523a56c425062f81c7160c522a598b6f"
+        }
+      ],
+      "schemaId": "xtend.rmt.vnext.ast.v1",
+      "authoritativeFingerprintsUnchanged": true,
+      "formalASTSchemaChanged": false,
+      "releasedStatusChanged": false
+    },
+    "newSchemaIds": [
+      "xtend.maraca.browser-composition-root.v9",
+      "xtend.maraca.build-config.v7",
+      "xtend.maraca.build-plan.v7",
+      "xtend.maraca.plan-runtime.v11",
+      "xtend.maraca.plan-runtime.v12",
+      "xtend.maraca.xtension-composition-artifact.v8",
+      "xtend.maraca.xtension-composition-build-report.v8",
+      "xtend.maraca.xtension-composition-manifest.v7",
+      "xtend.maraca.xtension-composition-port.v4",
+      "xtend.maraca.xtension-composition-port.v5",
+      "xtend.maraca.xtension-ssr-intent.v2",
+      "xtend.maraca.xtension-ssr-options.v2",
+      "xtend.maraca.xtension-ssr-payload.v2",
+      "xtend.maraca.xtension-ssr-report.v2",
+      "xtend.maraca.xtension-ssr-response.v2",
+      "xtend.maraca.xtension-ssr-session.v2",
+      "xtend.maraca.xtension-ssr-snapshot.v2",
+      "xtend.xtensions.component-scope-acceptance.v1",
+      "xtend.xtensions.component-ssr-acceptance.v1"
+    ],
+    "compatibilityLifecycleReview": {
+      "changes": [
+        {
+          "schemaId": "xtend.maraca.browser-composition-root.v8",
+          "previous": {
+            "status": "active",
+            "rollout": "planned"
+          },
+          "next": {
+            "status": "deprecated",
+            "rollout": "planned"
+          },
+          "runtimeSupportRetained": true
+        },
+        {
+          "schemaId": "xtend.maraca.build-config.v6",
+          "previous": {
+            "status": "active",
+            "rollout": "planned"
+          },
+          "next": {
+            "status": "deprecated",
+            "rollout": "planned"
+          },
+          "runtimeSupportRetained": true
+        },
+        {
+          "schemaId": "xtend.maraca.build-plan.v6",
+          "previous": {
+            "status": "active",
+            "rollout": "planned"
+          },
+          "next": {
+            "status": "deprecated",
+            "rollout": "planned"
+          },
+          "runtimeSupportRetained": true
+        },
+        {
+          "schemaId": "xtend.maraca.plan-runtime.v10",
+          "previous": {
+            "status": "active",
+            "rollout": "planned"
+          },
+          "next": {
+            "status": "deprecated",
+            "rollout": "planned"
+          },
+          "runtimeSupportRetained": true
+        },
+        {
+          "schemaId": "xtend.maraca.plan-runtime.v11",
+          "previous": {
+            "status": "active",
+            "rollout": "planned"
+          },
+          "next": {
+            "status": "deprecated",
+            "rollout": "planned"
+          },
+          "runtimeSupportRetained": true
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-composition-artifact.v7",
+          "previous": {
+            "status": "active",
+            "rollout": "planned"
+          },
+          "next": {
+            "status": "deprecated",
+            "rollout": "planned"
+          },
+          "runtimeSupportRetained": true
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-composition-build-report.v7",
+          "previous": {
+            "status": "active",
+            "rollout": "planned"
+          },
+          "next": {
+            "status": "deprecated",
+            "rollout": "planned"
+          },
+          "runtimeSupportRetained": true
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-composition-manifest.v6",
+          "previous": {
+            "status": "active",
+            "rollout": "planned"
+          },
+          "next": {
+            "status": "deprecated",
+            "rollout": "planned"
+          },
+          "runtimeSupportRetained": true
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-composition-port.v3",
+          "previous": {
+            "status": "active",
+            "rollout": "planned"
+          },
+          "next": {
+            "status": "deprecated",
+            "rollout": "planned"
+          },
+          "runtimeSupportRetained": true
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-composition-port.v4",
+          "previous": {
+            "status": "active",
+            "rollout": "planned"
+          },
+          "next": {
+            "status": "deprecated",
+            "rollout": "planned"
+          },
+          "runtimeSupportRetained": true
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-ssr-intent.v1",
+          "previous": {
+            "status": "active",
+            "rollout": "planned"
+          },
+          "next": {
+            "status": "deprecated",
+            "rollout": "planned"
+          },
+          "runtimeSupportRetained": true
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-ssr-options.v1",
+          "previous": {
+            "status": "active",
+            "rollout": "planned"
+          },
+          "next": {
+            "status": "deprecated",
+            "rollout": "planned"
+          },
+          "runtimeSupportRetained": true
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-ssr-payload.v1",
+          "previous": {
+            "status": "active",
+            "rollout": "planned"
+          },
+          "next": {
+            "status": "deprecated",
+            "rollout": "planned"
+          },
+          "runtimeSupportRetained": true
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-ssr-report.v1",
+          "previous": {
+            "status": "active",
+            "rollout": "planned"
+          },
+          "next": {
+            "status": "deprecated",
+            "rollout": "planned"
+          },
+          "runtimeSupportRetained": true
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-ssr-response.v1",
+          "previous": {
+            "status": "active",
+            "rollout": "planned"
+          },
+          "next": {
+            "status": "deprecated",
+            "rollout": "planned"
+          },
+          "runtimeSupportRetained": true
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-ssr-session.v1",
+          "previous": {
+            "status": "active",
+            "rollout": "planned"
+          },
+          "next": {
+            "status": "deprecated",
+            "rollout": "planned"
+          },
+          "runtimeSupportRetained": true
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-ssr-snapshot.v1",
+          "previous": {
+            "status": "active",
+            "rollout": "planned"
+          },
+          "next": {
+            "status": "deprecated",
+            "rollout": "planned"
+          },
+          "runtimeSupportRetained": true
+        }
+      ],
+      "runtimeSupportRetained": true,
+      "retiredSchemaIds": [],
+      "familyPolicyChanged": false
+    },
+    "inventoryObservationReview": {
+      "previousInventorySha256": "bcd16f2d02885e65d902fd44690c849b53271b10dc5164ee1136317104f90a21",
+      "inventorySha256": "f074f4678a5480492524ac705506e8c96bdf2c86d559a827a7fc2b937b10d276",
+      "newSchemaIds": [
+        "xtend.maraca.browser-composition-root.v9",
+        "xtend.maraca.build-config.v7",
+        "xtend.maraca.build-plan.v7",
+        "xtend.maraca.plan-runtime.v11",
+        "xtend.maraca.plan-runtime.v12",
+        "xtend.maraca.xtension-composition-artifact.v8",
+        "xtend.maraca.xtension-composition-build-report.v8",
+        "xtend.maraca.xtension-composition-manifest.v7",
+        "xtend.maraca.xtension-composition-port.v4",
+        "xtend.maraca.xtension-composition-port.v5",
+        "xtend.maraca.xtension-ssr-intent.v2",
+        "xtend.maraca.xtension-ssr-options.v2",
+        "xtend.maraca.xtension-ssr-payload.v2",
+        "xtend.maraca.xtension-ssr-report.v2",
+        "xtend.maraca.xtension-ssr-response.v2",
+        "xtend.maraca.xtension-ssr-session.v2",
+        "xtend.maraca.xtension-ssr-snapshot.v2",
+        "xtend.xtensions.component-scope-acceptance.v1",
+        "xtend.xtensions.component-ssr-acceptance.v1"
+      ],
+      "changes": [
+        {
+          "schemaId": "xtend.maraca.browser-composition-root.v8",
+          "fields": [
+            "canonicalDefinition",
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.maraca.plan-runtime.v10",
+          "fields": [
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-composition-manifest.v6",
+          "fields": [
+            "canonicalDefinition",
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-deployment-config.v1",
+          "fields": [
+            "shapeFingerprints",
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [
+            {
+              "hash": "sha256:07d75ddd0d3e8e759b2a320b744c5c4d8b208ff40272b1ab18eb34fce61a6068",
+              "completeness": "partial"
+            },
+            {
+              "hash": "sha256:e66b30e0ee5655d0eda3cb4a661197131458b0242d290830a464041b7ec1da78",
+              "completeness": "partial"
+            }
+          ],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-ssr-intent.v1",
+          "fields": [
+            "canonicalDefinition",
+            "shapeFingerprints",
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-ssr-options.v1",
+          "fields": [
+            "canonicalDefinition",
+            "shapeFingerprints",
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [
+            {
+              "hash": "sha256:579edff021838300753e7460c5156c7049f5669d15b0727e80f0a8306c6608bb",
+              "completeness": "complete"
+            }
+          ],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-ssr-payload.v1",
+          "fields": [
+            "canonicalDefinition",
+            "shapeFingerprints",
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-ssr-report.v1",
+          "fields": [
+            "canonicalDefinition",
+            "shapeFingerprints",
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-ssr-response.v1",
+          "fields": [
+            "canonicalDefinition",
+            "shapeFingerprints",
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-ssr-session.v1",
+          "fields": [
+            "canonicalDefinition",
+            "shapeFingerprints",
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.maraca.xtension-ssr-snapshot.v1",
+          "fields": [
+            "kinds",
+            "canonicalDefinition",
+            "shapeFingerprints",
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.xtensions.state-binding-artifact.v3",
+          "fields": [
+            "shapeFingerprints",
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [
+            {
+              "hash": "sha256:082c4d14f3e91fb8b48eabaf2be0eec12eb378e68805cd09c21071e376e71053",
+              "completeness": "partial"
+            }
+          ],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.xtensions.state-binding.v2",
+          "fields": [
+            "shapeFingerprints",
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [
+            {
+              "hash": "sha256:06a239316fa8ea9f2a276bf1df0529a52c24a22fe4e5179b670d591d30fe4975",
+              "completeness": "partial"
+            }
+          ],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        }
+      ],
+      "existingAuthoritativeDefinitionsChanged": false,
+      "existingReleasedFingerprintSetsChanged": false,
+      "historicalInventoryChanged": false
     }
   }
 }

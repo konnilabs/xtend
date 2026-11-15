@@ -49,7 +49,7 @@ function envelope(publicPath, files, bootstrap, context) {
 /** Private registration from the successful regular build, before it returns.
  * Neither serialized build reports nor caller-supplied digests create this brand. */
 function registerBuild(result) {
-  if (!result.ok || !['xtend.maraca.xtension-composition-manifest.v5', 'xtend.maraca.xtension-composition-manifest.v6'].includes(result.plan.xtensionComposition?.schema)) return;
+  if (!result.ok || !['xtend.maraca.xtension-composition-manifest.v5', 'xtend.maraca.xtension-composition-manifest.v6','xtend.maraca.xtension-composition-manifest.v7'].includes(result.plan.xtensionComposition?.schema)) return;
   const root = fs.realpathSync(result.plan.outputDir), rows = result.sizeBudgetReport.accounting.files;
   const capture = rows.map(row => { const bytes = fs.readFileSync(path.join(root, row.fileName)); if (hash(bytes) !== row.sha256 || bytes.length !== row.bytes) throw new TypeError('Actual build bytes changed before deployment registration.'); return { ...row }; });
   const services = result.plan.services, pwa = result.plan.pwa;
@@ -58,7 +58,7 @@ function registerBuild(result) {
     return record(fileName, fs.readFileSync(file));
   }) : [];
   builds.set(result, { root, rows: capture, host: path.basename(result.plan.outputs.host), budget: copy(result.sizeBudgetReport), ssrEntry: path.basename(result.plan.outputs.entry), ssrLazy: result.plan.lazy,
-    incompatible: !!pwa?.enabled || !!services?.enabled, services: !!services?.enabled, privateRows,
+    compositionSchema: result.plan.xtensionComposition.schema, incompatible: !!pwa?.enabled || !!services?.enabled, services: !!services?.enabled, privateRows,
     servicePath: services?.enabled ? services.transport.basePath : null,
     pwa: pwa?.enabled ? { manifest: path.basename(pwa.outputs.manifest), worker: path.basename(pwa.outputs.serviceWorker), report: path.basename(pwa.outputs.report),
       offline: pwa.outputs.offlineFallback ? path.basename(pwa.outputs.offlineFallback) : null,
@@ -327,6 +327,6 @@ function captureSSRBuild(build) {
   const files = new Map(capture.rows.filter(row => script(row.fileName)).map(row => { const bytes = readFile(capture.root, row.fileName); if (hash(bytes) !== row.sha256 || bytes.length !== row.bytes) throw new Error('SSR build bytes changed.'); return [row.fileName, bytes.toString('utf8')]; }));
   graph(new Map([...files].map(([name, source]) => [name, Buffer.from(source)])));
   if (!files.has(capture.ssrEntry)) throw new Error('SSR entry is outside the captured build.');
-  return { entry: capture.ssrEntry, files };
+  return { entry: capture.ssrEntry, files, componentProfile: capture.compositionSchema === 'xtend.maraca.xtension-composition-manifest.v7' };
 }
 module.exports={captureSSRBuild,XTENSION_DEPLOYMENT_API_VERSION,buildMaracaXTensionDeployment,loadMaracaXTensionDeployment,loadMaracaXTensionDeploymentSnapshot,createMaracaXTensionDeploymentHandler,registerBuild};

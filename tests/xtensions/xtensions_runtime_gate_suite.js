@@ -46,6 +46,19 @@ function runXTensionsRuntimeGate({ rootDir, browser = false } = {}) {
     context.assert(report.versions.react === peers.versions.react && report.versions.vue === peers.versions.vue,'Evidence uses the exact isolated lock versions');
     context.assert(report.exports.legacySynchronousContracts && report.exports.declarationExportParity && report.exports.browserConditionParity,'Legacy, declaration and condition contracts pass');
     if (browser) context.assert(Boolean(report.browser) && report.exports.actualBrowserParity && report.pageErrors.length === 0,'Real browser export parity and page errors are verified');
+    const scopedArtifact=path.join(rootDir,'.xtend-test-results','xtend-component-scopes-report.json');
+    fs.rmSync(scopedArtifact,{force:true});
+    const scopedExecution=spawnSync(process.execPath,['development/rmtx-a06/scoped-test.cjs',...(browser?['--browser']:[]),'--output',scopedArtifact],{cwd:rootDir,env,encoding:'utf8',timeout:120000,maxBuffer:16*1024*1024});
+    context.assert(!scopedExecution.error&&scopedExecution.status===0,`Actual component key scopes pass: ${scopedExecution.stderr||scopedExecution.stdout||scopedExecution.error||''}`);
+    const scoped=JSON.parse(fs.readFileSync(scopedArtifact,'utf8'));
+    context.assert(scoped.schema==='xtend.xtensions.component-scope-acceptance.v1'&&scoped.passed&&scoped.node===process.version&&scoped.cases>=6&&scoped.mode===(browser?'chromium-sealed-native-esm':'jsdom-native-esm')&&(!browser||Boolean(scoped.browserVersion)&&scoped.pageErrors.length===0)&&scoped.typedKeyScopes&&scoped.ssrAcceptancePerformed===false,'Nested typed component scopes, lifetime and State paths are independently required');
+    if(browser){
+      const componentSSRArtifact=path.join(rootDir,'.xtend-test-results','xtend-component-ssr-report.json');fs.rmSync(componentSSRArtifact,{force:true});
+      const execution=spawnSync(process.execPath,['development/rmtx-a06/scoped-ssr-test.cjs','--output',componentSSRArtifact],{cwd:rootDir,env,encoding:'utf8',timeout:180000,maxBuffer:16*1024*1024});
+      context.assert(!execution.error&&execution.status===0,`Actual component SSR v2 passes: ${execution.stderr||execution.stdout||execution.error||''}`);
+      const result=JSON.parse(fs.readFileSync(componentSSRArtifact,'utf8'));
+      context.assert(result.schema==='xtend.xtensions.component-ssr-acceptance.v1'&&result.passed&&result.node===process.version&&result.cases>=35&&result.ssrWireVersion===2&&result.nativeSealedJavaScript&&result.trustedServerComposedDocument&&result.acceptedForRelease===false,'Actual signed component SSR, raw-provider replay and native adoption are mandatory');
+    }
     if (browser) {
       const ssrArtifact = path.join(rootDir, '.xtend-test-results', 'xtend-xtensions-ssr-report.json');
       fs.rmSync(ssrArtifact, { force: true });

@@ -3,7 +3,7 @@ import { createReactSSRRuntimeAdapter, type SSRRuntimeHostOptions } from '@ccsla
 import { createVueSSRRuntimeAdapter } from '@ccslabs/xtend/xtensions/vue-runtime-adapter';
 import { createXTensionResumeStateRegistry, XTENSION_RESUME_STATE_BINDING_API_VERSION } from '@ccslabs/xtend/xtensions/state-binding';
 import type { MaracaXTensionSSRBootOptions } from '@ccslabs/xtend/maraca/browser-composition-runtime';
-const version: '1.0.0' = XTENSION_SSR_API_VERSION;
+const version: '2.0.0' = XTENSION_SSR_API_VERSION;
 const bindingVersion: '3.0.0' = XTENSION_RESUME_STATE_BINDING_API_VERSION;
 declare const hostOptions: SSRRuntimeHostOptions;
 const host = createReactSSRRuntimeAdapter(hostOptions), vue = createVueSSRRuntimeAdapter(hostOptions);

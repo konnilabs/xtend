@@ -32,6 +32,8 @@ test('development checks validate Classic drift, observations, versions and scop
     ['--test', 'tests/xtensions/component-interface.test.cjs'],
     ['development/rmtx-a06/automatic-inspect.cjs', '--check'],
     ['--test', 'tests/xtensions/component-composition.test.cjs'],
+    ['development/rmtx-a06/scoped-inspect.cjs', '--check'],
+    ['--test', 'tests/xtensions/scoped-components.test.cjs'],
     ['scripts/sync_xtend_package_versions.js', '--check'],
     ['scripts/release/feature-scope.cjs', '--check-plan']
   ]);
