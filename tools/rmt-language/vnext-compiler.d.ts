@@ -43,7 +43,7 @@ export declare const RMT_VNEXT_COMPILER_MODULE_PATH: RmtToolingConstant;
 export declare const RMT_VNEXT_COMPILER_PACKAGE_SCRIPT: RmtToolingConstant;
 export declare const RMT_VNEXT_COMPILER_REPORT_SCHEMA: RmtToolingConstant;
 export declare const RMT_VNEXT_COMPILER_SCHEMA: RmtToolingConstant;
-export declare const RMT_VNEXT_COMPILER_API_VERSION: '1.1.0';
+export declare const RMT_VNEXT_COMPILER_API_VERSION: '1.2.0';
 export declare const RMT_VNEXT_COMPILER_SUITE_PATH: RmtToolingConstant;
 export declare const RMT_VNEXT_COMPILER_WORKPACKAGE: RmtToolingConstant;
 export declare const RMT_VNEXT_CORE_SCHEMA: RmtToolingConstant;

@@ -1,0 +1,181 @@
+{
+  "date": "2026-11-15",
+  "node": "v24.18.0",
+  "suites": [
+    {
+      "file": "tests/rmt-language/rmt_vnext_parser_suite.js",
+      "ok": true,
+      "passes": 89,
+      "failures": [],
+      "skips": []
+    },
+    {
+      "file": "tests/rmt-language/rmt_vnext_compiler_suite.js",
+      "ok": true,
+      "passes": 608,
+      "failures": [],
+      "skips": []
+    },
+    {
+      "file": "tests/rmt-language/rmt_vnext_conditions_suite.js",
+      "ok": true,
+      "passes": 59,
+      "failures": [],
+      "skips": []
+    },
+    {
+      "file": "tests/rmt-language/rmt_vnext_lifecycle_suite.js",
+      "ok": true,
+      "passes": 75,
+      "failures": [],
+      "skips": []
+    },
+    {
+      "file": "tests/rmt-language/rmt_vnext_scheduler_suite.js",
+      "ok": true,
+      "passes": 68,
+      "failures": [],
+      "skips": []
+    },
+    {
+      "file": "tests/rmt/rmt_state_selector_runtime_suite.js",
+      "ok": true,
+      "passes": 262,
+      "failures": [],
+      "skips": []
+    },
+    {
+      "file": "tests/rmt/rmt_action_effect_runtime_suite.js",
+      "ok": true,
+      "passes": 284,
+      "failures": [],
+      "skips": []
+    },
+    {
+      "file": "tests/rmt/rmt_event_routing_runtime_suite.js",
+      "ok": true,
+      "passes": 275,
+      "failures": [],
+      "skips": []
+    },
+    {
+      "file": "tests/rmt/rmt_surface_resource_graph_runtime_suite.js",
+      "ok": true,
+      "passes": 255,
+      "failures": [],
+      "skips": []
+    },
+    {
+      "file": "tests/rmt-language/rmt_vnext_streaming_suite.js",
+      "ok": true,
+      "passes": 86,
+      "failures": [],
+      "skips": []
+    },
+    {
+      "file": "tests/rmt-language/rmt_vnext_remote_manifest_suite.js",
+      "ok": true,
+      "passes": 69,
+      "failures": [],
+      "skips": []
+    },
+    {
+      "file": "tests/rmt-language/rmt_vnext_remote_security_suite.js",
+      "ok": true,
+      "passes": 81,
+      "failures": [],
+      "skips": []
+    },
+    {
+      "file": "tests/rmt-language/rmt_vnext_remote_compiler_suite.js",
+      "ok": true,
+      "passes": 75,
+      "failures": [],
+      "skips": []
+    },
+    {
+      "file": "tests/rmt-language/rmt_vnext_remote_compatibility_suite.js",
+      "ok": false,
+      "passes": 66,
+      "failures": [
+        "existing native RMT surface fixture remains roundtrippable",
+        "remote roundtrip documents semantic JSON boundary"
+      ],
+      "skips": []
+    },
+    {
+      "file": "tests/rmt-language/rmt_vnext_security_suite.js",
+      "ok": true,
+      "passes": 76,
+      "failures": [],
+      "skips": []
+    },
+    {
+      "file": "tests/rmt-language/rmt_vnext_events_suite.js",
+      "ok": true,
+      "passes": 90,
+      "failures": [],
+      "skips": []
+    },
+    {
+      "file": "tests/rmt-language/rmt_vnext_cross_surface_events_suite.js",
+      "ok": true,
+      "passes": 94,
+      "failures": [],
+      "skips": []
+    },
+    {
+      "file": "tests/rmt-language/rmt_vnext_remote_tooling_suite.js",
+      "ok": true,
+      "passes": 79,
+      "failures": [],
+      "skips": []
+    },
+    {
+      "file": "tests/rmt-language/rmt_vnext_component_primitives_suite.js",
+      "ok": true,
+      "passes": 78,
+      "failures": [],
+      "skips": []
+    },
+    {
+      "file": "tests/rmt/rmt_component_template_primitives_suite.js",
+      "ok": true,
+      "passes": 189,
+      "failures": [],
+      "skips": []
+    }
+  ],
+  "suiteCount": 20,
+  "suitesPassed": 19,
+  "assertionsPassed": 2958,
+  "failedAssertions": 2,
+  "skips": 0,
+  "allSuitesPassed": false,
+  "failureClassification": "existing-migrated-native-fixture-used-as-legacy-json-input",
+  "productionCodeChanged": false,
+  "sources": {
+    "tests/rmt-language/rmt_vnext_parser_suite.js": "f5c3410a390444b2628c9b7f6fe33cdb207774f041c7d29ef05cd9fbc4d037c6",
+    "tests/rmt-language/rmt_vnext_compiler_suite.js": "9935c929d854021b81aee87f8ffc8e02b1e38fafcb6490fb303e885586055f47",
+    "tests/rmt-language/rmt_vnext_conditions_suite.js": "16676cad0cdc37e831efb9d6d3d173a36c8dd1743c9f140d836e08d5d2f767c8",
+    "tests/rmt-language/rmt_vnext_lifecycle_suite.js": "a6caefff1431fbf42e253381b9e926114cbe76179ecc82fa80a568075b38dd6c",
+    "tests/rmt-language/rmt_vnext_scheduler_suite.js": "e063ada484ded1271d45a1dac7c1904daad01d9d27f98b909b0d27a3edfbfa9f",
+    "tests/rmt/rmt_state_selector_runtime_suite.js": "2120aff3b4c3d078d8c42a482145161e45fb2c7509c248cd7b60e7db66d4f306",
+    "tests/rmt/rmt_action_effect_runtime_suite.js": "a1f183afad8dc69cce2653188b694830f8a8f3f3f9239daed03db1b746630403",
+    "tests/rmt/rmt_event_routing_runtime_suite.js": "06112bd1c47080cb16a5eef5620b8b944fdfb20ed1624b4bc80d8c7ad43a1a7f",
+    "tests/rmt/rmt_surface_resource_graph_runtime_suite.js": "8c91c0499c0eec38df1d2bbdfcf93234baac879a1811ab01c4007d6f803b17af",
+    "tests/rmt-language/rmt_vnext_streaming_suite.js": "2afebc5d68414253142c77ab3bb54e2fb767bde51d7fdad6eb6132678e0ccbff",
+    "tests/rmt-language/rmt_vnext_remote_manifest_suite.js": "f130225c3edff0f438cd3c80fbd595e3fdf680b417f6952e6235f73a46823047",
+    "tests/rmt-language/rmt_vnext_remote_security_suite.js": "5b286ff94b5d732093aa71591b0fde58eec3e488ecb7d4442186fe77d0662c52",
+    "tests/rmt-language/rmt_vnext_remote_compiler_suite.js": "89b229f04c35c6fa21988b10515b4058a0b1bc285ac834d10fbd15a1d42b2bb0",
+    "tests/rmt-language/rmt_vnext_remote_compatibility_suite.js": "436743f5ea953da79af6794e090ad6418392fee3dec741346d4103b22027f977",
+    "tests/rmt-language/rmt_vnext_security_suite.js": "0712626525527f62716e88bd6272f26a3404dcd82daf448a423d64f17782cdf5",
+    "tests/rmt-language/rmt_vnext_events_suite.js": "63708f2b590359e6ba9f9828f076d67298500b3515f594079a60bd605b690cca",
+    "tests/rmt-language/rmt_vnext_cross_surface_events_suite.js": "fd5a80b1b7cd0c21a38dec95bb8d57696145a6016509db49f6cd27874c06ec84",
+    "tests/rmt-language/rmt_vnext_remote_tooling_suite.js": "673e7a849b7b090de49a82216d3914f28aa1ea1f5aa0f83a82b043111bdddd1b",
+    "tests/rmt-language/rmt_vnext_component_primitives_suite.js": "1bbb3ebeee16d86a81cddbbf4725d6bd1efdf96882b4dd95f6848dd1f6c43c53",
+    "tests/rmt/rmt_component_template_primitives_suite.js": "e064275ae3e644bc104b8a3eb33127fe52d5d08b735ba1fd11583bc407b6692a",
+    "tests/fixtures/rmt-surface-native-domain.rmt": "3ee4d389543ef270e9d05df802d924fa6a702a22711392ecd02e6ca87bc48d84",
+    "tools/rmt-language/vnext-remote-compatibility.js": "0f845c1a742bd7eaed5e21e6eb016f4d3d03bc6d50a20eb2d79e10e95df94082"
+  }
+}

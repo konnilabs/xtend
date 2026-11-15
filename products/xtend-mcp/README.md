@@ -36,7 +36,15 @@ npm run test:xtend-mcp
 npm run test:scoped-package-readmes
 ```
 
-Generated knowledge files are build artifacts and must not be edited manually. The drift gate regenerates the complete DE/EN documentation and AI Kit data in a temporary directory and verifies hashes and coverage.
+Generated knowledge files are build artifacts and must not be edited manually. Regenerate the canonical RMT AI Developer Kit first when its source inputs change. The MCP builder checks the kit artifacts and every declared canonical source hash; stale provenance is rejected. The drift gate compares the complete DE/EN documentation and copied kit data in a temporary directory. Failed generation preserves the previous bundle.
+
+For the separate hosted read-only knowledge service, export a verified local deployment bundle from the repository root:
+
+```bash
+node products/xtend-mcp/scripts/export-local-bundle.mjs --out /absolute/deployment/bundle
+```
+
+The export contains no access credentials. It binds canonical documentation, kit provenance and relevant compiler/runtime sources. Its versioned descriptor identifies a local worktree, base Git commit, dirty state and content fingerprint. Its snapshot ID does not claim publication on GitHub main. The hosted service retains its separate token, snapshot-header and recipe-pagination contract; it is distinct from the workspace stdio server.
 
 ### License
 
@@ -82,7 +90,15 @@ npm run test:xtend-mcp
 npm run test:scoped-package-readmes
 ```
 
-Generierte Wissensdateien sind Build-Artefakte und dürfen nicht manuell bearbeitet werden. Das Drift-Gate regeneriert die vollständige DE/EN-Dokumentation und die AI-Kit-Daten in einem temporären Verzeichnis und prüft Hashes und Abdeckung.
+Generierte Wissensdateien sind Build-Artefakte und dürfen nicht manuell bearbeitet werden. Bei geänderten Eingaben wird zuerst das kanonische RMT AI Developer Kit neu exportiert. Der MCP-Builder prüft seine Artefakte und jeden deklarierten kanonischen Quellhash; veraltete Provenienz wird abgewiesen. Das Drift-Gate vergleicht die vollständige DE/EN-Dokumentation und die kopierten Kit-Daten in einem temporären Verzeichnis. Ein fehlgeschlagener Build erhält das bisherige Bundle.
+
+Für den separaten schreibgeschützten Hosted-Knowledge-Service wird aus dem Repository-Root ein geprüftes lokales Deployment-Bundle exportiert:
+
+```bash
+node products/xtend-mcp/scripts/export-local-bundle.mjs --out /absoluter/deployment/pfad/bundle
+```
+
+Der Export enthält keine Zugangsdaten. Er bindet kanonische Dokumente, Kit-Provenienz und relevante Compiler-/Runtimequellen. Sein versionierter Nachweis bezeichnet lokalen Worktree, Git-Ausgangscommit, Änderungsstatus und Inhaltsfingerprint. Seine Snapshot-ID behauptet keine Veröffentlichung auf GitHub main. Der Hosted-Service behält seinen eigenen Token-, Snapshotheader- und Rezept-Paginierungsvertrag. Er ist vom Workspace-stdio-Server zu unterscheiden.
 
 ### Lizenz
 

@@ -1,10 +1,12 @@
 (function attachRmtSurfaceResourceGraphRuntime(globalTarget) {
+  const RMT_SURFACE_RESOURCE_GRAPH_API_VERSION = '2.1.0';
   const RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_SCHEMA = 'xtend.epic18.rmt-surface-resource-graph-runtime.v2';
   const RMT_SURFACE_RESOURCE_GRAPH_DIAGNOSTIC_SCHEMA = 'xtend.epic18.rmt-surface-resource-graph-diagnostic.v1';
   const DEFAULT_DIAGNOSTIC_CHANNEL = 'rmt.app_platform.surface_resource_graph';
   const DEFAULT_PORTAL_ID = 'portal.app';
   const DEFAULT_BOUNDS = Object.freeze({ x: 0, y: 0, width: 480, height: 320 });
   const UNSAFE_PATH_SEGMENTS = new Set(['__proto__', 'prototype', 'constructor']);
+  const OVERLAY_TONES = Object.freeze({ info: 'info', success: 'success', warning: 'warning', error: 'error', neutral: 'info', primary: 'info', secondary: 'info', danger: 'error' });
 
   function clampString(value, fallback = '') {
     const normalized = String(value == null ? '' : value).trim();
@@ -1213,6 +1215,19 @@
       return portal.element || null;
     }
 
+    function resolveOwnedOverlayTarget(portal, ownedRoot) {
+      if (!ownedRoot || typeof ownedRoot.appendChild !== 'function') throw new TypeError('Result overlays require an owned app root.');
+      if (!portal || !portal.root) return ownedRoot;
+      const targets = [];
+      try {
+        if (typeof ownedRoot.matches === 'function' && ownedRoot.matches(portal.root)) targets.push(ownedRoot);
+        if (typeof ownedRoot.querySelectorAll === 'function') targets.push(...ownedRoot.querySelectorAll(portal.root));
+      } catch (_) { throw new TypeError('A result overlay requires a valid owned portal selector.'); }
+      const unique = [...new Set(targets)];
+      if (unique.length !== 1) throw new TypeError('A result overlay portal must resolve exactly once inside the owned app root.');
+      return unique[0];
+    }
+
     function materializeOverlayElement(overlay, definition, portal, metadata = {}) {
       if (metadata.materialize === false) return null;
       const target = resolvePortalTarget(portal, metadata);
@@ -1237,6 +1252,7 @@
           role: definition.kind === 'dialog' || definition.kind === 'lightbox' ? 'dialog' : undefined,
           open: true,
           ...objectRecord(definition.attributes),
+          ...(typeof metadata.tone === 'string' ? { 'data-tone': metadata.tone, tone: OVERLAY_TONES[metadata.tone] } : {}),
           style: {
             'z-index': String(overlay.zIndex)
           }
@@ -1280,9 +1296,15 @@
 
     async function openOverlay(overlayRef, metadata = {}) {
       assertActive('openOverlay');
+      if (typeof metadata.tone !== 'undefined' && (typeof metadata.tone !== 'string' || !Object.prototype.hasOwnProperty.call(OVERLAY_TONES, metadata.tone))) throw new TypeError('Unknown RMT overlay tone.');
       const definition = overlayIndex.get(clampString(overlayRef));
       if (!definition) throw new Error(`RMT Overlay ${overlayRef} ist nicht definiert.`);
       const portal = portalIndex.get(clampString(metadata.portal, definition.portal)) || portalIndex.get(DEFAULT_PORTAL_ID);
+      if (Object.prototype.hasOwnProperty.call(metadata, 'ownedRoot')) {
+        const target = resolveOwnedOverlayTarget(portal, metadata.ownedRoot);
+        mountPortal(portal.id, target);
+        metadata = { ...metadata, target };
+      }
       const ownerId = clampString(metadata.ownerId || metadata.surfaceId || definition.surface, 'global');
       if (definition.singleton) {
         const existing = overlayStack.find((entry) => lifecycleState(entry) === 'open' && entry.overlayId === definition.id && entry.ownerId === ownerId);
@@ -1735,6 +1757,7 @@
   }
 
   const api = {
+    RMT_SURFACE_RESOURCE_GRAPH_API_VERSION,
     RMT_SURFACE_RESOURCE_GRAPH_DIAGNOSTIC_SCHEMA,
     RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_SCHEMA,
     createRmtSurfaceResourceGraphRuntime
@@ -1750,6 +1773,7 @@
 
 const __XTEND_RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_API__ = globalThis.XTendRmtSurfaceResourceGraphRuntime;
 
+export const RMT_SURFACE_RESOURCE_GRAPH_API_VERSION = __XTEND_RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_API__.RMT_SURFACE_RESOURCE_GRAPH_API_VERSION;
 export const RMT_SURFACE_RESOURCE_GRAPH_DIAGNOSTIC_SCHEMA = __XTEND_RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_API__.RMT_SURFACE_RESOURCE_GRAPH_DIAGNOSTIC_SCHEMA;
 export const RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_SCHEMA = __XTEND_RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_API__.RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_SCHEMA;
 export const createRmtSurfaceResourceGraphRuntime = __XTEND_RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_API__.createRmtSurfaceResourceGraphRuntime;

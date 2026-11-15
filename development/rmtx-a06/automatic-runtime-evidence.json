@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "date": "2026-11-15",
   "stage": "A04-component-ownership",
-  "contractEvidenceSha256": "fa5bd02760d773e840eeb36ed0f2b025ce7cf9f78a580ea8ed441dc02f34dbf3",
+  "contractEvidenceSha256": "e74983c60d77764c7f6fb19d26d2681b8a9aac16f7fcd8f9665daabbf099430e",
   "runs": [
     {
       "format": 1,

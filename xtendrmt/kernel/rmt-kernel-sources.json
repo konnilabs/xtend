@@ -277,12 +277,14 @@
       "consumes": [],
       "ports": [
         "RmtCommandDispatchPort",
-        "RmtDomBindingPort"
+        "RmtDomBindingPort",
+        "RmtModelReader"
       ],
       "capabilities": [
         "dom.read",
         "event.listen",
-        "host.clock"
+        "host.clock",
+        "state.read"
       ],
       "ownershipDomains": [
         "input.application-events"

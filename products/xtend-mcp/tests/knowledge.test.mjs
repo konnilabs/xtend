@@ -39,6 +39,12 @@ test('unchanged knowledge drift check rejects a stale generated artifact', () =>
     fs.writeFileSync(path.join(root, 'docs/menu.json'), JSON.stringify([{ slug: 'fixture' }]));
     const kit = 'tools/rmt-language/generated/rmt-ai-developer-kit';
     fs.cpSync(path.join(repoRoot, kit), path.join(root, kit), { recursive: true });
+    const manifest = JSON.parse(fs.readFileSync(path.join(repoRoot, kit, 'rmt-ai-kit.manifest.json'), 'utf8'));
+    for (const source of manifest.sourceHashes) {
+      const target = path.join(root, source.path);
+      fs.mkdirSync(path.dirname(target), { recursive: true });
+      fs.copyFileSync(path.join(repoRoot, source.path), target);
+    }
     const run = args => spawnSync(process.execPath, [script, ...args, '--quiet'], { cwd: root, encoding: 'utf8', timeout: 30000 });
     assert.equal(run([]).status, 0);
     assert.equal(run(['--check']).status, 0);
@@ -46,6 +52,13 @@ test('unchanged knowledge drift check rejects a stale generated artifact', () =>
     const stale = run(['--check']);
     assert.notEqual(stale.status, 0);
     assert.match(stale.stderr, /Generated knowledge artifact drifted: docs.jsonl/);
+    // Self-consistent kit artifacts must not conceal changed canonical inputs.
+    const before = fs.readFileSync(path.join(root, 'products/xtend-mcp/generated/docs.jsonl'));
+    fs.appendFileSync(path.join(root, manifest.sourceHashes[0].path), '\nCanonical source changed.\n');
+    const staleSource = run([]);
+    assert.notEqual(staleSource.status, 0);
+    assert.match(staleSource.stderr, /AI Developer Kit source drifted/);
+    assert.deepEqual(fs.readFileSync(path.join(root, 'products/xtend-mcp/generated/docs.jsonl')), before, 'failed rebuild preserves the previous bundle');
   } finally { fs.rmSync(root, { recursive: true, force: true }); }
 });
 

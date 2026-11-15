@@ -1,0 +1,1733 @@
+{
+  "declaredTypes": 122,
+  "observedTypes": 122,
+  "unobservedTypes": 0,
+  "families": {
+    "Action / Reducer / Effects": [
+      "RmtActionDeclaration",
+      "RmtActionExecutionClause",
+      "RmtActionInputClause",
+      "RmtActionInputPolicy",
+      "RmtActionResultHandler",
+      "RmtActionStatusClause",
+      "RmtEffectStatement",
+      "RmtEmitStatement",
+      "RmtReducerRecipeStatement",
+      "RmtReducerStatement"
+    ],
+    "Animation": [
+      "RmtAnimationAllowFilterClause",
+      "RmtAnimationDeclaration",
+      "RmtAnimationDurationClause",
+      "RmtAnimationEasingClause",
+      "RmtAnimationEffectClause",
+      "RmtAnimationKeyframeClause",
+      "RmtAnimationKeyframeField",
+      "RmtAnimationPresetClause",
+      "RmtAnimationReducedMotionClause",
+      "RmtAnimationSpringClause",
+      "RmtAnimationSpringField",
+      "RmtAnimationTimelineClause",
+      "RmtAnimationTimelineStep"
+    ],
+    "Lane / Lifecycle / Stream / Condition": [
+      "RmtConditionClause",
+      "RmtConditionExpression",
+      "RmtLaneDeclaration",
+      "RmtLifecycleStatement",
+      "RmtSlotDeclaration",
+      "RmtSourceClause",
+      "RmtStreamStatement"
+    ],
+    "DataSource": [
+      "RmtDataSourceContractClause",
+      "RmtDataSourceDeclaration",
+      "RmtDataSourceFallbackClause",
+      "RmtDataSourceMethodClause",
+      "RmtDataSourceModeClause",
+      "RmtDataSourceResultClause"
+    ],
+    "Event / Intent / Payload": [
+      "RmtEventBinding",
+      "RmtEventOptionClause",
+      "RmtEventPayloadBlock",
+      "RmtEventPayloadMapping",
+      "RmtEventSelector"
+    ],
+    "Hydration / Resume / Security-Policy": [
+      "RmtHydrationPolicy",
+      "RmtIsolationPolicy",
+      "RmtPolicyBlock",
+      "RmtResumabilityPolicy",
+      "RmtSanitizePolicy",
+      "RmtTrustBoundaryPolicy"
+    ],
+    "Dokument / Identität / Imports": [
+      "RmtIdentifier",
+      "RmtImportDeclaration",
+      "RmtTemplateDeclaration",
+      "RmtTypeReference",
+      "RmtVNextDocument"
+    ],
+    "Werte / Initialisierung / Referenzhelfer": [
+      "RmtInitialBlock",
+      "RmtInitialValueEntry",
+      "RmtObjectValueField",
+      "RmtObjectValueKey",
+      "RmtPrimitiveAttribute",
+      "RmtPrimitiveSourceReference",
+      "RmtPrimitiveValue"
+    ],
+    "Portal / Overlay": [
+      "RmtOverlayDeclaration",
+      "RmtOverlayPolicyClause",
+      "RmtPortalDeclaration",
+      "RmtPortalPolicyClause"
+    ],
+    "Remote / Cross-Surface": [
+      "RmtRemoteEventClause",
+      "RmtRemoteEventDirectionClause",
+      "RmtRemoteEventFromClause",
+      "RmtRemoteEventLaneClause",
+      "RmtRemoteEventPayloadClause",
+      "RmtRemoteExposeClause",
+      "RmtRemoteFallbackClause",
+      "RmtRemoteIntegrityClause",
+      "RmtRemoteOriginClause",
+      "RmtRemoteOwnerClause",
+      "RmtRemoteSurfaceDeclaration",
+      "RmtRemoteTrustBoundaryClause",
+      "RmtRemoteVersionClause"
+    ],
+    "Ressourcen": [
+      "RmtResourceDeclaration",
+      "RmtResourceDisposeClause",
+      "RmtResourceImportClause",
+      "RmtResourceSourceClause"
+    ],
+    "SearchSource": [
+      "RmtSearchFallbackResourceClause",
+      "RmtSearchQueryClause",
+      "RmtSearchResourceClause",
+      "RmtSearchSourceDeclaration",
+      "RmtSearchValueClause",
+      "RmtSearchWeightClause"
+    ],
+    "State / Selector": [
+      "RmtSelectorDeclaration",
+      "RmtSelectorExpression",
+      "RmtSelectorFindClause",
+      "RmtSelectorOutputClause",
+      "RmtSelectorSortClause",
+      "RmtSelectorWhereClause",
+      "RmtStateDeclaration"
+    ],
+    "Surface / Layout / Repeat": [
+      "RmtSurfaceBoundsClause",
+      "RmtSurfaceDeclaration",
+      "RmtSurfaceDestroyClause",
+      "RmtSurfaceHeaderClause",
+      "RmtSurfaceKeyClause",
+      "RmtSurfacePortalClause",
+      "RmtSurfacePreserveClause",
+      "RmtSurfaceRepeatClause",
+      "RmtSurfaceSourceClause"
+    ],
+    "Transition": [
+      "RmtTransitionDeclaration",
+      "RmtTransitionDurationClause",
+      "RmtTransitionEasingClause",
+      "RmtTransitionEffectClause",
+      "RmtTransitionFromClause",
+      "RmtTransitionInterruptClause",
+      "RmtTransitionLaneClause",
+      "RmtTransitionLayoutKeyClause",
+      "RmtTransitionReducedMotionClause",
+      "RmtTransitionTimelineClause",
+      "RmtTransitionTimelineStep",
+      "RmtTransitionToClause",
+      "RmtTransitionTriggerClause",
+      "RmtTransitionUseAnimationClause"
+    ],
+    "Validation": [
+      "RmtValidationDeclaration",
+      "RmtValidationFieldClause",
+      "RmtValidationIncludeClause",
+      "RmtValidationModeClause",
+      "RmtValidationRule",
+      "RmtValidationTargetClause"
+    ]
+  },
+  "nodes": [
+    {
+      "type": "RmtActionDeclaration",
+      "family": "Action / Reducer / Effects",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 715,
+          "method": "parseActionDeclaration"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtActionExecutionClause",
+      "family": "Action / Reducer / Effects",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1530,
+          "method": "parseKeywordPathClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtActionInputClause",
+      "family": "Action / Reducer / Effects",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1574,
+          "method": "parseActionInputClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtActionInputPolicy",
+      "family": "Action / Reducer / Effects",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1567,
+          "method": "parseActionInputClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtActionResultHandler",
+      "family": "Action / Reducer / Effects",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1701,
+          "method": "parseActionResultHandler"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtActionStatusClause",
+      "family": "Action / Reducer / Effects",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1530,
+          "method": "parseKeywordPathClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtAnimationAllowFilterClause",
+      "family": "Animation",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1011,
+          "method": "parseAnimationValueClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtAnimationDeclaration",
+      "family": "Animation",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 987,
+          "method": "parseAnimationDeclaration"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtAnimationDurationClause",
+      "family": "Animation",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1011,
+          "method": "parseAnimationValueClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtAnimationEasingClause",
+      "family": "Animation",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1011,
+          "method": "parseAnimationValueClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtAnimationEffectClause",
+      "family": "Animation",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1000,
+          "method": "parseAnimationIdentifierClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtAnimationKeyframeClause",
+      "family": "Animation",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1069,
+          "method": "parseAnimationKeyframeClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtAnimationKeyframeField",
+      "family": "Animation",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1059,
+          "method": "<anonymous>"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtAnimationPresetClause",
+      "family": "Animation",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1000,
+          "method": "parseAnimationIdentifierClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtAnimationReducedMotionClause",
+      "family": "Animation",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1000,
+          "method": "parseAnimationIdentifierClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtAnimationSpringClause",
+      "family": "Animation",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1045,
+          "method": "parseAnimationSpringClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtAnimationSpringField",
+      "family": "Animation",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1025,
+          "method": "<anonymous>"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtAnimationTimelineClause",
+      "family": "Animation",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1101,
+          "method": "parseMotionTimelineClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtAnimationTimelineStep",
+      "family": "Animation",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1094,
+          "method": "parseMotionTimelineClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtConditionClause",
+      "family": "Lane / Lifecycle / Stream / Condition",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2170,
+          "method": "parseConditionClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtConditionExpression",
+      "family": "Lane / Lifecycle / Stream / Condition",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2184,
+          "method": "parseOrExpression"
+        },
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2199,
+          "method": "parseAndExpression"
+        },
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2213,
+          "method": "parseUnaryExpression"
+        },
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2227,
+          "method": "parseCompareExpression"
+        },
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2244,
+          "method": "parsePrimaryExpression"
+        },
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2256,
+          "method": "parsePrimaryExpression"
+        },
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2286,
+          "method": "parsePrimaryExpression"
+        },
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2295,
+          "method": "parsePrimaryExpression"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtDataSourceContractClause",
+      "family": "DataSource",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1509,
+          "method": "parseKeywordValueClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtDataSourceDeclaration",
+      "family": "DataSource",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 689,
+          "method": "parseDataSourceDeclaration"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtDataSourceFallbackClause",
+      "family": "DataSource",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1543,
+          "method": "parseFallbackClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtDataSourceMethodClause",
+      "family": "DataSource",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1509,
+          "method": "parseKeywordValueClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtDataSourceModeClause",
+      "family": "DataSource",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1509,
+          "method": "parseKeywordValueClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtDataSourceResultClause",
+      "family": "DataSource",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1509,
+          "method": "parseKeywordValueClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtEffectStatement",
+      "family": "Action / Reducer / Effects",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1618,
+          "method": "parseActionEffectStatement"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtEmitStatement",
+      "family": "Action / Reducer / Effects",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1687,
+          "method": "parseEmitStatement"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtEventBinding",
+      "family": "Event / Intent / Payload",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2386,
+          "method": "parseEventBinding"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtEventOptionClause",
+      "family": "Event / Intent / Payload",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1509,
+          "method": "parseKeywordValueClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtEventPayloadBlock",
+      "family": "Event / Intent / Payload",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2417,
+          "method": "parseEventPayloadBlock"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtEventPayloadMapping",
+      "family": "Event / Intent / Payload",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2429,
+          "method": "parseEventPayloadMapping"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtEventSelector",
+      "family": "Event / Intent / Payload",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2366,
+          "method": "parseEventBinding"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtHydrationPolicy",
+      "family": "Hydration / Resume / Security-Policy",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2491,
+          "method": "parseHydrationPolicy"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtIdentifier",
+      "family": "Dokument / Identität / Imports",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1599,
+          "method": "parseActionEffectStatement"
+        },
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2587,
+          "method": "parseQualifiedIdentifier"
+        },
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2613,
+          "method": "parseQualifiedIdentifier"
+        },
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2629,
+          "method": "parseQualifiedIdentifierAllowReserved"
+        },
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2655,
+          "method": "parseQualifiedIdentifierAllowReserved"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtImportDeclaration",
+      "family": "Dokument / Identität / Imports",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 487,
+          "method": "parseImportDeclaration"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtInitialBlock",
+      "family": "Werte / Initialisierung / Referenzhelfer",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 640,
+          "method": "parseInitialBlock"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtInitialValueEntry",
+      "family": "Werte / Initialisierung / Referenzhelfer",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 633,
+          "method": "<anonymous>"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtIsolationPolicy",
+      "family": "Hydration / Resume / Security-Policy",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2563,
+          "method": "parseIsolationPolicy"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtLaneDeclaration",
+      "family": "Lane / Lifecycle / Stream / Condition",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2059,
+          "method": "parseLaneDeclaration"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtLifecycleStatement",
+      "family": "Lane / Lifecycle / Stream / Condition",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2101,
+          "method": "parseLifecycleStatement"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtObjectValueField",
+      "family": "Werte / Initialisierung / Referenzhelfer",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1365,
+          "method": "parsePrimitiveValue"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtObjectValueKey",
+      "family": "Werte / Initialisierung / Referenzhelfer",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1355,
+          "method": "parsePrimitiveValue"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtOverlayDeclaration",
+      "family": "Portal / Overlay",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1132,
+          "method": "parseOverlayDeclaration"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtOverlayPolicyClause",
+      "family": "Portal / Overlay",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1733,
+          "method": "<anonymous>"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtPolicyBlock",
+      "family": "Hydration / Resume / Security-Policy",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2330,
+          "method": "parsePolicyBlock"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtPortalDeclaration",
+      "family": "Portal / Overlay",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1115,
+          "method": "parsePortalDeclaration"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtPortalPolicyClause",
+      "family": "Portal / Overlay",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1733,
+          "method": "<anonymous>"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtPrimitiveAttribute",
+      "family": "Werte / Initialisierung / Referenzhelfer",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1519,
+          "method": "parseInlineAttribute"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtPrimitiveSourceReference",
+      "family": "Werte / Initialisierung / Referenzhelfer",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1426,
+          "method": "parsePrimitiveSourceReference"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtPrimitiveValue",
+      "family": "Werte / Initialisierung / Referenzhelfer",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 785,
+          "method": "parseValidationFieldClause"
+        },
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1308,
+          "method": "parsePrimitiveValue"
+        },
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1332,
+          "method": "parsePrimitiveValue"
+        },
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1377,
+          "method": "parsePrimitiveValue"
+        },
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1385,
+          "method": "parsePrimitiveValue"
+        },
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1395,
+          "method": "parsePrimitiveValue"
+        },
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1418,
+          "method": "parsePrimitiveSourceReference"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtReducerRecipeStatement",
+      "family": "Action / Reducer / Effects",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1660,
+          "method": "parseReducerRecipeStatement"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtReducerStatement",
+      "family": "Action / Reducer / Effects",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1634,
+          "method": "parseReduceStatement"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtRemoteEventClause",
+      "family": "Remote / Cross-Surface",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1959,
+          "method": "parseRemoteEventClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtRemoteEventDirectionClause",
+      "family": "Remote / Cross-Surface",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1994,
+          "method": "parseRemoteEventDirectionClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtRemoteEventFromClause",
+      "family": "Remote / Cross-Surface",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2017,
+          "method": "parseRemoteEventFromClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtRemoteEventLaneClause",
+      "family": "Remote / Cross-Surface",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2005,
+          "method": "parseRemoteEventLaneClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtRemoteEventPayloadClause",
+      "family": "Remote / Cross-Surface",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1874,
+          "method": "parseRemoteStringClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtRemoteExposeClause",
+      "family": "Remote / Cross-Surface",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1944,
+          "method": "parseRemoteExposeClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtRemoteFallbackClause",
+      "family": "Remote / Cross-Surface",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1928,
+          "method": "parseRemoteFallbackClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtRemoteIntegrityClause",
+      "family": "Remote / Cross-Surface",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1894,
+          "method": "parseRemoteIntegrityClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtRemoteOriginClause",
+      "family": "Remote / Cross-Surface",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1874,
+          "method": "parseRemoteStringClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtRemoteOwnerClause",
+      "family": "Remote / Cross-Surface",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1854,
+          "method": "parseRemoteOwnerClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtRemoteSurfaceDeclaration",
+      "family": "Remote / Cross-Surface",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1813,
+          "method": "parseRemoteSurfaceDeclaration"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtRemoteTrustBoundaryClause",
+      "family": "Remote / Cross-Surface",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1916,
+          "method": "parseRemoteTrustBoundaryClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtRemoteVersionClause",
+      "family": "Remote / Cross-Surface",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1874,
+          "method": "parseRemoteStringClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtResourceDeclaration",
+      "family": "Ressourcen",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1149,
+          "method": "parseResourceDeclaration"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtResourceDisposeClause",
+      "family": "Ressourcen",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1438,
+          "method": "parseRawPrimitiveClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtResourceImportClause",
+      "family": "Ressourcen",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1509,
+          "method": "parseKeywordValueClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtResourceSourceClause",
+      "family": "Ressourcen",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1757,
+          "method": "parsePrimitiveReferenceClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtResumabilityPolicy",
+      "family": "Hydration / Resume / Security-Policy",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2530,
+          "method": "parseResumabilityPolicy"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtSanitizePolicy",
+      "family": "Hydration / Resume / Security-Policy",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2572,
+          "method": "parseSanitizePolicy"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtSearchFallbackResourceClause",
+      "family": "SearchSource",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1214,
+          "method": "parseSearchReferenceClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtSearchQueryClause",
+      "family": "SearchSource",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1214,
+          "method": "parseSearchReferenceClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtSearchResourceClause",
+      "family": "SearchSource",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1214,
+          "method": "parseSearchReferenceClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtSearchSourceDeclaration",
+      "family": "SearchSource",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1182,
+          "method": "parseSearchSourceDeclaration"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtSearchValueClause",
+      "family": "SearchSource",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1509,
+          "method": "parseKeywordValueClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtSearchWeightClause",
+      "family": "SearchSource",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1196,
+          "method": "parseSearchWeightClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtSelectorDeclaration",
+      "family": "State / Selector",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 665,
+          "method": "parseSelectorDeclaration"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtSelectorExpression",
+      "family": "State / Selector",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2277,
+          "method": "parsePrimaryExpression"
+        },
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2286,
+          "method": "parsePrimaryExpression"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtSelectorFindClause",
+      "family": "State / Selector",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1472,
+          "method": "parseSelectorPredicateClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtSelectorOutputClause",
+      "family": "State / Selector",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1499,
+          "method": "parseOutputClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtSelectorSortClause",
+      "family": "State / Selector",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1458,
+          "method": "parseSelectorSortClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtSelectorWhereClause",
+      "family": "State / Selector",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1472,
+          "method": "parseSelectorPredicateClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtSlotDeclaration",
+      "family": "Lane / Lifecycle / Stream / Condition",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2352,
+          "method": "parseSlotDeclaration"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtSourceClause",
+      "family": "Lane / Lifecycle / Stream / Condition",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2158,
+          "method": "parseSourceClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtStateDeclaration",
+      "family": "State / Selector",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 602,
+          "method": "parseStateDeclaration"
+        },
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 615,
+          "method": "parseStateDeclaration"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtStreamStatement",
+      "family": "Lane / Lifecycle / Stream / Condition",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2132,
+          "method": "parseStreamStatement"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtSurfaceBoundsClause",
+      "family": "Surface / Layout / Repeat",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1789,
+          "method": "parseBoundsClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtSurfaceDeclaration",
+      "family": "Surface / Layout / Repeat",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 539,
+          "method": "parseSurfaceDeclaration"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtSurfaceDestroyClause",
+      "family": "Surface / Layout / Repeat",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1438,
+          "method": "parseRawPrimitiveClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtSurfaceHeaderClause",
+      "family": "Surface / Layout / Repeat",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1519,
+          "method": "parseInlineAttribute"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtSurfaceKeyClause",
+      "family": "Surface / Layout / Repeat",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1530,
+          "method": "parseKeywordPathClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtSurfacePortalClause",
+      "family": "Surface / Layout / Repeat",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1530,
+          "method": "parseKeywordPathClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtSurfacePreserveClause",
+      "family": "Surface / Layout / Repeat",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1438,
+          "method": "parseRawPrimitiveClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtSurfaceRepeatClause",
+      "family": "Surface / Layout / Repeat",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1770,
+          "method": "parseRepeatClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtSurfaceSourceClause",
+      "family": "Surface / Layout / Repeat",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1757,
+          "method": "parsePrimitiveReferenceClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtTemplateDeclaration",
+      "family": "Dokument / Identität / Imports",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 513,
+          "method": "parseTemplateDeclaration"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtTransitionDeclaration",
+      "family": "Transition",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 843,
+          "method": "parseTransitionDeclaration"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtTransitionDurationClause",
+      "family": "Transition",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 899,
+          "method": "parseTransitionDurationClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtTransitionEasingClause",
+      "family": "Transition",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 909,
+          "method": "parseTransitionEasingClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtTransitionEffectClause",
+      "family": "Transition",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 888,
+          "method": "parseTransitionEffectClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtTransitionFromClause",
+      "family": "Transition",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 878,
+          "method": "parseTransitionSurfaceListClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtTransitionInterruptClause",
+      "family": "Transition",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 952,
+          "method": "parseTransitionInterruptClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtTransitionLaneClause",
+      "family": "Transition",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 919,
+          "method": "parseTransitionLaneClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtTransitionLayoutKeyClause",
+      "family": "Transition",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 942,
+          "method": "parseTransitionLayoutKeyClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtTransitionReducedMotionClause",
+      "family": "Transition",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 963,
+          "method": "parseTransitionReducedMotionClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtTransitionTimelineClause",
+      "family": "Transition",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1101,
+          "method": "parseMotionTimelineClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtTransitionTimelineStep",
+      "family": "Transition",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1094,
+          "method": "parseMotionTimelineClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtTransitionToClause",
+      "family": "Transition",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 878,
+          "method": "parseTransitionSurfaceListClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtTransitionTriggerClause",
+      "family": "Transition",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 865,
+          "method": "parseTransitionTriggerClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtTransitionUseAnimationClause",
+      "family": "Transition",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 931,
+          "method": "parseTransitionUseAnimationClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtTrustBoundaryPolicy",
+      "family": "Hydration / Resume / Security-Policy",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 2452,
+          "method": "parseTrustPolicy"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtTypeReference",
+      "family": "Dokument / Identität / Imports",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 1294,
+          "method": "parseTypeReference"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtVNextDocument",
+      "family": "Dokument / Identität / Imports",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 447,
+          "method": "parseDocument"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtValidationDeclaration",
+      "family": "Validation",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 736,
+          "method": "parseValidationDeclaration"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtValidationFieldClause",
+      "family": "Validation",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 804,
+          "method": "parseValidationFieldClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtValidationIncludeClause",
+      "family": "Validation",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 816,
+          "method": "parseValidationIncludeClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtValidationModeClause",
+      "family": "Validation",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 749,
+          "method": "parseValidationModeClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtValidationRule",
+      "family": "Validation",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 783,
+          "method": "parseValidationFieldClause"
+        },
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 793,
+          "method": "parseValidationFieldClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    },
+    {
+      "type": "RmtValidationTargetClause",
+      "family": "Validation",
+      "parserFactories": [
+        {
+          "path": "tools/rmt-language/vnext-parser.js",
+          "line": 769,
+          "method": "parseValidationTargetClause"
+        }
+      ],
+      "observedInA01Corpus": true
+    }
+  ],
+  "date": "2026-11-15",
+  "sources": {
+    "tools/rmt-language/classic-ast-rules.js": "269c0ad5d14ba86a149e33877e7db28b3a4004d0217b8c6b829b26931a327b0d",
+    "tools/rmt-language/vnext-parser.js": "80668bc8c738f5fda9ed3149b367c3e3388eac9f1ae4f90650d65910a5359579",
+    "development/rmtx-a01/inventory.json": "98cf43fd5e41e52e63d78135273d313e523a56c425062f81c7160c522a598b6f"
+  }
+}

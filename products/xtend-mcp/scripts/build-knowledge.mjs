@@ -114,6 +114,20 @@ function copyKit(outputRoot) {
   }
 
   const sourceManifest = readJson(path.join(kitSourceRoot, 'rmt-ai-kit.manifest.json'));
+  if (!Array.isArray(sourceManifest.sourceHashes) || sourceManifest.sourceHashes.length === 0) {
+    throw new Error('AI Developer Kit is missing canonical source provenance. Regenerate the kit before building MCP knowledge.');
+  }
+  for (const source of sourceManifest.sourceHashes) {
+    const relative = source.path;
+    if (typeof relative !== 'string' || path.isAbsolute(relative) || relative.includes('\\') || relative.split('/').some(part => !part || part === '.' || part === '..')) {
+      throw new Error('AI Developer Kit contains an invalid canonical source path.');
+    }
+    const file = path.join(repoRoot, relative);
+    const content = fs.readFileSync(file, 'utf8').replace(/\r\n/gu, '\n');
+    if (sha256(content) !== source.sha256 || Buffer.byteLength(content) !== source.bytes) {
+      throw new Error(`AI Developer Kit source drifted: ${relative}. Regenerate the kit before building MCP knowledge.`);
+    }
+  }
   for (const [fileName, metadata] of Object.entries(sourceManifest.artifacts || {})) {
     const artifactPath = path.join(kitSourceRoot, fileName);
     const canonicalHash = fileName.endsWith('.json')
@@ -205,15 +219,23 @@ const check = process.argv.includes('--check');
 const quiet = process.argv.includes('--quiet');
 const outputIndex = process.argv.indexOf('--out');
 const explicitOutput = outputIndex >= 0 ? process.argv[outputIndex + 1] : '';
+const targetRoot = path.resolve(explicitOutput || defaultOutputRoot);
 let temporaryRoot = '';
 const outputRoot = check
   ? (temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-mcp-knowledge-')))
-  : path.resolve(explicitOutput || defaultOutputRoot);
+  : (fs.mkdirSync(path.dirname(targetRoot), { recursive: true }), temporaryRoot = fs.mkdtempSync(path.join(path.dirname(targetRoot), '.xtend-mcp-knowledge-')));
 
 try {
-  if (!check) fs.rmSync(outputRoot, { recursive: true, force: true });
   const manifest = writeBundle(outputRoot);
   if (check) compareDirectories(outputRoot, defaultOutputRoot);
+  else {
+    const backup = `${targetRoot}.previous-${crypto.randomUUID()}`;
+    const existed = fs.existsSync(targetRoot);
+    if (existed) fs.renameSync(targetRoot, backup);
+    try { fs.renameSync(outputRoot, targetRoot); temporaryRoot = ''; }
+    catch (error) { if (existed) fs.renameSync(backup, targetRoot); throw error; }
+    if (existed) fs.rmSync(backup, { recursive: true, force: true });
+  }
   if (!quiet) {
     process.stdout.write(`${JSON.stringify({
       schema: 'xtend.mcp.knowledge-build-result.v1',

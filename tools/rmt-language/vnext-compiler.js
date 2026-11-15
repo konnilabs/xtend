@@ -1,5 +1,6 @@
 const { validateRmtClassicAst } = require('./classic-ast-contract');
 const { validateFastPassAction } = require('../../xtend-maraca/fastpass-contract.js');
+const { lowerActionExpression, lowerActionEmit, lowerActionResultHandler } = require('./action-execution-lowering');
 const crypto = require('crypto');
 const {
   RMT_FILE_FALLBACK_CODE,
@@ -14,7 +15,7 @@ const {
 
 const RMT_VNEXT_CORE_SCHEMA = 'xtend.rmt.core-format.vnext.v1';
 const RMT_VNEXT_COMPILER_SCHEMA = 'xtend.rmt.vnext-compiler.v1';
-const RMT_VNEXT_COMPILER_API_VERSION = '1.1.0';
+const RMT_VNEXT_COMPILER_API_VERSION = '1.2.0';
 const RMT_VNEXT_COMPILER_REPORT_SCHEMA = 'xtend.rmt.vnext-compiler-report.v1';
 const RMT_VNEXT_COMPILER_WORKPACKAGE = 'WP-E15-05';
 const RMT_VNEXT_PRIMITIVE_LOWERING_SCHEMA = 'xtend.rmt.vnext.primitive-lowering.v1';
@@ -891,6 +892,11 @@ function createAppPlatformRecords(core) {
       status: record.status,
       reducers: record.reducers,
       emits: record.emits,
+      ...(record.handlers?.length ? { handlers: toArray(record.handlers).map(handler => {
+        const lowered = lowerActionResultHandler(handler);
+        if (lowered.kind === 'reduce') lowered.reducer = { ...statePathForReducer(lowered.reducer.target, toArray(core.states).map(state => ({ id: state.name }))), ...lowered.reducer };
+        return lowered;
+      }) } : {}),
       effects: record.effectRefs
     })),
     portals: core.portals.map((record) => ({
@@ -1004,6 +1010,7 @@ function createAppPlatformRecords(core) {
         target: record.target || null,
         owner: record.scope && record.scope.surface || record.ownerOperation || null,
         action: record.action,
+        ...(record.condition != null ? { condition: record.condition } : {}),
         payloadContract: record.payloadContract,
         options: record.options || {}
       }))
@@ -1861,6 +1868,7 @@ function createActionReducerRecords(appPlatform) {
       path: target.path,
       recipe: isRecipe ? reducer.recipe : null,
       value: reducer && Object.prototype.hasOwnProperty.call(reducer, 'value') ? reducer.value : null,
+      ...(reducer.valueKind ? { valueKind: reducer.valueKind } : {}),
       mode: isRecipe ? 'recipe' : target.path ? 'patch-path' : 'set-state'
     };
   }));
@@ -1919,6 +1927,7 @@ function createEventBindingRecords(appPlatform) {
       surface: surface && surface.id || null,
       owner: event.owner || surface && surface.id || event.id,
       action: event.action,
+      ...(event.condition != null ? { condition: event.condition } : {}),
       payload: eventPayloadBinding(event),
       payloadContract: event.payloadContract || null,
       governance: {
@@ -4274,6 +4283,7 @@ function createRmtAppOrchestrationArtifacts(core) {
         datasource: dataSourceForAction(action),
         reducers: action.reducers,
         emits: action.emits,
+        ...(action.handlers?.length ? { handlers: action.handlers } : {}),
         effects: toArray(action.effects)
       })),
       dataSources,
@@ -4680,26 +4690,16 @@ class VNextCompiler {
       } else if (child.type === 'RmtReducerStatement') {
         record.reducers.push({
           target: child.target,
-          value: child.value
-            ? primitiveValueToCore(child.value)
-            : primitiveExpressionTextToCore(child.expression || child.text || '')
+          ...lowerActionExpression(child.expression || child.text || '')
         });
       } else if (child.type === 'RmtReducerRecipeStatement') {
         record.reducers.push({
           recipe: child.recipe ? primitiveValueToCore(child.recipe) : '',
           target: child.target,
-          value: child.valueExpression
-            ? primitiveExpressionTextToCore(child.valueExpression)
-            : null
+          ...(child.valueExpression ? lowerActionExpression(child.valueExpression) : { value: null, valueKind: 'literal' })
         });
       } else if (child.type === 'RmtEmitStatement') {
-        record.emits.push({
-          event: child.event,
-          payload: toArray(child.payload).map((entry) => ({
-            name: entry.name,
-            value: primitiveValueToCore(entry.value)
-          }))
-        });
+        record.emits.push(lowerActionEmit(child));
       } else if (child.type === 'RmtEffectStatement') {
         const effect = this.compilePrimitiveEffect(child, record, index);
         if (effect) effectRefs.push(effect.id);

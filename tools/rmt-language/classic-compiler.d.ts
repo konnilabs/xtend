@@ -1,5 +1,5 @@
 export * from './classic-ast-types';
-export declare const RMT_CLASSIC_COMPILER_API_VERSION: '4.0.0';
+export declare const RMT_CLASSIC_COMPILER_API_VERSION: '4.1.0';
 export declare const RMT_CLASSIC_COMPILE_RESULT_SCHEMA: 'xtend.rmt.classic.compile-result.v4';
 export { validateStateBindingArtifact } from '../xtensions/state-binding-artifact';
 import type { RmtClassicAst } from './classic-ast-types';

@@ -1,3 +1,17 @@
 {
-  "servers": {}
+  "servers": {
+    "xtend": {
+      "type": "stdio",
+      "command": "${execPath}",
+      "args": [
+        "${workspaceFolder}/products/xtend-mcp/bin/xtend-mcp.mjs",
+        "stdio",
+        "--workspace",
+        "${workspaceFolder}"
+      ],
+      "env": {
+        "ELECTRON_RUN_AS_NODE": "1"
+      }
+    }
+  }
 }

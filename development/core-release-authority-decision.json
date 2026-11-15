@@ -4,8 +4,8 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "f074f4678a5480492524ac705506e8c96bdf2c86d559a827a7fc2b937b10d276",
-  "sourceMembershipSha256": "87a8235e56321a979a48661933eb2ef43adcdfb9d9d15c7caedf37290c178bdd",
+  "inventorySha256": "1e8a4da17206898eda9861e04d3d5c9b16caeee857c4f7af619f54718f243cb6",
+  "sourceMembershipSha256": "76ea66b23b8382c319a786ac8e8cb9e10d7b4bdf28f9ffc63c301c7359be4481",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
@@ -561,7 +561,7 @@
         },
         {
           "path": "development/rmtx-a01/inventory.json",
-          "sha256": "98cf43fd5e41e52e63d78135273d313e523a56c425062f81c7160c522a598b6f"
+          "sha256": "56ec09f7b5e375735d41523e218a601961243d54ccca2ed4128dbd88d618ce76"
         },
         {
           "path": "docs/de/rmt-vnext-authoring.md",
@@ -582,6 +582,10 @@
         {
           "path": "scripts/generate_rmt_classic_contract.js",
           "sha256": "72a7cb793be6a11a169fd6aea281e3eb529a22ba9bdbd1c3b27d0f5143cbaa22"
+        },
+        {
+          "path": "tests/rmt-language/action-execution-lowering.test.cjs",
+          "sha256": "a13abb5a1f467bb41ce860ea840e266b8933a2a999abcde9ae4c4ebe2d39bad7"
         },
         {
           "path": "tests/rmt-language/fixtures/classic-contract-consumer.ts",
@@ -605,11 +609,11 @@
         },
         {
           "path": "tools/rmt-language/classic-compiler.d.ts",
-          "sha256": "11d778c3a3032c2e237d2c2660e47264e577870e51b60811f6f4982c8be27801"
+          "sha256": "5252e64211b4039c4c3272c73334342332a539703bbbf760d860e3a77240c858"
         },
         {
           "path": "tools/rmt-language/classic-compiler.js",
-          "sha256": "a742ec4561bb64ced5d3909aa0fc49e277f7687ded49c55c13e7f3463e721468"
+          "sha256": "d321ae4c25ca3b56ca877399f9a259b86afeb8a4c6dab8a67119baaa92c52581"
         },
         {
           "path": "tools/rmt-language/classic-parser.d.ts",
@@ -621,7 +625,7 @@
         },
         {
           "path": "tools/rmt-language/classic-semantic-rules.js",
-          "sha256": "2d4211c044b6682a952b85057e9172dac50c142125b203152a857e0a6e1bb10d"
+          "sha256": "113846c48ef5dc4d5ce0b29ddb7a01076e50d3fa86f80d84f1af5420fb593d81"
         },
         {
           "path": "tools/rmt-language/contracts/classic-ast.v1.schema.json",
@@ -633,7 +637,7 @@
         },
         {
           "path": "tools/rmt-language/vnext-compiler.js",
-          "sha256": "043ea70d12d724cbb32872c8e4c1bca19d06d13da09c75abeefbfa3eabf45c66"
+          "sha256": "9ee9aac4cd163ac3d78a6ae228d4515974eabfcf3ef89c45c38ff937684ff510"
         },
         {
           "path": "tools/rmt-language/vnext-parser.js",
@@ -2872,5 +2876,422 @@
       "existingReleasedFingerprintSetsChanged": false,
       "historicalInventoryChanged": false
     }
+  },
+  "a06OperatorSyntaxReview": {
+    "date": "2026-11-15",
+    "sourceBaseSha": "02dcd815ebe4ddca196e82163191fe7360b95a05",
+    "kind": "non-binding-operator-and-frontend-assessment",
+    "report": "development/rmtx-a06/operator-and-tsx-feasibility-assessment.md",
+    "reportSha256": "83d02d37c27991bf4197519eb37ada778442db497e65ce6e7cceee7e856a2796",
+    "previousAssessment": "development/rmtx-a06/syntax-and-jsx-sideloading-assessment.md",
+    "previousAssessmentSha256": "58538b3465e3ce5da1074b9ae8b5cd3fbe84bbc2a3918a2978dbf7fa72acf5cf",
+    "evidence": [
+      {
+        "path": "development/rmtx-a06/operator-inventory.json",
+        "sha256": "c95a8e5828132968f5804339985ddbab2732df94036b253370165eaf1157742e"
+      },
+      {
+        "path": "development/rmtx-a06/operator-mcp-evidence.json",
+        "sha256": "d204cf07a20cb4e67869617e8bb267ebb9794324fafdf2261b2534edc7bcc2a4"
+      },
+      {
+        "path": "development/rmtx-a06/operator-tsx-evidence.json",
+        "sha256": "4312b9226f7d8fb5a11505717d041c8397501996c34ff02cc9b30b0f0dfd14b0"
+      },
+      {
+        "path": "development/rmtx-a06/operator-runtime-evidence.before-fix.json",
+        "sha256": "71b279c518356906a5f2c01356a2493da72ca264908858d1452462b83125399a"
+      },
+      {
+        "path": "development/rmtx-a06/operator-suite-evidence.json",
+        "sha256": "ece6944483770d35ab5073d622c1b6edb1bd38b38e3729bf5c6d1c873be40257"
+      }
+    ],
+    "syntaxDecisionStatus": "open",
+    "recommendation": "continue-statically-lowered-tsx-with-classic-plus-tsx-view-as-primary-countercandidate",
+    "declaredAndObservedAstTypes": 122,
+    "mcpReadOnlyTools": 6,
+    "mcpResources": 398,
+    "mcpOperatorReferences": 25,
+    "mcpCompileAndPlanProbes": 11,
+    "mcpTests": {
+      "passed": 22,
+      "total": 24,
+      "confirmedExistingFailures": 2,
+      "sdkStdioSecurityVerified": true
+    },
+    "rmtSuites": {
+      "passed": 19,
+      "total": 20,
+      "assertionsPassed": 2958,
+      "assertionsFailed": 2,
+      "skips": 0
+    },
+    "mechanicalTSXAndExpressionProbesPerNodeLane": 25,
+    "nodeVersions": [
+      "24.18.0",
+      "26.5.0"
+    ],
+    "typescript": "5.9.3",
+    "nativeMaracaEventAndActionCounterexamplesExecuted": true,
+    "nativeRmtxFrontendImplemented": false,
+    "agentOrHumanBenchmarkPerformed": false,
+    "knownExistingFindings": [
+      "event-condition-not-forwarded",
+      "managed-state-and-selector-reducer-reference-resolution-gap",
+      "action-result-handlers-not-forwarded",
+      "emit-payload-name-lost",
+      "stock-emit-execution-not-established",
+      "mcp-doc-and-kit-provenance-drift",
+      "mcp-catfooding-configuration-test-mismatch",
+      "legacy-remote-json-test-uses-migrated-native-fixture"
+    ],
+    "productiveCodeChanged": false,
+    "newSchemaIds": [],
+    "apiVersionsChanged": false,
+    "existingAuthoritativeDefinitionsChanged": false,
+    "existingReleasedFingerprintSetsChanged": false,
+    "acceptedForRelease": false,
+    "supersededBy": "a06OperatorBackendFixReview"
+  },
+  "a06OperatorBackendFixReview": {
+    "date": "2026-11-15",
+    "sourceBaseSha": "02dcd815ebe4ddca196e82163191fe7360b95a05",
+    "kind": "targeted-backend-contract-restoration-and-local-mcp-refresh",
+    "status": "implemented-and-regression-tested",
+    "report": "development/rmtx-a06/operator-backend-fixes.md",
+    "reportSha256": "8847832b6fc6040730f913adf5536a06a7ecf9dec8eae5df8cbdf3990de776a3",
+    "evidence": {
+      "path": "development/rmtx-a06/operator-backend-fix-evidence.json",
+      "sha256": "88cde42ed881db6bc033cc37107c06f4535cbc506e76c7e265df459ce54bc834"
+    },
+    "mcpDeployment": {
+      "report": "development/mcp-local-update.md",
+      "reportSha256": "1d88d0815d3bb7513989c3818ad2b1f8fe5557b8b18db306cf8c148ff9a1ef80",
+      "evidence": "development/mcp-local-update-evidence.json",
+      "evidenceSha256": "9fb26430958fe021b95cd368222ab58be3fd143fe61a37775ea03a705121c320",
+      "hostedSourceFingerprint": "e53ee924e6024d7821ab913ad4d2fb3a6af4c077f7f33b07109d8e81546174de",
+      "containerHealthy": true,
+      "workspaceStdioVerified": true
+    },
+    "apiVersions": {
+      "classicCompiler": "4.1.0",
+      "vnextCompiler": "1.2.0",
+      "eventRouting": "3.0.0",
+      "actionEffect": "2.0.0",
+      "surfaceResourceGraph": "2.1.0",
+      "domDescriptorRenderer": "2.1.0"
+    },
+    "classicInputAstChanged": false,
+    "runtimeFactoryResultWireShapesChanged": false,
+    "unitTests": {
+      "runs": [
+        {
+          "node": "v24.18.0",
+          "passed": 57,
+          "failed": 0,
+          "skipped": 0,
+          "logSha256": "2e92be46300e1f9af4a36ebd4fd6bde905eb465c37c910143bc40e85e6324740"
+        },
+        {
+          "node": "v26.5.0",
+          "passed": 57,
+          "failed": 0,
+          "skipped": 0,
+          "logSha256": "11487d929f82277f70bf8e7380f0f5345cf8fa070d464f229e7c1a069b293a37"
+        }
+      ],
+      "passedPerNodeLane": 57,
+      "failed": 0,
+      "skipped": 0
+    },
+    "nodeLanes": [
+      "v24.18.0",
+      "v26.5.0"
+    ],
+    "actionCasesPerNodeLane": 17,
+    "rendererOwnershipCasesPerNodeLane": 8,
+    "eventAndKernelGuardCasesPerNodeLane": 13,
+    "compilerCasesPerNodeLane": 16,
+    "kernelMVC": {
+      "modules": 79,
+      "violations": 0
+    },
+    "classicObservationSourceBindingReview": {
+      "schemaId": "xtend.rmt.vnext.ast.v1",
+      "sources": [
+        {
+          "path": "development/rmtx-a01/inventory.json",
+          "previousSha256": "98cf43fd5e41e52e63d78135273d313e523a56c425062f81c7160c522a598b6f",
+          "sha256": "56ec09f7b5e375735d41523e218a601961243d54ccca2ed4128dbd88d618ce76"
+        },
+        {
+          "path": "tools/rmt-language/classic-compiler.d.ts",
+          "previousSha256": "11d778c3a3032c2e237d2c2660e47264e577870e51b60811f6f4982c8be27801",
+          "sha256": "5252e64211b4039c4c3272c73334342332a539703bbbf760d860e3a77240c858"
+        },
+        {
+          "path": "tools/rmt-language/classic-compiler.js",
+          "previousSha256": "a742ec4561bb64ced5d3909aa0fc49e277f7687ded49c55c13e7f3463e721468",
+          "sha256": "d321ae4c25ca3b56ca877399f9a259b86afeb8a4c6dab8a67119baaa92c52581"
+        },
+        {
+          "path": "tools/rmt-language/classic-semantic-rules.js",
+          "previousSha256": "2d4211c044b6682a952b85057e9172dac50c142125b203152a857e0a6e1bb10d",
+          "sha256": "113846c48ef5dc4d5ce0b29ddb7a01076e50d3fa86f80d84f1af5420fb593d81"
+        },
+        {
+          "path": "tools/rmt-language/vnext-compiler.js",
+          "previousSha256": "043ea70d12d724cbb32872c8e4c1bca19d06d13da09c75abeefbfa3eabf45c66",
+          "sha256": "9ee9aac4cd163ac3d78a6ae228d4515974eabfcf3ef89c45c38ff937684ff510"
+        }
+      ],
+      "formalAstSchemaChanged": false,
+      "authoritativeFingerprintsUnchanged": true,
+      "releasedFingerprintSetUnchanged": true,
+      "additionalObservedSources": [
+        {
+          "path": "tests/rmt-language/action-execution-lowering.test.cjs",
+          "sha256": "a13abb5a1f467bb41ce860ea840e266b8933a2a999abcde9ae4c4ebe2d39bad7"
+        }
+      ]
+    },
+    "newSchemaIds": [],
+    "existingAuthoritativeDefinitionsChanged": false,
+    "existingReleasedFingerprintSetsChanged": false,
+    "historicalInventoryChanged": false,
+    "policyWaiversAdded": false,
+    "syntaxDecisionStatus": "open",
+    "nativeRmtxFrontendImplemented": false,
+    "acceptedForRelease": false,
+    "inventoryObservationReview": {
+      "previousInventorySha256": "96320bfb5a6f79fd63c596d8ee9f6db12ae9b006f9d8f4bfb7de3d9f4138a55d",
+      "inventorySha256": "1e8a4da17206898eda9861e04d3d5c9b16caeee857c4f7af619f54718f243cb6",
+      "newSchemaIds": [],
+      "changes": [
+        {
+          "schemaId": "xtend.epic18.rmt-action-cancel.v1",
+          "fields": [
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.epic18.rmt-action-result.v1",
+          "fields": [
+            "shapeFingerprints",
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [
+            {
+              "hash": "sha256:2531124d9beca96882594612128a191633f4b6885045bbc3af94570b2ccc9022",
+              "completeness": "partial"
+            }
+          ],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.epic18.rmt-action-runtime-dispose.v1",
+          "fields": [
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.epic18.rmt-event-attach-report.v1",
+          "fields": [
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.epic18.rmt-event-detach-report.v1",
+          "fields": [
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.epic18.rmt-event-dispose-report.v1",
+          "fields": [
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.epic18.rmt-event-reconcile-report.v1",
+          "fields": [
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.epic18.rmt-event-route-result.v1",
+          "fields": [
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.epic18.rmt-overlay-close-report.v1",
+          "fields": [
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.epic18.rmt-resource-release.v1",
+          "fields": [
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.epic18.rmt-surface-hydrate-report.v1",
+          "fields": [
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.epic18.rmt-surface-materialize-report.v1",
+          "fields": [
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.epic18.rmt-surface-resource-graph-diagnostic.v1",
+          "fields": [
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.epic18.rmt-surface-resource-graph-dispose-report.v1",
+          "fields": [
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.epic18.rmt-surface-resource-graph-runtime.v2",
+          "fields": [
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.epic18.rmt-surface-resource-graph-snapshot.v1",
+          "fields": [
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.mcp.docs-resource.v1",
+          "fields": [
+            "shapeFingerprints",
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [
+            {
+              "hash": "sha256:75372c60cbbeb546b6abd7f2c167a7ef9356e9304139ec6ad15567631624e071",
+              "completeness": "partial"
+            }
+          ],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.mcp.knowledge-manifest.v1",
+          "fields": [
+            "shapeFingerprints",
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [
+            {
+              "hash": "sha256:3c030d4f5e53fa6f90929d6ef2ddea682f8b0979b2b05a52f51d979e08f401ae",
+              "completeness": "partial"
+            }
+          ],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.rmt.ai-developer-kit.v1",
+          "fields": [
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        },
+        {
+          "schemaId": "xtend.rmt.vnext.ast.v1",
+          "fields": [
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true
+        }
+      ],
+      "existingAuthoritativeDefinitionsChanged": false,
+      "existingReleasedFingerprintSetsChanged": false,
+      "historicalInventoryChanged": false,
+      "schemaFamilyPoliciesChanged": false
+    },
+    "currentRuntimeEvidence": [
+      {
+        "path": "development/rmtx-a06/scoped-runtime-evidence.json",
+        "sha256": "69b336cb5699b769ac04b0f23a382dc18726476eb8252409c0d983c3f81f01c5"
+      },
+      {
+        "path": "development/rmtx-a06/automatic-runtime-evidence.json",
+        "sha256": "f0e8194bdcc4c8cda8489216b58fcabf1dcb889ffa95913a8233f6e3b0c9df51"
+      },
+      {
+        "path": "development/rmtx-a06/two-host-runtime-evidence.json",
+        "sha256": "f24837cb02a4df768247f42989fa907d3262e84ed1e8a067c261b23bfba253d8"
+      }
+    ],
+    "releasePreparation": {
+      "passed": true,
+      "logSha256": "78106a13b1cf12b758890e45022a871a971e7d2e56717a4ada27d75c86717ec3"
+    },
+    "operatorSuites": [
+      {
+        "node": "v24.18.0",
+        "suiteCount": 20,
+        "suitesPassed": 20,
+        "assertionsPassed": 2961,
+        "failedAssertions": 0,
+        "skips": 0,
+        "sourceStableDuringExecution": true,
+        "reportSha256": "7f0cb149bdcf20bed583065a20ad027cd16959ce132196c8997da9296c5ac816"
+      },
+      {
+        "node": "v26.5.0",
+        "suiteCount": 20,
+        "suitesPassed": 20,
+        "assertionsPassed": 2961,
+        "failedAssertions": 0,
+        "skips": 0,
+        "sourceStableDuringExecution": true,
+        "reportSha256": "7f50ce6a03eb14dc053249956acb9b59c71bbf8c6629695046ff515005c8f3ff"
+      }
+    ]
   }
 }

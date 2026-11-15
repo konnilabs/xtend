@@ -2371,7 +2371,7 @@ function collectInitialState(coreDocument) {
   states.forEach((state) => {
     const key = state.name || state.id;
     if (!key) return;
-    map[key] = state.initial && typeof state.initial === 'object' ? state.initial : {};
+    map[key] = Object.prototype.hasOwnProperty.call(state, 'initial') && state.initial !== undefined ? state.initial : {};
   });
   return map;
 }

@@ -1,4 +1,5 @@
 'use strict';
+const { lowerActionEmit, lowerActionResultHandler } = require('./action-execution-lowering');
 
 const unsafe = path => String(path).split('.').some(part => ['__proto__', 'prototype', 'constructor'].includes(part));
 const scalarTypes = new Set(['string', 'number', 'boolean', 'object', 'array', 'collection']);
@@ -17,7 +18,7 @@ function matchesType(type, value) {
 function operand(text) {
   const expression = text.trim();
   if (/^(?:"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')$/u.test(expression)) return { literalType: 'string' };
-  if (/^-?\d+(?:\.\d+)?$/u.test(expression)) return { literalType: 'number' };
+  if (/^-?\d+(?:\.\d+)?$/u.test(expression)) return Number.isFinite(Number(expression)) ? { literalType: 'number' } : null;
   if (['true', 'false'].includes(expression)) return { literalType: 'boolean' };
   if (expression === 'null') return { literalType: 'null' };
   if (/^(?:state|selector|input|result|error|payload)(?:\.[A-Za-z_][A-Za-z0-9_-]*)*$/u.test(expression)) return { path: expression };
@@ -94,13 +95,29 @@ function validateClassicSemantics(state, { diagnostic, reference }) {
     if (node.type === 'RmtActionStatusClause') {
       read(node, node.path.startsWith('state.') ? node.path : `state.${node.path}`, action, null);
     }
-    if (node.type === 'RmtEmitStatement') for (const field of node.payload) {
-      if (field.value.kind === 'path' && /^(?:state|selector|input)\./u.test(field.value.value)) read(field.value, field.value.value, action, null);
-    }
-    if (node.type === 'RmtActionResultHandler' && node.effect.kind === 'reduce') {
-      const match = /^reduce\s+(\S+)\s*=\s*(.+)$/u.exec(node.effect.text);
-      if (!match) report(node, 'operand.unsupported', 'Result reducer requires a State target and declarative value.');
-      else reducer(node, action, match[1], match[2], false);
+    if (node.type === 'RmtEmitStatement' || node.type === 'RmtActionResultHandler') {
+      try {
+        const lowered = node.type === 'RmtEmitStatement' ? { kind: 'emit', emit: lowerActionEmit(node) } : lowerActionResultHandler(node);
+        if (lowered.kind === 'reduce') {
+          const match = /^reduce\s+(\S+)\s*=\s*(.+)$/u.exec(node.effect.text);
+          reducer(node, action, match[1], match[2], false);
+        }
+        if (lowered.kind === 'overlay') {
+          const target = indexes.overlays.byId.get(lowered.target);
+          reference({ sourceDomain: 'actions', sourceId: action?.name, field: 'handler', relationship: 'classic.handler.overlay', targetDomain: 'overlays', targetId: lowered.target, target, node });
+        }
+        const visitValue = value => {
+          if (value.valueKind === 'reference') read(node, value.value, action, null);
+          if (value.valueKind === 'template') visitTree(value.value);
+        };
+        const visitTree = tree => {
+          if (tree.kind === 'path') read(node, tree.value, action, null);
+          if (tree.kind === 'array') tree.items.forEach(visitTree);
+          if (tree.kind === 'object') tree.fields.forEach(field => visitTree(field.value));
+        };
+        if (lowered.kind === 'emit') lowered.emit.payload.forEach(visitValue);
+        if (lowered.kind === 'overlay') Object.values(lowered.options).forEach(visitValue);
+      } catch (error) { report(node, 'action.execution.unsupported', error.message); }
     }
     if (node.type === 'RmtValidationDeclaration') for (const include of node.body.filter(child => child.type === 'RmtValidationIncludeClause')) {
       reference({ sourceDomain: 'validations', sourceId: node.name, field: 'include', relationship: 'classic.validation.include',

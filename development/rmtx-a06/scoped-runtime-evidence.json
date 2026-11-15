@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "date": "2026-11-15",
   "stage": "A05-scoped-component-ssr",
-  "contractEvidenceSha256": "230acd85d39f85b008e2deb55a85968d2f198eedc249885920d36e337309a418",
+  "contractEvidenceSha256": "c872e7ec7c596426900c4c90d04d4b812358e1c7ecbfee9bb05d574857bc4e67",
   "csrRuns": [
     {
       "schema": "xtend.xtensions.component-scope-acceptance.v1",

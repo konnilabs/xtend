@@ -6,7 +6,7 @@ This page lists fixed values used by operators.
 
 | Catalog | Values | Allowed contexts | Parameters | Function | Diagnostics | Related operators |
 | --- | --- | --- | --- | --- | --- | --- |
-| <a id="lane-names"></a>Lane names | `critical`, `visible`, `user-blocking`, `transition`, `resource`, `a11y`, `idle`, `background`, `diagnostics` | `lane`, `lane transition`, remote events | identifier | Maps work to a scheduling class. | Unknown lane names can be catalog diagnostics. | `lane`, `weight` |
+| <a id="lane-names"></a>Lane names | `user-blocking`, `visible`, `transition`, `idle`, `background`, `diagnostics` | `lane`, `lane transition`, remote events | identifier | Maps work to a scheduling class. | Unknown lane names can be catalog diagnostics. | `lane`, `weight` |
 | <a id="source-kinds"></a>Source kinds | `endpoint`, `sse`, `worker`, `selector`, `state`, `datasource`, `fixture`, `resource` | `from`, `fallback`, `source` | identifier plus reference | Describes where data or work comes from. | Parser reports disallowed source kinds. | `from` |
 | <a id="overlay-kinds"></a>Overlay kinds | `tooltip`, `toast`, `popover`, `lightbox`, `menu`, `dialog` | `overlay kind` | identifier | Classifies overlay UI. | Unknown overlay kinds can be semantic diagnostics. | `overlay` |
 | <a id="resource-kinds"></a>Resource kinds | `object-url`, `stream`, `observer`, `timer`, `lazy-import` | `resource kind` | identifier | Classifies cleanup and ownership behavior. | Missing owner can be reported. | `resource`, `destroy releases` |
@@ -24,6 +24,18 @@ All values are literal in RMT source. Trust boundaries are written as strings; t
 ## Description
 
 Catalogs keep authoring stable and inspectable. New values need tooling, docs and test coverage.
+
+### Canonical lanes and aliases
+
+The six lane names above are the canonical scheduler classes. `critical`, `urgent` and `input` normalize to `user-blocking`; `interactive`, `normal` and `default` to `visible`; `route` to `transition`; `deferred` to `idle`; `bg` to `background`; `telemetry` and `debug` to `diagnostics`.
+
+`resource` and `a11y` are neither canonical lanes nor aliases in the current normalizer. An unknown name remains marked as unknown and receives the `visible` fallback there; this does not create another scheduler capability. Lane names describe scheduling, not an automatic loading, visibility or hydration trigger. The implementation is `tools/rmt-language/scheduler-lanes.js`.
+
+### Tones for action result overlays
+
+A result-overlay handler's `tone` option accepts `info`, `success`, `warning`, `error`, `neutral`, `primary`, `secondary` and `danger`. Static values are strings, for example `on error -> overlay app.toast tone "danger"`. An explicit reference is validated at runtime.
+
+The host receives the selected value as `data-tone`. Canonical visual treatment maps `neutral`, `primary` and `secondary` to `info`, and `danger` to `error`. Unknown static tones and unknown overlay options are compiler errors; only `message` and `tone` are allowed here.
 
 ## Examples
 

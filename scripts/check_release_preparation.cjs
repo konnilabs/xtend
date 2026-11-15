@@ -6,6 +6,7 @@ const { spawnSync } = require('node:child_process');
 // Actual feature acceptance remains at the production preparation/publish gates.
 const CHECKS = Object.freeze([
   ['scripts/generate_rmt_classic_contract.js', '--check'],
+  ['--test', 'tests/rmt-language/action-execution-lowering.test.cjs', 'tests/rmt-language/event-condition-guards.test.cjs', 'tests/rmt-language/action-backend-regressions.test.cjs', 'tests/rmt/renderer-structural-ownership.test.cjs'],
   ['development/rmtx-a01/inspect.cjs', '--check'],
   ['development/rmtx-a02/inspect.cjs', '--check'],
   ['development/rmtx-a02/url-history/inspect.cjs', '--check'],

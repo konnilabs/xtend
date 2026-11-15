@@ -136,13 +136,13 @@
     },
     {
       "path": "docs/de/maraca-fastpass-abort-boundary.md",
-      "sha256": "36da2ca972ade3babbad0ecc540f276b26db5d17eb5ce46facbfc3c25103715e",
-      "bytes": 8355
+      "sha256": "8ffe7b309337e34d709fc00d343b1b742f25c6168ae936c278ebf3004de7d9b0",
+      "bytes": 8563
     },
     {
       "path": "docs/de/release-0-9.md",
-      "sha256": "bb5fc471c5ed6c26de595ecfafbcc00fe1783aa90b0266b5eafd4675dca302d0",
-      "bytes": 1630
+      "sha256": "b1de48b695b542e3ed1410f88bd4c711a436fb4e8cec7091cde9869883052d58",
+      "bytes": 1879
     },
     {
       "path": "docs/de/rmt-app-platform-tooling.md",
@@ -156,13 +156,13 @@
     },
     {
       "path": "docs/de/rmt-reference-actions-events.md",
-      "sha256": "628d7b11c6b9d97dead857c38ae836a3cacb8164a4072e72d4d6b37497509fc4",
-      "bytes": 8721
+      "sha256": "676a6870942c6fda826beaeb17606d3c917f9bb46d4c274800814a447e3a874f",
+      "bytes": 13258
     },
     {
       "path": "docs/de/rmt-reference-conditions-expressions.md",
-      "sha256": "1ad81179d618e903f5894c5d150dc93611f5a5a534679322a8ea0136715dda4a",
-      "bytes": 4414
+      "sha256": "76eaced6a39d0d68dadc6b965633a9708395a605e3019334a6a537dd1545166c",
+      "bytes": 7650
     },
     {
       "path": "docs/de/rmt-reference-document-template-import.md",
@@ -171,8 +171,8 @@
     },
     {
       "path": "docs/de/rmt-reference-enums-catalogs.md",
-      "sha256": "414433235ebfd3a000ce0ffea9e3c1e4a5f7d3bec337762175a087c0f4f5bb46",
-      "bytes": 3751
+      "sha256": "8c0bc3884a0d00a66456e24677a48138bde6b3be2497b4d3afe7835543b80604",
+      "bytes": 5115
     },
     {
       "path": "docs/de/rmt-reference-primitives.md",
@@ -226,13 +226,13 @@
     },
     {
       "path": "docs/en/maraca-fastpass-abort-boundary.md",
-      "sha256": "cd1bfc0a3895531e03091697bf95cc2facccaae7001a3fa453b252c0e99fbf54",
-      "bytes": 6955
+      "sha256": "3db234c8fc45402eeb750b973291b29551aa63214c66aa04308f12af9e4ce346",
+      "bytes": 7078
     },
     {
       "path": "docs/en/release-0-9.md",
-      "sha256": "a4653d21c32565f9bb8fe5c1bbc6594614be9af3534099921941b326d9da7b4a",
-      "bytes": 1551
+      "sha256": "7d4cbe0cfeb749c120476fa2d6709864276f84188aa6045898c6f8b474d3b2ba",
+      "bytes": 1984
     },
     {
       "path": "docs/en/rmt-classic-contract.md",
@@ -241,8 +241,8 @@
     },
     {
       "path": "tools/rmt-language/classic-compiler.d.ts",
-      "sha256": "f2cb4326524e117e1d1c65924be85f95837c76ea81d00278efe17e09012597a0",
-      "bytes": 2470
+      "sha256": "5252e64211b4039c4c3272c73334342332a539703bbbf760d860e3a77240c858",
+      "bytes": 3392
     },
     {
       "path": "tools/rmt-language/classic-parser.d.ts",
@@ -266,8 +266,8 @@
     },
     {
       "path": "tools/rmt-language/vnext-compiler.d.ts",
-      "sha256": "17f0e7afd9b3a135fbdbe20115a5684c57fce32173179f4b403d468720db5bf9",
-      "bytes": 3233
+      "sha256": "c99380eef1283e488569b151fc4e51f476bf9646dc8159096bc9f8fcb2ff87a1",
+      "bytes": 3444
     },
     {
       "path": "tools/rmt-linter/reporter.d.ts",
@@ -286,8 +286,8 @@
     },
     {
       "path": "xtend-maraca/index.d.ts",
-      "sha256": "79ce8dba39c5ab03aff48818524eb6db7a12d64ed6288f0cc08ecc38f8639b76",
-      "bytes": 40306
+      "sha256": "16a39e84cd3f6c63fde6b2ee90d04e9e3d5291d58bc79d4eb3998999630d2919",
+      "bytes": 47664
     }
   ],
   "rootDir": ""

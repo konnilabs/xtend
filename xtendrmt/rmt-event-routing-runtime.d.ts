@@ -1,3 +1,4 @@
+export const RMT_EVENT_ROUTING_API_VERSION: '3.0.0';
 export const RMT_EVENT_ROUTING_DIAGNOSTIC_SCHEMA: 'xtend.epic18.rmt-event-routing-diagnostic.v1';
 export const RMT_EVENT_ROUTING_RUNTIME_SCHEMA: 'xtend.epic18.rmt-event-routing-runtime.v2';
 export const RMT_COMMAND_SCHEMA: 'xtend.rmt.command.v1';
@@ -23,6 +24,29 @@ export interface RmtEventCondition {
   right?: unknown;
   equals?: unknown;
   value?: unknown;
+}
+
+/** Closed expression data emitted by the Classic compiler; never evaluated as JavaScript. */
+export type RmtEventConditionExpression =
+  | { kind: 'literal'; value: string | number | boolean | null }
+  | { kind: 'path'; path: readonly string[] }
+  | { kind: 'group'; expression: RmtEventConditionExpression }
+  | { kind: 'unary'; op: '!'; argument: RmtEventConditionExpression }
+  | { kind: 'binary'; op: '==' | '!=' | '>' | '>=' | '<' | '<='; left: RmtEventConditionExpression; right: RmtEventConditionExpression }
+  | { kind: 'logical'; op: '&&' | '||'; left: RmtEventConditionExpression; right: RmtEventConditionExpression };
+
+export interface RmtEventCompiledCondition {
+  kind: 'condition';
+  expression: RmtEventConditionExpression;
+  sourceRef?: string | null;
+}
+
+export interface RmtEventModelReader {
+  snapshot(): {
+    readonly states?: Readonly<Record<string, unknown>>;
+    readonly selectors?: Readonly<Record<string, unknown>>;
+    readonly derived?: Readonly<Record<string, unknown>>;
+  };
 }
 
 export interface RmtPayloadContract {
@@ -73,8 +97,8 @@ export interface RmtEventBindingDefinition {
   payloadContract?: RmtPayloadContract;
   contract?: RmtPayloadContract;
   governance?: RmtEventGovernance;
-  condition?: RmtEventCondition;
-  when?: RmtEventCondition;
+  condition?: RmtEventCondition | RmtEventCompiledCondition | RmtEventConditionExpression | boolean | null;
+  when?: RmtEventBindingDefinition['condition'];
   guard?: boolean | string | { kind?: 'confirm' | string; type?: string; message?: unknown; default?: boolean };
   confirm?: boolean | string | Record<string, unknown>;
   confirmMessage?: unknown;
@@ -209,6 +233,8 @@ export interface RmtEventRoutingRuntimeOptions {
   };
   commandRuntime?: RmtEventRoutingRuntimeOptions['actionRuntime'];
   commandBus?: RmtEventRoutingRuntimeOptions['actionRuntime'];
+  /** Read-only, event-time Model snapshot for declared State/Selector guard paths. */
+  modelReader?: RmtEventModelReader;
   root?: unknown;
   targets?: Record<string, unknown>;
   targetResolver?: (binding: RmtEventBindingDefinition, root?: unknown) => unknown;

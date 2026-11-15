@@ -11,6 +11,8 @@ XTend MCP exposes the canonical XTend documentation, the curated RMT AI Develope
 
 The deterministic knowledge build copies complete Markdown files, including headings and code fences. Every resource retains its locale, slug, source path, and SHA-256. MCP does not use the shortened browser search index as a source.
 
+When inputs change, regenerate the canonical RMT AI Developer Kit before building MCP knowledge. The builder checks its artifacts and every declared source hash. Stale provenance is rejected; failed generation preserves the previous bundle. `check:knowledge` does not change canonical sources.
+
 For RMT authoring conventions and the underlying language boundary, continue with the [RMT Classic authoring guide](rmt-vnext-authoring.md).
 
 ## Installation and stdio
@@ -70,6 +72,8 @@ XTEND_MCP_HTTP_TOKEN="a-long-random-token" \
 ```
 
 The server binds exclusively to `127.0.0.1`. `/mcp` requires a process-scoped Bearer token and validates Host and Origin. Without the environment variable, a token is generated securely and printed once to `stderr`. Remote operation and OAuth are outside version 0.1.
+
+A separately hosted knowledge service has its own read-only, token, snapshot-header and recipe-pagination contract. It is distinct from the workspace server. Export a verified local deployment bundle with `node products/xtend-mcp/scripts/export-local-bundle.mjs --out /absolute/path/bundle`. The descriptor binds canonical documentation, the kit and relevant backend sources and contains no access credentials. Hosted local mode explicitly identifies a local worktree, base commit and content fingerprint; it neither claims a GitHub main commit nor silently synchronizes upstream.
 
 ## XTend LLM catfooding
 

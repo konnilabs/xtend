@@ -94,13 +94,80 @@ function diffKeys(previous, next) {
     .filter((key) => stableValue(before[key]) !== stableValue(after[key]));
 }
 
-function reducerValue(value, payload, result) {
+function safeActionData(value, seen = new Set()) {
+  if (value === null || typeof value === 'string' || typeof value === 'boolean' || typeof value === 'number' && Number.isFinite(value)) return value;
+  if (!value || typeof value !== 'object' || seen.has(value) || Object.getOwnPropertySymbols(value).length) throw new TypeError('Compiled values must be finite, acyclic JSON data.');
+  const descriptors = Object.getOwnPropertyDescriptors(value), array = Array.isArray(value), prototype = Object.getPrototypeOf(value);
+  if (!array && prototype !== Object.prototype && prototype !== null || Object.values(descriptors).some(entry => !hasOwn(entry, 'value'))) throw new TypeError('Compiled values cannot contain prototypes or accessors.');
+  seen.add(value);
+  try {
+    if (array) {
+      if (Object.keys(descriptors).length !== value.length + 1) throw new TypeError('Compiled arrays must be dense data.');
+      return Array.from({ length: value.length }, (_, index) => safeActionData(descriptors[index].value, seen));
+    }
+    const result = {};
+    for (const [key, descriptor] of Object.entries(descriptors)) {
+      if (!descriptor.enumerable || ['__proto__', 'prototype', 'constructor'].includes(key)) throw new TypeError('Unsafe compiled data field.');
+      result[key] = safeActionData(descriptor.value, seen);
+    }
+    return result;
+  } finally { seen.delete(value); }
+}
+
+function actionTemplateValue(node, resolve, seen = new Set()) {
+  if (!node || typeof node !== 'object' || Array.isArray(node) || seen.has(node)) throw new TypeError('Invalid compiled value template.');
+  const prototype = Object.getPrototypeOf(node);
+  if (prototype !== Object.prototype && prototype !== null) throw new TypeError('Compiled value templates must be plain data.');
+  const descriptors = Object.getOwnPropertyDescriptors(node);
+  if (Object.values(descriptors).some(entry => !hasOwn(entry, 'value'))) throw new TypeError('Compiled value templates cannot contain accessors.');
+  const fields = Object.keys(node);
+  const exact = names => fields.length === names.length && names.every(name => hasOwn(node, name));
+  seen.add(node);
+  try {
+    if (node.kind === 'literal' && exact(['kind', 'value'])) return clone(node.value, node.value);
+    if (node.kind === 'path' && exact(['kind', 'value']) && typeof node.value === 'string') return resolve(node.value);
+    if (node.kind === 'array' && exact(['kind', 'items']) && Array.isArray(node.items)) return node.items.map(value => actionTemplateValue(value, resolve, seen));
+    if (node.kind === 'object' && exact(['kind', 'fields']) && Array.isArray(node.fields)) {
+      const result = {};
+      for (const field of node.fields) {
+        if (!field || typeof field !== 'object' || Array.isArray(field) || Object.keys(field).length !== 2 || !hasOwn(field, 'key') || !hasOwn(field, 'value')
+          || Object.values(Object.getOwnPropertyDescriptors(field)).some(entry => !hasOwn(entry, 'value'))
+          || typeof field.key !== 'string' || ['__proto__', 'prototype', 'constructor'].includes(field.key) || hasOwn(result, field.key)) throw new TypeError('Invalid compiled object template field.');
+        result[field.key] = actionTemplateValue(field.value, resolve, seen);
+      }
+      return result;
+    }
+    throw new TypeError('Unknown compiled value template.');
+  } finally { seen.delete(node); }
+}
+
+function reducerValue(value, payload, result, modelRuntime, error, valueKind) {
+  if (valueKind != null && !['literal', 'reference', 'template'].includes(valueKind)) throw new TypeError('Unknown compiled reducer value kind.');
+  if (valueKind === 'template') return actionTemplateValue(safeActionData(value), reference => reducerValue(reference, payload, result, modelRuntime, error, 'reference'));
+  if (valueKind === 'literal') return safeActionData(value);
+  if (valueKind === 'reference' && (typeof value !== 'string' || !/^(?:state|selector|input|payload|result|error)(?:\.[A-Za-z_][A-Za-z0-9_-]*)*$/u.test(value) || value.split('.').some(part => ['__proto__', 'prototype', 'constructor'].includes(part)))) throw new TypeError('Unsafe or unsupported managed reducer reference.');
   if (typeof value !== 'string') return clone(value, value);
   if (value === 'input' || value === 'payload') return clone(payload, {});
   if (value.startsWith('input.')) return readPath(payload, value.slice(6));
   if (value.startsWith('payload.')) return readPath(payload, value.slice(8));
   if (value === 'result') return clone(result, {});
   if (value.startsWith('result.')) return readPath(result, value.slice(7));
+  if (valueKind === 'reference' && value === 'error') return clone(error, null);
+  if (valueKind === 'reference' && value.startsWith('error.')) return readPath(error, value.slice(6));
+  if (valueKind === 'reference' && /^(?:state|selector)\./u.test(value)) {
+    if (modelRuntime && typeof modelRuntime.resolve === 'function') return modelRuntime.resolve(value);
+    const reader = modelRuntime && (modelRuntime.modelReader || modelRuntime.model || modelRuntime);
+    if (!reader || typeof reader.snapshot !== 'function') throw new TypeError('Managed references require the isolated Model snapshot reader.');
+    const snapshot = asRecord(reader.snapshot()), stateReference = value.startsWith('state.');
+    const records = asRecord(stateReference ? snapshot.states : snapshot.selectors);
+    const path = value.slice(stateReference ? 6 : 9);
+    const owner = Object.keys(records).filter(id => path === id || path.startsWith(id + '.')).sort((a, b) => b.length - a.length)[0];
+    if (!owner) throw new TypeError('Managed reference does not resolve to a declared Model symbol.');
+    const resolved = stateReference && typeof reader.getState === 'function' ? reader.getState(owner)
+      : !stateReference && typeof reader.select === 'function' ? reader.select(owner) : records[owner];
+    return path === owner ? clone(resolved, resolved) : readPath(resolved, path.slice(owner.length + 1));
+  }
+  if (valueKind === 'reference') throw new TypeError('Unsupported managed reducer reference.');
   return value;
 }
 
@@ -1154,6 +1221,49 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       if (typeof context.isCurrent === 'function' && !context.isCurrent()) break;
       const effect = immutableClone(entry.value.effect || { id: entry.id, kind: entry.kind }, {});
       const declaredContext = asRecord(entry.value.context);
+      if (effect.kind === 'emit') {
+        const eventName = String(effect.event || '').trim();
+        if (!eventName) throw new TypeError('A compiled event publication requires a static event name.');
+        const emittedPayload = {};
+        for (const field of asArray(effect.payload)) {
+          if (!field || typeof field.name !== 'string' || !field.name || ['__proto__', 'prototype', 'constructor'].includes(field.name) || hasOwn(emittedPayload, field.name)) throw new TypeError('A compiled event publication requires unique safe payload names.');
+          emittedPayload[field.name] = clone(reducerValue(field.value, context.payload || declaredContext.payload || {},
+            actionResult && hasOwn(actionResult, 'data') ? actionResult.data : actionResult,
+            runtimes.state, actionResult && actionResult.error, field.valueKind), null);
+        }
+        if (typeof context.isCurrent === 'function' && !context.isCurrent()) break;
+        const published = publish('emit', { event: eventName, payload: emittedPayload, action: context.action || '', correlationId: asRecord(context.metadata).correlationId || '' });
+        try { entry.value.result = published; entry.value.deferred = false; } catch (_) {}
+        results.push({ id: entry.id, kind: entry.kind, result: published });
+        continue;
+      }
+      if (effect.kind === 'overlay') {
+        const graph = runtimes && runtimes.surfaceGraph;
+        if (!graph || typeof graph.openOverlay !== 'function') throw new TypeError('A result overlay requires the native Surface resource graph.');
+        const effectOptions = {};
+        for (const [name, spec] of Object.entries(asRecord(effect.options))) {
+          if (!['message', 'tone'].includes(name)) throw new TypeError('Unknown result overlay option.');
+          effectOptions[name] = reducerValue(asRecord(spec).value, context.payload || declaredContext.payload || {},
+            actionResult && hasOwn(actionResult, 'data') ? actionResult.data : actionResult, runtimes.state,
+            actionResult && actionResult.error, asRecord(spec).valueKind);
+        }
+        if (typeof effectOptions.tone !== 'undefined' && !['info', 'success', 'warning', 'error', 'neutral', 'primary', 'secondary', 'danger'].includes(effectOptions.tone)) throw new TypeError('Unknown RMT overlay tone.');
+        const overlayDefinition = declaredOverlays.find(overlay => overlay && overlay.id === effect.target);
+        if (!overlayDefinition) throw new TypeError('A result overlay must reference its declared native overlay.');
+        const previous = new Set(typeof graph.listOverlays === 'function' ? graph.listOverlays().map(overlay => overlay.id) : []);
+        const opened = await graph.openOverlay(effect.target, {
+          ...asRecord(context.metadata), ownedRoot: root, ownerId: declaredContext.ownerId || context.action || '',
+          payload: { ...asRecord(context.payload), ...effectOptions }, text: effectOptions.message, tone: effectOptions.tone,
+          renderContext: { model: asRecord(context.modelSnapshot).model || {}, payload: { ...asRecord(context.payload), ...effectOptions } }
+        });
+        if (typeof context.isCurrent === 'function' && !context.isCurrent()) {
+          if (opened && !previous.has(opened.id) && typeof graph.closeOverlay === 'function') await graph.closeOverlay(opened.id, { reason: 'result-overlay-superseded' });
+          break;
+        }
+        try { entry.value.result = opened; entry.value.deferred = false; } catch (_) {}
+        results.push({ id: entry.id, kind: entry.kind, result: opened });
+        continue;
+      }
       const serializedEffectContext = immutableClone({
         schema: 'xtend.maraca.presentation-effect-context.v1',
         action: context.action || '',
@@ -1275,15 +1385,16 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     const plannedModelOperations = asArray(actionResult && actionResult.modelOperations).map((operation) => clone(operation, operation));
     const modelOperations = plannedModelOperations.slice();
     let workingStates = clone(asRecord(previousSnapshot.states), {});
-
-    if (plannedModelOperations.length > 0) {
+    let planningRuntime = null;
+    const isolatedModel = () => {
+      if (planningRuntime) return planningRuntime;
       const planningFactory = runtimes.modelPlanningFactory;
       if (typeof planningFactory !== 'function') {
         const error = new Error('Managed commands require an isolated RMT Model planning factory.');
         error.code = 'xtend.maraca.mvc.model-planning-port-missing';
         throw error;
       }
-      const planningRuntime = planningFactory({
+      planningRuntime = planningFactory({
         states: runtimes.state.stateDefinitions || [],
         selectors: runtimes.state.selectorDefinitions || [],
         derive: runtimes.state.derivedDefinitions || [],
@@ -1297,19 +1408,27 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         error.code = 'xtend.maraca.mvc.model-planning-port-missing';
         throw error;
       }
-      planningRuntime.modelCommandPort.apply(plannedModelOperations, {
+      return planningRuntime;
+    };
+    if (plannedModelOperations.length > 0) {
+      const model = isolatedModel();
+      model.modelCommandPort.apply(plannedModelOperations, {
         operation: 'maraca.command.preflight',
         action: commandId,
         correlationId: metadata.correlationId || ''
       });
-      const projectedSnapshot = planningRuntime.modelReader && typeof planningRuntime.modelReader.snapshot === 'function'
-        ? planningRuntime.modelReader.snapshot()
-        : planningRuntime.snapshot();
+      const projectedSnapshot = model.modelReader && typeof model.modelReader.snapshot === 'function'
+        ? model.modelReader.snapshot()
+        : model.snapshot();
       workingStates = clone(asRecord(projectedSnapshot.states), workingStates);
     }
 
     reducers.forEach((reducer) => {
-      const value = reducerValue(reducer.value, payload, actionResult && actionResult.data || actionResult);
+      const referenceModel = reducer.valueKind === 'template' || reducer.valueKind === 'reference' && typeof reducer.value === 'string' && /^(?:state|selector)\./u.test(reducer.value)
+        ? isolatedModel() : planningRuntime;
+      const value = reducerValue(reducer.value, payload,
+        actionResult && hasOwn(actionResult, 'data') ? actionResult.data : actionResult,
+        referenceModel, actionResult && actionResult.error, reducer.valueKind);
       let next;
       if (reducer.recipe || reducer.mode === 'recipe') {
         if (typeof runtimes.applyReducerRecipe !== 'function') {
@@ -1332,6 +1451,9 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         operation: 'set',
         state: reducer.state,
         value: clone(next, next)
+      });
+      if (planningRuntime) planningRuntime.modelCommandPort.apply([modelOperations[modelOperations.length - 1]], {
+        operation: 'maraca.command.reference-preflight', action: commandId, correlationId: metadata.correlationId || ''
       });
       workingStates[reducer.state] = clone(next, next);
     });
@@ -1899,7 +2021,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       .filter((entry) => entry && entry.action === commandId && entry.state);
     let presentationGuard = captureCommandPresentationGuard();
     let presentationValid = true;
-    const currentPresentation = () => presentationValid && shellEpoch === commandShellEpoch && presentationGuard();
+    const currentPresentation = () => presentationValid && shellEpoch === commandShellEpoch && (!lifetime || !lifetime.signal.aborted && lifetime.isCurrent()) && presentationGuard();
     const stateBuffer = { events: [] };
     activeStateBuffer = stateBuffer;
     let result;
@@ -1943,7 +2065,12 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       }
       const actionSucceeded = !blocked
         && (!hasOwn(resultRecord, 'status') || resultRecord.status === 'success');
-      const successfulReducers = actionSucceeded ? reducers : [];
+      const resultPhase = !blocked && ['success', 'error'].includes(resultRecord.status) ? resultRecord.status : null;
+      const actionDefinition = declaredActions.find(action => action.id === commandId);
+      const handlerReducers = resultPhase ? asArray(actionDefinition && actionDefinition.handlers)
+        .filter(handler => handler && handler.phase === resultPhase && handler.kind === 'reduce')
+        .map(handler => ({ ...asRecord(handler.reducer), action: commandId })) : [];
+      const successfulReducers = [...(actionSucceeded ? reducers : []), ...handlerReducers];
       const transaction = transactionState(
         successfulReducers,
         commandId,
@@ -2053,7 +2180,9 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         action: prepared.commandId,
         correlationId: metadata.correlationId || ''
       });
-      if (prepared.actionSucceeded && currentPresentation()) {
+      const resultEffects = asArray(prepared.result && prepared.result.postCommitEffects);
+      const hasErrorResultEffects = prepared.result && prepared.result.status === 'error' && resultEffects.some(entry => entry && entry.value && entry.value.effect && entry.value.effect.handlerPhase === 'error');
+      if ((prepared.actionSucceeded || hasErrorResultEffects) && currentPresentation()) {
         const postCommitContext = {
           schema: 'xtend.maraca.post-commit-context.v1',
           isCurrent: currentPresentation,
@@ -2913,6 +3042,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       });
       const events = eventFactory ? eventFactory({
         events: artifact.events || [],
+        modelReader: state.modelReader || state.model,
         commandBus: eventActionFacade,
         actionRuntime: eventActionFacade,
         root,

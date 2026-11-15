@@ -1,0 +1,266 @@
+{
+  "format": 1,
+  "version": "1.0.0",
+  "date": "2026-11-15",
+  "node": "v24.18.0",
+  "typescript": "5.9.3",
+  "checks": 25,
+  "passed": true,
+  "observations": [
+    {
+      "name": "Classic negation covers the comparison",
+      "expression": "!item.name == null",
+      "parseOk": true,
+      "compileOk": true,
+      "selected": [
+        {
+          "name": "alpha"
+        }
+      ],
+      "diagnosticCodes": []
+    },
+    {
+      "name": "Explicit JS-style grouping changes the result",
+      "expression": "(!item.name) == null",
+      "parseOk": true,
+      "compileOk": true,
+      "selected": [],
+      "diagnosticCodes": []
+    },
+    {
+      "name": "Classic equality is strict despite its spelling",
+      "expression": "item.value == 1",
+      "parseOk": true,
+      "compileOk": true,
+      "selected": [
+        {
+          "value": 1
+        }
+      ],
+      "diagnosticCodes": []
+    },
+    {
+      "name": "Classic contains is string containment, including array string conversion",
+      "expression": "contains(item.tags, \"1\")",
+      "parseOk": true,
+      "compileOk": true,
+      "selected": [
+        {
+          "tags": [
+            "10"
+          ]
+        }
+      ],
+      "diagnosticCodes": []
+    },
+    {
+      "name": "Decimal selector comparisons execute",
+      "expression": "item.value > 0.5",
+      "parseOk": true,
+      "compileOk": true,
+      "selected": [
+        {
+          "value": 0.7
+        }
+      ],
+      "diagnosticCodes": []
+    },
+    {
+      "name": "JavaScript strict equality spelling is not Classic syntax",
+      "expression": "item.value === 1",
+      "parseOk": false,
+      "compileOk": false,
+      "selected": null,
+      "diagnosticCodes": [
+        "rmt.vnext.syntax.error",
+        "rmt.vnext.syntax.error"
+      ]
+    },
+    {
+      "name": "Chained comparison is not Classic syntax",
+      "expression": "item.a < item.b < item.c",
+      "parseOk": false,
+      "compileOk": false,
+      "selected": null,
+      "diagnosticCodes": [
+        "rmt.vnext.syntax.error"
+      ]
+    },
+    {
+      "name": "Arithmetic is not a Classic selector expression",
+      "expression": "item.value + 1 > 0",
+      "parseOk": false,
+      "compileOk": false,
+      "selected": null,
+      "diagnosticCodes": [
+        "rmt.vnext.syntax.error",
+        "rmt.vnext.syntax.error"
+      ]
+    },
+    {
+      "name": "Arbitrary method calls are not Classic selector expressions",
+      "expression": "item.value.filter(item.other)",
+      "parseOk": false,
+      "compileOk": false,
+      "selected": null,
+      "diagnosticCodes": [
+        "rmt.vnext.syntax.error"
+      ]
+    },
+    {
+      "name": "Unary minus is not a Classic selector literal",
+      "expression": "item.value > -1",
+      "parseOk": false,
+      "compileOk": false,
+      "selected": null,
+      "diagnosticCodes": [
+        "rmt.vnext.syntax.error"
+      ]
+    },
+    {
+      "name": "Negation/comparison differs even in valid typed JavaScript",
+      "input": {
+        "name": "alpha"
+      },
+      "expression": "!item.name == null",
+      "typeDiagnostics": [],
+      "rmtSelected": true,
+      "jsSelected": false
+    },
+    {
+      "name": "Loose JavaScript equality differs from Classic equality",
+      "input": {
+        "value": "1"
+      },
+      "expression": "item.value == 1",
+      "typeDiagnostics": [],
+      "rmtSelected": false,
+      "jsSelected": true
+    },
+    {
+      "name": "Array includes does not implement the Classic contains intrinsic",
+      "input": {
+        "tags": [
+          "10"
+        ]
+      },
+      "expression": "item.tags.includes(\"1\")",
+      "typeDiagnostics": [],
+      "rmtSelected": true,
+      "jsSelected": false
+    },
+    {
+      "name": "Explicit lifecycle and scheduler nodes fit ordinary TSX grammar",
+      "source": "<RMT.Template id=\"app\"><RMT.Surface id=\"root\"><RMT.Lane name=\"visible\" weight={80}><RMT.Hydrate target=\"card\" from={selector(\"product.view\")} when={model.ready && !model.pending} /></RMT.Lane></RMT.Surface></RMT.Template>",
+      "parseAccepted": true,
+      "diagnosticCodes": [],
+      "semanticLoweringImplemented": false
+    },
+    {
+      "name": "Action, policy and transition records fit ordinary TSX grammar",
+      "source": "<RMT.Program><RMT.Action id=\"save\"><RMT.Input name=\"id\" type=\"string\"/><RMT.Effect kind=\"request\" datasource=\"saveProduct\"/><RMT.Reduce target=\"state.product\" value={result.product}/></RMT.Action><RMT.Transition id=\"next\" from={[\"step1\"]} to={[\"step2\"]} lane=\"transition\"/></RMT.Program>",
+      "parseAccepted": true,
+      "diagnosticCodes": [],
+      "semanticLoweringImplemented": false
+    },
+    {
+      "name": "Nested repeats can use genuine callback scopes",
+      "source": "<RMT.For each={groups} keyBy=\"id\">{group => <RMT.For each={group.items} keyBy=\"id\">{item => <RMT.Host declarationId=\"card\" props={{item}} />}</RMT.For>}</RMT.For>",
+      "parseAccepted": true,
+      "diagnosticCodes": [],
+      "semanticLoweringImplemented": false
+    },
+    {
+      "name": "Classic keywords cannot be pasted into JSX expression braces",
+      "source": "<RMT.Surface>{lane visible { hydrate card from selector product }}</RMT.Surface>",
+      "parseAccepted": false,
+      "diagnosticCodes": [
+        1005,
+        1005,
+        1381,
+        1381
+      ],
+      "semanticLoweringImplemented": false
+    },
+    {
+      "name": "Classic event arrow is not a JavaScript expression",
+      "source": "<RMT.On route={click -> action.save}/>",
+      "parseAccepted": false,
+      "diagnosticCodes": [
+        1109
+      ],
+      "semanticLoweringImplemented": false
+    },
+    {
+      "name": "TSX generic callbacks need disambiguation",
+      "source": "const fn = <T>(item: T) => item;",
+      "parseAccepted": false,
+      "diagnosticCodes": [
+        1382,
+        17008,
+        1005
+      ],
+      "semanticLoweringImplemented": false
+    },
+    {
+      "name": "A trailing comma disambiguates a generic TSX callback",
+      "source": "const fn = <T,>(item: T) => item;",
+      "parseAccepted": true,
+      "diagnosticCodes": [],
+      "semanticLoweringImplemented": false
+    },
+    {
+      "name": "A typed child callback introduces a checked lexical item",
+      "diagnostics": []
+    },
+    {
+      "name": "Unknown callback fields fail normal TypeScript checking",
+      "diagnostics": [
+        {
+          "code": 2339,
+          "message": "Property 'missing' does not exist on type '{ id: string; title: string; }'."
+        }
+      ]
+    },
+    {
+      "name": "A string-valued as attribute introduces no TypeScript variable",
+      "diagnostics": [
+        {
+          "code": 2552,
+          "message": "Cannot find name 'item'. Did you mean 'items'?"
+        }
+      ]
+    },
+    {
+      "name": "A hyphenated RMT identifier must not become dotted JS member access",
+      "parsedAs": "subtraction",
+      "stringIdentifierAccepted": true
+    },
+    {
+      "name": "An ordinary JSX factory receives eagerly evaluated values without dependency paths",
+      "observed": {
+        "calls": [
+          "read",
+          "factory"
+        ],
+        "captured": 1,
+        "current": 2
+      },
+      "customLoweringExecuted": false
+    }
+  ],
+  "sources": {
+    "development/rmtx-a06/operator-tsx-probes.cjs": "7da7cb4a8ccefc8d7e28722021fc3acd9875a38d3501243adf4d7134de0f0fc5",
+    "development/rmtx-a06/syntax-and-jsx-sideloading-assessment.md": "30ee278399cf3956aca3ac0cefa4c88d41edd546e4c0290f7dc1260e74dc818d",
+    "development/rmtx-a06/scoped-components.md": "7cd76197b6f7bbbb9ccd9846bd1777861643cbbf35f19887d4738164864a0746",
+    "tools/rmt-language/classic-parser.js": "f4d051313259d160d3a46892df3607ae68f6c3a69e5d62731cf0b028b3721b42",
+    "tools/rmt-language/classic-compiler.js": "d321ae4c25ca3b56ca877399f9a259b86afeb8a4c6dab8a67119baaa92c52581",
+    "tools/rmt-language/classic-ast-rules.js": "269c0ad5d14ba86a149e33877e7db28b3a4004d0217b8c6b829b26931a327b0d",
+    "tools/rmt-language/vnext-parser.js": "80668bc8c738f5fda9ed3149b367c3e3388eac9f1ae4f90650d65910a5359579",
+    "tools/rmt-language/vnext-compiler.js": "9ee9aac4cd163ac3d78a6ae228d4515974eabfcf3ef89c45c38ff937684ff510",
+    "xtendrmt/rmt-state-selector-runtime.js": "150f5ae1a279cf7457be54fc7a466afeb1a2a026a911ab1cb1d16ae5da2a669d"
+  },
+  "rmtxFrontendImplemented": false,
+  "syntaxDecisionMade": false,
+  "axOrHumanBenchmarkPerformed": false
+}

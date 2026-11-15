@@ -1,4 +1,5 @@
 function createRmtEventRoutingRuntimeModule() {
+  const RMT_EVENT_ROUTING_API_VERSION = '3.0.0';
   const RMT_EVENT_ROUTING_RUNTIME_SCHEMA = 'xtend.epic18.rmt-event-routing-runtime.v2';
   const RMT_EVENT_ROUTING_DIAGNOSTIC_SCHEMA = 'xtend.epic18.rmt-event-routing-diagnostic.v1';
   const RMT_COMMAND_SCHEMA = 'xtend.rmt.command.v1';
@@ -327,7 +328,7 @@ function createRmtEventRoutingRuntimeModule() {
         closest: source.closest || source.closestSelector || source.delegate || null,
         guard: source.guard || source.confirm || null,
         postAction: toArray(source.postAction || source.after || source.afterAction),
-        condition: source.condition || source.when || null,
+        condition: Object.prototype.hasOwnProperty.call(source, 'condition') && source.condition !== undefined ? source.condition : (source.when ?? null),
         enabled: source.enabled !== false,
         commandTarget: Object.prototype.hasOwnProperty.call(source, 'commandTarget') ? source.commandTarget : null,
         lane: source.lane || null,
@@ -373,18 +374,137 @@ function createRmtEventRoutingRuntimeModule() {
     return errors;
   }
 
+  const MISSING_CONDITION_VALUE = Symbol('missing-condition-value');
+  const CONDITION_FIELDS = Object.freeze({
+    literal: ['kind', 'value'], path: ['kind', 'path'], group: ['kind', 'expression'],
+    unary: ['kind', 'op', 'argument'], binary: ['kind', 'op', 'left', 'right'], logical: ['kind', 'op', 'left', 'right']
+  });
+
+  function conditionRecord(value, fields) {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+    const prototype = Object.getPrototypeOf(value);
+    if (prototype !== Object.prototype && prototype !== null) return false;
+    const descriptors = Object.getOwnPropertyDescriptors(value);
+    return Reflect.ownKeys(descriptors).every(key => typeof key === 'string' && fields.includes(key)
+      && Object.prototype.hasOwnProperty.call(descriptors[key], 'value'));
+  }
+
+  function scalarConditionValue(value) {
+    return value === null || typeof value === 'string' || typeof value === 'boolean'
+      || typeof value === 'number' && Number.isFinite(value);
+  }
+
+  function validConditionExpression(node, budget = { count: 0 }, depth = 0) {
+    if (depth > 64 || ++budget.count > 1024 || !node || typeof node !== 'object') return false;
+    const descriptor = Object.getOwnPropertyDescriptor(node, 'kind');
+    const kind = descriptor && descriptor.value;
+    if (!Object.prototype.hasOwnProperty.call(CONDITION_FIELDS, kind) || !conditionRecord(node, CONDITION_FIELDS[kind])) return false;
+    if (kind === 'literal') return Object.prototype.hasOwnProperty.call(node, 'value') && scalarConditionValue(node.value);
+    if (kind === 'path') {
+      if (!Array.isArray(node.path) || node.path.length < 1 || node.path.length > 128) return false;
+      for (let index = 0; index < node.path.length; index += 1) {
+        const descriptor = Object.getOwnPropertyDescriptor(node.path, String(index));
+        if (!descriptor || !Object.prototype.hasOwnProperty.call(descriptor, 'value')) return false;
+        const part = descriptor.value;
+        if (typeof part !== 'string' || !part || part.includes('.') || assertSafePathSegments(part).length !== 1) return false;
+      }
+      return true;
+    }
+    if (kind === 'group') return validConditionExpression(node.expression, budget, depth + 1);
+    if (kind === 'unary') return node.op === '!' && validConditionExpression(node.argument, budget, depth + 1);
+    const validOperator = kind === 'binary' ? ['==', '!=', '>', '>=', '<', '<='].includes(node.op) : ['&&', '||'].includes(node.op);
+    return validOperator && validConditionExpression(node.left, budget, depth + 1) && validConditionExpression(node.right, budget, depth + 1);
+  }
+
+  function conditionPath(source, parts) {
+    let value = source;
+    for (const part of parts) {
+      if (value == null || typeof value === 'function') return MISSING_CONDITION_VALUE;
+      if (part === 'length' && (Array.isArray(value) || typeof value === 'string')) value = value.length;
+      else if (typeof value === 'object' && (Array.isArray(value) || [Object.prototype, null].includes(Object.getPrototypeOf(value)))) {
+        const descriptor = Object.getOwnPropertyDescriptor(value, part);
+        if (!descriptor || !Object.prototype.hasOwnProperty.call(descriptor, 'value')) return MISSING_CONDITION_VALUE;
+        value = descriptor.value;
+      } else value = value[part];
+    }
+    return typeof value === 'function' || typeof value === 'undefined' ? MISSING_CONDITION_VALUE : value;
+  }
+
+  function resolveConditionPath(parts, context, modelSnapshot) {
+    const roots = { event: context.event, detail: context.event && context.event.detail, target: context.target,
+      currentTarget: context.currentTarget, source: context.source, metadata: context.metadata, binding: context.binding };
+    if (Object.prototype.hasOwnProperty.call(roots, parts[0])) return conditionPath(roots[parts[0]], parts.slice(1));
+    const snapshot = modelSnapshot();
+    if (!snapshot) return MISSING_CONDITION_VALUE;
+    const explicit = { state: 'states', selector: 'selectors', derived: 'derived' };
+    const group = Object.prototype.hasOwnProperty.call(explicit, parts[0]) ? explicit[parts[0]] : null;
+    const path = group ? parts.slice(1) : parts;
+    const groups = group ? [objectRecord(snapshot[group])] : [snapshot.states, snapshot.selectors, snapshot.derived].map(objectRecord);
+    const matches = [];
+    groups.forEach(records => Object.keys(records).forEach(id => {
+      const idParts = id.split('.');
+      if (idParts.length <= path.length && idParts.every((part, index) => part === path[index])) matches.push({ records, id, length: idParts.length });
+    }));
+    matches.sort((a, b) => b.length - a.length);
+    if (!matches.length || matches[1] && matches[1].length === matches[0].length) return MISSING_CONDITION_VALUE;
+    return conditionPath(matches[0].records[matches[0].id], path.slice(matches[0].length));
+  }
+
+  function evaluateConditionExpression(node, context, modelSnapshot) {
+    if (node.kind === 'literal') return node.value;
+    if (node.kind === 'path') return resolveConditionPath(node.path, context, modelSnapshot);
+    if (node.kind === 'group') return evaluateConditionExpression(node.expression, context, modelSnapshot);
+    if (node.kind === 'unary') {
+      const value = evaluateConditionExpression(node.argument, context, modelSnapshot);
+      return value === MISSING_CONDITION_VALUE ? value : !value;
+    }
+    const left = evaluateConditionExpression(node.left, context, modelSnapshot);
+    if (left === MISSING_CONDITION_VALUE) return left;
+    if (node.kind === 'logical' && (node.op === '&&' ? !left : left)) return Boolean(left);
+    const right = evaluateConditionExpression(node.right, context, modelSnapshot);
+    if (right === MISSING_CONDITION_VALUE) return right;
+    if (node.kind === 'logical') return right;
+    if (node.op === '==') return left === right;
+    if (node.op === '!=') return left !== right;
+    if (!scalarConditionValue(left) || !scalarConditionValue(right)) return MISSING_CONDITION_VALUE;
+    if (node.op === '>') return left > right;
+    if (node.op === '>=') return left >= right;
+    if (node.op === '<') return left < right;
+    return left <= right;
+  }
+
   function evaluateCondition(condition, context) {
-    if (!condition) return true;
-    const source = objectRecord(condition);
-    const left = resolveValue(source.left, context);
-    const right = resolveValue(source.right, context);
-    const op = clampString(source.op || source.operator, source.equals !== undefined ? 'equals' : 'truthy');
-    if (op === 'equals') return left === (source.equals !== undefined ? resolveValue(source.equals, context) : right);
-    if (op === 'not-equals') return left !== right;
-    if (op === 'truthy') return Boolean(source.value !== undefined ? resolveValue(source.value, context) : left);
-    if (op === 'falsy') return !Boolean(source.value !== undefined ? resolveValue(source.value, context) : left);
-    if (op === 'includes') return Array.isArray(left) ? left.includes(right) : String(left || '').includes(String(right || ''));
-    return true;
+    if (condition == null) return true;
+    if (typeof condition === 'boolean') return condition;
+    try {
+      let expression = condition;
+      const kind = Object.getOwnPropertyDescriptor(condition, 'kind');
+      if (kind && kind.value === 'condition') {
+        if (!conditionRecord(condition, ['kind', 'expression', 'sourceRef'])) return false;
+        expression = condition.expression;
+      }
+      if (kind) {
+        if (!validConditionExpression(expression)) return false;
+        let snapshot, read = false;
+        const result = evaluateConditionExpression(expression, context, () => {
+          if (!read) { snapshot = context.modelReader?.snapshot(); read = true; }
+          return snapshot;
+        });
+        return result !== MISSING_CONDITION_VALUE && Boolean(result);
+      }
+      if (!conditionRecord(condition, ['left', 'right', 'op', 'operator', 'equals', 'value'])) return false;
+      const left = resolveValue(condition.left, context), right = resolveValue(condition.right, context);
+      const op = clampString(condition.op || condition.operator, condition.equals !== undefined ? 'equals' : 'truthy');
+      if (op === 'equals' || op === 'not-equals') {
+        const expected = condition.equals !== undefined ? resolveValue(condition.equals, context) : right;
+        if (left === undefined || expected === undefined) return false;
+        return op === 'equals' ? left === expected : left !== expected;
+      }
+      if (op === 'truthy') return Boolean(condition.value !== undefined ? resolveValue(condition.value, context) : left);
+      if (op === 'falsy') return !Boolean(condition.value !== undefined ? resolveValue(condition.value, context) : left);
+      if (op === 'includes') return Array.isArray(left) ? left.includes(right) : String(left || '').includes(String(right || ''));
+      return false;
+    } catch (_) { return false; }
   }
 
   function applyGovernance(binding, event) {
@@ -683,7 +803,6 @@ function createRmtEventRoutingRuntimeModule() {
       [
         binding.payload,
         binding.payloadContract,
-        binding.condition,
         binding.guard,
         binding.postAction
       ].forEach((value) => {
@@ -695,6 +814,8 @@ function createRmtEventRoutingRuntimeModule() {
     const bindingIndex = new Map(compiledBindingIndex);
     const diagnosticsRecorder = createDiagnosticsRecorder(options);
     const actionRuntime = options.actionRuntime || null;
+    const modelReader = options.modelReader || null;
+    if (modelReader && typeof modelReader.snapshot !== 'function') throw new TypeError('Event conditions require a read-only Model snapshot port.');
     const rootTarget = options.root || null;
     const routeHistory = [];
     const listenerRecords = [];
@@ -728,6 +849,7 @@ function createRmtEventRoutingRuntimeModule() {
         binding,
         event,
         metadata,
+        modelReader,
         target: event && event.target || null,
         currentTarget: event && event.currentTarget || null,
         source: resolveEventSource(binding, event)
@@ -1235,6 +1357,7 @@ function createRmtEventRoutingRuntimeModule() {
   }
 
   const api = {
+    RMT_EVENT_ROUTING_API_VERSION,
     RMT_EVENT_ROUTING_DIAGNOSTIC_SCHEMA,
     RMT_EVENT_ROUTING_RUNTIME_SCHEMA,
     RMT_COMMAND_SCHEMA,
@@ -1246,6 +1369,7 @@ function createRmtEventRoutingRuntimeModule() {
 
 const __XTEND_RMT_EVENT_ROUTING_RUNTIME_API__ = createRmtEventRoutingRuntimeModule();
 
+export const RMT_EVENT_ROUTING_API_VERSION = __XTEND_RMT_EVENT_ROUTING_RUNTIME_API__.RMT_EVENT_ROUTING_API_VERSION;
 export const RMT_EVENT_ROUTING_DIAGNOSTIC_SCHEMA = __XTEND_RMT_EVENT_ROUTING_RUNTIME_API__.RMT_EVENT_ROUTING_DIAGNOSTIC_SCHEMA;
 export const RMT_EVENT_ROUTING_RUNTIME_SCHEMA = __XTEND_RMT_EVENT_ROUTING_RUNTIME_API__.RMT_EVENT_ROUTING_RUNTIME_SCHEMA;
 export const RMT_COMMAND_SCHEMA = __XTEND_RMT_EVENT_ROUTING_RUNTIME_API__.RMT_COMMAND_SCHEMA;

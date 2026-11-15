@@ -11,6 +11,8 @@ XTend MCP macht die kanonische XTend-Dokumentation, das kuratierte RMT AI Develo
 
 Der deterministische Knowledge-Build übernimmt vollständige Markdown-Dateien einschließlich Überschriften und Codeblöcken. Jede Ressource trägt Locale, Slug, Quellpfad und SHA-256. Der verkürzte Browser-Suchindex wird nicht als MCP-Quelle verwendet.
 
+Bei geänderten Eingaben wird vor dem MCP-Knowledge-Build zuerst das kanonische RMT AI Developer Kit neu exportiert. Der Builder prüft seine Artefakte und alle deklarierten Quellhashes. Veraltete Provenienz wird abgewiesen; ein fehlgeschlagener Build erhält das bisherige Bundle. `check:knowledge` verändert keine Quellen.
+
 Für RMT-Authoring-Konventionen und die zugrunde liegende Sprachgrenze folgt der [RMT-RMT Classic-Authoring-Guide](rmt-vnext-authoring.md).
 
 ## Installation und stdio
@@ -70,6 +72,8 @@ XTEND_MCP_HTTP_TOKEN="ein-langes-zufaelliges-token" \
 ```
 
 Der Server bindet ausschließlich an `127.0.0.1`. `/mcp` verlangt ein pro Prozess gültiges Bearer-Token und prüft Host sowie Origin. Ohne Umgebungsvariable wird ein Token sicher erzeugt und einmalig auf `stderr` ausgegeben. Remote-Betrieb und OAuth gehören nicht zu Version 0.1.
+
+Ein separat betriebener Hosted-Knowledge-Service besitzt einen eigenen Read-only-, Token-, Snapshotheader- und Rezept-Paginierungsvertrag. Er ist nicht mit dem Workspace-Server gleichzusetzen. Ein lokaler Stand kann mit `node products/xtend-mcp/scripts/export-local-bundle.mjs --out /absoluter/pfad/bundle` als geprüftes Deployment-Bundle exportiert werden. Der Nachweis bindet kanonische Dokumente, Kit und relevante Backendquellen und enthält keine Zugangsdaten. Die Hosted-Betriebsart bezeichnet diese Herkunft ausdrücklich als lokalen Worktree mit Ausgangscommit und Inhaltsfingerprint; sie behauptet keinen auf GitHub main veröffentlichten Commit und führt keine verdeckte Upstream-Synchronisierung aus.
 
 ## XTend-LLM-Catfooding
 

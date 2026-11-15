@@ -9,7 +9,7 @@
   ],
   "toolchain": {
     "parser": "typescript@5.9.3",
-    "generatorSha256": "6517d527484c61cf53f10ba55b50bedcf5ab3be0f5472122aef1139660848b7e"
+    "generatorSha256": "616df12023643925f9fa1e35c9e9d5986f4664141055870819193097f2e6ccd4"
   },
   "inputs": [
     {
@@ -85,6 +85,10 @@
       "sha256": "2f8575fcbebdee185b0978d75dc98b06fcc21bbf73ccc904b5fc6519724a36cf"
     },
     {
+      "file": "tools/rmt-language/action-execution-lowering.js",
+      "sha256": "783f180c2253fc96f1e8853c808cd2c0fe243a2d014670118d76b24759b3e856"
+    },
+    {
       "file": "tools/rmt-language/classic-ast-contract.js",
       "sha256": "3e17596b6615c7ca5528bb5a72551143e1d3403d8a8c606cf83569d71a3c79d4"
     },
@@ -98,11 +102,11 @@
     },
     {
       "file": "tools/rmt-language/classic-compiler.d.ts",
-      "sha256": "11d778c3a3032c2e237d2c2660e47264e577870e51b60811f6f4982c8be27801"
+      "sha256": "5252e64211b4039c4c3272c73334342332a539703bbbf760d860e3a77240c858"
     },
     {
       "file": "tools/rmt-language/classic-compiler.js",
-      "sha256": "a742ec4561bb64ced5d3909aa0fc49e277f7687ded49c55c13e7f3463e721468"
+      "sha256": "d321ae4c25ca3b56ca877399f9a259b86afeb8a4c6dab8a67119baaa92c52581"
     },
     {
       "file": "tools/rmt-language/classic-parser.d.ts",
@@ -114,7 +118,7 @@
     },
     {
       "file": "tools/rmt-language/classic-semantic-rules.js",
-      "sha256": "2d4211c044b6682a952b85057e9172dac50c142125b203152a857e0a6e1bb10d"
+      "sha256": "113846c48ef5dc4d5ce0b29ddb7a01076e50d3fa86f80d84f1af5420fb593d81"
     },
     {
       "file": "tools/rmt-language/contracts/classic-ast.v1.schema.json",
@@ -130,11 +134,11 @@
     },
     {
       "file": "tools/rmt-language/vnext-compiler.d.ts",
-      "sha256": "13ae889e471d8a74cf3eb4174f5f240b217727118512c2b38e85f506b7ecda97"
+      "sha256": "c99380eef1283e488569b151fc4e51f476bf9646dc8159096bc9f8fcb2ff87a1"
     },
     {
       "file": "tools/rmt-language/vnext-compiler.js",
-      "sha256": "043ea70d12d724cbb32872c8e4c1bca19d06d13da09c75abeefbfa3eabf45c66"
+      "sha256": "9ee9aac4cd163ac3d78a6ae228d4515974eabfcf3ef89c45c38ff937684ff510"
     },
     {
       "file": "tools/rmt-language/vnext-composition.js",
@@ -166,7 +170,7 @@
     },
     {
       "file": "xtend-maraca/plan-runtime.mjs",
-      "sha256": "5ef870125990dc60b8612386e94d08bcfef32273e9aef886a5e911694be91b24"
+      "sha256": "a773be6364d850559f6264540c038c278d028ff0d0c3a92cfcb62940550acd76"
     },
     {
       "file": "xtendrmt/contracts/portable-render.v2.json",
@@ -177,8 +181,12 @@
       "sha256": "725ad1c10dcca8e9c1ce7f447e8557a28d0b7d69b79f894fa3edd50a4b00a228"
     },
     {
+      "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
+      "sha256": "ae7879152babd171a6e44035cb21e3753329b44aca530a2a80997c23eece1bb8"
+    },
+    {
       "file": "xtendrmt/rmt-action-effect-runtime.js",
-      "sha256": "90d4aa122fdd4744638f8b3aec677d7fdf13808d5641cf2540b5843ab9e8b7bc"
+      "sha256": "3798c901579959de2aec8e6cedf9f07ee969bfd00bf0cc3478c0ad8831c6bcaa"
     },
     {
       "file": "xtendrmt/rmt-animation-engine-runtime.d.ts",
@@ -186,11 +194,15 @@
     },
     {
       "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-      "sha256": "87a2127ff5ffcedf7fc429da1ba3468783d7416701fb75efda17fbc8913982a0"
+      "sha256": "7a412f0be5b9f803fd04c60f8d415f1cea1c60faa557ba85a48aaceffe5be82c"
+    },
+    {
+      "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
+      "sha256": "9ced058aafc45f43bcb9a2ddccc3016faadf1f50573b6cf930f881926fba231e"
     },
     {
       "file": "xtendrmt/rmt-event-routing-runtime.js",
-      "sha256": "d14c897643832dba22e4c0d81820ba9d99586802adaf5f71998a6adfa3d53bda"
+      "sha256": "257b2f73fecc4d659f3c393b51dc7b2c940d196eee84caef67d29f3ec2e4448e"
     },
     {
       "file": "xtendrmt/rmt-form-validation-runtime.d.ts",
@@ -231,6 +243,14 @@
     {
       "file": "xtendrmt/rmt-state-selector-runtime.js",
       "sha256": "150f5ae1a279cf7457be54fc7a466afeb1a2a026a911ab1cb1d16ae5da2a669d"
+    },
+    {
+      "file": "xtendrmt/rmt-surface-resource-graph-runtime.d.ts",
+      "sha256": "3172e43d786c84a76ed8017fcbdd33def533d6abe5d319b0d1cf1e862e004a1c"
+    },
+    {
+      "file": "xtendrmt/rmt-surface-resource-graph-runtime.js",
+      "sha256": "5cac73161a80489e60cca3dc31eb44475570581a7f4fc6d71d5d9cedf212870f"
     },
     {
       "file": "xtendrmt/rmt-surface-transition-runtime.d.ts",
@@ -2197,119 +2217,119 @@
           "name": "RMT_VNEXT_CORE_SCHEMA",
           "value": "xtend.rmt.core-format.vnext.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 15,
+          "line": 16,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_VNEXT_COMPILER_SCHEMA",
           "value": "xtend.rmt.vnext-compiler.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 16,
+          "line": 17,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_VNEXT_COMPILER_REPORT_SCHEMA",
           "value": "xtend.rmt.vnext-compiler-report.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 18,
+          "line": 19,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_VNEXT_PRIMITIVE_LOWERING_SCHEMA",
           "value": "xtend.rmt.vnext.primitive-lowering.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 20,
+          "line": 21,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_APP_ORCHESTRATION_SCHEMA",
           "value": "xtend.rmt.app-orchestration.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 22,
+          "line": 23,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_APP_SERVICE_DEMANDS_SCHEMA",
           "value": "xtend.maraca.app-service-demands.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 24,
+          "line": 25,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_APP_SERVICE_INPUT_POLICY_SCHEMA",
           "value": "xtend.maraca.app-service-input-policy.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 25,
+          "line": 26,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_COMPONENT_COMMAND_SCHEMA",
           "value": "xtend.rmt.component-command.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 26,
+          "line": 27,
           "symbol": "<anonymous>"
         },
         {
           "name": "SANITIZING_BOUNDARY_CONTRACT",
           "value": "xtend.security.sanitizing-boundary.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 27,
+          "line": 28,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_FORM_VALIDATION_SCHEMA",
           "value": "xtend.rmt.form-validation.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 28,
+          "line": 29,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_SURFACE_TRANSITION_SCHEMA",
           "value": "xtend.rmt.surface-transitions.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 29,
+          "line": 30,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_ANIMATION_ENGINE_SCHEMA",
           "value": "xtend.rmt.animation-engine.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 30,
+          "line": 31,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_SEARCH_RUNTIME_SCHEMA",
           "value": "xtend.rmt.search-runtime.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 31,
+          "line": 32,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_KERNEL_RECORDS_SCHEMA",
           "value": "xtend.rmt.vnext.kernel-records.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 36,
+          "line": 37,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_APP_PLATFORM_RECORDS_SCHEMA",
           "value": "xtend.rmt.vnext.app-platform-records.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 37,
+          "line": 38,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_SERVER_RESUME_ENVELOPE_SCHEMA",
           "value": "xtend.rmt.ssr-resume-envelope.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 2592,
+          "line": 2601,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_RESUMABILITY_CAPABILITY_SCHEMA",
           "value": "xtend.rmt.app-resumability-capability.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 2593,
+          "line": 2602,
           "symbol": "<anonymous>"
         }
       ],
@@ -2321,7 +2341,7 @@
             "surface"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 39,
+          "line": 40,
           "symbol": "<anonymous>"
         },
         {
@@ -2332,7 +2352,7 @@
             "snapshot"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 40,
+          "line": 41,
           "symbol": "<anonymous>"
         },
         {
@@ -2348,7 +2368,7 @@
             "y"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 44,
+          "line": 45,
           "symbol": "<anonymous>"
         },
         {
@@ -2358,7 +2378,7 @@
             "responsive"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 45,
+          "line": 46,
           "symbol": "<anonymous>"
         },
         {
@@ -2368,7 +2388,7 @@
             "viewport"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 46,
+          "line": 47,
           "symbol": "<anonymous>"
         },
         {
@@ -2380,7 +2400,7 @@
             "min"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 47,
+          "line": 48,
           "symbol": "<anonymous>"
         },
         {
@@ -2399,7 +2419,7 @@
             "RmtValidationDeclaration"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 49,
+          "line": 50,
           "symbol": "<anonymous>"
         },
         {
@@ -2414,7 +2434,7 @@
             "RmtSurfaceSourceClause"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 62,
+          "line": 63,
           "symbol": "<anonymous>"
         },
         {
@@ -2431,7 +2451,7 @@
             "surface"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 71,
+          "line": 72,
           "symbol": "<anonymous>"
         },
         {
@@ -2468,7 +2488,7 @@
             "RmtValidationTargetClause"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 1360,
+          "line": 1367,
           "symbol": "sourceMapForOrchestration"
         },
         {
@@ -2497,7 +2517,7 @@
             "RmtValidationTargetClause"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 1395,
+          "line": 1402,
           "symbol": "sourceMapForKernel"
         },
         {
@@ -2508,7 +2528,7 @@
             "prototype"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 1812,
+          "line": 1819,
           "symbol": "<anonymous>"
         },
         {
@@ -2534,7 +2554,7 @@
             "worker_prerender_hydrate"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 2571,
+          "line": 2580,
           "symbol": "<anonymous>"
         },
         {
@@ -2546,7 +2566,7 @@
             "x-textarea"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 2985,
+          "line": 2994,
           "symbol": "<anonymous>"
         },
         {
@@ -2571,7 +2591,7 @@
             "zoom"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 2986,
+          "line": 2995,
           "symbol": "<anonymous>"
         },
         {
@@ -2582,7 +2602,7 @@
             "none"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 3006,
+          "line": 3015,
           "symbol": "<anonymous>"
         },
         {
@@ -2593,7 +2613,7 @@
             "replace"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 3007,
+          "line": 3016,
           "symbol": "<anonymous>"
         },
         {
@@ -2603,7 +2623,7 @@
             "transform"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 3008,
+          "line": 3017,
           "symbol": "<anonymous>"
         },
         {
@@ -2612,7 +2632,7 @@
             "filter"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 3009,
+          "line": 3018,
           "symbol": "<anonymous>"
         }
       ],
@@ -2638,7 +2658,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4374,
+          "line": 4384,
           "symbol": "compileImport"
         },
         {
@@ -2659,7 +2679,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4386,
+          "line": 4396,
           "symbol": "compileTemplate"
         },
         {
@@ -2693,7 +2713,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4470,
+          "line": 4480,
           "symbol": "compileSurface"
         },
         {
@@ -2724,7 +2744,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4540,
+          "line": 4550,
           "symbol": "compileSurfaceEvent"
         },
         {
@@ -2749,7 +2769,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4591,
+          "line": 4601,
           "symbol": "compilePrimitiveState"
         },
         {
@@ -2774,7 +2794,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4607,
+          "line": 4617,
           "symbol": "compilePrimitiveSelector"
         },
         {
@@ -2804,7 +2824,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4645,
+          "line": 4655,
           "symbol": "compilePrimitiveDataSource"
         },
         {
@@ -3499,7 +3519,7 @@
             }
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 121,
+          "line": 122,
           "symbol": "createCoreDocument"
         },
         {
@@ -3595,7 +3615,7 @@
             }
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 860,
+          "line": 861,
           "symbol": "createAppPlatformRecords"
         },
         {
@@ -3613,7 +3633,7 @@
             }
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 1163,
+          "line": 1170,
           "symbol": "createRmtAppServiceDemands"
         },
         {
@@ -3704,7 +3724,7 @@
             }
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 1244,
+          "line": 1251,
           "symbol": "createKernelRecords"
         },
         {
@@ -3874,7 +3894,7 @@
             }
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4257,
+          "line": 4266,
           "symbol": "createRmtAppOrchestrationArtifacts"
         }
       ]
@@ -3948,6 +3968,33 @@
       "coreRecords": [],
       "artifactLayouts": []
     },
+    "tools/rmt-language/action-execution-lowering.js": {
+      "versionedIdentifiers": [],
+      "catalogs": [
+        {
+          "name": "overlayTones",
+          "values": [
+            "danger",
+            "error",
+            "info",
+            "neutral",
+            "primary",
+            "secondary",
+            "success",
+            "warning"
+          ],
+          "file": "tools/rmt-language/action-execution-lowering.js",
+          "line": 9,
+          "symbol": "<anonymous>"
+        }
+      ],
+      "evaluators": [],
+      "operatorBranches": [],
+      "interfaces": [],
+      "astFactories": [],
+      "coreRecords": [],
+      "artifactLayouts": []
+    },
     "tools/rmt-language/classic-ast-rules.js": {
       "versionedIdentifiers": [],
       "catalogs": [],
@@ -3982,7 +4029,7 @@
             "string"
           ],
           "file": "tools/rmt-language/classic-semantic-rules.js",
-          "line": 4,
+          "line": 5,
           "symbol": "<anonymous>"
         }
       ],
@@ -7070,42 +7117,42 @@
           "name": "RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA",
           "value": "xtend.epic18.rmt-dom-descriptor-renderer.v2",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 2,
+          "line": 3,
           "symbol": "attachRmtDomDescriptorRenderer"
         },
         {
           "name": "RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA",
           "value": "xtend.epic18.rmt-dom-descriptor-renderer.v1",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3,
+          "line": 4,
           "symbol": "attachRmtDomDescriptorRenderer"
         },
         {
           "name": "RMT_DOM_DESCRIPTOR_RENDERER_DIAGNOSTIC_SCHEMA",
           "value": "xtend.epic18.rmt-dom-renderer-diagnostic.v2",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 4,
+          "line": 5,
           "symbol": "attachRmtDomDescriptorRenderer"
         },
         {
           "name": "RMT_DOM_COMMIT_RESULT_SCHEMA",
           "value": "xtend.rmt.dom-commit-result.v1",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 5,
+          "line": 6,
           "symbol": "attachRmtDomDescriptorRenderer"
         },
         {
           "name": "RMT_DOM_APPLICATION_BINDING_SCHEMA",
           "value": "xtend.rmt.dom-application-binding.v1",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 6,
+          "line": 7,
           "symbol": "attachRmtDomDescriptorRenderer"
         },
         {
           "name": "RMT_DOM_BINDING_SCOPE_SCHEMA",
           "value": "xtend.rmt.dom-binding-scope.v1",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 7,
+          "line": 8,
           "symbol": "attachRmtDomDescriptorRenderer"
         }
       ],
@@ -7126,7 +7173,7 @@
             "script"
           ],
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 12,
+          "line": 13,
           "symbol": "attachRmtDomDescriptorRenderer"
         },
         {
@@ -7140,7 +7187,7 @@
             "xlink:href"
           ],
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 13,
+          "line": 14,
           "symbol": "attachRmtDomDescriptorRenderer"
         },
         {
@@ -7153,7 +7200,7 @@
             "src"
           ],
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 14,
+          "line": 15,
           "symbol": "attachRmtDomDescriptorRenderer"
         },
         {
@@ -7164,7 +7211,7 @@
             "prototype"
           ],
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 15,
+          "line": 16,
           "symbol": "attachRmtDomDescriptorRenderer"
         },
         {
@@ -7179,7 +7226,7 @@
             "srcdoc"
           ],
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 16,
+          "line": 17,
           "symbol": "attachRmtDomDescriptorRenderer"
         },
         {
@@ -7194,7 +7241,7 @@
             "srcdoc"
           ],
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 25,
+          "line": 26,
           "symbol": "attachRmtDomDescriptorRenderer"
         },
         {
@@ -7253,7 +7300,7 @@
             "width"
           ],
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 34,
+          "line": 35,
           "symbol": "attachRmtDomDescriptorRenderer"
         },
         {
@@ -7277,7 +7324,7 @@
             "spellcheck"
           ],
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 87,
+          "line": 88,
           "symbol": "attachRmtDomDescriptorRenderer"
         },
         {
@@ -7295,7 +7342,7 @@
             "visibility"
           ],
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 120,
+          "line": 121,
           "symbol": "attachRmtDomDescriptorRenderer"
         },
         {
@@ -7307,7 +7354,7 @@
             "pinnable"
           ],
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 132,
+          "line": 133,
           "symbol": "attachRmtDomDescriptorRenderer"
         },
         {
@@ -7320,7 +7367,7 @@
             "replace-children"
           ],
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3332,
+          "line": 3383,
           "symbol": "validateCommitRequest"
         }
       ],
@@ -7364,7 +7411,7 @@
             "uppercase"
           ],
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 1337,
+          "line": 1362,
           "symbol": "evaluateExpression"
         },
         {
@@ -7387,7 +7434,7 @@
             "when"
           ],
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 2617,
+          "line": 2642,
           "symbol": "renderNode"
         }
       ],
@@ -7398,7 +7445,7 @@
           ],
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 472,
+          "line": 473,
           "symbol": "operationDomains"
         },
         {
@@ -7407,7 +7454,7 @@
           ],
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 472,
+          "line": 473,
           "symbol": "operationDomains"
         },
         {
@@ -7416,7 +7463,7 @@
           ],
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 475,
+          "line": 476,
           "symbol": "operationDomains"
         },
         {
@@ -7425,7 +7472,7 @@
           ],
           "dispatch": "normalizedOp",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 1229,
+          "line": 1254,
           "symbol": "compareValues"
         },
         {
@@ -7434,7 +7481,7 @@
           ],
           "dispatch": "normalizedOp",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 1229,
+          "line": 1254,
           "symbol": "compareValues"
         },
         {
@@ -7443,7 +7490,7 @@
           ],
           "dispatch": "normalizedOp",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 1230,
+          "line": 1255,
           "symbol": "compareValues"
         },
         {
@@ -7452,7 +7499,7 @@
           ],
           "dispatch": "normalizedOp",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 1230,
+          "line": 1255,
           "symbol": "compareValues"
         },
         {
@@ -7461,7 +7508,7 @@
           ],
           "dispatch": "normalizedOp",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 1231,
+          "line": 1256,
           "symbol": "compareValues"
         },
         {
@@ -7470,7 +7517,7 @@
           ],
           "dispatch": "normalizedOp",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 1232,
+          "line": 1257,
           "symbol": "compareValues"
         },
         {
@@ -7479,7 +7526,7 @@
           ],
           "dispatch": "normalizedOp",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 1233,
+          "line": 1258,
           "symbol": "compareValues"
         },
         {
@@ -7488,7 +7535,7 @@
           ],
           "dispatch": "normalizedOp",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 1234,
+          "line": 1259,
           "symbol": "compareValues"
         },
         {
@@ -7497,7 +7544,7 @@
           ],
           "dispatch": "normalizedOp",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 1235,
+          "line": 1260,
           "symbol": "compareValues"
         },
         {
@@ -7506,7 +7553,7 @@
           ],
           "dispatch": "normalizedOp",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 1236,
+          "line": 1261,
           "symbol": "compareValues"
         },
         {
@@ -7515,7 +7562,7 @@
           ],
           "dispatch": "normalizedOp",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 1237,
+          "line": 1262,
           "symbol": "compareValues"
         },
         {
@@ -7524,7 +7571,7 @@
           ],
           "dispatch": "normalizedOp",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 1238,
+          "line": 1263,
           "symbol": "compareValues"
         },
         {
@@ -7533,7 +7580,7 @@
           ],
           "dispatch": "normalizedOp",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 1238,
+          "line": 1263,
           "symbol": "compareValues"
         },
         {
@@ -7544,7 +7591,7 @@
           ],
           "dispatch": "op",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 1326,
+          "line": 1351,
           "symbol": "evaluateExpression"
         },
         {
@@ -7553,7 +7600,7 @@
           ],
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3348,
+          "line": 3399,
           "symbol": "validateCommitRequest"
         },
         {
@@ -7562,7 +7609,7 @@
           ],
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3348,
+          "line": 3399,
           "symbol": "validateCommitRequest"
         },
         {
@@ -7571,7 +7618,7 @@
           ],
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3355,
+          "line": 3406,
           "symbol": "validateCommitRequest"
         },
         {
@@ -7580,7 +7627,7 @@
           ],
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3355,
+          "line": 3406,
           "symbol": "validateCommitRequest"
         },
         {
@@ -7589,7 +7636,7 @@
           ],
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3367,
+          "line": 3418,
           "symbol": "validateCommitRequest"
         },
         {
@@ -7598,75 +7645,12 @@
           ],
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3408,
+          "line": 3459,
           "symbol": "createBindingCommitState"
         },
         {
           "values": [
             "create-node"
-          ],
-          "dispatch": "operation",
-          "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3440,
-          "symbol": "<anonymous>"
-        },
-        {
-          "values": [
-            "reconcile-children"
-          ],
-          "dispatch": "operation",
-          "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3452,
-          "symbol": "<anonymous>"
-        },
-        {
-          "values": [
-            "reconcile-element"
-          ],
-          "dispatch": "operation",
-          "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3452,
-          "symbol": "<anonymous>"
-        },
-        {
-          "values": [
-            "reconcile-children"
-          ],
-          "dispatch": "operation",
-          "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3455,
-          "symbol": "<anonymous>"
-        },
-        {
-          "values": [
-            "reconcile-children"
-          ],
-          "dispatch": "operation",
-          "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3464,
-          "symbol": "<anonymous>"
-        },
-        {
-          "values": [
-            "reconcile-element"
-          ],
-          "dispatch": "operation",
-          "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3476,
-          "symbol": "<anonymous>"
-        },
-        {
-          "values": [
-            "create-node"
-          ],
-          "dispatch": "operation",
-          "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3490,
-          "symbol": "<anonymous>"
-        },
-        {
-          "values": [
-            "replace-children"
           ],
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
@@ -7679,34 +7663,16 @@
           ],
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3492,
+          "line": 3503,
           "symbol": "<anonymous>"
         },
         {
           "values": [
-            "create-node"
+            "reconcile-element"
           ],
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3495,
-          "symbol": "<anonymous>"
-        },
-        {
-          "values": [
-            "create-node"
-          ],
-          "dispatch": "operation",
-          "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3496,
-          "symbol": "<anonymous>"
-        },
-        {
-          "values": [
-            "replace-children"
-          ],
-          "dispatch": "operation",
-          "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3501,
+          "line": 3503,
           "symbol": "<anonymous>"
         },
         {
@@ -7716,6 +7682,87 @@
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
           "line": 3509,
+          "symbol": "<anonymous>"
+        },
+        {
+          "values": [
+            "reconcile-children"
+          ],
+          "dispatch": "operation",
+          "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
+          "line": 3518,
+          "symbol": "<anonymous>"
+        },
+        {
+          "values": [
+            "reconcile-element"
+          ],
+          "dispatch": "operation",
+          "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
+          "line": 3530,
+          "symbol": "<anonymous>"
+        },
+        {
+          "values": [
+            "create-node"
+          ],
+          "dispatch": "operation",
+          "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
+          "line": 3544,
+          "symbol": "<anonymous>"
+        },
+        {
+          "values": [
+            "replace-children"
+          ],
+          "dispatch": "operation",
+          "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
+          "line": 3545,
+          "symbol": "<anonymous>"
+        },
+        {
+          "values": [
+            "reconcile-children"
+          ],
+          "dispatch": "operation",
+          "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
+          "line": 3546,
+          "symbol": "<anonymous>"
+        },
+        {
+          "values": [
+            "create-node"
+          ],
+          "dispatch": "operation",
+          "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
+          "line": 3549,
+          "symbol": "<anonymous>"
+        },
+        {
+          "values": [
+            "create-node"
+          ],
+          "dispatch": "operation",
+          "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
+          "line": 3550,
+          "symbol": "<anonymous>"
+        },
+        {
+          "values": [
+            "replace-children"
+          ],
+          "dispatch": "operation",
+          "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
+          "line": 3559,
+          "symbol": "<anonymous>"
+        },
+        {
+          "values": [
+            "reconcile-children"
+          ],
+          "dispatch": "operation",
+          "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
+          "line": 3567,
           "symbol": "<anonymous>"
         }
       ],
@@ -8912,21 +8959,21 @@
           "name": "RMT_ACTION_EFFECT_RUNTIME_SCHEMA",
           "value": "xtend.epic18.rmt-action-effect-runtime.v1",
           "file": "xtendrmt/rmt-action-effect-runtime.js",
-          "line": 2,
+          "line": 3,
           "symbol": "createRmtActionEffectRuntimeModule"
         },
         {
           "name": "RMT_ACTION_EFFECT_DIAGNOSTIC_SCHEMA",
           "value": "xtend.epic18.rmt-action-effect-diagnostic.v1",
           "file": "xtendrmt/rmt-action-effect-runtime.js",
-          "line": 3,
+          "line": 4,
           "symbol": "createRmtActionEffectRuntimeModule"
         },
         {
           "name": "RMT_COMPONENT_COMMAND_SCHEMA",
           "value": "xtend.rmt.component-command.v1",
           "file": "xtendrmt/rmt-action-effect-runtime.js",
-          "line": 4,
+          "line": 5,
           "symbol": "createRmtActionEffectRuntimeModule"
         }
       ],
@@ -8939,7 +8986,7 @@
             "snapshot"
           ],
           "file": "xtendrmt/rmt-action-effect-runtime.js",
-          "line": 5,
+          "line": 6,
           "symbol": "createRmtActionEffectRuntimeModule"
         }
       ],
@@ -8956,21 +9003,21 @@
           "name": "RMT_EVENT_ROUTING_RUNTIME_SCHEMA",
           "value": "xtend.epic18.rmt-event-routing-runtime.v2",
           "file": "xtendrmt/rmt-event-routing-runtime.js",
-          "line": 2,
+          "line": 3,
           "symbol": "createRmtEventRoutingRuntimeModule"
         },
         {
           "name": "RMT_EVENT_ROUTING_DIAGNOSTIC_SCHEMA",
           "value": "xtend.epic18.rmt-event-routing-diagnostic.v1",
           "file": "xtendrmt/rmt-event-routing-runtime.js",
-          "line": 3,
+          "line": 4,
           "symbol": "createRmtEventRoutingRuntimeModule"
         },
         {
           "name": "RMT_COMMAND_SCHEMA",
           "value": "xtend.rmt.command.v1",
           "file": "xtendrmt/rmt-event-routing-runtime.js",
-          "line": 4,
+          "line": 5,
           "symbol": "createRmtEventRoutingRuntimeModule"
         }
       ],
@@ -8983,7 +9030,7 @@
             "prototype"
           ],
           "file": "xtendrmt/rmt-event-routing-runtime.js",
-          "line": 6,
+          "line": 7,
           "symbol": "createRmtEventRoutingRuntimeModule"
         }
       ],
@@ -8995,7 +9042,7 @@
           ],
           "dispatch": "op",
           "file": "xtendrmt/rmt-event-routing-runtime.js",
-          "line": 382,
+          "line": 498,
           "symbol": "evaluateCondition"
         },
         {
@@ -9004,7 +9051,16 @@
           ],
           "dispatch": "op",
           "file": "xtendrmt/rmt-event-routing-runtime.js",
-          "line": 383,
+          "line": 498,
+          "symbol": "evaluateCondition"
+        },
+        {
+          "values": [
+            "equals"
+          ],
+          "dispatch": "op",
+          "file": "xtendrmt/rmt-event-routing-runtime.js",
+          "line": 501,
           "symbol": "evaluateCondition"
         },
         {
@@ -9013,7 +9069,7 @@
           ],
           "dispatch": "op",
           "file": "xtendrmt/rmt-event-routing-runtime.js",
-          "line": 384,
+          "line": 503,
           "symbol": "evaluateCondition"
         },
         {
@@ -9022,7 +9078,7 @@
           ],
           "dispatch": "op",
           "file": "xtendrmt/rmt-event-routing-runtime.js",
-          "line": 385,
+          "line": 504,
           "symbol": "evaluateCondition"
         },
         {
@@ -9031,11 +9087,3352 @@
           ],
           "dispatch": "op",
           "file": "xtendrmt/rmt-event-routing-runtime.js",
-          "line": 386,
+          "line": 505,
           "symbol": "evaluateCondition"
         }
       ],
       "interfaces": [],
+      "astFactories": [],
+      "coreRecords": [],
+      "artifactLayouts": []
+    },
+    "xtendrmt/rmt-action-effect-runtime.d.ts": {
+      "versionedIdentifiers": [],
+      "catalogs": [],
+      "evaluators": [],
+      "operatorBranches": [],
+      "interfaces": [
+        {
+          "name": "RmtActionPayloadField",
+          "fields": [
+            {
+              "name": "name",
+              "optional": false,
+              "type": "string",
+              "declaration": "name: string;"
+            },
+            {
+              "name": "value",
+              "optional": false,
+              "type": "unknown",
+              "declaration": "value: unknown;"
+            },
+            {
+              "name": "valueKind",
+              "optional": true,
+              "type": "RmtActionValueKind",
+              "declaration": "valueKind?: RmtActionValueKind"
+            }
+          ],
+          "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
+          "line": 11,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtActionEmission",
+          "fields": [
+            {
+              "name": "event",
+              "optional": false,
+              "type": "string",
+              "declaration": "event: string;"
+            },
+            {
+              "name": "payload",
+              "optional": true,
+              "type": "RmtActionPayloadField[]",
+              "declaration": "payload?: RmtActionPayloadField[]"
+            }
+          ],
+          "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
+          "line": 12,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtActionDefinition",
+          "fields": [
+            {
+              "name": "id",
+              "optional": false,
+              "type": "string",
+              "declaration": "id: string;"
+            },
+            {
+              "name": "execution",
+              "optional": true,
+              "type": "'fastpass'",
+              "declaration": "execution?: 'fastpass';"
+            },
+            {
+              "name": "datasource",
+              "optional": true,
+              "type": "string",
+              "declaration": "datasource?: string;"
+            },
+            {
+              "name": "dataSource",
+              "optional": true,
+              "type": "string",
+              "declaration": "dataSource?: string;"
+            },
+            {
+              "name": "resultState",
+              "optional": true,
+              "type": "string",
+              "declaration": "resultState?: string;"
+            },
+            {
+              "name": "result",
+              "optional": true,
+              "type": "string",
+              "declaration": "result?: string;"
+            },
+            {
+              "name": "loadingState",
+              "optional": true,
+              "type": "string",
+              "declaration": "loadingState?: string;"
+            },
+            {
+              "name": "statusState",
+              "optional": true,
+              "type": "string",
+              "declaration": "statusState?: string;"
+            },
+            {
+              "name": "resourceOwner",
+              "optional": true,
+              "type": "string",
+              "declaration": "resourceOwner?: string;"
+            },
+            {
+              "name": "effects",
+              "optional": true,
+              "type": "string[] | Array<{ id: string }>",
+              "declaration": "effects?: string[] | Array<{ id: string }>;"
+            },
+            {
+              "name": "reducers",
+              "optional": true,
+              "type": "string[] | Array<Record<string, unknown>>",
+              "declaration": "reducers?: string[] | Array<Record<string, unknown>>;"
+            },
+            {
+              "name": "emits",
+              "optional": true,
+              "type": "RmtActionEmission[]",
+              "declaration": "emits?: RmtActionEmission[];"
+            },
+            {
+              "name": "handlers",
+              "optional": true,
+              "type": "RmtActionResultHandler[]",
+              "declaration": "handlers?: RmtActionResultHandler[];"
+            },
+            {
+              "name": "resources",
+              "optional": true,
+              "type": "string[] | Array<{ id: string }>",
+              "declaration": "resources?: string[] | Array<{ id: string }>;"
+            },
+            {
+              "name": "cancelable",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "cancelable?: boolean;"
+            }
+          ],
+          "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
+          "line": 18,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtDataSourceDefinition",
+          "fields": [
+            {
+              "name": "id",
+              "optional": false,
+              "type": "string",
+              "declaration": "id: string;"
+            },
+            {
+              "name": "kind",
+              "optional": true,
+              "type": "RmtDataSourceKind",
+              "declaration": "kind?: RmtDataSourceKind;"
+            },
+            {
+              "name": "type",
+              "optional": true,
+              "type": "RmtDataSourceKind",
+              "declaration": "type?: RmtDataSourceKind;"
+            },
+            {
+              "name": "records",
+              "optional": true,
+              "type": "unknown[]",
+              "declaration": "records?: unknown[];"
+            },
+            {
+              "name": "data",
+              "optional": true,
+              "type": "unknown[]",
+              "declaration": "data?: unknown[];"
+            },
+            {
+              "name": "payload",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "payload?: unknown;"
+            },
+            {
+              "name": "endpoint",
+              "optional": true,
+              "type": "string",
+              "declaration": "endpoint?: string;"
+            },
+            {
+              "name": "url",
+              "optional": true,
+              "type": "string",
+              "declaration": "url?: string;"
+            },
+            {
+              "name": "adapter",
+              "optional": true,
+              "type": "string",
+              "declaration": "adapter?: string;"
+            },
+            {
+              "name": "resultPath",
+              "optional": true,
+              "type": "string",
+              "declaration": "resultPath?: string;"
+            },
+            {
+              "name": "delayMs",
+              "optional": true,
+              "type": "number",
+              "declaration": "delayMs?: number;"
+            }
+          ],
+          "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
+          "line": 36,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtEffectDefinition",
+          "fields": [
+            {
+              "name": "id",
+              "optional": false,
+              "type": "string",
+              "declaration": "id: string;"
+            },
+            {
+              "name": "kind",
+              "optional": true,
+              "type": "RmtEffectKind",
+              "declaration": "kind?: RmtEffectKind;"
+            },
+            {
+              "name": "type",
+              "optional": true,
+              "type": "RmtEffectKind",
+              "declaration": "type?: RmtEffectKind;"
+            },
+            {
+              "name": "target",
+              "optional": true,
+              "type": "string",
+              "declaration": "target?: string;"
+            },
+            {
+              "name": "message",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "message?: unknown;"
+            },
+            {
+              "name": "path",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "path?: unknown;"
+            },
+            {
+              "name": "severity",
+              "optional": true,
+              "type": "string",
+              "declaration": "severity?: string;"
+            },
+            {
+              "name": "resource",
+              "optional": true,
+              "type": "string",
+              "declaration": "resource?: string;"
+            },
+            {
+              "name": "service",
+              "optional": true,
+              "type": "string",
+              "declaration": "service?: string;"
+            },
+            {
+              "name": "serviceId",
+              "optional": true,
+              "type": "string",
+              "declaration": "serviceId?: string;"
+            },
+            {
+              "name": "mode",
+              "optional": true,
+              "type": "string",
+              "declaration": "mode?: string;"
+            },
+            {
+              "name": "componentCommand",
+              "optional": true,
+              "type": "RmtComponentCommand",
+              "declaration": "componentCommand?: RmtComponentCommand;"
+            },
+            {
+              "name": "payload",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "payload?: unknown;"
+            },
+            {
+              "name": "resources",
+              "optional": true,
+              "type": "string[]",
+              "declaration": "resources?: string[];"
+            }
+          ],
+          "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
+          "line": 50,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtComponentCommand",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "typeof RMT_COMPONENT_COMMAND_SCHEMA",
+              "declaration": "schema: typeof RMT_COMPONENT_COMMAND_SCHEMA;"
+            },
+            {
+              "name": "command",
+              "optional": false,
+              "type": "RmtComponentCommandName",
+              "declaration": "command: RmtComponentCommandName;"
+            },
+            {
+              "name": "target",
+              "optional": false,
+              "type": "{\n    kind: 'surface';\n    id: string;\n    ref: string;\n    component: 'x-textarea';\n  }",
+              "declaration": "target: {\n    kind: 'surface';\n    id: string;\n    ref: string;\n    component: 'x-textarea';\n  };"
+            }
+          ],
+          "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
+          "line": 67,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtResourceDefinition",
+          "fields": [
+            {
+              "name": "id",
+              "optional": false,
+              "type": "string",
+              "declaration": "id: string;"
+            },
+            {
+              "name": "kind",
+              "optional": true,
+              "type": "RmtResourceKind",
+              "declaration": "kind?: RmtResourceKind;"
+            },
+            {
+              "name": "type",
+              "optional": true,
+              "type": "RmtResourceKind",
+              "declaration": "type?: RmtResourceKind;"
+            },
+            {
+              "name": "owner",
+              "optional": true,
+              "type": "string",
+              "declaration": "owner?: string;"
+            },
+            {
+              "name": "source",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "source?: unknown;"
+            },
+            {
+              "name": "importId",
+              "optional": true,
+              "type": "string",
+              "declaration": "importId?: string;"
+            },
+            {
+              "name": "module",
+              "optional": true,
+              "type": "string",
+              "declaration": "module?: string;"
+            },
+            {
+              "name": "delayMs",
+              "optional": true,
+              "type": "number",
+              "declaration": "delayMs?: number;"
+            }
+          ],
+          "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
+          "line": 78,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtActionEffectDiagnostic",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "typeof RMT_ACTION_EFFECT_DIAGNOSTIC_SCHEMA",
+              "declaration": "schema: typeof RMT_ACTION_EFFECT_DIAGNOSTIC_SCHEMA;"
+            },
+            {
+              "name": "code",
+              "optional": false,
+              "type": "string",
+              "declaration": "code: string;"
+            },
+            {
+              "name": "message",
+              "optional": false,
+              "type": "string",
+              "declaration": "message: string;"
+            },
+            {
+              "name": "severity",
+              "optional": false,
+              "type": "'info' | 'warning' | 'error'",
+              "declaration": "severity: 'info' | 'warning' | 'error';"
+            },
+            {
+              "name": "details",
+              "optional": true,
+              "type": "Record<string, unknown>",
+              "declaration": "details?: Record<string, unknown>;"
+            }
+          ],
+          "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
+          "line": 89,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtActionResult",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "'xtend.epic18.rmt-action-result.v1'",
+              "declaration": "schema: 'xtend.epic18.rmt-action-result.v1';"
+            },
+            {
+              "name": "id",
+              "optional": false,
+              "type": "string",
+              "declaration": "id: string;"
+            },
+            {
+              "name": "runId",
+              "optional": false,
+              "type": "string",
+              "declaration": "runId: string;"
+            },
+            {
+              "name": "status",
+              "optional": false,
+              "type": "'success' | 'error' | 'cancelled'",
+              "declaration": "status: 'success' | 'error' | 'cancelled';"
+            },
+            {
+              "name": "data",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "data?: unknown;"
+            },
+            {
+              "name": "error",
+              "optional": true,
+              "type": "{ name: string; message: string; code?: string; details?: {errors:Record<string,string[]>;errorBag:string} }",
+              "declaration": "error?: { name: string; message: string; code?: string; details?: {errors:Record<string,string[]>;errorBag:string} };"
+            },
+            {
+              "name": "payload",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "payload?: unknown;"
+            },
+            {
+              "name": "metadata",
+              "optional": true,
+              "type": "Record<string, unknown>",
+              "declaration": "metadata?: Record<string, unknown>;"
+            },
+            {
+              "name": "effects",
+              "optional": true,
+              "type": "unknown[]",
+              "declaration": "effects?: unknown[];"
+            },
+            {
+              "name": "modelOperations",
+              "optional": true,
+              "type": "Array<\n    | { operation: 'set'; state: string; value: unknown }\n    | { operation: 'patch'; state: string; patch: Record<string, unknown> }\n    | { operation: 'dispatch'; command: string; payload?: unknown }\n  >",
+              "declaration": "modelOperations?: Array<\n    | { operation: 'set'; state: string; value: unknown }\n    | { operation: 'patch'; state: string; patch: Record<string, unknown> }\n    | { operation: 'dispatch'; command: string; payload?: unknown }\n  >;"
+            },
+            {
+              "name": "postCommitEffects",
+              "optional": true,
+              "type": "unknown[]",
+              "declaration": "postCommitEffects?: unknown[];"
+            },
+            {
+              "name": "diagnostics",
+              "optional": true,
+              "type": "RmtActionEffectDiagnostic[]",
+              "declaration": "diagnostics?: RmtActionEffectDiagnostic[];"
+            }
+          ],
+          "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
+          "line": 97,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtResourceManager",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "typeof RMT_ACTION_EFFECT_RUNTIME_SCHEMA",
+              "declaration": "schema: typeof RMT_ACTION_EFFECT_RUNTIME_SCHEMA;"
+            },
+            {
+              "name": "acquire",
+              "optional": false,
+              "type": "Promise<unknown>",
+              "declaration": "acquire(resourceId: string, ownerId?: string, context?: Record<string, unknown>): Promise<unknown>;"
+            },
+            {
+              "name": "acquireMany",
+              "optional": false,
+              "type": "Promise<unknown[]>",
+              "declaration": "acquireMany(resourceIds: string[], ownerId?: string, context?: Record<string, unknown>): Promise<unknown[]>;"
+            },
+            {
+              "name": "releaseOwner",
+              "optional": false,
+              "type": "{ schema: 'xtend.epic18.rmt-resource-release.v1'; owner: string; releasedCount: number }",
+              "declaration": "releaseOwner(ownerId?: string): { schema: 'xtend.epic18.rmt-resource-release.v1'; owner: string; releasedCount: number };"
+            },
+            {
+              "name": "listOwned",
+              "optional": false,
+              "type": "unknown[]",
+              "declaration": "listOwned(ownerId?: string): unknown[];"
+            },
+            {
+              "name": "listAcquisitions",
+              "optional": false,
+              "type": "unknown[]",
+              "declaration": "listAcquisitions(): unknown[];"
+            },
+            {
+              "name": "listDisposals",
+              "optional": false,
+              "type": "unknown[]",
+              "declaration": "listDisposals(): unknown[];"
+            }
+          ],
+          "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
+          "line": 116,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtActionEffectRuntime",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "typeof RMT_ACTION_EFFECT_RUNTIME_SCHEMA",
+              "declaration": "schema: typeof RMT_ACTION_EFFECT_RUNTIME_SCHEMA;"
+            },
+            {
+              "name": "runAction",
+              "optional": false,
+              "type": "Promise<RmtActionResult>",
+              "declaration": "runAction(actionId: string, payload?: Record<string, unknown>, metadata?: Record<string, unknown>): Promise<RmtActionResult>;"
+            },
+            {
+              "name": "cancelAction",
+              "optional": false,
+              "type": "{ schema: 'xtend.epic18.rmt-action-cancel.v1'; action: string; cancelled: number }",
+              "declaration": "cancelAction(actionId: string, reason?: string): { schema: 'xtend.epic18.rmt-action-cancel.v1'; action: string; cancelled: number };"
+            },
+            {
+              "name": "dispose",
+              "optional": false,
+              "type": "{ schema: 'xtend.epic18.rmt-action-runtime-dispose.v1'; cancelled: number; reason: string }",
+              "declaration": "dispose(reason?: string): { schema: 'xtend.epic18.rmt-action-runtime-dispose.v1'; cancelled: number; reason: string };"
+            },
+            {
+              "name": "runEffect",
+              "optional": false,
+              "type": "Promise<unknown>",
+              "declaration": "runEffect(effectId: string, context?: Record<string, unknown>): Promise<unknown>;"
+            },
+            {
+              "name": "resourceManager",
+              "optional": false,
+              "type": "RmtResourceManager",
+              "declaration": "resourceManager: RmtResourceManager;"
+            },
+            {
+              "name": "listActions",
+              "optional": false,
+              "type": "RmtActionDefinition[]",
+              "declaration": "listActions(): RmtActionDefinition[];"
+            },
+            {
+              "name": "listDataSources",
+              "optional": false,
+              "type": "RmtDataSourceDefinition[]",
+              "declaration": "listDataSources(): RmtDataSourceDefinition[];"
+            },
+            {
+              "name": "listEffects",
+              "optional": false,
+              "type": "RmtEffectDefinition[]",
+              "declaration": "listEffects(): RmtEffectDefinition[];"
+            },
+            {
+              "name": "getActionStatus",
+              "optional": false,
+              "type": "string",
+              "declaration": "getActionStatus(id: string): string;"
+            },
+            {
+              "name": "listHistory",
+              "optional": false,
+              "type": "RmtActionResult[]",
+              "declaration": "listHistory(): RmtActionResult[];"
+            },
+            {
+              "name": "listDiagnostics",
+              "optional": false,
+              "type": "RmtActionEffectDiagnostic[]",
+              "declaration": "listDiagnostics(): RmtActionEffectDiagnostic[];"
+            }
+          ],
+          "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
+          "line": 126,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtActionEffectRuntimeOptions",
+          "fields": [
+            {
+              "name": "historyLimit",
+              "optional": true,
+              "type": "number",
+              "declaration": "historyLimit?: number;"
+            },
+            {
+              "name": "diagnosticLimit",
+              "optional": true,
+              "type": "number",
+              "declaration": "diagnosticLimit?: number;"
+            },
+            {
+              "name": "resultDiagnostics",
+              "optional": true,
+              "type": "'current' | 'history' | 'none'",
+              "declaration": "resultDiagnostics?: 'current' | 'history' | 'none';"
+            },
+            {
+              "name": "actions",
+              "optional": true,
+              "type": "RmtActionDefinition[]",
+              "declaration": "actions?: RmtActionDefinition[];"
+            },
+            {
+              "name": "dataSources",
+              "optional": true,
+              "type": "RmtDataSourceDefinition[]",
+              "declaration": "dataSources?: RmtDataSourceDefinition[];"
+            },
+            {
+              "name": "datasources",
+              "optional": true,
+              "type": "RmtDataSourceDefinition[]",
+              "declaration": "datasources?: RmtDataSourceDefinition[];"
+            },
+            {
+              "name": "effects",
+              "optional": true,
+              "type": "RmtEffectDefinition[]",
+              "declaration": "effects?: RmtEffectDefinition[];"
+            },
+            {
+              "name": "resources",
+              "optional": true,
+              "type": "RmtResourceDefinition[]",
+              "declaration": "resources?: RmtResourceDefinition[];"
+            },
+            {
+              "name": "stateRuntime",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "stateRuntime?: unknown;"
+            },
+            {
+              "name": "resourceManager",
+              "optional": true,
+              "type": "RmtResourceManager",
+              "declaration": "resourceManager?: RmtResourceManager;"
+            },
+            {
+              "name": "dataSourceAdapters",
+              "optional": true,
+              "type": "Record<string, unknown>",
+              "declaration": "dataSourceAdapters?: Record<string, unknown>;"
+            },
+            {
+              "name": "hostServiceRegistry",
+              "optional": true,
+              "type": "{\n    invoke(serviceId: string, payload?: unknown, context?: Record<string, unknown>): Promise<unknown> | unknown;\n    stream?(serviceId: string, payload?: unknown, handlers?: Record<string, Function>, context?: Record<string, unknown>): Promise<unknown> | unknown;\n  }",
+              "declaration": "hostServiceRegistry?: {\n    invoke(serviceId: string, payload?: unknown, context?: Record<string, unknown>): Promise<unknown> | unknown;\n    stream?(serviceId: string, payload?: unknown, handlers?: Record<string, Function>, context?: Record<string, unknown>): Promise<unknown> | unknown;\n  };"
+            },
+            {
+              "name": "hostPort",
+              "optional": true,
+              "type": "RmtActionHostPort",
+              "declaration": "hostPort?: RmtActionHostPort;"
+            },
+            {
+              "name": "actionHostPort",
+              "optional": true,
+              "type": "RmtActionHostPort",
+              "declaration": "actionHostPort?: RmtActionHostPort;"
+            },
+            {
+              "name": "resourceAdapters",
+              "optional": true,
+              "type": "Record<string, unknown>",
+              "declaration": "resourceAdapters?: Record<string, unknown>;"
+            },
+            {
+              "name": "feedbackAdapter",
+              "optional": true,
+              "type": "{ publish(payload: unknown, context?: unknown): unknown }",
+              "declaration": "feedbackAdapter?: { publish(payload: unknown, context?: unknown): unknown };"
+            },
+            {
+              "name": "navigationAdapter",
+              "optional": true,
+              "type": "{ navigate(path: unknown, context?: unknown): unknown }",
+              "declaration": "navigationAdapter?: { navigate(path: unknown, context?: unknown): unknown };"
+            },
+            {
+              "name": "focusAdapter",
+              "optional": true,
+              "type": "{ focus(target: unknown, context?: unknown): unknown }",
+              "declaration": "focusAdapter?: { focus(target: unknown, context?: unknown): unknown };"
+            },
+            {
+              "name": "componentCommandAdapter",
+              "optional": true,
+              "type": "{ invoke(command: RmtComponentCommand, context?: unknown): Promise<unknown> | unknown }",
+              "declaration": "componentCommandAdapter?: { invoke(command: RmtComponentCommand, context?: unknown): Promise<unknown> | unknown };"
+            },
+            {
+              "name": "effectAdapter",
+              "optional": true,
+              "type": "{ invoke(effect: unknown, context?: unknown): unknown }",
+              "declaration": "effectAdapter?: { invoke(effect: unknown, context?: unknown): unknown };"
+            },
+            {
+              "name": "deferCustomEffects",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "deferCustomEffects?: boolean;"
+            },
+            {
+              "name": "planningOnly",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "planningOnly?: boolean;"
+            },
+            {
+              "name": "managedController",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "managedController?: boolean;"
+            },
+            {
+              "name": "objectUrlFactory",
+              "optional": true,
+              "type": "{ create(value: unknown): string; revoke(value: string): unknown }",
+              "declaration": "objectUrlFactory?: { create(value: unknown): string; revoke(value: string): unknown };"
+            },
+            {
+              "name": "importAdapter",
+              "optional": true,
+              "type": "{ load(id: string, context?: unknown): Promise<unknown> | unknown }",
+              "declaration": "importAdapter?: { load(id: string, context?: unknown): Promise<unknown> | unknown };"
+            },
+            {
+              "name": "timerAdapter",
+              "optional": true,
+              "type": "{ set(delayMs: number, context?: unknown): unknown; clear(handle: unknown): unknown }",
+              "declaration": "timerAdapter?: { set(delayMs: number, context?: unknown): unknown; clear(handle: unknown): unknown };"
+            },
+            {
+              "name": "diagnosticsHub",
+              "optional": true,
+              "type": "{ publish(channel: string, payload: unknown, meta?: Record<string, unknown>): unknown }",
+              "declaration": "diagnosticsHub?: { publish(channel: string, payload: unknown, meta?: Record<string, unknown>): unknown };"
+            },
+            {
+              "name": "diagnosticChannel",
+              "optional": true,
+              "type": "string",
+              "declaration": "diagnosticChannel?: string;"
+            }
+          ],
+          "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
+          "line": 141,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtActionAbortSignal",
+          "fields": [
+            {
+              "name": "aborted",
+              "optional": false,
+              "type": "boolean",
+              "declaration": "readonly aborted: boolean;"
+            },
+            {
+              "name": "reason",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "readonly reason?: unknown;"
+            },
+            {
+              "name": "addEventListener",
+              "optional": false,
+              "type": "void",
+              "declaration": "addEventListener(type: 'abort', listener: (event: unknown) => void, options?: { once?: boolean }): void;"
+            },
+            {
+              "name": "removeEventListener",
+              "optional": false,
+              "type": "void",
+              "declaration": "removeEventListener(type: 'abort', listener: (event: unknown) => void): void;"
+            }
+          ],
+          "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
+          "line": 181,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtActionAbortController",
+          "fields": [
+            {
+              "name": "signal",
+              "optional": false,
+              "type": "RmtActionAbortSignal",
+              "declaration": "readonly signal: RmtActionAbortSignal;"
+            },
+            {
+              "name": "abort",
+              "optional": false,
+              "type": "void",
+              "declaration": "abort(reason?: unknown): void;"
+            }
+          ],
+          "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
+          "line": 188,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtActionHostPort",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": true,
+              "type": "string",
+              "declaration": "readonly schema?: string;"
+            },
+            {
+              "name": "createAbortController",
+              "optional": false,
+              "type": "RmtActionAbortController",
+              "declaration": "createAbortController(): RmtActionAbortController;"
+            },
+            {
+              "name": "createRunId",
+              "optional": true,
+              "type": "string",
+              "declaration": "createRunId?(actionId: string, sequence: number): string;"
+            }
+          ],
+          "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
+          "line": 193,
+          "symbol": "<anonymous>"
+        }
+      ],
+      "astFactories": [],
+      "coreRecords": [],
+      "artifactLayouts": []
+    },
+    "xtendrmt/rmt-event-routing-runtime.d.ts": {
+      "versionedIdentifiers": [],
+      "catalogs": [],
+      "evaluators": [],
+      "operatorBranches": [],
+      "interfaces": [
+        {
+          "name": "RmtEventGovernance",
+          "fields": [
+            {
+              "name": "capture",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "capture?: boolean;"
+            },
+            {
+              "name": "passive",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "passive?: boolean;"
+            },
+            {
+              "name": "once",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "once?: boolean;"
+            },
+            {
+              "name": "preventDefault",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "preventDefault?: boolean;"
+            },
+            {
+              "name": "stopPropagation",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "stopPropagation?: boolean;"
+            },
+            {
+              "name": "stopImmediatePropagation",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "stopImmediatePropagation?: boolean;"
+            },
+            {
+              "name": "retarget",
+              "optional": true,
+              "type": "RmtEventRetargetPolicy",
+              "declaration": "retarget?: RmtEventRetargetPolicy;"
+            }
+          ],
+          "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
+          "line": 10,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtEventCondition",
+          "fields": [
+            {
+              "name": "left",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "left?: unknown;"
+            },
+            {
+              "name": "op",
+              "optional": true,
+              "type": "'equals' | 'not-equals' | 'truthy' | 'falsy' | 'includes' | string",
+              "declaration": "op?: 'equals' | 'not-equals' | 'truthy' | 'falsy' | 'includes' | string;"
+            },
+            {
+              "name": "operator",
+              "optional": true,
+              "type": "string",
+              "declaration": "operator?: string;"
+            },
+            {
+              "name": "right",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "right?: unknown;"
+            },
+            {
+              "name": "equals",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "equals?: unknown;"
+            },
+            {
+              "name": "value",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "value?: unknown;"
+            }
+          ],
+          "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
+          "line": 20,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtEventCompiledCondition",
+          "fields": [
+            {
+              "name": "kind",
+              "optional": false,
+              "type": "'condition'",
+              "declaration": "kind: 'condition';"
+            },
+            {
+              "name": "expression",
+              "optional": false,
+              "type": "RmtEventConditionExpression",
+              "declaration": "expression: RmtEventConditionExpression;"
+            },
+            {
+              "name": "sourceRef",
+              "optional": true,
+              "type": "string | null",
+              "declaration": "sourceRef?: string | null;"
+            }
+          ],
+          "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
+          "line": 38,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtEventModelReader",
+          "fields": [
+            {
+              "name": "snapshot",
+              "optional": false,
+              "type": "{\n    readonly states?: Readonly<Record<string, unknown>>;\n    readonly selectors?: Readonly<Record<string, unknown>>;\n    readonly derived?: Readonly<Record<string, unknown>>;\n  }",
+              "declaration": "snapshot(): {\n    readonly states?: Readonly<Record<string, unknown>>;\n    readonly selectors?: Readonly<Record<string, unknown>>;\n    readonly derived?: Readonly<Record<string, unknown>>;\n  };"
+            }
+          ],
+          "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
+          "line": 44,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtPayloadContract",
+          "fields": [
+            {
+              "name": "type",
+              "optional": true,
+              "type": "'object' | 'array' | 'string' | 'number' | 'boolean' | 'nullable' | string",
+              "declaration": "type?: 'object' | 'array' | 'string' | 'number' | 'boolean' | 'nullable' | string;"
+            },
+            {
+              "name": "required",
+              "optional": true,
+              "type": "string[]",
+              "declaration": "required?: string[];"
+            },
+            {
+              "name": "properties",
+              "optional": true,
+              "type": "Record<string, RmtPayloadContract | string>",
+              "declaration": "properties?: Record<string, RmtPayloadContract | string>;"
+            },
+            {
+              "name": "additionalProperties",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "additionalProperties?: boolean;"
+            }
+          ],
+          "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
+          "line": 52,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtEventBindingDefinition",
+          "fields": [
+            {
+              "name": "id",
+              "optional": false,
+              "type": "string",
+              "declaration": "id: string;"
+            },
+            {
+              "name": "bindingId",
+              "optional": true,
+              "type": "string",
+              "declaration": "bindingId?: string;"
+            },
+            {
+              "name": "kind",
+              "optional": true,
+              "type": "RmtEventRoutingKind",
+              "declaration": "kind?: RmtEventRoutingKind;"
+            },
+            {
+              "name": "event",
+              "optional": true,
+              "type": "string",
+              "declaration": "event?: string;"
+            },
+            {
+              "name": "eventName",
+              "optional": true,
+              "type": "string",
+              "declaration": "eventName?: string;"
+            },
+            {
+              "name": "type",
+              "optional": true,
+              "type": "string",
+              "declaration": "type?: string;"
+            },
+            {
+              "name": "target",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "target?: unknown;"
+            },
+            {
+              "name": "selector",
+              "optional": true,
+              "type": "string",
+              "declaration": "selector?: string;"
+            },
+            {
+              "name": "ref",
+              "optional": true,
+              "type": "string",
+              "declaration": "ref?: string;"
+            },
+            {
+              "name": "component",
+              "optional": true,
+              "type": "string",
+              "declaration": "component?: string;"
+            },
+            {
+              "name": "componentId",
+              "optional": true,
+              "type": "string",
+              "declaration": "componentId?: string;"
+            },
+            {
+              "name": "action",
+              "optional": true,
+              "type": "string",
+              "declaration": "action?: string;"
+            },
+            {
+              "name": "actionId",
+              "optional": true,
+              "type": "string",
+              "declaration": "actionId?: string;"
+            },
+            {
+              "name": "command",
+              "optional": true,
+              "type": "string",
+              "declaration": "command?: string;"
+            },
+            {
+              "name": "commandName",
+              "optional": true,
+              "type": "string",
+              "declaration": "commandName?: string;"
+            },
+            {
+              "name": "actionMode",
+              "optional": true,
+              "type": "RmtEventActionMode",
+              "declaration": "actionMode?: RmtEventActionMode;"
+            },
+            {
+              "name": "operation",
+              "optional": true,
+              "type": "RmtEventActionMode",
+              "declaration": "operation?: RmtEventActionMode;"
+            },
+            {
+              "name": "mode",
+              "optional": true,
+              "type": "RmtEventActionMode",
+              "declaration": "mode?: RmtEventActionMode;"
+            },
+            {
+              "name": "owner",
+              "optional": true,
+              "type": "string",
+              "declaration": "owner?: string;"
+            },
+            {
+              "name": "ownerId",
+              "optional": true,
+              "type": "string",
+              "declaration": "ownerId?: string;"
+            },
+            {
+              "name": "scope",
+              "optional": true,
+              "type": "string",
+              "declaration": "scope?: string;"
+            },
+            {
+              "name": "bindingScope",
+              "optional": true,
+              "type": "string",
+              "declaration": "bindingScope?: string;"
+            },
+            {
+              "name": "bindingSource",
+              "optional": true,
+              "type": "'compiled' | 'commit' | string",
+              "declaration": "bindingSource?: 'compiled' | 'commit' | string;"
+            },
+            {
+              "name": "commandTarget",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "commandTarget?: unknown;"
+            },
+            {
+              "name": "lane",
+              "optional": true,
+              "type": "string",
+              "declaration": "lane?: string;"
+            },
+            {
+              "name": "options",
+              "optional": true,
+              "type": "{\n    capture?: boolean;\n    passive?: boolean;\n    once?: boolean;\n  }",
+              "declaration": "options?: {\n    capture?: boolean;\n    passive?: boolean;\n    once?: boolean;\n  };"
+            },
+            {
+              "name": "payload",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "payload?: unknown;"
+            },
+            {
+              "name": "payloadAdapter",
+              "optional": true,
+              "type": "string | Record<string, unknown>",
+              "declaration": "payloadAdapter?: string | Record<string, unknown>;"
+            },
+            {
+              "name": "adapter",
+              "optional": true,
+              "type": "string | Record<string, unknown>",
+              "declaration": "adapter?: string | Record<string, unknown>;"
+            },
+            {
+              "name": "payloadKind",
+              "optional": true,
+              "type": "string",
+              "declaration": "payloadKind?: string;"
+            },
+            {
+              "name": "closest",
+              "optional": true,
+              "type": "string",
+              "declaration": "closest?: string;"
+            },
+            {
+              "name": "closestSelector",
+              "optional": true,
+              "type": "string",
+              "declaration": "closestSelector?: string;"
+            },
+            {
+              "name": "delegate",
+              "optional": true,
+              "type": "string",
+              "declaration": "delegate?: string;"
+            },
+            {
+              "name": "payloadContract",
+              "optional": true,
+              "type": "RmtPayloadContract",
+              "declaration": "payloadContract?: RmtPayloadContract;"
+            },
+            {
+              "name": "contract",
+              "optional": true,
+              "type": "RmtPayloadContract",
+              "declaration": "contract?: RmtPayloadContract;"
+            },
+            {
+              "name": "governance",
+              "optional": true,
+              "type": "RmtEventGovernance",
+              "declaration": "governance?: RmtEventGovernance;"
+            },
+            {
+              "name": "condition",
+              "optional": true,
+              "type": "RmtEventCondition | RmtEventCompiledCondition | RmtEventConditionExpression | boolean | null",
+              "declaration": "condition?: RmtEventCondition | RmtEventCompiledCondition | RmtEventConditionExpression | boolean | null;"
+            },
+            {
+              "name": "when",
+              "optional": true,
+              "type": "RmtEventBindingDefinition['condition']",
+              "declaration": "when?: RmtEventBindingDefinition['condition'];"
+            },
+            {
+              "name": "guard",
+              "optional": true,
+              "type": "boolean | string | { kind?: 'confirm' | string; type?: string; message?: unknown; default?: boolean }",
+              "declaration": "guard?: boolean | string | { kind?: 'confirm' | string; type?: string; message?: unknown; default?: boolean };"
+            },
+            {
+              "name": "confirm",
+              "optional": true,
+              "type": "boolean | string | Record<string, unknown>",
+              "declaration": "confirm?: boolean | string | Record<string, unknown>;"
+            },
+            {
+              "name": "confirmMessage",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "confirmMessage?: unknown;"
+            },
+            {
+              "name": "postAction",
+              "optional": true,
+              "type": "string[] | Array<string | Record<string, unknown>>",
+              "declaration": "postAction?: string[] | Array<string | Record<string, unknown>>;"
+            },
+            {
+              "name": "after",
+              "optional": true,
+              "type": "string[] | Array<string | Record<string, unknown>>",
+              "declaration": "after?: string[] | Array<string | Record<string, unknown>>;"
+            },
+            {
+              "name": "afterAction",
+              "optional": true,
+              "type": "string[] | Array<string | Record<string, unknown>>",
+              "declaration": "afterAction?: string[] | Array<string | Record<string, unknown>>;"
+            },
+            {
+              "name": "capture",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "capture?: boolean;"
+            },
+            {
+              "name": "passive",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "passive?: boolean;"
+            },
+            {
+              "name": "once",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "once?: boolean;"
+            },
+            {
+              "name": "preventDefault",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "preventDefault?: boolean;"
+            },
+            {
+              "name": "stopPropagation",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "stopPropagation?: boolean;"
+            },
+            {
+              "name": "stopImmediatePropagation",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "stopImmediatePropagation?: boolean;"
+            },
+            {
+              "name": "retarget",
+              "optional": true,
+              "type": "RmtEventRetargetPolicy",
+              "declaration": "retarget?: RmtEventRetargetPolicy;"
+            },
+            {
+              "name": "enabled",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "enabled?: boolean;"
+            }
+          ],
+          "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
+          "line": 59,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtEventRouteDiagnostic",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "typeof RMT_EVENT_ROUTING_DIAGNOSTIC_SCHEMA",
+              "declaration": "schema: typeof RMT_EVENT_ROUTING_DIAGNOSTIC_SCHEMA;"
+            },
+            {
+              "name": "code",
+              "optional": false,
+              "type": "string",
+              "declaration": "code: string;"
+            },
+            {
+              "name": "message",
+              "optional": false,
+              "type": "string",
+              "declaration": "message: string;"
+            },
+            {
+              "name": "severity",
+              "optional": false,
+              "type": "'info' | 'warning' | 'error'",
+              "declaration": "severity: 'info' | 'warning' | 'error';"
+            },
+            {
+              "name": "details",
+              "optional": true,
+              "type": "Record<string, unknown>",
+              "declaration": "details?: Record<string, unknown>;"
+            }
+          ],
+          "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
+          "line": 118,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtEventRouteResult",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "'xtend.epic18.rmt-event-route-result.v1'",
+              "declaration": "schema: 'xtend.epic18.rmt-event-route-result.v1';"
+            },
+            {
+              "name": "bindingId",
+              "optional": false,
+              "type": "string",
+              "declaration": "bindingId: string;"
+            },
+            {
+              "name": "event",
+              "optional": false,
+              "type": "string",
+              "declaration": "event: string;"
+            },
+            {
+              "name": "component",
+              "optional": false,
+              "type": "string",
+              "declaration": "component: string;"
+            },
+            {
+              "name": "action",
+              "optional": false,
+              "type": "string",
+              "declaration": "action: string;"
+            },
+            {
+              "name": "status",
+              "optional": false,
+              "type": "string",
+              "declaration": "status: string;"
+            },
+            {
+              "name": "payload",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "payload?: unknown;"
+            },
+            {
+              "name": "reason",
+              "optional": true,
+              "type": "string",
+              "declaration": "reason?: string;"
+            },
+            {
+              "name": "contractErrors",
+              "optional": true,
+              "type": "string[]",
+              "declaration": "contractErrors?: string[];"
+            },
+            {
+              "name": "actionResult",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "actionResult?: unknown;"
+            },
+            {
+              "name": "commandEnvelope",
+              "optional": true,
+              "type": "{\n    schema: typeof RMT_COMMAND_SCHEMA;\n    id: string;\n    command: string;\n    payload: unknown;\n    correlationId: string;\n    lane: string;\n  }",
+              "declaration": "commandEnvelope?: {\n    schema: typeof RMT_COMMAND_SCHEMA;\n    id: string;\n    command: string;\n    payload: unknown;\n    correlationId: string;\n    lane: string;\n  };"
+            },
+            {
+              "name": "governance",
+              "optional": true,
+              "type": "Record<string, unknown>",
+              "declaration": "governance?: Record<string, unknown>;"
+            }
+          ],
+          "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
+          "line": 126,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtEventAttachReport",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "'xtend.epic18.rmt-event-attach-report.v1'",
+              "declaration": "schema: 'xtend.epic18.rmt-event-attach-report.v1';"
+            },
+            {
+              "name": "attachedCount",
+              "optional": false,
+              "type": "number",
+              "declaration": "attachedCount: number;"
+            },
+            {
+              "name": "attached",
+              "optional": false,
+              "type": "Array<{ bindingId: string; owner: string; event: string; component: string }>",
+              "declaration": "attached: Array<{ bindingId: string; owner: string; event: string; component: string }>;"
+            }
+          ],
+          "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
+          "line": 148,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtEventDetachReport",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "'xtend.epic18.rmt-event-detach-report.v1'",
+              "declaration": "schema: 'xtend.epic18.rmt-event-detach-report.v1';"
+            },
+            {
+              "name": "owner",
+              "optional": false,
+              "type": "string",
+              "declaration": "owner: string;"
+            },
+            {
+              "name": "detachedCount",
+              "optional": false,
+              "type": "number",
+              "declaration": "detachedCount: number;"
+            }
+          ],
+          "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
+          "line": 154,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtEventReconcileReport",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "'xtend.epic18.rmt-event-reconcile-report.v1'",
+              "declaration": "schema: 'xtend.epic18.rmt-event-reconcile-report.v1';"
+            },
+            {
+              "name": "changed",
+              "optional": false,
+              "type": "boolean",
+              "declaration": "changed: boolean;"
+            },
+            {
+              "name": "disposed",
+              "optional": false,
+              "type": "boolean",
+              "declaration": "disposed: boolean;"
+            },
+            {
+              "name": "bindingCount",
+              "optional": false,
+              "type": "number",
+              "declaration": "bindingCount: number;"
+            },
+            {
+              "name": "attachedCount",
+              "optional": false,
+              "type": "number",
+              "declaration": "attachedCount: number;"
+            },
+            {
+              "name": "detachedCount",
+              "optional": false,
+              "type": "number",
+              "declaration": "detachedCount: number;"
+            },
+            {
+              "name": "retainedCount",
+              "optional": false,
+              "type": "number",
+              "declaration": "retainedCount: number;"
+            },
+            {
+              "name": "missingCount",
+              "optional": false,
+              "type": "number",
+              "declaration": "missingCount: number;"
+            },
+            {
+              "name": "attached",
+              "optional": false,
+              "type": "Array<{ bindingId: string; owner: string; event: string; component: string }>",
+              "declaration": "attached: Array<{ bindingId: string; owner: string; event: string; component: string }>;"
+            },
+            {
+              "name": "detached",
+              "optional": false,
+              "type": "Array<{ bindingId: string; owner: string; event: string; component: string }>",
+              "declaration": "detached: Array<{ bindingId: string; owner: string; event: string; component: string }>;"
+            },
+            {
+              "name": "retained",
+              "optional": false,
+              "type": "Array<{ bindingId: string; owner: string; event: string; component: string }>",
+              "declaration": "retained: Array<{ bindingId: string; owner: string; event: string; component: string }>;"
+            },
+            {
+              "name": "missing",
+              "optional": false,
+              "type": "Array<{ bindingId: string; owner: string; event: string; component: string }>",
+              "declaration": "missing: Array<{ bindingId: string; owner: string; event: string; component: string }>;"
+            },
+            {
+              "name": "commit",
+              "optional": false,
+              "type": "{\n    schema: string;\n    operation: string;\n    changed: boolean;\n    structural: boolean;\n    nodeCount: number | null;\n    bindingCount: number;\n    bindingScopeId: string;\n  } | null",
+              "declaration": "commit: {\n    schema: string;\n    operation: string;\n    changed: boolean;\n    structural: boolean;\n    nodeCount: number | null;\n    bindingCount: number;\n    bindingScopeId: string;\n  } | null;"
+            }
+          ],
+          "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
+          "line": 160,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtEventCommitBindingScope",
+          "fields": [
+            {
+              "name": "id",
+              "optional": false,
+              "type": "string",
+              "declaration": "id: string;"
+            },
+            {
+              "name": "target",
+              "optional": true,
+              "type": "Node | null",
+              "declaration": "target?: Node | null;"
+            },
+            {
+              "name": "roots",
+              "optional": true,
+              "type": "readonly Node[]",
+              "declaration": "roots?: readonly Node[];"
+            },
+            {
+              "name": "complete",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "complete?: boolean;"
+            },
+            {
+              "name": "bindingIds",
+              "optional": true,
+              "type": "readonly string[]",
+              "declaration": "bindingIds?: readonly string[];"
+            },
+            {
+              "name": "removedBindings",
+              "optional": true,
+              "type": "ReadonlyArray<{ bindingId: string; target?: EventTarget }>",
+              "declaration": "removedBindings?: ReadonlyArray<{ bindingId: string; target?: EventTarget }>;"
+            }
+          ],
+          "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
+          "line": 184,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtEventDomCommitResult",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": true,
+              "type": "string",
+              "declaration": "schema?: string;"
+            },
+            {
+              "name": "operation",
+              "optional": true,
+              "type": "string",
+              "declaration": "operation?: string;"
+            },
+            {
+              "name": "changed",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "changed?: boolean;"
+            },
+            {
+              "name": "structural",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "structural?: boolean;"
+            },
+            {
+              "name": "nodeCount",
+              "optional": true,
+              "type": "number",
+              "declaration": "nodeCount?: number;"
+            },
+            {
+              "name": "bindings",
+              "optional": false,
+              "type": "readonly RmtEventBindingDefinition[]",
+              "declaration": "bindings: readonly RmtEventBindingDefinition[];"
+            },
+            {
+              "name": "bindingScope",
+              "optional": false,
+              "type": "RmtEventCommitBindingScope",
+              "declaration": "bindingScope: RmtEventCommitBindingScope;"
+            }
+          ],
+          "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
+          "line": 193,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtEventDisposeReport",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "'xtend.epic18.rmt-event-dispose-report.v1'",
+              "declaration": "schema: 'xtend.epic18.rmt-event-dispose-report.v1';"
+            },
+            {
+              "name": "disposed",
+              "optional": false,
+              "type": "true",
+              "declaration": "disposed: true;"
+            },
+            {
+              "name": "alreadyDisposed",
+              "optional": false,
+              "type": "boolean",
+              "declaration": "alreadyDisposed: boolean;"
+            },
+            {
+              "name": "detachedCount",
+              "optional": false,
+              "type": "number",
+              "declaration": "detachedCount: number;"
+            }
+          ],
+          "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
+          "line": 203,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtEventRoutingRuntime",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "typeof RMT_EVENT_ROUTING_RUNTIME_SCHEMA",
+              "declaration": "schema: typeof RMT_EVENT_ROUTING_RUNTIME_SCHEMA;"
+            },
+            {
+              "name": "attach",
+              "optional": false,
+              "type": "RmtEventAttachReport",
+              "declaration": "attach(root?: unknown): RmtEventAttachReport;"
+            },
+            {
+              "name": "reconcile",
+              "optional": false,
+              "type": "RmtEventReconcileReport",
+              "declaration": "reconcile(root?: unknown, commitResult?: RmtEventDomCommitResult | null): RmtEventReconcileReport;"
+            },
+            {
+              "name": "detachOwner",
+              "optional": false,
+              "type": "RmtEventDetachReport",
+              "declaration": "detachOwner(ownerId?: string): RmtEventDetachReport;"
+            },
+            {
+              "name": "detachAll",
+              "optional": false,
+              "type": "RmtEventDetachReport",
+              "declaration": "detachAll(): RmtEventDetachReport;"
+            },
+            {
+              "name": "dispose",
+              "optional": false,
+              "type": "RmtEventDisposeReport",
+              "declaration": "dispose(): RmtEventDisposeReport;"
+            },
+            {
+              "name": "routeEvent",
+              "optional": false,
+              "type": "Promise<RmtEventRouteResult>",
+              "declaration": "routeEvent(bindingId: string, event?: unknown, metadata?: Record<string, unknown>): Promise<RmtEventRouteResult>;"
+            },
+            {
+              "name": "createPayload",
+              "optional": false,
+              "type": "unknown",
+              "declaration": "createPayload(binding: RmtEventBindingDefinition, event?: unknown, metadata?: Record<string, unknown>): unknown;"
+            },
+            {
+              "name": "listBindings",
+              "optional": false,
+              "type": "RmtEventBindingDefinition[]",
+              "declaration": "listBindings(): RmtEventBindingDefinition[];"
+            },
+            {
+              "name": "listAttached",
+              "optional": false,
+              "type": "Array<{ bindingId: string; owner: string; event: string }>",
+              "declaration": "listAttached(): Array<{ bindingId: string; owner: string; event: string }>;"
+            },
+            {
+              "name": "listRoutes",
+              "optional": false,
+              "type": "RmtEventRouteResult[]",
+              "declaration": "listRoutes(): RmtEventRouteResult[];"
+            },
+            {
+              "name": "listDiagnostics",
+              "optional": false,
+              "type": "RmtEventRouteDiagnostic[]",
+              "declaration": "listDiagnostics(): RmtEventRouteDiagnostic[];"
+            }
+          ],
+          "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
+          "line": 210,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtEventRoutingRuntimeOptions",
+          "fields": [
+            {
+              "name": "bindings",
+              "optional": true,
+              "type": "RmtEventBindingDefinition[]",
+              "declaration": "bindings?: RmtEventBindingDefinition[];"
+            },
+            {
+              "name": "events",
+              "optional": true,
+              "type": "RmtEventBindingDefinition[]",
+              "declaration": "events?: RmtEventBindingDefinition[];"
+            },
+            {
+              "name": "eventBindings",
+              "optional": true,
+              "type": "RmtEventBindingDefinition[]",
+              "declaration": "eventBindings?: RmtEventBindingDefinition[];"
+            },
+            {
+              "name": "actionRuntime",
+              "optional": true,
+              "type": "{\n    runAction?(actionId: string, payload?: unknown, metadata?: Record<string, unknown>): Promise<unknown> | unknown;\n    dispatchCommand?(command: Record<string, unknown>, metadata?: Record<string, unknown>): Promise<unknown> | unknown;\n    cancelAction?(actionId: string): unknown;\n  }",
+              "declaration": "actionRuntime?: {\n    runAction?(actionId: string, payload?: unknown, metadata?: Record<string, unknown>): Promise<unknown> | unknown;\n    dispatchCommand?(command: Record<string, unknown>, metadata?: Record<string, unknown>): Promise<unknown> | unknown;\n    cancelAction?(actionId: string): unknown;\n  };"
+            },
+            {
+              "name": "commandRuntime",
+              "optional": true,
+              "type": "RmtEventRoutingRuntimeOptions['actionRuntime']",
+              "declaration": "commandRuntime?: RmtEventRoutingRuntimeOptions['actionRuntime'];"
+            },
+            {
+              "name": "commandBus",
+              "optional": true,
+              "type": "RmtEventRoutingRuntimeOptions['actionRuntime']",
+              "declaration": "commandBus?: RmtEventRoutingRuntimeOptions['actionRuntime'];"
+            },
+            {
+              "name": "modelReader",
+              "optional": true,
+              "type": "RmtEventModelReader",
+              "declaration": "modelReader?: RmtEventModelReader;"
+            },
+            {
+              "name": "root",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "root?: unknown;"
+            },
+            {
+              "name": "targets",
+              "optional": true,
+              "type": "Record<string, unknown>",
+              "declaration": "targets?: Record<string, unknown>;"
+            },
+            {
+              "name": "targetResolver",
+              "optional": true,
+              "type": "(binding: RmtEventBindingDefinition, root?: unknown) => unknown",
+              "declaration": "targetResolver?: (binding: RmtEventBindingDefinition, root?: unknown) => unknown;"
+            },
+            {
+              "name": "confirmAdapter",
+              "optional": true,
+              "type": "{ confirm(message: unknown, context?: Record<string, unknown>): boolean }",
+              "declaration": "confirmAdapter?: { confirm(message: unknown, context?: Record<string, unknown>): boolean };"
+            },
+            {
+              "name": "domRenderer",
+              "optional": true,
+              "type": "{\n    commit(request: {\n      operation: 'merge-element';\n      target: Element;\n      descriptor: unknown;\n      context?: Record<string, unknown>;\n      ownership?: Record<string, unknown>;\n      metadata?: Record<string, unknown>;\n    }): {\n      schema?: string;\n      operation?: string;\n      changed?: boolean;\n    };\n    dispose?(target?: Node, options?: { clearOwnedDom?: boolean }): void;\n  }",
+              "declaration": "domRenderer?: {\n    commit(request: {\n      operation: 'merge-element';\n      target: Element;\n      descriptor: unknown;\n      context?: Record<string, unknown>;\n      ownership?: Record<string, unknown>;\n      metadata?: Record<string, unknown>;\n    }): {\n      schema?: string;\n      operation?: string;\n      changed?: boolean;\n    };\n    dispose?(target?: Node, options?: { clearOwnedDom?: boolean }): void;\n  };"
+            },
+            {
+              "name": "renderer",
+              "optional": true,
+              "type": "RmtEventRoutingRuntimeOptions['domRenderer']",
+              "declaration": "renderer?: RmtEventRoutingRuntimeOptions['domRenderer'];"
+            },
+            {
+              "name": "strict",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "strict?: boolean;"
+            },
+            {
+              "name": "strictMaraca",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "strictMaraca?: boolean;"
+            },
+            {
+              "name": "documentTarget",
+              "optional": true,
+              "type": "Document",
+              "declaration": "documentTarget?: Document;"
+            },
+            {
+              "name": "createDomRenderer",
+              "optional": true,
+              "type": "(options: Record<string, unknown>) => NonNullable<RmtEventRoutingRuntimeOptions['domRenderer']>",
+              "declaration": "createDomRenderer?: (options: Record<string, unknown>) => NonNullable<RmtEventRoutingRuntimeOptions['domRenderer']>;"
+            },
+            {
+              "name": "diagnosticsHub",
+              "optional": true,
+              "type": "{ publish(channel: string, payload: unknown, meta?: Record<string, unknown>): unknown }",
+              "declaration": "diagnosticsHub?: { publish(channel: string, payload: unknown, meta?: Record<string, unknown>): unknown };"
+            },
+            {
+              "name": "diagnosticChannel",
+              "optional": true,
+              "type": "string",
+              "declaration": "diagnosticChannel?: string;"
+            },
+            {
+              "name": "publishDiagnostic",
+              "optional": true,
+              "type": "(diagnostic: RmtEventRouteDiagnostic) => void",
+              "declaration": "publishDiagnostic?: (diagnostic: RmtEventRouteDiagnostic) => void;"
+            }
+          ],
+          "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
+          "line": 225,
+          "symbol": "<anonymous>"
+        }
+      ],
+      "astFactories": [],
+      "coreRecords": [],
+      "artifactLayouts": []
+    },
+    "xtendrmt/rmt-surface-resource-graph-runtime.js": {
+      "versionedIdentifiers": [
+        {
+          "name": "RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_SCHEMA",
+          "value": "xtend.epic18.rmt-surface-resource-graph-runtime.v2",
+          "file": "xtendrmt/rmt-surface-resource-graph-runtime.js",
+          "line": 3,
+          "symbol": "attachRmtSurfaceResourceGraphRuntime"
+        },
+        {
+          "name": "RMT_SURFACE_RESOURCE_GRAPH_DIAGNOSTIC_SCHEMA",
+          "value": "xtend.epic18.rmt-surface-resource-graph-diagnostic.v1",
+          "file": "xtendrmt/rmt-surface-resource-graph-runtime.js",
+          "line": 4,
+          "symbol": "attachRmtSurfaceResourceGraphRuntime"
+        }
+      ],
+      "catalogs": [
+        {
+          "name": "UNSAFE_PATH_SEGMENTS",
+          "values": [
+            "__proto__",
+            "constructor",
+            "prototype"
+          ],
+          "file": "xtendrmt/rmt-surface-resource-graph-runtime.js",
+          "line": 8,
+          "symbol": "attachRmtSurfaceResourceGraphRuntime"
+        }
+      ],
+      "evaluators": [],
+      "operatorBranches": [
+        {
+          "values": [
+            "register"
+          ],
+          "dispatch": "operation",
+          "file": "xtendrmt/rmt-surface-resource-graph-runtime.js",
+          "line": 707,
+          "symbol": "proxySurfaceManager"
+        },
+        {
+          "values": [
+            "open"
+          ],
+          "dispatch": "operation",
+          "file": "xtendrmt/rmt-surface-resource-graph-runtime.js",
+          "line": 708,
+          "symbol": "proxySurfaceManager"
+        },
+        {
+          "values": [
+            "focus"
+          ],
+          "dispatch": "operation",
+          "file": "xtendrmt/rmt-surface-resource-graph-runtime.js",
+          "line": 709,
+          "symbol": "proxySurfaceManager"
+        },
+        {
+          "values": [
+            "minimize"
+          ],
+          "dispatch": "operation",
+          "file": "xtendrmt/rmt-surface-resource-graph-runtime.js",
+          "line": 710,
+          "symbol": "proxySurfaceManager"
+        },
+        {
+          "values": [
+            "restore"
+          ],
+          "dispatch": "operation",
+          "file": "xtendrmt/rmt-surface-resource-graph-runtime.js",
+          "line": 711,
+          "symbol": "proxySurfaceManager"
+        },
+        {
+          "values": [
+            "materialize"
+          ],
+          "dispatch": "operation",
+          "file": "xtendrmt/rmt-surface-resource-graph-runtime.js",
+          "line": 712,
+          "symbol": "proxySurfaceManager"
+        },
+        {
+          "values": [
+            "toggle"
+          ],
+          "dispatch": "operation",
+          "file": "xtendrmt/rmt-surface-resource-graph-runtime.js",
+          "line": 713,
+          "symbol": "proxySurfaceManager"
+        },
+        {
+          "values": [
+            "close"
+          ],
+          "dispatch": "operation",
+          "file": "xtendrmt/rmt-surface-resource-graph-runtime.js",
+          "line": 714,
+          "symbol": "proxySurfaceManager"
+        },
+        {
+          "values": [
+            "destroy"
+          ],
+          "dispatch": "operation",
+          "file": "xtendrmt/rmt-surface-resource-graph-runtime.js",
+          "line": 715,
+          "symbol": "proxySurfaceManager"
+        },
+        {
+          "values": [
+            "update"
+          ],
+          "dispatch": "operation",
+          "file": "xtendrmt/rmt-surface-resource-graph-runtime.js",
+          "line": 725,
+          "symbol": "proxySurfaceManager"
+        }
+      ],
+      "interfaces": [],
+      "astFactories": [],
+      "coreRecords": [],
+      "artifactLayouts": []
+    },
+    "xtendrmt/rmt-surface-resource-graph-runtime.d.ts": {
+      "versionedIdentifiers": [],
+      "catalogs": [],
+      "evaluators": [],
+      "operatorBranches": [],
+      "interfaces": [
+        {
+          "name": "RmtSurfaceBounds",
+          "fields": [
+            {
+              "name": "x",
+              "optional": false,
+              "type": "number",
+              "declaration": "x: number;"
+            },
+            {
+              "name": "y",
+              "optional": false,
+              "type": "number",
+              "declaration": "y: number;"
+            },
+            {
+              "name": "width",
+              "optional": false,
+              "type": "number",
+              "declaration": "width: number;"
+            },
+            {
+              "name": "height",
+              "optional": false,
+              "type": "number",
+              "declaration": "height: number;"
+            }
+          ],
+          "file": "xtendrmt/rmt-surface-resource-graph-runtime.d.ts",
+          "line": 10,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtSurfaceDefinition",
+          "fields": [
+            {
+              "name": "id",
+              "optional": false,
+              "type": "string",
+              "declaration": "id: string;"
+            },
+            {
+              "name": "kind",
+              "optional": true,
+              "type": "RmtSurfaceKind",
+              "declaration": "kind?: RmtSurfaceKind;"
+            },
+            {
+              "name": "type",
+              "optional": true,
+              "type": "RmtSurfaceKind",
+              "declaration": "type?: RmtSurfaceKind;"
+            },
+            {
+              "name": "source",
+              "optional": true,
+              "type": "string",
+              "declaration": "source?: string;"
+            },
+            {
+              "name": "from",
+              "optional": true,
+              "type": "string",
+              "declaration": "from?: string;"
+            },
+            {
+              "name": "records",
+              "optional": true,
+              "type": "unknown[]",
+              "declaration": "records?: unknown[];"
+            },
+            {
+              "name": "repeat",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "repeat?: boolean;"
+            },
+            {
+              "name": "key",
+              "optional": true,
+              "type": "string",
+              "declaration": "key?: string;"
+            },
+            {
+              "name": "keyPath",
+              "optional": true,
+              "type": "string",
+              "declaration": "keyPath?: string;"
+            },
+            {
+              "name": "owner",
+              "optional": true,
+              "type": "string",
+              "declaration": "owner?: string;"
+            },
+            {
+              "name": "ownerId",
+              "optional": true,
+              "type": "string",
+              "declaration": "ownerId?: string;"
+            },
+            {
+              "name": "component",
+              "optional": true,
+              "type": "string",
+              "declaration": "component?: string;"
+            },
+            {
+              "name": "tag",
+              "optional": true,
+              "type": "string",
+              "declaration": "tag?: string;"
+            },
+            {
+              "name": "template",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "template?: unknown;"
+            },
+            {
+              "name": "portal",
+              "optional": true,
+              "type": "string",
+              "declaration": "portal?: string;"
+            },
+            {
+              "name": "resources",
+              "optional": true,
+              "type": "string[] | Array<{ id: string }>",
+              "declaration": "resources?: string[] | Array<{ id: string }>;"
+            },
+            {
+              "name": "bounds",
+              "optional": true,
+              "type": "Partial<RmtSurfaceBounds>",
+              "declaration": "bounds?: Partial<RmtSurfaceBounds>;"
+            },
+            {
+              "name": "defaultBounds",
+              "optional": true,
+              "type": "Partial<RmtSurfaceBounds>",
+              "declaration": "defaultBounds?: Partial<RmtSurfaceBounds>;"
+            },
+            {
+              "name": "placement",
+              "optional": true,
+              "type": "string",
+              "declaration": "placement?: string;"
+            },
+            {
+              "name": "mode",
+              "optional": true,
+              "type": "string",
+              "declaration": "mode?: string;"
+            },
+            {
+              "name": "initialState",
+              "optional": true,
+              "type": "RmtSurfaceState",
+              "declaration": "initialState?: RmtSurfaceState;"
+            },
+            {
+              "name": "state",
+              "optional": true,
+              "type": "RmtSurfaceState",
+              "declaration": "state?: RmtSurfaceState;"
+            },
+            {
+              "name": "persistent",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "persistent?: boolean;"
+            },
+            {
+              "name": "closeReleasesResources",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "closeReleasesResources?: boolean;"
+            },
+            {
+              "name": "destroyOnClose",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "destroyOnClose?: boolean;"
+            },
+            {
+              "name": "focusOnOpen",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "focusOnOpen?: boolean;"
+            },
+            {
+              "name": "preserveOnMinimize",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "preserveOnMinimize?: boolean;"
+            }
+          ],
+          "file": "xtendrmt/rmt-surface-resource-graph-runtime.d.ts",
+          "line": 17,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtPortalDefinition",
+          "fields": [
+            {
+              "name": "id",
+              "optional": false,
+              "type": "string",
+              "declaration": "id: string;"
+            },
+            {
+              "name": "root",
+              "optional": true,
+              "type": "string",
+              "declaration": "root?: string;"
+            },
+            {
+              "name": "target",
+              "optional": true,
+              "type": "string",
+              "declaration": "target?: string;"
+            },
+            {
+              "name": "layer",
+              "optional": true,
+              "type": "string",
+              "declaration": "layer?: string;"
+            },
+            {
+              "name": "policy",
+              "optional": true,
+              "type": "string",
+              "declaration": "policy?: string;"
+            },
+            {
+              "name": "focusPolicy",
+              "optional": true,
+              "type": "string",
+              "declaration": "focusPolicy?: string;"
+            },
+            {
+              "name": "pointerPolicy",
+              "optional": true,
+              "type": "string",
+              "declaration": "pointerPolicy?: string;"
+            },
+            {
+              "name": "scrollPolicy",
+              "optional": true,
+              "type": "string",
+              "declaration": "scrollPolicy?: string;"
+            },
+            {
+              "name": "zIndexStart",
+              "optional": true,
+              "type": "number",
+              "declaration": "zIndexStart?: number;"
+            },
+            {
+              "name": "zStep",
+              "optional": true,
+              "type": "number",
+              "declaration": "zStep?: number;"
+            }
+          ],
+          "file": "xtendrmt/rmt-surface-resource-graph-runtime.d.ts",
+          "line": 47,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtOverlayDefinition",
+          "fields": [
+            {
+              "name": "id",
+              "optional": false,
+              "type": "string",
+              "declaration": "id: string;"
+            },
+            {
+              "name": "kind",
+              "optional": true,
+              "type": "RmtOverlayKind",
+              "declaration": "kind?: RmtOverlayKind;"
+            },
+            {
+              "name": "type",
+              "optional": true,
+              "type": "RmtOverlayKind",
+              "declaration": "type?: RmtOverlayKind;"
+            },
+            {
+              "name": "portal",
+              "optional": true,
+              "type": "string",
+              "declaration": "portal?: string;"
+            },
+            {
+              "name": "layer",
+              "optional": true,
+              "type": "string",
+              "declaration": "layer?: string;"
+            },
+            {
+              "name": "surface",
+              "optional": true,
+              "type": "string",
+              "declaration": "surface?: string;"
+            },
+            {
+              "name": "component",
+              "optional": true,
+              "type": "string",
+              "declaration": "component?: string;"
+            },
+            {
+              "name": "tag",
+              "optional": true,
+              "type": "string",
+              "declaration": "tag?: string;"
+            },
+            {
+              "name": "template",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "template?: unknown;"
+            },
+            {
+              "name": "attributes",
+              "optional": true,
+              "type": "Record<string, unknown>",
+              "declaration": "attributes?: Record<string, unknown>;"
+            },
+            {
+              "name": "resources",
+              "optional": true,
+              "type": "string[] | Array<{ id: string }>",
+              "declaration": "resources?: string[] | Array<{ id: string }>;"
+            },
+            {
+              "name": "dismissible",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "dismissible?: boolean;"
+            },
+            {
+              "name": "singleton",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "singleton?: boolean;"
+            },
+            {
+              "name": "focusPolicy",
+              "optional": true,
+              "type": "string",
+              "declaration": "focusPolicy?: string;"
+            },
+            {
+              "name": "escapePolicy",
+              "optional": true,
+              "type": "string",
+              "declaration": "escapePolicy?: string;"
+            },
+            {
+              "name": "pointerPolicy",
+              "optional": true,
+              "type": "string",
+              "declaration": "pointerPolicy?: string;"
+            },
+            {
+              "name": "scrollPolicy",
+              "optional": true,
+              "type": "string",
+              "declaration": "scrollPolicy?: string;"
+            },
+            {
+              "name": "closeReleasesResources",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "closeReleasesResources?: boolean;"
+            }
+          ],
+          "file": "xtendrmt/rmt-surface-resource-graph-runtime.d.ts",
+          "line": 60,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtSurfaceInstance",
+          "fields": [
+            {
+              "name": "id",
+              "optional": false,
+              "type": "string",
+              "declaration": "id: string;"
+            },
+            {
+              "name": "surfaceId",
+              "optional": false,
+              "type": "string",
+              "declaration": "surfaceId: string;"
+            },
+            {
+              "name": "kind",
+              "optional": false,
+              "type": "RmtSurfaceKind",
+              "declaration": "kind: RmtSurfaceKind;"
+            },
+            {
+              "name": "key",
+              "optional": false,
+              "type": "string",
+              "declaration": "key: string;"
+            },
+            {
+              "name": "owner",
+              "optional": false,
+              "type": "string",
+              "declaration": "owner: string;"
+            },
+            {
+              "name": "source",
+              "optional": false,
+              "type": "string",
+              "declaration": "source: string;"
+            },
+            {
+              "name": "record",
+              "optional": false,
+              "type": "unknown",
+              "declaration": "record: unknown;"
+            },
+            {
+              "name": "component",
+              "optional": false,
+              "type": "string",
+              "declaration": "component: string;"
+            },
+            {
+              "name": "template",
+              "optional": false,
+              "type": "unknown",
+              "declaration": "template: unknown;"
+            },
+            {
+              "name": "portal",
+              "optional": false,
+              "type": "string",
+              "declaration": "portal: string;"
+            },
+            {
+              "name": "placement",
+              "optional": false,
+              "type": "string",
+              "declaration": "placement: string;"
+            },
+            {
+              "name": "mode",
+              "optional": false,
+              "type": "string",
+              "declaration": "mode: string;"
+            },
+            {
+              "name": "persistent",
+              "optional": false,
+              "type": "boolean",
+              "declaration": "persistent: boolean;"
+            },
+            {
+              "name": "resources",
+              "optional": false,
+              "type": "string[]",
+              "declaration": "resources: string[];"
+            },
+            {
+              "name": "resourcesAcquired",
+              "optional": false,
+              "type": "boolean",
+              "declaration": "resourcesAcquired: boolean;"
+            },
+            {
+              "name": "state",
+              "optional": false,
+              "type": "RmtSurfaceState",
+              "declaration": "state: RmtSurfaceState;"
+            },
+            {
+              "name": "bounds",
+              "optional": false,
+              "type": "RmtSurfaceBounds",
+              "declaration": "bounds: RmtSurfaceBounds;"
+            },
+            {
+              "name": "previousBounds",
+              "optional": false,
+              "type": "RmtSurfaceBounds | null",
+              "declaration": "previousBounds: RmtSurfaceBounds | null;"
+            },
+            {
+              "name": "minimizedAt",
+              "optional": false,
+              "type": "string | null",
+              "declaration": "minimizedAt: string | null;"
+            },
+            {
+              "name": "closedAt",
+              "optional": false,
+              "type": "string | null",
+              "declaration": "closedAt: string | null;"
+            },
+            {
+              "name": "destroyedAt",
+              "optional": false,
+              "type": "string | null",
+              "declaration": "destroyedAt: string | null;"
+            },
+            {
+              "name": "zIndex",
+              "optional": false,
+              "type": "number",
+              "declaration": "zIndex: number;"
+            },
+            {
+              "name": "focusOrder",
+              "optional": false,
+              "type": "number",
+              "declaration": "focusOrder: number;"
+            },
+            {
+              "name": "metadata",
+              "optional": false,
+              "type": "Record<string, unknown>",
+              "declaration": "metadata: Record<string, unknown>;"
+            }
+          ],
+          "file": "xtendrmt/rmt-surface-resource-graph-runtime.d.ts",
+          "line": 81,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtOverlayInstance",
+          "fields": [
+            {
+              "name": "id",
+              "optional": false,
+              "type": "string",
+              "declaration": "id: string;"
+            },
+            {
+              "name": "overlayId",
+              "optional": false,
+              "type": "string",
+              "declaration": "overlayId: string;"
+            },
+            {
+              "name": "kind",
+              "optional": false,
+              "type": "RmtOverlayKind",
+              "declaration": "kind: RmtOverlayKind;"
+            },
+            {
+              "name": "ownerId",
+              "optional": false,
+              "type": "string",
+              "declaration": "ownerId: string;"
+            },
+            {
+              "name": "portal",
+              "optional": false,
+              "type": "string",
+              "declaration": "portal: string;"
+            },
+            {
+              "name": "layer",
+              "optional": false,
+              "type": "string",
+              "declaration": "layer: string;"
+            },
+            {
+              "name": "state",
+              "optional": false,
+              "type": "'open' | 'closed' | string",
+              "declaration": "state: 'open' | 'closed' | string;"
+            },
+            {
+              "name": "dismissible",
+              "optional": false,
+              "type": "boolean",
+              "declaration": "dismissible: boolean;"
+            },
+            {
+              "name": "focusPolicy",
+              "optional": false,
+              "type": "string",
+              "declaration": "focusPolicy: string;"
+            },
+            {
+              "name": "escapePolicy",
+              "optional": false,
+              "type": "string",
+              "declaration": "escapePolicy: string;"
+            },
+            {
+              "name": "pointerPolicy",
+              "optional": false,
+              "type": "string",
+              "declaration": "pointerPolicy: string;"
+            },
+            {
+              "name": "scrollPolicy",
+              "optional": false,
+              "type": "string",
+              "declaration": "scrollPolicy: string;"
+            },
+            {
+              "name": "zIndex",
+              "optional": false,
+              "type": "number",
+              "declaration": "zIndex: number;"
+            },
+            {
+              "name": "resources",
+              "optional": false,
+              "type": "string[]",
+              "declaration": "resources: string[];"
+            },
+            {
+              "name": "resourcesAcquired",
+              "optional": false,
+              "type": "boolean",
+              "declaration": "resourcesAcquired: boolean;"
+            },
+            {
+              "name": "payload",
+              "optional": false,
+              "type": "unknown",
+              "declaration": "payload: unknown;"
+            },
+            {
+              "name": "openedAt",
+              "optional": false,
+              "type": "string",
+              "declaration": "openedAt: string;"
+            },
+            {
+              "name": "closedAt",
+              "optional": false,
+              "type": "string | null",
+              "declaration": "closedAt: string | null;"
+            },
+            {
+              "name": "elementMounted",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "elementMounted?: boolean;"
+            }
+          ],
+          "file": "xtendrmt/rmt-surface-resource-graph-runtime.d.ts",
+          "line": 108,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtSurfaceResourceGraphDiagnostic",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "typeof RMT_SURFACE_RESOURCE_GRAPH_DIAGNOSTIC_SCHEMA",
+              "declaration": "schema: typeof RMT_SURFACE_RESOURCE_GRAPH_DIAGNOSTIC_SCHEMA;"
+            },
+            {
+              "name": "code",
+              "optional": false,
+              "type": "string",
+              "declaration": "code: string;"
+            },
+            {
+              "name": "message",
+              "optional": false,
+              "type": "string",
+              "declaration": "message: string;"
+            },
+            {
+              "name": "severity",
+              "optional": false,
+              "type": "'info' | 'warning' | 'error'",
+              "declaration": "severity: 'info' | 'warning' | 'error';"
+            },
+            {
+              "name": "details",
+              "optional": true,
+              "type": "Record<string, unknown>",
+              "declaration": "details?: Record<string, unknown>;"
+            }
+          ],
+          "file": "xtendrmt/rmt-surface-resource-graph-runtime.d.ts",
+          "line": 130,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtSurfaceResourceGraphSnapshot",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "'xtend.epic18.rmt-surface-resource-graph-snapshot.v1'",
+              "declaration": "schema: 'xtend.epic18.rmt-surface-resource-graph-snapshot.v1';"
+            },
+            {
+              "name": "runtimeSchema",
+              "optional": false,
+              "type": "typeof RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_SCHEMA",
+              "declaration": "runtimeSchema: typeof RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_SCHEMA;"
+            },
+            {
+              "name": "disposed",
+              "optional": false,
+              "type": "boolean",
+              "declaration": "disposed: boolean;"
+            },
+            {
+              "name": "surfaces",
+              "optional": false,
+              "type": "Array<Partial<RmtSurfaceInstance> & { id: string }>",
+              "declaration": "surfaces: Array<Partial<RmtSurfaceInstance> & { id: string }>;"
+            },
+            {
+              "name": "overlays",
+              "optional": false,
+              "type": "RmtOverlayInstance[]",
+              "declaration": "overlays: RmtOverlayInstance[];"
+            },
+            {
+              "name": "portals",
+              "optional": false,
+              "type": "Array<Record<string, unknown>>",
+              "declaration": "portals: Array<Record<string, unknown>>;"
+            }
+          ],
+          "file": "xtendrmt/rmt-surface-resource-graph-runtime.d.ts",
+          "line": 138,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtResourceManagerLike",
+          "fields": [
+            {
+              "name": "acquireMany",
+              "optional": false,
+              "type": "Promise<unknown[]> | unknown[]",
+              "declaration": "acquireMany(resourceIds: string[], ownerId?: string, context?: Record<string, unknown>): Promise<unknown[]> | unknown[];"
+            },
+            {
+              "name": "releaseOwner",
+              "optional": false,
+              "type": "{ schema?: string; owner?: string; releasedCount: number }",
+              "declaration": "releaseOwner(ownerId?: string): { schema?: string; owner?: string; releasedCount: number };"
+            }
+          ],
+          "file": "xtendrmt/rmt-surface-resource-graph-runtime.d.ts",
+          "line": 147,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtEventRuntimeLike",
+          "fields": [
+            {
+              "name": "detachOwner",
+              "optional": false,
+              "type": "{ schema?: string; owner?: string; detachedCount: number }",
+              "declaration": "detachOwner(ownerId?: string): { schema?: string; owner?: string; detachedCount: number };"
+            }
+          ],
+          "file": "xtendrmt/rmt-surface-resource-graph-runtime.d.ts",
+          "line": 152,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtDomRendererLike",
+          "fields": [
+            {
+              "name": "commit",
+              "optional": false,
+              "type": "{\n    target?: unknown;\n    nodes?: unknown[];\n    [key: string]: unknown;\n  } | unknown",
+              "declaration": "commit(request: Record<string, unknown>): {\n    target?: unknown;\n    nodes?: unknown[];\n    [key: string]: unknown;\n  } | unknown;"
+            },
+            {
+              "name": "dispose",
+              "optional": true,
+              "type": "void",
+              "declaration": "dispose?(target?: unknown, options?: { clearOwnedDom?: boolean }): void;"
+            }
+          ],
+          "file": "xtendrmt/rmt-surface-resource-graph-runtime.d.ts",
+          "line": 156,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtSurfaceManagerLike",
+          "fields": [
+            {
+              "name": "apply",
+              "optional": true,
+              "type": "{\n    ok?: boolean;\n    changed?: boolean;\n    snapshot?: { version?: number; surfaces?: Array<Record<string, unknown>> };\n    code?: string;\n  }",
+              "declaration": "apply?(operations: Array<Record<string, unknown>>, metadata?: Record<string, unknown>): {\n    ok?: boolean;\n    changed?: boolean;\n    snapshot?: { version?: number; surfaces?: Array<Record<string, unknown>> };\n    code?: string;\n  };"
+            },
+            {
+              "name": "registerSurface",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "registerSurface?(record: Record<string, unknown>): unknown;"
+            },
+            {
+              "name": "openSurface",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "openSurface?(surfaceId: string, input?: Record<string, unknown>): unknown;"
+            },
+            {
+              "name": "closeSurface",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "closeSurface?(surfaceId: string, reason?: string): unknown;"
+            },
+            {
+              "name": "focusSurface",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "focusSurface?(surfaceId: string): unknown;"
+            },
+            {
+              "name": "updateSurface",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "updateSurface?(surfaceId: string, patch?: Record<string, unknown>): unknown;"
+            },
+            {
+              "name": "minimizeSurface",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "minimizeSurface?(surfaceId: string): unknown;"
+            },
+            {
+              "name": "restoreSurface",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "restoreSurface?(surfaceId: string): unknown;"
+            },
+            {
+              "name": "materializeSurface",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "materializeSurface?(surfaceId: string, input?: Record<string, unknown>): unknown;"
+            },
+            {
+              "name": "toggleSurface",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "toggleSurface?(surfaceId: string, input?: Record<string, unknown>): unknown;"
+            },
+            {
+              "name": "destroySurface",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "destroySurface?(surfaceId: string, input?: Record<string, unknown>): unknown;"
+            },
+            {
+              "name": "readSnapshot",
+              "optional": true,
+              "type": "{ surfaces?: Array<Record<string, unknown>> } | null | undefined",
+              "declaration": "readSnapshot?(options?: Record<string, unknown>): { surfaces?: Array<Record<string, unknown>> } | null | undefined;"
+            },
+            {
+              "name": "snapshot",
+              "optional": true,
+              "type": "{ surfaces?: Array<Record<string, unknown>> } | null | undefined",
+              "declaration": "snapshot?(options?: Record<string, unknown>): { surfaces?: Array<Record<string, unknown>> } | null | undefined;"
+            }
+          ],
+          "file": "xtendrmt/rmt-surface-resource-graph-runtime.d.ts",
+          "line": 165,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtSurfaceResourceGraphRuntimeOptions",
+          "fields": [
+            {
+              "name": "diagnosticLimit",
+              "optional": true,
+              "type": "number",
+              "declaration": "diagnosticLimit?: number;"
+            },
+            {
+              "name": "getSurfaceBoundary",
+              "optional": true,
+              "type": "RmtPresentationBoundaryPort",
+              "declaration": "getSurfaceBoundary?(id: string): RmtPresentationBoundaryPort;"
+            },
+            {
+              "name": "surfaces",
+              "optional": true,
+              "type": "RmtSurfaceDefinition[]",
+              "declaration": "surfaces?: RmtSurfaceDefinition[];"
+            },
+            {
+              "name": "surfaceTemplates",
+              "optional": true,
+              "type": "RmtSurfaceDefinition[]",
+              "declaration": "surfaceTemplates?: RmtSurfaceDefinition[];"
+            },
+            {
+              "name": "surfaceDefinitions",
+              "optional": true,
+              "type": "RmtSurfaceDefinition[]",
+              "declaration": "surfaceDefinitions?: RmtSurfaceDefinition[];"
+            },
+            {
+              "name": "overlays",
+              "optional": true,
+              "type": "RmtOverlayDefinition[]",
+              "declaration": "overlays?: RmtOverlayDefinition[];"
+            },
+            {
+              "name": "overlayDefinitions",
+              "optional": true,
+              "type": "RmtOverlayDefinition[]",
+              "declaration": "overlayDefinitions?: RmtOverlayDefinition[];"
+            },
+            {
+              "name": "portals",
+              "optional": true,
+              "type": "RmtPortalDefinition[]",
+              "declaration": "portals?: RmtPortalDefinition[];"
+            },
+            {
+              "name": "resourceManager",
+              "optional": true,
+              "type": "RmtResourceManagerLike",
+              "declaration": "resourceManager?: RmtResourceManagerLike;"
+            },
+            {
+              "name": "eventRuntime",
+              "optional": true,
+              "type": "RmtEventRuntimeLike",
+              "declaration": "eventRuntime?: RmtEventRuntimeLike;"
+            },
+            {
+              "name": "surfaceController",
+              "optional": true,
+              "type": "RmtSurfaceManagerLike | (() => RmtSurfaceManagerLike | null | undefined)",
+              "declaration": "surfaceController?: RmtSurfaceManagerLike | (() => RmtSurfaceManagerLike | null | undefined);"
+            },
+            {
+              "name": "surfaceManager",
+              "optional": true,
+              "type": "RmtSurfaceManagerLike | (() => RmtSurfaceManagerLike | null | undefined)",
+              "declaration": "surfaceManager?: RmtSurfaceManagerLike | (() => RmtSurfaceManagerLike | null | undefined);"
+            },
+            {
+              "name": "managerElement",
+              "optional": true,
+              "type": "RmtSurfaceManagerLike",
+              "declaration": "managerElement?: RmtSurfaceManagerLike;"
+            },
+            {
+              "name": "xSurfaceManager",
+              "optional": true,
+              "type": "RmtSurfaceManagerLike",
+              "declaration": "xSurfaceManager?: RmtSurfaceManagerLike;"
+            },
+            {
+              "name": "managerId",
+              "optional": true,
+              "type": "string",
+              "declaration": "managerId?: string;"
+            },
+            {
+              "name": "surfaceManagerBridgeId",
+              "optional": true,
+              "type": "string",
+              "declaration": "surfaceManagerBridgeId?: string;"
+            },
+            {
+              "name": "runtimeId",
+              "optional": true,
+              "type": "string",
+              "declaration": "runtimeId?: string;"
+            },
+            {
+              "name": "persistenceAdapter",
+              "optional": true,
+              "type": "{\n    save(snapshot: RmtSurfaceResourceGraphSnapshot): unknown;\n    load(): RmtSurfaceResourceGraphSnapshot | null | undefined;\n  }",
+              "declaration": "persistenceAdapter?: {\n    save(snapshot: RmtSurfaceResourceGraphSnapshot): unknown;\n    load(): RmtSurfaceResourceGraphSnapshot | null | undefined;\n  };"
+            },
+            {
+              "name": "focusAdapter",
+              "optional": true,
+              "type": "{ focus(surface: RmtSurfaceInstance, metadata?: Record<string, unknown>): unknown }",
+              "declaration": "focusAdapter?: { focus(surface: RmtSurfaceInstance, metadata?: Record<string, unknown>): unknown };"
+            },
+            {
+              "name": "domRenderer",
+              "optional": true,
+              "type": "RmtDomRendererLike",
+              "declaration": "domRenderer?: RmtDomRendererLike;"
+            },
+            {
+              "name": "renderer",
+              "optional": true,
+              "type": "RmtDomRendererLike",
+              "declaration": "renderer?: RmtDomRendererLike;"
+            },
+            {
+              "name": "strict",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "strict?: boolean;"
+            },
+            {
+              "name": "strictMaraca",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "strictMaraca?: boolean;"
+            },
+            {
+              "name": "documentTarget",
+              "optional": true,
+              "type": "{\n    body?: { appendChild(node: unknown): unknown };\n    createElement(tag: string): unknown;\n    createTextNode?(text: string): unknown;\n  }",
+              "declaration": "documentTarget?: {\n    body?: { appendChild(node: unknown): unknown };\n    createElement(tag: string): unknown;\n    createTextNode?(text: string): unknown;\n  };"
+            },
+            {
+              "name": "document",
+              "optional": true,
+              "type": "RmtSurfaceResourceGraphRuntimeOptions['documentTarget']",
+              "declaration": "document?: RmtSurfaceResourceGraphRuntimeOptions['documentTarget'];"
+            },
+            {
+              "name": "diagnosticsHub",
+              "optional": true,
+              "type": "{ publish(channel: string, payload: unknown, meta?: Record<string, unknown>): unknown }",
+              "declaration": "diagnosticsHub?: { publish(channel: string, payload: unknown, meta?: Record<string, unknown>): unknown };"
+            },
+            {
+              "name": "diagnosticChannel",
+              "optional": true,
+              "type": "string",
+              "declaration": "diagnosticChannel?: string;"
+            }
+          ],
+          "file": "xtendrmt/rmt-surface-resource-graph-runtime.d.ts",
+          "line": 186,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtSurfaceResourceGraphRuntime",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "typeof RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_SCHEMA",
+              "declaration": "schema: typeof RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_SCHEMA;"
+            },
+            {
+              "name": "materialize",
+              "optional": false,
+              "type": "{\n    schema: 'xtend.epic18.rmt-surface-materialize-report.v1';\n    createdCount: number;\n    reusedCount: number;\n    created: string[];\n    reused: string[];\n  }",
+              "declaration": "materialize(recordsBySource?: unknown[] | Record<string, unknown[]>, options?: Record<string, unknown>): {\n    schema: 'xtend.epic18.rmt-surface-materialize-report.v1';\n    createdCount: number;\n    reusedCount: number;\n    created: string[];\n    reused: string[];\n  };"
+            },
+            {
+              "name": "openSurface",
+              "optional": false,
+              "type": "Promise<RmtSurfaceInstance | { ok: false; status: 'superseded'; surfaceId: string }>",
+              "declaration": "openSurface(surfaceRef: string, options?: Record<string, unknown>): Promise<RmtSurfaceInstance | { ok: false; status: 'superseded'; surfaceId: string }>;"
+            },
+            {
+              "name": "closeSurface",
+              "optional": false,
+              "type": "RmtSurfaceInstance",
+              "declaration": "closeSurface(surfaceRef: string, metadata?: Record<string, unknown>): RmtSurfaceInstance;"
+            },
+            {
+              "name": "destroySurface",
+              "optional": false,
+              "type": "RmtSurfaceInstance",
+              "declaration": "destroySurface(surfaceRef: string, metadata?: Record<string, unknown>): RmtSurfaceInstance;"
+            },
+            {
+              "name": "minimizeSurface",
+              "optional": false,
+              "type": "RmtSurfaceInstance",
+              "declaration": "minimizeSurface(surfaceRef: string, metadata?: Record<string, unknown>): RmtSurfaceInstance;"
+            },
+            {
+              "name": "restoreSurface",
+              "optional": false,
+              "type": "RmtSurfaceInstance",
+              "declaration": "restoreSurface(surfaceRef: string, metadata?: Record<string, unknown>): RmtSurfaceInstance;"
+            },
+            {
+              "name": "focusSurface",
+              "optional": false,
+              "type": "RmtSurfaceInstance",
+              "declaration": "focusSurface(surfaceRef: string, metadata?: Record<string, unknown>): RmtSurfaceInstance;"
+            },
+            {
+              "name": "setBounds",
+              "optional": false,
+              "type": "RmtSurfaceInstance",
+              "declaration": "setBounds(surfaceRef: string, bounds: Partial<RmtSurfaceBounds>, metadata?: Record<string, unknown>): RmtSurfaceInstance;"
+            },
+            {
+              "name": "moveSurface",
+              "optional": false,
+              "type": "RmtSurfaceInstance",
+              "declaration": "moveSurface(surfaceRef: string, x: number, y: number): RmtSurfaceInstance;"
+            },
+            {
+              "name": "resizeSurface",
+              "optional": false,
+              "type": "RmtSurfaceInstance",
+              "declaration": "resizeSurface(surfaceRef: string, width: number, height: number): RmtSurfaceInstance;"
+            },
+            {
+              "name": "openOverlay",
+              "optional": false,
+              "type": "Promise<RmtOverlayInstance>",
+              "declaration": "openOverlay(overlayRef: string, metadata?: Record<string, unknown>): Promise<RmtOverlayInstance>;"
+            },
+            {
+              "name": "closeOverlay",
+              "optional": false,
+              "type": "{ schema: 'xtend.epic18.rmt-overlay-close-report.v1'; closed: boolean; overlay?: RmtOverlayInstance | string }",
+              "declaration": "closeOverlay(overlayRef: string, metadata?: Record<string, unknown>): { schema: 'xtend.epic18.rmt-overlay-close-report.v1'; closed: boolean; overlay?: RmtOverlayInstance | string };"
+            },
+            {
+              "name": "closeTopOverlay",
+              "optional": false,
+              "type": "{ schema: 'xtend.epic18.rmt-overlay-close-report.v1'; closed: boolean; overlay?: RmtOverlayInstance; reason?: string }",
+              "declaration": "closeTopOverlay(metadata?: Record<string, unknown>): { schema: 'xtend.epic18.rmt-overlay-close-report.v1'; closed: boolean; overlay?: RmtOverlayInstance; reason?: string };"
+            },
+            {
+              "name": "mountPortal",
+              "optional": false,
+              "type": "Record<string, unknown>",
+              "declaration": "mountPortal(portalRef: string, target?: unknown): Record<string, unknown>;"
+            },
+            {
+              "name": "persistSnapshot",
+              "optional": false,
+              "type": "RmtSurfaceResourceGraphSnapshot",
+              "declaration": "persistSnapshot(): RmtSurfaceResourceGraphSnapshot;"
+            },
+            {
+              "name": "hydrateSnapshot",
+              "optional": false,
+              "type": "{ schema: 'xtend.epic18.rmt-surface-hydrate-report.v1'; hydratedCount: number }",
+              "declaration": "hydrateSnapshot(snapshot?: RmtSurfaceResourceGraphSnapshot): { schema: 'xtend.epic18.rmt-surface-hydrate-report.v1'; hydratedCount: number };"
+            },
+            {
+              "name": "getSnapshot",
+              "optional": false,
+              "type": "RmtSurfaceResourceGraphSnapshot",
+              "declaration": "getSnapshot(): RmtSurfaceResourceGraphSnapshot;"
+            },
+            {
+              "name": "dispose",
+              "optional": false,
+              "type": "{\n    schema: 'xtend.epic18.rmt-surface-resource-graph-dispose-report.v1';\n    disposed: true;\n    alreadyDisposed: boolean;\n    closedOverlayCount: number;\n    releasedOwnerCount: number;\n    removedPortalCount: number;\n  }",
+              "declaration": "dispose(): {\n    schema: 'xtend.epic18.rmt-surface-resource-graph-dispose-report.v1';\n    disposed: true;\n    alreadyDisposed: boolean;\n    closedOverlayCount: number;\n    releasedOwnerCount: number;\n    removedPortalCount: number;\n  };"
+            },
+            {
+              "name": "getSurface",
+              "optional": false,
+              "type": "RmtSurfaceInstance | null",
+              "declaration": "getSurface(surfaceRef: string): RmtSurfaceInstance | null;"
+            },
+            {
+              "name": "listSurfaces",
+              "optional": false,
+              "type": "RmtSurfaceDefinition[]",
+              "declaration": "listSurfaces(): RmtSurfaceDefinition[];"
+            },
+            {
+              "name": "listInstances",
+              "optional": false,
+              "type": "RmtSurfaceInstance[]",
+              "declaration": "listInstances(options?: { includeDestroyed?: boolean }): RmtSurfaceInstance[];"
+            },
+            {
+              "name": "listOverlays",
+              "optional": false,
+              "type": "RmtOverlayInstance[]",
+              "declaration": "listOverlays(options?: { includeClosed?: boolean }): RmtOverlayInstance[];"
+            },
+            {
+              "name": "listPortals",
+              "optional": false,
+              "type": "Array<Record<string, unknown>>",
+              "declaration": "listPortals(): Array<Record<string, unknown>>;"
+            },
+            {
+              "name": "listDiagnostics",
+              "optional": false,
+              "type": "RmtSurfaceResourceGraphDiagnostic[]",
+              "declaration": "listDiagnostics(): RmtSurfaceResourceGraphDiagnostic[];"
+            }
+          ],
+          "file": "xtendrmt/rmt-surface-resource-graph-runtime.d.ts",
+          "line": 226,
+          "symbol": "<anonymous>"
+        }
+      ],
       "astFactories": [],
       "coreRecords": [],
       "artifactLayouts": []
@@ -14237,7 +17634,7 @@
             "hidden"
           ],
           "file": "xtend-maraca/plan-runtime.mjs",
-          "line": 107,
+          "line": 174,
           "symbol": "<anonymous>"
         },
         {
@@ -14251,7 +17648,7 @@
             "invalid"
           ],
           "file": "xtend-maraca/plan-runtime.mjs",
-          "line": 108,
+          "line": 175,
           "symbol": "<anonymous>"
         },
         {
@@ -14268,7 +17665,7 @@
             "will-change"
           ],
           "file": "xtend-maraca/plan-runtime.mjs",
-          "line": 109,
+          "line": 176,
           "symbol": "<anonymous>"
         }
       ],
@@ -19156,6 +22553,9 @@
         "execution": [
           "string"
         ],
+        "handlers": [
+          "array"
+        ],
         "id": [
           "string"
         ],
@@ -19186,9 +22586,113 @@
       "count": 6,
       "fields": {
         "name": [
-          "undefined"
+          "string"
         ],
         "value": [
+          "string"
+        ],
+        "valueKind": [
+          "string"
+        ]
+      }
+    },
+    "/appPlatform/actions/*/handlers/*": {
+      "count": 3,
+      "fields": {
+        "emit": [
+          "object"
+        ],
+        "kind": [
+          "string"
+        ],
+        "options": [
+          "object"
+        ],
+        "phase": [
+          "string"
+        ],
+        "reducer": [
+          "object"
+        ],
+        "target": [
+          "string"
+        ]
+      }
+    },
+    "/appPlatform/actions/*/handlers/*/emit": {
+      "count": 1,
+      "fields": {
+        "event": [
+          "string"
+        ],
+        "payload": [
+          "array"
+        ]
+      }
+    },
+    "/appPlatform/actions/*/handlers/*/emit/payload/*": {
+      "count": 1,
+      "fields": {
+        "name": [
+          "string"
+        ],
+        "value": [
+          "string"
+        ],
+        "valueKind": [
+          "string"
+        ]
+      }
+    },
+    "/appPlatform/actions/*/handlers/*/options": {
+      "count": 1,
+      "fields": {
+        "message": [
+          "object"
+        ],
+        "tone": [
+          "object"
+        ]
+      }
+    },
+    "/appPlatform/actions/*/handlers/*/options/message": {
+      "count": 1,
+      "fields": {
+        "value": [
+          "string"
+        ],
+        "valueKind": [
+          "string"
+        ]
+      }
+    },
+    "/appPlatform/actions/*/handlers/*/options/tone": {
+      "count": 1,
+      "fields": {
+        "value": [
+          "string"
+        ],
+        "valueKind": [
+          "string"
+        ]
+      }
+    },
+    "/appPlatform/actions/*/handlers/*/reducer": {
+      "count": 1,
+      "fields": {
+        "path": [
+          "string"
+        ],
+        "state": [
+          "string"
+        ],
+        "target": [
+          "string"
+        ],
+        "value": [
+          "string"
+        ],
+        "valueKind": [
           "string"
         ]
       }
@@ -19232,6 +22736,9 @@
         ],
         "value": [
           "boolean",
+          "string"
+        ],
+        "valueKind": [
           "string"
         ]
       }
@@ -20806,6 +24313,9 @@
         "execution": [
           "string"
         ],
+        "handlers": [
+          "array"
+        ],
         "id": [
           "string"
         ],
@@ -20835,9 +24345,77 @@
       "count": 6,
       "fields": {
         "name": [
-          "undefined"
+          "string"
         ],
         "value": [
+          "string"
+        ],
+        "valueKind": [
+          "string"
+        ]
+      }
+    },
+    "/orchestration/actions/actions/*/handlers/*": {
+      "count": 3,
+      "fields": {
+        "emit": [
+          "object"
+        ],
+        "kind": [
+          "string"
+        ],
+        "options": [
+          "object"
+        ],
+        "phase": [
+          "string"
+        ],
+        "reducer": [
+          "object"
+        ],
+        "target": [
+          "string"
+        ]
+      }
+    },
+    "/orchestration/actions/actions/*/handlers/*/emit": {
+      "count": 1,
+      "fields": {
+        "event": [
+          "string"
+        ],
+        "payload": [
+          "array"
+        ]
+      }
+    },
+    "/orchestration/actions/actions/*/handlers/*/options": {
+      "count": 1,
+      "fields": {
+        "message": [
+          "object"
+        ],
+        "tone": [
+          "object"
+        ]
+      }
+    },
+    "/orchestration/actions/actions/*/handlers/*/reducer": {
+      "count": 1,
+      "fields": {
+        "path": [
+          "string"
+        ],
+        "state": [
+          "string"
+        ],
+        "target": [
+          "string"
+        ],
+        "value": [
+          "string"
+        ],
+        "valueKind": [
           "string"
         ]
       }
@@ -20881,6 +24459,9 @@
         ],
         "value": [
           "boolean",
+          "string"
+        ],
+        "valueKind": [
           "string"
         ]
       }
@@ -23893,6 +27474,9 @@
         ],
         "value": [
           "boolean",
+          "string"
+        ],
+        "valueKind": [
           "string"
         ]
       }

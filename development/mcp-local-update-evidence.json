@@ -1,0 +1,175 @@
+{
+  "format": 1,
+  "version": "1.0.0",
+  "date": "2026-11-15",
+  "status": "updated-and-live-verified",
+  "sourceBaseSha": "02dcd815ebe4ddca196e82163191fe7360b95a05",
+  "sourceKind": "local-worktree",
+  "worktreeDirty": true,
+  "workspace": {
+    "serverVersion": "0.1.0",
+    "command": "/usr/share/code/code",
+    "args": [
+      "/home/konni/Downloads/xtend-dev/xtend/products/xtend-mcp/bin/xtend-mcp.mjs",
+      "stdio",
+      "--workspace",
+      "/home/konni/Downloads/xtend-dev/xtend"
+    ],
+    "electronNodeVersion": "24.22.1",
+    "electronRunAsNode": true,
+    "temporaryLoaderUsed": false,
+    "tools": [
+      "xtend_knowledge_search",
+      "xtend_knowledge_context",
+      "xtend_rmt_diagnostics",
+      "xtend_rmt_compile_check",
+      "xtend_maraca_plan",
+      "xtend_rmt_repair_plan"
+    ],
+    "compileOk": true,
+    "planOk": true,
+    "planStatus": "planned",
+    "persistentSdkPrefix": "/home/konni/.local/share/xtend-mcp/workspace-runtime",
+    "sdkVersions": {
+      "@modelcontextprotocol/client": "2.3.0",
+      "@modelcontextprotocol/node": "2.1.2",
+      "@modelcontextprotocol/server": "2.4.0",
+      "zod": "4.6.6"
+    },
+    "workspaceSdkLinks": [
+      "/home/konni/Downloads/xtend-dev/xtend/node_modules/@modelcontextprotocol",
+      "/home/konni/Downloads/xtend-dev/xtend/node_modules/zod"
+    ]
+  },
+  "hosted": {
+    "hostedApiVersion": "0.2.0",
+    "containerId": "09552b8c03c75b3eab88ca9e3a5f1ed317ea823bfb44b6a5049754d5f17eac80",
+    "imageId": "sha256:571acb6f31002bf8b0e6b1a7cd728c9df83d363a3e7af28d1b9511f499c9bac9",
+    "health": "healthy",
+    "snapshotId": "e53ee924e6024d7821ab913ad4d2fb3a6af4c077",
+    "sourceFingerprint": "e53ee924e6024d7821ab913ad4d2fb3a6af4c077f7f33b07109d8e81546174de",
+    "deploymentDir": "/home/konni/Documents/Codex/2026-10-15/kan/outputs/xtend-mcp/local-refresh/e53ee924e602-ac6324b0cd59",
+    "hostedSourceSha256": "ac6324b0cd590b876c216c56d62bf5e09215c0668adffad1b10a97ad7d72b7cf",
+    "knowledgeVolumeUnchanged": true,
+    "envFileUnchanged": true,
+    "accessTokenPreserved": true,
+    "upstreamGithubCredentialRemovedFromLocalMode": true,
+    "rollbackPerformed": false
+  },
+  "readiness": {
+    "ready": true,
+    "repository": "konnilabs/xtend",
+    "ref": "local-worktree",
+    "commit": "e53ee924e6024d7821ab913ad4d2fb3a6af4c077",
+    "sourceKind": "local-worktree",
+    "commitKind": "local-bundle-fingerprint",
+    "sourceFingerprint": "e53ee924e6024d7821ab913ad4d2fb3a6af4c077f7f33b07109d8e81546174de",
+    "baseCommit": "02dcd815ebe4ddca196e82163191fe7360b95a05",
+    "worktreeDirty": true,
+    "sourceVerified": true,
+    "upstreamSyncDisabled": true,
+    "activatedAt": "2026-11-15T19:30:58.180Z",
+    "checkedAt": "2026-11-15T19:30:58.180Z",
+    "lastError": null,
+    "syncing": false,
+    "retryAt": null,
+    "availableSnapshots": [
+      "e53ee924e6024d7821ab913ad4d2fb3a6af4c077",
+      "8dcc2503740d884ab8901d28f0456ebbe786fa7e",
+      "08c2e4be5a3408b720505bff6b8f79f12d225858",
+      "16902dc4ea9b7563b205147fc22af47c71bf6126"
+    ],
+    "docs": 356,
+    "recipes": 6
+  },
+  "liveChecks": {
+    "serverVersion": "0.2.0",
+    "tools": [
+      "xtend_knowledge_search",
+      "xtend_knowledge_context",
+      "xtend_recipe_list"
+    ],
+    "verifiedCurrentResources": [
+      {
+        "uri": "xtend://docs/de/rmt-reference-actions-events",
+        "sha256": "676a6870942c6fda826beaeb17606d3c917f9bb46d4c274800814a447e3a874f"
+      },
+      {
+        "uri": "xtend://docs/de/rmt-reference-conditions-expressions",
+        "sha256": "76eaced6a39d0d68dadc6b965633a9708395a605e3019334a6a537dd1545166c"
+      },
+      {
+        "uri": "xtend://docs/de/rmt-reference-enums-catalogs",
+        "sha256": "8c0bc3884a0d00a66456e24677a48138bde6b3be2497b4d3afe7835543b80604"
+      },
+      {
+        "uri": "xtend://docs/de/xtend-mcp",
+        "sha256": "9e7c687d08bd37836267048863309614a89fbfbd09083d1ca1c2782041a2df8a"
+      },
+      {
+        "uri": "xtend://docs/en/rmt-reference-actions-events",
+        "sha256": "c6d21c48faaddd2bd9a8538a74b57e05c1b46660c288f069852dd2cf8621a979"
+      },
+      {
+        "uri": "xtend://docs/en/rmt-reference-conditions-expressions",
+        "sha256": "5d6ae09ddf299015464a329bba25781b4b93f84445be0f63e4a3dd2314a5c613"
+      },
+      {
+        "uri": "xtend://docs/en/rmt-reference-enums-catalogs",
+        "sha256": "f61309d10c779506f4b1451471cbaaf0555bc5a2645b013831ebdc3bee42f2b5"
+      },
+      {
+        "uri": "xtend://docs/en/xtend-mcp",
+        "sha256": "cde556d5d1a90826f0f96e9ad75dc80afd43bdf52433ce8270d0ba5353c40869"
+      }
+    ],
+    "recipePagination": true,
+    "historicalPinPreserved": "8dcc2503740d884ab8901d28f0456ebbe786fa7e",
+    "historicalRecipeCatalogVersion": 1,
+    "localRecipeCatalogVersion": 2,
+    "unauthenticatedRejected": true,
+    "hostOriginGuardsPassed": true,
+    "oversizedBodyRejected": true,
+    "subsequentRequestSucceeded": true
+  },
+  "capturedFiles": 485,
+  "canonicalKernelSources": 90,
+  "kernelModuleSourceHashes": 79,
+  "tests": {
+    "repoMcp": {
+      "passed": 27,
+      "failed": 0
+    },
+    "hosted": {
+      "passed": 20,
+      "failed": 0
+    },
+    "exporterIncludedInRepoSuite": 3,
+    "knowledgeDriftCheckPassed": true
+  },
+  "rollback": {
+    "backupDir": "/home/konni/Documents/Codex/2026-10-15/kan/outputs/xtend-mcp/local-refresh/backups/20261115T191427Z",
+    "rollbackImage": "xtend-mcp:rollback-20261115t191427z",
+    "archiveSha256": "4e8454e5f3bbbd4f39a3251f153da01b8ab37016fb4c3c2cbc820c44f288f883",
+    "volume": "xtend-mcp_knowledge"
+  },
+  "sources": {
+    ".vscode/mcp.json": "23568301a4f1a652ed09fce4264d8dc67d1756d8a9a75cf200c9e4530585e614",
+    "products/xtend-mcp/scripts/build-knowledge.mjs": "bd5606f12e1d16c1885295fb0d4fe0b14d25f9666b0351640d79a781159d45d6",
+    "products/xtend-mcp/scripts/export-local-bundle.mjs": "9c62d126e01bc6983f8431147e58c2e2ee092d6f812947943642d2bc72f72f56",
+    "products/xtend-mcp/tests/knowledge.test.mjs": "9dccd548362defdc7991414a066ddfb4920661c794ce7f5d501bc29841854c8c",
+    "products/xtend-mcp/tests/local-bundle.test.mjs": "27ab1674772ba46bfcb9c627c93cdcdbce26824a12c3d3d373af84e47eb71e07",
+    "products/xtend-mcp/generated/docs.jsonl": "6c744d8cd75e34b6f96bab00352246e6e1d24ac2f72883aa097adb8575852db6",
+    "products/xtend-mcp/generated/knowledge-manifest.json": "c2ec0df49c24ca62ec340d68fd08d01b82a3b426eaa99715b1c2fd3bb8161165",
+    "products/xtend-mcp/generated/rmt-ai-kit/rmt-ai-kit.manifest.json": "000fb48815094e76f4c6d2ed0de23f136ca61c292fea64a948e6acc6337f6375",
+    "tools/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.manifest.json": "000fb48815094e76f4c6d2ed0de23f136ca61c292fea64a948e6acc6337f6375",
+    "docs/de/xtend-mcp.md": "9e7c687d08bd37836267048863309614a89fbfbd09083d1ca1c2782041a2df8a",
+    "docs/en/xtend-mcp.md": "cde556d5d1a90826f0f96e9ad75dc80afd43bdf52433ce8270d0ba5353c40869",
+    "docs/de/rmt-reference-conditions-expressions.md": "76eaced6a39d0d68dadc6b965633a9708395a605e3019334a6a537dd1545166c",
+    "docs/de/rmt-reference-actions-events.md": "676a6870942c6fda826beaeb17606d3c917f9bb46d4c274800814a447e3a874f",
+    "docs/de/rmt-reference-enums-catalogs.md": "8c0bc3884a0d00a66456e24677a48138bde6b3be2497b4d3afe7835543b80604",
+    "docs/en/rmt-reference-conditions-expressions.md": "5d6ae09ddf299015464a329bba25781b4b93f84445be0f63e4a3dd2314a5c613",
+    "docs/en/rmt-reference-actions-events.md": "c6d21c48faaddd2bd9a8538a74b57e05c1b46660c288f069852dd2cf8621a979",
+    "docs/en/rmt-reference-enums-catalogs.md": "f61309d10c779506f4b1451471cbaaf0555bc5a2645b013831ebdc3bee42f2b5"
+  }
+}

@@ -47,30 +47,30 @@
   ],
   "sizes": {
     "react": {
-      "totalBytes": 2025715,
+      "totalBytes": 2052285,
       "applicationBytes": 87,
       "envelopeBytes": 7023,
-      "frameworkBytes": 2003480,
-      "frameworkBaselineBytes": 2534926,
-      "xtensionRuntimeBytes": 211737,
+      "frameworkBytes": 2030050,
+      "frameworkBaselineBytes": 2564503,
+      "xtensionRuntimeBytes": 211833,
       "withinBudget": true
     },
     "vue": {
-      "totalBytes": 2023732,
+      "totalBytes": 2050302,
       "applicationBytes": 87,
       "envelopeBytes": 7015,
-      "frameworkBytes": 2001497,
-      "frameworkBaselineBytes": 2532853,
-      "xtensionRuntimeBytes": 210104,
+      "frameworkBytes": 2028067,
+      "frameworkBaselineBytes": 2562430,
+      "xtensionRuntimeBytes": 210200,
       "withinBudget": true
     },
     "mixed": {
-      "totalBytes": 2075357,
+      "totalBytes": 2101927,
       "applicationBytes": 87,
       "envelopeBytes": 8005,
-      "frameworkBytes": 2053122,
-      "frameworkBaselineBytes": 2567116,
-      "xtensionRuntimeBytes": 233833,
+      "frameworkBytes": 2079692,
+      "frameworkBaselineBytes": 2596693,
+      "xtensionRuntimeBytes": 233929,
       "withinBudget": true
     }
   },
@@ -79,7 +79,7 @@
     ".github/workflows/xtend-migration-completion.yml": "c5dcd652fa0f3f5ac4bc51bdb4973f4d5dcabdc950d6f9564d981c0c9daac29c",
     ".github/workflows/xtend-nightly-build.yml": "5116830c0687063cec7fa910a16e125d55b15d24e29308a50aa7df4382ca1d2c",
     "scripts/test-runner/catalog.json": "f6b36b1e2344230cc5f6dd6484c51c7f71b86614769e6de04c6351a7a6b629c9",
-    "xtend-maraca/index.js": "476aa98b38230de5f273081374cf6c3291af3dae00042e9c4941fdf15cf59c8c",
+    "xtend-maraca/index.js": "32dae73cc1a95002804a039f90f1debefa4c6ed53d389ed048b014611e3d67ba",
     "xtend-maraca/xtension-deployment.js": "9df6fa876cb92d65f77e6cd68fa9d65fc1e9edeb226e2717479c25e723662729",
     "xtend-maraca/xtension-composition.js": "9872caa16b4375a5696598d814caf97cea165afc9f33044059c323e4c128d574",
     "xtend-maraca/xtension-composition.d.ts": "978b3f0b2cec4a628d1cde4c9a13e88e634baabb73f5a28c18a926a727b1e9f5",
@@ -90,7 +90,7 @@
     "tests/xtensions/xtensions_runtime_gate_suite.js": "c8096abef6ee2f5ae04c000bd06e0f9aebaf7853bfe8f07e5f497f733ff04811",
     "tests/xtensions/xtensions_consumer_package_suite.js": "033badcea1aa05beb0cc33134618f7f29cf76105d95e6a333dd360017d600545",
     "tests/types/xtensions_integrated_composition.mts": "0e7de34ce7c4324143fabf822ac6c83aba229f90f9368ac5b65250311bd2b601",
-    "scripts/check_release_preparation.cjs": "d0d127a7176619287444d9a8be3fcd6e089d9c33b63287c90bde9b2bc942136b",
-    "tests/release/preparation-gates.test.cjs": "cde8ff3b5f8ef4d6644cf25daaeb5bab41d0d38b593a573d370f2746bd8bf44e"
+    "scripts/check_release_preparation.cjs": "ded2db484cf147f6defd94fd42f91cf224e83e549c0c48ab269b91f07830b8dc",
+    "tests/release/preparation-gates.test.cjs": "bb0593eaa0edb75174f808c50ba598ec7ba062706443fc50cb58977af45c2664"
   }
 }

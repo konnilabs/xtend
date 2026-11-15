@@ -1,3 +1,4 @@
+export const RMT_ACTION_EFFECT_API_VERSION: '2.0.0';
 export const RMT_ACTION_EFFECT_DIAGNOSTIC_SCHEMA: 'xtend.epic18.rmt-action-effect-diagnostic.v1';
 export const RMT_ACTION_EFFECT_RUNTIME_SCHEMA: 'xtend.epic18.rmt-action-effect-runtime.v1';
 export const RMT_COMPONENT_COMMAND_SCHEMA: 'xtend.rmt.component-command.v1';
@@ -6,6 +7,13 @@ export type RmtDataSourceKind = 'fixture' | 'rest' | 'ssr' | 'host' | 'host-serv
 export type RmtEffectKind = 'toast' | 'feedback' | 'navigation' | 'focus' | 'lazy-import' | 'host-service' | 'service' | 'stream-service' | 'side-effect' | string;
 export type RmtComponentCommandName = 'focus' | 'reset' | 'snapshot';
 export type RmtResourceKind = 'object-url' | 'stream' | 'observer' | 'timer' | 'lazy-import' | string;
+export type RmtActionValueKind = 'literal' | 'reference' | 'template';
+export interface RmtActionPayloadField { name: string; value: unknown; valueKind?: RmtActionValueKind }
+export interface RmtActionEmission { event: string; payload?: RmtActionPayloadField[] }
+export type RmtActionResultHandler =
+  | { phase: 'success' | 'error'; kind: 'reduce'; reducer: { target?: string; state: string; path?: string; value: unknown; valueKind?: RmtActionValueKind } }
+  | { phase: 'success' | 'error'; kind: 'emit'; emit: RmtActionEmission }
+  | { phase: 'success' | 'error'; kind: 'overlay'; target: string; options?: { message?: { value: unknown; valueKind?: RmtActionValueKind }; tone?: { value: unknown; valueKind?: RmtActionValueKind } } };
 
 export interface RmtActionDefinition {
   id: string;
@@ -19,6 +27,8 @@ export interface RmtActionDefinition {
   resourceOwner?: string;
   effects?: string[] | Array<{ id: string }>;
   reducers?: string[] | Array<Record<string, unknown>>;
+  emits?: RmtActionEmission[];
+  handlers?: RmtActionResultHandler[];
   resources?: string[] | Array<{ id: string }>;
   cancelable?: boolean;
 }

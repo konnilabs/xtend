@@ -1,0 +1,148 @@
+{
+  "format": 1,
+  "version": "1.0.0",
+  "date": "2026-11-15",
+  "node": "v24.18.0",
+  "jsdom": "30.1.2",
+  "observation": "restored-event-guard-reference-and-action-result-semantics",
+  "passed": true,
+  "expectedBehavior": "no-action-dispatch",
+  "existingRuntimeGap": false,
+  "gapPatched": true,
+  "source": "template probe {\n  state count type object { initial { value 2 } }\n  action save {\n    input id string\n    reduce state.count.value = 1\n  }\n  surface panel kind panel component x-section {\n    lane visible weight 80 { hydrate panel from state count }\n    on click \"x-section\" -> action save when false {\n      payload id from detail.id\n    }\n  }\n}",
+  "compileOk": true,
+  "planOk": true,
+  "diagnostics": [],
+  "coreConditionPreserved": true,
+  "artifactConditionPresent": true,
+  "before": {
+    "value": 2
+  },
+  "after": {
+    "value": 2
+  },
+  "observedActions": [],
+  "actionObservations": {
+    "source": "template actionaudit {\n    state flags type object initial { direct 0; success 0; error 0 }\n    state original type string initial \"expected\"\n    state copied type string initial \"unset\"\n    datasource remote from endpoint \"/audit\" { method POST; contract Audit; result data }\n    action execute {\n      input value number\n      effect navigation \"/before\"\n      reduce state.flags.direct = input.value\n      effect fetch datasource remote\n      effect navigation \"/after\"\n      emit audit.done with value input.value\n      on success -> reduce state.flags.success = 1\n      on error -> reduce state.flags.error = 1\n    }\n    action copystate { reduce state.copied = state.original }\n    portal rootportal root \"#xtend-maraca-root\" layer surface\n    surface panel kind region component div {\n      portal rootportal\n      lane visible { mount pane }\n    }\n  }",
+    "compileOk": true,
+    "planOk": true,
+    "diagnostics": [],
+    "coreHandlerCount": 2,
+    "appPlatformHandlersPresent": true,
+    "emitPayloadNamePreserved": true,
+    "emitExecutionContractInStockRuntime": true,
+    "realManagedMaracaRuntime": true,
+    "kernelPlan": "off",
+    "controlledDatasourceAndPresentationAdapters": true,
+    "runs": [
+      {
+        "datasourceFails": false,
+        "status": "success",
+        "flags": {
+          "direct": 7,
+          "success": 1,
+          "error": 0
+        },
+        "trace": [
+          {
+            "phase": "datasource",
+            "flags": {
+              "direct": 0,
+              "success": 0,
+              "error": 0
+            }
+          },
+          {
+            "phase": "presentation:navigation",
+            "path": "/before",
+            "flags": {
+              "direct": 7,
+              "success": 1,
+              "error": 0
+            },
+            "contextPhase": "after-render"
+          },
+          {
+            "phase": "presentation:fetch",
+            "path": "",
+            "flags": {
+              "direct": 7,
+              "success": 1,
+              "error": 0
+            },
+            "contextPhase": "after-render"
+          },
+          {
+            "phase": "presentation:navigation",
+            "path": "/after",
+            "flags": {
+              "direct": 7,
+              "success": 1,
+              "error": 0
+            },
+            "contextPhase": "after-render"
+          }
+        ],
+        "stateReferenceCopy": {
+          "status": "success",
+          "original": "expected",
+          "expected": "expected",
+          "actual": "expected",
+          "resolvedCorrectly": true
+        }
+      },
+      {
+        "datasourceFails": true,
+        "status": "error",
+        "flags": {
+          "direct": 0,
+          "success": 0,
+          "error": 1
+        },
+        "trace": [
+          {
+            "phase": "datasource",
+            "flags": {
+              "direct": 0,
+              "success": 0,
+              "error": 0
+            }
+          }
+        ],
+        "stateReferenceCopy": {
+          "status": "success",
+          "original": "expected",
+          "expected": "expected",
+          "actual": "expected",
+          "resolvedCorrectly": true
+        }
+      }
+    ]
+  },
+  "nativeKernelFabricSurfaceAndModelUsed": true,
+  "realDOMEventDispatched": true,
+  "generatedBundleOrChromiumTest": false,
+  "sources": {
+    "development/rmtx-a06/operator-runtime-probes.cjs": "fee39251388b1b2af8d2f8d97edec4c490a3b640b3c181468ae459396a0be2bf",
+    "tools/rmt-language/vnext-compiler.js": "9ee9aac4cd163ac3d78a6ae228d4515974eabfcf3ef89c45c38ff937684ff510",
+    "tools/rmt-language/action-execution-lowering.js": "783f180c2253fc96f1e8853c808cd2c0fe243a2d014670118d76b24759b3e856",
+    "tools/rmt-language/classic-semantic-rules.js": "113846c48ef5dc4d5ce0b29ddb7a01076e50d3fa86f80d84f1af5420fb593d81",
+    "xtend-maraca/index.js": "32dae73cc1a95002804a039f90f1debefa4c6ed53d389ed048b014611e3d67ba",
+    "xtend-maraca/plan-runtime.mjs": "a773be6364d850559f6264540c038c278d028ff0d0c3a92cfcb62940550acd76",
+    "xtendrmt/rmt-state-selector-runtime.js": "150f5ae1a279cf7457be54fc7a466afeb1a2a026a911ab1cb1d16ae5da2a669d",
+    "xtendrmt/rmt-state-host-adapter.js": "1c3b0ce150cee986ecdda1d0a9c92e7f323ee31cbb920c5072aa2772cd078de6",
+    "xtendrmt/rmt-action-effect-runtime.js": "3798c901579959de2aec8e6cedf9f07ee969bfd00bf0cc3478c0ad8831c6bcaa",
+    "xtendrmt/rmt-app-runtime.js": "3d20461b92e62ac73af1317e855bd2426337f3886f51c91d23297f92c90fdceb",
+    "xtendrmt/rmt-dom-descriptor-renderer.js": "7a412f0be5b9f803fd04c60f8d415f1cea1c60faa557ba85a48aaceffe5be82c",
+    "xtendrmt/rmt-maraca-view-projection-adapter.js": "820434f28d7dfabd73f7f82635c8306c76d2835fe727c2abc9c5c4fd9e6d4de7",
+    "xtendrmt/rmt-presentation-effect-adapter.js": "87c7d4a3e886bfd45d98b7b5dd385ce06a578dc408a3ceb0a6122f5010f9cd0f",
+    "xtendrmt/rmt-event-routing-runtime.js": "257b2f73fecc4d659f3c393b51dc7b2c940d196eee84caef67d29f3ec2e4448e",
+    "xtendrmt/rmt-surface-resource-graph-runtime.js": "5cac73161a80489e60cca3dc31eb44475570581a7f4fc6d71d5d9cedf212870f",
+    "components/xsurfacemanager-controller.js": "a747e5a4bd9d4c1205dc464d046eb5bc65531acc74d083d78e10d5c614afa7a5",
+    "xtendrmt/rmt-kernel-orchestration-controller.js": "b4ce03f075831a483f388cec00e4b1ff458b84dc640645a04e44fb904954af10",
+    "xtendrmt/rmt-kernel-scheduler.js": "cb6968fa9b5a784f93e6c941e4a634bdd527525247a1f4653f9c7b204829e766",
+    "xtendrmt/rmt-runtime.esm.js": "bde3fb1c19e6fb982214842657e8fb5c154028818ff9b38cadbc291a5aedd517",
+    "fabric/xtend-fabric.js": "ea7fa64431048e724a336ecd3117c90c6bb8a0ab2871e1ba618d8381ed3f822d",
+    "components/xtend-state.js": "a53defa3247b3778d115e147a3094624206cb46ca9f5bcd18b345a3d059d849b"
+  }
+}

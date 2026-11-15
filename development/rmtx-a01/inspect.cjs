@@ -16,6 +16,7 @@ const sorted = values => [...new Set(values)].sort();
 const parserFile = 'tools/rmt-language/vnext-parser.js';
 const compilerFile = 'tools/rmt-language/vnext-compiler.js';
 const sources = [parserFile, compilerFile, 'tools/rmt-language/semantic-graph.js',
+  'tools/rmt-language/action-execution-lowering.js',
   'tools/rmt-language/classic-ast-rules.js', 'tools/rmt-language/classic-ast-contract.js',
   'tools/rmt-language/classic-semantic-rules.js', 'tools/rmt-language/classic-ast-types.d.ts',
   'tools/rmt-language/classic-compiler.js', 'tools/rmt-language/classic-compiler.d.ts',
@@ -29,6 +30,8 @@ const sources = [parserFile, compilerFile, 'tools/rmt-language/semantic-graph.js
   'xtendrmt/rmt-state-binding-view-projector.js', 'xtendrmt/rmt-portable-render.js', 'xtendrmt/rmt-portable-render.d.ts',
   'xtendrmt/rmt-portable-render.php', 'xtendrmt/rmt-kernel-scheduler.d.ts',
   'xtendrmt/rmt-action-effect-runtime.js', 'xtendrmt/rmt-event-routing-runtime.js',
+  'xtendrmt/rmt-action-effect-runtime.d.ts', 'xtendrmt/rmt-event-routing-runtime.d.ts',
+  'xtendrmt/rmt-surface-resource-graph-runtime.js', 'xtendrmt/rmt-surface-resource-graph-runtime.d.ts',
   'xtendrmt/rmt-form-validation-runtime.d.ts', 'xtendrmt/rmt-animation-engine-runtime.d.ts',
   'xtendrmt/rmt-surface-transition-runtime.d.ts', 'xtendrmt/rmt-resume-runtime.d.ts',
   'tools/xtensions/runtime-host-controller.d.ts', 'tools/xtensions/signal-bridge-contract.d.ts',

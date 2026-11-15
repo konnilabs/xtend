@@ -1,4 +1,5 @@
 function createRmtActionEffectRuntimeModule() {
+  const RMT_ACTION_EFFECT_API_VERSION = '2.0.0';
   const RMT_ACTION_EFFECT_RUNTIME_SCHEMA = 'xtend.epic18.rmt-action-effect-runtime.v1';
   const RMT_ACTION_EFFECT_DIAGNOSTIC_SCHEMA = 'xtend.epic18.rmt-action-effect-diagnostic.v1';
   const RMT_COMPONENT_COMMAND_SCHEMA = 'xtend.rmt.component-command.v1';
@@ -16,6 +17,74 @@ function createRmtActionEffectRuntimeModule() {
 
   function objectRecord(value) {
     return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+  }
+
+  function hasOwn(value, key) { return Object.prototype.hasOwnProperty.call(value, key); }
+
+  function safeActionData(value, seen = new Set()) {
+    if (value === null || typeof value === 'string' || typeof value === 'boolean' || typeof value === 'number' && Number.isFinite(value)) return value;
+    if (!value || typeof value !== 'object' || seen.has(value) || Object.getOwnPropertySymbols(value).length) throw new TypeError('Compiled values must be finite, acyclic JSON data.');
+    const descriptors = Object.getOwnPropertyDescriptors(value), array = Array.isArray(value), prototype = Object.getPrototypeOf(value);
+    if (!array && prototype !== Object.prototype && prototype !== null || Object.values(descriptors).some(entry => !hasOwn(entry, 'value'))) throw new TypeError('Compiled values cannot contain prototypes or accessors.');
+    seen.add(value);
+    try {
+      if (array) {
+        if (Object.keys(descriptors).length !== value.length + 1) throw new TypeError('Compiled arrays must be dense data.');
+        return Array.from({ length: value.length }, (_, index) => safeActionData(descriptors[index].value, seen));
+      }
+      const result = {};
+      for (const [key, descriptor] of Object.entries(descriptors)) {
+        if (!descriptor.enumerable || ['__proto__', 'prototype', 'constructor'].includes(key)) throw new TypeError('Unsafe compiled data field.');
+        result[key] = safeActionData(descriptor.value, seen);
+      }
+      return result;
+    } finally { seen.delete(value); }
+  }
+
+  function actionTemplateValue(node, resolve) {
+    if (!node || typeof node !== 'object' || Array.isArray(node)) throw new TypeError('Invalid compiled value template.');
+    const fields = Object.keys(node), exact = names => fields.length === names.length && names.every(name => hasOwn(node, name));
+    if (node.kind === 'literal' && exact(['kind', 'value'])) return cloneValue(node.value, node.value);
+    if (node.kind === 'path' && exact(['kind', 'value']) && typeof node.value === 'string') return resolve(node.value);
+    if (node.kind === 'array' && exact(['kind', 'items']) && Array.isArray(node.items)) return node.items.map(value => actionTemplateValue(value, resolve));
+    if (node.kind === 'object' && exact(['kind', 'fields']) && Array.isArray(node.fields)) {
+      const result = {};
+      for (const field of node.fields) {
+        if (!field || typeof field !== 'object' || Array.isArray(field) || Object.keys(field).length !== 2 || !hasOwn(field, 'key') || !hasOwn(field, 'value')
+          || typeof field.key !== 'string' || ['__proto__', 'prototype', 'constructor'].includes(field.key) || hasOwn(result, field.key)) throw new TypeError('Invalid compiled object template field.');
+        result[field.key] = actionTemplateValue(field.value, resolve);
+      }
+      return result;
+    }
+    throw new TypeError('Unknown compiled value template.');
+  }
+
+  function actionValue(value, context, valueKind) {
+    if (valueKind == null) return resolveValue(value, context);
+    if (!['literal', 'reference', 'template'].includes(valueKind)) throw new TypeError('Unknown compiled action value kind.');
+    if (valueKind === 'template') return actionTemplateValue(safeActionData(value), reference => actionValue(reference, context, 'reference'));
+    if (valueKind === 'literal') return safeActionData(value);
+    if (valueKind === 'reference' && typeof value !== 'string') throw new TypeError('Action references must be strings.');
+    if (typeof value !== 'string') return cloneValue(value, value);
+    const reference = value;
+    if (/^(?:state|selector|input|payload|result|error)(?:\.|$)/u.test(reference) && reference.split('.').some(part => ['__proto__', 'prototype', 'constructor'].includes(part))) throw new TypeError('Unsafe action reference.');
+    if (valueKind === 'reference' && (!/^(?:state|selector|input|payload|result|error)(?:\.[A-Za-z_][A-Za-z0-9_-]*)*$/u.test(reference)
+      || reference.split('.').some(part => ['__proto__', 'prototype', 'constructor'].includes(part)))) throw new TypeError('Unsafe or unsupported action reference.');
+    for (const scope of ['input', 'payload', 'result', 'error']) {
+      if (reference === scope) return context[scope === 'input' ? 'payload' : scope];
+      if (reference.startsWith(scope + '.')) return readPath(context[scope === 'input' ? 'payload' : scope], reference.slice(scope.length + 1));
+    }
+    if (/^(?:state|selector)\./u.test(reference)) {
+      if (context.stateRuntime && typeof context.stateRuntime.resolve === 'function') return context.stateRuntime.resolve(reference);
+      const snapshot = context.stateRuntime && typeof context.stateRuntime.snapshot === 'function' ? context.stateRuntime.snapshot() : {};
+      const scope = reference.startsWith('state.') ? 'states' : 'selectors', path = reference.slice(reference.indexOf('.') + 1);
+      const records = objectRecord(snapshot[scope]);
+      const id = Object.keys(records).filter(key => path === key || path.startsWith(key + '.')).sort((a, b) => b.length - a.length)[0];
+      if (id) return path === id ? records[id] : readPath(records[id], path.slice(id.length + 1));
+      throw new TypeError('Action reference cannot be resolved through its Model reader.');
+    }
+    if (valueKind === 'reference') throw new TypeError('Unsupported action reference.');
+    return resolveValue(value, context);
   }
 
   function cloneValue(value, fallback = null) {
@@ -426,12 +495,36 @@ function createRmtActionEffectRuntimeModule() {
     return submitModelOperation(modelCommandPort, { operation: 'patch', state: stateId, patch }, metadata);
   }
 
-  function dispatchReducer(modelCommandPort, reducer, payload, metadata = {}) {
+  function compiledReducerOperation(record, context) {
+    if (record.recipe) throw new TypeError('Direct compiled recipe reducers require their Model recipe executor.');
+    let state = record.state, path = record.path || '';
+    if (record.target) {
+      if (!String(record.target).startsWith('state.')) throw new TypeError('Compiled reducers require a State target.');
+      const target = String(record.target).slice(6), snapshot = context.stateRuntime && typeof context.stateRuntime.snapshot === 'function' ? context.stateRuntime.snapshot() : {};
+      state = Object.keys(objectRecord(snapshot.states)).filter(id => target === id || target.startsWith(id + '.')).sort((a, b) => b.length - a.length)[0];
+      if (!state) throw new TypeError('Compiled reducer State target is not declared.');
+      path = target === state ? '' : target.slice(state.length + 1);
+    }
+    if (!state || [String(state), path].some(part => part.split('.').some(key => ['__proto__', 'prototype', 'constructor'].includes(key)))) throw new TypeError('Unsafe compiled reducer target.');
+    const value = actionValue(record.value, context, record.valueKind);
+    if (!path) return { operation: 'set', state, value: cloneValue(value, value) };
+    const previous = context.stateRuntime && typeof context.stateRuntime.getState === 'function' ? context.stateRuntime.getState(state) : undefined;
+    const next = cloneValue(previous, {}); let cursor = next;
+    const parts = String(path).split('.');
+    parts.forEach((part, index) => {
+      if (index === parts.length - 1) cursor[part] = cloneValue(value, value);
+      else { if (!cursor[part] || typeof cursor[part] !== 'object') cursor[part] = {}; cursor = cursor[part]; }
+    });
+    return { operation: 'set', state, value: next };
+  }
+
+  function dispatchReducer(modelCommandPort, reducer, payload, metadata = {}, context = {}) {
     if (!modelCommandPort || !reducer) return null;
     if (typeof reducer === 'string') {
       return submitModelOperation(modelCommandPort, { operation: 'dispatch', command: reducer, payload }, metadata);
     }
     const record = objectRecord(reducer);
+    if (record.target || record.state && hasOwn(record, 'value')) return submitModelOperation(modelCommandPort, compiledReducerOperation(record, context), metadata);
     const command = clampString(record.command || record.id, '');
     if (command) {
       return submitModelOperation(modelCommandPort, { operation: 'dispatch', command, payload }, metadata);
@@ -503,6 +596,69 @@ function createRmtActionEffectRuntimeModule() {
     }
     const activeRuns = new Map();
     let runSequence = 0;
+
+    function handlersFor(action, phase) {
+      return toArray(action.handlers).map(handler => safeActionData(handler)).filter(handler => {
+        if (!handler || !['success', 'error'].includes(handler.phase) || !['reduce', 'emit', 'overlay'].includes(handler.kind)) throw new TypeError('Unknown compiled Action result handler.');
+        return handler.phase === phase;
+      });
+    }
+
+    function materializeResultEffect(effect, context) {
+      if (effect.kind === 'emit') {
+        if (!effect.event || typeof effect.event !== 'string') throw new TypeError('Compiled emits require an event name.');
+        const payload = {};
+        for (const field of toArray(effect.payload)) {
+          if (!field || typeof field.name !== 'string' || !field.name || ['__proto__', 'prototype', 'constructor'].includes(field.name) || hasOwn(payload, field.name)) throw new TypeError('Compiled emits require unique safe payload names.');
+          payload[field.name] = cloneValue(actionValue(field.value, context, field.valueKind), null);
+        }
+        return { ...effect, payload };
+      }
+      if (effect.kind === 'overlay') {
+        if (!effect.target || typeof effect.target !== 'string') throw new TypeError('Compiled result overlays require a declared target.');
+        const resolved = {};
+        for (const [key, spec] of Object.entries(objectRecord(effect.options))) {
+          if (!['message', 'tone'].includes(key)) throw new TypeError('Unknown compiled overlay option.');
+          resolved[key] = actionValue(objectRecord(spec).value, context, objectRecord(spec).valueKind);
+        }
+        return { ...effect, options: resolved };
+      }
+      throw new TypeError('Unknown compiled result effect.');
+    }
+
+    async function runResultPhase(action, phase, context, token, runId) {
+      const handlers = handlersFor(action, phase), effectsForPhase = [];
+      if (!planningOnly) {
+        for (const handler of handlers.filter(entry => entry.kind === 'reduce')) {
+          if (token.cancelled || token.controller.signal.aborted) return [];
+          dispatchReducer(modelCommandPort, handler.reducer, context.result, { operation: 'action.result-reducer', action: action.id, phase }, context);
+        }
+      }
+      if (phase === 'success') toArray(action.emits).forEach(emit => {
+        const record = safeActionData(emit);
+        effectsForPhase.push({ kind: 'emit', event: record.event, payload: record.payload || [] });
+      });
+      for (const handler of handlers) {
+        if (handler.kind === 'emit') effectsForPhase.push({ kind: 'emit', event: objectRecord(handler.emit).event, payload: cloneValue(objectRecord(handler.emit).payload, []), handlerPhase: phase });
+        if (handler.kind === 'overlay') effectsForPhase.push({ kind: 'overlay', target: handler.target, options: cloneValue(handler.options, {}), handlerPhase: phase });
+      }
+      // Resolve and validate every direct publication before the first observer runs.
+      const preparedEffects = planningOnly ? effectsForPhase : effectsForPhase.map(effect => materializeResultEffect(effect, context));
+      const results = [];
+      for (let index = 0; index < preparedEffects.length; index += 1) {
+        if (token.cancelled || token.controller.signal.aborted) return results;
+        const effect = { id: `${runId}:result:${index}`, ...preparedEffects[index] };
+        if (planningOnly) {
+          results.push({ id: effect.id, kind: effect.kind, value: { id: effect.id, kind: effect.kind, deferred: true, effect,
+            context: { action: cloneValue(action, action), payload: cloneValue(context.payload, {}), result: cloneValue(context.result, null), error: cloneValue(context.error, null), ownerId: context.ownerId || null } } });
+        } else {
+          if (!effectAdapter || typeof effectAdapter.invoke !== 'function') throw new TypeError('Action emits and result overlays require an explicit effect adapter.');
+          const value = await effectAdapter.invoke(effect, context);
+          results.push({ id: effect.id, kind: effect.kind, value: { result: cloneValue(value, value) } });
+        }
+      }
+      return results;
+    }
 
     async function runEffect(effectId, context = {}) {
       const effect = effectIndex.get(clampString(effectId));
@@ -684,7 +840,7 @@ function createRmtActionEffectRuntimeModule() {
               action: action.id,
               commandEnvelope: metadata.commandEnvelope || null,
               correlationId: metadata.correlationId || null
-            }));
+            }, { action, payload, result: data, stateRuntime, ownerId, signal: controller.signal }));
           }
         }
         for (const effectId of action.effects) {
@@ -700,7 +856,11 @@ function createRmtActionEffectRuntimeModule() {
             commandEnvelope: metadata.commandEnvelope || null,
             correlationId: metadata.correlationId || null
           }));
+          if (token.cancelled || controller.signal.aborted) return cancelResult(action, runId, ownerId, payload, metadata, runDiagnostics);
         }
+        effectResults.push(...await runResultPhase(action, 'success', { action, payload, result: data, stateRuntime, ownerId, signal: controller.signal,
+          commandEnvelope: metadata.commandEnvelope || null, correlationId: metadata.correlationId || null }, token, runId));
+        if (token.cancelled || controller.signal.aborted) return cancelResult(action, runId, ownerId, payload, metadata, runDiagnostics);
         actionStatus[action.id] = 'success';
         publishRunDiagnostic(createDiagnostic('rmt.action.success', `RMT Action ${action.id} war erfolgreich.`, { action: action.id }, 'info'));
         const result = {
@@ -732,6 +892,9 @@ function createRmtActionEffectRuntimeModule() {
           if (action.loadingState) writeState(modelCommandPort, action.loadingState, false, { operation: 'action.error', action: action.id });
           patchState(modelCommandPort, action.statusState, { status: 'error', action: action.id, error: normalizeError(error) }, { operation: 'action.error', action: action.id });
         }
+        const handlerEffects = await runResultPhase(action, 'error', { action, payload, error: normalizeError(error), stateRuntime, ownerId, signal: controller.signal,
+          commandEnvelope: metadata.commandEnvelope || null, correlationId: metadata.correlationId || null }, token, runId);
+        if (token.cancelled || controller.signal.aborted) return cancelResult(action, runId, ownerId, payload, metadata, runDiagnostics);
         actionStatus[action.id] = 'error';
         publishRunDiagnostic(createDiagnostic('rmt.action.error', `RMT Action ${action.id} ist fehlgeschlagen.`, { action: action.id, error: normalizeError(error) }, 'error'));
         const result = {
@@ -740,8 +903,9 @@ function createRmtActionEffectRuntimeModule() {
           runId,
           status: 'error',
           error: normalizeError(error),
+          effects: handlerEffects,
           modelOperations: planningOnly ? modelOperations : [],
-          postCommitEffects: [],
+          postCommitEffects: planningOnly ? handlerEffects.filter(entry => entry && entry.value && entry.value.deferred === true) : [],
           diagnostics: diagnosticsForResult(runDiagnostics)
         };
         retainEntry(actionHistory, result, historyLimit);
@@ -841,6 +1005,7 @@ function createRmtActionEffectRuntimeModule() {
   }
 
   const api = {
+    RMT_ACTION_EFFECT_API_VERSION,
     RMT_ACTION_EFFECT_DIAGNOSTIC_SCHEMA,
     RMT_ACTION_EFFECT_RUNTIME_SCHEMA,
     RMT_COMPONENT_COMMAND_SCHEMA,
@@ -853,6 +1018,7 @@ function createRmtActionEffectRuntimeModule() {
 
 const __XTEND_RMT_ACTION_EFFECT_RUNTIME_API__ = createRmtActionEffectRuntimeModule();
 
+export const RMT_ACTION_EFFECT_API_VERSION = __XTEND_RMT_ACTION_EFFECT_RUNTIME_API__.RMT_ACTION_EFFECT_API_VERSION;
 export const RMT_ACTION_EFFECT_DIAGNOSTIC_SCHEMA = __XTEND_RMT_ACTION_EFFECT_RUNTIME_API__.RMT_ACTION_EFFECT_DIAGNOSTIC_SCHEMA;
 export const RMT_ACTION_EFFECT_RUNTIME_SCHEMA = __XTEND_RMT_ACTION_EFFECT_RUNTIME_API__.RMT_ACTION_EFFECT_RUNTIME_SCHEMA;
 export const RMT_COMPONENT_COMMAND_SCHEMA = __XTEND_RMT_ACTION_EFFECT_RUNTIME_API__.RMT_COMPONENT_COMMAND_SCHEMA;

@@ -1,0 +1,186 @@
+{
+  "date": "2026-11-15",
+  "node": "24.18.0",
+  "mcpVersion": "0.1.0",
+  "protocol": "2025-11-25",
+  "readOnlyTools": 6,
+  "optionalWriteTool": true,
+  "resources": 398,
+  "resourceTemplates": 4,
+  "prompts": 6,
+  "canonicalDocs": 356,
+  "kitReferences": 32,
+  "kitOperatorReferences": 25,
+  "kitRecipes": 6,
+  "checks": [
+    {
+      "tool": "xtend_rmt_compile_check",
+      "path": "tests/rmt-language/fixtures/vnext-primitives-grammar-design.rmt",
+      "sourceHash": "8787782fb31f2571fc2e2d58917f66d1075cd05858a1e27ba94acd152c0cae36",
+      "ok": true,
+      "status": "compiled"
+    },
+    {
+      "tool": "xtend_maraca_plan",
+      "path": "tests/rmt-language/fixtures/vnext-primitives-grammar-design.rmt",
+      "sourceHash": "8787782fb31f2571fc2e2d58917f66d1075cd05858a1e27ba94acd152c0cae36",
+      "ok": true,
+      "status": "planned"
+    },
+    {
+      "tool": "xtend_rmt_compile_check",
+      "path": "tools/rmt-language/fixtures/validation-transition-contract.rmt",
+      "sourceHash": "bc90deb57170dd735b61002535ce5f74c86f6aead327a27ce1506a06af245d61",
+      "ok": true,
+      "status": "compiled"
+    },
+    {
+      "tool": "xtend_maraca_plan",
+      "path": "tools/rmt-language/fixtures/validation-transition-contract.rmt",
+      "sourceHash": "bc90deb57170dd735b61002535ce5f74c86f6aead327a27ce1506a06af245d61",
+      "ok": true,
+      "status": "planned"
+    },
+    {
+      "tool": "xtend_rmt_compile_check",
+      "path": "development/rmtx-a06/scoped-products.rmt",
+      "sourceHash": "ebe9a9b3c1d9fd9930104b92f5518ae05ded7690ae82fbc4931588f39de64d96",
+      "ok": true,
+      "status": "compiled"
+    },
+    {
+      "tool": "xtend_maraca_plan",
+      "path": "development/rmtx-a06/scoped-products.rmt",
+      "sourceHash": "ebe9a9b3c1d9fd9930104b92f5518ae05ded7690ae82fbc4931588f39de64d96",
+      "ok": true,
+      "status": "planned"
+    },
+    {
+      "tool": "xtend_rmt_compile_check",
+      "path": null,
+      "sourceHash": "7cadd34e0dae5d10023dfda91497ae0707bdb1bcf93acba32e0583dbc3bbc646",
+      "ok": true,
+      "status": "compiled"
+    },
+    {
+      "tool": "xtend_rmt_compile_check",
+      "path": null,
+      "sourceHash": "685d459943a7f9163e854893a70127499fb19e79e79ef60f4f531fb951d6fd2a",
+      "ok": true,
+      "status": "compiled"
+    },
+    {
+      "tool": "xtend_rmt_compile_check",
+      "path": null,
+      "sourceHash": "862517d2bc3cee375f4d1db5d684c52e5ff9fc2e050d8ae8244a91efd782e655",
+      "ok": false,
+      "status": "syntax_error"
+    },
+    {
+      "tool": "xtend_rmt_compile_check",
+      "path": null,
+      "sourceHash": "546aafe5a7afef3b0d3908b65b1e38e156eca921b75bf3494c84cc64487914bf",
+      "ok": true,
+      "status": "compiled"
+    },
+    {
+      "tool": "xtend_rmt_compile_check",
+      "path": null,
+      "sourceHash": "4be336c577ae611451d2c19f29d72d5973c5f68d59bda2a1fd1f0a4da85fbfa7",
+      "ok": true,
+      "status": "compiled"
+    }
+  ],
+  "knowledgeCheckPassed": false,
+  "staleDocs": 2,
+  "staleKitSourceHashes": 7,
+  "tests": {
+    "total": 24,
+    "passed": 22,
+    "failed": 2,
+    "confirmedCheckoutFindings": 2,
+    "isolatedDependencyResolutionLimit": 0,
+    "sdkStdioSecurityVerified": true,
+    "testLog": "/tmp/xtend-mcp-audit/tests-installed-layout.log",
+    "testLogSha256": "5e39e35c6d417aa1802b576d7bd01f6dfc41cb1e9eb90725f89947a3cccc0e18",
+    "usedNodeOptions": false,
+    "temporaryDependencyLinksRemoved": true,
+    "dependencyLayoutRecord": "/tmp/xtend-mcp-audit/temporary-dependency-layout.json"
+  },
+  "runtimeExecutionProven": false,
+  "sources": {
+    "products/xtend-mcp/package.json": "d06f4eec7aafb2e983bcdd34e06fc3548f83968b965b2921e471416af7c9d544",
+    "products/xtend-mcp/src/server.mjs": "817ca7ba825e937a464c88f55284279a064d1ad7fb61cfe58144a38e47afb89b",
+    "products/xtend-mcp/src/tooling.mjs": "8a8f3e237ba3173eb0e014c86e109ee36d25f86b89e2fccb6af33c9a20988b91",
+    "products/xtend-mcp/src/knowledge.mjs": "d6459c14062ba04c0d8ae2026bd77596f8da4082a3a82b9b293a2b980ded6857",
+    "products/xtend-mcp/generated/knowledge-manifest.json": "40b67ab58b778a385d4fd60ba551f856fa4c4ca01f6b38f3f5e1cf8ee197ea9b",
+    "products/xtend-mcp/generated/docs.jsonl": "e3b37d59003163cd495f71553ce2d0c34cd94389596010df4c303e2e2c4d2b38",
+    "products/xtend-mcp/generated/rmt-ai-kit/rmt-ai-kit.manifest.json": "02f1ecfa6e92de07a74e3c1ba89484a21fedc9a2bffd842176399408369bd3f4",
+    "tools/rmt-language/rmt-ai-developer-kit.js": "c13c17079e4a163a702c073e03baebc33dd569893806a45d839a76f8fa22f483",
+    "tools/rmt-language/classic-ast-rules.js": "269c0ad5d14ba86a149e33877e7db28b3a4004d0217b8c6b829b26931a327b0d",
+    ".vscode/mcp.json": "ccd376d91a60545d0dbe2f89377847d29ea93b0cbac5b650ccaa3e300708fefe",
+    "products/xtend-mcp/scripts/build-knowledge.mjs": "080fd5f791a225ecf7cb8659f786f8c98319760027d60ff60c33cfa10056e6dd",
+    "products/xtend-mcp/src/transports.mjs": "ad273d5462a66eefdff8b744336818bb5c77a0000d0ba0de9cc8f10bcd7e31cb",
+    "products/xtend-mcp/src/client.mjs": "bf43eedbd3234865cf6a3bdb1bdcd56c8442aa610b4181e99379b3b0fe624564",
+    "tools/tooling-bridge.js": "4343d133e905b24b71429b76956a14e4dfdff32364acb59b9e7f5d4fc5dcc220",
+    "products/xtend-mcp/tests/vscode-provider.test.mjs": "58965d75e6302f6a2a20bbcec1c68373ec583d97b9f12dffa06255fcd257d3b1",
+    "products/xtend-mcp/tests/security.test.mjs": "9e82966446026ef8b601a5b84438a6a31f6271004fb728b88a772277f7a1910f",
+    "products/xtend-mcp/tests/knowledge.test.mjs": "68096781394368b980b6b849b193069fe2df4fb360132f86491e69cfd70b6192",
+    "products/xtend-mcp/tests/contract.test.mjs": "86d2467bcb318bbd0b2dcfdc76c8fbc4b118b7d747188c45d2387b4098d4b3a7",
+    "products/xtend-mcp/tests/integration.test.mjs": "223b8a88fb570a35326bf854cabb2da73c4f31d00d2dcd65478e6ee5db1b7d75"
+  },
+  "transcriptSha256": "c2de17be09676f08d5da6345d90c056d3107d659872742e5cbcc08f659bd6030",
+  "drift": {
+    "docs": [
+      {
+        "path": "docs/de/release-0-9.md",
+        "bundleHash": "c44c443f05163c3c1bf1a50524e9efa9632021965026364394cfaa2a0ee38c73",
+        "currentHash": "b1de48b695b542e3ed1410f88bd4c711a436fb4e8cec7091cde9869883052d58"
+      },
+      {
+        "path": "docs/en/release-0-9.md",
+        "bundleHash": "dcd952130ce3c02df4bdc3fa71ad8958a7f434b41a579e6cf0891bf9c924044c",
+        "currentHash": "7d4cbe0cfeb749c120476fa2d6709864276f84188aa6045898c6f8b474d3b2ba"
+      }
+    ],
+    "kit": [
+      {
+        "path": "docs/de/maraca-fastpass-abort-boundary.md",
+        "bundleHash": "36da2ca972ade3babbad0ecc540f276b26db5d17eb5ce46facbfc3c25103715e",
+        "currentHash": "8ffe7b309337e34d709fc00d343b1b742f25c6168ae936c278ebf3004de7d9b0"
+      },
+      {
+        "path": "docs/de/release-0-9.md",
+        "bundleHash": "bb5fc471c5ed6c26de595ecfafbcc00fe1783aa90b0266b5eafd4675dca302d0",
+        "currentHash": "b1de48b695b542e3ed1410f88bd4c711a436fb4e8cec7091cde9869883052d58"
+      },
+      {
+        "path": "docs/en/maraca-fastpass-abort-boundary.md",
+        "bundleHash": "cd1bfc0a3895531e03091697bf95cc2facccaae7001a3fa453b252c0e99fbf54",
+        "currentHash": "3db234c8fc45402eeb750b973291b29551aa63214c66aa04308f12af9e4ce346"
+      },
+      {
+        "path": "docs/en/release-0-9.md",
+        "bundleHash": "a4653d21c32565f9bb8fe5c1bbc6594614be9af3534099921941b326d9da7b4a",
+        "currentHash": "7d4cbe0cfeb749c120476fa2d6709864276f84188aa6045898c6f8b474d3b2ba"
+      },
+      {
+        "path": "tools/rmt-language/classic-compiler.d.ts",
+        "bundleHash": "f2cb4326524e117e1d1c65924be85f95837c76ea81d00278efe17e09012597a0",
+        "currentHash": "11d778c3a3032c2e237d2c2660e47264e577870e51b60811f6f4982c8be27801"
+      },
+      {
+        "path": "tools/rmt-language/vnext-compiler.d.ts",
+        "bundleHash": "17f0e7afd9b3a135fbdbe20115a5684c57fce32173179f4b403d468720db5bf9",
+        "currentHash": "13ae889e471d8a74cf3eb4174f5f240b217727118512c2b38e85f506b7ecda97"
+      },
+      {
+        "path": "xtend-maraca/index.d.ts",
+        "bundleHash": "79ce8dba39c5ab03aff48818524eb6db7a12d64ed6288f0cc08ecc38f8639b76",
+        "currentHash": "16a39e84cd3f6c63fde6b2ee90d04e9e3d5291d58bc79d4eb3998999630d2919"
+      }
+    ]
+  },
+  "sourceBaseSha": "02dcd815ebe4ddca196e82163191fe7360b95a05",
+  "auditScope": "actual-local-read-only-stdio-plus-existing-tests"
+}

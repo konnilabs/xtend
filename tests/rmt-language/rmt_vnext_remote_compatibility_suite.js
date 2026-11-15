@@ -114,14 +114,17 @@ function runMetadataChecks(context, rootDir) {
 
 function runRoundtripChecks(context, rootDir) {
   const legacyRoundtrip = createLegacyRemoteSurfaceRoundtripReport(fixtureInput(LEGACY_SURFACE_FIXTURE, rootDir));
-  const nativeRoundtrip = createLegacyRemoteSurfaceRoundtripReport(fixtureInput(NATIVE_SURFACE_FIXTURE, rootDir));
+  const nativeInput = fixtureInput(NATIVE_SURFACE_FIXTURE, rootDir);
+  const nativeCompile = require('../../tools/rmt-language/classic-compiler').compileRmtClassicSource(nativeInput);
+  const nativeAsLegacy = createLegacyRemoteSurfaceRoundtripReport(nativeInput);
 
   context.assert(legacyRoundtrip.schema === RMT_VNEXT_REMOTE_ROUNDTRIP_REPORT_SCHEMA, 'remote legacy roundtrip report uses schema');
   context.assert(legacyRoundtrip.ok === true && legacyRoundtrip.status === 'ready', 'legacy remote surface fixture roundtrips as normalized JSON');
   context.assert(legacyRoundtrip.serialized.includes('"surfaces"'), 'legacy roundtrip serializes surface domain');
   context.assert(diagnosticCodes(legacyRoundtrip).includes(REMOTE_MIGRATION_NATIVE_SURFACE_ROUNDTRIP_CODE), 'legacy roundtrip reports native surface preservation');
-  context.assert(nativeRoundtrip.ok === true && nativeRoundtrip.surfaceCount >= 6, 'existing native RMT surface fixture remains roundtrippable');
-  context.assert(nativeRoundtrip.comparisonBoundary === 'semantic-normalized-json-with-normalization-metadata-excluded', 'remote roundtrip documents semantic JSON boundary');
+  context.assert(nativeCompile.ok === true && nativeCompile.coreDocument.surfaces.length >= 6, 'migrated native Classic surface fixture remains compilable');
+  context.assert(legacyRoundtrip.comparisonBoundary === 'semantic-normalized-json-with-normalization-metadata-excluded', 'remote legacy roundtrip documents its semantic JSON boundary');
+  context.assert(nativeAsLegacy.ok === false && nativeAsLegacy.languageMode === 'legacy-json', 'the legacy JSON reader does not silently reinterpret native Classic source');
 }
 
 function runMigrationChecks(context, rootDir) {

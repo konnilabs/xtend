@@ -1,4 +1,5 @@
 import type { RmtPresentationBoundaryPort } from './rmt-core';
+export const RMT_SURFACE_RESOURCE_GRAPH_API_VERSION: '2.1.0';
 export const RMT_SURFACE_RESOURCE_GRAPH_DIAGNOSTIC_SCHEMA: 'xtend.epic18.rmt-surface-resource-graph-diagnostic.v1';
 export const RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_SCHEMA: 'xtend.epic18.rmt-surface-resource-graph-runtime.v2';
 

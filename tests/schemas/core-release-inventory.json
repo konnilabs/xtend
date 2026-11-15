@@ -18681,6 +18681,24 @@
       "rationale": "Static analysis found the same normalized field shape under different identifiers.",
       "recommendation": "Review semantic ownership and record aliasOf or a distinct-contract rationale before adding another matching identifier.",
       "baseline": "a05-scoped-component-initial-review"
+    },
+    {
+      "reviewId": "polymorphic-07912c808962",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "The ordinary production manifest and the minimal local-bundle fixture have distinct partial runtime observations. Both exact source-bound fingerprints are recorded without creating authority or changing the public manifest schema."
+      },
+      "schemaIds": [
+        "xtend.mcp.knowledge-manifest.v1"
+      ],
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "a06-operator-backend-fix-observation-review"
     }
   ],
   "entries": [
@@ -201756,6 +201774,21 @@
       "status": "active",
       "usages": [
         {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a01/inventory.json"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "development/rmtx-a01/inventory.json",
+              "pointer": "/"
+            }
+          ]
+        },
+        {
           "application": "XTend Documentation",
           "role": "generated-mirror",
           "visibility": "generated",
@@ -204533,11 +204566,12 @@
           "authoritative": false
         },
         {
-          "hash": "sha256:8b0d5cc11dfc029c7171e1c4432340bc80a491a6e7bd93d776da60aa4de10be0",
+          "hash": "sha256:2531124d9beca96882594612128a191633f4b6885045bbc3af94570b2ccc9022",
           "shape": {
-            "fieldCount": 7,
+            "fieldCount": 8,
             "fields": [
               "diagnostics",
+              "effects",
               "error",
               "id",
               "modelOperations",
@@ -204545,12 +204579,18 @@
               "runId",
               "status"
             ],
-            "signature": "diagnostics:unknown|error:unknown|id:{\"unresolved\":\"action.id\"}|modelOperations:union<array<>|array<>>|postCommitEffects:array<>|runId:unknown|status:string",
+            "signature": "diagnostics:unknown|effects:{\"unresolved\":\"await runResultPhase(action, 'error', { action, payload, error: normalizeError(error), stateRuntime, ownerId, signal: controller.signal,\\n          commandEnvelope: metadata.commandEnvelope || null, correlationId: metadata.correlationId || null }, token, runId)\"}|error:unknown|id:{\"unresolved\":\"action.id\"}|modelOperations:union<array<>|array<>>|postCommitEffects:union<array<>|unknown>|runId:unknown|status:string",
             "normalized": {
               "fields": {
                 "diagnostics": {
                   "optional": false,
                   "type": "unknown"
+                },
+                "effects": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "await runResultPhase(action, 'error', { action, payload, error: normalizeError(error), stateRuntime, ownerId, signal: controller.signal,\n          commandEnvelope: metadata.commandEnvelope || null, correlationId: metadata.correlationId || null }, token, runId)"
+                  }
                 },
                 "error": {
                   "optional": false,
@@ -204578,7 +204618,12 @@
                 "postCommitEffects": {
                   "optional": false,
                   "type": {
-                    "array": []
+                    "union": [
+                      {
+                        "array": []
+                      },
+                      "unknown"
+                    ]
                   }
                 },
                 "runId": {
@@ -205432,7 +205477,7 @@
       "shapePolicy": {
         "acceptedFingerprints": [
           "sha256:0e7c325d6a543d8d0fa70bafcda1d9730dba33903c77a4c0be9bd7ea11fc40e9",
-          "sha256:8b0d5cc11dfc029c7171e1c4432340bc80a491a6e7bd93d776da60aa4de10be0",
+          "sha256:2531124d9beca96882594612128a191633f4b6885045bbc3af94570b2ccc9022",
           "sha256:9601f6e9435ca0eee1c9ff447412c6fa12d774ffdb3a2d243d1b81a2439fcc03",
           "sha256:b17158718278d6a01530dfdb266e9fb46333af406ff78cd104dbae00d348f4bc",
           "sha256:ce32e74b010fbf098d375e126d80ecdb1e9b1b5fffc691c14a74e5dac85f08c4",
@@ -205448,6 +205493,21 @@
       },
       "status": "active",
       "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a01/inventory.json"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "development/rmtx-a01/inventory.json",
+              "pointer": "/"
+            }
+          ]
+        },
         {
           "application": "XTend Documentation",
           "role": "generated-mirror",
@@ -205700,6 +205760,21 @@
       },
       "status": "active",
       "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a01/inventory.json"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "development/rmtx-a01/inventory.json",
+              "pointer": "/"
+            }
+          ]
+        },
         {
           "application": "XTend Documentation",
           "role": "generated-mirror",
@@ -224804,6 +224879,21 @@
       "status": "active",
       "usages": [
         {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a01/inventory.json"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "development/rmtx-a01/inventory.json",
+              "pointer": "/"
+            }
+          ]
+        },
+        {
           "application": "XTend Documentation",
           "role": "generated-mirror",
           "visibility": "generated",
@@ -225057,6 +225147,21 @@
       },
       "status": "active",
       "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a01/inventory.json"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "development/rmtx-a01/inventory.json",
+              "pointer": "/"
+            }
+          ]
+        },
         {
           "application": "XTend Documentation",
           "role": "generated-mirror",
@@ -225332,6 +225437,21 @@
       },
       "status": "active",
       "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a01/inventory.json"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "development/rmtx-a01/inventory.json",
+              "pointer": "/"
+            }
+          ]
+        },
         {
           "application": "XTend Documentation",
           "role": "generated-mirror",
@@ -226096,6 +226216,21 @@
       "status": "active",
       "usages": [
         {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a01/inventory.json"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "development/rmtx-a01/inventory.json",
+              "pointer": "/"
+            }
+          ]
+        },
+        {
           "application": "XTend Documentation",
           "role": "generated-mirror",
           "visibility": "generated",
@@ -226481,6 +226616,21 @@
       },
       "status": "active",
       "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a01/inventory.json"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "development/rmtx-a01/inventory.json",
+              "pointer": "/"
+            }
+          ]
+        },
         {
           "application": "XTend Documentation",
           "role": "generated-mirror",
@@ -229793,6 +229943,21 @@
       "status": "active",
       "usages": [
         {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a01/inventory.json"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "development/rmtx-a01/inventory.json",
+              "pointer": "/"
+            }
+          ]
+        },
+        {
           "application": "XTend Documentation",
           "role": "generated-mirror",
           "visibility": "generated",
@@ -229979,6 +230144,21 @@
       },
       "status": "active",
       "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a01/inventory.json"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "development/rmtx-a01/inventory.json",
+              "pointer": "/"
+            }
+          ]
+        },
         {
           "application": "XTend Documentation",
           "role": "generated-mirror",
@@ -236488,6 +236668,21 @@
       "status": "active",
       "usages": [
         {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a01/inventory.json"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "development/rmtx-a01/inventory.json",
+              "pointer": "/"
+            }
+          ]
+        },
+        {
           "application": "XTend Documentation",
           "role": "generated-mirror",
           "visibility": "generated",
@@ -236697,6 +236892,21 @@
       },
       "status": "active",
       "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a01/inventory.json"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "development/rmtx-a01/inventory.json",
+              "pointer": "/"
+            }
+          ]
+        },
         {
           "application": "XTend Documentation",
           "role": "generated-mirror",
@@ -236931,6 +237141,21 @@
               "type": "package-export",
               "module": "@ccslabs/xtend/package.json",
               "path": "package.json"
+            }
+          ]
+        },
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a01/inventory.json"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "development/rmtx-a01/inventory.json",
+              "pointer": "/"
             }
           ]
         },
@@ -237271,6 +237496,21 @@
       },
       "status": "active",
       "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a01/inventory.json"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "development/rmtx-a01/inventory.json",
+              "pointer": "/"
+            }
+          ]
+        },
         {
           "application": "XTend Documentation",
           "role": "generated-mirror",
@@ -239262,7 +239502,8 @@
           "visibility": "docs",
           "sourcePaths": [
             "development/WP-E18-10-Surface-Overlay-Portal-und-Resource-Graph-generisch-haerten.md",
-            "development/XTend-Native-First-RMT-Action-Effect-Data-Resource-Primitives-Contract.md"
+            "development/XTend-Native-First-RMT-Action-Effect-Data-Resource-Primitives-Contract.md",
+            "development/rmtx-a01/inventory.json"
           ],
           "interfaceReferences": [
             {
@@ -239443,18 +239684,18 @@
         },
         {
           "application": "XTensions",
-          "interfaceReferences": [
-            {
-              "path": "tools/xtensions/resource-graph-binding.js",
-              "symbol": null,
-              "type": "repo-symbol"
-            }
-          ],
           "role": "reference",
+          "visibility": "internal",
           "sourcePaths": [
             "tools/xtensions/resource-graph-binding.js"
           ],
-          "visibility": "internal"
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tools/xtensions/resource-graph-binding.js",
+              "symbol": null
+            }
+          ]
         }
       ],
       "version": 2
@@ -240043,7 +240284,8 @@
           "role": "documentation",
           "visibility": "docs",
           "sourcePaths": [
-            "development/XTend-0.8.0-Docs-Schema-Review.md"
+            "development/XTend-0.8.0-Docs-Schema-Review.md",
+            "development/rmtx-a01/inventory.json"
           ],
           "interfaceReferences": [
             {
@@ -481745,6 +481987,76 @@
           "authoritative": false
         },
         {
+          "hash": "sha256:75372c60cbbeb546b6abd7f2c167a7ef9356e9304139ec6ad15567631624e071",
+          "shape": {
+            "fieldCount": 7,
+            "fields": [
+              "bytes",
+              "content",
+              "locale",
+              "sha256",
+              "slug",
+              "sourcePath",
+              "uri"
+            ],
+            "signature": "bytes:unknown|content:string|locale:{\"unresolvedReference\":\"locale\"}|sha256:unknown|slug:string|sourcePath:string|uri:string",
+            "normalized": {
+              "fields": {
+                "bytes": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "content": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "locale": {
+                  "optional": false,
+                  "type": {
+                    "unresolvedReference": "locale"
+                  }
+                },
+                "sha256": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "slug": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "sourcePath": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "uri": {
+                  "optional": false,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "products/xtend-mcp/tests/local-bundle.test.mjs"
+          ],
+          "symbols": [
+            "docs"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "products/xtend-mcp/tests/local-bundle.test.mjs",
+              "symbol": "docs"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
           "hash": "sha256:a0cd986eb6b469794a0b45231b085737c08843ccadd209a9978cfe74a01422b5",
           "shape": {
             "fieldCount": 8,
@@ -481897,6 +482209,7 @@
       "shapePolicy": {
         "acceptedFingerprints": [
           "sha256:304f2d0ff1287159b685be100d7cd2d90a152bd381f604bb1193c54f688cf264",
+          "sha256:75372c60cbbeb546b6abd7f2c167a7ef9356e9304139ec6ad15567631624e071",
           "sha256:a0cd986eb6b469794a0b45231b085737c08843ccadd209a9978cfe74a01422b5"
         ],
         "authoritativeFingerprints": [],
@@ -481912,7 +482225,8 @@
           "role": "producer",
           "visibility": "internal",
           "sourcePaths": [
-            "products/xtend-mcp/scripts/build-knowledge.mjs"
+            "products/xtend-mcp/scripts/build-knowledge.mjs",
+            "products/xtend-mcp/tests/local-bundle.test.mjs"
           ],
           "interfaceReferences": [
             {
@@ -481924,6 +482238,16 @@
               "type": "symbol",
               "path": "products/xtend-mcp/scripts/build-knowledge.mjs",
               "symbol": "manifest"
+            },
+            {
+              "type": "symbol",
+              "path": "products/xtend-mcp/tests/local-bundle.test.mjs",
+              "symbol": "content"
+            },
+            {
+              "type": "symbol",
+              "path": "products/xtend-mcp/tests/local-bundle.test.mjs",
+              "symbol": "docs"
             }
           ]
         }
@@ -482937,6 +483261,73 @@
       "schemaId": "xtend.mcp.knowledge-manifest.v1",
       "shapeFingerprints": [
         {
+          "hash": "sha256:3c030d4f5e53fa6f90929d6ef2ddea682f8b0979b2b05a52f51d979e08f401ae",
+          "shape": {
+            "fieldCount": 2,
+            "fields": [
+              "docs",
+              "rmtKit"
+            ],
+            "signature": "docs:{artifactSha256:unknown,count:{\"unresolved\":\"docs.length\"},menuSha256:unknown}|rmtKit:{artifacts:unknown}",
+            "normalized": {
+              "fields": {
+                "docs": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "artifactSha256": {
+                        "optional": false,
+                        "type": "unknown"
+                      },
+                      "count": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "docs.length"
+                        }
+                      },
+                      "menuSha256": {
+                        "optional": false,
+                        "type": "unknown"
+                      }
+                    }
+                  }
+                },
+                "rmtKit": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "artifacts": {
+                        "optional": false,
+                        "type": "unknown"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "products/xtend-mcp/tests/local-bundle.test.mjs"
+          ],
+          "symbols": [
+            "fixture"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "products/xtend-mcp/tests/local-bundle.test.mjs",
+              "symbol": "fixture"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
           "hash": "sha256:6d60bab6b6a00f931613cb0944109163a9bcfc7283c44406c313f9994a67e5f0",
           "shape": {
             "fieldCount": 5,
@@ -483078,12 +483469,14 @@
       ],
       "shapePolicy": {
         "acceptedFingerprints": [
+          "sha256:3c030d4f5e53fa6f90929d6ef2ddea682f8b0979b2b05a52f51d979e08f401ae",
           "sha256:6d60bab6b6a00f931613cb0944109163a9bcfc7283c44406c313f9994a67e5f0"
         ],
         "authoritativeFingerprints": [],
-        "mode": "single",
-        "rationale": "One statically comparable shape is accepted by the initial repository audit.",
-        "releasedFingerprintSetHash": null
+        "mode": "polymorphic",
+        "rationale": "Targeted A06 backend/MCP refresh: the production knowledge manifest and a deliberately minimal local-export test fixture are separate non-authoritative observations. Exact current fingerprints are bound; the fixture does not become an authoritative schema. Existing released and authoritative fingerprint sets remain unchanged.",
+        "releasedFingerprintSetHash": null,
+        "decision": "a06-operator-backend-fix-observation-review"
       },
       "status": "active",
       "usages": [
@@ -483092,13 +483485,19 @@
           "role": "producer",
           "visibility": "internal",
           "sourcePaths": [
-            "products/xtend-mcp/scripts/build-knowledge.mjs"
+            "products/xtend-mcp/scripts/build-knowledge.mjs",
+            "products/xtend-mcp/tests/local-bundle.test.mjs"
           ],
           "interfaceReferences": [
             {
               "type": "symbol",
               "path": "products/xtend-mcp/scripts/build-knowledge.mjs",
               "symbol": "manifest"
+            },
+            {
+              "type": "symbol",
+              "path": "products/xtend-mcp/tests/local-bundle.test.mjs",
+              "symbol": "fixture"
             }
           ]
         }
@@ -609260,7 +609659,8 @@
           "role": "reference",
           "visibility": "internal",
           "sourcePaths": [
-            "products/xtend-mcp/tests/contract.test.mjs"
+            "products/xtend-mcp/tests/contract.test.mjs",
+            "products/xtend-mcp/tests/local-bundle.test.mjs"
           ],
           "interfaceReferences": [
             {
@@ -859645,6 +860045,21 @@
           ]
         },
         {
+          "application": "XTend Tests: Rmt Language",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/rmt-language/action-execution-lowering.test.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/rmt-language/action-execution-lowering.test.cjs",
+              "symbol": null
+            }
+          ]
+        },
+        {
           "application": "XTend Tooling",
           "role": "definition",
           "visibility": "internal",
@@ -859812,7 +860227,7 @@
           },
           {
             "path": "development/rmtx-a01/inventory.json",
-            "sha256": "98cf43fd5e41e52e63d78135273d313e523a56c425062f81c7160c522a598b6f"
+            "sha256": "56ec09f7b5e375735d41523e218a601961243d54ccca2ed4128dbd88d618ce76"
           },
           {
             "path": "docs/de/rmt-vnext-authoring.md",
@@ -859833,6 +860248,10 @@
           {
             "path": "scripts/generate_rmt_classic_contract.js",
             "sha256": "72a7cb793be6a11a169fd6aea281e3eb529a22ba9bdbd1c3b27d0f5143cbaa22"
+          },
+          {
+            "path": "tests/rmt-language/action-execution-lowering.test.cjs",
+            "sha256": "a13abb5a1f467bb41ce860ea840e266b8933a2a999abcde9ae4c4ebe2d39bad7"
           },
           {
             "path": "tests/rmt-language/fixtures/classic-contract-consumer.ts",
@@ -859856,11 +860275,11 @@
           },
           {
             "path": "tools/rmt-language/classic-compiler.d.ts",
-            "sha256": "11d778c3a3032c2e237d2c2660e47264e577870e51b60811f6f4982c8be27801"
+            "sha256": "5252e64211b4039c4c3272c73334342332a539703bbbf760d860e3a77240c858"
           },
           {
             "path": "tools/rmt-language/classic-compiler.js",
-            "sha256": "a742ec4561bb64ced5d3909aa0fc49e277f7687ded49c55c13e7f3463e721468"
+            "sha256": "d321ae4c25ca3b56ca877399f9a259b86afeb8a4c6dab8a67119baaa92c52581"
           },
           {
             "path": "tools/rmt-language/classic-parser.d.ts",
@@ -859872,7 +860291,7 @@
           },
           {
             "path": "tools/rmt-language/classic-semantic-rules.js",
-            "sha256": "2d4211c044b6682a952b85057e9172dac50c142125b203152a857e0a6e1bb10d"
+            "sha256": "113846c48ef5dc4d5ce0b29ddb7a01076e50d3fa86f80d84f1af5420fb593d81"
           },
           {
             "path": "tools/rmt-language/contracts/classic-ast.v1.schema.json",
@@ -859884,7 +860303,7 @@
           },
           {
             "path": "tools/rmt-language/vnext-compiler.js",
-            "sha256": "043ea70d12d724cbb32872c8e4c1bca19d06d13da09c75abeefbfa3eabf45c66"
+            "sha256": "9ee9aac4cd163ac3d78a6ae228d4515974eabfcf3ef89c45c38ff937684ff510"
           },
           {
             "path": "tools/rmt-language/vnext-parser.js",

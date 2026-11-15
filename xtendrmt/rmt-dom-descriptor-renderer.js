@@ -1,4 +1,5 @@
 (function attachRmtDomDescriptorRenderer(globalTarget) {
+  const RMT_DOM_DESCRIPTOR_RENDERER_API_VERSION = '2.1.0';
   const RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA = 'xtend.epic18.rmt-dom-descriptor-renderer.v2';
   const RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA = 'xtend.epic18.rmt-dom-descriptor-renderer.v1';
   const RMT_DOM_DESCRIPTOR_RENDERER_DIAGNOSTIC_SCHEMA = 'xtend.epic18.rmt-dom-renderer-diagnostic.v2';
@@ -721,8 +722,28 @@
     return '';
   }
 
+  function foreignStructuralRoot(node, context) {
+    if (!context || !context.rendererState) return false;
+    const owner = context.rendererState.structuralOwners.get(node);
+    return Boolean(owner && owner !== (context.structuralOwner || 'descriptor-renderer'));
+  }
+
+  function preserveStructuralRoots(parent, nextNodes, context) {
+    const current = getChildren(parent), foreign = new Set(current.filter(node => foreignStructuralRoot(node, context)));
+    if (!foreign.size) return nextNodes;
+    const managed = nextNodes.filter(node => !foreign.has(node)), result = [];
+    let previousManaged = 0, index = 0;
+    current.forEach(node => {
+      if (!foreign.has(node)) { previousManaged += 1; return; }
+      while (index < Math.min(previousManaged, managed.length)) result.push(managed[index++]);
+      result.push(node);
+    });
+    result.push(...managed.slice(index));
+    return result;
+  }
+
   function replaceChildren(parent, nodes, context) {
-    const normalizedNodes = toArray(nodes).filter(Boolean);
+    const normalizedNodes = preserveStructuralRoots(parent, toArray(nodes).filter(Boolean), context);
     const existingNodes = getChildren(parent);
     if (context && !domainAllowed(context, 'structure')) return existingNodes;
     if (
@@ -730,6 +751,10 @@
       && existingNodes.every((node, index) => node === normalizedNodes[index])
     ) {
       return normalizedNodes;
+    }
+    if (existingNodes.some(node => foreignStructuralRoot(node, context))) {
+      reconcileChildOrder(parent, normalizedNodes, context);
+      return getChildren(parent);
     }
     if (typeof parent.replaceChildren === 'function') {
       parent.replaceChildren(...normalizedNodes);
@@ -2950,7 +2975,7 @@
       && !next.content
       && Array.from(previousContentDomains).every((domain) => domainAllowed(context, domain))
     ) {
-      getChildren(childContainerFor(element)).forEach((child) => cleanupNode(child, rendererState));
+      getChildren(childContainerFor(element)).filter(child => !foreignStructuralRoot(child, context)).forEach((child) => cleanupNode(child, rendererState));
       replaceChildren(childContainerFor(element), [], context);
     }
   }
@@ -2976,6 +3001,7 @@
     rendererState.ownedFields.delete(node);
     rendererState.propertyBaselines.delete(node);
     rendererState.nodeKeys.delete(node);
+    rendererState.structuralOwners.delete(node);
     rendererState.trackedNodes.delete(node);
   }
 
@@ -3035,7 +3061,7 @@
         setTextContent(children[0], resolvedText, context);
       } else if (domainAllowed(context, 'structure')) {
         replaceChildren(target, [createText(context.documentTarget, resolvedText)], context);
-        children.forEach((child) => cleanupNode(child, context.rendererState));
+        children.filter(child => !foreignStructuralRoot(child, context)).forEach((child) => cleanupNode(child, context.rendererState));
       }
     } else if (Object.prototype.hasOwnProperty.call(next, 'children') && domainAllowed(context, 'structure')) {
       materializeChildren(element, next.children, context, context.item);
@@ -3109,12 +3135,35 @@
   function reconcileChildOrder(root, nextNodes, context) {
     const existingChildren = getChildren(root);
     if (!domainAllowed(context, 'structure')) return existingChildren;
+    nextNodes = preserveStructuralRoots(root, nextNodes, context);
     if (
       existingChildren.length === nextNodes.length
       && existingChildren.every((node, index) => node === nextNodes[index])
     ) return;
     const nextSet = new Set(nextNodes);
     const removedNodes = existingChildren.filter((node) => !nextSet.has(node));
+    const foreignRoots = new Set(existingChildren.filter(node => foreignStructuralRoot(node, context)));
+    if (foreignRoots.size) {
+      removedNodes.forEach(node => root.removeChild(node));
+      if (typeof root.insertBefore === 'function') {
+        let reference = null;
+        for (let index = nextNodes.length - 1; index >= 0; index -= 1) {
+          const node = nextNodes[index];
+          if (!foreignRoots.has(node)) {
+            const current = getChildren(root), position = current.indexOf(node);
+            if (position < 0 || (current[position + 1] || null) !== reference) root.insertBefore(node, reference);
+          }
+          reference = node;
+        }
+      } else {
+        // ParentNode shims without insertBefore can still retain foreign roots
+        // without detaching them; only this commit's own nodes are reordered.
+        appendNodes(root, nextNodes.filter(node => !foreignRoots.has(node)));
+      }
+      removedNodes.forEach(node => cleanupNode(node, context.rendererState));
+      markChanged(context, true);
+      return;
+    }
     if (typeof root.insertBefore === 'function' && typeof root.removeChild === 'function') {
       nextNodes.forEach((node, index) => {
         const current = getChildren(root)[index] || null;
@@ -3132,6 +3181,7 @@
   function renderKeyed(root, descriptors, context, options = {}) {
     const existingByKey = new Map();
     getChildren(root).forEach((child) => {
+      if (foreignStructuralRoot(child, context)) return;
       const key = reconcileKeyForNode(child, context.rendererState);
       if (key && !existingByKey.has(String(key))) existingByKey.set(String(key), child);
     });
@@ -3146,7 +3196,7 @@
       seenKeys.add(key);
       entry.key = key;
     });
-    const existingChildren = getChildren(root);
+    const existingChildren = getChildren(root).filter(child => !foreignStructuralRoot(child, context));
     const usedNodes = new Set();
     const nextNodes = [];
     entries.forEach((entry, index) => {
@@ -3302,6 +3352,7 @@
       disposedHandles: new WeakSet(),
       rendererInstanceId: ++rendererInstanceSequence,
       nodeKeys: new WeakMap(),
+      structuralOwners: new WeakMap(),
       ownedFields: new WeakMap(),
       propertyBaselines: new WeakMap(),
       refs: new WeakMap(),
@@ -3452,6 +3503,9 @@
           reconcileMode: operation === 'reconcile-children' || operation === 'reconcile-element'
         };
         const context = createRenderContext(documentTarget, contextOptions, diagnosticsRecorder, rendererState);
+        // Only the trusted commit envelope supplies structural ownership.
+        // Descriptor fields, attributes and request.context confer none.
+        context.structuralOwner = clampString(request.ownership && request.ownership.owner, 'descriptor-renderer');
         const descriptorInput = operation === 'reconcile-children' ? request.descriptors : request.descriptor;
         context.blockedDomains = resolveOwnership(request.ownership, descriptorInput, context, operation);
         validateDescriptor(descriptorInput, context);
@@ -3496,12 +3550,16 @@
           } else if (operation === 'create-node') {
             const rendered = renderNode(request.descriptor, context);
             nodes = rendered && rendered.nodeType === 11 ? getChildren(rendered) : toArray(rendered).filter(Boolean);
+            if (request.ownership && typeof request.ownership.owner === 'string') nodes.forEach(node => {
+              if (!rendererState.structuralOwners.has(node)) rendererState.structuralOwners.set(node, context.structuralOwner);
+              rendererState.trackedNodes.add(node);
+            });
             tracker.changed = nodes.length > 0;
             tracker.structural = nodes.length > 0;
           } else if (operation === 'replace-children') {
             const rendered = renderNode(request.descriptor, context);
             nodes = rendered && rendered.nodeType === 11 ? getChildren(rendered) : toArray(rendered).filter(Boolean);
-            const nextSet = new Set(nodes);
+            const nextSet = new Set(preserveStructuralRoots(request.target, nodes, context));
             const removedNodes = getChildren(request.target).filter((node) => !nextSet.has(node));
             replaceChildren(request.target, nodes, context);
             removedNodes.forEach((node) => cleanupNode(node, rendererState));
@@ -3708,6 +3766,7 @@
   }
 
   const api = {
+    RMT_DOM_DESCRIPTOR_RENDERER_API_VERSION,
     RMT_DOM_DESCRIPTOR_RENDERER_DIAGNOSTIC_SCHEMA,
     RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA,
     RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA,
@@ -3729,6 +3788,7 @@
 
 const __XTEND_RMT_DOM_DESCRIPTOR_RENDERER_API__ = globalThis.XTendRmtDomDescriptorRenderer;
 
+export const RMT_DOM_DESCRIPTOR_RENDERER_API_VERSION = __XTEND_RMT_DOM_DESCRIPTOR_RENDERER_API__.RMT_DOM_DESCRIPTOR_RENDERER_API_VERSION;
 export const RMT_DOM_DESCRIPTOR_RENDERER_DIAGNOSTIC_SCHEMA = __XTEND_RMT_DOM_DESCRIPTOR_RENDERER_API__.RMT_DOM_DESCRIPTOR_RENDERER_DIAGNOSTIC_SCHEMA;
 export const RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA = __XTEND_RMT_DOM_DESCRIPTOR_RENDERER_API__.RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA;
 export const RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA = __XTEND_RMT_DOM_DESCRIPTOR_RENDERER_API__.RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA;

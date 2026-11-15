@@ -6,7 +6,7 @@ Diese Seite listet feste Werte, die in Operatoren verwendet werden.
 
 | Catalog | Values | Allowed contexts | Parameters | Function | Diagnostics | Related operators |
 | --- | --- | --- | --- | --- | --- | --- |
-| <a id="lane-names"></a>Lane names | `critical`, `visible`, `user-blocking`, `transition`, `resource`, `a11y`, `idle`, `background`, `diagnostics` | `lane`, `lane transition`, Remote Events | Identifier | Ordnet Arbeit einer Scheduling-Klasse zu. | Unbekannte Lane-Namen können katalogseitig gemeldet werden. | `lane`, `weight` |
+| <a id="lane-names"></a>Lane names | `user-blocking`, `visible`, `transition`, `idle`, `background`, `diagnostics` | `lane`, `lane transition`, Remote Events | Identifier | Ordnet Arbeit einer Scheduling-Klasse zu. | Unbekannte Lane-Namen können katalogseitig gemeldet werden. | `lane`, `weight` |
 | <a id="source-kinds"></a>Source kinds | `endpoint`, `sse`, `worker`, `selector`, `state`, `datasource`, `fixture`, `resource` | `from`, `fallback`, `source` | Identifier plus Referenz | Beschreibt, wo Daten oder Arbeit herkommen. | Parser meldet nicht erlaubte Source-Kinds. | `from` |
 | <a id="overlay-kinds"></a>Overlay kinds | `tooltip`, `toast`, `popover`, `lightbox`, `menu`, `dialog` | `overlay kind` | Identifier | Klassifiziert Overlay-UI. | Unbekannte Overlay-Kinds können semantisch gemeldet werden. | `overlay` |
 | <a id="resource-kinds"></a>Resource kinds | `object-url`, `stream`, `observer`, `timer`, `lazy-import` | `resource kind` | Identifier | Klassifiziert Cleanup- und Ownership-Verhalten. | Fehlender Owner kann gemeldet werden. | `resource`, `destroy releases` |
@@ -24,6 +24,18 @@ Alle Werte sind literal im RMT-Quelltext. Trust Boundaries werden als Strings ge
 ## Description
 
 Catalogs halten Authoring stabil und prüfbar. Neue Werte brauchen Tooling-, Docs- und Testabdeckung.
+
+### Kanonische Lanes und Aliase
+
+Die sechs Lane-Namen oben sind die kanonischen Schedulerklassen. `critical`, `urgent` und `input` normalisieren zu `user-blocking`; `interactive`, `normal` und `default` zu `visible`; `route` zu `transition`; `deferred` zu `idle`; `bg` zu `background`; `telemetry` und `debug` zu `diagnostics`.
+
+`resource` und `a11y` sind weder kanonische Lanes noch Aliase des aktuellen Normalisierers. Ein unbekannter Name bleibt als unbekannt markiert und erhält dort den Fallback `visible`; daraus entsteht keine zusätzliche Schedulerfähigkeit. Lane-Namen beschreiben Scheduling, nicht automatisch einen Lade-, Visibility- oder Hydrationstrigger. Maßgeblich ist `tools/rmt-language/scheduler-lanes.js`.
+
+### Tones für Action Result Overlays
+
+Die `tone`-Option eines Result-Overlay-Handlers akzeptiert `info`, `success`, `warning`, `error`, `neutral`, `primary`, `secondary` und `danger`. Statische Werte werden als Strings geschrieben, zum Beispiel `on error -> overlay app.toast tone "danger"`. Ein ausdrücklich referenzierter Wert wird zur Laufzeit geprüft.
+
+Der Host erhält den gewählten Wert als `data-tone`. Die kanonische visuelle Einordnung bildet `neutral`, `primary` und `secondary` auf `info`, `danger` auf `error` ab. Unbekannte statische Tones und unbekannte Overlayoptionen werden vom Compiler abgewiesen; zulässig sind hier nur `message` und `tone`.
 
 ## Examples
 
