@@ -8657,7 +8657,7 @@ const __XTENDRMT_CANONICAL_SOURCE_MODULES__ = Object.freeze(["modules/rmt-engine
 (function registerRmtDomDescriptorRendererModule(global) {
     const appModules = global.AppModules || (global.AppModules = {});
     (function attachRmtDomDescriptorRenderer(globalTarget) {
-      const RMT_DOM_DESCRIPTOR_RENDERER_API_VERSION = '2.1.0';
+      const RMT_DOM_DESCRIPTOR_RENDERER_API_VERSION = '2.2.0';
       const RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA = 'xtend.epic18.rmt-dom-descriptor-renderer.v2';
       const RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA = 'xtend.epic18.rmt-dom-descriptor-renderer.v1';
       const RMT_DOM_DESCRIPTOR_RENDERER_DIAGNOSTIC_SCHEMA = 'xtend.epic18.rmt-dom-renderer-diagnostic.v2';
@@ -9246,7 +9246,18 @@ const __XTENDRMT_CANONICAL_SOURCE_MODULES__ = Object.freeze(["modules/rmt-engine
         const nextValue = String(value == null ? '' : value);
         if (styleValue(element, name) === nextValue) return;
         if (typeof element.style.setProperty === 'function') {
-          element.style.setProperty(name, nextValue);
+          const existingPriority = typeof element.style.getPropertyPriority === 'function'
+            ? element.style.getPropertyPriority(name) : '';
+          const priorities = context && context.stylePriorities;
+          let previousPriorities = priorities && priorities.get(element);
+          if (existingPriority && priorities) {
+            if (!previousPriorities) { previousPriorities = new Map(); priorities.set(element, previousPriorities); }
+            previousPriorities.set(name, existingPriority);
+          }
+          // Retain existing DOM priority while the same commit temporarily clears
+          // hidden display and then restores it. Source values cannot add priority.
+          const priority = existingPriority || previousPriorities && previousPriorities.get(name) || '';
+          element.style.setProperty(name, nextValue, priority);
         } else {
           element.style[name] = nextValue;
         }
@@ -9254,7 +9265,10 @@ const __XTENDRMT_CANONICAL_SOURCE_MODULES__ = Object.freeze(["modules/rmt-engine
       }
 
       function removeStyleValue(element, name, context) {
-        if (!element || !element.style || styleValue(element, name) === '') return;
+        if (!element || !element.style) return;
+        const priorities = context && context.stylePriorities && context.stylePriorities.get(element);
+        if (priorities) priorities.delete(name);
+        if (styleValue(element, name) === '') return;
         if (typeof element.style.removeProperty === 'function') {
           element.style.removeProperty(name);
         } else if (element.style.values && Object.prototype.hasOwnProperty.call(element.style.values, name)) {
@@ -9386,9 +9400,38 @@ const __XTENDRMT_CANONICAL_SOURCE_MODULES__ = Object.freeze(["modules/rmt-engine
         return Boolean(owner && owner !== (context.structuralOwner || 'descriptor-renderer'));
       }
 
+      function foreignStructuralBranch(node, context) {
+        if (!context || !context.rendererState) return false;
+        const pending = [node], seen = new Set();
+        while (pending.length) {
+          const current = pending.pop();
+          if (!current || seen.has(current)) continue;
+          seen.add(current);
+          if (foreignStructuralRoot(current, context)) return true;
+          pending.push(...getChildren(childContainerFor(current)));
+          if (current.shadowRoot) pending.push(current.shadowRoot);
+        }
+        return false;
+      }
+
+      function clearRetainedNativeBranch(node, context) {
+        if (foreignStructuralRoot(node, context)) return;
+        const target = childContainerFor(node), children = getChildren(target);
+        const retained = children.filter(child => foreignStructuralBranch(child, context));
+        retained.forEach(child => clearRetainedNativeBranch(child, context));
+        if (node && node.shadowRoot) clearRetainedNativeBranch(node.shadowRoot, context);
+        // The ancestor remains only as a shell for the privately registered foreign
+        // root. Remove its ordinary native content, without entering that root.
+        replaceChildren(target, retained, context);
+        const keep = new Set(retained);
+        children.filter(child => !keep.has(child)).forEach(child => cleanupNode(child, context.rendererState));
+      }
+
       function preserveStructuralRoots(parent, nextNodes, context) {
-        const current = getChildren(parent), foreign = new Set(current.filter(node => foreignStructuralRoot(node, context)));
+        const current = getChildren(parent), foreign = new Set(current.filter(node => foreignStructuralBranch(node, context)));
         if (!foreign.size) return nextNodes;
+        const requested = new Set(nextNodes);
+        if (domainAllowed(context, 'structure')) foreign.forEach(node => { if (!requested.has(node)) clearRetainedNativeBranch(node, context); });
         const managed = nextNodes.filter(node => !foreign.has(node)), result = [];
         let previousManaged = 0, index = 0;
         current.forEach(node => {
@@ -9410,7 +9453,7 @@ const __XTENDRMT_CANONICAL_SOURCE_MODULES__ = Object.freeze(["modules/rmt-engine
         ) {
           return normalizedNodes;
         }
-        if (existingNodes.some(node => foreignStructuralRoot(node, context))) {
+        if (existingNodes.some(node => foreignStructuralBranch(node, context))) {
           reconcileChildOrder(parent, normalizedNodes, context);
           return getChildren(parent);
         }
@@ -11633,7 +11676,7 @@ const __XTENDRMT_CANONICAL_SOURCE_MODULES__ = Object.freeze(["modules/rmt-engine
           && !next.content
           && Array.from(previousContentDomains).every((domain) => domainAllowed(context, domain))
         ) {
-          getChildren(childContainerFor(element)).filter(child => !foreignStructuralRoot(child, context)).forEach((child) => cleanupNode(child, rendererState));
+          getChildren(childContainerFor(element)).filter(child => !foreignStructuralBranch(child, context)).forEach((child) => cleanupNode(child, rendererState));
           replaceChildren(childContainerFor(element), [], context);
         }
       }
@@ -11719,7 +11762,7 @@ const __XTENDRMT_CANONICAL_SOURCE_MODULES__ = Object.freeze(["modules/rmt-engine
             setTextContent(children[0], resolvedText, context);
           } else if (domainAllowed(context, 'structure')) {
             replaceChildren(target, [createText(context.documentTarget, resolvedText)], context);
-            children.filter(child => !foreignStructuralRoot(child, context)).forEach((child) => cleanupNode(child, context.rendererState));
+            children.filter(child => !foreignStructuralBranch(child, context)).forEach((child) => cleanupNode(child, context.rendererState));
           }
         } else if (Object.prototype.hasOwnProperty.call(next, 'children') && domainAllowed(context, 'structure')) {
           materializeChildren(element, next.children, context, context.item);
@@ -11800,7 +11843,7 @@ const __XTENDRMT_CANONICAL_SOURCE_MODULES__ = Object.freeze(["modules/rmt-engine
         ) return;
         const nextSet = new Set(nextNodes);
         const removedNodes = existingChildren.filter((node) => !nextSet.has(node));
-        const foreignRoots = new Set(existingChildren.filter(node => foreignStructuralRoot(node, context)));
+        const foreignRoots = new Set(existingChildren.filter(node => foreignStructuralBranch(node, context)));
         if (foreignRoots.size) {
           removedNodes.forEach(node => root.removeChild(node));
           if (typeof root.insertBefore === 'function') {
@@ -11944,6 +11987,7 @@ const __XTENDRMT_CANONICAL_SOURCE_MODULES__ = Object.freeze(["modules/rmt-engine
           metadata: options.metadata || null,
           preserveActiveInputDraft: options.preserveActiveInputDraft === true,
           rendererState,
+          stylePriorities: new WeakMap(),
           commitTracker: options.commitTracker || null,
           reconcileMode: Boolean(options.reconcileMode),
           blockedDomains: options.blockedDomains instanceof Set ? options.blockedDomains : new Set(),

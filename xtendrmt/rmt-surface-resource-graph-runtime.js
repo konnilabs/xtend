@@ -1,5 +1,5 @@
 (function attachRmtSurfaceResourceGraphRuntime(globalTarget) {
-  const RMT_SURFACE_RESOURCE_GRAPH_API_VERSION = '2.1.0';
+  const RMT_SURFACE_RESOURCE_GRAPH_API_VERSION = '2.2.1';
   const RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_SCHEMA = 'xtend.epic18.rmt-surface-resource-graph-runtime.v2';
   const RMT_SURFACE_RESOURCE_GRAPH_DIAGNOSTIC_SCHEMA = 'xtend.epic18.rmt-surface-resource-graph-diagnostic.v1';
   const DEFAULT_DIAGNOSTIC_CHANNEL = 'rmt.app_platform.surface_resource_graph';
@@ -726,19 +726,19 @@
       return null;
     }
 
-    function controllerRecord(surfaceId, snapshotHint = null) {
-      const manager = resolveSurfaceManagerTarget();
-      const snapshot = snapshotHint && Array.isArray(snapshotHint.surfaces)
-        ? snapshotHint
-        : readSurfaceManagerSnapshot(manager);
-      const records = snapshot && Array.isArray(snapshot.surfaces) ? snapshot.surfaces : [];
-      return records.find((record) => record && record.id === surfaceId) || null;
-    }
-
     function syncLifecycleProjection(handle, snapshotHint = null, compatibilityProjection = null) {
       if (!handle) return handle;
-      const record = controllerRecord(handle.id, snapshotHint);
+      const snapshot = snapshotHint && Array.isArray(snapshotHint.surfaces)
+        ? snapshotHint : readSurfaceManagerSnapshot(resolveSurfaceManagerTarget());
+      const record = snapshot && Array.isArray(snapshot.surfaces)
+        ? snapshot.surfaces.find((entry) => entry && entry.id === handle.id) : null;
       if (!record) {
+        // A complete current registry no longer contains a previously managed
+        // instance after tombstone compaction. Absence revokes that lifetime;
+        // it is not permission to revive the last cached open projection.
+        if (strict && snapshot && Array.isArray(snapshot.surfaces) && managedSurfaceManagerIds.has(handle.id)) {
+          handle.state = 'destroyed';
+        }
         if (!strict && compatibilityProjection) {
           if (compatibilityProjection.state) handle.state = compatibilityProjection.state;
           if (compatibilityProjection.bounds) handle.bounds = normalizeBounds(compatibilityProjection.bounds, handle.bounds);
@@ -764,8 +764,8 @@
     }
 
     function lifecycleState(handle) {
-      const record = handle && controllerRecord(handle.id);
-      return record && clampString(record.status, '') || handle && handle.state || 'closed';
+      if (handle) syncLifecycleProjection(handle);
+      return handle && handle.state || 'closed';
     }
 
     function projectHandle(handle) {
@@ -952,6 +952,9 @@
 
     function materialize(recordsBySource = {}, materializeOptions = {}) {
       assertActive('materialize');
+      if (Object.prototype.hasOwnProperty.call(materializeOptions, 'preserveDestroyed') && typeof materializeOptions.preserveDestroyed !== 'boolean') {
+        throw new TypeError('Surface materialize preserveDestroyed must be a boolean.');
+      }
       const created = [];
       const reused = [];
       const pending = [];
@@ -962,13 +965,18 @@
           const id = createInstanceId(surface, record, index);
           const existing = instances.get(id);
           const existingState = existing ? lifecycleState(existing) : null;
+          // Managed view reconciliation cannot authorize a new lifetime. Keep
+          // the tombstone until the trusted owner explicitly opens a new one.
+          // Standalone callers retain their existing rematerialization default.
+          if (existingState === 'destroyed' && materializeOptions.preserveDestroyed === true) return;
           const reusable = Boolean(existing && existingState !== 'destroyed');
           const next = createInstance(surface, record, index, reusable ? existing : null);
           pending.push({ id, next, existing, reusable, surface });
           if (!reusable) {
             lifecycleOperations.push({
               operation: 'registerSurface',
-              args: [surfaceManagerRecordForInstance(next)]
+              args: [{ ...surfaceManagerRecordForInstance(next),
+                ...(existing ? { generation: Number(objectRecord(existing.metadata).generation || 1) + 1 } : {}) }]
             });
           }
         });
@@ -1003,10 +1011,20 @@
     async function openSurface(surfaceRef, openOptions = {}) {
       assertActive('openSurface');
       const instance = ensureSurface(surfaceRef, openOptions);
-      if (lifecycleState(instance) === 'destroyed' && openOptions.recreate !== true) {
+      const destroyed = lifecycleState(instance) === 'destroyed';
+      if (destroyed && openOptions.recreate !== true) {
         throw new Error(`RMT Surface ${surfaceRef} ist bereits zerstoert.`);
       }
-      const openResult = proxySurfaceManager('open', instance, openOptions);
+      const snapshot = destroyed && openOptions.recreate === true
+        ? readSurfaceManagerSnapshot(resolveSurfaceManagerTarget()) : null;
+      const compacted = snapshot && Array.isArray(snapshot.surfaces)
+        && !snapshot.surfaces.some((record) => record && record.id === instance.id);
+      const openResult = compacted ? callSurfaceControllerApply([
+        { operation: 'registerSurface', args: [{ ...surfaceManagerRecordForInstance(instance),
+          generation: Number(objectRecord(instance.metadata).generation || 1) + 1 }] },
+        { operation: 'openSurface', args: [instance.id, openOptions] }
+      ], { instanceId: instance.id, operation: 'explicit-recreate-after-compaction' })
+        : proxySurfaceManager('open', instance, openOptions);
       requireSurfaceControllerResult(openResult, 'open', instance.id);
       syncLifecycleProjection(instance, openResult && openResult.snapshot, { state: 'open' });
       const boundary = typeof options.getSurfaceBoundary === 'function' ? options.getSurfaceBoundary(instance.id) : null;

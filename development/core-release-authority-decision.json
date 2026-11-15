@@ -4,8 +4,8 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "1e8a4da17206898eda9861e04d3d5c9b16caeee857c4f7af619f54718f243cb6",
-  "sourceMembershipSha256": "76ea66b23b8382c319a786ac8e8cb9e10d7b4bdf28f9ffc63c301c7359be4481",
+  "inventorySha256": "07d394439f63e8833d5fc2a4bbff0da25b63c83c8bf77554ce1d99ead3d118cd",
+  "sourceMembershipSha256": "3f6de7c276423111801ae713f4d306d87ad92938ee50726a5d43dff35dcd6dd6",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
@@ -561,7 +561,7 @@
         },
         {
           "path": "development/rmtx-a01/inventory.json",
-          "sha256": "56ec09f7b5e375735d41523e218a601961243d54ccca2ed4128dbd88d618ce76"
+          "sha256": "51949fbf2b2a54540685c1ec465c937445df113f75e7def51e30e2479a341c2c"
         },
         {
           "path": "docs/de/rmt-vnext-authoring.md",
@@ -577,7 +577,7 @@
         },
         {
           "path": "package.json",
-          "sha256": "650f1f09d5aeffce8ecab03e51c72db4218758eca58d341dce28e1ae404b42bf"
+          "sha256": "6a633e38e9df751aca00058537bef4c190430cefe95d144f783100ae4e5734b5"
         },
         {
           "path": "scripts/generate_rmt_classic_contract.js",
@@ -3293,5 +3293,3082 @@
         "reportSha256": "7f50ce6a03eb14dc053249956acb9b59c71bbf8c6629695046ff515005c8f3ff"
       }
     ]
+  },
+  "a06SyntaxComparisonReview": {
+    "date": "2026-11-15",
+    "sourceBaseSha": "19773f99c9412a36a3372f89b4e94c71352ed082",
+    "kind": "development-only-two-host-authoring-and-file-extension-experiment",
+    "status": "reviewed-development-comparison",
+    "directory": "development/rmtx-a06/syntax-comparison",
+    "report": "development/rmtx-a06/syntax-comparison/README.before-syntax-decision.md",
+    "reportSha256": "b55f75b69013e3b36d40764e95cdc72e5fffe7c22733d2d521dc63d808bb65f8",
+    "extensionReport": "development/rmtx-a06/syntax-comparison/extension-assessment.md",
+    "extensionReportSha256": "5f6b07f90c8de67dd6a9b8eecca2cbaedfdc1dd43213fefa04fb3da95657bec3",
+    "twoHostCaseLink": {
+      "path": "development/rmtx-a06/two-host-case.before-syntax-decision.md",
+      "sha256": "bd0ec39bdeb5d64e2e2237bce9f4b189fe6c00f025532039eae3057fee87d6ba",
+      "change": "link-to-development-only-syntax-comparison"
+    },
+    "experimentApiVersion": "1.0.0",
+    "evidence": [
+      {
+        "path": "development/rmtx-a06/syntax-comparison/comparison-evidence.before-syntax-decision.json",
+        "sha256": "1b1cd387add013ddd7a78e0c3090759a14e5c1fbbcc685ca3e9a64c0e16af5a1"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/extension-evidence.json",
+        "sha256": "9324cde2ed34d09c80cf7c6deb4afbde5c3a63ae11d2ebe59b93d239c7e83a0c"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/runtime-evidence.json",
+        "sha256": "57af3eca6dc7339210ce4f846cc59a0f326d853b7d2cd3c1a33feaa7f2533ef7"
+      }
+    ],
+    "sources": [
+      {
+        "path": "development/rmtx-a06/syntax-comparison/README.before-syntax-decision.md",
+        "sha256": "b55f75b69013e3b36d40764e95cdc72e5fffe7c22733d2d521dc63d808bb65f8"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/authoring.d.ts",
+        "sha256": "61ab277b1b7789dfb5a09525a5a9cac121a4f28c7f7aa8bfb0073dd503552306"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/classic.rmt",
+        "sha256": "3468c5d11497f8357b9078a449c27b308b44b872dbac812f97eae1abcf1aa88a"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/comparison-evidence.before-syntax-decision.json",
+        "sha256": "1b1cd387add013ddd7a78e0c3090759a14e5c1fbbcc685ca3e9a64c0e16af5a1"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/comparison.cjs",
+        "sha256": "5726124c3950ea8c81871c165bc15c2322d04ca11eeef8c7a5a74d72e60da15c"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/declarative.rmtx",
+        "sha256": "2eb2d495516c8b44ceda04e8d5e69e80693c352e6a5d59b3620b1a5bbb7d0704"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/declarative.tsx",
+        "sha256": "2eb2d495516c8b44ceda04e8d5e69e80693c352e6a5d59b3620b1a5bbb7d0704"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/extension-assessment.md",
+        "sha256": "5f6b07f90c8de67dd6a9b8eecca2cbaedfdc1dd43213fefa04fb3da95657bec3"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/extension-evidence.json",
+        "sha256": "9324cde2ed34d09c80cf7c6deb4afbde5c3a63ae11d2ebe59b93d239c7e83a0c"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/extension-probes.cjs",
+        "sha256": "6e0266eef24e54ed39e2ca3e91f1cacb3c5af21ffe2dced5e03916df873c0a8f"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/inspect.cjs",
+        "sha256": "208f9b34c84600f5d48ecb918303eb913abf81eb46c8b11c0faa31b773ed5e06"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/jsx-runtime.d.ts",
+        "sha256": "c713e1235ffd7f6e47a554ffd3f57aa92452194dc82dcde2245afa4f94131ddd"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/review-notes.md",
+        "sha256": "5e0d0bd58c72a3fd041237f4af17b231fc05dd3d7f7941a7d33bd1b5bc80c1fa"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/runtime-comparison.cjs",
+        "sha256": "0a0fd57d602bf9de31c69ae7f187821d8fd9a6459b596f2ecf2e90bbdd632aed"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/runtime-evidence.json",
+        "sha256": "57af3eca6dc7339210ce4f846cc59a0f326d853b7d2cd3c1a33feaa7f2533ef7"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/view.tsx",
+        "sha256": "eba25929d68792c1b5c616317aac0937d5a5878bba3355c2fea16362000e4551"
+      }
+    ],
+    "typescript": "5.9.3",
+    "staticChecks": 31,
+    "fileExtensionChecks": 21,
+    "runtimeEnvironments": [
+      {
+        "node": "v24.18.0",
+        "mode": "jsdom-native-frameworks",
+        "browserVersion": null,
+        "passed": true,
+        "differentialTraceEqual": true,
+        "differentialStages": 7,
+        "acceptanceCasesPerVariant": 13
+      },
+      {
+        "node": "v26.5.0",
+        "mode": "jsdom-native-frameworks",
+        "browserVersion": null,
+        "passed": true,
+        "differentialTraceEqual": true,
+        "differentialStages": 7,
+        "acceptanceCasesPerVariant": 13
+      },
+      {
+        "node": "v24.18.0",
+        "mode": "chromium",
+        "browserVersion": "155.0.8059.79",
+        "passed": true,
+        "differentialTraceEqual": true,
+        "differentialStages": 7,
+        "acceptanceCasesPerVariant": 13
+      }
+    ],
+    "sourceStableAcrossAllRuns": true,
+    "existingAuthoritativeDefinitionsChanged": false,
+    "existingReleasedFingerprintSetsChanged": false,
+    "productionContractsChanged": false,
+    "publicSchemaIdsAdded": false,
+    "productionFrontendImplemented": false,
+    "nativeHeaderRuntimeEvaluated": false,
+    "ssrAcceptancePerformed": false,
+    "syntaxDecisionStatus": "open",
+    "acceptedForRelease": false,
+    "rationale": "The closed A06 two-host fixture compares independently lowered declarative TSX-compatible .rmtx and Classic .rmt plus TSX view inputs through existing compiler/Maraca/Kernel/Fabric paths. The .tsx control copy is byte-identical to .rmtx. Exact experimental source and evidence bytes join the complete Core source projection; no experiment report is promoted to production schema authority. Full native header runtime, SSR, general RMT operator coverage and production frontend integration remain outside this scoped development result.",
+    "historical": true,
+    "supersededBy": "a06SyntaxDecisionReview",
+    "historicalScope": "The original pre-decision comparison, its then-open syntax status and limited green runtime result remain historical observations of their bound source stage. The later normative syntax decision does not turn the separate native Header lifecycle acceptance green."
+  },
+  "a06SyntaxDecisionReview": {
+    "date": "2026-11-15",
+    "sourceBaseSha": "19773f99c9412a36a3372f89b4e94c71352ed082",
+    "acceptedForRelease": false,
+    "kind": "explicitly-authorized-normative-rmtx-syntax-decision",
+    "status": "accepted",
+    "decisionVersion": "1.0.0",
+    "document": "development/rmtx-a06/syntax-decision.before-lifecycle-fix.md",
+    "documentSha256": "48d57d94e3d42d4c6adb2db224b3e4dae591193618ef4640a495dc779fd3f0c5",
+    "sourceExtension": ".rmtx",
+    "grammar": "TSX-compatible static declarative orchestration frontend",
+    "operatorForm": "RMT.<Operator>",
+    "previousStageReview": "a06SyntaxComparisonReview",
+    "staticAdmissibilityRequired": true,
+    "arbitraryTypeScriptExecutionPermitted": false,
+    "classicRmtSourceUnchanged": true,
+    "productionFrontendImplemented": false,
+    "generalOperatorCatalogFinalized": false,
+    "runtimeLifecycleAcceptanceGranted": false,
+    "nativeLifecycleReview": "a06NativeHeaderAcceptanceReview",
+    "publicSchemaIdsAdded": false,
+    "existingAuthoritativeDefinitionsChanged": false,
+    "existingReleasedFingerprintSetsChanged": false,
+    "rationale": "The user explicitly accepted .rmtx, TSX-compatible declarative authoring and qualified RMT operator tags. This normative authoring decision supersedes the previous open syntax assessment without claiming complete compiler, tooling-language-server or native lifecycle acceptance.",
+    "historicalScope": "The accepted authoring decision and then-failed native gate remain the exact bound pre-fix stage; the authoring decision itself remains accepted and is not replaced by runtime acceptance.",
+    "nativeLifecycleFollowup": "a06NativeLifecycleFixReview"
+  },
+  "a06RmtxEditorReview": {
+    "date": "2026-11-15",
+    "sourceBaseSha": "19773f99c9412a36a3372f89b4e94c71352ed082",
+    "acceptedForRelease": false,
+    "kind": "rmtx-language-tooling-and-local-vscode-installation",
+    "status": "installed-and-isolated-host-verified",
+    "extensionVersion": "0.2.1",
+    "previousInstalledVersion": "0.1.0-rc.2",
+    "report": "development/rmtx-a06/vscode-rmtx-update.before-lifecycle-fix.md",
+    "reportSha256": "417198644a129e02af0099a153f9730517daeda5ced89d29320d8b2a9302bcf8",
+    "evidence": {
+      "path": "development/rmtx-a06/vscode-rmtx-update.before-lifecycle-fix.json",
+      "sha256": "1be7860671e41a041a9463c43b2417b7d468a60e392f201684f1d884a58757e5"
+    },
+    "vsix": {
+      "path": "tools/rmt-editor/vscode/xtend-rmt-language-0.2.1.vsix",
+      "bytes": 25225940,
+      "sha256": "9fa813f2291081a7285b6b2ad2dfae77603c8ef225f5d94688598897f83e533d"
+    },
+    "vscodeVersion": "1.145.2",
+    "installation": {
+      "exitCode": 0,
+      "archiveFilesCompared": 5040,
+      "mismatches": [],
+      "packageJsonNormalization": "Only VS Code-injected __metadata is excluded from package.json comparison; other archive file bytes match exactly."
+    },
+    "isolatedHost": {
+      "passed": true,
+      "checks": 13,
+      "node": "v24.22.1",
+      "extensionActive": true,
+      "documentLanguageId": "rmtx"
+    },
+    "currentUserSessionRestarted": false,
+    "currentUserSessionUpdatedActivationObserved": false,
+    "languageIcons": {
+      "registration": "contributes.languages[].icon",
+      "settingsChanged": false,
+      "themeChanged": false,
+      "explorerPixelInspectionPerformed": false
+    },
+    "sources": [
+      {
+        "path": "tools/rmt-editor/vscode/build-vsix.js",
+        "sha256": "372d7329b01ef4fa65bad30f4065ed04782df32c10ed4f04a1b54fd30e2db644"
+      },
+      {
+        "path": "tools/rmt-editor/vscode/extension.js",
+        "sha256": "ae1ccac5d4ac10c567451f743205ca3ccb1b27d423747946576be61c5642942c"
+      },
+      {
+        "path": "tools/rmt-editor/vscode/icons/rmt-dark.svg",
+        "sha256": "c8b975cde0499dec0999ba04c40ead061edd337cd39dc4afc20e0dd1467b38ec"
+      },
+      {
+        "path": "tools/rmt-editor/vscode/icons/rmt-light.svg",
+        "sha256": "f60d45254f168f7f66581f5f8633c29eb16f9a0dafec9cf95f8faad0de774c8b"
+      },
+      {
+        "path": "tools/rmt-editor/vscode/icons/rmtx-dark.svg",
+        "sha256": "e03a22b4952ca52ea5f787ebe92f18e9778c20f6c05db02cde07d3d3841dbb1d"
+      },
+      {
+        "path": "tools/rmt-editor/vscode/icons/rmtx-light.svg",
+        "sha256": "834cb1091696042a76147fe7b86dec651e5b02040ef4094b702940bcda8b43ee"
+      },
+      {
+        "path": "tools/rmt-editor/vscode/package.json",
+        "sha256": "9700383a3457bced1ae268945688916ff04b2b37db974c35811d674fdc691220"
+      },
+      {
+        "path": "tools/rmt-editor/vscode/rmtx-language-configuration.json",
+        "sha256": "29e86355f1d1efa48265395946550e70677a8189450c6d9502c9ee0d01a071eb"
+      },
+      {
+        "path": "tools/rmt-editor/vscode/snippets/rmtx.code-snippets",
+        "sha256": "1af61d46b23c098dd89719ca819699ca75479a375dfcc1d1996ac8604462f3aa"
+      },
+      {
+        "path": "tools/rmt-editor/vscode/syntaxes/rmtx-operators.injection.tmLanguage.json",
+        "sha256": "8326dbccb46ddd501978c351b887255d1bad44d1a1261adbbfd6bfdc56c3010e"
+      },
+      {
+        "path": "tools/rmt-editor/vscode/syntaxes/rmtx.tmLanguage.json",
+        "sha256": "4001888af76e3ec0f402ac6d6f75c875504a76facc7992a0817b9c3fcf98c936"
+      }
+    ],
+    "resolvedIntermediateHostFinding": {
+      "package": "0.2.0",
+      "issue": "The builtin folder name typescript-basics was incorrectly used as extension ID.",
+      "correction": "extensionDependencies uses the builtin package identity vscode.typescript in 0.2.1.",
+      "finalHostPassed": true
+    },
+    "semanticRmtxLanguageServerImplemented": false,
+    "productionRmtxFrontendImplemented": false,
+    "existingRuntimeWireShapesChanged": false,
+    "publicSchemaIdsAdded": false,
+    "existingAuthoritativeDefinitionsChanged": false,
+    "existingReleasedFingerprintSetsChanged": false,
+    "rationale": "VS Code 0.2.1 adds a separate .rmtx language mode, TSX-based grammar, operator scopes, language-default icons and snippets while rejecting RMTX in Classic document tooling. The installed archive and real isolated extension host are checked; the running user host was not restarted. The corrected builtin dependency is bound by the final 0.2.1 artifact. This editor result does not implement the production RMTX frontend or grant native lifecycle acceptance.",
+    "classicObservationSourceBindingReview": {
+      "schemaId": "xtend.rmt.vnext.ast.v1",
+      "sources": [
+        {
+          "path": "package.json",
+          "previousSha256": "650f1f09d5aeffce8ecab03e51c72db4218758eca58d341dce28e1ae404b42bf",
+          "sha256": "7e3ee2c535972ca0b639c6d30ff19660a18e9183becde9012e4e630bb705cdec"
+        }
+      ],
+      "formalAstSchemaChanged": false,
+      "authoritativeFingerprintsUnchanged": true,
+      "releasedFingerprintSetsUnchanged": true
+    },
+    "inventoryObservationReview": {
+      "previousInventorySha256": "1e8a4da17206898eda9861e04d3d5c9b16caeee857c4f7af619f54718f243cb6",
+      "sourceBindingRefreshInventorySha256": "dc152fe81203b9ba49eaf89d75f68e2693539e08780269eff8ea3de522d8f16b",
+      "inventorySha256": "3d1f226fd943c390deb9af8f2a63418cb7f53df7f37a2e284507f7c2d5cb1a8a",
+      "schemaCount": 2253,
+      "newSchemaIds": [],
+      "changes": [
+        {
+          "schemaId": "xtend.rmt.editor.vscode-active-document-code-actions.v1",
+          "newNonAuthoritativeFingerprint": "sha256:20b742fc5a48f2a822263c3515c50a2beefdc21297f9afb32d6d7ff25c19c581",
+          "completeness": "partial",
+          "sourcePaths": [
+            "tools/rmt-editor/vscode/extension.js"
+          ],
+          "existingFingerprintRetained": true,
+          "newReviewId": "polymorphic-a9f59393f4b1"
+        }
+      ],
+      "existingAuthoritativeDefinitionsChanged": false,
+      "existingReleasedFingerprintSetsChanged": false,
+      "lifecyclesChanged": false,
+      "schemaFamilyPoliciesChanged": false,
+      "policyWaiversAdded": false
+    },
+    "historical": true,
+    "supersededBy": "a06NativeLifecycleEditorReview"
+  },
+  "a06NativeHeaderAcceptanceReview": {
+    "date": "2026-11-15",
+    "sourceBaseSha": "19773f99c9412a36a3372f89b4e94c71352ed082",
+    "acceptedForRelease": false,
+    "kind": "development-only-native-header-lifecycle-acceptance",
+    "status": "blocked-native-lifecycle-projection",
+    "profileVersion": "1.0.0",
+    "report": "development/rmtx-a06/native-header-check.before-lifecycle-fix.md",
+    "reportSha256": "a37f3d6444bc0f88aaaab807a44f8a0c4b8ab7f852d943079dd3399286f1f9f9",
+    "evidence": {
+      "path": "development/rmtx-a06/syntax-comparison/native-header-evidence.before-lifecycle-fix.json",
+      "sha256": "88e667ce68437a37272d3c07a7d625124dc1fe3663e3ff0c3e6f5f52fad95f63"
+    },
+    "executedSuccessfully": true,
+    "passed": false,
+    "casesPerVariant": 17,
+    "passedCasesPerVariant": 13,
+    "failedCasesPerVariant": 4,
+    "failedExpectations": [
+      "closing the owner hides its native view without a second view writer",
+      "destroy disposes the existing native presentation boundary",
+      "destroy removes the native header from its owner view",
+      "a command carrying the destroyed native owner lifetime is superseded before any Model or header write"
+    ],
+    "environments": [
+      {
+        "node": "v24.18.0",
+        "mode": "jsdom-native-frameworks",
+        "browserVersion": null,
+        "passed": false,
+        "differentialTraceEqual": true,
+        "nativeHeaderRuntimeEvaluated": true
+      },
+      {
+        "node": "v26.5.0",
+        "mode": "jsdom-native-frameworks",
+        "browserVersion": null,
+        "passed": false,
+        "differentialTraceEqual": true,
+        "nativeHeaderRuntimeEvaluated": true
+      },
+      {
+        "node": "v24.18.0",
+        "mode": "chromium",
+        "browserVersion": "155.0.8059.79",
+        "passed": false,
+        "differentialTraceEqual": true,
+        "nativeHeaderRuntimeEvaluated": true
+      }
+    ],
+    "sourceStableAcrossRuns": true,
+    "sources": [
+      {
+        "path": "./development/rmtx-a06/providers/react-gallery.mjs",
+        "sha256": "9846140e741d787f0feef302fb3ca3ef75e7519dd54a7fc1f0fd9448cb07df37"
+      },
+      {
+        "path": "./development/rmtx-a06/providers/vue-reviews.mjs",
+        "sha256": "71e48dfdb1e797493aba0748e9777b9cb3afdbee6faf90c217df3f88aa239db8"
+      },
+      {
+        "path": "components/xsurfacemanager-controller.js",
+        "sha256": "a747e5a4bd9d4c1205dc464d046eb5bc65531acc74d083d78e10d5c614afa7a5"
+      },
+      {
+        "path": "components/xtend-state.js",
+        "sha256": "a53defa3247b3778d115e147a3094624206cb46ca9f5bcd18b345a3d059d849b"
+      },
+      {
+        "path": "development/rmtx-a06/providers/catalog.json",
+        "sha256": "4f38fa3e2b73c374b0fab112b5ba1d6f12da2b95253e4148088389f7d087f801"
+      },
+      {
+        "path": "development/rmtx-a06/providers/react-gallery.mjs",
+        "sha256": "9846140e741d787f0feef302fb3ca3ef75e7519dd54a7fc1f0fd9448cb07df37"
+      },
+      {
+        "path": "development/rmtx-a06/providers/react.interface.json",
+        "sha256": "45394fbe58a8f81445891526967d691786ef1ecf2fd6eb08e520e69322c76539"
+      },
+      {
+        "path": "development/rmtx-a06/providers/vue-reviews.mjs",
+        "sha256": "71e48dfdb1e797493aba0748e9777b9cb3afdbee6faf90c217df3f88aa239db8"
+      },
+      {
+        "path": "development/rmtx-a06/providers/vue.interface.json",
+        "sha256": "30de14608052cdd250f1f56b06fa0b5c7df8dda73803d5d5daa96355e5a6f1e4"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/authoring.d.ts",
+        "sha256": "61ab277b1b7789dfb5a09525a5a9cac121a4f28c7f7aa8bfb0073dd503552306"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/classic.rmt",
+        "sha256": "3468c5d11497f8357b9078a449c27b308b44b872dbac812f97eae1abcf1aa88a"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/comparison.cjs",
+        "sha256": "5726124c3950ea8c81871c165bc15c2322d04ca11eeef8c7a5a74d72e60da15c"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/declarative.rmtx",
+        "sha256": "2eb2d495516c8b44ceda04e8d5e69e80693c352e6a5d59b3620b1a5bbb7d0704"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/declarative.tsx",
+        "sha256": "2eb2d495516c8b44ceda04e8d5e69e80693c352e6a5d59b3620b1a5bbb7d0704"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/extension-probes.cjs",
+        "sha256": "6e0266eef24e54ed39e2ca3e91f1cacb3c5af21ffe2dced5e03916df873c0a8f"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/inspect.cjs",
+        "sha256": "208f9b34c84600f5d48ecb918303eb913abf81eb46c8b11c0faa31b773ed5e06"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/jsx-runtime.d.ts",
+        "sha256": "c713e1235ffd7f6e47a554ffd3f57aa92452194dc82dcde2245afa4f94131ddd"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/native-header-acceptance.mjs",
+        "sha256": "2e716006f16d2cdc1ce4b44bc23c1e09aad14af305a0a7e40c7cc4adf783be43"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/native-header-reference.cjs",
+        "sha256": "1bd9aa26aba501505d87e737eeb8c108490f3d481ef42c8d62b35af87f5eb2cb"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/native-header-test.cjs",
+        "sha256": "6130886dac4518f01e6157f5ad15a5604f3f34e99edb7dffe4807f6fce6275fb"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/native-header.rmt",
+        "sha256": "2fd7b3ebbacdfd3793e74abe7a6036337363d84aef794cbc57aa41e7c6a927b7"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/native-header.rmtx",
+        "sha256": "91114ddf5c2253f1bf64f69c1c0bf3d3190112c2c5684cf2b7ebdd4fede213dc"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/runtime-comparison.cjs",
+        "sha256": "0a0fd57d602bf9de31c69ae7f187821d8fd9a6459b596f2ecf2e90bbdd632aed"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/view.tsx",
+        "sha256": "eba25929d68792c1b5c616317aac0937d5a5878bba3355c2fea16362000e4551"
+      },
+      {
+        "path": "development/rmtx-a06/two-host-acceptance.mjs",
+        "sha256": "de23588a7d23b83bce2f9a9c2198b216b480226bfe0f802908d945c90cc235d8"
+      },
+      {
+        "path": "development/rmtx-a06/two-host-reference.cjs",
+        "sha256": "64084cf748ed44586bb0eecd3a8e15fcbc4b7e967ca0c4e1b96ad00b3c7fcc08"
+      },
+      {
+        "path": "development/rmtx-a06/two-host-runtime.mjs",
+        "sha256": "795952fbbb6681492a98ac93246c60f8f76c07a98b872d25653979c44eb9c482"
+      },
+      {
+        "path": "development/rmtx-a06/two-host.contract.json",
+        "sha256": "14d47e62da4878434308346c74a5ce268cb29856bdcc20a30e0749664492187a"
+      },
+      {
+        "path": "development/rmtx-a06/two-host.types.d.ts",
+        "sha256": "0f0fbaf7dace8e19fa93872c1857ebff27cba6038f3e7614608b7986033135e2"
+      },
+      {
+        "path": "fabric/xtend-fabric.js",
+        "sha256": "ea7fa64431048e724a336ecd3117c90c6bb8a0ab2871e1ba618d8381ed3f822d"
+      },
+      {
+        "path": "tools/rmt-language/classic-compiler.js",
+        "sha256": "d321ae4c25ca3b56ca877399f9a259b86afeb8a4c6dab8a67119baaa92c52581"
+      },
+      {
+        "path": "tools/rmt-language/classic-parser.js",
+        "sha256": "f4d051313259d160d3a46892df3607ae68f6c3a69e5d62731cf0b028b3721b42"
+      },
+      {
+        "path": "tools/rmt-language/vnext-compiler.js",
+        "sha256": "9ee9aac4cd163ac3d78a6ae228d4515974eabfcf3ef89c45c38ff937684ff510"
+      },
+      {
+        "path": "tools/xtensions/component-interface-build.js",
+        "sha256": "7dade34c20e63b7f7f17fac03026cbb18ece5209d1ebbb712dafa86ca644d5f4"
+      },
+      {
+        "path": "tools/xtensions/component-interface.js",
+        "sha256": "8d3b813dcc2b4bbb230d8e18720487c7f19e84bcf2bcbcea55cd251f0b6e7646"
+      },
+      {
+        "path": "tools/xtensions/react-runtime-adapter.js",
+        "sha256": "e780ccdfcc00ca7d75bec3b2bdebb383e3caa2fc40d3bfdaf4bfe85995a0308a"
+      },
+      {
+        "path": "tools/xtensions/state-binding.js",
+        "sha256": "19b0f4266fc7546016eb68df9eec391b554ab22a96d5eb97d001c0efa047ca79"
+      },
+      {
+        "path": "tools/xtensions/vue-runtime-adapter.js",
+        "sha256": "d68a72b9782be8c3d705d10af40ca4a6576c3cc0e3a9884c8db02073c8b9745c"
+      },
+      {
+        "path": "xtend-maraca/index.js",
+        "sha256": "32dae73cc1a95002804a039f90f1debefa4c6ed53d389ed048b014611e3d67ba"
+      },
+      {
+        "path": "xtend-maraca/plan-runtime.mjs",
+        "sha256": "a773be6364d850559f6264540c038c278d028ff0d0c3a92cfcb62940550acd76"
+      },
+      {
+        "path": "xtendrmt/rmt-action-effect-runtime.js",
+        "sha256": "3798c901579959de2aec8e6cedf9f07ee969bfd00bf0cc3478c0ad8831c6bcaa"
+      },
+      {
+        "path": "xtendrmt/rmt-app-runtime.js",
+        "sha256": "3d20461b92e62ac73af1317e855bd2426337f3886f51c91d23297f92c90fdceb"
+      },
+      {
+        "path": "xtendrmt/rmt-dom-descriptor-renderer.js",
+        "sha256": "7a412f0be5b9f803fd04c60f8d415f1cea1c60faa557ba85a48aaceffe5be82c"
+      },
+      {
+        "path": "xtendrmt/rmt-event-routing-runtime.js",
+        "sha256": "257b2f73fecc4d659f3c393b51dc7b2c940d196eee84caef67d29f3ec2e4448e"
+      },
+      {
+        "path": "xtendrmt/rmt-kernel-scheduler.js",
+        "sha256": "cb6968fa9b5a784f93e6c941e4a634bdd527525247a1f4653f9c7b204829e766"
+      },
+      {
+        "path": "xtendrmt/rmt-maraca-view-projection-adapter.js",
+        "sha256": "820434f28d7dfabd73f7f82635c8306c76d2835fe727c2abc9c5c4fd9e6d4de7"
+      },
+      {
+        "path": "xtendrmt/rmt-presentation-effect-adapter.js",
+        "sha256": "87c7d4a3e886bfd45d98b7b5dd385ce06a578dc408a3ceb0a6122f5010f9cd0f"
+      },
+      {
+        "path": "xtendrmt/rmt-runtime.esm.js",
+        "sha256": "bde3fb1c19e6fb982214842657e8fb5c154028818ff9b38cadbc291a5aedd517"
+      },
+      {
+        "path": "xtendrmt/rmt-state-host-adapter.js",
+        "sha256": "1c3b0ce150cee986ecdda1d0a9c92e7f323ee31cbb920c5072aa2772cd078de6"
+      },
+      {
+        "path": "xtendrmt/rmt-state-selector-runtime.js",
+        "sha256": "150f5ae1a279cf7457be54fc7a466afeb1a2a026a911ab1cb1d16ae5da2a669d"
+      },
+      {
+        "path": "xtendrmt/rmt-surface-resource-graph-runtime.js",
+        "sha256": "5cac73161a80489e60cca3dc31eb44475570581a7f4fc6d71d5d9cedf212870f"
+      }
+    ],
+    "syntaxDecisionReview": "a06SyntaxDecisionReview",
+    "syntaxDecisionStatus": "accepted-in-separate-adr",
+    "productionRuntimePatched": false,
+    "productionFrontendImplemented": false,
+    "nativeLifecycleAcceptanceGranted": false,
+    "publicSchemaIdsAdded": false,
+    "existingAuthoritativeDefinitionsChanged": false,
+    "existingReleasedFingerprintSetsChanged": false,
+    "rationale": "The new opt-in Development reference uses actual Classic/Maraca/Kernel/Fabric and native descriptor rendering. Both authoring inputs pass 13 of 17 expectations in Node 24, Node 26 and Chromium, while native Close visibility, Destroy boundary retirement, Destroy DOM removal and pre-mutation rejection of the old owner-bound command lifetime remain failed. Syntax acceptance and successful editor installation do not supersede these four concrete blockers; no production runtime workaround or waiver is introduced.",
+    "historical": true,
+    "supersededBy": "a06NativeLifecycleFixReview"
+  },
+  "a06NativeLifecycleFixReview": {
+    "date": "2026-11-15",
+    "sourceBaseSha": "19773f99c9412a36a3372f89b4e94c71352ed082",
+    "acceptedForRelease": false,
+    "kind": "versioned-native-view-lifecycle-and-boundary-correction",
+    "status": "implemented-and-native-header-accepted",
+    "passed": true,
+    "nativeHeaderAccepted": true,
+    "productionRmtxFrontendImplemented": false,
+    "apiVersions": {
+      "viewProjection": "2.0.0",
+      "viewProjectionSchema": "xtend.rmt.maraca-view-projection-adapter.v2",
+      "surfaceResourceGraph": "2.2.1",
+      "domDescriptorRenderer": "2.2.0",
+      "planRuntimeWire": "xtend.maraca.plan-runtime.v7"
+    },
+    "contract": {
+      "path": "development/rmtx-a06/native-view-lifecycle-contract.md",
+      "sha256": "c1090a64afde3ae541b4b9ae29795de3c072db3dfefd2bcd0e387b52ea38e3e9"
+    },
+    "report": {
+      "path": "development/rmtx-a06/native-header-check.md",
+      "sha256": "59ddc4a0a24e33211cb0eff560d7cb0a3344bef7f43e95357f02c984a7d4cac3"
+    },
+    "evidence": {
+      "path": "development/rmtx-a06/native-lifecycle-fix-evidence.json",
+      "sha256": "42083f7f21a7b1c18aff8241807a24597d2e17310a70852c76df72a67c1cb82c"
+    },
+    "nativeHeaderEvidence": {
+      "path": "development/rmtx-a06/syntax-comparison/native-header-evidence.json",
+      "sha256": "4e9561aac22ebe9c140d43a5ed592beb44b79de43196813d45cfc8f20079bcf4"
+    },
+    "previousFailedReview": "a06NativeHeaderAcceptanceReview",
+    "previousFailedEvidence": {
+      "path": "development/rmtx-a06/syntax-comparison/native-header-evidence.before-lifecycle-fix.json",
+      "sha256": "88e667ce68437a37272d3c07a7d625124dc1fe3663e3ff0c3e6f5f52fad95f63"
+    },
+    "currentSyntaxDecision": {
+      "path": "development/rmtx-a06/syntax-decision.md",
+      "sha256": "f2162ccbca165354c0ce1c235d38adf7e483d1458dfa92f25a21246289076d48",
+      "decisionVersion": "1.0.0",
+      "status": "accepted"
+    },
+    "casesPerVariant": 21,
+    "passedCasesPerVariant": 21,
+    "failedCasesPerVariant": 0,
+    "environments": [
+      {
+        "node": "v24.18.0",
+        "mode": "jsdom-native-frameworks",
+        "browserVersion": null,
+        "passed": true,
+        "differentialTraceEqual": true
+      },
+      {
+        "node": "v26.5.0",
+        "mode": "jsdom-native-frameworks",
+        "browserVersion": null,
+        "passed": true,
+        "differentialTraceEqual": true
+      },
+      {
+        "node": "v24.18.0",
+        "mode": "chromium",
+        "browserVersion": "155.0.8059.79",
+        "passed": true,
+        "differentialTraceEqual": true
+      }
+    ],
+    "unitTests": [
+      {
+        "node": "v24.18.0",
+        "tests": 98,
+        "passed": 98,
+        "failed": 0,
+        "skipped": 0,
+        "logSha256": "926e30785803341e506fbe50e681561c805731806c729834ba1fc18378aae7b7"
+      },
+      {
+        "node": "v26.5.0",
+        "tests": 98,
+        "passed": 98,
+        "failed": 0,
+        "skipped": 0,
+        "logSha256": "1f95ecab30c39531a6e487bc3089a746eb2002250d3d2c80ba6678bffb2f12ad"
+      }
+    ],
+    "domainSuites": [
+      {
+        "node": "v24.18.0",
+        "suiteCount": 20,
+        "suitesPassed": 20,
+        "assertionsPassed": 2961,
+        "failedAssertions": 0,
+        "skips": 0
+      },
+      {
+        "node": "v26.5.0",
+        "suiteCount": 20,
+        "suitesPassed": 20,
+        "assertionsPassed": 2961,
+        "failedAssertions": 0,
+        "skips": 0
+      }
+    ],
+    "kernel": {
+      "modules": 41,
+      "architecture": {
+        "schema": "xtend.rmt.kernel-mvc-report.v1",
+        "ok": true,
+        "status": "conformant",
+        "strict": true,
+        "sourceManifestPath": "xtendrmt/kernel/rmt-kernel-sources.json",
+        "canonicalModuleCount": 79,
+        "legacyBundleModuleCount": 0,
+        "compatibilityComposerCount": 0,
+        "globalMirrorCompatibilityCount": 0,
+        "violations": []
+      },
+      "buildOutputs": [
+        {
+          "id": "rmt-core-esm",
+          "path": "xtendrmt/rmt-core.esm.js",
+          "kind": "esm",
+          "action": "skip",
+          "changed": false,
+          "byteCountBefore": 1502715,
+          "byteCountAfter": 1502715,
+          "sha256Before": "f7a02860104b2526957890f2b34e046501f9a328f5012c9827704cdeab28c0d0",
+          "sha256After": "f7a02860104b2526957890f2b34e046501f9a328f5012c9827704cdeab28c0d0"
+        },
+        {
+          "id": "rmt-runtime-esm",
+          "path": "xtendrmt/rmt-runtime.esm.js",
+          "kind": "esm",
+          "action": "skip",
+          "changed": false,
+          "byteCountBefore": 1502718,
+          "byteCountAfter": 1502718,
+          "sha256Before": "185cc0e40510d240f70da76ef558e4e1cb25ccd116dfbd6c470c0fba825c4770",
+          "sha256After": "185cc0e40510d240f70da76ef558e4e1cb25ccd116dfbd6c470c0fba825c4770"
+        },
+        {
+          "id": "rmt-runtime-browser",
+          "path": "xtendrmt/rmt-runtime.browser.js",
+          "kind": "browser",
+          "action": "skip",
+          "changed": false,
+          "byteCountBefore": 1498866,
+          "byteCountAfter": 1498866,
+          "sha256Before": "59773e7ceeae4d0936480adf68973972a7944e70eb105fd469fc02898c3f94d7",
+          "sha256After": "59773e7ceeae4d0936480adf68973972a7944e70eb105fd469fc02898c3f94d7"
+        },
+        {
+          "id": "rmt-core-types",
+          "path": "xtendrmt/rmt-core.d.ts",
+          "kind": "types",
+          "action": "skip",
+          "changed": false,
+          "byteCountBefore": 190445,
+          "byteCountAfter": 190445,
+          "sha256Before": "0cddf0a20f9326824e6962773ad0ed91b93cd55b7ecb3d245280744abb06cb33",
+          "sha256After": "0cddf0a20f9326824e6962773ad0ed91b93cd55b7ecb3d245280744abb06cb33"
+        },
+        {
+          "id": "rmt-schema",
+          "path": "xtendrmt/rmt.schema.json",
+          "kind": "schema",
+          "action": "skip",
+          "changed": false,
+          "byteCountBefore": 91191,
+          "byteCountAfter": 91191,
+          "sha256Before": "725ad1c10dcca8e9c1ce7f447e8557a28d0b7d69b79f894fa3edd50a4b00a228",
+          "sha256After": "725ad1c10dcca8e9c1ce7f447e8557a28d0b7d69b79f894fa3edd50a4b00a228"
+        },
+        {
+          "id": "rmt-manifest",
+          "path": "xtendrmt/rmt-manifest.json",
+          "kind": "manifest",
+          "action": "skip",
+          "changed": false,
+          "byteCountBefore": 28872,
+          "byteCountAfter": 28872,
+          "sha256Before": "f93319d6eaeefaa3b91d7f7bfad6056d89d93909fa334145dddf65014f1b8440",
+          "sha256After": "f93319d6eaeefaa3b91d7f7bfad6056d89d93909fa334145dddf65014f1b8440"
+        },
+        {
+          "id": "rmt-kernel-module-manifest",
+          "path": "xtendrmt/rmt-kernel-module-manifest.json",
+          "kind": "module-manifest",
+          "action": "write",
+          "changed": true,
+          "byteCountBefore": 178309,
+          "byteCountAfter": 178309,
+          "sha256Before": "fca7e49a97d87b4b69981493cbd6e1fdc1172fc18f08dc61a829a60601da494b",
+          "sha256After": "26a20a051d490357d85e32282713ac3df9a6a53db15e6f725f599066a9529256"
+        }
+      ],
+      "artifactParityChecks": 291,
+      "parityReportSha256": "c64e7dda44eb8dc29bd82353b10ea4b2444aa155325b29efb87432f7084bf352"
+    },
+    "releasePreparation": {
+      "passed": true,
+      "logSha256": "3bbb0353d08a454df5432190c0fa402339313bdb3ecf1df9c0dbb478ae48757f"
+    },
+    "mcpKnowledgeTests": {
+      "passed": 27,
+      "failed": 0,
+      "logSha256": "2ee73fdc7990bf38bf467af9405fc4656609b5856a6be0c3ee9ad6adc6a9ab44"
+    },
+    "runtimeMatrixSummary": {
+      "passed": true,
+      "sourceStage": "native-surface-lifecycle-trim-fixed",
+      "sourceStableDuringMatrix": true,
+      "sourceCount": 429,
+      "headerTracesEqualAcrossNodeAndChromium": true,
+      "domainSuites": [
+        {
+          "report": "final-suites24.json",
+          "node": "v24.18.0",
+          "suitesPassed": 20,
+          "assertionsPassed": 2961,
+          "failedAssertions": 0,
+          "skips": 0,
+          "sourceCount": 46,
+          "sourceStableDuringExecution": true,
+          "reportSha256": "a11b282c8fa1c29fa5862b1e96bfdf29c37509c8766f026c8fe2769aaf632d44"
+        },
+        {
+          "report": "final-suites26.json",
+          "node": "v26.5.0",
+          "suitesPassed": 20,
+          "assertionsPassed": 2961,
+          "failedAssertions": 0,
+          "skips": 0,
+          "sourceCount": 46,
+          "sourceStableDuringExecution": true,
+          "reportSha256": "2717b9d68ef76d7f8fd575ba40b4f7197393b2cf079fed1e4a083c342c891d4a"
+        }
+      ],
+      "kernelLab": {
+        "node": "v24.18.0",
+        "ok": true,
+        "passes": 263,
+        "failures": [],
+        "skips": [],
+        "sourceSha256": "091ea0e241027ca594938e4a868439348a950d5f033652caf3c89ed054ab05a1",
+        "reportSha256": "68fa45500c161335b3e3de29b9366646adc204828a3cb9e652ed660ec6062c7e"
+      }
+    },
+    "sources": [
+      {
+        "path": "components/xsurfacemanager-controller.d.ts",
+        "sha256": "249d4bcbe84294b3e1cd818114db8647a304a559f5f9703b879dbab00396001c"
+      },
+      {
+        "path": "components/xsurfacemanager-controller.js",
+        "sha256": "a747e5a4bd9d4c1205dc464d046eb5bc65531acc74d083d78e10d5c614afa7a5"
+      },
+      {
+        "path": "components/xtend-state.js",
+        "sha256": "a53defa3247b3778d115e147a3094624206cb46ca9f5bcd18b345a3d059d849b"
+      },
+      {
+        "path": "development/rmtx-a06/automatic-acceptance.mjs",
+        "sha256": "11d84c000b8042c50454d6e8167435752d7ec96079435dd447aae5c2bdd2d924"
+      },
+      {
+        "path": "development/rmtx-a06/automatic-inspect.cjs",
+        "sha256": "b6cfbb6ee9d735629e53550b7cbda9a7e5d6e05c6387d3cc086bdd07c563d2c1"
+      },
+      {
+        "path": "development/rmtx-a06/automatic-reference.cjs",
+        "sha256": "5d12d3ba201ce94ce8330058fc08e854f5018cec84536eacc73e5c4e040e302a"
+      },
+      {
+        "path": "development/rmtx-a06/automatic-test.cjs",
+        "sha256": "3a92f4d24b12773a80a60bb484442b329a6a49765cb7adb42dc0ed170f0b1210"
+      },
+      {
+        "path": "development/rmtx-a06/operator-runtime-probes.cjs",
+        "sha256": "fee39251388b1b2af8d2f8d97edec4c490a3b640b3c181468ae459396a0be2bf"
+      },
+      {
+        "path": "development/rmtx-a06/operator-tsx-probes.cjs",
+        "sha256": "7da7cb4a8ccefc8d7e28722021fc3acd9875a38d3501243adf4d7134de0f0fc5"
+      },
+      {
+        "path": "development/rmtx-a06/providers/catalog.json",
+        "sha256": "4f38fa3e2b73c374b0fab112b5ba1d6f12da2b95253e4148088389f7d087f801"
+      },
+      {
+        "path": "development/rmtx-a06/providers/react-gallery.mjs",
+        "sha256": "9846140e741d787f0feef302fb3ca3ef75e7519dd54a7fc1f0fd9448cb07df37"
+      },
+      {
+        "path": "development/rmtx-a06/providers/react.interface.json",
+        "sha256": "45394fbe58a8f81445891526967d691786ef1ecf2fd6eb08e520e69322c76539"
+      },
+      {
+        "path": "development/rmtx-a06/providers/vue-reviews.mjs",
+        "sha256": "71e48dfdb1e797493aba0748e9777b9cb3afdbee6faf90c217df3f88aa239db8"
+      },
+      {
+        "path": "development/rmtx-a06/providers/vue.interface.json",
+        "sha256": "30de14608052cdd250f1f56b06fa0b5c7df8dda73803d5d5daa96355e5a6f1e4"
+      },
+      {
+        "path": "development/rmtx-a06/scoped-acceptance.mjs",
+        "sha256": "2417560a48d9ff316ba0553dd03937e5d3e8ca4caad2ed3ddcf54651e57c76cf"
+      },
+      {
+        "path": "development/rmtx-a06/scoped-fixture.mjs",
+        "sha256": "ba63c5a5b439908e91d37edc24822e3686130d22e27632b2d3b33ec2ade77396"
+      },
+      {
+        "path": "development/rmtx-a06/scoped-inspect.cjs",
+        "sha256": "1a36713b6749d1861497d4690ece4adfd6a4d70d8abe61e45a7c1b8f7b8dc056"
+      },
+      {
+        "path": "development/rmtx-a06/scoped-model.cjs",
+        "sha256": "3427a835bb6d21a45eac29830ecd762296b836c0201c381ccdd2a92bf185a0d8"
+      },
+      {
+        "path": "development/rmtx-a06/scoped-products.rmt",
+        "sha256": "ebe9a9b3c1d9fd9930104b92f5518ae05ded7690ae82fbc4931588f39de64d96"
+      },
+      {
+        "path": "development/rmtx-a06/scoped-reference.cjs",
+        "sha256": "23a6501789126f50650f41bd67075a97391746b960097203874f00090365bf19"
+      },
+      {
+        "path": "development/rmtx-a06/scoped-ssr-test.cjs",
+        "sha256": "4cacf75c00d4579461cb86037d6043a4b9112202db34bf2607af675047fd3c1c"
+      },
+      {
+        "path": "development/rmtx-a06/scoped-test.cjs",
+        "sha256": "d836379018bae1cba10c9ff9126bd58044286ddc05f4564024c378b4cda20619"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/authoring.d.ts",
+        "sha256": "61ab277b1b7789dfb5a09525a5a9cac121a4f28c7f7aa8bfb0073dd503552306"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/classic.rmt",
+        "sha256": "3468c5d11497f8357b9078a449c27b308b44b872dbac812f97eae1abcf1aa88a"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/comparison.cjs",
+        "sha256": "5726124c3950ea8c81871c165bc15c2322d04ca11eeef8c7a5a74d72e60da15c"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/declarative.rmtx",
+        "sha256": "2eb2d495516c8b44ceda04e8d5e69e80693c352e6a5d59b3620b1a5bbb7d0704"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/declarative.tsx",
+        "sha256": "2eb2d495516c8b44ceda04e8d5e69e80693c352e6a5d59b3620b1a5bbb7d0704"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/extension-probes.cjs",
+        "sha256": "6e0266eef24e54ed39e2ca3e91f1cacb3c5af21ffe2dced5e03916df873c0a8f"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/inspect.cjs",
+        "sha256": "208f9b34c84600f5d48ecb918303eb913abf81eb46c8b11c0faa31b773ed5e06"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/jsx-runtime.d.ts",
+        "sha256": "c713e1235ffd7f6e47a554ffd3f57aa92452194dc82dcde2245afa4f94131ddd"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/native-header-acceptance.mjs",
+        "sha256": "93bcf8f3c8a49bb31e8c96a7653a951454fe6eb404f516c73b967693315886fc"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/native-header-reference.cjs",
+        "sha256": "1bd9aa26aba501505d87e737eeb8c108490f3d481ef42c8d62b35af87f5eb2cb"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/native-header-test.cjs",
+        "sha256": "65d80c5a9a89601e61a4922bd12a44bb734dbdc45d474e08f59dcf26737a1db0"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/native-header.rmt",
+        "sha256": "2fd7b3ebbacdfd3793e74abe7a6036337363d84aef794cbc57aa41e7c6a927b7"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/native-header.rmtx",
+        "sha256": "91114ddf5c2253f1bf64f69c1c0bf3d3190112c2c5684cf2b7ebdd4fede213dc"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/runtime-comparison.cjs",
+        "sha256": "0a0fd57d602bf9de31c69ae7f187821d8fd9a6459b596f2ecf2e90bbdd632aed"
+      },
+      {
+        "path": "development/rmtx-a06/syntax-comparison/view.tsx",
+        "sha256": "eba25929d68792c1b5c616317aac0937d5a5878bba3355c2fea16362000e4551"
+      },
+      {
+        "path": "development/rmtx-a06/two-host-acceptance.mjs",
+        "sha256": "de23588a7d23b83bce2f9a9c2198b216b480226bfe0f802908d945c90cc235d8"
+      },
+      {
+        "path": "development/rmtx-a06/two-host-inspect.cjs",
+        "sha256": "ae5f834c7411f0978f6979facc7c0138372c67a1158ffd5977b146bd6f810db5"
+      },
+      {
+        "path": "development/rmtx-a06/two-host-reference.cjs",
+        "sha256": "64084cf748ed44586bb0eecd3a8e15fcbc4b7e967ca0c4e1b96ad00b3c7fcc08"
+      },
+      {
+        "path": "development/rmtx-a06/two-host-runtime.mjs",
+        "sha256": "795952fbbb6681492a98ac93246c60f8f76c07a98b872d25653979c44eb9c482"
+      },
+      {
+        "path": "development/rmtx-a06/two-host-test.cjs",
+        "sha256": "644b266fabb02aa9328930ee45820410278b900cb257cc33571a47dd25e62979"
+      },
+      {
+        "path": "development/rmtx-a06/two-host.candidate.tsx",
+        "sha256": "bc0657dbdd7f82dba96b86fc776ecf04e625bb25508439d1f6320896afe79175"
+      },
+      {
+        "path": "development/rmtx-a06/two-host.rmt",
+        "sha256": "3468c5d11497f8357b9078a449c27b308b44b872dbac812f97eae1abcf1aa88a"
+      },
+      {
+        "path": "development/rmtx-a06/two-host.types.d.ts",
+        "sha256": "0f0fbaf7dace8e19fa93872c1857ebff27cba6038f3e7614608b7986033135e2"
+      },
+      {
+        "path": "fabric/xtend-fabric.js",
+        "sha256": "ea7fa64431048e724a336ecd3117c90c6bb8a0ab2871e1ba618d8381ed3f822d"
+      },
+      {
+        "path": "tools/rmt-language/action-execution-lowering.js",
+        "sha256": "783f180c2253fc96f1e8853c808cd2c0fe243a2d014670118d76b24759b3e856"
+      },
+      {
+        "path": "tools/rmt-language/app-platform-tooling.d.ts",
+        "sha256": "2f5a34a44e2f67486aa087e55c4fafccab3a95dd663ca9683df6a5173252394b"
+      },
+      {
+        "path": "tools/rmt-language/app-platform-tooling.js",
+        "sha256": "b4d84dbd3c74865d6e976ea76f9692e875aa768cbacab4a68fab9288a9609d1b"
+      },
+      {
+        "path": "tools/rmt-language/classic-ast-contract.js",
+        "sha256": "3e17596b6615c7ca5528bb5a72551143e1d3403d8a8c606cf83569d71a3c79d4"
+      },
+      {
+        "path": "tools/rmt-language/classic-ast-rules.js",
+        "sha256": "269c0ad5d14ba86a149e33877e7db28b3a4004d0217b8c6b829b26931a327b0d"
+      },
+      {
+        "path": "tools/rmt-language/classic-ast-types.d.ts",
+        "sha256": "5487aa747c0b647acd2d2ef02275d5af03e14b24f7ac69ae58bedc6bcedb3c52"
+      },
+      {
+        "path": "tools/rmt-language/classic-compiler.d.ts",
+        "sha256": "5252e64211b4039c4c3272c73334342332a539703bbbf760d860e3a77240c858"
+      },
+      {
+        "path": "tools/rmt-language/classic-compiler.js",
+        "sha256": "d321ae4c25ca3b56ca877399f9a259b86afeb8a4c6dab8a67119baaa92c52581"
+      },
+      {
+        "path": "tools/rmt-language/classic-parser.d.ts",
+        "sha256": "efd754914ccb1c0067fd85d07f9131e96bc4fde1f03379648ac27baa6fc9a9d9"
+      },
+      {
+        "path": "tools/rmt-language/classic-parser.js",
+        "sha256": "f4d051313259d160d3a46892df3607ae68f6c3a69e5d62731cf0b028b3721b42"
+      },
+      {
+        "path": "tools/rmt-language/classic-semantic-rules.js",
+        "sha256": "113846c48ef5dc4d5ce0b29ddb7a01076e50d3fa86f80d84f1af5420fb593d81"
+      },
+      {
+        "path": "tools/rmt-language/code-actions.d.ts",
+        "sha256": "e6122f52faef3413c07588f84e9ce340a3cc8e61af6d1eccc509bd0263294d45"
+      },
+      {
+        "path": "tools/rmt-language/code-actions.js",
+        "sha256": "d13f6f667628854a3614ca1be846691eef30eeb7192e2da989c696b4051d4819"
+      },
+      {
+        "path": "tools/rmt-language/compilation-session.d.ts",
+        "sha256": "96d9f877b46ce5b31dd9bc4bd5ee5e85732dc0ae3c56c21ee8589ae4c722636d"
+      },
+      {
+        "path": "tools/rmt-language/compilation-session.js",
+        "sha256": "0a607d1f30c0031343e07e83761ab8b0991dbbad5bb919b4bbd6a3d07af4e09f"
+      },
+      {
+        "path": "tools/rmt-language/completions.d.ts",
+        "sha256": "6722e80d831e1d744cee63cc031d3a23a25e13c4782adf634a5ae2a2d80eb413"
+      },
+      {
+        "path": "tools/rmt-language/completions.js",
+        "sha256": "d1a3b8e4ed3a09c5a24a0134293940b7c95585f853e9cb1fb65784b49f67fd28"
+      },
+      {
+        "path": "tools/rmt-language/definitions.d.ts",
+        "sha256": "c75b2021eb9ee84f99a7422396f07896d74ff6868d7fd66d974873ed72b9ea05"
+      },
+      {
+        "path": "tools/rmt-language/definitions.js",
+        "sha256": "e91e72fc4aea6da2d13d65380ba83c56ddb3d455f6f54394479448b10b98eeaf"
+      },
+      {
+        "path": "tools/rmt-language/diagnostics.d.ts",
+        "sha256": "af6cb0f8694971ec2ddf5baf9a01ea4cc8a9151b3e64e2885af4e3a93fa430b6"
+      },
+      {
+        "path": "tools/rmt-language/diagnostics.js",
+        "sha256": "376358da022971504a3698d5787ce882672a18688ca04216fcd83b7c8c5d3bc6"
+      },
+      {
+        "path": "tools/rmt-language/fixtures/kernel-orchestration-contract.rmt",
+        "sha256": "db16bc40793d62ef7d8898faeea5ac9d7ea266f71b781e73e2a6e948fe1cd063"
+      },
+      {
+        "path": "tools/rmt-language/fixtures/validation-transition-contract.rmt",
+        "sha256": "bc90deb57170dd735b61002535ce5f74c86f6aead327a27ce1506a06af245d61"
+      },
+      {
+        "path": "tools/rmt-language/format-adapter.d.ts",
+        "sha256": "b97df3c7afb646e6f6ad8945058f0f6697c064c3cc9106ce15c2e922b23c57d8"
+      },
+      {
+        "path": "tools/rmt-language/format-adapter.js",
+        "sha256": "3bcbba373882142df1cef4ee1b3607e8838e65e9e63e8e18460fc50642663e1a"
+      },
+      {
+        "path": "tools/rmt-language/hover.d.ts",
+        "sha256": "ef4bacdb87eed9e97d13a027ec856695b962bdf6aea56fdee439c6e733755a1f"
+      },
+      {
+        "path": "tools/rmt-language/hover.js",
+        "sha256": "96ee29f1b71262b914ce75a377d4c86ce6e73a0642c0fdec70ab73660f31b584"
+      },
+      {
+        "path": "tools/rmt-language/html-sink-syntax.js",
+        "sha256": "a9dba87510b3825027224ca84403450598561bda16e04ba275dd57299a9ddf82"
+      },
+      {
+        "path": "tools/rmt-language/kernel-escalation.d.ts",
+        "sha256": "8623b575def9f27e9907651067b3941851ec21f0bcd0dbab6383868c5e2458a3"
+      },
+      {
+        "path": "tools/rmt-language/kernel-escalation.js",
+        "sha256": "16f168d62902c90a9ddb0f2699bf6961c5569924b553df3c18b7087c6ba9ce38"
+      },
+      {
+        "path": "tools/rmt-language/kernel-panic-monitor.d.ts",
+        "sha256": "df597569617b558dedc5f613a317c50d9340e0ab29e3518dc821e4fe2e8bf38c"
+      },
+      {
+        "path": "tools/rmt-language/kernel-panic-monitor.js",
+        "sha256": "1997ad2903ba5631af58bcb518584e882ec08da1e631fef7afcb24835f0ab4fb"
+      },
+      {
+        "path": "tools/rmt-language/kernel-policy-parity.d.ts",
+        "sha256": "cd77dff1e7f416f6a8e422fe2178c5a7f4c322c199d1d3f89c568b34cfc96acc"
+      },
+      {
+        "path": "tools/rmt-language/kernel-policy-parity.js",
+        "sha256": "bfe8d3b01dfce2a2c4bacc1f1f1d4da84f3371302c73d18ba1bf15834ed8b3fd"
+      },
+      {
+        "path": "tools/rmt-language/kernel-recovery.d.ts",
+        "sha256": "ab2ddc6a4843231f556c74eecdfdf5c89355aee0feeba1419f05ea7f9498c430"
+      },
+      {
+        "path": "tools/rmt-language/kernel-recovery.js",
+        "sha256": "e00d09855df670f9bf0a622169a1bff8ceba6d348afd22003e60586c562bc04f"
+      },
+      {
+        "path": "tools/rmt-language/kernel-scheduler-failure.d.ts",
+        "sha256": "e90ccba29538a2904de66d2643625cc8e24a5590c85ea42b3361fc5a596e6641"
+      },
+      {
+        "path": "tools/rmt-language/kernel-scheduler-failure.js",
+        "sha256": "574f3bb234252517d168deff26fa8955693587567f8aea9b63253376deecc0b7"
+      },
+      {
+        "path": "tools/rmt-language/kernel-security-regression.d.ts",
+        "sha256": "f10379bbffca40b72f84122a2f0539c671d23b628f0c2a630b9af1da36358d46"
+      },
+      {
+        "path": "tools/rmt-language/kernel-security-regression.js",
+        "sha256": "7191d5cb9abbbfc4cb98f38ebb3f726ce5485cd08da2196b5986f52b2407f022"
+      },
+      {
+        "path": "tools/rmt-language/kernel-trust-authority.d.ts",
+        "sha256": "d95ff0439f948c64262373b1f002df4df7ec1c5d9aee2698fed303be55b4d586"
+      },
+      {
+        "path": "tools/rmt-language/kernel-trust-authority.js",
+        "sha256": "1b84c3f7e9d4053b56f8f38b358e6eaa15a0df1eba0c29611b4f528e9698fbf3"
+      },
+      {
+        "path": "tools/rmt-language/navigation-facts.js",
+        "sha256": "803525a851a2d959094a6dd54ebb0090d66c1984ac7e8b7e80e8e91db33f4c72"
+      },
+      {
+        "path": "tools/rmt-language/page-build.d.ts",
+        "sha256": "257d7f7186d758a49834fe51e9fe465e4d7b9fa530fdf1e1cc7e247c15217fb0"
+      },
+      {
+        "path": "tools/rmt-language/page-build.js",
+        "sha256": "04f6e0fb50e11b2f042c18f5208032f4e442bd57d752b186c769fe406cd71fd6"
+      },
+      {
+        "path": "tools/rmt-language/parser.d.ts",
+        "sha256": "e6ee789e1bb184792e59d5bf40668f6814f89cae3f1b5bbd0fccf62539559857"
+      },
+      {
+        "path": "tools/rmt-language/parser.js",
+        "sha256": "a4e0dc973cf4043b93901bb73cdad84fcdb94ef7aeda8778b223bb7d8db4347c"
+      },
+      {
+        "path": "tools/rmt-language/rmt-ai-developer-kit.d.ts",
+        "sha256": "6076fc2b37b3c52abc78850ce8e14a0bf26c06be09bba6f404ef4ff8d17724cc"
+      },
+      {
+        "path": "tools/rmt-language/rmt-ai-developer-kit.js",
+        "sha256": "c13c17079e4a163a702c073e03baebc33dd569893806a45d839a76f8fa22f483"
+      },
+      {
+        "path": "tools/rmt-language/rmt-tooling-public-types.d.ts",
+        "sha256": "a7c4d28ad15b9d7d42de1cb17824715852f12d922f5d66255704a2425637e139"
+      },
+      {
+        "path": "tools/rmt-language/rules/app-platform-policy.js",
+        "sha256": "38bbc3d3b4d4e4d1c2c920c2f8125849d71106ecdd18714deb8b417db496facd"
+      },
+      {
+        "path": "tools/rmt-language/rules/boundary-policy.js",
+        "sha256": "07aa0def755f48717a7303171e56a6901cd99fc32565eca2a9ce014f99ea33d6"
+      },
+      {
+        "path": "tools/rmt-language/rules/document-policy.js",
+        "sha256": "f1727373e4812c64cc827d9d8627414f91e1aea29585b0092a073579817903d2"
+      },
+      {
+        "path": "tools/rmt-language/rules/index.js",
+        "sha256": "68af24ee425be4c24a0cf1aedb6bddf00796b1c19a1ae930447ac78695da787d"
+      },
+      {
+        "path": "tools/rmt-language/rules/route-policy.js",
+        "sha256": "c33f04d0e5cc02b8bb9f192ffc8061409c1d2f749080002dd55c45a29ee31a45"
+      },
+      {
+        "path": "tools/rmt-language/rules/scheduler-policy.js",
+        "sha256": "b5236b5c6caef98328518aa570c1fd6b0952175f8609d1b546f0a9c93e70f5ee"
+      },
+      {
+        "path": "tools/rmt-language/rules/template-policy.js",
+        "sha256": "b362bf682baf9c43ea09b3446a2251f476b8cda2ad046c021b7aa7ad3cb015ea"
+      },
+      {
+        "path": "tools/rmt-language/scheduler-lanes.js",
+        "sha256": "a0d76615b3cfbe2639a96af01179f987407554040acce54aa9b4dd99516f9b76"
+      },
+      {
+        "path": "tools/rmt-language/semantic-graph.d.ts",
+        "sha256": "62c8e33564438919ebf8193e88fdbd061fe1d4e19a126f2c2cff07bd3e20d2b7"
+      },
+      {
+        "path": "tools/rmt-language/semantic-graph.js",
+        "sha256": "e3706bcca6f8b5155b1292889b44767f177bdedb9dc73d5ddd98dea1e0b11762"
+      },
+      {
+        "path": "tools/rmt-language/snippets/index.d.ts",
+        "sha256": "8bbbd7596aff39971e9488d63c5975f80deb0d16de6507c5aa8073df12ae0a3e"
+      },
+      {
+        "path": "tools/rmt-language/snippets/index.js",
+        "sha256": "0a279fc8079ef4d1aa3b0aa92dcae47cf3c34ef592e7d0330ce5e4084df2b9f7"
+      },
+      {
+        "path": "tools/rmt-language/source-model.d.ts",
+        "sha256": "eb5cd92198321a6c74b01e4ae91ad4d671f249f2acebc6cd5d40940bdaa155de"
+      },
+      {
+        "path": "tools/rmt-language/source-model.js",
+        "sha256": "73aa135d823f7452283da29eb29b5c9e5a45a20e7649c9f99c38a08d04d243b6"
+      },
+      {
+        "path": "tools/rmt-language/super-prewarm-worker-experiment.d.ts",
+        "sha256": "3befe5297e5a31157a268b1bbfc678967aabd83274d4b4abc01a630573d2acfa"
+      },
+      {
+        "path": "tools/rmt-language/super-prewarm-worker-experiment.js",
+        "sha256": "250e5fca8637df0b8a95d02b821bafe38b4eb07702aa2bb1939b02ab9fb437f3"
+      },
+      {
+        "path": "tools/rmt-language/symbols.d.ts",
+        "sha256": "405d259a498d66d956bf9e5d10451076b55b4be4ada9e8a1866b2e007f873859"
+      },
+      {
+        "path": "tools/rmt-language/symbols.js",
+        "sha256": "8d5f4d1be5b3382ec08ededbc670fe3e53986ae13ed8244f3266a57f40d8f89b"
+      },
+      {
+        "path": "tools/rmt-language/vnext-compatibility.d.ts",
+        "sha256": "cb04c2653a45f029e1da4bf797e28fdba5b072fb62122130016fd2e4db09ff0b"
+      },
+      {
+        "path": "tools/rmt-language/vnext-compatibility.js",
+        "sha256": "1f7f1b22cc489f278a4b07ecaecf10c782ef25bb701abe1fac035e9ad8e6d960"
+      },
+      {
+        "path": "tools/rmt-language/vnext-compiler.d.ts",
+        "sha256": "c99380eef1283e488569b151fc4e51f476bf9646dc8159096bc9f8fcb2ff87a1"
+      },
+      {
+        "path": "tools/rmt-language/vnext-compiler.js",
+        "sha256": "9ee9aac4cd163ac3d78a6ae228d4515974eabfcf3ef89c45c38ff937684ff510"
+      },
+      {
+        "path": "tools/rmt-language/vnext-composition.d.ts",
+        "sha256": "ec8b20cce62c7f15c818408d07a6321a730c86378c7a1aec335deb1d21cec400"
+      },
+      {
+        "path": "tools/rmt-language/vnext-composition.js",
+        "sha256": "7a0b2aac4a26e761b182c95efa3f489c6e776c8c03ba57a7bb7f87a29f285390"
+      },
+      {
+        "path": "tools/rmt-language/vnext-conditions.d.ts",
+        "sha256": "7da0425e2ce56494b2d446b9053723a50127072ee3a1ef619547ef7529603c31"
+      },
+      {
+        "path": "tools/rmt-language/vnext-conditions.js",
+        "sha256": "8cbcb89982b8b0bb8dfca5f9d7807d6338748f8905c3981afce0b80d15102125"
+      },
+      {
+        "path": "tools/rmt-language/vnext-cross-surface-events.d.ts",
+        "sha256": "8e8a37ef5f5ba733447ced67bd0446d0efbb906abbc6f575b79b6d0624166fb5"
+      },
+      {
+        "path": "tools/rmt-language/vnext-cross-surface-events.js",
+        "sha256": "c50bd4a8c15c77835ffe73704c236b54bed16707a92ee337ac134581988d7cae"
+      },
+      {
+        "path": "tools/rmt-language/vnext-degradation.d.ts",
+        "sha256": "62be8b20689840031fc9c020e00d4aa8600f8f634e1cbc99cadac45e7d143428"
+      },
+      {
+        "path": "tools/rmt-language/vnext-degradation.js",
+        "sha256": "c70a2552a2e10128954e18493d239b60aa966cdb4e5f408737e367298551696d"
+      },
+      {
+        "path": "tools/rmt-language/vnext-enterprise-fixtures.d.ts",
+        "sha256": "b1bc8a316539e1b0e6edefb31f5d4179e2786d77fcd05a2741c37b5edb80929d"
+      },
+      {
+        "path": "tools/rmt-language/vnext-enterprise-fixtures.js",
+        "sha256": "35bf3ffc53646d7b1373b714257dca8c8108f459e8872ee371df652e30245fc8"
+      },
+      {
+        "path": "tools/rmt-language/vnext-enterprise-registry.d.ts",
+        "sha256": "b2e08b1b321acdb728dc671018e301f29de25033fb5d72a47c8647ec954a361c"
+      },
+      {
+        "path": "tools/rmt-language/vnext-enterprise-registry.js",
+        "sha256": "66d67ca37a482bf4135f37c6c55c42d2103efd367eb1d496916ffb96bc254905"
+      },
+      {
+        "path": "tools/rmt-language/vnext-enterprise-release.d.ts",
+        "sha256": "d67b1b2578f2761e12c9861b594ee6525cf1a745a42648c1503ea7cf3e066a66"
+      },
+      {
+        "path": "tools/rmt-language/vnext-enterprise-release.js",
+        "sha256": "fd5d09dbe72a59aa1bc2c358b3c8a2ac75a73588e4f243618f3c4cf5fc8f5114"
+      },
+      {
+        "path": "tools/rmt-language/vnext-event-governance.d.ts",
+        "sha256": "614266ac7785f38acbad0039b709d749dc7c7ed8863c42a31538ee7c54b11a3a"
+      },
+      {
+        "path": "tools/rmt-language/vnext-event-governance.js",
+        "sha256": "a0ad1e6aae8da5c41bf814239cb41202bd92c3cffb9fda1f22e42b9d2cd65e52"
+      },
+      {
+        "path": "tools/rmt-language/vnext-events.d.ts",
+        "sha256": "132e3381fde4d6326c9a5591e7874e547115766bd3bd826b30fda010499cfbae"
+      },
+      {
+        "path": "tools/rmt-language/vnext-events.js",
+        "sha256": "679e1a7da335cb9adf992ff272163670d1ab406d3cb9f7c9381f008d1c5defc2"
+      },
+      {
+        "path": "tools/rmt-language/vnext-import-resolver.d.ts",
+        "sha256": "5f19779741b094e8398590266a3b4af7f0f5284d1f732c27899f78d6cba37df4"
+      },
+      {
+        "path": "tools/rmt-language/vnext-import-resolver.js",
+        "sha256": "868e9504655bce2b012f4a02bffac16d4d6185e3553548908eace74bb059085d"
+      },
+      {
+        "path": "tools/rmt-language/vnext-lifecycle.d.ts",
+        "sha256": "548d0601160b4df9a3486fec5deecb27c63b8859fc34a8c8d4296b7f13468aff"
+      },
+      {
+        "path": "tools/rmt-language/vnext-lifecycle.js",
+        "sha256": "4e96015e0853dbe932486e6526476590849cfc8341de53c01a3ce0a191b69436"
+      },
+      {
+        "path": "tools/rmt-language/vnext-parser.d.ts",
+        "sha256": "39d3c176c235a3293cfbe51635541f2aef831b6b79a0588463968b825d12690b"
+      },
+      {
+        "path": "tools/rmt-language/vnext-parser.js",
+        "sha256": "80668bc8c738f5fda9ed3149b367c3e3388eac9f1ae4f90650d65910a5359579"
+      },
+      {
+        "path": "tools/rmt-language/vnext-regression.d.ts",
+        "sha256": "328cca56f15fc73da30d3f976a787a45dad8e624b11eb63c488b82905b79b5fb"
+      },
+      {
+        "path": "tools/rmt-language/vnext-regression.js",
+        "sha256": "323cf5349cb82075434a2c8fb0c71d8dafe22bd6b0c5da2ce261f84abe076163"
+      },
+      {
+        "path": "tools/rmt-language/vnext-release.d.ts",
+        "sha256": "eb4f92b0847221fa1f75575e4bad222afd217629ee29395fa97449953e4b4bae"
+      },
+      {
+        "path": "tools/rmt-language/vnext-release.js",
+        "sha256": "4dda3ec30d064d7771c4d723db4275f46f9258f0fe267761bb26583936cd57f0"
+      },
+      {
+        "path": "tools/rmt-language/vnext-remote-compatibility.d.ts",
+        "sha256": "364b246a47d9b7dc8f999f8c52c3f7e8457a560581c71cae15f0d3917ba7bfb0"
+      },
+      {
+        "path": "tools/rmt-language/vnext-remote-compatibility.js",
+        "sha256": "0f845c1a742bd7eaed5e21e6eb016f4d3d03bc6d50a20eb2d79e10e95df94082"
+      },
+      {
+        "path": "tools/rmt-language/vnext-remote-compiler.d.ts",
+        "sha256": "db8e79c600222ba87c7ac9425cb51e51fd2adaacffee2bf39fa19efccbf5cab6"
+      },
+      {
+        "path": "tools/rmt-language/vnext-remote-compiler.js",
+        "sha256": "ede3cc4e5e5975e260a2d751e59278c1d538fca89430725d52afb029ad5f0564"
+      },
+      {
+        "path": "tools/rmt-language/vnext-remote-manifest.d.ts",
+        "sha256": "0b7ae83faf71b1a3c785feb69467a7d86db32f9eeb0b2ac43b6112b3e366a9ff"
+      },
+      {
+        "path": "tools/rmt-language/vnext-remote-manifest.js",
+        "sha256": "5c452b16935ab6897b0ee877258a7a2d8932ed5400980823fd2f5bf42f4e6409"
+      },
+      {
+        "path": "tools/rmt-language/vnext-remote-security.d.ts",
+        "sha256": "89db6588d55a73432e5acdede73acc3e90241281b5686dd3877d27615727b51e"
+      },
+      {
+        "path": "tools/rmt-language/vnext-remote-security.js",
+        "sha256": "2339cd2870690d0c8c04c17c24b57dbc8c530821c88f52e6364a837af99daf8a"
+      },
+      {
+        "path": "tools/rmt-language/vnext-remote-tooling.d.ts",
+        "sha256": "1d5d055e195fa9efeff26b00292701ad649ca0058f78fa5e1cc49be3a22d8f0f"
+      },
+      {
+        "path": "tools/rmt-language/vnext-remote-tooling.js",
+        "sha256": "27a22693053bff686b298765eda3d4f2aba32209426c185feff847cfed11cbe5"
+      },
+      {
+        "path": "tools/rmt-language/vnext-scheduler.d.ts",
+        "sha256": "a764d2f061a7647e8265e512f6d783cc57d78c108212396521545b56e3ba0f87"
+      },
+      {
+        "path": "tools/rmt-language/vnext-scheduler.js",
+        "sha256": "9d6895fbb88fa58a1b1821f7dae139a27beb170ab1abd49d68ce09db68a2a5c1"
+      },
+      {
+        "path": "tools/rmt-language/vnext-security.d.ts",
+        "sha256": "2b3295c73364164bb7785e2330a223017a0552be4bedc131cb3e0a3a82fff894"
+      },
+      {
+        "path": "tools/rmt-language/vnext-security.js",
+        "sha256": "370f5c798d2612cd4d42ffef496b7dd2098162200e21b0234d2be52cfda8a336"
+      },
+      {
+        "path": "tools/rmt-language/vnext-source-to-sea.d.ts",
+        "sha256": "dc13afa296db98924dde64300d6c8689c07a9aefe2d824d42de61776281f83ee"
+      },
+      {
+        "path": "tools/rmt-language/vnext-source-to-sea.js",
+        "sha256": "d07e97db6a18dbed5220de08d6cbe3a47d9da382ab01ae870760206ff938a3fa"
+      },
+      {
+        "path": "tools/rmt-language/vnext-streaming.d.ts",
+        "sha256": "650aee2761f40ce1fc36504a9a0d0b82a9f85c215c3faccf76024ca7d15b64a5"
+      },
+      {
+        "path": "tools/rmt-language/vnext-streaming.js",
+        "sha256": "e8a5bfb65f985edf221b6aff61313f7a4ed223ef0156eb981bdc8f2c6b3a2265"
+      },
+      {
+        "path": "tools/rmt-language/vnext-surfaces.d.ts",
+        "sha256": "16cdfaf5b2e122d7d383c7897648f52aed262fc4912bde73a5605aab64b3f28e"
+      },
+      {
+        "path": "tools/rmt-language/vnext-surfaces.js",
+        "sha256": "1597067ef327723606460f6d9718f6f47178f3ca4aad8a667df363c10ae9e385"
+      },
+      {
+        "path": "tools/rmt-language/vnext-tooling.d.ts",
+        "sha256": "14af60e315c3eede3a554b7bec11b9e695c1b8bea8cfa41de01561416a53464b"
+      },
+      {
+        "path": "tools/rmt-language/vnext-tooling.js",
+        "sha256": "12bdf9cbbd4c44ffa49d374071d80569fb65f56d22c7abada0cc352b2488f6ee"
+      },
+      {
+        "path": "tools/rmt-language/xscaler-protocol.d.ts",
+        "sha256": "092f22b583a1f944282cadb4a186ae61b15b42f99a188febd478f023547fa3a2"
+      },
+      {
+        "path": "tools/rmt-language/xscaler-protocol.js",
+        "sha256": "b9637746b9e7432859eb49d9b175e1653c4deacc295481b44ae1d737fbf02377"
+      },
+      {
+        "path": "tools/xtensions/adoption-handoff.d.ts",
+        "sha256": "90429feda900bad38b9471584f9e1281949be798e8efaa6528daa2dc5930ed9e"
+      },
+      {
+        "path": "tools/xtensions/adoption-handoff.js",
+        "sha256": "b9398d87bad5c53b7dc2dc65405d62c6348172d6b6fefcc3032376588f1f353d"
+      },
+      {
+        "path": "tools/xtensions/angular-host-adapter.d.ts",
+        "sha256": "3dc30af8e475c4d867b3242a5c2314ef5370db3e799da903a4c53fbcf7a7e770"
+      },
+      {
+        "path": "tools/xtensions/angular-host-adapter.js",
+        "sha256": "5f0595006dc3410d5893263dd08b8a330df91b140c01ed66d7e0b94421a1bd67"
+      },
+      {
+        "path": "tools/xtensions/component-interface-build.js",
+        "sha256": "7dade34c20e63b7f7f17fac03026cbb18ece5209d1ebbb712dafa86ca644d5f4"
+      },
+      {
+        "path": "tools/xtensions/component-interface.d.ts",
+        "sha256": "53671d929255b91046bda33c7002cab84ebc785c5fb6e31a93cb014653e3232f"
+      },
+      {
+        "path": "tools/xtensions/component-interface.js",
+        "sha256": "8d3b813dcc2b4bbb230d8e18720487c7f19e84bcf2bcbcea55cd251f0b6e7646"
+      },
+      {
+        "path": "tools/xtensions/cooperative-resource-scope.d.ts",
+        "sha256": "153d15cd63d7ea8437372e94c22051d580301ac2086c8aa2780d74d98aaec479"
+      },
+      {
+        "path": "tools/xtensions/cooperative-resource-scope.js",
+        "sha256": "ba8f05d9f5ce605512c95d45b3b563c6184e88a2dab5874ffdcee2c1836174ab"
+      },
+      {
+        "path": "tools/xtensions/diagnostic-trail.d.ts",
+        "sha256": "f9c03bd2292b02c26e6b9d413459f81bc73bd2593d36fb3a0530afe325b66df1"
+      },
+      {
+        "path": "tools/xtensions/diagnostic-trail.js",
+        "sha256": "2caf92b3ca9533dc11639c4a9229c87e9d4c07995d78094d3b4e6af6b124bcc0"
+      },
+      {
+        "path": "tools/xtensions/framework-ssr.d.ts",
+        "sha256": "c5d96d1c34dd9e914527c9b7c3afa1b251c1df6018c9ccd2d2262e047e4e0578"
+      },
+      {
+        "path": "tools/xtensions/framework-ssr.js",
+        "sha256": "6b4c457f2ac54762afcfda78314e788ea9e119e939e93ed9d63355991e31a700"
+      },
+      {
+        "path": "tools/xtensions/host-capability-negotiation.js",
+        "sha256": "762751a35c6e99eccb66cbad3b0d885098dbd949ed4b5a774a3671a5bac02373"
+      },
+      {
+        "path": "tools/xtensions/host-controller-contract.d.ts",
+        "sha256": "5137df09aa1173e3eb7172da2073c659c3a7d5ab9324b60866c1d8418f644989"
+      },
+      {
+        "path": "tools/xtensions/host-controller-contract.js",
+        "sha256": "fc168ff8cec8a95375942f9ef2871ed3cdbf74cede192c708dd374efc14278b7"
+      },
+      {
+        "path": "tools/xtensions/host-resource-cleanup-record.d.ts",
+        "sha256": "2cbe174ae3d9a3ab5862358c53d4522c51162401ecfe9cc3c26ca8bde9541bd7"
+      },
+      {
+        "path": "tools/xtensions/host-resource-cleanup-record.js",
+        "sha256": "631ba35928b8e8a990dd05b245cd61333984197b866f4c46e0821221404a4a6e"
+      },
+      {
+        "path": "tools/xtensions/imperative-host-pocs.d.ts",
+        "sha256": "6f06f96bb960d0d7b10f2b6c98ed4ec81bc9337817f6c37aac57864bb3da7719"
+      },
+      {
+        "path": "tools/xtensions/imperative-host-pocs.js",
+        "sha256": "ef4579ecfa747d261562a0b7b93e03e4c1d0b76e4393b9d2683f249b873a9db9"
+      },
+      {
+        "path": "tools/xtensions/kernel-work-scope.js",
+        "sha256": "2bc544e13567898f8c4eefd973c66e62c29f616477c103e21b28a0f39a716dc8"
+      },
+      {
+        "path": "tools/xtensions/maraca-xtension-manifest.d.ts",
+        "sha256": "1f20e947f6c4f3fa9cbb2c4d54075b8c793219d94da6a480b2ba3acb45f1c6f8"
+      },
+      {
+        "path": "tools/xtensions/maraca-xtension-manifest.js",
+        "sha256": "267f8009ab0679ac044e6fbe826b251bf54d00e090aa29ad218ffc2ebea521d8"
+      },
+      {
+        "path": "tools/xtensions/multi-framework-dashboard-fixture.d.ts",
+        "sha256": "e6dc3a35496e92d2a53283ade0111bd43691621d562ee26412dc25e18b587364"
+      },
+      {
+        "path": "tools/xtensions/multi-framework-dashboard-fixture.js",
+        "sha256": "45e6a8ad6ca4fa90ce913b6b41fc99f662de0a23d151f079451b7d183a0f0af3"
+      },
+      {
+        "path": "tools/xtensions/openui5-host-adapter.d.ts",
+        "sha256": "6134ce59b9ee5959ac075f2c00a558d50cb9da41974ad7d7e20d7760b8f958e6"
+      },
+      {
+        "path": "tools/xtensions/openui5-host-adapter.js",
+        "sha256": "a6bf0947d8b48282d6336ccdcee688bb578f2a9bea0324a646be96d13b9a61e9"
+      },
+      {
+        "path": "tools/xtensions/react-host-adapter.d.ts",
+        "sha256": "5dfac901efe6b67dae0111a00588f43db2688d2ab7d6e6965680e4767447da66"
+      },
+      {
+        "path": "tools/xtensions/react-host-adapter.js",
+        "sha256": "5fc08eaacea435a627d711611477b66fe2e66545236e427901e28fc915175d84"
+      },
+      {
+        "path": "tools/xtensions/react-host-controller-poc.d.ts",
+        "sha256": "996f7c068339bfee9fe6a80e0efb71e0031b71adc448263439c3c00d1a42bcf6"
+      },
+      {
+        "path": "tools/xtensions/react-host-controller-poc.js",
+        "sha256": "dd136f2a3cfd4b25b69d3c0150cc7c3553f0168f46ccd7d58b0533e66dad39a8"
+      },
+      {
+        "path": "tools/xtensions/react-payload-boundary.js",
+        "sha256": "a63f4bdc1d39813d81f07623316e5e1814ff44e5cc29f93a17145683385ddb5c"
+      },
+      {
+        "path": "tools/xtensions/react-runtime-adapter.d.ts",
+        "sha256": "10700c9d08f2e94a79168e89a57d0a77eba223c89491aaf6d50ebb1bc33074c0"
+      },
+      {
+        "path": "tools/xtensions/react-runtime-adapter.js",
+        "sha256": "e780ccdfcc00ca7d75bec3b2bdebb383e3caa2fc40d3bfdaf4bfe85995a0308a"
+      },
+      {
+        "path": "tools/xtensions/react-runtime-boundary.js",
+        "sha256": "647575e8da3f01a63df9ee6cefe1d0dfd61f056633972fbe46e9ceed5d617596"
+      },
+      {
+        "path": "tools/xtensions/registry-package-strategy.d.ts",
+        "sha256": "8e1e7b58ff45146925215fff825e05986977d802ee01c1bd5bcee2d287ca7833"
+      },
+      {
+        "path": "tools/xtensions/registry-package-strategy.js",
+        "sha256": "b38e438db65229a3ade6304af75fbe445d65d28dc0bd4622372b655bdedbd53f"
+      },
+      {
+        "path": "tools/xtensions/resource-graph-binding.js",
+        "sha256": "0488d4da2eed0c8689d4ec7c49860665873cfcbc433bf52f458575384edf67e2"
+      },
+      {
+        "path": "tools/xtensions/resume-adapter-contract.d.ts",
+        "sha256": "a097da80789949511fa7042914e60c3bd7e247cf1c10d5690d8194e964e65dc3"
+      },
+      {
+        "path": "tools/xtensions/resume-adapter-contract.js",
+        "sha256": "7e545c9e1be3b1312dd1ff0f583572a6910a4b1b25ea8f9cb70ea6c6b29e6073"
+      },
+      {
+        "path": "tools/xtensions/runtime-capability-registry.d.ts",
+        "sha256": "c3dbef0ff61baac66489a908b95abcf93c6c3e943377ca27ea44ff0b6dd6edf4"
+      },
+      {
+        "path": "tools/xtensions/runtime-capability-registry.js",
+        "sha256": "c82536dde3907a3b7cf530d0b4e7767d643c932d3ede2688f8b694d6e792d4db"
+      },
+      {
+        "path": "tools/xtensions/runtime-host-controller.d.ts",
+        "sha256": "b88df57206eae655721549bd699e8054e48189eea46e40c39f7bfc615a993e9b"
+      },
+      {
+        "path": "tools/xtensions/runtime-host-controller.js",
+        "sha256": "9627d38ad20200c2c846a7eb057dec28f93cc012f63b76fa0c5a86de785a4574"
+      },
+      {
+        "path": "tools/xtensions/security-integrity-gate.d.ts",
+        "sha256": "d01a99e38c33825c6808f960b897aeae2801d48bae1e9020921a9c839e961fc6"
+      },
+      {
+        "path": "tools/xtensions/security-integrity-gate.js",
+        "sha256": "219761e8ec8b33988d618c4cfc64b268539033522be74e4a5f11963fb1be2ca0"
+      },
+      {
+        "path": "tools/xtensions/signal-bridge-contract.d.ts",
+        "sha256": "cfd7401bf328d59fd230a4a06669ab45fd4a2f957f7c0aa12996fe2b428ad761"
+      },
+      {
+        "path": "tools/xtensions/signal-bridge-contract.js",
+        "sha256": "63d56f44011907554c7b7e6b336daf115bee90f29847debf6e088a5a03f60e1e"
+      },
+      {
+        "path": "tools/xtensions/state-binding-artifact.d.ts",
+        "sha256": "221605c43be5f204615c1a09c8b693a67b7a8aedf7174d58355784fb90c2f49f"
+      },
+      {
+        "path": "tools/xtensions/state-binding-artifact.js",
+        "sha256": "e6565df9bec95916ad2d597734d0deb13c05d05f572040c0e500ab50615c86c4"
+      },
+      {
+        "path": "tools/xtensions/state-binding-contract.js",
+        "sha256": "7ec3abb71980dd9ae0673014341723efd425c9ba70b122252cd804e7be1a67aa"
+      },
+      {
+        "path": "tools/xtensions/state-binding.d.ts",
+        "sha256": "d9d73412a744b3009f892da0d4ffb2e91bcbe0425a6ed88ecaaccefb3d435341"
+      },
+      {
+        "path": "tools/xtensions/state-binding.js",
+        "sha256": "19b0f4266fc7546016eb68df9eec391b554ab22a96d5eb97d001c0efa047ca79"
+      },
+      {
+        "path": "tools/xtensions/static-contract-introspection.d.ts",
+        "sha256": "a2cd5c2c076a31550ee7c03aaf5e8e3199b6bf2d414be5c552f826a6993fc270"
+      },
+      {
+        "path": "tools/xtensions/static-contract-introspection.js",
+        "sha256": "0bad8a9904bec5db7445686c5b6b8f14072eadefb1a9615f4c328dc538ede1a6"
+      },
+      {
+        "path": "tools/xtensions/three-render-loop-poc.d.ts",
+        "sha256": "30897d8f189961269e37c17ff4ed394e4f9a73416145647c26b8840036e03a3c"
+      },
+      {
+        "path": "tools/xtensions/three-render-loop-poc.js",
+        "sha256": "adbc1757403f693114932d20fcd3e5071ef106c262d228711461e6915f0fa562"
+      },
+      {
+        "path": "tools/xtensions/url-state.d.ts",
+        "sha256": "8d4401738eb0b189df2271cd412074329901a4385cb1b5b089055f2ad058ac67"
+      },
+      {
+        "path": "tools/xtensions/url-state.js",
+        "sha256": "7fadb244752ac7a906b6f6b35ebd56b576a0edeb34743d803ad9bd9bfaaba73a"
+      },
+      {
+        "path": "tools/xtensions/vanilla-host-adapter.d.ts",
+        "sha256": "d09d51af3df2e6e645e3d23354d6dbcc6c91728720495f3f4fcac5602ad30903"
+      },
+      {
+        "path": "tools/xtensions/vanilla-host-adapter.js",
+        "sha256": "9a11d99d2571fe537c84ade01b137fddce83c0132781e560c4fecf2c4fa08045"
+      },
+      {
+        "path": "tools/xtensions/vue-host-adapter.d.ts",
+        "sha256": "7d056b5dd80101fb7a3487d7703f82858fd16eaf968b05c5b64a501aa3f2bb0c"
+      },
+      {
+        "path": "tools/xtensions/vue-host-adapter.js",
+        "sha256": "833734a7b55d7313bd6082a6ab75113898a7ceed699945083cdfa8ec666a66e1"
+      },
+      {
+        "path": "tools/xtensions/vue-host-controller-poc.d.ts",
+        "sha256": "0062f0ae2bda87f24f50803ac44e7b21940bff9042825389e1a2f02a9aa0bf08"
+      },
+      {
+        "path": "tools/xtensions/vue-host-controller-poc.js",
+        "sha256": "1518685b96201edf87340159599085d52c56a3b13ad756830844a2f337bacf37"
+      },
+      {
+        "path": "tools/xtensions/vue-payload-boundary.js",
+        "sha256": "e5b7b619251e63bf1937b42ffe346d33b742843e24ef267c680f264dac54e80c"
+      },
+      {
+        "path": "tools/xtensions/vue-runtime-adapter.d.ts",
+        "sha256": "f441bed2550894206df776eec5d3cbfece18adb92c1432060494b38bc80d699f"
+      },
+      {
+        "path": "tools/xtensions/vue-runtime-adapter.js",
+        "sha256": "d68a72b9782be8c3d705d10af40ca4a6576c3cc0e3a9884c8db02073c8b9745c"
+      },
+      {
+        "path": "tools/xtensions/vue-runtime-boundary.js",
+        "sha256": "f1b28462c543f0e8b0d8a8ee59e48b15e1c213cf8381e100677b02e59f03aeed"
+      },
+      {
+        "path": "tools/xtensions/work-budget-policy.js",
+        "sha256": "e3223e4e46ee792259b321a6fe6c82086c420c239316a04fd8bf77bdbc896779"
+      },
+      {
+        "path": "xtend-maraca/abort-boundary.d.ts",
+        "sha256": "d4f589fcd486496917ccaeff07ef07e76f02a623c8853c7b39d2ff84747b0e41"
+      },
+      {
+        "path": "xtend-maraca/abort-boundary.mjs",
+        "sha256": "bbedb71080e7e1aff6787171773ef457810f7396bdc3f96b63ceac50d7a86ae7"
+      },
+      {
+        "path": "xtend-maraca/app-services.d.ts",
+        "sha256": "c86486a734e67d3662339b9b1566ca85968ded2095328b96f12ca7f7e6262e8d"
+      },
+      {
+        "path": "xtend-maraca/app-services.js",
+        "sha256": "271fb1738ef3080a31e87bf035da7ab26ef24aaca6c577ca40ec4ed5544ed604"
+      },
+      {
+        "path": "xtend-maraca/app-services.mjs",
+        "sha256": "6fd1aa1f64ad741dcb97d0cb1ba3529f22ec531d2afccf9fd2441b9ee02d893f"
+      },
+      {
+        "path": "xtend-maraca/browser-composition-runtime.d.ts",
+        "sha256": "0bbc0a1d17ce936447db360cfd16ddd1128b2a342329ea2b2a6e1b6db4b5860f"
+      },
+      {
+        "path": "xtend-maraca/browser-composition-runtime.mjs",
+        "sha256": "945873b3bc254db756998f2170392b9b254a9ca0835d9b52448e66da8a24ebbe"
+      },
+      {
+        "path": "xtend-maraca/browser-composition-runtime.v4.d.ts",
+        "sha256": "80a9bf76c8e9fb837755a09a5c48a344fdcd7da0d96ce23f275ed35a819c807a"
+      },
+      {
+        "path": "xtend-maraca/browser-host-adapter.d.ts",
+        "sha256": "45b25cf6ab6f0d9877a473da445e4ac0f16809b66f8a7cefaed2b7692edc2e86"
+      },
+      {
+        "path": "xtend-maraca/browser-host-adapter.mjs",
+        "sha256": "36f066b33ac9b2922150d4749e9375d3c0b4df6638f2faa37335b3ddcf95351c"
+      },
+      {
+        "path": "xtend-maraca/css-provider.d.ts",
+        "sha256": "ebdba49a2045d3b64417a25e524a4358640e9e6c19fe46f9c9f4bb1882cf4122"
+      },
+      {
+        "path": "xtend-maraca/css-provider.js",
+        "sha256": "0d4c889d7f897f13a6a1affe6a2874d2c5af263abf98b909d1f687300461b069"
+      },
+      {
+        "path": "xtend-maraca/fastpass-contract.js",
+        "sha256": "af8e26104243deea58ccf3a334d67ecb3286617146257074a29eeb7866a3b1a3"
+      },
+      {
+        "path": "xtend-maraca/fastpass.mjs",
+        "sha256": "e641e82b8671f0c4057a7c4de300ccded5eb955009576121ab1c3ddccca3a6ad"
+      },
+      {
+        "path": "xtend-maraca/html-security.js",
+        "sha256": "ad2bdfe05757613887aa1329147b0e9d1082e2670ea2c9088aede08411765502"
+      },
+      {
+        "path": "xtend-maraca/index.d.ts",
+        "sha256": "16a39e84cd3f6c63fde6b2ee90d04e9e3d5291d58bc79d4eb3998999630d2919"
+      },
+      {
+        "path": "xtend-maraca/index.js",
+        "sha256": "32dae73cc1a95002804a039f90f1debefa4c6ed53d389ed048b014611e3d67ba"
+      },
+      {
+        "path": "xtend-maraca/node-app-host.d.ts",
+        "sha256": "0541f5d61d23b8b157c28eb484167a8a5f00ecc0868f9b533099869f480ada7e"
+      },
+      {
+        "path": "xtend-maraca/node-app-host.js",
+        "sha256": "81b340270f45b17ff53eb524b96728a0f4a945b21e1843e3fa0def62ab5f448c"
+      },
+      {
+        "path": "xtend-maraca/node-app-host.mjs",
+        "sha256": "123a170683579c11d381d56b2e27f47c8f4314ac97283a5934e8f0c9c00abbed"
+      },
+      {
+        "path": "xtend-maraca/node-app-service-host.d.ts",
+        "sha256": "8a29b60a3c258bad20131ce887454000de3842ae5134ea4eea785a205879d6da"
+      },
+      {
+        "path": "xtend-maraca/node-app-service-host.js",
+        "sha256": "eec216ff40c03f54b684d4faee03fed48d164764efd1f993a9185dbe8c3819b6"
+      },
+      {
+        "path": "xtend-maraca/node-app-service-host.mjs",
+        "sha256": "c080910c21f68fbc10e5afc59ae2df680b695c76d97d819f9b36dc935fba3fd9"
+      },
+      {
+        "path": "xtend-maraca/page-bootstrap.d.ts",
+        "sha256": "cb5ae4010b7b360ab6a6643dbb777ac6fb9e0ba0082709928e745a56427a294f"
+      },
+      {
+        "path": "xtend-maraca/page-bootstrap.mjs",
+        "sha256": "7240347967e43f5896f4cadddee265bb8fa800f9200371a19d6c1c3416445735"
+      },
+      {
+        "path": "xtend-maraca/page-client.d.ts",
+        "sha256": "c962d9ef2103b4cc2ae04183903c4fc39e8c71825050701435af031201589ac5"
+      },
+      {
+        "path": "xtend-maraca/page-client.mjs",
+        "sha256": "4bbf24ef2aee8b8f0ee1596e8519176b2ec5d65e17ac2e1a4d2ccfdedcf59985"
+      },
+      {
+        "path": "xtend-maraca/plan-runtime.d.ts",
+        "sha256": "30344c8b55e0d4b857224ea28a8565894172e6a3054aa7865b19eb989c76b075"
+      },
+      {
+        "path": "xtend-maraca/plan-runtime.mjs",
+        "sha256": "0a4970152bddfa0c3b431e72e104b4ed1ae5756e381ea41e0b14c226d0f131a6"
+      },
+      {
+        "path": "xtend-maraca/plan-runtime.v3.d.ts",
+        "sha256": "5106ace2a56337c3d0cf923b025893a764ffdc2adb57e24a6b1e167c0cd45942"
+      },
+      {
+        "path": "xtend-maraca/plan-runtime.v4.d.ts",
+        "sha256": "d33cd3a46f7fb156fad32874f392c8790aa7b7aa009a9b5d10d0eb1fdbfb50a0"
+      },
+      {
+        "path": "xtend-maraca/plan-runtime.v5.d.ts",
+        "sha256": "736897403a4dfe0493990a5277aec0f1222fc649ab0ddd5b4061f1062503f506"
+      },
+      {
+        "path": "xtend-maraca/plan-runtime.v6.d.ts",
+        "sha256": "7b67cdeaba29fafe8512571ac9d05b0e04073c207b2b78fb8a2ff7593f98530d"
+      },
+      {
+        "path": "xtend-maraca/remote-surface.d.ts",
+        "sha256": "2f22e9635f008adf626bb7313800eeebd53eac9315bb4bca18e9783b99afce3b"
+      },
+      {
+        "path": "xtend-maraca/remote-surface.mjs",
+        "sha256": "19dd5aca8d102c20dd519acdf6fc8da7c7e6092c492bcd3bdf35ba631b29f770"
+      },
+      {
+        "path": "xtend-maraca/runtime.d.ts",
+        "sha256": "7340cdc38dbb960fe60b33b7a86b3f96ce5d8fda73aa480dd95fde64a0ac92b8"
+      },
+      {
+        "path": "xtend-maraca/runtime.js",
+        "sha256": "30feb220906a80426d6629a062932ed4acc030f69c8de312c29f73a019c2a4c9"
+      },
+      {
+        "path": "xtend-maraca/server-services.d.ts",
+        "sha256": "8ed8af6b37e794d51d1ed0e02c5100482dc3dc793367c5bafa74ce392509ddfb"
+      },
+      {
+        "path": "xtend-maraca/server-services.js",
+        "sha256": "be9d778713e46fb25cc5a491a6d40540f226ac865c8a72792f46d1c5f47b474f"
+      },
+      {
+        "path": "xtend-maraca/server-services.mjs",
+        "sha256": "7c69a22435a12bc01a14c9bf67a5a4f00f0ad2dd4870cdf9be4a93fd8a73982d"
+      },
+      {
+        "path": "xtend-maraca/service-build-provider.d.ts",
+        "sha256": "0c1559166551ada1b0c22cd378ac3994d9ca71139b1eb20bf3c3c5e5915f9a9c"
+      },
+      {
+        "path": "xtend-maraca/service-build-provider.js",
+        "sha256": "7127eaf3cf35cc953df31539065d6c6b0f338f9b77c430589734b03ec1056fee"
+      },
+      {
+        "path": "xtend-maraca/sync-app-services-esm.js",
+        "sha256": "f05cc1dbacf529cd7a91d65c540416796cb5d753758706341bd94cae2ebe3c27"
+      },
+      {
+        "path": "xtend-maraca/trusted-text-sanitizer.js",
+        "sha256": "f2c6fac759f76fb7bab87c87f12ee99f109883bb1b559f2570a1802f73e60e42"
+      },
+      {
+        "path": "xtend-maraca/trusted-text-sanitizer.mjs",
+        "sha256": "607417a30d0ed1a3d76a6e3b257b21fd125a730dbe8f2af31eab1675679646eb"
+      },
+      {
+        "path": "xtend-maraca/xtension-component-binding.mjs",
+        "sha256": "63d0fc34bdbfb8187adbe340ffb0768de5b44076a786c078c04bea5bf1e4bdc0"
+      },
+      {
+        "path": "xtend-maraca/xtension-composition-contract.mjs",
+        "sha256": "1bd1df53e2dbf823806dae5cba7a641e8f7e4db8afa2ff46d5c361e8cdfe6081"
+      },
+      {
+        "path": "xtend-maraca/xtension-composition-runtime.d.ts",
+        "sha256": "c98ff14a311b4a45fa9858ed2295afb7a9c67ffbc75bf66d9e5772d9bace7b2f"
+      },
+      {
+        "path": "xtend-maraca/xtension-composition-runtime.mjs",
+        "sha256": "4fdcbdf003430c441e4b05183942eba43086f25c4f4dd59f4a5adef7d8917d03"
+      },
+      {
+        "path": "xtend-maraca/xtension-composition.d.ts",
+        "sha256": "978b3f0b2cec4a628d1cde4c9a13e88e634baabb73f5a28c18a926a727b1e9f5"
+      },
+      {
+        "path": "xtend-maraca/xtension-composition.js",
+        "sha256": "9872caa16b4375a5696598d814caf97cea165afc9f33044059c323e4c128d574"
+      },
+      {
+        "path": "xtend-maraca/xtension-deployment-client.d.ts",
+        "sha256": "67c8d3ee7cf77b5b6f260930b8e9f43bf2c354b736d14c9bcee195514bf56dd5"
+      },
+      {
+        "path": "xtend-maraca/xtension-deployment-lifecycle-client.d.ts",
+        "sha256": "2e19d2c218f750e3a7c6003a2901a5ebf6d2b80f2a1572cb89a100b8b77163e9"
+      },
+      {
+        "path": "xtend-maraca/xtension-deployment-lifecycle.js",
+        "sha256": "2c9b8aae18731789ab7be92780d6186af289c9a48f58b326eee7b9b214c06dd4"
+      },
+      {
+        "path": "xtend-maraca/xtension-deployment-pwa.js",
+        "sha256": "6370fc8f44a897483bc344b26da66bbb68cd52267279e5fd64f0c21e634149d5"
+      },
+      {
+        "path": "xtend-maraca/xtension-deployment-updates.js",
+        "sha256": "dddc11b1e67d086926cbb653fc9e9c472121bf8a5dd3fb6a8454220b9146ac82"
+      },
+      {
+        "path": "xtend-maraca/xtension-deployment.js",
+        "sha256": "9df6fa876cb92d65f77e6cd68fa9d65fc1e9edeb226e2717479c25e723662729"
+      },
+      {
+        "path": "xtend-maraca/xtension-platform-build.js",
+        "sha256": "ebe2643ba205705350c8775c39b190ba428b647fa34e7b3dc602d89509767bec"
+      },
+      {
+        "path": "xtend-maraca/xtension-platform-esm.js",
+        "sha256": "880d5b42b762d39af50bc7b54d790328a3fefd4964f5256016927f18682bbbbe"
+      },
+      {
+        "path": "xtend-maraca/xtension-provider-graph.js",
+        "sha256": "f217cdae977b7ceede05e6b4354b000485a5a894fed05799c62d4abc16a0e547"
+      },
+      {
+        "path": "xtend-maraca/xtension-size-budget.js",
+        "sha256": "c847f8c684b16c134671071219877ebbd9dcf28b0191509a8898ac5d01e5ac4a"
+      },
+      {
+        "path": "xtend-maraca/xtension-ssr-runtime.mjs",
+        "sha256": "d664adbba38f003040335926e2dbb07a9993d03f80a40cb8935de936bfd09a36"
+      },
+      {
+        "path": "xtend-maraca/xtension-ssr.d.ts",
+        "sha256": "16804532e9124ded009655bafa98768743ffc2c1fdeb297a19e19cdd15159137"
+      },
+      {
+        "path": "xtend-maraca/xtension-ssr.js",
+        "sha256": "de7e533756eea16ba3ce98028831d92a78b5416ddb635291c9c7276be6e920dd"
+      },
+      {
+        "path": "xtendrmt/html-sanitizer.cjs",
+        "sha256": "53cf02deb9b9962921147da4812b75653d0283e80c35efe52ace43ea51bc6b7e"
+      },
+      {
+        "path": "xtendrmt/html-sanitizer.mjs",
+        "sha256": "89b4e15c6d5d85e1687c117356487d69f529a1e245ad360b33f7fea45a2f458c"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-browser-host-adapter.js",
+        "sha256": "69397f746e82301b72846d31b3d7f02ac78d8c38f9663b95b0d16a332afd52b5"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-browser-runtime.js",
+        "sha256": "ad040d35fa94f7a0610dbbc16952299bfdcf272d6efd9947cccd44489040dae7"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-command-bus.js",
+        "sha256": "03e13b81267175b8ddcd807881a7fad31e3bc9a798120094b20e6927f635eed7"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-detached-dom-runtime.js",
+        "sha256": "2200fbb440103ba4576282e266f6b4b999af45f4585c22f19d26fe3057658ab5"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-diagnostics-hub.js",
+        "sha256": "c98fa1e5c3a71bcabcda2a9effcd0da5bb644c090f1b723ae27dcdc87eb47a75"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-diagnostics.js",
+        "sha256": "d02395ec0dd1e1c1c7ed2dec447605e7c95ebcf1098ed7e625ed766fc19fd812"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-dom-compat-view-adapter.js",
+        "sha256": "754c2a6985a7bb53d29a417fa926adfe9beca8bc12baf379e62cbf6809077b37"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-engine-controller.js",
+        "sha256": "3048526afff3f0ba092207e38859b33b4530ed603e74cfc966ef06f1cc7cae13"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-engine-host-adapter.js",
+        "sha256": "1ee296a71357e2031172b3992eb934101c9da232a27897e7419a4a62fde1d6f7"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-engine.js",
+        "sha256": "7733941bd37037f2e76a38c189b0e48834e300944920fad2c41cfdedfe32b7f9"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-format.js",
+        "sha256": "4264cd9b1f887d3de0a342cc8e323fc50e104d67b99f83322488043b8223dcd6"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-generic-host-adapter.js",
+        "sha256": "22beee42211233acbb70303015eeaac2839b5a05220d52648e0c8d6420d86f66"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-html-sanitizer.js",
+        "sha256": "ef8c7503835e83974cce93d93b22934b12c6d96e947bafe7c71c5cecf368e865"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-input-routing-controller.js",
+        "sha256": "a7c66e8ba93ee0861e5d37eaf953b0dbed5c269d00853bbd3afc75e1d1a38210"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-performance-runtime.js",
+        "sha256": "8f4d7030e8b75d9ab50ae28b1643736806e7f4e5764fe3d2e74e412fcef56917"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-policy-parity.js",
+        "sha256": "46ccd1095d756938b523835c03f4c5623bddb13fdc06813d539db59a3d19a8b6"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-prewarm-worker-runtime.js",
+        "sha256": "e8c732d730f7226533f9e39c5f8677c70cf1bc8bd4a4a93cb6172645ad5d8e54"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-prewarm-worker-source.js",
+        "sha256": "3c82c481f606dd22aa6f74e6a320b67e9f8f86ff7cd1f2ab33879afca09bc9d3"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-product-surface.js",
+        "sha256": "552a53f9131b435573b1096d31184bc8a205d42cf5ce9bc2d2e2384ef0c2b0cc"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-public-api.js",
+        "sha256": "0290ce9a8e99aef92eff7b09d907db470368cd21008106df726268e6099df1a3"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-public-island-controller.js",
+        "sha256": "df55f4ef442b141fb1b4cd2f19c073eb7aefcbc6682b20ac299f2c4d74e72101"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-reactivity.js",
+        "sha256": "845548a9d8b33eea107872fe0ac00ed5c364bc00283098a0c0c479d4847f3935"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-server-prerender-runtime.js",
+        "sha256": "44d490002ed6c38d43d7b31d4e5f8498e1b07aed836241121edda53a38b8351f"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-state-telemetry-adapter.js",
+        "sha256": "28764f195a0008514db1845088b3f11979c64b97c6e8295cf616b8bcf4b6593d"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-surface-adapter.js",
+        "sha256": "3959ccc5aaf8f139e0b35d04b21dae0ef586c8ea3eedec8458a6c9b1633c19cf"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-template-artifacts.js",
+        "sha256": "c72667b5f4a077000a2b52c0122ceaba28c753765fb1d3b37eff325ad3072cde"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-template-binding-model.js",
+        "sha256": "81c5dfbdddaa4aa1652a25cb0982ace57debcb83487dd11c1712527d4e3439af"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-template-compiler.js",
+        "sha256": "9c70f2a46e990cb9bb65b244d8656fdd1bc8ed7dccb801ad1e135deb9d7c38d1"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-template-execution-controller.js",
+        "sha256": "3262b1887f46c97e4bd7a696c8c92f265a27235e78608991e2d91e0570328397"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-template-execution-model.js",
+        "sha256": "5b6caf3618b181c38d8c8552e3695c6045f99e7a59367eec5591a3c77939b7f9"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-template-execution-path.js",
+        "sha256": "bf047375da110089edfcb6f78fe28d7bc6fffbba84dba37625a1f31b3ec8c700"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-template-interaction-adapter.js",
+        "sha256": "c1518ee332ea90af585a3082c096142e8f9ee1b2e7423ad18085ef19e292ee70"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-template-loader.js",
+        "sha256": "a1b8cb29ff8dda6495537c663f8039b804a80713ba6f5f3721875770ffe7806c"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-template-recovery-model.js",
+        "sha256": "3819ed9aabecf8bd29107d257d4a3e90d8b3eceb351539f12d317256d4f1aa76"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-template-registry.js",
+        "sha256": "c08e197ab92c0b2ef763074ccf1fd79740ca3d4b69694757cda3a86bf157731e"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-template-runtime-renderer.js",
+        "sha256": "d24766b173fb0ecb5a783cff8096c0210482d49318d6d75ae369e4490b8ce25a"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-template-transport-adapters.js",
+        "sha256": "680638f6541a25289811901136b469d9b03214fc6dd56565b56b01927773c393"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-template-trust-model.js",
+        "sha256": "bf5383e65071a92774ad04c2a706395fbd26b5854961be2d79e776273a21199d"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-worker-prerender-runtime.js",
+        "sha256": "fa9ff5b79427a014a2e8627a7087fe636cc069eebe231ca04cf6bb819a55057d"
+      },
+      {
+        "path": "xtendrmt/kernel/modules/rmt-xtend-component-adapter.js",
+        "sha256": "d517a554b856507182fb02a557d03121c04182aaa115c8c07df51e7225ed1dca"
+      },
+      {
+        "path": "xtendrmt/kernel/rmt-kernel-sources.json",
+        "sha256": "c9b248e592d618b90e246c289bdc10aa5f12c60bc40aaa740ccc59207804e6be"
+      },
+      {
+        "path": "xtendrmt/kernel/templates/rmt-browser-preamble.js",
+        "sha256": "bba5f3d0015255b2d3f7d158a35a2781027bf811019a570cf36818b7f1522ef7"
+      },
+      {
+        "path": "xtendrmt/kernel/templates/rmt-browser-suffix.js",
+        "sha256": "7633c654495ebf98733d753ed01f5d920b4808908d4f01c35e2de85cfd0a0580"
+      },
+      {
+        "path": "xtendrmt/kernel/templates/rmt-core.d.ts",
+        "sha256": "a2e87e9babbc022c31c7ad8544dd3c654295e9ffcd2a389e8a3adf2080eafbb6"
+      },
+      {
+        "path": "xtendrmt/kernel/templates/rmt-esm-preamble.js",
+        "sha256": "eb31fbf3ade50643824bb3d6d960f27a7e88f455b54dbbc667fadc134adb5ff6"
+      },
+      {
+        "path": "xtendrmt/kernel/templates/rmt-esm-suffix.js",
+        "sha256": "4f4dd90ad41225ae08d765f76fabda22a2c45b6cd96b48de17e5496872e6d222"
+      },
+      {
+        "path": "xtendrmt/node-page-host.d.ts",
+        "sha256": "54ff4dba79ffc41bb5e9f31621af68e01082bf230ee41b10b6a656e65e78679f"
+      },
+      {
+        "path": "xtendrmt/node-page-host.mjs",
+        "sha256": "89e2d3f916b9b63a45f91cb18b4a7e0a65170a7f1427a0ad145ef38a0c4362ba"
+      },
+      {
+        "path": "xtendrmt/page-client.d.ts",
+        "sha256": "6be1c33071a4b8778cb8da201a0b10c1c55375761fec57e2cd375a37c897d1de"
+      },
+      {
+        "path": "xtendrmt/page-client.mjs",
+        "sha256": "db6eec245f8c9a9e5a67f81995f482a194d30bdea26688ef6ca3f35f531e975c"
+      },
+      {
+        "path": "xtendrmt/page-contract.d.ts",
+        "sha256": "f7cc8793e50e0612d205965b8ce6bd60d485360fd1681bf8c5ba2af7e3b35e8c"
+      },
+      {
+        "path": "xtendrmt/page-contract.mjs",
+        "sha256": "cded5b66eb8e9bf9dbebd7d5361d61b5f0b7bf5c44544225299cd5e6ae473d7b"
+      },
+      {
+        "path": "xtendrmt/page-form.d.ts",
+        "sha256": "7edec0e53d79011b81473241cc0007f15b60ccd13a9606cd961f48dca44f0d2f"
+      },
+      {
+        "path": "xtendrmt/page-form.mjs",
+        "sha256": "44bb3493376f2357aeaf1767ba43acecedccec26687ef6f0897a6d00ace0e053"
+      },
+      {
+        "path": "xtendrmt/page-initial.mjs",
+        "sha256": "7feadf3f96fdfb13b5fa46ca96ea415d978d65d3235cc2c3757ec97fd2811abb"
+      },
+      {
+        "path": "xtendrmt/page-resource-cache.d.ts",
+        "sha256": "ef153ffb82e45ccf4b9f44e6e981c800aa9e547c893568db32ff45e15d771301"
+      },
+      {
+        "path": "xtendrmt/page-resource-cache.mjs",
+        "sha256": "9749a6c0dcc2313ff21708984f445ab8279972b691be0eb0c8f2aa042d8fd691"
+      },
+      {
+        "path": "xtendrmt/page-wire.mjs",
+        "sha256": "26935b4ec79e3e5e8bf840ac8d23fbd87b938f8b254c08f8a38206d73ed964f6"
+      },
+      {
+        "path": "xtendrmt/rmt-action-effect-runtime.d.ts",
+        "sha256": "ae7879152babd171a6e44035cb21e3753329b44aca530a2a80997c23eece1bb8"
+      },
+      {
+        "path": "xtendrmt/rmt-action-effect-runtime.js",
+        "sha256": "3798c901579959de2aec8e6cedf9f07ee969bfd00bf0cc3478c0ad8831c6bcaa"
+      },
+      {
+        "path": "xtendrmt/rmt-animation-engine-runtime.d.ts",
+        "sha256": "3daefd59ccf5f3133e55cad2ae23c7f8eedf8a68ec7c7a8be7ad3c05e879fd0b"
+      },
+      {
+        "path": "xtendrmt/rmt-animation-engine-runtime.js",
+        "sha256": "9f3fae4164be62cc175c56eb4751cedda729ffc3beecd1e1f6623f34d11ce696"
+      },
+      {
+        "path": "xtendrmt/rmt-app-host-adapter.d.ts",
+        "sha256": "0af5e8b568cc1d19f65f0df79f6faee2be563adde4b64ced93393f2ef95dfcfd"
+      },
+      {
+        "path": "xtendrmt/rmt-app-host-adapter.js",
+        "sha256": "3ecd0c1b660dfa96de8a36de7605b17e89b1470a7c052df4b69da78538d486da"
+      },
+      {
+        "path": "xtendrmt/rmt-app-runtime.d.ts",
+        "sha256": "0bc064822dd784d9738b89522d8ecfdce18ac40df6fa4e3b862a290271636dab"
+      },
+      {
+        "path": "xtendrmt/rmt-app-runtime.js",
+        "sha256": "3d20461b92e62ac73af1317e855bd2426337f3886f51c91d23297f92c90fdceb"
+      },
+      {
+        "path": "xtendrmt/rmt-app-view-projector.d.ts",
+        "sha256": "9b5c4b7713ed2f43a11672fe649a7d7ab0830564c52ca9b3e7368c5ac2d93883"
+      },
+      {
+        "path": "xtendrmt/rmt-app-view-projector.js",
+        "sha256": "b7e38a3dbda64a39ead08ed7cd24a3dde761ed4c9e2f010635e10e0bf849d5c4"
+      },
+      {
+        "path": "xtendrmt/rmt-browser-scheduler.d.ts",
+        "sha256": "3ff242e81d3aaa16db6b357fb2b66b44c7bd592c9eb6c3afecb6a8802e2f9f5f"
+      },
+      {
+        "path": "xtendrmt/rmt-browser-scheduler.js",
+        "sha256": "6e24844041cebc85a2912c6d30d338b013e505221b0573ac12e110bfcc185ea3"
+      },
+      {
+        "path": "xtendrmt/rmt-component-capability-registry.d.ts",
+        "sha256": "f38d086da4eda119d8cb1f782d223f6dae60daf3040a3c40fff3ec92d8c61e13"
+      },
+      {
+        "path": "xtendrmt/rmt-component-capability-registry.js",
+        "sha256": "8cafb4a7aa91ce63e395eaed43cf71ae28e8621052a5f64cc795b4c924de040f"
+      },
+      {
+        "path": "xtendrmt/rmt-core.d.ts",
+        "sha256": "0cddf0a20f9326824e6962773ad0ed91b93cd55b7ecb3d245280744abb06cb33"
+      },
+      {
+        "path": "xtendrmt/rmt-core.esm.js",
+        "sha256": "f7a02860104b2526957890f2b34e046501f9a328f5012c9827704cdeab28c0d0"
+      },
+      {
+        "path": "xtendrmt/rmt-dom-descriptor-renderer.d.ts",
+        "sha256": "02642144b47cbcf74304c912aff6777c4c5a7b3758b0d67c93fed612e1aa2a8e"
+      },
+      {
+        "path": "xtendrmt/rmt-dom-descriptor-renderer.js",
+        "sha256": "69981e6ec2f51094e1607e52c39324a02358ac9be75dc4b0a120d4dcb895a555"
+      },
+      {
+        "path": "xtendrmt/rmt-event-routing-runtime.d.ts",
+        "sha256": "9ced058aafc45f43bcb9a2ddccc3016faadf1f50573b6cf930f881926fba231e"
+      },
+      {
+        "path": "xtendrmt/rmt-event-routing-runtime.js",
+        "sha256": "257b2f73fecc4d659f3c393b51dc7b2c940d196eee84caef67d29f3ec2e4448e"
+      },
+      {
+        "path": "xtendrmt/rmt-form-validation-evaluator.js",
+        "sha256": "e7af3af5c7e3a3e8c8ae2d9170411f43a5ceac9b5e56cd3156e08be2591cbcc8"
+      },
+      {
+        "path": "xtendrmt/rmt-form-validation-model-command-adapter.js",
+        "sha256": "0cb436c24421d5338cd6db42960c6a2339a60ea601581ad0358a4c4fa24c2fa9"
+      },
+      {
+        "path": "xtendrmt/rmt-form-validation-runtime.d.ts",
+        "sha256": "14d1d0a5c54f28d299e17368d7fa5a47b803d2a54694a08148ad0cff8cb69c3e"
+      },
+      {
+        "path": "xtendrmt/rmt-form-validation-runtime.js",
+        "sha256": "0d9dcf864b5e66c0e3871f8b653c38d4d70c210be017d9b41ae0db7775417f70"
+      },
+      {
+        "path": "xtendrmt/rmt-form-validation-view-projector.js",
+        "sha256": "3f3f59dd368df398702b30d745ff394fa398f4c8c55eec9d236414270de56efa"
+      },
+      {
+        "path": "xtendrmt/rmt-kernel-feature-adoption-registry.d.ts",
+        "sha256": "c99b006cf3da2f51c0e89f7974733673fb4911dca764928e1ecef3e3f0b31781"
+      },
+      {
+        "path": "xtendrmt/rmt-kernel-feature-adoption-registry.js",
+        "sha256": "4480b8ac58d149f671f10b0dc645ef0910b865fa6b30c73b386e4c3e9f4b4313"
+      },
+      {
+        "path": "xtendrmt/rmt-kernel-module-manifest.json",
+        "sha256": "26a20a051d490357d85e32282713ac3df9a6a53db15e6f725f599066a9529256"
+      },
+      {
+        "path": "xtendrmt/rmt-kernel-orchestration-controller.d.ts",
+        "sha256": "64a3b7f319efd1a972e88437e8582fa2e54c36f931157e15a31c92a96e74c705"
+      },
+      {
+        "path": "xtendrmt/rmt-kernel-orchestration-controller.js",
+        "sha256": "b4ce03f075831a483f388cec00e4b1ff458b84dc640645a04e44fb904954af10"
+      },
+      {
+        "path": "xtendrmt/rmt-kernel-scheduler.d.ts",
+        "sha256": "c39dd306a6b2f662ec80d20e6773b0dd07098ef818e6871559c61f1c4b488003"
+      },
+      {
+        "path": "xtendrmt/rmt-kernel-scheduler.js",
+        "sha256": "cb6968fa9b5a784f93e6c941e4a634bdd527525247a1f4653f9c7b204829e766"
+      },
+      {
+        "path": "xtendrmt/rmt-maraca-view-projection-adapter.d.ts",
+        "sha256": "6b59fb671624728cd9b3bcb9b4b846aa7cc784d4385d7649529036828851c887"
+      },
+      {
+        "path": "xtendrmt/rmt-maraca-view-projection-adapter.js",
+        "sha256": "ee09855bee0e3973cfd8ec521c6b661256c3f1be7e4e8b6e782dd323ffb313be"
+      },
+      {
+        "path": "xtendrmt/rmt-native-shell-runtime.d.ts",
+        "sha256": "d7b08aa7e3b25cd312957bc7699b0bc59ecbc7f1b4d4b1865637cd4003b17226"
+      },
+      {
+        "path": "xtendrmt/rmt-native-shell-runtime.js",
+        "sha256": "f522437db32e20b3b26681e79cfa6d7018a3ab043f8cd81abf8e5e1c9bdb490c"
+      },
+      {
+        "path": "xtendrmt/rmt-node-ssr-adapter.d.ts",
+        "sha256": "c245d9b820e04bf430e4a39ca6070fd1858c4260abd8adf61f75bd84298b956e"
+      },
+      {
+        "path": "xtendrmt/rmt-node-ssr-adapter.js",
+        "sha256": "0a40b931761390a330ea870af2e20b450f89f00a7cad51586545524e1ac84a20"
+      },
+      {
+        "path": "xtendrmt/rmt-portable-render.d.ts",
+        "sha256": "9c35a51a95098d3f39791d2090c1c873f2af51a087143881f5843034c2e01431"
+      },
+      {
+        "path": "xtendrmt/rmt-portable-render.js",
+        "sha256": "ebddbb95cff37ea8515f65fd3d3a6781d6d2df1132bd69dfe1b9625bc1c2d0a7"
+      },
+      {
+        "path": "xtendrmt/rmt-presentation-effect-adapter.d.ts",
+        "sha256": "03e3978c6e101c39f6d8b10ac755c3b7e9dd266a716558faa4f3a2644fa9577c"
+      },
+      {
+        "path": "xtendrmt/rmt-presentation-effect-adapter.js",
+        "sha256": "87c7d4a3e886bfd45d98b7b5dd385ce06a578dc408a3ceb0a6122f5010f9cd0f"
+      },
+      {
+        "path": "xtendrmt/rmt-resume-capture-adapter.d.ts",
+        "sha256": "1916a2cabf1eefa346c81171b1b6c4254c3a39bf8d953886abebe9aff3809fe1"
+      },
+      {
+        "path": "xtendrmt/rmt-resume-capture-adapter.js",
+        "sha256": "8536cb95233a4823c9a649aba6eb60ef5029ab24386216c96f21258cd66a8b3f"
+      },
+      {
+        "path": "xtendrmt/rmt-resume-command-adapter.js",
+        "sha256": "188c073aa37ef260f37682e65cf29651e3f6b4a37b6737da7a28a64007f3c896"
+      },
+      {
+        "path": "xtendrmt/rmt-resume-command-controller.js",
+        "sha256": "c12f618a4dd04090499ded4f27b5825d7da136775639be86016ab2e1846b2f3d"
+      },
+      {
+        "path": "xtendrmt/rmt-resume-host-adapter.js",
+        "sha256": "33d981e5028a48feaeec60c98dba59555375561f123d6721d9b4dec60701ef5f"
+      },
+      {
+        "path": "xtendrmt/rmt-resume-protocol.js",
+        "sha256": "efc18ddc7e240c5640fbc9153ce83f95c35844d24282b23d8b8897d2eb618477"
+      },
+      {
+        "path": "xtendrmt/rmt-resume-runtime.d.ts",
+        "sha256": "997a9778db3fb0fb9f6d51a8363b0a9fbe99c431c7d812b89928416459b0207d"
+      },
+      {
+        "path": "xtendrmt/rmt-resume-runtime.js",
+        "sha256": "34fa4effde845c60a49f859d3728e1f83c3ec56555b9e8939cbad1e4e1098a57"
+      },
+      {
+        "path": "xtendrmt/rmt-runtime.browser.js",
+        "sha256": "59773e7ceeae4d0936480adf68973972a7944e70eb105fd469fc02898c3f94d7"
+      },
+      {
+        "path": "xtendrmt/rmt-runtime.esm.js",
+        "sha256": "185cc0e40510d240f70da76ef558e4e1cb25ccd116dfbd6c470c0fba825c4770"
+      },
+      {
+        "path": "xtendrmt/rmt-safe-preview.d.ts",
+        "sha256": "10697cdb9e7e9d2e6426bd5875c97fdbafd4c3186ad28733ac5ac4c416d01e77"
+      },
+      {
+        "path": "xtendrmt/rmt-safe-preview.js",
+        "sha256": "03c5e6d416462526ea572a7a8d473b9975baa46e5ecb8e814ea1240c0b0a7b6b"
+      },
+      {
+        "path": "xtendrmt/rmt-ssr-stream-host.js",
+        "sha256": "d2fadb9ea55eaa0ed8b1a6c21732f431fbae440398e6994b41313cb794753f8f"
+      },
+      {
+        "path": "xtendrmt/rmt-state-binding-view-projector.d.ts",
+        "sha256": "29bb92b9713cd52bc7f4dfb053f5ad1ffd92b14fe8559f4c4ffecd63f94f2e24"
+      },
+      {
+        "path": "xtendrmt/rmt-state-binding-view-projector.js",
+        "sha256": "ae1bb4ecfe246701f55b026f4f6a6fb4160c81bf0db21a6b0ce4fc404eb25589"
+      },
+      {
+        "path": "xtendrmt/rmt-state-host-adapter.d.ts",
+        "sha256": "a0ee415d337ae0f140086615e6174c3db94de93a3c63065416f398046743e59f"
+      },
+      {
+        "path": "xtendrmt/rmt-state-host-adapter.js",
+        "sha256": "1c3b0ce150cee986ecdda1d0a9c92e7f323ee31cbb920c5072aa2772cd078de6"
+      },
+      {
+        "path": "xtendrmt/rmt-state-selector-runtime.d.ts",
+        "sha256": "62922d37860e756f5c3ba931a8701bb55f6aabe4faa103ac1bbf2a8e4f232756"
+      },
+      {
+        "path": "xtendrmt/rmt-state-selector-runtime.js",
+        "sha256": "150f5ae1a279cf7457be54fc7a466afeb1a2a026a911ab1cb1d16ae5da2a669d"
+      },
+      {
+        "path": "xtendrmt/rmt-surface-resource-graph-runtime.d.ts",
+        "sha256": "774dbe5de8411937b84ec0f0d64eaca9deab5123bd4152ae6bfd8949c63fb589"
+      },
+      {
+        "path": "xtendrmt/rmt-surface-resource-graph-runtime.js",
+        "sha256": "9344b64339e1e08d4bd64933fabe5c14a12fadd24cd546b787cf727de469f446"
+      },
+      {
+        "path": "xtendrmt/rmt-surface-transition-runtime.d.ts",
+        "sha256": "c67c182be0e52b0b25a1201f48182b1ba2992621aed0e523226b79cc1fa579a5"
+      },
+      {
+        "path": "xtendrmt/rmt-surface-transition-runtime.js",
+        "sha256": "03d0245ea17603a4b9fd17ddac0dd13c9b240edf1acf21ebdb89901d24ff221b"
+      }
+    ],
+    "nativeLifecycleAcceptanceGranted": true,
+    "acceptanceScope": "Closed native-header profile plus existing native/foreign View ownership, authoritative lifecycle and trusted recreation; full RMTX frontend, general operator catalog and complete 0.9 acceptance remain pending.",
+    "existingAuthoritativeDefinitionsChanged": false,
+    "existingReleasedFingerprintSetsChanged": false,
+    "policyWaiversAdded": false,
+    "rationale": "The canonical output Viewport v2 projects native Close/Resume/Destroy using the shared renderer while preserving private foreign roots and their necessary wrappers. Complete Controller reads retire stale boundaries before Model mutation; authoritative absence of a previously known scope also withdraws its lifetime after bounded tombstone trimming. Trusted explicit recreation is generation-bound and never revives old tokens. Managed materialization preserves destroyed lifetimes. The original 17 cases remain intact and four new native end-to-end expectations pass, alongside targeted native/renderer/Graph regressions, release gates and unchanged strict budgets.",
+    "classicSourceBindingReview": {
+      "schemaId": "xtend.rmt.vnext.ast.v1",
+      "sources": [
+        {
+          "path": "development/rmtx-a01/inventory.json",
+          "previousSha256": "56ec09f7b5e375735d41523e218a601961243d54ccca2ed4128dbd88d618ce76",
+          "sha256": "51949fbf2b2a54540685c1ec465c937445df113f75e7def51e30e2479a341c2c"
+        },
+        {
+          "path": "package.json",
+          "previousSha256": "7e3ee2c535972ca0b639c6d30ff19660a18e9183becde9012e4e630bb705cdec",
+          "sha256": "6a633e38e9df751aca00058537bef4c190430cefe95d144f783100ae4e5734b5"
+        }
+      ],
+      "formalAstChanged": false,
+      "authoritativeFingerprintsUnchanged": true,
+      "releasedFingerprintSetsUnchanged": true
+    },
+    "inventoryObservationReview": {
+      "previousInventorySha256": "3d1f226fd943c390deb9af8f2a63418cb7f53df7f37a2e284507f7c2d5cb1a8a",
+      "sourceBindingRefreshInventorySha256": "b23c1cbadc99f76207b47c9a81b857f310f09ee7f9e28f4f287e6212bfcb707e",
+      "inventorySha256": "07d394439f63e8833d5fc2a4bbff0da25b63c83c8bf77554ce1d99ead3d118cd",
+      "schemaCount": 2255,
+      "newSchemaIds": [
+        "xtend.rmt.maraca-surface-lifecycle-projection.v1",
+        "xtend.rmt.maraca-view-projection-adapter.v2"
+      ],
+      "changes": [
+        {
+          "schemaId": "xtend.maraca.plan-runtime.v7",
+          "fields": [
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true,
+          "existingReleasedFingerprintSetUnchanged": true
+        },
+        {
+          "schemaId": "xtend.rmt.kernel-mvc-report.v1",
+          "fields": [
+            "shapeFingerprints",
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [
+            {
+              "hash": "sha256:bfa1afb065e9e6c01885bbf68a9f2b359f1cbeb0c1d1d58c6691d3c703bcf8da",
+              "completeness": "complete",
+              "sourcePaths": [
+                "development/rmtx-a06/native-lifecycle-fix-evidence.json"
+              ]
+            }
+          ],
+          "existingAuthoritativeFingerprintsUnchanged": true,
+          "existingReleasedFingerprintSetUnchanged": true
+        },
+        {
+          "schemaId": "xtend.rmt.maraca-view-projection-adapter.v1",
+          "fields": [
+            "kinds",
+            "canonicalDefinition",
+            "shapeFingerprints",
+            "usages"
+          ],
+          "newNonAuthoritativeFingerprints": [],
+          "existingAuthoritativeFingerprintsUnchanged": true,
+          "existingReleasedFingerprintSetUnchanged": true
+        }
+      ],
+      "addedDuplicateReviews": [
+        "polymorphic-62553bcdd7db"
+      ],
+      "existingAuthoritativeDefinitionsChanged": false,
+      "existingReleasedFingerprintSetsChanged": false,
+      "policyWaiversAdded": false
+    },
+    "versionedFamilyReview": {
+      "familyId": "xtend.rmt.maraca-view-projection-adapter",
+      "previousCurrent": "xtend.rmt.maraca-view-projection-adapter.v1",
+      "current": "xtend.rmt.maraca-view-projection-adapter.v2",
+      "legacyLifecycle": {
+        "rollout": "complete",
+        "status": "deprecated"
+      },
+      "legacyRuntimeAndReaderSupportRetained": true,
+      "legacyAuthoritativeAndReleasedSetsUnchanged": true,
+      "otherExistingFamiliesUnchanged": true,
+      "newIndependentContract": "xtend.rmt.maraca-surface-lifecycle-projection.v1",
+      "newContractsRollout": "planned",
+      "fullRmtxAnd09ReleaseAcceptanceGranted": false
+    }
+  },
+  "a06NativeLifecycleEditorReview": {
+    "date": "2026-11-15",
+    "sourceBaseSha": "19773f99c9412a36a3372f89b4e94c71352ed082",
+    "acceptedForRelease": false,
+    "kind": "backend-coherent-vscode-tooling-package-refresh",
+    "status": "installed-and-isolated-host-verified",
+    "extensionVersion": "0.2.3",
+    "previousReview": "a06RmtxEditorReview",
+    "report": {
+      "path": "development/rmtx-a06/vscode-rmtx-update.md",
+      "sha256": "f7e560636f221362749443ffaa2ddaa34dd5a5e302524bc42efe88d91ed836fc"
+    },
+    "evidence": {
+      "path": "development/rmtx-a06/vscode-rmtx-update.json",
+      "sha256": "8fc5049d11a6bdb84d85312b704c7443d710a5e6253571280bdfa96333c65f44"
+    },
+    "vsix": {
+      "path": "tools/rmt-editor/vscode/xtend-rmt-language-0.2.3.vsix",
+      "bytes": 25240754,
+      "sha256": "25daf4871d6f6025a595258853da5f93f1aa2b65a4761150cb65b1792f414e78"
+    },
+    "installation": {
+      "command": [
+        "/usr/bin/code",
+        "--install-extension",
+        "/home/konni/Downloads/xtend-dev/xtend/tools/rmt-editor/vscode/xtend-rmt-language-0.2.3.vsix",
+        "--force"
+      ],
+      "exitCode": 0,
+      "extensionId": "ccs networks.xtend-rmt-language",
+      "installedPath": "/home/konni/.vscode/extensions/ccs networks.xtend-rmt-language-0.2.3",
+      "archiveFilesCompared": 5040,
+      "mismatches": [],
+      "packageJsonNormalization": "Only VS Code-injected __metadata is excluded from package.json comparison; other archive bytes match exactly."
+    },
+    "backendClosure": {
+      "sourcesCompared": 27,
+      "mismatches": [],
+      "files": {
+        "node_modules/@ccslabs/xtend-rmt/rmt-dom-descriptor-renderer.js": {
+          "source": "xtendrmt/rmt-dom-descriptor-renderer.js",
+          "sha256": "69981e6ec2f51094e1607e52c39324a02358ac9be75dc4b0a120d4dcb895a555"
+        },
+        "node_modules/@ccslabs/xtend-rmt/rmt-dom-descriptor-renderer.d.ts": {
+          "source": "xtendrmt/rmt-dom-descriptor-renderer.d.ts",
+          "sha256": "02642144b47cbcf74304c912aff6777c4c5a7b3758b0d67c93fed612e1aa2a8e"
+        },
+        "node_modules/@ccslabs/xtend-rmt/rmt-maraca-view-projection-adapter.js": {
+          "source": "xtendrmt/rmt-maraca-view-projection-adapter.js",
+          "sha256": "ee09855bee0e3973cfd8ec521c6b661256c3f1be7e4e8b6e782dd323ffb313be"
+        },
+        "node_modules/@ccslabs/xtend-rmt/rmt-maraca-view-projection-adapter.d.ts": {
+          "source": "xtendrmt/rmt-maraca-view-projection-adapter.d.ts",
+          "sha256": "6b59fb671624728cd9b3bcb9b4b846aa7cc784d4385d7649529036828851c887"
+        },
+        "node_modules/@ccslabs/xtend-rmt/rmt-surface-resource-graph-runtime.js": {
+          "source": "xtendrmt/rmt-surface-resource-graph-runtime.js",
+          "sha256": "9344b64339e1e08d4bd64933fabe5c14a12fadd24cd546b787cf727de469f446"
+        },
+        "node_modules/@ccslabs/xtend-rmt/rmt-surface-resource-graph-runtime.d.ts": {
+          "source": "xtendrmt/rmt-surface-resource-graph-runtime.d.ts",
+          "sha256": "774dbe5de8411937b84ec0f0d64eaca9deab5123bd4152ae6bfd8949c63fb589"
+        },
+        "node_modules/@ccslabs/xtend-rmt/rmt-manifest.json": {
+          "source": "xtendrmt/rmt-manifest.json",
+          "sha256": "f93319d6eaeefaa3b91d7f7bfad6056d89d93909fa334145dddf65014f1b8440"
+        },
+        "node_modules/@ccslabs/xtend-rmt/rmt-core.esm.js": {
+          "source": "xtendrmt/rmt-core.esm.js",
+          "sha256": "f7a02860104b2526957890f2b34e046501f9a328f5012c9827704cdeab28c0d0"
+        },
+        "node_modules/@ccslabs/xtend-rmt/rmt-runtime.esm.js": {
+          "source": "xtendrmt/rmt-runtime.esm.js",
+          "sha256": "185cc0e40510d240f70da76ef558e4e1cb25ccd116dfbd6c470c0fba825c4770"
+        },
+        "node_modules/@ccslabs/xtend-rmt/rmt-runtime.browser.js": {
+          "source": "xtendrmt/rmt-runtime.browser.js",
+          "sha256": "59773e7ceeae4d0936480adf68973972a7944e70eb105fd469fc02898c3f94d7"
+        },
+        "node_modules/@ccslabs/xtend-rmt/rmt-core.d.ts": {
+          "source": "xtendrmt/rmt-core.d.ts",
+          "sha256": "0cddf0a20f9326824e6962773ad0ed91b93cd55b7ecb3d245280744abb06cb33"
+        },
+        "node_modules/@ccslabs/xtend-maraca/plan-runtime.mjs": {
+          "source": "xtend-maraca/plan-runtime.mjs",
+          "sha256": "0a4970152bddfa0c3b431e72e104b4ed1ae5756e381ea41e0b14c226d0f131a6"
+        },
+        "node_modules/@ccslabs/xtend-maraca/plan-runtime.d.ts": {
+          "source": "xtend-maraca/plan-runtime.d.ts",
+          "sha256": "30344c8b55e0d4b857224ea28a8565894172e6a3054aa7865b19eb989c76b075"
+        },
+        "products/xtend-mcp/generated/knowledge-manifest.json": {
+          "source": "products/xtend-mcp/generated/knowledge-manifest.json",
+          "sha256": "4e81834362694b466aab56c6459ac2d0e7b90a122edf20995c4a1218f1caf5c9"
+        },
+        "products/xtend-mcp/generated/docs.jsonl": {
+          "source": "products/xtend-mcp/generated/docs.jsonl",
+          "sha256": "77bc71b0d22d8492fc84ce53366e700a7b0827012b85e16947af086e53ce0ee5"
+        },
+        "products/xtend-mcp/generated/rmt-ai-kit/rmt-ai-kit.manifest.json": {
+          "source": "products/xtend-mcp/generated/rmt-ai-kit/rmt-ai-kit.manifest.json",
+          "sha256": "70a6d05bd96a7432e6e6a3dd35261d5f4d6004d43236df043af87d1ebaeeac23"
+        },
+        "tools/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.manifest.json": {
+          "source": "tools/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.manifest.json",
+          "sha256": "70a6d05bd96a7432e6e6a3dd35261d5f4d6004d43236df043af87d1ebaeeac23"
+        },
+        "package.json": {
+          "source": "tools/rmt-editor/vscode/package.json",
+          "sha256": "daf8c4558892a82c6d1b6b26cbaad25cfb945bc4beda0e79fc83bc069e010a5d"
+        },
+        "extension.js": {
+          "source": "tools/rmt-editor/vscode/extension.js",
+          "sha256": "ae1ccac5d4ac10c567451f743205ca3ccb1b27d423747946576be61c5642942c"
+        },
+        "rmtx-language-configuration.json": {
+          "source": "tools/rmt-editor/vscode/rmtx-language-configuration.json",
+          "sha256": "29e86355f1d1efa48265395946550e70677a8189450c6d9502c9ee0d01a071eb"
+        },
+        "syntaxes/rmtx.tmLanguage.json": {
+          "source": "tools/rmt-editor/vscode/syntaxes/rmtx.tmLanguage.json",
+          "sha256": "4001888af76e3ec0f402ac6d6f75c875504a76facc7992a0817b9c3fcf98c936"
+        },
+        "syntaxes/rmtx-operators.injection.tmLanguage.json": {
+          "source": "tools/rmt-editor/vscode/syntaxes/rmtx-operators.injection.tmLanguage.json",
+          "sha256": "8326dbccb46ddd501978c351b887255d1bad44d1a1261adbbfd6bfdc56c3010e"
+        },
+        "snippets/rmtx.code-snippets": {
+          "source": "tools/rmt-editor/vscode/snippets/rmtx.code-snippets",
+          "sha256": "1af61d46b23c098dd89719ca819699ca75479a375dfcc1d1996ac8604462f3aa"
+        },
+        "icons/rmt-light.svg": {
+          "source": "tools/rmt-editor/vscode/icons/rmt-light.svg",
+          "sha256": "f60d45254f168f7f66581f5f8633c29eb16f9a0dafec9cf95f8faad0de774c8b"
+        },
+        "icons/rmt-dark.svg": {
+          "source": "tools/rmt-editor/vscode/icons/rmt-dark.svg",
+          "sha256": "c8b975cde0499dec0999ba04c40ead061edd337cd39dc4afc20e0dd1467b38ec"
+        },
+        "icons/rmtx-light.svg": {
+          "source": "tools/rmt-editor/vscode/icons/rmtx-light.svg",
+          "sha256": "834cb1091696042a76147fe7b86dec651e5b02040ef4094b702940bcda8b43ee"
+        },
+        "icons/rmtx-dark.svg": {
+          "source": "tools/rmt-editor/vscode/icons/rmtx-dark.svg",
+          "sha256": "e03a22b4952ca52ea5f787ebe92f18e9778c20f6c05db02cde07d3d3841dbb1d"
+        }
+      },
+      "publishedManifest": "rmt-manifest.json",
+      "internalKernelModuleManifestPublished": false,
+      "description": "Closure checks follow the unchanged published @ccslabs/xtend-rmt package files list; the internal kernel module manifest is not a published VSIX member."
+    },
+    "isolatedHost": {
+      "format": 1,
+      "version": "1.0.0",
+      "passed": true,
+      "checks": [
+        "real-package-discovery",
+        "real-extension-activation",
+        "rmtx-document-language",
+        "classic-language-retained",
+        "rmtx-grammar-contribution",
+        "classic-lint-guard",
+        "classic-build-guard",
+        "no-classic-parser-diagnostics",
+        "language-icon-files-present",
+        "real-editor-snippet-insertion-self-closing",
+        "real-editor-snippet-insertion-paired",
+        "real-editor-snippet-insertion-expression",
+        "restart-extension-host-command-registered"
+      ],
+      "vscodeVersion": "1.145.2",
+      "node": "v24.22.1",
+      "extension": {
+        "id": "CCS Networks.xtend-rmt-language",
+        "version": "0.2.3",
+        "path": "/home/konni/.vscode/extensions/ccs networks.xtend-rmt-language-0.2.3",
+        "isActive": true
+      },
+      "document": {
+        "path": "/home/konni/Downloads/xtend-dev/xtend/development/rmtx-a06/syntax-comparison/declarative.rmtx",
+        "languageId": "rmtx",
+        "diagnosticCount": 0
+      },
+      "grammar": {
+        "language": "rmtx",
+        "scopeName": "source.rmtx",
+        "path": "./syntaxes/rmtx.tmLanguage.json"
+      },
+      "restartCommand": {
+        "id": "workbench.action.restartExtensionHost",
+        "paletteTitle": "Developer: Restart Extension Host",
+        "registered": true
+      },
+      "theme": {
+        "effective": "vs-seti",
+        "defaultValue": "vs-seti"
+      },
+      "languageIcons": {
+        "rmt.light": "f60d45254f168f7f66581f5f8633c29eb16f9a0dafec9cf95f8faad0de774c8b",
+        "rmt.dark": "c8b975cde0499dec0999ba04c40ead061edd337cd39dc4afc20e0dd1467b38ec",
+        "rmtx.light": "834cb1091696042a76147fe7b86dec651e5b02040ef4094b702940bcda8b43ee",
+        "rmtx.dark": "e03a22b4952ca52ea5f787ebe92f18e9778c20f6c05db02cde07d3d3841dbb1d"
+      },
+      "snippets": [
+        {
+          "name": "RMTX self-closing operator",
+          "text": "<RMT.Operator prop=\"value\" />",
+          "parseDiagnostics": 0
+        },
+        {
+          "name": "RMTX paired operator",
+          "text": "<RMT.Operator prop=\"value\">\n  \n</RMT.Operator>",
+          "parseDiagnostics": 0
+        },
+        {
+          "name": "RMTX expression property",
+          "text": "<RMT.Operator prop={model.value} />",
+          "parseDiagnostics": 0
+        }
+      ],
+      "session": "isolated-headless-test-host",
+      "currentUserSessionRestarted": false
+    },
+    "currentUserSession": {
+      "restartedByAgent": false,
+      "windowReloadForced": false,
+      "updatedExtensionActivationObserved": false,
+      "lastReadOnlyObservedUserHostVersion": "0.2.1",
+      "lastReadOnlyObservedActivation": "2026-11-15 21:38:09.268",
+      "lastObservedRestartWasUserInitiated": true,
+      "activationAction": {
+        "id": "workbench.action.restartExtensionHost",
+        "paletteTitle": "Developer: Restart Extension Host",
+        "registered": true
+      },
+      "note": "The user restarted the prior 0.2.1 host; this 0.2.3 update was installed and activated only in an isolated verification host. The current Codex session was left running."
+    },
+    "icons": {
+      "registration": "contributes.languages[].icon",
+      "effectiveTestHostTheme": "vs-seti",
+      "userIconThemeExplicitlyConfigured": false,
+      "workspaceIconThemeExplicitlyConfigured": false,
+      "settingsChanged": false,
+      "themeChanged": false,
+      "setiExplicitRmtOrRmtxMapping": false,
+      "setiShowLanguageModeIconsDisabled": false,
+      "explorerPixelInspectionPerformed": false
+    },
+    "checks": {
+      "editorTests": [
+        {
+          "node": "v24.18.0",
+          "passed": 11,
+          "failed": 0,
+          "skipped": 0,
+          "logSha256": "43cbfe0371ea3487ba74901b1c528caa67d0c7c7af292b5cd8bf71a20ad9330d"
+        },
+        {
+          "node": "v26.5.0",
+          "passed": 11,
+          "failed": 0,
+          "skipped": 0,
+          "logSha256": "bb10b9c796ca6bb0085eb0e8096dffa0a7732213fa7531c3b6ccf4f682d8589b"
+        }
+      ],
+      "highlighting": {
+        "passed": true,
+        "node": "v24.22.1",
+        "checks": 16,
+        "reportSha256": "6d8d55f8b67ae9c553a6011fe6bf4042b83376c23604b36c88427a28818df206"
+      },
+      "packaging": {
+        "passed": true,
+        "assertions": 243,
+        "failed": 0,
+        "reportSha256": "8c6987cad78ef6ea7f5702104249a2f7ee253aea8eef7eff6f1dfc3cb87e4073"
+      },
+      "bundledMcp": {
+        "passed": true,
+        "command": "/usr/share/code/code",
+        "electronRunAsNode": true,
+        "nodeOptionsUsed": false,
+        "nodeVersion": "24.22.1",
+        "tools": [
+          "xtend_knowledge_search",
+          "xtend_knowledge_context",
+          "xtend_rmt_diagnostics",
+          "xtend_rmt_compile_check",
+          "xtend_maraca_plan",
+          "xtend_rmt_repair_plan"
+        ],
+        "compileOk": true,
+        "compileStatus": "compiled",
+        "planOk": true,
+        "planStatus": "planned",
+        "reportSha256": "77b9c563cb28d595f05b75378d76c9760b58bf77577ba0cadc0c61aca043b0f3"
+      }
+    },
+    "sources": [
+      {
+        "path": "package.json",
+        "sha256": "6a633e38e9df751aca00058537bef4c190430cefe95d144f783100ae4e5734b5"
+      },
+      {
+        "path": "products/xtend-mcp/generated/docs.jsonl",
+        "sha256": "77bc71b0d22d8492fc84ce53366e700a7b0827012b85e16947af086e53ce0ee5"
+      },
+      {
+        "path": "products/xtend-mcp/generated/knowledge-manifest.json",
+        "sha256": "4e81834362694b466aab56c6459ac2d0e7b90a122edf20995c4a1218f1caf5c9"
+      },
+      {
+        "path": "products/xtend-mcp/generated/rmt-ai-kit/rmt-ai-kit.manifest.json",
+        "sha256": "70a6d05bd96a7432e6e6a3dd35261d5f4d6004d43236df043af87d1ebaeeac23"
+      },
+      {
+        "path": "tests/rmt-language/rmt_editor_packaging_suite.js",
+        "sha256": "c6ee2bfaa1fca573c78992bc8b3e07ced249279b87ee86cb418cbaa3f287b0b5"
+      },
+      {
+        "path": "tests/rmt-language/rmtx-editor.test.cjs",
+        "sha256": "f4c6bef36078a52352810a417a36c9b9ba9d3aa08c6b0f66504c6efab4ba6417"
+      },
+      {
+        "path": "tools/rmt-editor/vscode/build-vsix.js",
+        "sha256": "372d7329b01ef4fa65bad30f4065ed04782df32c10ed4f04a1b54fd30e2db644"
+      },
+      {
+        "path": "tools/rmt-editor/vscode/extension.js",
+        "sha256": "ae1ccac5d4ac10c567451f743205ca3ccb1b27d423747946576be61c5642942c"
+      },
+      {
+        "path": "tools/rmt-editor/vscode/icons/rmt-dark.svg",
+        "sha256": "c8b975cde0499dec0999ba04c40ead061edd337cd39dc4afc20e0dd1467b38ec"
+      },
+      {
+        "path": "tools/rmt-editor/vscode/icons/rmt-light.svg",
+        "sha256": "f60d45254f168f7f66581f5f8633c29eb16f9a0dafec9cf95f8faad0de774c8b"
+      },
+      {
+        "path": "tools/rmt-editor/vscode/icons/rmtx-dark.svg",
+        "sha256": "e03a22b4952ca52ea5f787ebe92f18e9778c20f6c05db02cde07d3d3841dbb1d"
+      },
+      {
+        "path": "tools/rmt-editor/vscode/icons/rmtx-light.svg",
+        "sha256": "834cb1091696042a76147fe7b86dec651e5b02040ef4094b702940bcda8b43ee"
+      },
+      {
+        "path": "tools/rmt-editor/vscode/package.json",
+        "sha256": "daf8c4558892a82c6d1b6b26cbaad25cfb945bc4beda0e79fc83bc069e010a5d"
+      },
+      {
+        "path": "tools/rmt-editor/vscode/rmtx-language-configuration.json",
+        "sha256": "29e86355f1d1efa48265395946550e70677a8189450c6d9502c9ee0d01a071eb"
+      },
+      {
+        "path": "tools/rmt-editor/vscode/snippets/rmtx.code-snippets",
+        "sha256": "1af61d46b23c098dd89719ca819699ca75479a375dfcc1d1996ac8604462f3aa"
+      },
+      {
+        "path": "tools/rmt-editor/vscode/syntaxes/rmtx-operators.injection.tmLanguage.json",
+        "sha256": "8326dbccb46ddd501978c351b887255d1bad44d1a1261adbbfd6bfdc56c3010e"
+      },
+      {
+        "path": "tools/rmt-editor/vscode/syntaxes/rmtx.tmLanguage.json",
+        "sha256": "4001888af76e3ec0f402ac6d6f75c875504a76facc7992a0817b9c3fcf98c936"
+      },
+      {
+        "path": "tools/rmt-editor/vscode/test-highlighting.js",
+        "sha256": "3ec8aef83fa8b7e1237737bd779096f77d20afc3578f668f4f378e86f1510268"
+      },
+      {
+        "path": "tools/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.manifest.json",
+        "sha256": "70a6d05bd96a7432e6e6a3dd35261d5f4d6004d43236df043af87d1ebaeeac23"
+      },
+      {
+        "path": "xtend-maraca/plan-runtime.d.ts",
+        "sha256": "30344c8b55e0d4b857224ea28a8565894172e6a3054aa7865b19eb989c76b075"
+      },
+      {
+        "path": "xtend-maraca/plan-runtime.mjs",
+        "sha256": "0a4970152bddfa0c3b431e72e104b4ed1ae5756e381ea41e0b14c226d0f131a6"
+      },
+      {
+        "path": "xtendrmt/rmt-core.d.ts",
+        "sha256": "0cddf0a20f9326824e6962773ad0ed91b93cd55b7ecb3d245280744abb06cb33"
+      },
+      {
+        "path": "xtendrmt/rmt-core.esm.js",
+        "sha256": "f7a02860104b2526957890f2b34e046501f9a328f5012c9827704cdeab28c0d0"
+      },
+      {
+        "path": "xtendrmt/rmt-dom-descriptor-renderer.d.ts",
+        "sha256": "02642144b47cbcf74304c912aff6777c4c5a7b3758b0d67c93fed612e1aa2a8e"
+      },
+      {
+        "path": "xtendrmt/rmt-dom-descriptor-renderer.js",
+        "sha256": "69981e6ec2f51094e1607e52c39324a02358ac9be75dc4b0a120d4dcb895a555"
+      },
+      {
+        "path": "xtendrmt/rmt-manifest.json",
+        "sha256": "f93319d6eaeefaa3b91d7f7bfad6056d89d93909fa334145dddf65014f1b8440"
+      },
+      {
+        "path": "xtendrmt/rmt-maraca-view-projection-adapter.d.ts",
+        "sha256": "6b59fb671624728cd9b3bcb9b4b846aa7cc784d4385d7649529036828851c887"
+      },
+      {
+        "path": "xtendrmt/rmt-maraca-view-projection-adapter.js",
+        "sha256": "ee09855bee0e3973cfd8ec521c6b661256c3f1be7e4e8b6e782dd323ffb313be"
+      },
+      {
+        "path": "xtendrmt/rmt-runtime.browser.js",
+        "sha256": "59773e7ceeae4d0936480adf68973972a7944e70eb105fd469fc02898c3f94d7"
+      },
+      {
+        "path": "xtendrmt/rmt-runtime.esm.js",
+        "sha256": "185cc0e40510d240f70da76ef558e4e1cb25ccd116dfbd6c470c0fba825c4770"
+      },
+      {
+        "path": "xtendrmt/rmt-surface-resource-graph-runtime.d.ts",
+        "sha256": "774dbe5de8411937b84ec0f0d64eaca9deab5123bd4152ae6bfd8949c63fb589"
+      },
+      {
+        "path": "xtendrmt/rmt-surface-resource-graph-runtime.js",
+        "sha256": "9344b64339e1e08d4bd64933fabe5c14a12fadd24cd546b787cf727de469f446"
+      }
+    ],
+    "semanticRmtxLanguageServerImplemented": false,
+    "productionRmtxFrontendImplemented": false,
+    "rationale": "The versioned 0.2.3 VSIX packages the final native lifecycle backend, generated Kernel outputs, AI kit and knowledge bytes consistently; installed archive parity and a real isolated host plus bundled MCP compile/plan were verified. The current user host was not forcibly restarted and no icon theme or settings were changed. Earlier 0.2.1 installation remains a historical stage."
   }
 }

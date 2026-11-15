@@ -44,15 +44,15 @@
   ],
   "sizes": {
     "react": {
-      "frameworkBytes": 2020243,
+      "frameworkBytes": 2033511,
       "xtensionRuntimeBytes": 210229
     },
     "vue": {
-      "frameworkBytes": 2018272,
+      "frameworkBytes": 2031540,
       "xtensionRuntimeBytes": 208600
     },
     "mixed": {
-      "frameworkBytes": 2068373,
+      "frameworkBytes": 2081641,
       "xtensionRuntimeBytes": 231795
     }
   },
@@ -66,8 +66,8 @@
     "xtend-maraca/xtension-size-budget.js": "c847f8c684b16c134671071219877ebbd9dcf28b0191509a8898ac5d01e5ac4a",
     "xtend-maraca/browser-composition-runtime.mjs": "945873b3bc254db756998f2170392b9b254a9ca0835d9b52448e66da8a24ebbe",
     "xtend-maraca/browser-composition-runtime.d.ts": "0bbc0a1d17ce936447db360cfd16ddd1128b2a342329ea2b2a6e1b6db4b5860f",
-    "xtend-maraca/plan-runtime.mjs": "a773be6364d850559f6264540c038c278d028ff0d0c3a92cfcb62940550acd76",
-    "xtend-maraca/plan-runtime.d.ts": "c2565c8ebfd0dcd5653b8ea4d921ea78ee8ff1a674394d5126b9606093526da3",
+    "xtend-maraca/plan-runtime.mjs": "0a4970152bddfa0c3b431e72e104b4ed1ae5756e381ea41e0b14c226d0f131a6",
+    "xtend-maraca/plan-runtime.d.ts": "30344c8b55e0d4b857224ea28a8565894172e6a3054aa7865b19eb989c76b075",
     "development/rmtx-a04/peer-inspect.cjs": "2c7c9a4c574d00fbfd2dacce5fc86f76ec326923152fda9553c9a6c501e98744",
     "development/rmtx-a04/integration-reference.cjs": "58ff4d03422edf792c84ba9166830de20c412b12aabe802b223f346c1f4773a8",
     "scripts/test_xtensions_runtime_adapters.cjs": "d9df3dfd883ea4e46c87bb94359b4728602ca15d1c535205fcaa5755a42a39b8",

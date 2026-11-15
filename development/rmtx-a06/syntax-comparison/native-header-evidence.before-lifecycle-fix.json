@@ -1,0 +1,1111 @@
+{
+  "format": 1,
+  "version": "1.0.0",
+  "date": "2026-11-15",
+  "stage": "A06-native-header-acceptance",
+  "executedSuccessfully": true,
+  "passed": false,
+  "status": "blocked-native-lifecycle-projection",
+  "casesPerVariant": 17,
+  "passedCasesPerVariant": 13,
+  "failedCasesPerVariant": 4,
+  "failedExpectations": [
+    "closing the owner hides its native view without a second view writer",
+    "destroy disposes the existing native presentation boundary",
+    "destroy removes the native header from its owner view",
+    "a command carrying the destroyed native owner lifetime is superseded before any Model or header write"
+  ],
+  "nodeLanes": [
+    "v24.18.0",
+    "v26.5.0"
+  ],
+  "browser": "Chromium 155.0.8059.79",
+  "runs": [
+    {
+      "format": 1,
+      "version": "1.0.0",
+      "stage": "A06-native-header-acceptance",
+      "node": "v24.18.0",
+      "mode": "jsdom-native-frameworks",
+      "browserVersion": null,
+      "pageErrors": [],
+      "versions": {
+        "react": "18.3.1",
+        "vue": "3.5.43"
+      },
+      "passed": false,
+      "variants": {
+        "declarative": {
+          "acceptance": {
+            "format": 1,
+            "version": "1.0.0",
+            "passed": false,
+            "cases": 17,
+            "passedCases": 13,
+            "failedCases": 4,
+            "checks": [
+              {
+                "name": "native header is mounted by the actual Maraca renderer within the declared owner",
+                "passed": true,
+                "observed": "<h1 data-rmt-key=\"product-header\" data-rmtx-native-header=\"product-header\">p1</h1>"
+              },
+              {
+                "name": "native header coexists with two real framework roots and native Kernel/Fabric admission",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "a compiled rename Action updates the actual Model and native header",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "native update preserves the header and both framework DOM identities",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "Model text is rendered as text, including markup-shaped input",
+                "passed": true,
+                "observed": "&lt;img src=x onerror=\"globalThis.__rmtxHeaderExecuted=true\"&gt;"
+              },
+              {
+                "name": "actual React/Vue intents still reach Actions while preserving native header identity and value",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "closing the owner invalidates native presentation admission",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "closing the owner hides its native view without a second view writer",
+                "passed": false,
+                "observed": {
+                  "hidden": false,
+                  "display": "block",
+                  "visibility": "visible"
+                }
+              },
+              {
+                "name": "closing the owner suspends both providers without detaching their roots",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "resume retains the native header and provider identities",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "application runtime disposal clears the native header and releases both provider leases",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "disposed runtime rejects late native updates",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy scenario captures a genuinely active native owner lifetime",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy revokes both real provider resource leases",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy disposes the existing native presentation boundary",
+                "passed": false,
+                "observed": {
+                  "disposed": false,
+                  "active": true,
+                  "signalAborted": false
+                }
+              },
+              {
+                "name": "destroy removes the native header from its owner view",
+                "passed": false,
+                "observed": {
+                  "headerConnected": true,
+                  "graphState": "destroyed"
+                }
+              },
+              {
+                "name": "a command carrying the destroyed native owner lifetime is superseded before any Model or header write",
+                "passed": false,
+                "observed": {
+                  "status": null,
+                  "error": "Runtime host rejected the binding delivery (skipped).",
+                  "modelId": "late-native-result",
+                  "headerText": "late-native-result",
+                  "oldLifetimeStillCurrent": false
+                }
+              }
+            ],
+            "trace": [
+              {
+                "phase": "mounted-updated-resumed",
+                "text": "<img src=x onerror=\"globalThis.__rmtxHeaderExecuted=true\">",
+                "selectedImageId": "back",
+                "reviewsSort": "rating"
+              },
+              {
+                "phase": "destroyed-owner",
+                "graphState": "destroyed",
+                "disposed": false,
+                "oldLifetimeCurrent": false,
+                "modelId": "late-native-result",
+                "headerConnected": true,
+                "headerText": "late-native-result"
+              }
+            ],
+            "actualMaracaRenderer": true,
+            "actualReactVueProviders": true,
+            "additionalDomWriter": false,
+            "additionalModelWriter": false,
+            "sourceExecuted": false,
+            "productionFrontendImplemented": false,
+            "acceptedForRelease": false
+          }
+        },
+        "hybrid": {
+          "acceptance": {
+            "format": 1,
+            "version": "1.0.0",
+            "passed": false,
+            "cases": 17,
+            "passedCases": 13,
+            "failedCases": 4,
+            "checks": [
+              {
+                "name": "native header is mounted by the actual Maraca renderer within the declared owner",
+                "passed": true,
+                "observed": "<h1 data-rmt-key=\"product-header\" data-rmtx-native-header=\"product-header\">p1</h1>"
+              },
+              {
+                "name": "native header coexists with two real framework roots and native Kernel/Fabric admission",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "a compiled rename Action updates the actual Model and native header",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "native update preserves the header and both framework DOM identities",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "Model text is rendered as text, including markup-shaped input",
+                "passed": true,
+                "observed": "&lt;img src=x onerror=\"globalThis.__rmtxHeaderExecuted=true\"&gt;"
+              },
+              {
+                "name": "actual React/Vue intents still reach Actions while preserving native header identity and value",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "closing the owner invalidates native presentation admission",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "closing the owner hides its native view without a second view writer",
+                "passed": false,
+                "observed": {
+                  "hidden": false,
+                  "display": "block",
+                  "visibility": "visible"
+                }
+              },
+              {
+                "name": "closing the owner suspends both providers without detaching their roots",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "resume retains the native header and provider identities",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "application runtime disposal clears the native header and releases both provider leases",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "disposed runtime rejects late native updates",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy scenario captures a genuinely active native owner lifetime",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy revokes both real provider resource leases",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy disposes the existing native presentation boundary",
+                "passed": false,
+                "observed": {
+                  "disposed": false,
+                  "active": true,
+                  "signalAborted": false
+                }
+              },
+              {
+                "name": "destroy removes the native header from its owner view",
+                "passed": false,
+                "observed": {
+                  "headerConnected": true,
+                  "graphState": "destroyed"
+                }
+              },
+              {
+                "name": "a command carrying the destroyed native owner lifetime is superseded before any Model or header write",
+                "passed": false,
+                "observed": {
+                  "status": null,
+                  "error": "Runtime host rejected the binding delivery (skipped).",
+                  "modelId": "late-native-result",
+                  "headerText": "late-native-result",
+                  "oldLifetimeStillCurrent": false
+                }
+              }
+            ],
+            "trace": [
+              {
+                "phase": "mounted-updated-resumed",
+                "text": "<img src=x onerror=\"globalThis.__rmtxHeaderExecuted=true\">",
+                "selectedImageId": "back",
+                "reviewsSort": "rating"
+              },
+              {
+                "phase": "destroyed-owner",
+                "graphState": "destroyed",
+                "disposed": false,
+                "oldLifetimeCurrent": false,
+                "modelId": "late-native-result",
+                "headerConnected": true,
+                "headerText": "late-native-result"
+              }
+            ],
+            "actualMaracaRenderer": true,
+            "actualReactVueProviders": true,
+            "additionalDomWriter": false,
+            "additionalModelWriter": false,
+            "sourceExecuted": false,
+            "productionFrontendImplemented": false,
+            "acceptedForRelease": false
+          }
+        }
+      },
+      "differentialTraceEqual": true,
+      "nativeHeaderRuntimeEvaluated": true,
+      "ssrAcceptancePerformed": false,
+      "productionFrontendImplemented": false,
+      "acceptedForRelease": false,
+      "sourceStableDuringExecution": true,
+      "sources": {
+        "development/rmtx-a06/syntax-comparison/authoring.d.ts": "61ab277b1b7789dfb5a09525a5a9cac121a4f28c7f7aa8bfb0073dd503552306",
+        "development/rmtx-a06/syntax-comparison/classic.rmt": "3468c5d11497f8357b9078a449c27b308b44b872dbac812f97eae1abcf1aa88a",
+        "development/rmtx-a06/syntax-comparison/comparison.cjs": "5726124c3950ea8c81871c165bc15c2322d04ca11eeef8c7a5a74d72e60da15c",
+        "development/rmtx-a06/syntax-comparison/declarative.rmtx": "2eb2d495516c8b44ceda04e8d5e69e80693c352e6a5d59b3620b1a5bbb7d0704",
+        "development/rmtx-a06/syntax-comparison/declarative.tsx": "2eb2d495516c8b44ceda04e8d5e69e80693c352e6a5d59b3620b1a5bbb7d0704",
+        "development/rmtx-a06/syntax-comparison/extension-probes.cjs": "6e0266eef24e54ed39e2ca3e91f1cacb3c5af21ffe2dced5e03916df873c0a8f",
+        "development/rmtx-a06/syntax-comparison/inspect.cjs": "208f9b34c84600f5d48ecb918303eb913abf81eb46c8b11c0faa31b773ed5e06",
+        "development/rmtx-a06/syntax-comparison/jsx-runtime.d.ts": "c713e1235ffd7f6e47a554ffd3f57aa92452194dc82dcde2245afa4f94131ddd",
+        "development/rmtx-a06/syntax-comparison/native-header-acceptance.mjs": "2e716006f16d2cdc1ce4b44bc23c1e09aad14af305a0a7e40c7cc4adf783be43",
+        "development/rmtx-a06/syntax-comparison/native-header-reference.cjs": "1bd9aa26aba501505d87e737eeb8c108490f3d481ef42c8d62b35af87f5eb2cb",
+        "development/rmtx-a06/syntax-comparison/native-header-test.cjs": "6130886dac4518f01e6157f5ad15a5604f3f34e99edb7dffe4807f6fce6275fb",
+        "development/rmtx-a06/syntax-comparison/native-header.rmt": "2fd7b3ebbacdfd3793e74abe7a6036337363d84aef794cbc57aa41e7c6a927b7",
+        "development/rmtx-a06/syntax-comparison/native-header.rmtx": "91114ddf5c2253f1bf64f69c1c0bf3d3190112c2c5684cf2b7ebdd4fede213dc",
+        "development/rmtx-a06/syntax-comparison/runtime-comparison.cjs": "0a0fd57d602bf9de31c69ae7f187821d8fd9a6459b596f2ecf2e90bbdd632aed",
+        "development/rmtx-a06/syntax-comparison/view.tsx": "eba25929d68792c1b5c616317aac0937d5a5878bba3355c2fea16362000e4551",
+        "development/rmtx-a06/two-host-runtime.mjs": "795952fbbb6681492a98ac93246c60f8f76c07a98b872d25653979c44eb9c482",
+        "development/rmtx-a06/two-host-acceptance.mjs": "de23588a7d23b83bce2f9a9c2198b216b480226bfe0f802908d945c90cc235d8",
+        "development/rmtx-a06/two-host-reference.cjs": "64084cf748ed44586bb0eecd3a8e15fcbc4b7e967ca0c4e1b96ad00b3c7fcc08",
+        "development/rmtx-a06/providers/catalog.json": "4f38fa3e2b73c374b0fab112b5ba1d6f12da2b95253e4148088389f7d087f801",
+        "development/rmtx-a06/providers/react-gallery.mjs": "9846140e741d787f0feef302fb3ca3ef75e7519dd54a7fc1f0fd9448cb07df37",
+        "development/rmtx-a06/providers/vue-reviews.mjs": "71e48dfdb1e797493aba0748e9777b9cb3afdbee6faf90c217df3f88aa239db8",
+        "xtend-maraca/plan-runtime.mjs": "a773be6364d850559f6264540c038c278d028ff0d0c3a92cfcb62940550acd76",
+        "xtendrmt/rmt-dom-descriptor-renderer.js": "7a412f0be5b9f803fd04c60f8d415f1cea1c60faa557ba85a48aaceffe5be82c",
+        "xtendrmt/rmt-runtime.esm.js": "bde3fb1c19e6fb982214842657e8fb5c154028818ff9b38cadbc291a5aedd517",
+        "xtendrmt/rmt-kernel-scheduler.js": "cb6968fa9b5a784f93e6c941e4a634bdd527525247a1f4653f9c7b204829e766",
+        "xtendrmt/rmt-state-selector-runtime.js": "150f5ae1a279cf7457be54fc7a466afeb1a2a026a911ab1cb1d16ae5da2a669d",
+        "xtendrmt/rmt-state-host-adapter.js": "1c3b0ce150cee986ecdda1d0a9c92e7f323ee31cbb920c5072aa2772cd078de6",
+        "xtendrmt/rmt-action-effect-runtime.js": "3798c901579959de2aec8e6cedf9f07ee969bfd00bf0cc3478c0ad8831c6bcaa",
+        "xtendrmt/rmt-app-runtime.js": "3d20461b92e62ac73af1317e855bd2426337f3886f51c91d23297f92c90fdceb",
+        "xtendrmt/rmt-maraca-view-projection-adapter.js": "820434f28d7dfabd73f7f82635c8306c76d2835fe727c2abc9c5c4fd9e6d4de7",
+        "xtendrmt/rmt-presentation-effect-adapter.js": "87c7d4a3e886bfd45d98b7b5dd385ce06a578dc408a3ceb0a6122f5010f9cd0f",
+        "xtendrmt/rmt-event-routing-runtime.js": "257b2f73fecc4d659f3c393b51dc7b2c940d196eee84caef67d29f3ec2e4448e",
+        "xtendrmt/rmt-surface-resource-graph-runtime.js": "5cac73161a80489e60cca3dc31eb44475570581a7f4fc6d71d5d9cedf212870f",
+        "components/xsurfacemanager-controller.js": "a747e5a4bd9d4c1205dc464d046eb5bc65531acc74d083d78e10d5c614afa7a5",
+        "components/xtend-state.js": "a53defa3247b3778d115e147a3094624206cb46ca9f5bcd18b345a3d059d849b",
+        "fabric/xtend-fabric.js": "ea7fa64431048e724a336ecd3117c90c6bb8a0ab2871e1ba618d8381ed3f822d",
+        "tools/xtensions/component-interface.js": "8d3b813dcc2b4bbb230d8e18720487c7f19e84bcf2bcbcea55cd251f0b6e7646",
+        "tools/xtensions/component-interface-build.js": "7dade34c20e63b7f7f17fac03026cbb18ece5209d1ebbb712dafa86ca644d5f4",
+        "tools/xtensions/state-binding.js": "19b0f4266fc7546016eb68df9eec391b554ab22a96d5eb97d001c0efa047ca79",
+        "tools/xtensions/react-runtime-adapter.js": "e780ccdfcc00ca7d75bec3b2bdebb383e3caa2fc40d3bfdaf4bfe85995a0308a",
+        "tools/xtensions/vue-runtime-adapter.js": "d68a72b9782be8c3d705d10af40ca4a6576c3cc0e3a9884c8db02073c8b9745c",
+        "development/rmtx-a06/providers/react.interface.json": "45394fbe58a8f81445891526967d691786ef1ecf2fd6eb08e520e69322c76539",
+        "development/rmtx-a06/providers/vue.interface.json": "30de14608052cdd250f1f56b06fa0b5c7df8dda73803d5d5daa96355e5a6f1e4"
+      }
+    },
+    {
+      "format": 1,
+      "version": "1.0.0",
+      "stage": "A06-native-header-acceptance",
+      "node": "v26.5.0",
+      "mode": "jsdom-native-frameworks",
+      "browserVersion": null,
+      "pageErrors": [],
+      "versions": {
+        "react": "18.3.1",
+        "vue": "3.5.43"
+      },
+      "passed": false,
+      "variants": {
+        "declarative": {
+          "acceptance": {
+            "format": 1,
+            "version": "1.0.0",
+            "passed": false,
+            "cases": 17,
+            "passedCases": 13,
+            "failedCases": 4,
+            "checks": [
+              {
+                "name": "native header is mounted by the actual Maraca renderer within the declared owner",
+                "passed": true,
+                "observed": "<h1 data-rmt-key=\"product-header\" data-rmtx-native-header=\"product-header\">p1</h1>"
+              },
+              {
+                "name": "native header coexists with two real framework roots and native Kernel/Fabric admission",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "a compiled rename Action updates the actual Model and native header",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "native update preserves the header and both framework DOM identities",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "Model text is rendered as text, including markup-shaped input",
+                "passed": true,
+                "observed": "&lt;img src=x onerror=\"globalThis.__rmtxHeaderExecuted=true\"&gt;"
+              },
+              {
+                "name": "actual React/Vue intents still reach Actions while preserving native header identity and value",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "closing the owner invalidates native presentation admission",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "closing the owner hides its native view without a second view writer",
+                "passed": false,
+                "observed": {
+                  "hidden": false,
+                  "display": "block",
+                  "visibility": "visible"
+                }
+              },
+              {
+                "name": "closing the owner suspends both providers without detaching their roots",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "resume retains the native header and provider identities",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "application runtime disposal clears the native header and releases both provider leases",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "disposed runtime rejects late native updates",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy scenario captures a genuinely active native owner lifetime",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy revokes both real provider resource leases",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy disposes the existing native presentation boundary",
+                "passed": false,
+                "observed": {
+                  "disposed": false,
+                  "active": true,
+                  "signalAborted": false
+                }
+              },
+              {
+                "name": "destroy removes the native header from its owner view",
+                "passed": false,
+                "observed": {
+                  "headerConnected": true,
+                  "graphState": "destroyed"
+                }
+              },
+              {
+                "name": "a command carrying the destroyed native owner lifetime is superseded before any Model or header write",
+                "passed": false,
+                "observed": {
+                  "status": null,
+                  "error": "Runtime host rejected the binding delivery (skipped).",
+                  "modelId": "late-native-result",
+                  "headerText": "late-native-result",
+                  "oldLifetimeStillCurrent": false
+                }
+              }
+            ],
+            "trace": [
+              {
+                "phase": "mounted-updated-resumed",
+                "text": "<img src=x onerror=\"globalThis.__rmtxHeaderExecuted=true\">",
+                "selectedImageId": "back",
+                "reviewsSort": "rating"
+              },
+              {
+                "phase": "destroyed-owner",
+                "graphState": "destroyed",
+                "disposed": false,
+                "oldLifetimeCurrent": false,
+                "modelId": "late-native-result",
+                "headerConnected": true,
+                "headerText": "late-native-result"
+              }
+            ],
+            "actualMaracaRenderer": true,
+            "actualReactVueProviders": true,
+            "additionalDomWriter": false,
+            "additionalModelWriter": false,
+            "sourceExecuted": false,
+            "productionFrontendImplemented": false,
+            "acceptedForRelease": false
+          }
+        },
+        "hybrid": {
+          "acceptance": {
+            "format": 1,
+            "version": "1.0.0",
+            "passed": false,
+            "cases": 17,
+            "passedCases": 13,
+            "failedCases": 4,
+            "checks": [
+              {
+                "name": "native header is mounted by the actual Maraca renderer within the declared owner",
+                "passed": true,
+                "observed": "<h1 data-rmt-key=\"product-header\" data-rmtx-native-header=\"product-header\">p1</h1>"
+              },
+              {
+                "name": "native header coexists with two real framework roots and native Kernel/Fabric admission",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "a compiled rename Action updates the actual Model and native header",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "native update preserves the header and both framework DOM identities",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "Model text is rendered as text, including markup-shaped input",
+                "passed": true,
+                "observed": "&lt;img src=x onerror=\"globalThis.__rmtxHeaderExecuted=true\"&gt;"
+              },
+              {
+                "name": "actual React/Vue intents still reach Actions while preserving native header identity and value",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "closing the owner invalidates native presentation admission",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "closing the owner hides its native view without a second view writer",
+                "passed": false,
+                "observed": {
+                  "hidden": false,
+                  "display": "block",
+                  "visibility": "visible"
+                }
+              },
+              {
+                "name": "closing the owner suspends both providers without detaching their roots",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "resume retains the native header and provider identities",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "application runtime disposal clears the native header and releases both provider leases",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "disposed runtime rejects late native updates",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy scenario captures a genuinely active native owner lifetime",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy revokes both real provider resource leases",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy disposes the existing native presentation boundary",
+                "passed": false,
+                "observed": {
+                  "disposed": false,
+                  "active": true,
+                  "signalAborted": false
+                }
+              },
+              {
+                "name": "destroy removes the native header from its owner view",
+                "passed": false,
+                "observed": {
+                  "headerConnected": true,
+                  "graphState": "destroyed"
+                }
+              },
+              {
+                "name": "a command carrying the destroyed native owner lifetime is superseded before any Model or header write",
+                "passed": false,
+                "observed": {
+                  "status": null,
+                  "error": "Runtime host rejected the binding delivery (skipped).",
+                  "modelId": "late-native-result",
+                  "headerText": "late-native-result",
+                  "oldLifetimeStillCurrent": false
+                }
+              }
+            ],
+            "trace": [
+              {
+                "phase": "mounted-updated-resumed",
+                "text": "<img src=x onerror=\"globalThis.__rmtxHeaderExecuted=true\">",
+                "selectedImageId": "back",
+                "reviewsSort": "rating"
+              },
+              {
+                "phase": "destroyed-owner",
+                "graphState": "destroyed",
+                "disposed": false,
+                "oldLifetimeCurrent": false,
+                "modelId": "late-native-result",
+                "headerConnected": true,
+                "headerText": "late-native-result"
+              }
+            ],
+            "actualMaracaRenderer": true,
+            "actualReactVueProviders": true,
+            "additionalDomWriter": false,
+            "additionalModelWriter": false,
+            "sourceExecuted": false,
+            "productionFrontendImplemented": false,
+            "acceptedForRelease": false
+          }
+        }
+      },
+      "differentialTraceEqual": true,
+      "nativeHeaderRuntimeEvaluated": true,
+      "ssrAcceptancePerformed": false,
+      "productionFrontendImplemented": false,
+      "acceptedForRelease": false,
+      "sourceStableDuringExecution": true,
+      "sources": {
+        "development/rmtx-a06/syntax-comparison/authoring.d.ts": "61ab277b1b7789dfb5a09525a5a9cac121a4f28c7f7aa8bfb0073dd503552306",
+        "development/rmtx-a06/syntax-comparison/classic.rmt": "3468c5d11497f8357b9078a449c27b308b44b872dbac812f97eae1abcf1aa88a",
+        "development/rmtx-a06/syntax-comparison/comparison.cjs": "5726124c3950ea8c81871c165bc15c2322d04ca11eeef8c7a5a74d72e60da15c",
+        "development/rmtx-a06/syntax-comparison/declarative.rmtx": "2eb2d495516c8b44ceda04e8d5e69e80693c352e6a5d59b3620b1a5bbb7d0704",
+        "development/rmtx-a06/syntax-comparison/declarative.tsx": "2eb2d495516c8b44ceda04e8d5e69e80693c352e6a5d59b3620b1a5bbb7d0704",
+        "development/rmtx-a06/syntax-comparison/extension-probes.cjs": "6e0266eef24e54ed39e2ca3e91f1cacb3c5af21ffe2dced5e03916df873c0a8f",
+        "development/rmtx-a06/syntax-comparison/inspect.cjs": "208f9b34c84600f5d48ecb918303eb913abf81eb46c8b11c0faa31b773ed5e06",
+        "development/rmtx-a06/syntax-comparison/jsx-runtime.d.ts": "c713e1235ffd7f6e47a554ffd3f57aa92452194dc82dcde2245afa4f94131ddd",
+        "development/rmtx-a06/syntax-comparison/native-header-acceptance.mjs": "2e716006f16d2cdc1ce4b44bc23c1e09aad14af305a0a7e40c7cc4adf783be43",
+        "development/rmtx-a06/syntax-comparison/native-header-reference.cjs": "1bd9aa26aba501505d87e737eeb8c108490f3d481ef42c8d62b35af87f5eb2cb",
+        "development/rmtx-a06/syntax-comparison/native-header-test.cjs": "6130886dac4518f01e6157f5ad15a5604f3f34e99edb7dffe4807f6fce6275fb",
+        "development/rmtx-a06/syntax-comparison/native-header.rmt": "2fd7b3ebbacdfd3793e74abe7a6036337363d84aef794cbc57aa41e7c6a927b7",
+        "development/rmtx-a06/syntax-comparison/native-header.rmtx": "91114ddf5c2253f1bf64f69c1c0bf3d3190112c2c5684cf2b7ebdd4fede213dc",
+        "development/rmtx-a06/syntax-comparison/runtime-comparison.cjs": "0a0fd57d602bf9de31c69ae7f187821d8fd9a6459b596f2ecf2e90bbdd632aed",
+        "development/rmtx-a06/syntax-comparison/view.tsx": "eba25929d68792c1b5c616317aac0937d5a5878bba3355c2fea16362000e4551",
+        "development/rmtx-a06/two-host-runtime.mjs": "795952fbbb6681492a98ac93246c60f8f76c07a98b872d25653979c44eb9c482",
+        "development/rmtx-a06/two-host-acceptance.mjs": "de23588a7d23b83bce2f9a9c2198b216b480226bfe0f802908d945c90cc235d8",
+        "development/rmtx-a06/two-host-reference.cjs": "64084cf748ed44586bb0eecd3a8e15fcbc4b7e967ca0c4e1b96ad00b3c7fcc08",
+        "development/rmtx-a06/providers/catalog.json": "4f38fa3e2b73c374b0fab112b5ba1d6f12da2b95253e4148088389f7d087f801",
+        "development/rmtx-a06/providers/react-gallery.mjs": "9846140e741d787f0feef302fb3ca3ef75e7519dd54a7fc1f0fd9448cb07df37",
+        "development/rmtx-a06/providers/vue-reviews.mjs": "71e48dfdb1e797493aba0748e9777b9cb3afdbee6faf90c217df3f88aa239db8",
+        "xtend-maraca/plan-runtime.mjs": "a773be6364d850559f6264540c038c278d028ff0d0c3a92cfcb62940550acd76",
+        "xtendrmt/rmt-dom-descriptor-renderer.js": "7a412f0be5b9f803fd04c60f8d415f1cea1c60faa557ba85a48aaceffe5be82c",
+        "xtendrmt/rmt-runtime.esm.js": "bde3fb1c19e6fb982214842657e8fb5c154028818ff9b38cadbc291a5aedd517",
+        "xtendrmt/rmt-kernel-scheduler.js": "cb6968fa9b5a784f93e6c941e4a634bdd527525247a1f4653f9c7b204829e766",
+        "xtendrmt/rmt-state-selector-runtime.js": "150f5ae1a279cf7457be54fc7a466afeb1a2a026a911ab1cb1d16ae5da2a669d",
+        "xtendrmt/rmt-state-host-adapter.js": "1c3b0ce150cee986ecdda1d0a9c92e7f323ee31cbb920c5072aa2772cd078de6",
+        "xtendrmt/rmt-action-effect-runtime.js": "3798c901579959de2aec8e6cedf9f07ee969bfd00bf0cc3478c0ad8831c6bcaa",
+        "xtendrmt/rmt-app-runtime.js": "3d20461b92e62ac73af1317e855bd2426337f3886f51c91d23297f92c90fdceb",
+        "xtendrmt/rmt-maraca-view-projection-adapter.js": "820434f28d7dfabd73f7f82635c8306c76d2835fe727c2abc9c5c4fd9e6d4de7",
+        "xtendrmt/rmt-presentation-effect-adapter.js": "87c7d4a3e886bfd45d98b7b5dd385ce06a578dc408a3ceb0a6122f5010f9cd0f",
+        "xtendrmt/rmt-event-routing-runtime.js": "257b2f73fecc4d659f3c393b51dc7b2c940d196eee84caef67d29f3ec2e4448e",
+        "xtendrmt/rmt-surface-resource-graph-runtime.js": "5cac73161a80489e60cca3dc31eb44475570581a7f4fc6d71d5d9cedf212870f",
+        "components/xsurfacemanager-controller.js": "a747e5a4bd9d4c1205dc464d046eb5bc65531acc74d083d78e10d5c614afa7a5",
+        "components/xtend-state.js": "a53defa3247b3778d115e147a3094624206cb46ca9f5bcd18b345a3d059d849b",
+        "fabric/xtend-fabric.js": "ea7fa64431048e724a336ecd3117c90c6bb8a0ab2871e1ba618d8381ed3f822d",
+        "tools/xtensions/component-interface.js": "8d3b813dcc2b4bbb230d8e18720487c7f19e84bcf2bcbcea55cd251f0b6e7646",
+        "tools/xtensions/component-interface-build.js": "7dade34c20e63b7f7f17fac03026cbb18ece5209d1ebbb712dafa86ca644d5f4",
+        "tools/xtensions/state-binding.js": "19b0f4266fc7546016eb68df9eec391b554ab22a96d5eb97d001c0efa047ca79",
+        "tools/xtensions/react-runtime-adapter.js": "e780ccdfcc00ca7d75bec3b2bdebb383e3caa2fc40d3bfdaf4bfe85995a0308a",
+        "tools/xtensions/vue-runtime-adapter.js": "d68a72b9782be8c3d705d10af40ca4a6576c3cc0e3a9884c8db02073c8b9745c",
+        "development/rmtx-a06/providers/react.interface.json": "45394fbe58a8f81445891526967d691786ef1ecf2fd6eb08e520e69322c76539",
+        "development/rmtx-a06/providers/vue.interface.json": "30de14608052cdd250f1f56b06fa0b5c7df8dda73803d5d5daa96355e5a6f1e4"
+      }
+    },
+    {
+      "format": 1,
+      "version": "1.0.0",
+      "stage": "A06-native-header-acceptance",
+      "node": "v24.18.0",
+      "mode": "chromium",
+      "browserVersion": "155.0.8059.79",
+      "pageErrors": [],
+      "versions": {
+        "react": "18.3.1",
+        "vue": "3.5.43"
+      },
+      "passed": false,
+      "variants": {
+        "declarative": {
+          "acceptance": {
+            "format": 1,
+            "version": "1.0.0",
+            "passed": false,
+            "cases": 17,
+            "passedCases": 13,
+            "failedCases": 4,
+            "checks": [
+              {
+                "name": "native header is mounted by the actual Maraca renderer within the declared owner",
+                "passed": true,
+                "observed": "<h1 data-rmt-key=\"product-header\" data-rmtx-native-header=\"product-header\">p1</h1>"
+              },
+              {
+                "name": "native header coexists with two real framework roots and native Kernel/Fabric admission",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "a compiled rename Action updates the actual Model and native header",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "native update preserves the header and both framework DOM identities",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "Model text is rendered as text, including markup-shaped input",
+                "passed": true,
+                "observed": "&lt;img src=x onerror=\"globalThis.__rmtxHeaderExecuted=true\"&gt;"
+              },
+              {
+                "name": "actual React/Vue intents still reach Actions while preserving native header identity and value",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "closing the owner invalidates native presentation admission",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "closing the owner hides its native view without a second view writer",
+                "passed": false,
+                "observed": {
+                  "hidden": false,
+                  "display": "block",
+                  "visibility": "visible"
+                }
+              },
+              {
+                "name": "closing the owner suspends both providers without detaching their roots",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "resume retains the native header and provider identities",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "application runtime disposal clears the native header and releases both provider leases",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "disposed runtime rejects late native updates",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy scenario captures a genuinely active native owner lifetime",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy revokes both real provider resource leases",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy disposes the existing native presentation boundary",
+                "passed": false,
+                "observed": {
+                  "disposed": false,
+                  "active": true,
+                  "signalAborted": false
+                }
+              },
+              {
+                "name": "destroy removes the native header from its owner view",
+                "passed": false,
+                "observed": {
+                  "headerConnected": true,
+                  "graphState": "destroyed"
+                }
+              },
+              {
+                "name": "a command carrying the destroyed native owner lifetime is superseded before any Model or header write",
+                "passed": false,
+                "observed": {
+                  "status": null,
+                  "error": "Runtime host rejected the binding delivery (skipped).",
+                  "modelId": "late-native-result",
+                  "headerText": "late-native-result",
+                  "oldLifetimeStillCurrent": false
+                }
+              }
+            ],
+            "trace": [
+              {
+                "phase": "mounted-updated-resumed",
+                "text": "<img src=x onerror=\"globalThis.__rmtxHeaderExecuted=true\">",
+                "selectedImageId": "back",
+                "reviewsSort": "rating"
+              },
+              {
+                "phase": "destroyed-owner",
+                "graphState": "destroyed",
+                "disposed": false,
+                "oldLifetimeCurrent": false,
+                "modelId": "late-native-result",
+                "headerConnected": true,
+                "headerText": "late-native-result"
+              }
+            ],
+            "actualMaracaRenderer": true,
+            "actualReactVueProviders": true,
+            "additionalDomWriter": false,
+            "additionalModelWriter": false,
+            "sourceExecuted": false,
+            "productionFrontendImplemented": false,
+            "acceptedForRelease": false
+          }
+        },
+        "hybrid": {
+          "acceptance": {
+            "format": 1,
+            "version": "1.0.0",
+            "passed": false,
+            "cases": 17,
+            "passedCases": 13,
+            "failedCases": 4,
+            "checks": [
+              {
+                "name": "native header is mounted by the actual Maraca renderer within the declared owner",
+                "passed": true,
+                "observed": "<h1 data-rmt-key=\"product-header\" data-rmtx-native-header=\"product-header\">p1</h1>"
+              },
+              {
+                "name": "native header coexists with two real framework roots and native Kernel/Fabric admission",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "a compiled rename Action updates the actual Model and native header",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "native update preserves the header and both framework DOM identities",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "Model text is rendered as text, including markup-shaped input",
+                "passed": true,
+                "observed": "&lt;img src=x onerror=\"globalThis.__rmtxHeaderExecuted=true\"&gt;"
+              },
+              {
+                "name": "actual React/Vue intents still reach Actions while preserving native header identity and value",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "closing the owner invalidates native presentation admission",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "closing the owner hides its native view without a second view writer",
+                "passed": false,
+                "observed": {
+                  "hidden": false,
+                  "display": "block",
+                  "visibility": "visible"
+                }
+              },
+              {
+                "name": "closing the owner suspends both providers without detaching their roots",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "resume retains the native header and provider identities",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "application runtime disposal clears the native header and releases both provider leases",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "disposed runtime rejects late native updates",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy scenario captures a genuinely active native owner lifetime",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy revokes both real provider resource leases",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy disposes the existing native presentation boundary",
+                "passed": false,
+                "observed": {
+                  "disposed": false,
+                  "active": true,
+                  "signalAborted": false
+                }
+              },
+              {
+                "name": "destroy removes the native header from its owner view",
+                "passed": false,
+                "observed": {
+                  "headerConnected": true,
+                  "graphState": "destroyed"
+                }
+              },
+              {
+                "name": "a command carrying the destroyed native owner lifetime is superseded before any Model or header write",
+                "passed": false,
+                "observed": {
+                  "status": null,
+                  "error": "Runtime host rejected the binding delivery (skipped).",
+                  "modelId": "late-native-result",
+                  "headerText": "late-native-result",
+                  "oldLifetimeStillCurrent": false
+                }
+              }
+            ],
+            "trace": [
+              {
+                "phase": "mounted-updated-resumed",
+                "text": "<img src=x onerror=\"globalThis.__rmtxHeaderExecuted=true\">",
+                "selectedImageId": "back",
+                "reviewsSort": "rating"
+              },
+              {
+                "phase": "destroyed-owner",
+                "graphState": "destroyed",
+                "disposed": false,
+                "oldLifetimeCurrent": false,
+                "modelId": "late-native-result",
+                "headerConnected": true,
+                "headerText": "late-native-result"
+              }
+            ],
+            "actualMaracaRenderer": true,
+            "actualReactVueProviders": true,
+            "additionalDomWriter": false,
+            "additionalModelWriter": false,
+            "sourceExecuted": false,
+            "productionFrontendImplemented": false,
+            "acceptedForRelease": false
+          }
+        }
+      },
+      "differentialTraceEqual": true,
+      "nativeHeaderRuntimeEvaluated": true,
+      "ssrAcceptancePerformed": false,
+      "productionFrontendImplemented": false,
+      "acceptedForRelease": false,
+      "sourceStableDuringExecution": true,
+      "sources": {
+        "development/rmtx-a06/syntax-comparison/authoring.d.ts": "61ab277b1b7789dfb5a09525a5a9cac121a4f28c7f7aa8bfb0073dd503552306",
+        "development/rmtx-a06/syntax-comparison/classic.rmt": "3468c5d11497f8357b9078a449c27b308b44b872dbac812f97eae1abcf1aa88a",
+        "development/rmtx-a06/syntax-comparison/comparison.cjs": "5726124c3950ea8c81871c165bc15c2322d04ca11eeef8c7a5a74d72e60da15c",
+        "development/rmtx-a06/syntax-comparison/declarative.rmtx": "2eb2d495516c8b44ceda04e8d5e69e80693c352e6a5d59b3620b1a5bbb7d0704",
+        "development/rmtx-a06/syntax-comparison/declarative.tsx": "2eb2d495516c8b44ceda04e8d5e69e80693c352e6a5d59b3620b1a5bbb7d0704",
+        "development/rmtx-a06/syntax-comparison/extension-probes.cjs": "6e0266eef24e54ed39e2ca3e91f1cacb3c5af21ffe2dced5e03916df873c0a8f",
+        "development/rmtx-a06/syntax-comparison/inspect.cjs": "208f9b34c84600f5d48ecb918303eb913abf81eb46c8b11c0faa31b773ed5e06",
+        "development/rmtx-a06/syntax-comparison/jsx-runtime.d.ts": "c713e1235ffd7f6e47a554ffd3f57aa92452194dc82dcde2245afa4f94131ddd",
+        "development/rmtx-a06/syntax-comparison/native-header-acceptance.mjs": "2e716006f16d2cdc1ce4b44bc23c1e09aad14af305a0a7e40c7cc4adf783be43",
+        "development/rmtx-a06/syntax-comparison/native-header-reference.cjs": "1bd9aa26aba501505d87e737eeb8c108490f3d481ef42c8d62b35af87f5eb2cb",
+        "development/rmtx-a06/syntax-comparison/native-header-test.cjs": "6130886dac4518f01e6157f5ad15a5604f3f34e99edb7dffe4807f6fce6275fb",
+        "development/rmtx-a06/syntax-comparison/native-header.rmt": "2fd7b3ebbacdfd3793e74abe7a6036337363d84aef794cbc57aa41e7c6a927b7",
+        "development/rmtx-a06/syntax-comparison/native-header.rmtx": "91114ddf5c2253f1bf64f69c1c0bf3d3190112c2c5684cf2b7ebdd4fede213dc",
+        "development/rmtx-a06/syntax-comparison/runtime-comparison.cjs": "0a0fd57d602bf9de31c69ae7f187821d8fd9a6459b596f2ecf2e90bbdd632aed",
+        "development/rmtx-a06/syntax-comparison/view.tsx": "eba25929d68792c1b5c616317aac0937d5a5878bba3355c2fea16362000e4551",
+        "development/rmtx-a06/two-host-runtime.mjs": "795952fbbb6681492a98ac93246c60f8f76c07a98b872d25653979c44eb9c482",
+        "development/rmtx-a06/two-host-acceptance.mjs": "de23588a7d23b83bce2f9a9c2198b216b480226bfe0f802908d945c90cc235d8",
+        "development/rmtx-a06/two-host-reference.cjs": "64084cf748ed44586bb0eecd3a8e15fcbc4b7e967ca0c4e1b96ad00b3c7fcc08",
+        "development/rmtx-a06/providers/catalog.json": "4f38fa3e2b73c374b0fab112b5ba1d6f12da2b95253e4148088389f7d087f801",
+        "development/rmtx-a06/providers/react-gallery.mjs": "9846140e741d787f0feef302fb3ca3ef75e7519dd54a7fc1f0fd9448cb07df37",
+        "development/rmtx-a06/providers/vue-reviews.mjs": "71e48dfdb1e797493aba0748e9777b9cb3afdbee6faf90c217df3f88aa239db8",
+        "xtend-maraca/plan-runtime.mjs": "a773be6364d850559f6264540c038c278d028ff0d0c3a92cfcb62940550acd76",
+        "xtendrmt/rmt-dom-descriptor-renderer.js": "7a412f0be5b9f803fd04c60f8d415f1cea1c60faa557ba85a48aaceffe5be82c",
+        "xtendrmt/rmt-runtime.esm.js": "bde3fb1c19e6fb982214842657e8fb5c154028818ff9b38cadbc291a5aedd517",
+        "xtendrmt/rmt-kernel-scheduler.js": "cb6968fa9b5a784f93e6c941e4a634bdd527525247a1f4653f9c7b204829e766",
+        "xtendrmt/rmt-state-selector-runtime.js": "150f5ae1a279cf7457be54fc7a466afeb1a2a026a911ab1cb1d16ae5da2a669d",
+        "xtendrmt/rmt-state-host-adapter.js": "1c3b0ce150cee986ecdda1d0a9c92e7f323ee31cbb920c5072aa2772cd078de6",
+        "xtendrmt/rmt-action-effect-runtime.js": "3798c901579959de2aec8e6cedf9f07ee969bfd00bf0cc3478c0ad8831c6bcaa",
+        "xtendrmt/rmt-app-runtime.js": "3d20461b92e62ac73af1317e855bd2426337f3886f51c91d23297f92c90fdceb",
+        "xtendrmt/rmt-maraca-view-projection-adapter.js": "820434f28d7dfabd73f7f82635c8306c76d2835fe727c2abc9c5c4fd9e6d4de7",
+        "xtendrmt/rmt-presentation-effect-adapter.js": "87c7d4a3e886bfd45d98b7b5dd385ce06a578dc408a3ceb0a6122f5010f9cd0f",
+        "xtendrmt/rmt-event-routing-runtime.js": "257b2f73fecc4d659f3c393b51dc7b2c940d196eee84caef67d29f3ec2e4448e",
+        "xtendrmt/rmt-surface-resource-graph-runtime.js": "5cac73161a80489e60cca3dc31eb44475570581a7f4fc6d71d5d9cedf212870f",
+        "components/xsurfacemanager-controller.js": "a747e5a4bd9d4c1205dc464d046eb5bc65531acc74d083d78e10d5c614afa7a5",
+        "components/xtend-state.js": "a53defa3247b3778d115e147a3094624206cb46ca9f5bcd18b345a3d059d849b",
+        "fabric/xtend-fabric.js": "ea7fa64431048e724a336ecd3117c90c6bb8a0ab2871e1ba618d8381ed3f822d",
+        "tools/xtensions/component-interface.js": "8d3b813dcc2b4bbb230d8e18720487c7f19e84bcf2bcbcea55cd251f0b6e7646",
+        "tools/xtensions/component-interface-build.js": "7dade34c20e63b7f7f17fac03026cbb18ece5209d1ebbb712dafa86ca644d5f4",
+        "tools/xtensions/state-binding.js": "19b0f4266fc7546016eb68df9eec391b554ab22a96d5eb97d001c0efa047ca79",
+        "tools/xtensions/react-runtime-adapter.js": "e780ccdfcc00ca7d75bec3b2bdebb383e3caa2fc40d3bfdaf4bfe85995a0308a",
+        "tools/xtensions/vue-runtime-adapter.js": "d68a72b9782be8c3d705d10af40ca4a6576c3cc0e3a9884c8db02073c8b9745c",
+        "development/rmtx-a06/providers/react.interface.json": "45394fbe58a8f81445891526967d691786ef1ecf2fd6eb08e520e69322c76539",
+        "development/rmtx-a06/providers/vue.interface.json": "30de14608052cdd250f1f56b06fa0b5c7df8dda73803d5d5daa96355e5a6f1e4"
+      }
+    }
+  ],
+  "sourceStableAcrossRuns": true,
+  "sources": {
+    "./development/rmtx-a06/providers/react-gallery.mjs": "9846140e741d787f0feef302fb3ca3ef75e7519dd54a7fc1f0fd9448cb07df37",
+    "./development/rmtx-a06/providers/vue-reviews.mjs": "71e48dfdb1e797493aba0748e9777b9cb3afdbee6faf90c217df3f88aa239db8",
+    "components/xsurfacemanager-controller.js": "a747e5a4bd9d4c1205dc464d046eb5bc65531acc74d083d78e10d5c614afa7a5",
+    "components/xtend-state.js": "a53defa3247b3778d115e147a3094624206cb46ca9f5bcd18b345a3d059d849b",
+    "development/rmtx-a06/providers/catalog.json": "4f38fa3e2b73c374b0fab112b5ba1d6f12da2b95253e4148088389f7d087f801",
+    "development/rmtx-a06/providers/react-gallery.mjs": "9846140e741d787f0feef302fb3ca3ef75e7519dd54a7fc1f0fd9448cb07df37",
+    "development/rmtx-a06/providers/react.interface.json": "45394fbe58a8f81445891526967d691786ef1ecf2fd6eb08e520e69322c76539",
+    "development/rmtx-a06/providers/vue-reviews.mjs": "71e48dfdb1e797493aba0748e9777b9cb3afdbee6faf90c217df3f88aa239db8",
+    "development/rmtx-a06/providers/vue.interface.json": "30de14608052cdd250f1f56b06fa0b5c7df8dda73803d5d5daa96355e5a6f1e4",
+    "development/rmtx-a06/syntax-comparison/authoring.d.ts": "61ab277b1b7789dfb5a09525a5a9cac121a4f28c7f7aa8bfb0073dd503552306",
+    "development/rmtx-a06/syntax-comparison/classic.rmt": "3468c5d11497f8357b9078a449c27b308b44b872dbac812f97eae1abcf1aa88a",
+    "development/rmtx-a06/syntax-comparison/comparison.cjs": "5726124c3950ea8c81871c165bc15c2322d04ca11eeef8c7a5a74d72e60da15c",
+    "development/rmtx-a06/syntax-comparison/declarative.rmtx": "2eb2d495516c8b44ceda04e8d5e69e80693c352e6a5d59b3620b1a5bbb7d0704",
+    "development/rmtx-a06/syntax-comparison/declarative.tsx": "2eb2d495516c8b44ceda04e8d5e69e80693c352e6a5d59b3620b1a5bbb7d0704",
+    "development/rmtx-a06/syntax-comparison/extension-probes.cjs": "6e0266eef24e54ed39e2ca3e91f1cacb3c5af21ffe2dced5e03916df873c0a8f",
+    "development/rmtx-a06/syntax-comparison/inspect.cjs": "208f9b34c84600f5d48ecb918303eb913abf81eb46c8b11c0faa31b773ed5e06",
+    "development/rmtx-a06/syntax-comparison/jsx-runtime.d.ts": "c713e1235ffd7f6e47a554ffd3f57aa92452194dc82dcde2245afa4f94131ddd",
+    "development/rmtx-a06/syntax-comparison/native-header-acceptance.mjs": "2e716006f16d2cdc1ce4b44bc23c1e09aad14af305a0a7e40c7cc4adf783be43",
+    "development/rmtx-a06/syntax-comparison/native-header-reference.cjs": "1bd9aa26aba501505d87e737eeb8c108490f3d481ef42c8d62b35af87f5eb2cb",
+    "development/rmtx-a06/syntax-comparison/native-header-test.cjs": "6130886dac4518f01e6157f5ad15a5604f3f34e99edb7dffe4807f6fce6275fb",
+    "development/rmtx-a06/syntax-comparison/native-header.rmt": "2fd7b3ebbacdfd3793e74abe7a6036337363d84aef794cbc57aa41e7c6a927b7",
+    "development/rmtx-a06/syntax-comparison/native-header.rmtx": "91114ddf5c2253f1bf64f69c1c0bf3d3190112c2c5684cf2b7ebdd4fede213dc",
+    "development/rmtx-a06/syntax-comparison/runtime-comparison.cjs": "0a0fd57d602bf9de31c69ae7f187821d8fd9a6459b596f2ecf2e90bbdd632aed",
+    "development/rmtx-a06/syntax-comparison/view.tsx": "eba25929d68792c1b5c616317aac0937d5a5878bba3355c2fea16362000e4551",
+    "development/rmtx-a06/two-host-acceptance.mjs": "de23588a7d23b83bce2f9a9c2198b216b480226bfe0f802908d945c90cc235d8",
+    "development/rmtx-a06/two-host-reference.cjs": "64084cf748ed44586bb0eecd3a8e15fcbc4b7e967ca0c4e1b96ad00b3c7fcc08",
+    "development/rmtx-a06/two-host-runtime.mjs": "795952fbbb6681492a98ac93246c60f8f76c07a98b872d25653979c44eb9c482",
+    "development/rmtx-a06/two-host.contract.json": "14d47e62da4878434308346c74a5ce268cb29856bdcc20a30e0749664492187a",
+    "development/rmtx-a06/two-host.types.d.ts": "0f0fbaf7dace8e19fa93872c1857ebff27cba6038f3e7614608b7986033135e2",
+    "fabric/xtend-fabric.js": "ea7fa64431048e724a336ecd3117c90c6bb8a0ab2871e1ba618d8381ed3f822d",
+    "tools/rmt-language/classic-compiler.js": "d321ae4c25ca3b56ca877399f9a259b86afeb8a4c6dab8a67119baaa92c52581",
+    "tools/rmt-language/classic-parser.js": "f4d051313259d160d3a46892df3607ae68f6c3a69e5d62731cf0b028b3721b42",
+    "tools/rmt-language/vnext-compiler.js": "9ee9aac4cd163ac3d78a6ae228d4515974eabfcf3ef89c45c38ff937684ff510",
+    "tools/xtensions/component-interface-build.js": "7dade34c20e63b7f7f17fac03026cbb18ece5209d1ebbb712dafa86ca644d5f4",
+    "tools/xtensions/component-interface.js": "8d3b813dcc2b4bbb230d8e18720487c7f19e84bcf2bcbcea55cd251f0b6e7646",
+    "tools/xtensions/react-runtime-adapter.js": "e780ccdfcc00ca7d75bec3b2bdebb383e3caa2fc40d3bfdaf4bfe85995a0308a",
+    "tools/xtensions/state-binding.js": "19b0f4266fc7546016eb68df9eec391b554ab22a96d5eb97d001c0efa047ca79",
+    "tools/xtensions/vue-runtime-adapter.js": "d68a72b9782be8c3d705d10af40ca4a6576c3cc0e3a9884c8db02073c8b9745c",
+    "xtend-maraca/index.js": "32dae73cc1a95002804a039f90f1debefa4c6ed53d389ed048b014611e3d67ba",
+    "xtend-maraca/plan-runtime.mjs": "a773be6364d850559f6264540c038c278d028ff0d0c3a92cfcb62940550acd76",
+    "xtendrmt/rmt-action-effect-runtime.js": "3798c901579959de2aec8e6cedf9f07ee969bfd00bf0cc3478c0ad8831c6bcaa",
+    "xtendrmt/rmt-app-runtime.js": "3d20461b92e62ac73af1317e855bd2426337f3886f51c91d23297f92c90fdceb",
+    "xtendrmt/rmt-dom-descriptor-renderer.js": "7a412f0be5b9f803fd04c60f8d415f1cea1c60faa557ba85a48aaceffe5be82c",
+    "xtendrmt/rmt-event-routing-runtime.js": "257b2f73fecc4d659f3c393b51dc7b2c940d196eee84caef67d29f3ec2e4448e",
+    "xtendrmt/rmt-kernel-scheduler.js": "cb6968fa9b5a784f93e6c941e4a634bdd527525247a1f4653f9c7b204829e766",
+    "xtendrmt/rmt-maraca-view-projection-adapter.js": "820434f28d7dfabd73f7f82635c8306c76d2835fe727c2abc9c5c4fd9e6d4de7",
+    "xtendrmt/rmt-presentation-effect-adapter.js": "87c7d4a3e886bfd45d98b7b5dd385ce06a578dc408a3ceb0a6122f5010f9cd0f",
+    "xtendrmt/rmt-runtime.esm.js": "bde3fb1c19e6fb982214842657e8fb5c154028818ff9b38cadbc291a5aedd517",
+    "xtendrmt/rmt-state-host-adapter.js": "1c3b0ce150cee986ecdda1d0a9c92e7f323ee31cbb920c5072aa2772cd078de6",
+    "xtendrmt/rmt-state-selector-runtime.js": "150f5ae1a279cf7457be54fc7a466afeb1a2a026a911ab1cb1d16ae5da2a669d",
+    "xtendrmt/rmt-surface-resource-graph-runtime.js": "5cac73161a80489e60cca3dc31eb44475570581a7f4fc6d71d5d9cedf212870f"
+  },
+  "syntaxDecisionStatus": "accepted-in-separate-adr",
+  "productionFrontendImplemented": false,
+  "acceptedForRelease": false
+}

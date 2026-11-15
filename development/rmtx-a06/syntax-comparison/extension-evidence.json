@@ -1,0 +1,219 @@
+{
+  "format": 1,
+  "version": "1.0.0",
+  "stage": "A06-file-extension-experiment",
+  "date": "2026-11-15",
+  "node": "v24.18.0",
+  "typescript": "5.9.3",
+  "passed": true,
+  "checks": 21,
+  "observations": [
+    {
+      "name": "explicit TSX parser accepts .tsx with the same syntax tree",
+      "diagnosticCodes": [],
+      "syntaxSha256": "d403b90b613de554308e25473f483e2233fcb6b95200444a305bb3947c2035b3",
+      "scriptKind": "TSX"
+    },
+    {
+      "name": "ordinary TypeScript program root .tsx",
+      "accepted": true,
+      "diagnostics": []
+    },
+    {
+      "name": "explicit TSX parser accepts .rmtx with the same syntax tree",
+      "diagnosticCodes": [],
+      "syntaxSha256": "d403b90b613de554308e25473f483e2233fcb6b95200444a305bb3947c2035b3",
+      "scriptKind": "TSX"
+    },
+    {
+      "name": "ordinary TypeScript program root .rmtx",
+      "accepted": false,
+      "diagnostics": [
+        {
+          "code": 6054,
+          "file": null,
+          "start": null,
+          "length": null,
+          "message": "File '<work>/roots/view.rmtx' has an unsupported extension. The only supported extensions are '.ts', '.tsx', '.d.ts', '.cts', '.d.cts', '.mts', '.d.mts'.\n  The file is in the program because:\n    Root file specified for compilation"
+        }
+      ]
+    },
+    {
+      "name": "explicit TSX parser accepts .rmtx.tsx with the same syntax tree",
+      "diagnosticCodes": [],
+      "syntaxSha256": "d403b90b613de554308e25473f483e2233fcb6b95200444a305bb3947c2035b3",
+      "scriptKind": "TSX"
+    },
+    {
+      "name": "ordinary TypeScript program root .rmtx.tsx",
+      "accepted": true,
+      "diagnostics": []
+    },
+    {
+      "name": "unknown extension does not infer JSX parsing",
+      "inferredScriptKind": "TS",
+      "diagnosticCodes": [
+        1005,
+        1005,
+        1005,
+        1005,
+        1005
+      ]
+    },
+    {
+      "name": "allowArbitraryExtensions does not register .rmtx as a source root",
+      "diagnostics": [
+        {
+          "code": 6054,
+          "file": null,
+          "start": null,
+          "length": null,
+          "message": "File '<work>/roots/view.rmtx' has an unsupported extension. The only supported extensions are '.ts', '.tsx', '.d.ts', '.cts', '.d.cts', '.mts', '.d.mts'.\n  The file is in the program because:\n    Root file specified for compilation"
+        }
+      ]
+    },
+    {
+      "name": "default config expansion ignores custom roots: **/*",
+      "include": [
+        "**/*"
+      ],
+      "files": [],
+      "diagnosticCodes": [
+        18003
+      ]
+    },
+    {
+      "name": "default config expansion ignores custom roots: **/*.rmtx",
+      "include": [
+        "**/*.rmtx"
+      ],
+      "files": [],
+      "diagnosticCodes": [
+        18003
+      ]
+    },
+    {
+      "name": "custom import without declaration (allowArbitraryExtensions=false)",
+      "diagnostics": [
+        {
+          "code": 2307,
+          "file": "app.ts",
+          "start": 17,
+          "length": 13,
+          "message": "Cannot find module './view.rmtx' or its corresponding type declarations."
+        }
+      ]
+    },
+    {
+      "name": "custom import without declaration (allowArbitraryExtensions=true)",
+      "diagnostics": [
+        {
+          "code": 2307,
+          "file": "app.ts",
+          "start": 17,
+          "length": 13,
+          "message": "Cannot find module './view.rmtx' or its corresponding type declarations."
+        }
+      ]
+    },
+    {
+      "name": "custom import with view.d.rmtx.ts (allowArbitraryExtensions=false)",
+      "diagnostics": [
+        {
+          "code": 6263,
+          "file": "app.ts",
+          "start": 17,
+          "length": 13,
+          "message": "Module './view.rmtx' was resolved to '<work>/imports/view.d.rmtx.ts', but '--allowArbitraryExtensions' is not set."
+        }
+      ],
+      "checkedFiles": [
+        "app.ts"
+      ],
+      "originalSourceChecked": false
+    },
+    {
+      "name": "custom import with view.d.rmtx.ts (allowArbitraryExtensions=true)",
+      "diagnostics": [],
+      "checkedFiles": [
+        "view.d.rmtx.ts",
+        "app.ts"
+      ],
+      "originalSourceChecked": false
+    },
+    {
+      "name": "declaration import checks the consumer boundary, not the .rmtx body",
+      "diagnostics": [
+        {
+          "code": 2339,
+          "file": "app.ts",
+          "start": 48,
+          "length": 7,
+          "message": "Property 'missing' does not exist on type '{ readonly productId: string; }'."
+        }
+      ]
+    },
+    {
+      "name": "in-memory TSX projection checks .rmtx source (valid)",
+      "accepted": true,
+      "virtualFile": "view.rmtx.tsx",
+      "originalFile": "view.rmtx",
+      "diagnostics": [],
+      "emitted": false,
+      "moduleExecution": false,
+      "generalSourceMapsImplemented": false
+    },
+    {
+      "name": "in-memory TSX projection checks .rmtx source (wrong field)",
+      "accepted": false,
+      "virtualFile": "view.rmtx.tsx",
+      "originalFile": "view.rmtx",
+      "diagnostics": [
+        {
+          "code": 2339,
+          "file": "view.rmtx",
+          "start": 239,
+          "length": 7,
+          "message": "Property 'missing' does not exist on type '{ title: string; }'.",
+          "sourceText": "missing",
+          "offsetMapping": "identity"
+        }
+      ],
+      "emitted": false,
+      "moduleExecution": false,
+      "generalSourceMapsImplemented": false
+    },
+    {
+      "name": "ordinary TSX typechecking does not impose declarative expression rules",
+      "diagnostics": [],
+      "callExpressionAcceptedByTypeScript": true,
+      "expressionExecuted": false,
+      "rmtSemanticValidationPerformed": false
+    },
+    {
+      "name": "existing Two-Host candidate parses as explicit TSX under .tsx",
+      "diagnosticCodes": [],
+      "semanticLoweringPerformed": false,
+      "providerExecution": false
+    },
+    {
+      "name": "existing Two-Host candidate parses as explicit TSX under .rmtx",
+      "diagnosticCodes": [],
+      "semanticLoweringPerformed": false,
+      "providerExecution": false
+    },
+    {
+      "name": "existing Two-Host candidate parses as explicit TSX under .rmtx.tsx",
+      "diagnosticCodes": [],
+      "semanticLoweringPerformed": false,
+      "providerExecution": false
+    }
+  ],
+  "sourceExecutionPerformed": false,
+  "productionFrontendImplemented": false,
+  "editorSessionTested": false,
+  "sources": {
+    "development/rmtx-a06/syntax-comparison/extension-probes.cjs": "6e0266eef24e54ed39e2ca3e91f1cacb3c5af21ffe2dced5e03916df873c0a8f",
+    "development/rmtx-a06/two-host.candidate.tsx": "bc0657dbdd7f82dba96b86fc776ecf04e625bb25508439d1f6320896afe79175"
+  }
+}

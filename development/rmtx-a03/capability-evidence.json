@@ -41,7 +41,7 @@
     "tools/xtensions/state-binding.js": "19b0f4266fc7546016eb68df9eec391b554ab22a96d5eb97d001c0efa047ca79",
     "tools/xtensions/state-binding.d.ts": "d9d73412a744b3009f892da0d4ffb2e91bcbe0425a6ed88ecaaccefb3d435341",
     "tools/package.json": "5ba8082739322f2e20861609b36144aa80616f85364a9135c903004f188a5e08",
-    "xtend-maraca/plan-runtime.d.ts": "c2565c8ebfd0dcd5653b8ea4d921ea78ee8ff1a674394d5126b9606093526da3",
+    "xtend-maraca/plan-runtime.d.ts": "30344c8b55e0d4b857224ea28a8565894172e6a3054aa7865b19eb989c76b075",
     "tests/xtensions/capability-negotiation-acceptance.js": "9652752c186e6aae55a400ac3587060a9c7588f979f6d66521e2bf0f6408caaf",
     "tests/xtensions/capability-negotiation-maraca-acceptance.js": "3a42e8a9fe380882ac6c5a42c7ea854f5ebbc44473c1b757fbe65c1d973f150c",
     "tests/types/xtensions_capability_negotiation.mts": "9c6373428ecdd1c71df8be31ed130ad49b2bd6c3e45259be7db1bfaa2bd95648",

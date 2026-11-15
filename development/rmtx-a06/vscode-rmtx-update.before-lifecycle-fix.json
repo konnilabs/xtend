@@ -1,0 +1,170 @@
+{
+  "format": 1,
+  "version": "1.0.0",
+  "date": "2026-11-15",
+  "status": "installed-and-isolated-host-verified",
+  "vscodeVersion": "1.145.2",
+  "previousInstalledVersion": "0.1.0-rc.2",
+  "installedVersion": "0.2.1",
+  "vsix": {
+    "path": "tools/rmt-editor/vscode/xtend-rmt-language-0.2.1.vsix",
+    "bytes": 25225940,
+    "sha256": "9fa813f2291081a7285b6b2ad2dfae77603c8ef225f5d94688598897f83e533d"
+  },
+  "installation": {
+    "command": [
+      "/usr/bin/code",
+      "--install-extension",
+      "/home/konni/Downloads/xtend-dev/xtend/tools/rmt-editor/vscode/xtend-rmt-language-0.2.1.vsix",
+      "--force"
+    ],
+    "exitCode": 0,
+    "extensionId": "ccs networks.xtend-rmt-language",
+    "installedPath": "/home/konni/.vscode/extensions/ccs networks.xtend-rmt-language-0.2.1",
+    "archiveFilesCompared": 5040,
+    "mismatches": [],
+    "packageJsonNormalization": "Only VS Code-injected __metadata is excluded from package.json comparison; other archive file bytes match exactly.",
+    "files": {
+      "extension.js": "ae1ccac5d4ac10c567451f743205ca3ccb1b27d423747946576be61c5642942c",
+      "rmtx-language-configuration.json": "29e86355f1d1efa48265395946550e70677a8189450c6d9502c9ee0d01a071eb",
+      "syntaxes/rmtx.tmLanguage.json": "4001888af76e3ec0f402ac6d6f75c875504a76facc7992a0817b9c3fcf98c936",
+      "syntaxes/rmtx-operators.injection.tmLanguage.json": "8326dbccb46ddd501978c351b887255d1bad44d1a1261adbbfd6bfdc56c3010e",
+      "snippets/rmtx.code-snippets": "1af61d46b23c098dd89719ca819699ca75479a375dfcc1d1996ac8604462f3aa",
+      "icons/rmt-light.svg": "f60d45254f168f7f66581f5f8633c29eb16f9a0dafec9cf95f8faad0de774c8b",
+      "icons/rmt-dark.svg": "c8b975cde0499dec0999ba04c40ead061edd337cd39dc4afc20e0dd1467b38ec",
+      "icons/rmtx-light.svg": "834cb1091696042a76147fe7b86dec651e5b02040ef4094b702940bcda8b43ee",
+      "icons/rmtx-dark.svg": "e03a22b4952ca52ea5f787ebe92f18e9778c20f6c05db02cde07d3d3841dbb1d"
+    }
+  },
+  "isolatedHost": {
+    "format": 1,
+    "version": "1.0.0",
+    "passed": true,
+    "checks": [
+      "real-package-discovery",
+      "real-extension-activation",
+      "rmtx-document-language",
+      "classic-language-retained",
+      "rmtx-grammar-contribution",
+      "classic-lint-guard",
+      "classic-build-guard",
+      "no-classic-parser-diagnostics",
+      "language-icon-files-present",
+      "real-editor-snippet-insertion-self-closing",
+      "real-editor-snippet-insertion-paired",
+      "real-editor-snippet-insertion-expression",
+      "restart-extension-host-command-registered"
+    ],
+    "vscodeVersion": "1.145.2",
+    "node": "v24.22.1",
+    "extension": {
+      "id": "CCS Networks.xtend-rmt-language",
+      "version": "0.2.1",
+      "path": "/home/konni/.vscode/extensions/ccs networks.xtend-rmt-language-0.2.1",
+      "isActive": true
+    },
+    "document": {
+      "path": "/home/konni/Downloads/xtend-dev/xtend/development/rmtx-a06/syntax-comparison/declarative.rmtx",
+      "languageId": "rmtx",
+      "diagnosticCount": 0
+    },
+    "grammar": {
+      "language": "rmtx",
+      "scopeName": "source.rmtx",
+      "path": "./syntaxes/rmtx.tmLanguage.json"
+    },
+    "restartCommand": {
+      "id": "workbench.action.restartExtensionHost",
+      "paletteTitle": "Developer: Restart Extension Host",
+      "registered": true
+    },
+    "theme": {
+      "effective": "vs-seti",
+      "defaultValue": "vs-seti"
+    },
+    "languageIcons": {
+      "rmt.light": "f60d45254f168f7f66581f5f8633c29eb16f9a0dafec9cf95f8faad0de774c8b",
+      "rmt.dark": "c8b975cde0499dec0999ba04c40ead061edd337cd39dc4afc20e0dd1467b38ec",
+      "rmtx.light": "834cb1091696042a76147fe7b86dec651e5b02040ef4094b702940bcda8b43ee",
+      "rmtx.dark": "e03a22b4952ca52ea5f787ebe92f18e9778c20f6c05db02cde07d3d3841dbb1d"
+    },
+    "snippets": [
+      {
+        "name": "RMTX self-closing operator",
+        "text": "<RMT.Operator prop=\"value\" />",
+        "parseDiagnostics": 0
+      },
+      {
+        "name": "RMTX paired operator",
+        "text": "<RMT.Operator prop=\"value\">\n  \n</RMT.Operator>",
+        "parseDiagnostics": 0
+      },
+      {
+        "name": "RMTX expression property",
+        "text": "<RMT.Operator prop={model.value} />",
+        "parseDiagnostics": 0
+      }
+    ],
+    "session": "isolated-headless-test-host",
+    "currentUserSessionRestarted": false
+  },
+  "currentUserSession": {
+    "restartedByAgent": false,
+    "updatedExtensionActivationObserved": false,
+    "lastObservedExtensionActivation": "2026-11-15 17:49:53.031",
+    "activationAction": {
+      "id": "workbench.action.restartExtensionHost",
+      "paletteTitle": "Developer: Restart Extension Host",
+      "registered": true
+    },
+    "windowReloadForced": false
+  },
+  "icons": {
+    "registration": "contributes.languages[].icon",
+    "effectiveTestHostTheme": "vs-seti",
+    "userIconThemeExplicitlyConfigured": false,
+    "workspaceIconThemeExplicitlyConfigured": false,
+    "settingsChanged": false,
+    "themeChanged": false,
+    "setiExplicitRmtOrRmtxMapping": false,
+    "setiShowLanguageModeIconsDisabled": false,
+    "explorerPixelInspectionPerformed": false
+  },
+  "resolvedHostFinding": {
+    "package": "0.2.0",
+    "issue": "The builtin folder name typescript-basics was incorrectly used as extension ID.",
+    "correction": "extensionDependencies uses the builtin package identity vscode.typescript in 0.2.1.",
+    "finalHostPassed": true
+  },
+  "temporaryBackup": {
+    "previousExtensionArchive": "/tmp/xtend-vscode-rmtx-update/previous-extension-0.1.0-rc.2.tar.gz",
+    "sha256": "90701cb159aa2c846a171071f69043d3b25aa9124434500bd2ae971e02371857",
+    "registration": "/tmp/xtend-vscode-rmtx-update/previous-extension-registration.json"
+  },
+  "runtimeReceipts": {
+    "hostLogSha256": "c5f7f6030d4833c7a9db135dd4c574aa97f867ed60bf21ba83daaafcd1e65834",
+    "hostTestSource": "/tmp/xtend-vscode-rmtx-update/test-host/runner.cjs",
+    "hostTestSourceSha256": "5c46644c3505ba66023f4a2b8a3ce50414a5419d94463c5ad2a817a5725e8e9e",
+    "hostProcess": {
+      "exitCode": 0,
+      "headless": true,
+      "userDataDir": "/tmp/xtend-vscode-rmtx-update/test-profile-final-021",
+      "currentSessionRestarted": false
+    }
+  },
+  "sources": {
+    "tools/rmt-editor/vscode/package.json": "9700383a3457bced1ae268945688916ff04b2b37db974c35811d674fdc691220",
+    "tools/rmt-editor/vscode/extension.js": "ae1ccac5d4ac10c567451f743205ca3ccb1b27d423747946576be61c5642942c",
+    "tools/rmt-editor/vscode/rmtx-language-configuration.json": "29e86355f1d1efa48265395946550e70677a8189450c6d9502c9ee0d01a071eb",
+    "tools/rmt-editor/vscode/syntaxes/rmtx.tmLanguage.json": "4001888af76e3ec0f402ac6d6f75c875504a76facc7992a0817b9c3fcf98c936",
+    "tools/rmt-editor/vscode/syntaxes/rmtx-operators.injection.tmLanguage.json": "8326dbccb46ddd501978c351b887255d1bad44d1a1261adbbfd6bfdc56c3010e",
+    "tools/rmt-editor/vscode/snippets/rmtx.code-snippets": "1af61d46b23c098dd89719ca819699ca75479a375dfcc1d1996ac8604462f3aa",
+    "tools/rmt-editor/vscode/icons/rmt-light.svg": "f60d45254f168f7f66581f5f8633c29eb16f9a0dafec9cf95f8faad0de774c8b",
+    "tools/rmt-editor/vscode/icons/rmt-dark.svg": "c8b975cde0499dec0999ba04c40ead061edd337cd39dc4afc20e0dd1467b38ec",
+    "tools/rmt-editor/vscode/icons/rmtx-light.svg": "834cb1091696042a76147fe7b86dec651e5b02040ef4094b702940bcda8b43ee",
+    "tools/rmt-editor/vscode/icons/rmtx-dark.svg": "e03a22b4952ca52ea5f787ebe92f18e9778c20f6c05db02cde07d3d3841dbb1d",
+    "tools/rmt-editor/vscode/build-vsix.js": "372d7329b01ef4fa65bad30f4065ed04782df32c10ed4f04a1b54fd30e2db644"
+  },
+  "semanticRmtxLanguageServerImplemented": false,
+  "productionRmtxFrontendImplemented": false
+}

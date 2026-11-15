@@ -1,0 +1,366 @@
+{
+  "format": 1,
+  "version": "1.0.0",
+  "stage": "A06-two-host-syntax-comparison",
+  "node": "v24.18.0",
+  "typescript": "5.9.3",
+  "passed": true,
+  "checks": 31,
+  "observations": [
+    {
+      "name": "independently lowered sources produce equivalent complete backend artifacts, excluding only source-map ranges",
+      "passed": true
+    },
+    {
+      "name": "the source contracts reproduce the independently captured original Two-Host contract",
+      "passed": true
+    },
+    {
+      "name": "identical .rmtx and .tsx source bytes produce identical backend semantics through the explicit frontend",
+      "passed": true
+    },
+    {
+      "name": "import aliases preserve exact intrinsic/model/provider/input symbol identity",
+      "passed": true
+    },
+    {
+      "name": "declarative initial-state edits reach the actual backend, not copied baseline records",
+      "passed": true
+    },
+    {
+      "name": "Classic initial-state edits independently reach the actual hybrid backend",
+      "passed": true
+    },
+    {
+      "name": "a source presence edit changes the resolved binding artifact",
+      "passed": true
+    },
+    {
+      "name": "a one-sided lane edit breaks differential semantics instead of being normalized away",
+      "passed": true
+    },
+    {
+      "name": "top-level side effects are rejected without executing author source",
+      "passed": true
+    },
+    {
+      "name": "the rejected top-level effect left no global state",
+      "passed": true
+    },
+    {
+      "name": "triple-slash references cannot add hidden compiler inputs",
+      "passed": true
+    },
+    {
+      "name": "foreign JSX import sources cannot add hidden compiler inputs",
+      "passed": true
+    },
+    {
+      "name": "foreign intrinsic imports cannot borrow native authority by name",
+      "passed": true
+    },
+    {
+      "name": "local lookalike namespace declarations are rejected",
+      "passed": true
+    },
+    {
+      "name": "method calls in provider props remain unsupported even when TypeScript accepts them",
+      "passed": true
+    },
+    {
+      "name": "spread properties do not hide call-site bindings",
+      "passed": true
+    },
+    {
+      "name": "hybrid views cannot redeclare scheduler lanes",
+      "passed": true
+    },
+    {
+      "name": "hybrid views cannot introduce Actions",
+      "passed": true
+    },
+    {
+      "name": "hybrid host targets must match Classic mount declarations",
+      "passed": true
+    },
+    {
+      "name": "hybrid native owner must exist in Classic",
+      "passed": true
+    },
+    {
+      "name": "unknown Action routes fail the real source/binding validation",
+      "passed": true
+    },
+    {
+      "name": "a native header path missing from actual State cannot borrow its ambient declaration type",
+      "passed": true
+    },
+    {
+      "name": "a non-string native header path cannot borrow its ambient declaration type",
+      "passed": true
+    },
+    {
+      "name": "source inputs must match the checked input handle types",
+      "passed": true
+    },
+    {
+      "name": "TypeScript nocheck cannot suppress profile validation",
+      "passed": true
+    },
+    {
+      "name": "TypeScript ignore cannot suppress profile validation",
+      "passed": true
+    },
+    {
+      "name": "TypeScript expect-error cannot suppress profile validation",
+      "passed": true
+    },
+    {
+      "name": "the closed input profile rejects nested access through a string",
+      "passed": true
+    },
+    {
+      "name": "raw JavaScript callbacks cannot replace declarative child structure",
+      "passed": true
+    },
+    {
+      "name": "TypeScript errors from a .rmtx source map to the original URI and exact source range",
+      "passed": true
+    },
+    {
+      "name": "both closed native header sidecars render equal text through the actual shared renderer, including escaping",
+      "passed": true
+    }
+  ],
+  "parity": {
+    "orchestration": true,
+    "bindings": true,
+    "nativeView": true
+  },
+  "sourceRangeNormalization": "Only range fields on source-map records with astPointer/corePointer are excluded; all semantic artifacts remain compared.",
+  "closedHeaderRendererTrace": [
+    {
+      "tag": "H1",
+      "text": "p1",
+      "html": "<h1 data-rmt-key=\"product-header\">p1</h1>"
+    },
+    {
+      "tag": "H1",
+      "text": "<b>p2</b>",
+      "html": "<h1 data-rmt-key=\"product-header\">&lt;b&gt;p2&lt;/b&gt;</h1>"
+    }
+  ],
+  "nativeHeaderMountedByMaraca": false,
+  "sourceExecuted": false,
+  "productionFrontendImplemented": false,
+  "syntaxDecisionMade": false,
+  "acceptedForRelease": false,
+  "loweredClassicSource": "template product.details {\nstate product type object preserve { initial { id \"p1\"; images [\"front\", \"back\"]; selectedImageId \"front\"; reviewsSort \"recent\" } }\nstate hosts type object preserve { initial { gallery true; reviews true } }\naction product.selectImage {\ninput imageId string\nreduce state.product.selectedImageId = input.imageId\n}\naction product.changeSort {\ninput sort string\nreduce state.product.reviewsSort = input.sort\n}\naction hosts.replace {\ninput hosts object\nreduce state.hosts = input.hosts\n}\nportal surface.root root \"#xtend-maraca-root\" layer surface\nsurface product-details kind region component section { portal surface.root\n lane visible { mount product-header } }\nsurface product-gallery-host kind region component div { portal surface.root\n lane visible { mount product-gallery } }\nsurface product-reviews-host kind region component div { portal surface.root\n lane idle { mount product-reviews } }\n}\n",
+  "contracts": {
+    "declarative": {
+      "format": 2,
+      "version": "2.0.0",
+      "caseId": "product-details",
+      "documentId": "a06-product-details",
+      "ownerSurface": "product-details",
+      "hosts": [
+        {
+          "declarationId": "product-gallery",
+          "targetSurface": "product-gallery-host",
+          "providerId": "react-product-gallery",
+          "lane": "visible",
+          "presence": {
+            "state": "hosts",
+            "path": [
+              "gallery"
+            ]
+          },
+          "props": {
+            "images": {
+              "state": "product",
+              "path": [
+                "images"
+              ]
+            },
+            "selectedImageId": {
+              "state": "product",
+              "path": [
+                "selectedImageId"
+              ]
+            }
+          },
+          "intents": {
+            "selectImage": {
+              "command": "product.selectImage"
+            }
+          },
+          "interfaceVersion": "1.0.0",
+          "interfaceSha256": "45394fbe58a8f81445891526967d691786ef1ecf2fd6eb08e520e69322c76539",
+          "componentVersion": "2.0.0"
+        },
+        {
+          "declarationId": "product-reviews",
+          "targetSurface": "product-reviews-host",
+          "providerId": "vue-product-reviews",
+          "lane": "idle",
+          "presence": {
+            "state": "hosts",
+            "path": [
+              "reviews"
+            ]
+          },
+          "props": {
+            "productId": {
+              "state": "product",
+              "path": [
+                "id"
+              ]
+            },
+            "sort": {
+              "state": "product",
+              "path": [
+                "reviewsSort"
+              ]
+            }
+          },
+          "intents": {
+            "changeSort": {
+              "command": "product.changeSort",
+              "payload": {
+                "sort": "order"
+              }
+            }
+          },
+          "interfaceVersion": "1.0.0",
+          "interfaceSha256": "30de14608052cdd250f1f56b06fa0b5c7df8dda73803d5d5daa96355e5a6f1e4",
+          "componentVersion": "2.0.0"
+        }
+      ]
+    },
+    "hybrid": {
+      "format": 2,
+      "version": "2.0.0",
+      "caseId": "product-details",
+      "documentId": "a06-product-details",
+      "ownerSurface": "product-details",
+      "hosts": [
+        {
+          "declarationId": "product-gallery",
+          "targetSurface": "product-gallery-host",
+          "providerId": "react-product-gallery",
+          "lane": "visible",
+          "presence": {
+            "state": "hosts",
+            "path": [
+              "gallery"
+            ]
+          },
+          "props": {
+            "images": {
+              "state": "product",
+              "path": [
+                "images"
+              ]
+            },
+            "selectedImageId": {
+              "state": "product",
+              "path": [
+                "selectedImageId"
+              ]
+            }
+          },
+          "intents": {
+            "selectImage": {
+              "command": "product.selectImage"
+            }
+          },
+          "interfaceVersion": "1.0.0",
+          "interfaceSha256": "45394fbe58a8f81445891526967d691786ef1ecf2fd6eb08e520e69322c76539",
+          "componentVersion": "2.0.0"
+        },
+        {
+          "declarationId": "product-reviews",
+          "targetSurface": "product-reviews-host",
+          "providerId": "vue-product-reviews",
+          "lane": "idle",
+          "presence": {
+            "state": "hosts",
+            "path": [
+              "reviews"
+            ]
+          },
+          "props": {
+            "productId": {
+              "state": "product",
+              "path": [
+                "id"
+              ]
+            },
+            "sort": {
+              "state": "product",
+              "path": [
+                "reviewsSort"
+              ]
+            }
+          },
+          "intents": {
+            "changeSort": {
+              "command": "product.changeSort",
+              "payload": {
+                "sort": "order"
+              }
+            }
+          },
+          "interfaceVersion": "1.0.0",
+          "interfaceSha256": "30de14608052cdd250f1f56b06fa0b5c7df8dda73803d5d5daa96355e5a6f1e4",
+          "componentVersion": "2.0.0"
+        }
+      ]
+    }
+  },
+  "viewSidecar": {
+    "format": 1,
+    "version": "1.0.0",
+    "profile": "closed-product-header",
+    "nodes": [
+      {
+        "kind": "product-header",
+        "id": "product-header",
+        "element": "h1",
+        "text": {
+          "state": "product",
+          "path": [
+            "id"
+          ]
+        }
+      }
+    ]
+  },
+  "sources": {
+    "./development/rmtx-a06/providers/react-gallery.mjs": "9846140e741d787f0feef302fb3ca3ef75e7519dd54a7fc1f0fd9448cb07df37",
+    "./development/rmtx-a06/providers/vue-reviews.mjs": "71e48dfdb1e797493aba0748e9777b9cb3afdbee6faf90c217df3f88aa239db8",
+    "development/rmtx-a06/providers/react.interface.json": "45394fbe58a8f81445891526967d691786ef1ecf2fd6eb08e520e69322c76539",
+    "development/rmtx-a06/providers/vue.interface.json": "30de14608052cdd250f1f56b06fa0b5c7df8dda73803d5d5daa96355e5a6f1e4",
+    "development/rmtx-a06/syntax-comparison/authoring.d.ts": "61ab277b1b7789dfb5a09525a5a9cac121a4f28c7f7aa8bfb0073dd503552306",
+    "development/rmtx-a06/syntax-comparison/classic.rmt": "3468c5d11497f8357b9078a449c27b308b44b872dbac812f97eae1abcf1aa88a",
+    "development/rmtx-a06/syntax-comparison/comparison.cjs": "5726124c3950ea8c81871c165bc15c2322d04ca11eeef8c7a5a74d72e60da15c",
+    "development/rmtx-a06/syntax-comparison/declarative.rmtx": "2eb2d495516c8b44ceda04e8d5e69e80693c352e6a5d59b3620b1a5bbb7d0704",
+    "development/rmtx-a06/syntax-comparison/declarative.tsx": "2eb2d495516c8b44ceda04e8d5e69e80693c352e6a5d59b3620b1a5bbb7d0704",
+    "development/rmtx-a06/syntax-comparison/extension-probes.cjs": "6e0266eef24e54ed39e2ca3e91f1cacb3c5af21ffe2dced5e03916df873c0a8f",
+    "development/rmtx-a06/syntax-comparison/inspect.cjs": "208f9b34c84600f5d48ecb918303eb913abf81eb46c8b11c0faa31b773ed5e06",
+    "development/rmtx-a06/syntax-comparison/jsx-runtime.d.ts": "c713e1235ffd7f6e47a554ffd3f57aa92452194dc82dcde2245afa4f94131ddd",
+    "development/rmtx-a06/syntax-comparison/runtime-comparison.cjs": "0a0fd57d602bf9de31c69ae7f187821d8fd9a6459b596f2ecf2e90bbdd632aed",
+    "development/rmtx-a06/syntax-comparison/view.tsx": "eba25929d68792c1b5c616317aac0937d5a5878bba3355c2fea16362000e4551",
+    "development/rmtx-a06/two-host-reference.cjs": "64084cf748ed44586bb0eecd3a8e15fcbc4b7e967ca0c4e1b96ad00b3c7fcc08",
+    "development/rmtx-a06/two-host.contract.json": "14d47e62da4878434308346c74a5ce268cb29856bdcc20a30e0749664492187a",
+    "development/rmtx-a06/two-host.types.d.ts": "0f0fbaf7dace8e19fa93872c1857ebff27cba6038f3e7614608b7986033135e2",
+    "tools/rmt-language/classic-compiler.js": "d321ae4c25ca3b56ca877399f9a259b86afeb8a4c6dab8a67119baaa92c52581",
+    "tools/rmt-language/classic-parser.js": "f4d051313259d160d3a46892df3607ae68f6c3a69e5d62731cf0b028b3721b42",
+    "tools/rmt-language/vnext-compiler.js": "9ee9aac4cd163ac3d78a6ae228d4515974eabfcf3ef89c45c38ff937684ff510",
+    "tools/xtensions/component-interface-build.js": "7dade34c20e63b7f7f17fac03026cbb18ece5209d1ebbb712dafa86ca644d5f4",
+    "tools/xtensions/component-interface.js": "8d3b813dcc2b4bbb230d8e18720487c7f19e84bcf2bcbcea55cd251f0b6e7646",
+    "tools/xtensions/state-binding.js": "19b0f4266fc7546016eb68df9eec391b554ab22a96d5eb97d001c0efa047ca79",
+    "xtend-maraca/index.js": "32dae73cc1a95002804a039f90f1debefa4c6ed53d389ed048b014611e3d67ba",
+    "xtendrmt/rmt-dom-descriptor-renderer.js": "7a412f0be5b9f803fd04c60f8d415f1cea1c60faa557ba85a48aaceffe5be82c"
+  }
+}

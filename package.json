@@ -18008,7 +18008,7 @@
     "test:xtend-mcp:report": "node products/xtend-mcp/scripts/run-gates.mjs --report .xtend-test-results/xtend-mcp-gate-report.json",
     "test:xtend-mcp-vsix-smoke": "node products/xtend-mcp/scripts/smoke-vsix.mjs",
     "test:rmt-editor-packaging": "node scripts/run_xtend_tests.js rmt-editor-packaging",
-    "build:rmt-editor:vscode": "node tools/rmt-editor/vscode/build-vsix.js --out xtend-rmt-language-0.1.0-rc.1.vsix",
+    "build:rmt-editor:vscode": "node tools/rmt-editor/vscode/build-vsix.js --out xtend-rmt-language-0.2.3.vsix",
     "test:rmt-language-regression": "node scripts/run_xtend_tests.js rmt-language-regression",
     "test:rmt-tooling-docs": "node scripts/run_xtend_tests.js rmt-tooling-docs",
     "test:rmt-linter": "node scripts/run_xtend_tests.js rmt-linter-cli",

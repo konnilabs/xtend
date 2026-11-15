@@ -1,0 +1,66 @@
+{
+  "name": "RMTX qualified operators",
+  "scopeName": "rmtx.operators.injection",
+  "injectionSelector": "L:source.rmtx - comment - string",
+  "patterns": [
+    {
+      "name": "meta.tag.rmtx",
+      "begin": "(<)\\s*(RMT)(\\.)([A-Za-z_$][A-Za-z0-9_$]*)(?=\\s|/?>)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.tsx"
+        },
+        "2": {
+          "name": "entity.name.tag.namespace.rmtx"
+        },
+        "3": {
+          "name": "punctuation.accessor.tsx"
+        },
+        "4": {
+          "name": "support.class.component.rmtx"
+        }
+      },
+      "end": "(/>)|(?:(</)\\s*(RMT)(\\.)([A-Za-z_$][A-Za-z0-9_$]*)\\s*(>))",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.end.tsx"
+        },
+        "2": {
+          "name": "punctuation.definition.tag.begin.tsx"
+        },
+        "3": {
+          "name": "entity.name.tag.namespace.rmtx"
+        },
+        "4": {
+          "name": "punctuation.accessor.tsx"
+        },
+        "5": {
+          "name": "support.class.component.rmtx"
+        },
+        "6": {
+          "name": "punctuation.definition.tag.end.tsx"
+        }
+      },
+      "patterns": [
+        {
+          "include": "source.tsx#jsx-tag-attributes"
+        },
+        {
+          "begin": "(>)",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.definition.tag.end.tsx"
+            }
+          },
+          "end": "(?=</)",
+          "contentName": "meta.jsx.children.tsx",
+          "patterns": [
+            {
+              "include": "source.tsx#jsx-children"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

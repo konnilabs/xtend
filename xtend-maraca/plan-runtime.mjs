@@ -277,9 +277,34 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   const boundXTensions = [];
   const boundXTensionSurfaces = new Set(bindingArtifact?.bindings.map((entry) => entry.surface) || []);
   const xtensionRetirements = new Set();
+  // Populated only from the trusted host factory's runtime facade. Neither
+  // serialized bindings nor DOM attributes can nominate a resource owner.
+  const xtensionOwnerSurfaces = new Map();
 
   function presentXTensionEntries(snapshot) {
-    return bindingArtifact ? bindingRuntime.materializeStateBindingArtifact(bindingArtifact, snapshot) : [];
+    return bindingArtifact ? bindingRuntime.materializeStateBindingArtifact(bindingArtifact, snapshot)
+      .filter(entry => !surfaceDestroyed(entry.surface)
+        && !surfaceDestroyed(xtensionOwnerSurfaces.get(entry.hostSurface))) : [];
+  }
+
+  function retireXTension(entry, reason) {
+    const index = boundXTensions.indexOf(entry);
+    if (index < 0) return;
+    boundXTensions.splice(index, 1);
+    ssrSession?.retire(entry.instance.identity.address);
+    // Registry disposal revokes Model deliveries and intent authority before
+    // the asynchronous foreign-root cleanup begins.
+    const retirement = Promise.resolve(entry.instance.dispose(reason));
+    xtensionRetirements.add(retirement);
+    retirement.finally(() => xtensionRetirements.delete(retirement)).catch(() => {});
+  }
+
+  function retireDestroyedXTensions() {
+    for (const entry of [...boundXTensions]) {
+      if (surfaceDestroyed(entry.surface) || surfaceDestroyed(xtensionOwnerSurfaces.get(entry.hostSurface))) {
+        retireXTension(entry, 'surface-lifetime-ended');
+      }
+    }
   }
 
   async function retireAbsentXTensions(snapshot) {
@@ -289,12 +314,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       const present = new Set(presentXTensionEntries(snapshot).map((entry) => entry.hostSurface));
       const removed = boundXTensions.filter((entry) => !present.has(entry.hostSurface));
       for (const entry of removed) {
-        boundXTensions.splice(boundXTensions.indexOf(entry), 1);
-        // dispose() revokes callbacks synchronously, before awaiting foreign cleanup.
-        ssrSession?.retire(entry.instance.identity.address);
-        const retirement = entry.instance.dispose('model-presence-removed');
-        xtensionRetirements.add(retirement);
-        retirement.finally(() => xtensionRetirements.delete(retirement)).catch(() => {});
+        retireXTension(entry, 'model-presence-removed');
       }
       await raceDisposed(Promise.all([...xtensionRetirements]));
     } catch (error) {
@@ -315,7 +335,13 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         if (boundXTensions.some((bound) => bound.hostSurface === entry.hostSurface)) continue;
         const container = surfaceElement(entry.hostSurface);
         if (!container) throw new Error(`XTension host ${entry.surface} was not rendered.`);
-        const instance = xtensionRegistry.bind(entry.binding, (context) => createXTensionHost(Object.freeze({ ...context, container, surface: entry.surface, hostSurface: entry.hostSurface, binding: entry.binding })));
+        const instance = xtensionRegistry.bind(entry.binding, (context) => {
+          const host = createXTensionHost(Object.freeze({ ...context, container, surface: entry.surface, hostSurface: entry.hostSurface, binding: entry.binding }));
+          const owningSurface = host && typeof host.snapshot === 'function'
+            ? host.snapshot()?.resourceGraph?.surfaceId : null;
+          if (typeof owningSurface === 'string' && owningSurface) xtensionOwnerSurfaces.set(entry.hostSurface, owningSurface);
+          return host;
+        });
         boundXTensions.push(Object.freeze({ surface: entry.surface, hostSurface: entry.hostSurface, instance }));
         ssrSession?.bind(entry, instance);
         await raceDisposed(ssrSession?.shouldAdopt(entry) ? instance.adopt(container) : instance.mount(container));
@@ -409,8 +435,48 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   const surfaceLifetimes = new Map();
   const surfaceTargets = new Map();
   const shellClosedSurfaces = new Set();
+  let currentSurfaceLifecycleSnapshot = null;
   let shellEpoch = 0;
   const creatingBoundaries = new Set();
+  function surfaceDestroyed(id, visited = new Set()) {
+    if (!id) return false;
+    id = String(id);
+    if (visited.has(id)) return false;
+    visited.add(id);
+    const record = surfaceLifetimes.get(id);
+    if (record && ['destroyed', 'destroying'].includes(record.status)) return true;
+    const definition = surfaceById.get(id);
+    const parent = definition && (definition.parentId || definition.parent) || presentationParents.get(id);
+    return parent ? surfaceDestroyed(parent, visited) : false;
+  }
+
+  function readSurfaceLifecycleSnapshot(fallback = currentSurfaceLifecycleSnapshot) {
+    const controller = runtimes && runtimes.surfaceController;
+    if (!controller || typeof controller.readSnapshot !== 'function') return fallback;
+    const complete = controller.readSnapshot({ includeDestroyed: true });
+    if (!complete || !Array.isArray(complete.surfaces)) return fallback;
+    const records = complete.surfaces.slice();
+    const present = new Set(records.map(record => String(record.id)));
+    // The complete current registry may already have evicted older tombstones.
+    // Absence cannot retain a previously granted lifetime. This is an internal
+    // projection of ended authority, not a fabricated Controller record or a
+    // change to the public bounded snapshot/history contract.
+    for (const [id, previous] of surfaceLifetimes) {
+      if (!present.has(id)) records.push({ id, status: 'destroyed',
+        ...(Number.isSafeInteger(previous.generation) ? { generation: previous.generation } : {}) });
+    }
+    return { surfaces: records };
+  }
+
+  function projectSurfaceLifecycle(phase = 'project') {
+    if (adaptersDisposed || !runtimes?.renderer || typeof viewProjectionPort?.projectSurfaceLifecycle !== 'function') return null;
+    const snapshot = readSurfaceLifecycleSnapshot();
+    if (!snapshot) return null;
+    return viewProjectionPort.projectSurfaceLifecycle(snapshot, {
+      phase, renderer: runtimes.renderer, ownership,
+      context: createRenderContext({ operation: 'maraca.surface-lifecycle.' + phase })
+    });
+  }
   function getSurfaceBoundary(id) {
     if (id == null || id === '') return presentationBoundary;
     id = String(id);
@@ -433,6 +499,8 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     return surfaceBoundaries.get(id);
   }
   function syncSurfaceBoundaries(snapshot) {
+    currentSurfaceLifecycleSnapshot = snapshot;
+    const modelSnapshot = runtimes?.state && typeof runtimes.state.snapshot === 'function' ? runtimes.state.snapshot() : null;
     const records = asArray(snapshot && snapshot.surfaces);
     const ordered = [], visited = new Set(), visiting = new Set();
     const index = new Map(records.map(record => [String(record.id), record]));
@@ -451,16 +519,28 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       const id = String(record.id);
       const previous = surfaceLifetimes.get(id);
       const visible = record.status === 'open' && !record.minimized && !record.collapsed;
+      const definition = surfaceById.get(id);
+      const modelHidden = definition && modelSnapshot ? surfaceHidden(modelSnapshot, definition) === true : false;
+      const admitted = visible && !modelHidden && (!shellClosedSurfaces.has(id) || previous && !previous.visible);
       let boundary = getSurfaceBoundary(id);
-      if (boundary.disposed && record.status !== 'destroyed') {
+      const destroyed = ['destroyed', 'destroying'].includes(record.status);
+      const wasDestroyed = previous && ['destroyed', 'destroying'].includes(previous.status);
+      const authorizedRecreation = !wasDestroyed || Number.isSafeInteger(record.generation)
+        && Number.isSafeInteger(previous.generation) && record.generation > previous.generation;
+      if (wasDestroyed && !destroyed && !authorizedRecreation) continue;
+      // A new facade may be created only for an authoritative new generation.
+      // Reopening a child after its parent was explicitly recreated also gets
+      // a new boundary; every token referring to the old facade stays dead.
+      if (boundary.disposed && !destroyed && authorizedRecreation) {
         surfaceBoundaries.delete(id); boundary = getSurfaceBoundary(id);
       }
       if (previous && previous.generation !== record.generation) boundary.invalidate('surface-recreated');
-      if (record.status === 'destroyed' || record.status === 'destroying') boundary.dispose();
-      else boundary.setActive(visible, visible ? 'surface-opened' : 'surface-left');
+      if (destroyed) boundary.dispose();
+      else boundary.setActive(admitted, admitted ? 'surface-opened' : modelHidden ? 'model-hidden' : 'surface-left');
       if (visible && previous && !previous.visible) shellClosedSurfaces.delete(id);
-      surfaceLifetimes.set(id, { generation: record.generation, visible });
+      surfaceLifetimes.set(id, { generation: record.generation, visible, status: record.status });
     }
+    retireDestroyedXTensions();
   }
   const effectDefinitions = new Map(asArray(asRecord(artifact.actions).effects).map(effect => [effect.id, effect]));
   asArray(options.fastPassActions).forEach(action => {
@@ -541,7 +621,18 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     const retainShellVisibility = value => {
       if (Array.isArray(value)) return value.map(retainShellVisibility);
       if (!value || typeof value !== 'object') return value;
+      if (value.surface && surfaceDestroyed(value.surface)) return { type: 'fragment', children: [] };
       const next = Object.fromEntries(Object.entries(value).map(([key, entry]) => [key, retainShellVisibility(entry)]));
+      const lifecycle = value.surface && surfaceLifetimes.get(String(value.surface));
+      if (typeof viewProjectionPort?.projectSurfaceLifecycle === 'function'
+        && ['component', 'element'].includes(value.type)
+        && Number.isSafeInteger(lifecycle?.generation) && lifecycle.generation > 1) {
+        // Keep the author's key expression for the renderer to evaluate. An
+        // explicitly recreated Surface is a different native node lifetime;
+        // a retained wrapper containing a foreign root cannot become it.
+        next.key = { op: 'concat', values: [hasOwn(value, 'key') ? value.key : { op: 'literal', value: String(value.surface) },
+          { op: 'literal', value: `::surface-generation:${lifecycle.generation}` }] };
+      }
       if (value.surface && shellClosedSurfaces.has(String(value.surface))) {
         next.attributes = { ...asRecord(next.attributes), hidden: '', 'aria-hidden': 'true' };
         if (next.bindings) { next.bindings = { ...next.bindings }; delete next.bindings.hidden; }
@@ -556,7 +647,9 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       }
       return next;
     };
-    return projected == null ? { type: 'fragment', children: [] } : shellClosedSurfaces.size || boundXTensionSurfaces.size ? retainShellVisibility(projected) : projected;
+    return projected == null ? { type: 'fragment', children: [] }
+      : shellClosedSurfaces.size || boundXTensionSurfaces.size || [...surfaceLifetimes.values()].some(record => record.generation > 1 || ['destroyed', 'destroying'].includes(record.status))
+        ? retainShellVisibility(projected) : projected;
   }
 
   function publish(type, detail = {}) {
@@ -678,7 +771,8 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       'dispatchHostEvent',
       'clearOwnedDom'
     ];
-    if (!port || requiredMethods.some((method) => typeof port[method] !== 'function')) {
+    if (!port || requiredMethods.some((method) => typeof port[method] !== 'function')
+      || port.schema === 'xtend.rmt.maraca-view-projection-adapter.v2' && typeof port.projectSurfaceLifecycle !== 'function') {
       const error = new Error('The Maraca View Projection Port does not implement the complete host projection contract.');
       error.code = 'xtend.maraca.mvc.view-projection-port-invalid';
       throw error;
@@ -866,11 +960,13 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     }
     const report = surfaceGraph.materialize(records, {
       operation: metadata.operation || 'maraca.surface.materialize',
-      correlationId: metadata.correlationId || ''
+      correlationId: metadata.correlationId || '',
+      preserveDestroyed: true
     });
     surfaces.forEach(surface => {
       const hidden = surfaceHidden(snapshot, surface);
-      if (hidden !== null) getSurfaceBoundary(surface.id).setActive(!hidden && !shellClosedSurfaces.has(String(surface.id)), hidden ? 'model-hidden' : 'model-shown');
+      if (hidden !== null) getSurfaceBoundary(surface.id).setActive(!hidden && !shellClosedSurfaces.has(String(surface.id))
+        && surfaceLifetimes.get(String(surface.id))?.visible !== false, hidden ? 'model-hidden' : 'model-shown');
     });
     publish('surface', { report, metadata });
     return report;
@@ -910,7 +1006,8 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   async function applyProjectedVisibility(input) {
     const id = String(input.surface || '');
     const boundary = getSurfaceBoundary(id);
-    boundary.setActive(input.nextHidden !== true, input.nextHidden ? 'surface-hidden' : 'surface-shown');
+    boundary.setActive(input.nextHidden !== true && surfaceLifetimes.get(id)?.visible !== false,
+      input.nextHidden ? 'surface-hidden' : 'surface-shown');
     const epoch = boundary.capture().epoch;
     const rootToken = presentationBoundary.capture();
     const current = () => !boundary.disposed && boundary.capture().epoch === epoch && presentationBoundary.isCurrent(rootToken);
@@ -921,7 +1018,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       if (!current()) return { ok: false, status: 'superseded' };
       projectedSurfaceVisibility.set(id, input.nextHidden === true);
       return result;
-    } finally { detach(); lifetime.dispose(); }
+    } finally { detach(); lifetime.dispose(); projectSurfaceLifecycle(); }
   }
 
   async function runTransitionSurfaces(transition, surfaceIds, nextHidden, previousSnapshot, nextSnapshot, metadata) {
@@ -982,30 +1079,32 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   }
 
   async function syncOwnedVisibility(stateSnapshot, surfaceIds = null, metadata = {}, previousSnapshot = null, commitReport = null) {
-    await syncDescriptorVisibility(commitReport, metadata);
-    if (!reservedOwners.visibility || !runtimes.transitions || typeof runtimes.transitions.applyVisibilityPatch !== 'function') return [];
-    const scoped = surfaceIds instanceof Set
-      ? surfaces.filter((surface) => surface && surfaceIds.has(String(surface.id || '')))
-      : surfaces;
-    return Promise.all(scoped.map((surface) => {
-      const element = surfaceElement(surface && surface.id);
-      const record = surfaceRecord(stateSnapshot, surface);
-      if (!element || !hasOwn(record, 'hidden')) return null;
-      const surfaceId = String(surface.id || '');
-      const nextHidden = shellClosedSurfaces.has(surfaceId) || record.hidden === true;
-      const modelPreviousHidden = previousSnapshot ? surfaceHidden(previousSnapshot, surface) : null;
-      const previousHidden = modelPreviousHidden === null
-        ? (projectedSurfaceVisibility.has(surfaceId) ? projectedSurfaceVisibility.get(surfaceId) : false)
-        : modelPreviousHidden;
-      return applyProjectedVisibility({
-        surface: surfaceId,
-        element,
-        previousHidden,
-        nextHidden,
-        action: metadata.action || '',
-        metadata: { ...metadata, phase: metadata.phase || 'visibility-sync' }
-      });
-    }).filter(Boolean));
+    try {
+      await syncDescriptorVisibility(commitReport, metadata);
+      if (!reservedOwners.visibility || !runtimes.transitions || typeof runtimes.transitions.applyVisibilityPatch !== 'function') return [];
+      const scoped = surfaceIds instanceof Set
+        ? surfaces.filter((surface) => surface && surfaceIds.has(String(surface.id || '')))
+        : surfaces;
+      return await Promise.all(scoped.map((surface) => {
+        const element = surfaceElement(surface && surface.id);
+        const record = surfaceRecord(stateSnapshot, surface);
+        if (!element || !hasOwn(record, 'hidden')) return null;
+        const surfaceId = String(surface.id || '');
+        const nextHidden = shellClosedSurfaces.has(surfaceId) || record.hidden === true;
+        const modelPreviousHidden = previousSnapshot ? surfaceHidden(previousSnapshot, surface) : null;
+        const previousHidden = modelPreviousHidden === null
+          ? (projectedSurfaceVisibility.has(surfaceId) ? projectedSurfaceVisibility.get(surfaceId) : false)
+          : modelPreviousHidden;
+        return applyProjectedVisibility({
+          surface: surfaceId,
+          element,
+          previousHidden,
+          nextHidden,
+          action: metadata.action || '',
+          metadata: { ...metadata, phase: metadata.phase || 'visibility-sync' }
+        });
+      }).filter(Boolean));
+    } finally { projectSurfaceLifecycle(); }
   }
 
   function createRenderContext(metadata = {}, stateSnapshot = null) {
@@ -1076,21 +1175,28 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   }
 
   function rendererCommit(request, metadata = {}) {
-    if (runtimes.renderer && typeof runtimes.renderer.commit === 'function') {
-      return normalizeRendererReport(runtimes.renderer.commit(request), request, {
-        changed: true,
-        structural: request.operation === 'replace-children'
-      });
+    projectSurfaceLifecycle('prepare');
+    try {
+      if (runtimes.renderer && typeof runtimes.renderer.commit === 'function') {
+        return normalizeRendererReport(runtimes.renderer.commit(request), request, {
+          changed: true,
+          structural: request.operation === 'replace-children'
+        });
+      }
+      return legacyFullRender({
+        operation: 'replace-children',
+        target: root,
+        descriptor: projectDescriptor(
+          asRecord(artifact.render).root || { type: 'fragment', children: [] }
+        ),
+        context: createRenderContext(metadata),
+        ownership
+      }, metadata);
+    } finally {
+      // Reapply native lifecycle state even when a model/renderer operation
+      // failed after the temporary preparation restored its owned overlay.
+      projectSurfaceLifecycle();
     }
-    return legacyFullRender({
-      operation: 'replace-children',
-      target: root,
-      descriptor: projectDescriptor(
-        asRecord(artifact.render).root || { type: 'fragment', children: [] }
-      ),
-      context: createRenderContext(metadata),
-      ownership
-    }, metadata);
   }
 
   function fullRender(metadata = {}, stateSnapshot = null, validationStage = null) {
@@ -3263,7 +3369,10 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       }
       if (surfaceController && typeof surfaceController.subscribe === 'function') {
         const unsubscribe = surfaceController.subscribe((surfaceSnapshot) => {
-          syncSurfaceBoundaries(surfaceSnapshot);
+          // Subscriber snapshots may omit tombstones for ordinary consumers.
+          // Presentation lifetimes must read the complete authority instead.
+          syncSurfaceBoundaries(readSurfaceLifecycleSnapshot(surfaceSnapshot));
+          projectSurfaceLifecycle();
           publish('surface-controller', { snapshot: surfaceSnapshot });
         });
         if (typeof unsubscribe === 'function') disposers.add(unsubscribe);
@@ -3525,6 +3634,8 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     surfaceBoundaries.clear();
     surfaceTargets.clear();
     surfaceLifetimes.clear();
+    currentSurfaceLifecycleSnapshot = null;
+    xtensionOwnerSurfaces.clear();
     shellClosedSurfaces.clear();
     if (resolveDisposed) {
       resolveDisposed(runtimeDisposedError());

@@ -64,10 +64,12 @@ Direct use of `createRmtActionEffectRuntime` requires an explicitly injected `ef
 
 An event binding's `when` condition survives as an AST through to the event router. False guards block payload mapping, event governance and dispatch. Model/selector values use a read-only snapshot; unknown or unresolved guards grant no permission. Details, including Classic precedence, are under [Conditions and Expressions](./rmt-reference-conditions-expressions.md#event-conditions-in-the-maraca-path).
 
-This implementation uses Classic Compiler API **4.1.0**, the compatible vNext compiler entry **1.2.0**, Event Routing API **3.0.0**, Action Effect API **2.0.0**, Surface Resource Graph API **2.1.0** and DOM Descriptor Renderer API **2.1.0**. Existing Classic AST/wire IDs remain unchanged. This does not establish a new RMTX syntax.
+This implementation uses Classic Compiler API **4.1.0**, the compatible vNext compiler entry **1.2.0**, Event Routing API **3.0.0**, Action Effect API **2.0.0**, Surface Resource Graph API **2.2.1** and DOM Descriptor Renderer API **2.2.0**. Existing Classic AST/wire IDs remain unchanged. This does not establish a new RMTX syntax.
 
 Result overlays open inside the declared, uniquely resolved application portal. The shared renderer preserves native portal roots across subsequent view commits using private ownership recorded from actual create-node requests. HTML attributes and descriptor markers do not grant this reservation. Portal resolution stays in the view/resource-graph adapter; the controller does not read DOM.
 
+
+The native Maraca view lifecycle uses View Projection Adapter **2.0.0** with schema `.v2`; an explicitly selected `.v1` port remains supported. Close hides the native view, and resume preserves its identity and existing visibility values. Destroy ends old presentation tokens and removes the native view without indirectly detaching active foreign roots through their parents. An ordinary Model/view commit cannot resurrect a destroyed owner: managed materialization uses `materialize(..., { preserveDestroyed: true })`; a new generation requires explicit lifecycle recreation. DOM projection remains view work, preserving the existing Kernel/Fabric/Model boundaries.
 
 ### Component commands
 

@@ -1,0 +1,1670 @@
+{
+  "format": 1,
+  "version": "1.1.0",
+  "date": "2026-11-15",
+  "stage": "A06-native-header-acceptance",
+  "executedSuccessfully": true,
+  "passed": true,
+  "status": "native-lifecycle-fixed",
+  "nativeHeaderAccepted": true,
+  "casesPerVariant": 21,
+  "passedCasesPerVariant": 21,
+  "failedCasesPerVariant": 0,
+  "failedExpectations": [],
+  "apiVersions": {
+    "viewProjection": "2.0.0",
+    "viewProjectionSchema": "xtend.rmt.maraca-view-projection-adapter.v2",
+    "surfaceResourceGraph": "2.2.1",
+    "domDescriptorRenderer": "2.2.0",
+    "planRuntimeWire": "xtend.maraca.plan-runtime.v7"
+  },
+  "nodeLanes": [
+    "v24.18.0",
+    "v26.5.0"
+  ],
+  "browser": "Chromium 155.0.8059.79",
+  "runs": [
+    {
+      "format": 1,
+      "version": "1.1.0",
+      "stage": "A06-native-header-acceptance",
+      "node": "v24.18.0",
+      "mode": "jsdom-native-frameworks",
+      "browserVersion": null,
+      "pageErrors": [],
+      "versions": {
+        "react": "18.3.1",
+        "vue": "3.5.43"
+      },
+      "passed": true,
+      "variants": {
+        "declarative": {
+          "acceptance": {
+            "format": 1,
+            "version": "1.1.0",
+            "passed": true,
+            "cases": 21,
+            "passedCases": 21,
+            "failedCases": 0,
+            "checks": [
+              {
+                "name": "native header is mounted by the actual Maraca renderer within the declared owner",
+                "passed": true,
+                "observed": "<h1 data-rmt-key=\"product-header\" data-rmtx-native-header=\"product-header\">p1</h1>"
+              },
+              {
+                "name": "native header coexists with two real framework roots and native Kernel/Fabric admission",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "a compiled rename Action updates the actual Model and native header",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "native update preserves the header and both framework DOM identities",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "Model text is rendered as text, including markup-shaped input",
+                "passed": true,
+                "observed": "&lt;img src=x onerror=\"globalThis.__rmtxHeaderExecuted=true\"&gt;"
+              },
+              {
+                "name": "actual React/Vue intents still reach Actions while preserving native header identity and value",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "closing the owner invalidates native presentation admission",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "closing the owner hides its native view without a second view writer",
+                "passed": true,
+                "observed": {
+                  "hidden": true,
+                  "display": "none",
+                  "visibility": "visible"
+                }
+              },
+              {
+                "name": "closing the owner suspends both providers without detaching their roots",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "Model updates while closed retain the hidden native owner and provider roots",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "resume retains the native header and provider identities",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "application runtime disposal clears the native header and releases both provider leases",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "disposed runtime rejects late native updates",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy scenario captures a genuinely active native owner lifetime",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy revokes both real provider resource leases",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy disposes the existing native presentation boundary",
+                "passed": true,
+                "observed": {
+                  "disposed": true,
+                  "active": false,
+                  "signalAborted": true
+                }
+              },
+              {
+                "name": "destroy removes the native header from its owner view",
+                "passed": true,
+                "observed": {
+                  "headerConnected": false,
+                  "graphState": "destroyed"
+                }
+              },
+              {
+                "name": "a command carrying the destroyed native owner lifetime is superseded before any Model or header write",
+                "passed": true,
+                "observed": {
+                  "status": "superseded",
+                  "error": null,
+                  "modelId": "p1",
+                  "headerText": "p1",
+                  "oldLifetimeStillCurrent": false
+                }
+              },
+              {
+                "name": "an unscoped global Model update does not resurrect destroyed native or provider lifetimes",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "explicit recreate and a new view commit admit a new native owner generation",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "recreation never revives the old generation token",
+                "passed": true,
+                "observed": null
+              }
+            ],
+            "trace": [
+              {
+                "phase": "mounted-updated-resumed",
+                "text": "changed-while-closed",
+                "selectedImageId": "back",
+                "reviewsSort": "rating"
+              },
+              {
+                "phase": "destroyed-owner",
+                "graphState": "destroyed",
+                "disposed": true,
+                "oldLifetimeCurrent": false,
+                "modelId": "p1",
+                "headerConnected": false,
+                "headerText": "p1"
+              },
+              {
+                "phase": "recreated-owner",
+                "oldBoundaryDisposed": true,
+                "newBoundaryActive": true,
+                "oldLifetimeCurrent": false,
+                "modelId": "explicitly-recreated",
+                "newHeaderConnected": true,
+                "oldHeaderConnected": false
+              }
+            ],
+            "actualMaracaRenderer": true,
+            "actualReactVueProviders": true,
+            "additionalDomWriter": false,
+            "additionalModelWriter": false,
+            "sourceExecuted": false,
+            "productionFrontendImplemented": false,
+            "acceptedForRelease": false
+          }
+        },
+        "hybrid": {
+          "acceptance": {
+            "format": 1,
+            "version": "1.1.0",
+            "passed": true,
+            "cases": 21,
+            "passedCases": 21,
+            "failedCases": 0,
+            "checks": [
+              {
+                "name": "native header is mounted by the actual Maraca renderer within the declared owner",
+                "passed": true,
+                "observed": "<h1 data-rmt-key=\"product-header\" data-rmtx-native-header=\"product-header\">p1</h1>"
+              },
+              {
+                "name": "native header coexists with two real framework roots and native Kernel/Fabric admission",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "a compiled rename Action updates the actual Model and native header",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "native update preserves the header and both framework DOM identities",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "Model text is rendered as text, including markup-shaped input",
+                "passed": true,
+                "observed": "&lt;img src=x onerror=\"globalThis.__rmtxHeaderExecuted=true\"&gt;"
+              },
+              {
+                "name": "actual React/Vue intents still reach Actions while preserving native header identity and value",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "closing the owner invalidates native presentation admission",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "closing the owner hides its native view without a second view writer",
+                "passed": true,
+                "observed": {
+                  "hidden": true,
+                  "display": "none",
+                  "visibility": "visible"
+                }
+              },
+              {
+                "name": "closing the owner suspends both providers without detaching their roots",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "Model updates while closed retain the hidden native owner and provider roots",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "resume retains the native header and provider identities",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "application runtime disposal clears the native header and releases both provider leases",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "disposed runtime rejects late native updates",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy scenario captures a genuinely active native owner lifetime",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy revokes both real provider resource leases",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy disposes the existing native presentation boundary",
+                "passed": true,
+                "observed": {
+                  "disposed": true,
+                  "active": false,
+                  "signalAborted": true
+                }
+              },
+              {
+                "name": "destroy removes the native header from its owner view",
+                "passed": true,
+                "observed": {
+                  "headerConnected": false,
+                  "graphState": "destroyed"
+                }
+              },
+              {
+                "name": "a command carrying the destroyed native owner lifetime is superseded before any Model or header write",
+                "passed": true,
+                "observed": {
+                  "status": "superseded",
+                  "error": null,
+                  "modelId": "p1",
+                  "headerText": "p1",
+                  "oldLifetimeStillCurrent": false
+                }
+              },
+              {
+                "name": "an unscoped global Model update does not resurrect destroyed native or provider lifetimes",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "explicit recreate and a new view commit admit a new native owner generation",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "recreation never revives the old generation token",
+                "passed": true,
+                "observed": null
+              }
+            ],
+            "trace": [
+              {
+                "phase": "mounted-updated-resumed",
+                "text": "changed-while-closed",
+                "selectedImageId": "back",
+                "reviewsSort": "rating"
+              },
+              {
+                "phase": "destroyed-owner",
+                "graphState": "destroyed",
+                "disposed": true,
+                "oldLifetimeCurrent": false,
+                "modelId": "p1",
+                "headerConnected": false,
+                "headerText": "p1"
+              },
+              {
+                "phase": "recreated-owner",
+                "oldBoundaryDisposed": true,
+                "newBoundaryActive": true,
+                "oldLifetimeCurrent": false,
+                "modelId": "explicitly-recreated",
+                "newHeaderConnected": true,
+                "oldHeaderConnected": false
+              }
+            ],
+            "actualMaracaRenderer": true,
+            "actualReactVueProviders": true,
+            "additionalDomWriter": false,
+            "additionalModelWriter": false,
+            "sourceExecuted": false,
+            "productionFrontendImplemented": false,
+            "acceptedForRelease": false
+          }
+        }
+      },
+      "differentialTraceEqual": true,
+      "nativeHeaderRuntimeEvaluated": true,
+      "ssrAcceptancePerformed": false,
+      "productionFrontendImplemented": false,
+      "acceptedForRelease": false,
+      "sourceStableDuringExecution": true,
+      "sources": {
+        "development/rmtx-a06/syntax-comparison/authoring.d.ts": "61ab277b1b7789dfb5a09525a5a9cac121a4f28c7f7aa8bfb0073dd503552306",
+        "development/rmtx-a06/syntax-comparison/classic.rmt": "3468c5d11497f8357b9078a449c27b308b44b872dbac812f97eae1abcf1aa88a",
+        "development/rmtx-a06/syntax-comparison/comparison.cjs": "5726124c3950ea8c81871c165bc15c2322d04ca11eeef8c7a5a74d72e60da15c",
+        "development/rmtx-a06/syntax-comparison/declarative.rmtx": "2eb2d495516c8b44ceda04e8d5e69e80693c352e6a5d59b3620b1a5bbb7d0704",
+        "development/rmtx-a06/syntax-comparison/declarative.tsx": "2eb2d495516c8b44ceda04e8d5e69e80693c352e6a5d59b3620b1a5bbb7d0704",
+        "development/rmtx-a06/syntax-comparison/extension-probes.cjs": "6e0266eef24e54ed39e2ca3e91f1cacb3c5af21ffe2dced5e03916df873c0a8f",
+        "development/rmtx-a06/syntax-comparison/inspect.cjs": "208f9b34c84600f5d48ecb918303eb913abf81eb46c8b11c0faa31b773ed5e06",
+        "development/rmtx-a06/syntax-comparison/jsx-runtime.d.ts": "c713e1235ffd7f6e47a554ffd3f57aa92452194dc82dcde2245afa4f94131ddd",
+        "development/rmtx-a06/syntax-comparison/native-header-acceptance.mjs": "93bcf8f3c8a49bb31e8c96a7653a951454fe6eb404f516c73b967693315886fc",
+        "development/rmtx-a06/syntax-comparison/native-header-reference.cjs": "1bd9aa26aba501505d87e737eeb8c108490f3d481ef42c8d62b35af87f5eb2cb",
+        "development/rmtx-a06/syntax-comparison/native-header-test.cjs": "65d80c5a9a89601e61a4922bd12a44bb734dbdc45d474e08f59dcf26737a1db0",
+        "development/rmtx-a06/syntax-comparison/native-header.rmt": "2fd7b3ebbacdfd3793e74abe7a6036337363d84aef794cbc57aa41e7c6a927b7",
+        "development/rmtx-a06/syntax-comparison/native-header.rmtx": "91114ddf5c2253f1bf64f69c1c0bf3d3190112c2c5684cf2b7ebdd4fede213dc",
+        "development/rmtx-a06/syntax-comparison/runtime-comparison.cjs": "0a0fd57d602bf9de31c69ae7f187821d8fd9a6459b596f2ecf2e90bbdd632aed",
+        "development/rmtx-a06/syntax-comparison/view.tsx": "eba25929d68792c1b5c616317aac0937d5a5878bba3355c2fea16362000e4551",
+        "development/rmtx-a06/two-host-runtime.mjs": "795952fbbb6681492a98ac93246c60f8f76c07a98b872d25653979c44eb9c482",
+        "development/rmtx-a06/two-host-acceptance.mjs": "de23588a7d23b83bce2f9a9c2198b216b480226bfe0f802908d945c90cc235d8",
+        "development/rmtx-a06/two-host-reference.cjs": "64084cf748ed44586bb0eecd3a8e15fcbc4b7e967ca0c4e1b96ad00b3c7fcc08",
+        "development/rmtx-a06/providers/catalog.json": "4f38fa3e2b73c374b0fab112b5ba1d6f12da2b95253e4148088389f7d087f801",
+        "development/rmtx-a06/providers/react-gallery.mjs": "9846140e741d787f0feef302fb3ca3ef75e7519dd54a7fc1f0fd9448cb07df37",
+        "development/rmtx-a06/providers/vue-reviews.mjs": "71e48dfdb1e797493aba0748e9777b9cb3afdbee6faf90c217df3f88aa239db8",
+        "xtend-maraca/plan-runtime.mjs": "0a4970152bddfa0c3b431e72e104b4ed1ae5756e381ea41e0b14c226d0f131a6",
+        "xtendrmt/rmt-dom-descriptor-renderer.js": "69981e6ec2f51094e1607e52c39324a02358ac9be75dc4b0a120d4dcb895a555",
+        "xtendrmt/rmt-runtime.esm.js": "185cc0e40510d240f70da76ef558e4e1cb25ccd116dfbd6c470c0fba825c4770",
+        "xtendrmt/rmt-kernel-scheduler.js": "cb6968fa9b5a784f93e6c941e4a634bdd527525247a1f4653f9c7b204829e766",
+        "xtendrmt/rmt-state-selector-runtime.js": "150f5ae1a279cf7457be54fc7a466afeb1a2a026a911ab1cb1d16ae5da2a669d",
+        "xtendrmt/rmt-state-host-adapter.js": "1c3b0ce150cee986ecdda1d0a9c92e7f323ee31cbb920c5072aa2772cd078de6",
+        "xtendrmt/rmt-action-effect-runtime.js": "3798c901579959de2aec8e6cedf9f07ee969bfd00bf0cc3478c0ad8831c6bcaa",
+        "xtendrmt/rmt-app-runtime.js": "3d20461b92e62ac73af1317e855bd2426337f3886f51c91d23297f92c90fdceb",
+        "xtendrmt/rmt-maraca-view-projection-adapter.js": "ee09855bee0e3973cfd8ec521c6b661256c3f1be7e4e8b6e782dd323ffb313be",
+        "xtendrmt/rmt-presentation-effect-adapter.js": "87c7d4a3e886bfd45d98b7b5dd385ce06a578dc408a3ceb0a6122f5010f9cd0f",
+        "xtendrmt/rmt-event-routing-runtime.js": "257b2f73fecc4d659f3c393b51dc7b2c940d196eee84caef67d29f3ec2e4448e",
+        "xtendrmt/rmt-surface-resource-graph-runtime.js": "9344b64339e1e08d4bd64933fabe5c14a12fadd24cd546b787cf727de469f446",
+        "components/xsurfacemanager-controller.js": "a747e5a4bd9d4c1205dc464d046eb5bc65531acc74d083d78e10d5c614afa7a5",
+        "components/xtend-state.js": "a53defa3247b3778d115e147a3094624206cb46ca9f5bcd18b345a3d059d849b",
+        "fabric/xtend-fabric.js": "ea7fa64431048e724a336ecd3117c90c6bb8a0ab2871e1ba618d8381ed3f822d",
+        "tools/xtensions/component-interface.js": "8d3b813dcc2b4bbb230d8e18720487c7f19e84bcf2bcbcea55cd251f0b6e7646",
+        "tools/xtensions/component-interface-build.js": "7dade34c20e63b7f7f17fac03026cbb18ece5209d1ebbb712dafa86ca644d5f4",
+        "tools/xtensions/state-binding.js": "19b0f4266fc7546016eb68df9eec391b554ab22a96d5eb97d001c0efa047ca79",
+        "tools/xtensions/react-runtime-adapter.js": "e780ccdfcc00ca7d75bec3b2bdebb383e3caa2fc40d3bfdaf4bfe85995a0308a",
+        "tools/xtensions/vue-runtime-adapter.js": "d68a72b9782be8c3d705d10af40ca4a6576c3cc0e3a9884c8db02073c8b9745c",
+        "development/rmtx-a06/providers/react.interface.json": "45394fbe58a8f81445891526967d691786ef1ecf2fd6eb08e520e69322c76539",
+        "development/rmtx-a06/providers/vue.interface.json": "30de14608052cdd250f1f56b06fa0b5c7df8dda73803d5d5daa96355e5a6f1e4"
+      }
+    },
+    {
+      "format": 1,
+      "version": "1.1.0",
+      "stage": "A06-native-header-acceptance",
+      "node": "v26.5.0",
+      "mode": "jsdom-native-frameworks",
+      "browserVersion": null,
+      "pageErrors": [],
+      "versions": {
+        "react": "18.3.1",
+        "vue": "3.5.43"
+      },
+      "passed": true,
+      "variants": {
+        "declarative": {
+          "acceptance": {
+            "format": 1,
+            "version": "1.1.0",
+            "passed": true,
+            "cases": 21,
+            "passedCases": 21,
+            "failedCases": 0,
+            "checks": [
+              {
+                "name": "native header is mounted by the actual Maraca renderer within the declared owner",
+                "passed": true,
+                "observed": "<h1 data-rmt-key=\"product-header\" data-rmtx-native-header=\"product-header\">p1</h1>"
+              },
+              {
+                "name": "native header coexists with two real framework roots and native Kernel/Fabric admission",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "a compiled rename Action updates the actual Model and native header",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "native update preserves the header and both framework DOM identities",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "Model text is rendered as text, including markup-shaped input",
+                "passed": true,
+                "observed": "&lt;img src=x onerror=\"globalThis.__rmtxHeaderExecuted=true\"&gt;"
+              },
+              {
+                "name": "actual React/Vue intents still reach Actions while preserving native header identity and value",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "closing the owner invalidates native presentation admission",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "closing the owner hides its native view without a second view writer",
+                "passed": true,
+                "observed": {
+                  "hidden": true,
+                  "display": "none",
+                  "visibility": "visible"
+                }
+              },
+              {
+                "name": "closing the owner suspends both providers without detaching their roots",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "Model updates while closed retain the hidden native owner and provider roots",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "resume retains the native header and provider identities",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "application runtime disposal clears the native header and releases both provider leases",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "disposed runtime rejects late native updates",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy scenario captures a genuinely active native owner lifetime",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy revokes both real provider resource leases",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy disposes the existing native presentation boundary",
+                "passed": true,
+                "observed": {
+                  "disposed": true,
+                  "active": false,
+                  "signalAborted": true
+                }
+              },
+              {
+                "name": "destroy removes the native header from its owner view",
+                "passed": true,
+                "observed": {
+                  "headerConnected": false,
+                  "graphState": "destroyed"
+                }
+              },
+              {
+                "name": "a command carrying the destroyed native owner lifetime is superseded before any Model or header write",
+                "passed": true,
+                "observed": {
+                  "status": "superseded",
+                  "error": null,
+                  "modelId": "p1",
+                  "headerText": "p1",
+                  "oldLifetimeStillCurrent": false
+                }
+              },
+              {
+                "name": "an unscoped global Model update does not resurrect destroyed native or provider lifetimes",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "explicit recreate and a new view commit admit a new native owner generation",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "recreation never revives the old generation token",
+                "passed": true,
+                "observed": null
+              }
+            ],
+            "trace": [
+              {
+                "phase": "mounted-updated-resumed",
+                "text": "changed-while-closed",
+                "selectedImageId": "back",
+                "reviewsSort": "rating"
+              },
+              {
+                "phase": "destroyed-owner",
+                "graphState": "destroyed",
+                "disposed": true,
+                "oldLifetimeCurrent": false,
+                "modelId": "p1",
+                "headerConnected": false,
+                "headerText": "p1"
+              },
+              {
+                "phase": "recreated-owner",
+                "oldBoundaryDisposed": true,
+                "newBoundaryActive": true,
+                "oldLifetimeCurrent": false,
+                "modelId": "explicitly-recreated",
+                "newHeaderConnected": true,
+                "oldHeaderConnected": false
+              }
+            ],
+            "actualMaracaRenderer": true,
+            "actualReactVueProviders": true,
+            "additionalDomWriter": false,
+            "additionalModelWriter": false,
+            "sourceExecuted": false,
+            "productionFrontendImplemented": false,
+            "acceptedForRelease": false
+          }
+        },
+        "hybrid": {
+          "acceptance": {
+            "format": 1,
+            "version": "1.1.0",
+            "passed": true,
+            "cases": 21,
+            "passedCases": 21,
+            "failedCases": 0,
+            "checks": [
+              {
+                "name": "native header is mounted by the actual Maraca renderer within the declared owner",
+                "passed": true,
+                "observed": "<h1 data-rmt-key=\"product-header\" data-rmtx-native-header=\"product-header\">p1</h1>"
+              },
+              {
+                "name": "native header coexists with two real framework roots and native Kernel/Fabric admission",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "a compiled rename Action updates the actual Model and native header",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "native update preserves the header and both framework DOM identities",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "Model text is rendered as text, including markup-shaped input",
+                "passed": true,
+                "observed": "&lt;img src=x onerror=\"globalThis.__rmtxHeaderExecuted=true\"&gt;"
+              },
+              {
+                "name": "actual React/Vue intents still reach Actions while preserving native header identity and value",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "closing the owner invalidates native presentation admission",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "closing the owner hides its native view without a second view writer",
+                "passed": true,
+                "observed": {
+                  "hidden": true,
+                  "display": "none",
+                  "visibility": "visible"
+                }
+              },
+              {
+                "name": "closing the owner suspends both providers without detaching their roots",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "Model updates while closed retain the hidden native owner and provider roots",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "resume retains the native header and provider identities",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "application runtime disposal clears the native header and releases both provider leases",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "disposed runtime rejects late native updates",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy scenario captures a genuinely active native owner lifetime",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy revokes both real provider resource leases",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy disposes the existing native presentation boundary",
+                "passed": true,
+                "observed": {
+                  "disposed": true,
+                  "active": false,
+                  "signalAborted": true
+                }
+              },
+              {
+                "name": "destroy removes the native header from its owner view",
+                "passed": true,
+                "observed": {
+                  "headerConnected": false,
+                  "graphState": "destroyed"
+                }
+              },
+              {
+                "name": "a command carrying the destroyed native owner lifetime is superseded before any Model or header write",
+                "passed": true,
+                "observed": {
+                  "status": "superseded",
+                  "error": null,
+                  "modelId": "p1",
+                  "headerText": "p1",
+                  "oldLifetimeStillCurrent": false
+                }
+              },
+              {
+                "name": "an unscoped global Model update does not resurrect destroyed native or provider lifetimes",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "explicit recreate and a new view commit admit a new native owner generation",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "recreation never revives the old generation token",
+                "passed": true,
+                "observed": null
+              }
+            ],
+            "trace": [
+              {
+                "phase": "mounted-updated-resumed",
+                "text": "changed-while-closed",
+                "selectedImageId": "back",
+                "reviewsSort": "rating"
+              },
+              {
+                "phase": "destroyed-owner",
+                "graphState": "destroyed",
+                "disposed": true,
+                "oldLifetimeCurrent": false,
+                "modelId": "p1",
+                "headerConnected": false,
+                "headerText": "p1"
+              },
+              {
+                "phase": "recreated-owner",
+                "oldBoundaryDisposed": true,
+                "newBoundaryActive": true,
+                "oldLifetimeCurrent": false,
+                "modelId": "explicitly-recreated",
+                "newHeaderConnected": true,
+                "oldHeaderConnected": false
+              }
+            ],
+            "actualMaracaRenderer": true,
+            "actualReactVueProviders": true,
+            "additionalDomWriter": false,
+            "additionalModelWriter": false,
+            "sourceExecuted": false,
+            "productionFrontendImplemented": false,
+            "acceptedForRelease": false
+          }
+        }
+      },
+      "differentialTraceEqual": true,
+      "nativeHeaderRuntimeEvaluated": true,
+      "ssrAcceptancePerformed": false,
+      "productionFrontendImplemented": false,
+      "acceptedForRelease": false,
+      "sourceStableDuringExecution": true,
+      "sources": {
+        "development/rmtx-a06/syntax-comparison/authoring.d.ts": "61ab277b1b7789dfb5a09525a5a9cac121a4f28c7f7aa8bfb0073dd503552306",
+        "development/rmtx-a06/syntax-comparison/classic.rmt": "3468c5d11497f8357b9078a449c27b308b44b872dbac812f97eae1abcf1aa88a",
+        "development/rmtx-a06/syntax-comparison/comparison.cjs": "5726124c3950ea8c81871c165bc15c2322d04ca11eeef8c7a5a74d72e60da15c",
+        "development/rmtx-a06/syntax-comparison/declarative.rmtx": "2eb2d495516c8b44ceda04e8d5e69e80693c352e6a5d59b3620b1a5bbb7d0704",
+        "development/rmtx-a06/syntax-comparison/declarative.tsx": "2eb2d495516c8b44ceda04e8d5e69e80693c352e6a5d59b3620b1a5bbb7d0704",
+        "development/rmtx-a06/syntax-comparison/extension-probes.cjs": "6e0266eef24e54ed39e2ca3e91f1cacb3c5af21ffe2dced5e03916df873c0a8f",
+        "development/rmtx-a06/syntax-comparison/inspect.cjs": "208f9b34c84600f5d48ecb918303eb913abf81eb46c8b11c0faa31b773ed5e06",
+        "development/rmtx-a06/syntax-comparison/jsx-runtime.d.ts": "c713e1235ffd7f6e47a554ffd3f57aa92452194dc82dcde2245afa4f94131ddd",
+        "development/rmtx-a06/syntax-comparison/native-header-acceptance.mjs": "93bcf8f3c8a49bb31e8c96a7653a951454fe6eb404f516c73b967693315886fc",
+        "development/rmtx-a06/syntax-comparison/native-header-reference.cjs": "1bd9aa26aba501505d87e737eeb8c108490f3d481ef42c8d62b35af87f5eb2cb",
+        "development/rmtx-a06/syntax-comparison/native-header-test.cjs": "65d80c5a9a89601e61a4922bd12a44bb734dbdc45d474e08f59dcf26737a1db0",
+        "development/rmtx-a06/syntax-comparison/native-header.rmt": "2fd7b3ebbacdfd3793e74abe7a6036337363d84aef794cbc57aa41e7c6a927b7",
+        "development/rmtx-a06/syntax-comparison/native-header.rmtx": "91114ddf5c2253f1bf64f69c1c0bf3d3190112c2c5684cf2b7ebdd4fede213dc",
+        "development/rmtx-a06/syntax-comparison/runtime-comparison.cjs": "0a0fd57d602bf9de31c69ae7f187821d8fd9a6459b596f2ecf2e90bbdd632aed",
+        "development/rmtx-a06/syntax-comparison/view.tsx": "eba25929d68792c1b5c616317aac0937d5a5878bba3355c2fea16362000e4551",
+        "development/rmtx-a06/two-host-runtime.mjs": "795952fbbb6681492a98ac93246c60f8f76c07a98b872d25653979c44eb9c482",
+        "development/rmtx-a06/two-host-acceptance.mjs": "de23588a7d23b83bce2f9a9c2198b216b480226bfe0f802908d945c90cc235d8",
+        "development/rmtx-a06/two-host-reference.cjs": "64084cf748ed44586bb0eecd3a8e15fcbc4b7e967ca0c4e1b96ad00b3c7fcc08",
+        "development/rmtx-a06/providers/catalog.json": "4f38fa3e2b73c374b0fab112b5ba1d6f12da2b95253e4148088389f7d087f801",
+        "development/rmtx-a06/providers/react-gallery.mjs": "9846140e741d787f0feef302fb3ca3ef75e7519dd54a7fc1f0fd9448cb07df37",
+        "development/rmtx-a06/providers/vue-reviews.mjs": "71e48dfdb1e797493aba0748e9777b9cb3afdbee6faf90c217df3f88aa239db8",
+        "xtend-maraca/plan-runtime.mjs": "0a4970152bddfa0c3b431e72e104b4ed1ae5756e381ea41e0b14c226d0f131a6",
+        "xtendrmt/rmt-dom-descriptor-renderer.js": "69981e6ec2f51094e1607e52c39324a02358ac9be75dc4b0a120d4dcb895a555",
+        "xtendrmt/rmt-runtime.esm.js": "185cc0e40510d240f70da76ef558e4e1cb25ccd116dfbd6c470c0fba825c4770",
+        "xtendrmt/rmt-kernel-scheduler.js": "cb6968fa9b5a784f93e6c941e4a634bdd527525247a1f4653f9c7b204829e766",
+        "xtendrmt/rmt-state-selector-runtime.js": "150f5ae1a279cf7457be54fc7a466afeb1a2a026a911ab1cb1d16ae5da2a669d",
+        "xtendrmt/rmt-state-host-adapter.js": "1c3b0ce150cee986ecdda1d0a9c92e7f323ee31cbb920c5072aa2772cd078de6",
+        "xtendrmt/rmt-action-effect-runtime.js": "3798c901579959de2aec8e6cedf9f07ee969bfd00bf0cc3478c0ad8831c6bcaa",
+        "xtendrmt/rmt-app-runtime.js": "3d20461b92e62ac73af1317e855bd2426337f3886f51c91d23297f92c90fdceb",
+        "xtendrmt/rmt-maraca-view-projection-adapter.js": "ee09855bee0e3973cfd8ec521c6b661256c3f1be7e4e8b6e782dd323ffb313be",
+        "xtendrmt/rmt-presentation-effect-adapter.js": "87c7d4a3e886bfd45d98b7b5dd385ce06a578dc408a3ceb0a6122f5010f9cd0f",
+        "xtendrmt/rmt-event-routing-runtime.js": "257b2f73fecc4d659f3c393b51dc7b2c940d196eee84caef67d29f3ec2e4448e",
+        "xtendrmt/rmt-surface-resource-graph-runtime.js": "9344b64339e1e08d4bd64933fabe5c14a12fadd24cd546b787cf727de469f446",
+        "components/xsurfacemanager-controller.js": "a747e5a4bd9d4c1205dc464d046eb5bc65531acc74d083d78e10d5c614afa7a5",
+        "components/xtend-state.js": "a53defa3247b3778d115e147a3094624206cb46ca9f5bcd18b345a3d059d849b",
+        "fabric/xtend-fabric.js": "ea7fa64431048e724a336ecd3117c90c6bb8a0ab2871e1ba618d8381ed3f822d",
+        "tools/xtensions/component-interface.js": "8d3b813dcc2b4bbb230d8e18720487c7f19e84bcf2bcbcea55cd251f0b6e7646",
+        "tools/xtensions/component-interface-build.js": "7dade34c20e63b7f7f17fac03026cbb18ece5209d1ebbb712dafa86ca644d5f4",
+        "tools/xtensions/state-binding.js": "19b0f4266fc7546016eb68df9eec391b554ab22a96d5eb97d001c0efa047ca79",
+        "tools/xtensions/react-runtime-adapter.js": "e780ccdfcc00ca7d75bec3b2bdebb383e3caa2fc40d3bfdaf4bfe85995a0308a",
+        "tools/xtensions/vue-runtime-adapter.js": "d68a72b9782be8c3d705d10af40ca4a6576c3cc0e3a9884c8db02073c8b9745c",
+        "development/rmtx-a06/providers/react.interface.json": "45394fbe58a8f81445891526967d691786ef1ecf2fd6eb08e520e69322c76539",
+        "development/rmtx-a06/providers/vue.interface.json": "30de14608052cdd250f1f56b06fa0b5c7df8dda73803d5d5daa96355e5a6f1e4"
+      }
+    },
+    {
+      "format": 1,
+      "version": "1.1.0",
+      "stage": "A06-native-header-acceptance",
+      "node": "v24.18.0",
+      "mode": "chromium",
+      "browserVersion": "155.0.8059.79",
+      "pageErrors": [],
+      "versions": {
+        "react": "18.3.1",
+        "vue": "3.5.43"
+      },
+      "passed": true,
+      "variants": {
+        "declarative": {
+          "acceptance": {
+            "format": 1,
+            "version": "1.1.0",
+            "passed": true,
+            "cases": 21,
+            "passedCases": 21,
+            "failedCases": 0,
+            "checks": [
+              {
+                "name": "native header is mounted by the actual Maraca renderer within the declared owner",
+                "passed": true,
+                "observed": "<h1 data-rmt-key=\"product-header\" data-rmtx-native-header=\"product-header\">p1</h1>"
+              },
+              {
+                "name": "native header coexists with two real framework roots and native Kernel/Fabric admission",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "a compiled rename Action updates the actual Model and native header",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "native update preserves the header and both framework DOM identities",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "Model text is rendered as text, including markup-shaped input",
+                "passed": true,
+                "observed": "&lt;img src=x onerror=\"globalThis.__rmtxHeaderExecuted=true\"&gt;"
+              },
+              {
+                "name": "actual React/Vue intents still reach Actions while preserving native header identity and value",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "closing the owner invalidates native presentation admission",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "closing the owner hides its native view without a second view writer",
+                "passed": true,
+                "observed": {
+                  "hidden": true,
+                  "display": "none",
+                  "visibility": "visible"
+                }
+              },
+              {
+                "name": "closing the owner suspends both providers without detaching their roots",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "Model updates while closed retain the hidden native owner and provider roots",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "resume retains the native header and provider identities",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "application runtime disposal clears the native header and releases both provider leases",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "disposed runtime rejects late native updates",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy scenario captures a genuinely active native owner lifetime",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy revokes both real provider resource leases",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy disposes the existing native presentation boundary",
+                "passed": true,
+                "observed": {
+                  "disposed": true,
+                  "active": false,
+                  "signalAborted": true
+                }
+              },
+              {
+                "name": "destroy removes the native header from its owner view",
+                "passed": true,
+                "observed": {
+                  "headerConnected": false,
+                  "graphState": "destroyed"
+                }
+              },
+              {
+                "name": "a command carrying the destroyed native owner lifetime is superseded before any Model or header write",
+                "passed": true,
+                "observed": {
+                  "status": "superseded",
+                  "error": null,
+                  "modelId": "p1",
+                  "headerText": "p1",
+                  "oldLifetimeStillCurrent": false
+                }
+              },
+              {
+                "name": "an unscoped global Model update does not resurrect destroyed native or provider lifetimes",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "explicit recreate and a new view commit admit a new native owner generation",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "recreation never revives the old generation token",
+                "passed": true,
+                "observed": null
+              }
+            ],
+            "trace": [
+              {
+                "phase": "mounted-updated-resumed",
+                "text": "changed-while-closed",
+                "selectedImageId": "back",
+                "reviewsSort": "rating"
+              },
+              {
+                "phase": "destroyed-owner",
+                "graphState": "destroyed",
+                "disposed": true,
+                "oldLifetimeCurrent": false,
+                "modelId": "p1",
+                "headerConnected": false,
+                "headerText": "p1"
+              },
+              {
+                "phase": "recreated-owner",
+                "oldBoundaryDisposed": true,
+                "newBoundaryActive": true,
+                "oldLifetimeCurrent": false,
+                "modelId": "explicitly-recreated",
+                "newHeaderConnected": true,
+                "oldHeaderConnected": false
+              }
+            ],
+            "actualMaracaRenderer": true,
+            "actualReactVueProviders": true,
+            "additionalDomWriter": false,
+            "additionalModelWriter": false,
+            "sourceExecuted": false,
+            "productionFrontendImplemented": false,
+            "acceptedForRelease": false
+          }
+        },
+        "hybrid": {
+          "acceptance": {
+            "format": 1,
+            "version": "1.1.0",
+            "passed": true,
+            "cases": 21,
+            "passedCases": 21,
+            "failedCases": 0,
+            "checks": [
+              {
+                "name": "native header is mounted by the actual Maraca renderer within the declared owner",
+                "passed": true,
+                "observed": "<h1 data-rmt-key=\"product-header\" data-rmtx-native-header=\"product-header\">p1</h1>"
+              },
+              {
+                "name": "native header coexists with two real framework roots and native Kernel/Fabric admission",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "a compiled rename Action updates the actual Model and native header",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "native update preserves the header and both framework DOM identities",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "Model text is rendered as text, including markup-shaped input",
+                "passed": true,
+                "observed": "&lt;img src=x onerror=\"globalThis.__rmtxHeaderExecuted=true\"&gt;"
+              },
+              {
+                "name": "actual React/Vue intents still reach Actions while preserving native header identity and value",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "closing the owner invalidates native presentation admission",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "closing the owner hides its native view without a second view writer",
+                "passed": true,
+                "observed": {
+                  "hidden": true,
+                  "display": "none",
+                  "visibility": "visible"
+                }
+              },
+              {
+                "name": "closing the owner suspends both providers without detaching their roots",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "Model updates while closed retain the hidden native owner and provider roots",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "resume retains the native header and provider identities",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "application runtime disposal clears the native header and releases both provider leases",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "disposed runtime rejects late native updates",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy scenario captures a genuinely active native owner lifetime",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy revokes both real provider resource leases",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "destroy disposes the existing native presentation boundary",
+                "passed": true,
+                "observed": {
+                  "disposed": true,
+                  "active": false,
+                  "signalAborted": true
+                }
+              },
+              {
+                "name": "destroy removes the native header from its owner view",
+                "passed": true,
+                "observed": {
+                  "headerConnected": false,
+                  "graphState": "destroyed"
+                }
+              },
+              {
+                "name": "a command carrying the destroyed native owner lifetime is superseded before any Model or header write",
+                "passed": true,
+                "observed": {
+                  "status": "superseded",
+                  "error": null,
+                  "modelId": "p1",
+                  "headerText": "p1",
+                  "oldLifetimeStillCurrent": false
+                }
+              },
+              {
+                "name": "an unscoped global Model update does not resurrect destroyed native or provider lifetimes",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "explicit recreate and a new view commit admit a new native owner generation",
+                "passed": true,
+                "observed": null
+              },
+              {
+                "name": "recreation never revives the old generation token",
+                "passed": true,
+                "observed": null
+              }
+            ],
+            "trace": [
+              {
+                "phase": "mounted-updated-resumed",
+                "text": "changed-while-closed",
+                "selectedImageId": "back",
+                "reviewsSort": "rating"
+              },
+              {
+                "phase": "destroyed-owner",
+                "graphState": "destroyed",
+                "disposed": true,
+                "oldLifetimeCurrent": false,
+                "modelId": "p1",
+                "headerConnected": false,
+                "headerText": "p1"
+              },
+              {
+                "phase": "recreated-owner",
+                "oldBoundaryDisposed": true,
+                "newBoundaryActive": true,
+                "oldLifetimeCurrent": false,
+                "modelId": "explicitly-recreated",
+                "newHeaderConnected": true,
+                "oldHeaderConnected": false
+              }
+            ],
+            "actualMaracaRenderer": true,
+            "actualReactVueProviders": true,
+            "additionalDomWriter": false,
+            "additionalModelWriter": false,
+            "sourceExecuted": false,
+            "productionFrontendImplemented": false,
+            "acceptedForRelease": false
+          }
+        }
+      },
+      "differentialTraceEqual": true,
+      "nativeHeaderRuntimeEvaluated": true,
+      "ssrAcceptancePerformed": false,
+      "productionFrontendImplemented": false,
+      "acceptedForRelease": false,
+      "sourceStableDuringExecution": true,
+      "sources": {
+        "development/rmtx-a06/syntax-comparison/authoring.d.ts": "61ab277b1b7789dfb5a09525a5a9cac121a4f28c7f7aa8bfb0073dd503552306",
+        "development/rmtx-a06/syntax-comparison/classic.rmt": "3468c5d11497f8357b9078a449c27b308b44b872dbac812f97eae1abcf1aa88a",
+        "development/rmtx-a06/syntax-comparison/comparison.cjs": "5726124c3950ea8c81871c165bc15c2322d04ca11eeef8c7a5a74d72e60da15c",
+        "development/rmtx-a06/syntax-comparison/declarative.rmtx": "2eb2d495516c8b44ceda04e8d5e69e80693c352e6a5d59b3620b1a5bbb7d0704",
+        "development/rmtx-a06/syntax-comparison/declarative.tsx": "2eb2d495516c8b44ceda04e8d5e69e80693c352e6a5d59b3620b1a5bbb7d0704",
+        "development/rmtx-a06/syntax-comparison/extension-probes.cjs": "6e0266eef24e54ed39e2ca3e91f1cacb3c5af21ffe2dced5e03916df873c0a8f",
+        "development/rmtx-a06/syntax-comparison/inspect.cjs": "208f9b34c84600f5d48ecb918303eb913abf81eb46c8b11c0faa31b773ed5e06",
+        "development/rmtx-a06/syntax-comparison/jsx-runtime.d.ts": "c713e1235ffd7f6e47a554ffd3f57aa92452194dc82dcde2245afa4f94131ddd",
+        "development/rmtx-a06/syntax-comparison/native-header-acceptance.mjs": "93bcf8f3c8a49bb31e8c96a7653a951454fe6eb404f516c73b967693315886fc",
+        "development/rmtx-a06/syntax-comparison/native-header-reference.cjs": "1bd9aa26aba501505d87e737eeb8c108490f3d481ef42c8d62b35af87f5eb2cb",
+        "development/rmtx-a06/syntax-comparison/native-header-test.cjs": "65d80c5a9a89601e61a4922bd12a44bb734dbdc45d474e08f59dcf26737a1db0",
+        "development/rmtx-a06/syntax-comparison/native-header.rmt": "2fd7b3ebbacdfd3793e74abe7a6036337363d84aef794cbc57aa41e7c6a927b7",
+        "development/rmtx-a06/syntax-comparison/native-header.rmtx": "91114ddf5c2253f1bf64f69c1c0bf3d3190112c2c5684cf2b7ebdd4fede213dc",
+        "development/rmtx-a06/syntax-comparison/runtime-comparison.cjs": "0a0fd57d602bf9de31c69ae7f187821d8fd9a6459b596f2ecf2e90bbdd632aed",
+        "development/rmtx-a06/syntax-comparison/view.tsx": "eba25929d68792c1b5c616317aac0937d5a5878bba3355c2fea16362000e4551",
+        "development/rmtx-a06/two-host-runtime.mjs": "795952fbbb6681492a98ac93246c60f8f76c07a98b872d25653979c44eb9c482",
+        "development/rmtx-a06/two-host-acceptance.mjs": "de23588a7d23b83bce2f9a9c2198b216b480226bfe0f802908d945c90cc235d8",
+        "development/rmtx-a06/two-host-reference.cjs": "64084cf748ed44586bb0eecd3a8e15fcbc4b7e967ca0c4e1b96ad00b3c7fcc08",
+        "development/rmtx-a06/providers/catalog.json": "4f38fa3e2b73c374b0fab112b5ba1d6f12da2b95253e4148088389f7d087f801",
+        "development/rmtx-a06/providers/react-gallery.mjs": "9846140e741d787f0feef302fb3ca3ef75e7519dd54a7fc1f0fd9448cb07df37",
+        "development/rmtx-a06/providers/vue-reviews.mjs": "71e48dfdb1e797493aba0748e9777b9cb3afdbee6faf90c217df3f88aa239db8",
+        "xtend-maraca/plan-runtime.mjs": "0a4970152bddfa0c3b431e72e104b4ed1ae5756e381ea41e0b14c226d0f131a6",
+        "xtendrmt/rmt-dom-descriptor-renderer.js": "69981e6ec2f51094e1607e52c39324a02358ac9be75dc4b0a120d4dcb895a555",
+        "xtendrmt/rmt-runtime.esm.js": "185cc0e40510d240f70da76ef558e4e1cb25ccd116dfbd6c470c0fba825c4770",
+        "xtendrmt/rmt-kernel-scheduler.js": "cb6968fa9b5a784f93e6c941e4a634bdd527525247a1f4653f9c7b204829e766",
+        "xtendrmt/rmt-state-selector-runtime.js": "150f5ae1a279cf7457be54fc7a466afeb1a2a026a911ab1cb1d16ae5da2a669d",
+        "xtendrmt/rmt-state-host-adapter.js": "1c3b0ce150cee986ecdda1d0a9c92e7f323ee31cbb920c5072aa2772cd078de6",
+        "xtendrmt/rmt-action-effect-runtime.js": "3798c901579959de2aec8e6cedf9f07ee969bfd00bf0cc3478c0ad8831c6bcaa",
+        "xtendrmt/rmt-app-runtime.js": "3d20461b92e62ac73af1317e855bd2426337f3886f51c91d23297f92c90fdceb",
+        "xtendrmt/rmt-maraca-view-projection-adapter.js": "ee09855bee0e3973cfd8ec521c6b661256c3f1be7e4e8b6e782dd323ffb313be",
+        "xtendrmt/rmt-presentation-effect-adapter.js": "87c7d4a3e886bfd45d98b7b5dd385ce06a578dc408a3ceb0a6122f5010f9cd0f",
+        "xtendrmt/rmt-event-routing-runtime.js": "257b2f73fecc4d659f3c393b51dc7b2c940d196eee84caef67d29f3ec2e4448e",
+        "xtendrmt/rmt-surface-resource-graph-runtime.js": "9344b64339e1e08d4bd64933fabe5c14a12fadd24cd546b787cf727de469f446",
+        "components/xsurfacemanager-controller.js": "a747e5a4bd9d4c1205dc464d046eb5bc65531acc74d083d78e10d5c614afa7a5",
+        "components/xtend-state.js": "a53defa3247b3778d115e147a3094624206cb46ca9f5bcd18b345a3d059d849b",
+        "fabric/xtend-fabric.js": "ea7fa64431048e724a336ecd3117c90c6bb8a0ab2871e1ba618d8381ed3f822d",
+        "tools/xtensions/component-interface.js": "8d3b813dcc2b4bbb230d8e18720487c7f19e84bcf2bcbcea55cd251f0b6e7646",
+        "tools/xtensions/component-interface-build.js": "7dade34c20e63b7f7f17fac03026cbb18ece5209d1ebbb712dafa86ca644d5f4",
+        "tools/xtensions/state-binding.js": "19b0f4266fc7546016eb68df9eec391b554ab22a96d5eb97d001c0efa047ca79",
+        "tools/xtensions/react-runtime-adapter.js": "e780ccdfcc00ca7d75bec3b2bdebb383e3caa2fc40d3bfdaf4bfe85995a0308a",
+        "tools/xtensions/vue-runtime-adapter.js": "d68a72b9782be8c3d705d10af40ca4a6576c3cc0e3a9884c8db02073c8b9745c",
+        "development/rmtx-a06/providers/react.interface.json": "45394fbe58a8f81445891526967d691786ef1ecf2fd6eb08e520e69322c76539",
+        "development/rmtx-a06/providers/vue.interface.json": "30de14608052cdd250f1f56b06fa0b5c7df8dda73803d5d5daa96355e5a6f1e4"
+      }
+    }
+  ],
+  "sourceStableAcrossRuns": true,
+  "sources": {
+    "components/xsurfacemanager-controller.d.ts": "249d4bcbe84294b3e1cd818114db8647a304a559f5f9703b879dbab00396001c",
+    "components/xsurfacemanager-controller.js": "a747e5a4bd9d4c1205dc464d046eb5bc65531acc74d083d78e10d5c614afa7a5",
+    "components/xtend-state.js": "a53defa3247b3778d115e147a3094624206cb46ca9f5bcd18b345a3d059d849b",
+    "development/rmtx-a06/automatic-acceptance.mjs": "11d84c000b8042c50454d6e8167435752d7ec96079435dd447aae5c2bdd2d924",
+    "development/rmtx-a06/automatic-inspect.cjs": "b6cfbb6ee9d735629e53550b7cbda9a7e5d6e05c6387d3cc086bdd07c563d2c1",
+    "development/rmtx-a06/automatic-reference.cjs": "5d12d3ba201ce94ce8330058fc08e854f5018cec84536eacc73e5c4e040e302a",
+    "development/rmtx-a06/automatic-test.cjs": "3a92f4d24b12773a80a60bb484442b329a6a49765cb7adb42dc0ed170f0b1210",
+    "development/rmtx-a06/operator-runtime-probes.cjs": "fee39251388b1b2af8d2f8d97edec4c490a3b640b3c181468ae459396a0be2bf",
+    "development/rmtx-a06/operator-tsx-probes.cjs": "7da7cb4a8ccefc8d7e28722021fc3acd9875a38d3501243adf4d7134de0f0fc5",
+    "development/rmtx-a06/providers/catalog.json": "4f38fa3e2b73c374b0fab112b5ba1d6f12da2b95253e4148088389f7d087f801",
+    "development/rmtx-a06/providers/react-gallery.mjs": "9846140e741d787f0feef302fb3ca3ef75e7519dd54a7fc1f0fd9448cb07df37",
+    "development/rmtx-a06/providers/react.interface.json": "45394fbe58a8f81445891526967d691786ef1ecf2fd6eb08e520e69322c76539",
+    "development/rmtx-a06/providers/vue-reviews.mjs": "71e48dfdb1e797493aba0748e9777b9cb3afdbee6faf90c217df3f88aa239db8",
+    "development/rmtx-a06/providers/vue.interface.json": "30de14608052cdd250f1f56b06fa0b5c7df8dda73803d5d5daa96355e5a6f1e4",
+    "development/rmtx-a06/scoped-acceptance.mjs": "2417560a48d9ff316ba0553dd03937e5d3e8ca4caad2ed3ddcf54651e57c76cf",
+    "development/rmtx-a06/scoped-fixture.mjs": "ba63c5a5b439908e91d37edc24822e3686130d22e27632b2d3b33ec2ade77396",
+    "development/rmtx-a06/scoped-inspect.cjs": "1a36713b6749d1861497d4690ece4adfd6a4d70d8abe61e45a7c1b8f7b8dc056",
+    "development/rmtx-a06/scoped-model.cjs": "3427a835bb6d21a45eac29830ecd762296b836c0201c381ccdd2a92bf185a0d8",
+    "development/rmtx-a06/scoped-products.rmt": "ebe9a9b3c1d9fd9930104b92f5518ae05ded7690ae82fbc4931588f39de64d96",
+    "development/rmtx-a06/scoped-reference.cjs": "23a6501789126f50650f41bd67075a97391746b960097203874f00090365bf19",
+    "development/rmtx-a06/scoped-ssr-test.cjs": "4cacf75c00d4579461cb86037d6043a4b9112202db34bf2607af675047fd3c1c",
+    "development/rmtx-a06/scoped-test.cjs": "d836379018bae1cba10c9ff9126bd58044286ddc05f4564024c378b4cda20619",
+    "development/rmtx-a06/syntax-comparison/authoring.d.ts": "61ab277b1b7789dfb5a09525a5a9cac121a4f28c7f7aa8bfb0073dd503552306",
+    "development/rmtx-a06/syntax-comparison/classic.rmt": "3468c5d11497f8357b9078a449c27b308b44b872dbac812f97eae1abcf1aa88a",
+    "development/rmtx-a06/syntax-comparison/comparison.cjs": "5726124c3950ea8c81871c165bc15c2322d04ca11eeef8c7a5a74d72e60da15c",
+    "development/rmtx-a06/syntax-comparison/declarative.rmtx": "2eb2d495516c8b44ceda04e8d5e69e80693c352e6a5d59b3620b1a5bbb7d0704",
+    "development/rmtx-a06/syntax-comparison/declarative.tsx": "2eb2d495516c8b44ceda04e8d5e69e80693c352e6a5d59b3620b1a5bbb7d0704",
+    "development/rmtx-a06/syntax-comparison/extension-probes.cjs": "6e0266eef24e54ed39e2ca3e91f1cacb3c5af21ffe2dced5e03916df873c0a8f",
+    "development/rmtx-a06/syntax-comparison/inspect.cjs": "208f9b34c84600f5d48ecb918303eb913abf81eb46c8b11c0faa31b773ed5e06",
+    "development/rmtx-a06/syntax-comparison/jsx-runtime.d.ts": "c713e1235ffd7f6e47a554ffd3f57aa92452194dc82dcde2245afa4f94131ddd",
+    "development/rmtx-a06/syntax-comparison/native-header-acceptance.mjs": "93bcf8f3c8a49bb31e8c96a7653a951454fe6eb404f516c73b967693315886fc",
+    "development/rmtx-a06/syntax-comparison/native-header-reference.cjs": "1bd9aa26aba501505d87e737eeb8c108490f3d481ef42c8d62b35af87f5eb2cb",
+    "development/rmtx-a06/syntax-comparison/native-header-test.cjs": "65d80c5a9a89601e61a4922bd12a44bb734dbdc45d474e08f59dcf26737a1db0",
+    "development/rmtx-a06/syntax-comparison/native-header.rmt": "2fd7b3ebbacdfd3793e74abe7a6036337363d84aef794cbc57aa41e7c6a927b7",
+    "development/rmtx-a06/syntax-comparison/native-header.rmtx": "91114ddf5c2253f1bf64f69c1c0bf3d3190112c2c5684cf2b7ebdd4fede213dc",
+    "development/rmtx-a06/syntax-comparison/runtime-comparison.cjs": "0a0fd57d602bf9de31c69ae7f187821d8fd9a6459b596f2ecf2e90bbdd632aed",
+    "development/rmtx-a06/syntax-comparison/view.tsx": "eba25929d68792c1b5c616317aac0937d5a5878bba3355c2fea16362000e4551",
+    "development/rmtx-a06/two-host-acceptance.mjs": "de23588a7d23b83bce2f9a9c2198b216b480226bfe0f802908d945c90cc235d8",
+    "development/rmtx-a06/two-host-inspect.cjs": "ae5f834c7411f0978f6979facc7c0138372c67a1158ffd5977b146bd6f810db5",
+    "development/rmtx-a06/two-host-reference.cjs": "64084cf748ed44586bb0eecd3a8e15fcbc4b7e967ca0c4e1b96ad00b3c7fcc08",
+    "development/rmtx-a06/two-host-runtime.mjs": "795952fbbb6681492a98ac93246c60f8f76c07a98b872d25653979c44eb9c482",
+    "development/rmtx-a06/two-host-test.cjs": "644b266fabb02aa9328930ee45820410278b900cb257cc33571a47dd25e62979",
+    "development/rmtx-a06/two-host.candidate.tsx": "bc0657dbdd7f82dba96b86fc776ecf04e625bb25508439d1f6320896afe79175",
+    "development/rmtx-a06/two-host.rmt": "3468c5d11497f8357b9078a449c27b308b44b872dbac812f97eae1abcf1aa88a",
+    "development/rmtx-a06/two-host.types.d.ts": "0f0fbaf7dace8e19fa93872c1857ebff27cba6038f3e7614608b7986033135e2",
+    "fabric/xtend-fabric.js": "ea7fa64431048e724a336ecd3117c90c6bb8a0ab2871e1ba618d8381ed3f822d",
+    "tools/rmt-language/action-execution-lowering.js": "783f180c2253fc96f1e8853c808cd2c0fe243a2d014670118d76b24759b3e856",
+    "tools/rmt-language/app-platform-tooling.d.ts": "2f5a34a44e2f67486aa087e55c4fafccab3a95dd663ca9683df6a5173252394b",
+    "tools/rmt-language/app-platform-tooling.js": "b4d84dbd3c74865d6e976ea76f9692e875aa768cbacab4a68fab9288a9609d1b",
+    "tools/rmt-language/classic-ast-contract.js": "3e17596b6615c7ca5528bb5a72551143e1d3403d8a8c606cf83569d71a3c79d4",
+    "tools/rmt-language/classic-ast-rules.js": "269c0ad5d14ba86a149e33877e7db28b3a4004d0217b8c6b829b26931a327b0d",
+    "tools/rmt-language/classic-ast-types.d.ts": "5487aa747c0b647acd2d2ef02275d5af03e14b24f7ac69ae58bedc6bcedb3c52",
+    "tools/rmt-language/classic-compiler.d.ts": "5252e64211b4039c4c3272c73334342332a539703bbbf760d860e3a77240c858",
+    "tools/rmt-language/classic-compiler.js": "d321ae4c25ca3b56ca877399f9a259b86afeb8a4c6dab8a67119baaa92c52581",
+    "tools/rmt-language/classic-parser.d.ts": "efd754914ccb1c0067fd85d07f9131e96bc4fde1f03379648ac27baa6fc9a9d9",
+    "tools/rmt-language/classic-parser.js": "f4d051313259d160d3a46892df3607ae68f6c3a69e5d62731cf0b028b3721b42",
+    "tools/rmt-language/classic-semantic-rules.js": "113846c48ef5dc4d5ce0b29ddb7a01076e50d3fa86f80d84f1af5420fb593d81",
+    "tools/rmt-language/code-actions.d.ts": "e6122f52faef3413c07588f84e9ce340a3cc8e61af6d1eccc509bd0263294d45",
+    "tools/rmt-language/code-actions.js": "d13f6f667628854a3614ca1be846691eef30eeb7192e2da989c696b4051d4819",
+    "tools/rmt-language/compilation-session.d.ts": "96d9f877b46ce5b31dd9bc4bd5ee5e85732dc0ae3c56c21ee8589ae4c722636d",
+    "tools/rmt-language/compilation-session.js": "0a607d1f30c0031343e07e83761ab8b0991dbbad5bb919b4bbd6a3d07af4e09f",
+    "tools/rmt-language/completions.d.ts": "6722e80d831e1d744cee63cc031d3a23a25e13c4782adf634a5ae2a2d80eb413",
+    "tools/rmt-language/completions.js": "d1a3b8e4ed3a09c5a24a0134293940b7c95585f853e9cb1fb65784b49f67fd28",
+    "tools/rmt-language/definitions.d.ts": "c75b2021eb9ee84f99a7422396f07896d74ff6868d7fd66d974873ed72b9ea05",
+    "tools/rmt-language/definitions.js": "e91e72fc4aea6da2d13d65380ba83c56ddb3d455f6f54394479448b10b98eeaf",
+    "tools/rmt-language/diagnostics.d.ts": "af6cb0f8694971ec2ddf5baf9a01ea4cc8a9151b3e64e2885af4e3a93fa430b6",
+    "tools/rmt-language/diagnostics.js": "376358da022971504a3698d5787ce882672a18688ca04216fcd83b7c8c5d3bc6",
+    "tools/rmt-language/fixtures/kernel-orchestration-contract.rmt": "db16bc40793d62ef7d8898faeea5ac9d7ea266f71b781e73e2a6e948fe1cd063",
+    "tools/rmt-language/fixtures/validation-transition-contract.rmt": "bc90deb57170dd735b61002535ce5f74c86f6aead327a27ce1506a06af245d61",
+    "tools/rmt-language/format-adapter.d.ts": "b97df3c7afb646e6f6ad8945058f0f6697c064c3cc9106ce15c2e922b23c57d8",
+    "tools/rmt-language/format-adapter.js": "3bcbba373882142df1cef4ee1b3607e8838e65e9e63e8e18460fc50642663e1a",
+    "tools/rmt-language/hover.d.ts": "ef4bacdb87eed9e97d13a027ec856695b962bdf6aea56fdee439c6e733755a1f",
+    "tools/rmt-language/hover.js": "96ee29f1b71262b914ce75a377d4c86ce6e73a0642c0fdec70ab73660f31b584",
+    "tools/rmt-language/html-sink-syntax.js": "a9dba87510b3825027224ca84403450598561bda16e04ba275dd57299a9ddf82",
+    "tools/rmt-language/kernel-escalation.d.ts": "8623b575def9f27e9907651067b3941851ec21f0bcd0dbab6383868c5e2458a3",
+    "tools/rmt-language/kernel-escalation.js": "16f168d62902c90a9ddb0f2699bf6961c5569924b553df3c18b7087c6ba9ce38",
+    "tools/rmt-language/kernel-panic-monitor.d.ts": "df597569617b558dedc5f613a317c50d9340e0ab29e3518dc821e4fe2e8bf38c",
+    "tools/rmt-language/kernel-panic-monitor.js": "1997ad2903ba5631af58bcb518584e882ec08da1e631fef7afcb24835f0ab4fb",
+    "tools/rmt-language/kernel-policy-parity.d.ts": "cd77dff1e7f416f6a8e422fe2178c5a7f4c322c199d1d3f89c568b34cfc96acc",
+    "tools/rmt-language/kernel-policy-parity.js": "bfe8d3b01dfce2a2c4bacc1f1f1d4da84f3371302c73d18ba1bf15834ed8b3fd",
+    "tools/rmt-language/kernel-recovery.d.ts": "ab2ddc6a4843231f556c74eecdfdf5c89355aee0feeba1419f05ea7f9498c430",
+    "tools/rmt-language/kernel-recovery.js": "e00d09855df670f9bf0a622169a1bff8ceba6d348afd22003e60586c562bc04f",
+    "tools/rmt-language/kernel-scheduler-failure.d.ts": "e90ccba29538a2904de66d2643625cc8e24a5590c85ea42b3361fc5a596e6641",
+    "tools/rmt-language/kernel-scheduler-failure.js": "574f3bb234252517d168deff26fa8955693587567f8aea9b63253376deecc0b7",
+    "tools/rmt-language/kernel-security-regression.d.ts": "f10379bbffca40b72f84122a2f0539c671d23b628f0c2a630b9af1da36358d46",
+    "tools/rmt-language/kernel-security-regression.js": "7191d5cb9abbbfc4cb98f38ebb3f726ce5485cd08da2196b5986f52b2407f022",
+    "tools/rmt-language/kernel-trust-authority.d.ts": "d95ff0439f948c64262373b1f002df4df7ec1c5d9aee2698fed303be55b4d586",
+    "tools/rmt-language/kernel-trust-authority.js": "1b84c3f7e9d4053b56f8f38b358e6eaa15a0df1eba0c29611b4f528e9698fbf3",
+    "tools/rmt-language/navigation-facts.js": "803525a851a2d959094a6dd54ebb0090d66c1984ac7e8b7e80e8e91db33f4c72",
+    "tools/rmt-language/page-build.d.ts": "257d7f7186d758a49834fe51e9fe465e4d7b9fa530fdf1e1cc7e247c15217fb0",
+    "tools/rmt-language/page-build.js": "04f6e0fb50e11b2f042c18f5208032f4e442bd57d752b186c769fe406cd71fd6",
+    "tools/rmt-language/parser.d.ts": "e6ee789e1bb184792e59d5bf40668f6814f89cae3f1b5bbd0fccf62539559857",
+    "tools/rmt-language/parser.js": "a4e0dc973cf4043b93901bb73cdad84fcdb94ef7aeda8778b223bb7d8db4347c",
+    "tools/rmt-language/rmt-ai-developer-kit.d.ts": "6076fc2b37b3c52abc78850ce8e14a0bf26c06be09bba6f404ef4ff8d17724cc",
+    "tools/rmt-language/rmt-ai-developer-kit.js": "c13c17079e4a163a702c073e03baebc33dd569893806a45d839a76f8fa22f483",
+    "tools/rmt-language/rmt-tooling-public-types.d.ts": "a7c4d28ad15b9d7d42de1cb17824715852f12d922f5d66255704a2425637e139",
+    "tools/rmt-language/rules/app-platform-policy.js": "38bbc3d3b4d4e4d1c2c920c2f8125849d71106ecdd18714deb8b417db496facd",
+    "tools/rmt-language/rules/boundary-policy.js": "07aa0def755f48717a7303171e56a6901cd99fc32565eca2a9ce014f99ea33d6",
+    "tools/rmt-language/rules/document-policy.js": "f1727373e4812c64cc827d9d8627414f91e1aea29585b0092a073579817903d2",
+    "tools/rmt-language/rules/index.js": "68af24ee425be4c24a0cf1aedb6bddf00796b1c19a1ae930447ac78695da787d",
+    "tools/rmt-language/rules/route-policy.js": "c33f04d0e5cc02b8bb9f192ffc8061409c1d2f749080002dd55c45a29ee31a45",
+    "tools/rmt-language/rules/scheduler-policy.js": "b5236b5c6caef98328518aa570c1fd6b0952175f8609d1b546f0a9c93e70f5ee",
+    "tools/rmt-language/rules/template-policy.js": "b362bf682baf9c43ea09b3446a2251f476b8cda2ad046c021b7aa7ad3cb015ea",
+    "tools/rmt-language/scheduler-lanes.js": "a0d76615b3cfbe2639a96af01179f987407554040acce54aa9b4dd99516f9b76",
+    "tools/rmt-language/semantic-graph.d.ts": "62c8e33564438919ebf8193e88fdbd061fe1d4e19a126f2c2cff07bd3e20d2b7",
+    "tools/rmt-language/semantic-graph.js": "e3706bcca6f8b5155b1292889b44767f177bdedb9dc73d5ddd98dea1e0b11762",
+    "tools/rmt-language/snippets/index.d.ts": "8bbbd7596aff39971e9488d63c5975f80deb0d16de6507c5aa8073df12ae0a3e",
+    "tools/rmt-language/snippets/index.js": "0a279fc8079ef4d1aa3b0aa92dcae47cf3c34ef592e7d0330ce5e4084df2b9f7",
+    "tools/rmt-language/source-model.d.ts": "eb5cd92198321a6c74b01e4ae91ad4d671f249f2acebc6cd5d40940bdaa155de",
+    "tools/rmt-language/source-model.js": "73aa135d823f7452283da29eb29b5c9e5a45a20e7649c9f99c38a08d04d243b6",
+    "tools/rmt-language/super-prewarm-worker-experiment.d.ts": "3befe5297e5a31157a268b1bbfc678967aabd83274d4b4abc01a630573d2acfa",
+    "tools/rmt-language/super-prewarm-worker-experiment.js": "250e5fca8637df0b8a95d02b821bafe38b4eb07702aa2bb1939b02ab9fb437f3",
+    "tools/rmt-language/symbols.d.ts": "405d259a498d66d956bf9e5d10451076b55b4be4ada9e8a1866b2e007f873859",
+    "tools/rmt-language/symbols.js": "8d5f4d1be5b3382ec08ededbc670fe3e53986ae13ed8244f3266a57f40d8f89b",
+    "tools/rmt-language/vnext-compatibility.d.ts": "cb04c2653a45f029e1da4bf797e28fdba5b072fb62122130016fd2e4db09ff0b",
+    "tools/rmt-language/vnext-compatibility.js": "1f7f1b22cc489f278a4b07ecaecf10c782ef25bb701abe1fac035e9ad8e6d960",
+    "tools/rmt-language/vnext-compiler.d.ts": "c99380eef1283e488569b151fc4e51f476bf9646dc8159096bc9f8fcb2ff87a1",
+    "tools/rmt-language/vnext-compiler.js": "9ee9aac4cd163ac3d78a6ae228d4515974eabfcf3ef89c45c38ff937684ff510",
+    "tools/rmt-language/vnext-composition.d.ts": "ec8b20cce62c7f15c818408d07a6321a730c86378c7a1aec335deb1d21cec400",
+    "tools/rmt-language/vnext-composition.js": "7a0b2aac4a26e761b182c95efa3f489c6e776c8c03ba57a7bb7f87a29f285390",
+    "tools/rmt-language/vnext-conditions.d.ts": "7da0425e2ce56494b2d446b9053723a50127072ee3a1ef619547ef7529603c31",
+    "tools/rmt-language/vnext-conditions.js": "8cbcb89982b8b0bb8dfca5f9d7807d6338748f8905c3981afce0b80d15102125",
+    "tools/rmt-language/vnext-cross-surface-events.d.ts": "8e8a37ef5f5ba733447ced67bd0446d0efbb906abbc6f575b79b6d0624166fb5",
+    "tools/rmt-language/vnext-cross-surface-events.js": "c50bd4a8c15c77835ffe73704c236b54bed16707a92ee337ac134581988d7cae",
+    "tools/rmt-language/vnext-degradation.d.ts": "62be8b20689840031fc9c020e00d4aa8600f8f634e1cbc99cadac45e7d143428",
+    "tools/rmt-language/vnext-degradation.js": "c70a2552a2e10128954e18493d239b60aa966cdb4e5f408737e367298551696d",
+    "tools/rmt-language/vnext-enterprise-fixtures.d.ts": "b1bc8a316539e1b0e6edefb31f5d4179e2786d77fcd05a2741c37b5edb80929d",
+    "tools/rmt-language/vnext-enterprise-fixtures.js": "35bf3ffc53646d7b1373b714257dca8c8108f459e8872ee371df652e30245fc8",
+    "tools/rmt-language/vnext-enterprise-registry.d.ts": "b2e08b1b321acdb728dc671018e301f29de25033fb5d72a47c8647ec954a361c",
+    "tools/rmt-language/vnext-enterprise-registry.js": "66d67ca37a482bf4135f37c6c55c42d2103efd367eb1d496916ffb96bc254905",
+    "tools/rmt-language/vnext-enterprise-release.d.ts": "d67b1b2578f2761e12c9861b594ee6525cf1a745a42648c1503ea7cf3e066a66",
+    "tools/rmt-language/vnext-enterprise-release.js": "fd5d09dbe72a59aa1bc2c358b3c8a2ac75a73588e4f243618f3c4cf5fc8f5114",
+    "tools/rmt-language/vnext-event-governance.d.ts": "614266ac7785f38acbad0039b709d749dc7c7ed8863c42a31538ee7c54b11a3a",
+    "tools/rmt-language/vnext-event-governance.js": "a0ad1e6aae8da5c41bf814239cb41202bd92c3cffb9fda1f22e42b9d2cd65e52",
+    "tools/rmt-language/vnext-events.d.ts": "132e3381fde4d6326c9a5591e7874e547115766bd3bd826b30fda010499cfbae",
+    "tools/rmt-language/vnext-events.js": "679e1a7da335cb9adf992ff272163670d1ab406d3cb9f7c9381f008d1c5defc2",
+    "tools/rmt-language/vnext-import-resolver.d.ts": "5f19779741b094e8398590266a3b4af7f0f5284d1f732c27899f78d6cba37df4",
+    "tools/rmt-language/vnext-import-resolver.js": "868e9504655bce2b012f4a02bffac16d4d6185e3553548908eace74bb059085d",
+    "tools/rmt-language/vnext-lifecycle.d.ts": "548d0601160b4df9a3486fec5deecb27c63b8859fc34a8c8d4296b7f13468aff",
+    "tools/rmt-language/vnext-lifecycle.js": "4e96015e0853dbe932486e6526476590849cfc8341de53c01a3ce0a191b69436",
+    "tools/rmt-language/vnext-parser.d.ts": "39d3c176c235a3293cfbe51635541f2aef831b6b79a0588463968b825d12690b",
+    "tools/rmt-language/vnext-parser.js": "80668bc8c738f5fda9ed3149b367c3e3388eac9f1ae4f90650d65910a5359579",
+    "tools/rmt-language/vnext-regression.d.ts": "328cca56f15fc73da30d3f976a787a45dad8e624b11eb63c488b82905b79b5fb",
+    "tools/rmt-language/vnext-regression.js": "323cf5349cb82075434a2c8fb0c71d8dafe22bd6b0c5da2ce261f84abe076163",
+    "tools/rmt-language/vnext-release.d.ts": "eb4f92b0847221fa1f75575e4bad222afd217629ee29395fa97449953e4b4bae",
+    "tools/rmt-language/vnext-release.js": "4dda3ec30d064d7771c4d723db4275f46f9258f0fe267761bb26583936cd57f0",
+    "tools/rmt-language/vnext-remote-compatibility.d.ts": "364b246a47d9b7dc8f999f8c52c3f7e8457a560581c71cae15f0d3917ba7bfb0",
+    "tools/rmt-language/vnext-remote-compatibility.js": "0f845c1a742bd7eaed5e21e6eb016f4d3d03bc6d50a20eb2d79e10e95df94082",
+    "tools/rmt-language/vnext-remote-compiler.d.ts": "db8e79c600222ba87c7ac9425cb51e51fd2adaacffee2bf39fa19efccbf5cab6",
+    "tools/rmt-language/vnext-remote-compiler.js": "ede3cc4e5e5975e260a2d751e59278c1d538fca89430725d52afb029ad5f0564",
+    "tools/rmt-language/vnext-remote-manifest.d.ts": "0b7ae83faf71b1a3c785feb69467a7d86db32f9eeb0b2ac43b6112b3e366a9ff",
+    "tools/rmt-language/vnext-remote-manifest.js": "5c452b16935ab6897b0ee877258a7a2d8932ed5400980823fd2f5bf42f4e6409",
+    "tools/rmt-language/vnext-remote-security.d.ts": "89db6588d55a73432e5acdede73acc3e90241281b5686dd3877d27615727b51e",
+    "tools/rmt-language/vnext-remote-security.js": "2339cd2870690d0c8c04c17c24b57dbc8c530821c88f52e6364a837af99daf8a",
+    "tools/rmt-language/vnext-remote-tooling.d.ts": "1d5d055e195fa9efeff26b00292701ad649ca0058f78fa5e1cc49be3a22d8f0f",
+    "tools/rmt-language/vnext-remote-tooling.js": "27a22693053bff686b298765eda3d4f2aba32209426c185feff847cfed11cbe5",
+    "tools/rmt-language/vnext-scheduler.d.ts": "a764d2f061a7647e8265e512f6d783cc57d78c108212396521545b56e3ba0f87",
+    "tools/rmt-language/vnext-scheduler.js": "9d6895fbb88fa58a1b1821f7dae139a27beb170ab1abd49d68ce09db68a2a5c1",
+    "tools/rmt-language/vnext-security.d.ts": "2b3295c73364164bb7785e2330a223017a0552be4bedc131cb3e0a3a82fff894",
+    "tools/rmt-language/vnext-security.js": "370f5c798d2612cd4d42ffef496b7dd2098162200e21b0234d2be52cfda8a336",
+    "tools/rmt-language/vnext-source-to-sea.d.ts": "dc13afa296db98924dde64300d6c8689c07a9aefe2d824d42de61776281f83ee",
+    "tools/rmt-language/vnext-source-to-sea.js": "d07e97db6a18dbed5220de08d6cbe3a47d9da382ab01ae870760206ff938a3fa",
+    "tools/rmt-language/vnext-streaming.d.ts": "650aee2761f40ce1fc36504a9a0d0b82a9f85c215c3faccf76024ca7d15b64a5",
+    "tools/rmt-language/vnext-streaming.js": "e8a5bfb65f985edf221b6aff61313f7a4ed223ef0156eb981bdc8f2c6b3a2265",
+    "tools/rmt-language/vnext-surfaces.d.ts": "16cdfaf5b2e122d7d383c7897648f52aed262fc4912bde73a5605aab64b3f28e",
+    "tools/rmt-language/vnext-surfaces.js": "1597067ef327723606460f6d9718f6f47178f3ca4aad8a667df363c10ae9e385",
+    "tools/rmt-language/vnext-tooling.d.ts": "14af60e315c3eede3a554b7bec11b9e695c1b8bea8cfa41de01561416a53464b",
+    "tools/rmt-language/vnext-tooling.js": "12bdf9cbbd4c44ffa49d374071d80569fb65f56d22c7abada0cc352b2488f6ee",
+    "tools/rmt-language/xscaler-protocol.d.ts": "092f22b583a1f944282cadb4a186ae61b15b42f99a188febd478f023547fa3a2",
+    "tools/rmt-language/xscaler-protocol.js": "b9637746b9e7432859eb49d9b175e1653c4deacc295481b44ae1d737fbf02377",
+    "tools/xtensions/adoption-handoff.d.ts": "90429feda900bad38b9471584f9e1281949be798e8efaa6528daa2dc5930ed9e",
+    "tools/xtensions/adoption-handoff.js": "b9398d87bad5c53b7dc2dc65405d62c6348172d6b6fefcc3032376588f1f353d",
+    "tools/xtensions/angular-host-adapter.d.ts": "3dc30af8e475c4d867b3242a5c2314ef5370db3e799da903a4c53fbcf7a7e770",
+    "tools/xtensions/angular-host-adapter.js": "5f0595006dc3410d5893263dd08b8a330df91b140c01ed66d7e0b94421a1bd67",
+    "tools/xtensions/component-interface-build.js": "7dade34c20e63b7f7f17fac03026cbb18ece5209d1ebbb712dafa86ca644d5f4",
+    "tools/xtensions/component-interface.d.ts": "53671d929255b91046bda33c7002cab84ebc785c5fb6e31a93cb014653e3232f",
+    "tools/xtensions/component-interface.js": "8d3b813dcc2b4bbb230d8e18720487c7f19e84bcf2bcbcea55cd251f0b6e7646",
+    "tools/xtensions/cooperative-resource-scope.d.ts": "153d15cd63d7ea8437372e94c22051d580301ac2086c8aa2780d74d98aaec479",
+    "tools/xtensions/cooperative-resource-scope.js": "ba8f05d9f5ce605512c95d45b3b563c6184e88a2dab5874ffdcee2c1836174ab",
+    "tools/xtensions/diagnostic-trail.d.ts": "f9c03bd2292b02c26e6b9d413459f81bc73bd2593d36fb3a0530afe325b66df1",
+    "tools/xtensions/diagnostic-trail.js": "2caf92b3ca9533dc11639c4a9229c87e9d4c07995d78094d3b4e6af6b124bcc0",
+    "tools/xtensions/framework-ssr.d.ts": "c5d96d1c34dd9e914527c9b7c3afa1b251c1df6018c9ccd2d2262e047e4e0578",
+    "tools/xtensions/framework-ssr.js": "6b4c457f2ac54762afcfda78314e788ea9e119e939e93ed9d63355991e31a700",
+    "tools/xtensions/host-capability-negotiation.js": "762751a35c6e99eccb66cbad3b0d885098dbd949ed4b5a774a3671a5bac02373",
+    "tools/xtensions/host-controller-contract.d.ts": "5137df09aa1173e3eb7172da2073c659c3a7d5ab9324b60866c1d8418f644989",
+    "tools/xtensions/host-controller-contract.js": "fc168ff8cec8a95375942f9ef2871ed3cdbf74cede192c708dd374efc14278b7",
+    "tools/xtensions/host-resource-cleanup-record.d.ts": "2cbe174ae3d9a3ab5862358c53d4522c51162401ecfe9cc3c26ca8bde9541bd7",
+    "tools/xtensions/host-resource-cleanup-record.js": "631ba35928b8e8a990dd05b245cd61333984197b866f4c46e0821221404a4a6e",
+    "tools/xtensions/imperative-host-pocs.d.ts": "6f06f96bb960d0d7b10f2b6c98ed4ec81bc9337817f6c37aac57864bb3da7719",
+    "tools/xtensions/imperative-host-pocs.js": "ef4579ecfa747d261562a0b7b93e03e4c1d0b76e4393b9d2683f249b873a9db9",
+    "tools/xtensions/kernel-work-scope.js": "2bc544e13567898f8c4eefd973c66e62c29f616477c103e21b28a0f39a716dc8",
+    "tools/xtensions/maraca-xtension-manifest.d.ts": "1f20e947f6c4f3fa9cbb2c4d54075b8c793219d94da6a480b2ba3acb45f1c6f8",
+    "tools/xtensions/maraca-xtension-manifest.js": "267f8009ab0679ac044e6fbe826b251bf54d00e090aa29ad218ffc2ebea521d8",
+    "tools/xtensions/multi-framework-dashboard-fixture.d.ts": "e6dc3a35496e92d2a53283ade0111bd43691621d562ee26412dc25e18b587364",
+    "tools/xtensions/multi-framework-dashboard-fixture.js": "45e6a8ad6ca4fa90ce913b6b41fc99f662de0a23d151f079451b7d183a0f0af3",
+    "tools/xtensions/openui5-host-adapter.d.ts": "6134ce59b9ee5959ac075f2c00a558d50cb9da41974ad7d7e20d7760b8f958e6",
+    "tools/xtensions/openui5-host-adapter.js": "a6bf0947d8b48282d6336ccdcee688bb578f2a9bea0324a646be96d13b9a61e9",
+    "tools/xtensions/react-host-adapter.d.ts": "5dfac901efe6b67dae0111a00588f43db2688d2ab7d6e6965680e4767447da66",
+    "tools/xtensions/react-host-adapter.js": "5fc08eaacea435a627d711611477b66fe2e66545236e427901e28fc915175d84",
+    "tools/xtensions/react-host-controller-poc.d.ts": "996f7c068339bfee9fe6a80e0efb71e0031b71adc448263439c3c00d1a42bcf6",
+    "tools/xtensions/react-host-controller-poc.js": "dd136f2a3cfd4b25b69d3c0150cc7c3553f0168f46ccd7d58b0533e66dad39a8",
+    "tools/xtensions/react-payload-boundary.js": "a63f4bdc1d39813d81f07623316e5e1814ff44e5cc29f93a17145683385ddb5c",
+    "tools/xtensions/react-runtime-adapter.d.ts": "10700c9d08f2e94a79168e89a57d0a77eba223c89491aaf6d50ebb1bc33074c0",
+    "tools/xtensions/react-runtime-adapter.js": "e780ccdfcc00ca7d75bec3b2bdebb383e3caa2fc40d3bfdaf4bfe85995a0308a",
+    "tools/xtensions/react-runtime-boundary.js": "647575e8da3f01a63df9ee6cefe1d0dfd61f056633972fbe46e9ceed5d617596",
+    "tools/xtensions/registry-package-strategy.d.ts": "8e1e7b58ff45146925215fff825e05986977d802ee01c1bd5bcee2d287ca7833",
+    "tools/xtensions/registry-package-strategy.js": "b38e438db65229a3ade6304af75fbe445d65d28dc0bd4622372b655bdedbd53f",
+    "tools/xtensions/resource-graph-binding.js": "0488d4da2eed0c8689d4ec7c49860665873cfcbc433bf52f458575384edf67e2",
+    "tools/xtensions/resume-adapter-contract.d.ts": "a097da80789949511fa7042914e60c3bd7e247cf1c10d5690d8194e964e65dc3",
+    "tools/xtensions/resume-adapter-contract.js": "7e545c9e1be3b1312dd1ff0f583572a6910a4b1b25ea8f9cb70ea6c6b29e6073",
+    "tools/xtensions/runtime-capability-registry.d.ts": "c3dbef0ff61baac66489a908b95abcf93c6c3e943377ca27ea44ff0b6dd6edf4",
+    "tools/xtensions/runtime-capability-registry.js": "c82536dde3907a3b7cf530d0b4e7767d643c932d3ede2688f8b694d6e792d4db",
+    "tools/xtensions/runtime-host-controller.d.ts": "b88df57206eae655721549bd699e8054e48189eea46e40c39f7bfc615a993e9b",
+    "tools/xtensions/runtime-host-controller.js": "9627d38ad20200c2c846a7eb057dec28f93cc012f63b76fa0c5a86de785a4574",
+    "tools/xtensions/security-integrity-gate.d.ts": "d01a99e38c33825c6808f960b897aeae2801d48bae1e9020921a9c839e961fc6",
+    "tools/xtensions/security-integrity-gate.js": "219761e8ec8b33988d618c4cfc64b268539033522be74e4a5f11963fb1be2ca0",
+    "tools/xtensions/signal-bridge-contract.d.ts": "cfd7401bf328d59fd230a4a06669ab45fd4a2f957f7c0aa12996fe2b428ad761",
+    "tools/xtensions/signal-bridge-contract.js": "63d56f44011907554c7b7e6b336daf115bee90f29847debf6e088a5a03f60e1e",
+    "tools/xtensions/state-binding-artifact.d.ts": "221605c43be5f204615c1a09c8b693a67b7a8aedf7174d58355784fb90c2f49f",
+    "tools/xtensions/state-binding-artifact.js": "e6565df9bec95916ad2d597734d0deb13c05d05f572040c0e500ab50615c86c4",
+    "tools/xtensions/state-binding-contract.js": "7ec3abb71980dd9ae0673014341723efd425c9ba70b122252cd804e7be1a67aa",
+    "tools/xtensions/state-binding.d.ts": "d9d73412a744b3009f892da0d4ffb2e91bcbe0425a6ed88ecaaccefb3d435341",
+    "tools/xtensions/state-binding.js": "19b0f4266fc7546016eb68df9eec391b554ab22a96d5eb97d001c0efa047ca79",
+    "tools/xtensions/static-contract-introspection.d.ts": "a2cd5c2c076a31550ee7c03aaf5e8e3199b6bf2d414be5c552f826a6993fc270",
+    "tools/xtensions/static-contract-introspection.js": "0bad8a9904bec5db7445686c5b6b8f14072eadefb1a9615f4c328dc538ede1a6",
+    "tools/xtensions/three-render-loop-poc.d.ts": "30897d8f189961269e37c17ff4ed394e4f9a73416145647c26b8840036e03a3c",
+    "tools/xtensions/three-render-loop-poc.js": "adbc1757403f693114932d20fcd3e5071ef106c262d228711461e6915f0fa562",
+    "tools/xtensions/url-state.d.ts": "8d4401738eb0b189df2271cd412074329901a4385cb1b5b089055f2ad058ac67",
+    "tools/xtensions/url-state.js": "7fadb244752ac7a906b6f6b35ebd56b576a0edeb34743d803ad9bd9bfaaba73a",
+    "tools/xtensions/vanilla-host-adapter.d.ts": "d09d51af3df2e6e645e3d23354d6dbcc6c91728720495f3f4fcac5602ad30903",
+    "tools/xtensions/vanilla-host-adapter.js": "9a11d99d2571fe537c84ade01b137fddce83c0132781e560c4fecf2c4fa08045",
+    "tools/xtensions/vue-host-adapter.d.ts": "7d056b5dd80101fb7a3487d7703f82858fd16eaf968b05c5b64a501aa3f2bb0c",
+    "tools/xtensions/vue-host-adapter.js": "833734a7b55d7313bd6082a6ab75113898a7ceed699945083cdfa8ec666a66e1",
+    "tools/xtensions/vue-host-controller-poc.d.ts": "0062f0ae2bda87f24f50803ac44e7b21940bff9042825389e1a2f02a9aa0bf08",
+    "tools/xtensions/vue-host-controller-poc.js": "1518685b96201edf87340159599085d52c56a3b13ad756830844a2f337bacf37",
+    "tools/xtensions/vue-payload-boundary.js": "e5b7b619251e63bf1937b42ffe346d33b742843e24ef267c680f264dac54e80c",
+    "tools/xtensions/vue-runtime-adapter.d.ts": "f441bed2550894206df776eec5d3cbfece18adb92c1432060494b38bc80d699f",
+    "tools/xtensions/vue-runtime-adapter.js": "d68a72b9782be8c3d705d10af40ca4a6576c3cc0e3a9884c8db02073c8b9745c",
+    "tools/xtensions/vue-runtime-boundary.js": "f1b28462c543f0e8b0d8a8ee59e48b15e1c213cf8381e100677b02e59f03aeed",
+    "tools/xtensions/work-budget-policy.js": "e3223e4e46ee792259b321a6fe6c82086c420c239316a04fd8bf77bdbc896779",
+    "xtend-maraca/abort-boundary.d.ts": "d4f589fcd486496917ccaeff07ef07e76f02a623c8853c7b39d2ff84747b0e41",
+    "xtend-maraca/abort-boundary.mjs": "bbedb71080e7e1aff6787171773ef457810f7396bdc3f96b63ceac50d7a86ae7",
+    "xtend-maraca/app-services.d.ts": "c86486a734e67d3662339b9b1566ca85968ded2095328b96f12ca7f7e6262e8d",
+    "xtend-maraca/app-services.js": "271fb1738ef3080a31e87bf035da7ab26ef24aaca6c577ca40ec4ed5544ed604",
+    "xtend-maraca/app-services.mjs": "6fd1aa1f64ad741dcb97d0cb1ba3529f22ec531d2afccf9fd2441b9ee02d893f",
+    "xtend-maraca/browser-composition-runtime.d.ts": "0bbc0a1d17ce936447db360cfd16ddd1128b2a342329ea2b2a6e1b6db4b5860f",
+    "xtend-maraca/browser-composition-runtime.mjs": "945873b3bc254db756998f2170392b9b254a9ca0835d9b52448e66da8a24ebbe",
+    "xtend-maraca/browser-composition-runtime.v4.d.ts": "80a9bf76c8e9fb837755a09a5c48a344fdcd7da0d96ce23f275ed35a819c807a",
+    "xtend-maraca/browser-host-adapter.d.ts": "45b25cf6ab6f0d9877a473da445e4ac0f16809b66f8a7cefaed2b7692edc2e86",
+    "xtend-maraca/browser-host-adapter.mjs": "36f066b33ac9b2922150d4749e9375d3c0b4df6638f2faa37335b3ddcf95351c",
+    "xtend-maraca/css-provider.d.ts": "ebdba49a2045d3b64417a25e524a4358640e9e6c19fe46f9c9f4bb1882cf4122",
+    "xtend-maraca/css-provider.js": "0d4c889d7f897f13a6a1affe6a2874d2c5af263abf98b909d1f687300461b069",
+    "xtend-maraca/fastpass-contract.js": "af8e26104243deea58ccf3a334d67ecb3286617146257074a29eeb7866a3b1a3",
+    "xtend-maraca/fastpass.mjs": "e641e82b8671f0c4057a7c4de300ccded5eb955009576121ab1c3ddccca3a6ad",
+    "xtend-maraca/html-security.js": "ad2bdfe05757613887aa1329147b0e9d1082e2670ea2c9088aede08411765502",
+    "xtend-maraca/index.d.ts": "16a39e84cd3f6c63fde6b2ee90d04e9e3d5291d58bc79d4eb3998999630d2919",
+    "xtend-maraca/index.js": "32dae73cc1a95002804a039f90f1debefa4c6ed53d389ed048b014611e3d67ba",
+    "xtend-maraca/node-app-host.d.ts": "0541f5d61d23b8b157c28eb484167a8a5f00ecc0868f9b533099869f480ada7e",
+    "xtend-maraca/node-app-host.js": "81b340270f45b17ff53eb524b96728a0f4a945b21e1843e3fa0def62ab5f448c",
+    "xtend-maraca/node-app-host.mjs": "123a170683579c11d381d56b2e27f47c8f4314ac97283a5934e8f0c9c00abbed",
+    "xtend-maraca/node-app-service-host.d.ts": "8a29b60a3c258bad20131ce887454000de3842ae5134ea4eea785a205879d6da",
+    "xtend-maraca/node-app-service-host.js": "eec216ff40c03f54b684d4faee03fed48d164764efd1f993a9185dbe8c3819b6",
+    "xtend-maraca/node-app-service-host.mjs": "c080910c21f68fbc10e5afc59ae2df680b695c76d97d819f9b36dc935fba3fd9",
+    "xtend-maraca/page-bootstrap.d.ts": "cb5ae4010b7b360ab6a6643dbb777ac6fb9e0ba0082709928e745a56427a294f",
+    "xtend-maraca/page-bootstrap.mjs": "7240347967e43f5896f4cadddee265bb8fa800f9200371a19d6c1c3416445735",
+    "xtend-maraca/page-client.d.ts": "c962d9ef2103b4cc2ae04183903c4fc39e8c71825050701435af031201589ac5",
+    "xtend-maraca/page-client.mjs": "4bbf24ef2aee8b8f0ee1596e8519176b2ec5d65e17ac2e1a4d2ccfdedcf59985",
+    "xtend-maraca/plan-runtime.d.ts": "30344c8b55e0d4b857224ea28a8565894172e6a3054aa7865b19eb989c76b075",
+    "xtend-maraca/plan-runtime.mjs": "0a4970152bddfa0c3b431e72e104b4ed1ae5756e381ea41e0b14c226d0f131a6",
+    "xtend-maraca/plan-runtime.v3.d.ts": "5106ace2a56337c3d0cf923b025893a764ffdc2adb57e24a6b1e167c0cd45942",
+    "xtend-maraca/plan-runtime.v4.d.ts": "d33cd3a46f7fb156fad32874f392c8790aa7b7aa009a9b5d10d0eb1fdbfb50a0",
+    "xtend-maraca/plan-runtime.v5.d.ts": "736897403a4dfe0493990a5277aec0f1222fc649ab0ddd5b4061f1062503f506",
+    "xtend-maraca/plan-runtime.v6.d.ts": "7b67cdeaba29fafe8512571ac9d05b0e04073c207b2b78fb8a2ff7593f98530d",
+    "xtend-maraca/remote-surface.d.ts": "2f22e9635f008adf626bb7313800eeebd53eac9315bb4bca18e9783b99afce3b",
+    "xtend-maraca/remote-surface.mjs": "19dd5aca8d102c20dd519acdf6fc8da7c7e6092c492bcd3bdf35ba631b29f770",
+    "xtend-maraca/runtime.d.ts": "7340cdc38dbb960fe60b33b7a86b3f96ce5d8fda73aa480dd95fde64a0ac92b8",
+    "xtend-maraca/runtime.js": "30feb220906a80426d6629a062932ed4acc030f69c8de312c29f73a019c2a4c9",
+    "xtend-maraca/server-services.d.ts": "8ed8af6b37e794d51d1ed0e02c5100482dc3dc793367c5bafa74ce392509ddfb",
+    "xtend-maraca/server-services.js": "be9d778713e46fb25cc5a491a6d40540f226ac865c8a72792f46d1c5f47b474f",
+    "xtend-maraca/server-services.mjs": "7c69a22435a12bc01a14c9bf67a5a4f00f0ad2dd4870cdf9be4a93fd8a73982d",
+    "xtend-maraca/service-build-provider.d.ts": "0c1559166551ada1b0c22cd378ac3994d9ca71139b1eb20bf3c3c5e5915f9a9c",
+    "xtend-maraca/service-build-provider.js": "7127eaf3cf35cc953df31539065d6c6b0f338f9b77c430589734b03ec1056fee",
+    "xtend-maraca/sync-app-services-esm.js": "f05cc1dbacf529cd7a91d65c540416796cb5d753758706341bd94cae2ebe3c27",
+    "xtend-maraca/trusted-text-sanitizer.js": "f2c6fac759f76fb7bab87c87f12ee99f109883bb1b559f2570a1802f73e60e42",
+    "xtend-maraca/trusted-text-sanitizer.mjs": "607417a30d0ed1a3d76a6e3b257b21fd125a730dbe8f2af31eab1675679646eb",
+    "xtend-maraca/xtension-component-binding.mjs": "63d0fc34bdbfb8187adbe340ffb0768de5b44076a786c078c04bea5bf1e4bdc0",
+    "xtend-maraca/xtension-composition-contract.mjs": "1bd1df53e2dbf823806dae5cba7a641e8f7e4db8afa2ff46d5c361e8cdfe6081",
+    "xtend-maraca/xtension-composition-runtime.d.ts": "c98ff14a311b4a45fa9858ed2295afb7a9c67ffbc75bf66d9e5772d9bace7b2f",
+    "xtend-maraca/xtension-composition-runtime.mjs": "4fdcbdf003430c441e4b05183942eba43086f25c4f4dd59f4a5adef7d8917d03",
+    "xtend-maraca/xtension-composition.d.ts": "978b3f0b2cec4a628d1cde4c9a13e88e634baabb73f5a28c18a926a727b1e9f5",
+    "xtend-maraca/xtension-composition.js": "9872caa16b4375a5696598d814caf97cea165afc9f33044059c323e4c128d574",
+    "xtend-maraca/xtension-deployment-client.d.ts": "67c8d3ee7cf77b5b6f260930b8e9f43bf2c354b736d14c9bcee195514bf56dd5",
+    "xtend-maraca/xtension-deployment-lifecycle-client.d.ts": "2e19d2c218f750e3a7c6003a2901a5ebf6d2b80f2a1572cb89a100b8b77163e9",
+    "xtend-maraca/xtension-deployment-lifecycle.js": "2c9b8aae18731789ab7be92780d6186af289c9a48f58b326eee7b9b214c06dd4",
+    "xtend-maraca/xtension-deployment-pwa.js": "6370fc8f44a897483bc344b26da66bbb68cd52267279e5fd64f0c21e634149d5",
+    "xtend-maraca/xtension-deployment-updates.js": "dddc11b1e67d086926cbb653fc9e9c472121bf8a5dd3fb6a8454220b9146ac82",
+    "xtend-maraca/xtension-deployment.js": "9df6fa876cb92d65f77e6cd68fa9d65fc1e9edeb226e2717479c25e723662729",
+    "xtend-maraca/xtension-platform-build.js": "ebe2643ba205705350c8775c39b190ba428b647fa34e7b3dc602d89509767bec",
+    "xtend-maraca/xtension-platform-esm.js": "880d5b42b762d39af50bc7b54d790328a3fefd4964f5256016927f18682bbbbe",
+    "xtend-maraca/xtension-provider-graph.js": "f217cdae977b7ceede05e6b4354b000485a5a894fed05799c62d4abc16a0e547",
+    "xtend-maraca/xtension-size-budget.js": "c847f8c684b16c134671071219877ebbd9dcf28b0191509a8898ac5d01e5ac4a",
+    "xtend-maraca/xtension-ssr-runtime.mjs": "d664adbba38f003040335926e2dbb07a9993d03f80a40cb8935de936bfd09a36",
+    "xtend-maraca/xtension-ssr.d.ts": "16804532e9124ded009655bafa98768743ffc2c1fdeb297a19e19cdd15159137",
+    "xtend-maraca/xtension-ssr.js": "de7e533756eea16ba3ce98028831d92a78b5416ddb635291c9c7276be6e920dd",
+    "xtendrmt/html-sanitizer.cjs": "53cf02deb9b9962921147da4812b75653d0283e80c35efe52ace43ea51bc6b7e",
+    "xtendrmt/html-sanitizer.mjs": "89b4e15c6d5d85e1687c117356487d69f529a1e245ad360b33f7fea45a2f458c",
+    "xtendrmt/kernel/modules/rmt-browser-host-adapter.js": "69397f746e82301b72846d31b3d7f02ac78d8c38f9663b95b0d16a332afd52b5",
+    "xtendrmt/kernel/modules/rmt-browser-runtime.js": "ad040d35fa94f7a0610dbbc16952299bfdcf272d6efd9947cccd44489040dae7",
+    "xtendrmt/kernel/modules/rmt-command-bus.js": "03e13b81267175b8ddcd807881a7fad31e3bc9a798120094b20e6927f635eed7",
+    "xtendrmt/kernel/modules/rmt-detached-dom-runtime.js": "2200fbb440103ba4576282e266f6b4b999af45f4585c22f19d26fe3057658ab5",
+    "xtendrmt/kernel/modules/rmt-diagnostics-hub.js": "c98fa1e5c3a71bcabcda2a9effcd0da5bb644c090f1b723ae27dcdc87eb47a75",
+    "xtendrmt/kernel/modules/rmt-diagnostics.js": "d02395ec0dd1e1c1c7ed2dec447605e7c95ebcf1098ed7e625ed766fc19fd812",
+    "xtendrmt/kernel/modules/rmt-dom-compat-view-adapter.js": "754c2a6985a7bb53d29a417fa926adfe9beca8bc12baf379e62cbf6809077b37",
+    "xtendrmt/kernel/modules/rmt-engine-controller.js": "3048526afff3f0ba092207e38859b33b4530ed603e74cfc966ef06f1cc7cae13",
+    "xtendrmt/kernel/modules/rmt-engine-host-adapter.js": "1ee296a71357e2031172b3992eb934101c9da232a27897e7419a4a62fde1d6f7",
+    "xtendrmt/kernel/modules/rmt-engine.js": "7733941bd37037f2e76a38c189b0e48834e300944920fad2c41cfdedfe32b7f9",
+    "xtendrmt/kernel/modules/rmt-format.js": "4264cd9b1f887d3de0a342cc8e323fc50e104d67b99f83322488043b8223dcd6",
+    "xtendrmt/kernel/modules/rmt-generic-host-adapter.js": "22beee42211233acbb70303015eeaac2839b5a05220d52648e0c8d6420d86f66",
+    "xtendrmt/kernel/modules/rmt-html-sanitizer.js": "ef8c7503835e83974cce93d93b22934b12c6d96e947bafe7c71c5cecf368e865",
+    "xtendrmt/kernel/modules/rmt-input-routing-controller.js": "a7c66e8ba93ee0861e5d37eaf953b0dbed5c269d00853bbd3afc75e1d1a38210",
+    "xtendrmt/kernel/modules/rmt-performance-runtime.js": "8f4d7030e8b75d9ab50ae28b1643736806e7f4e5764fe3d2e74e412fcef56917",
+    "xtendrmt/kernel/modules/rmt-policy-parity.js": "46ccd1095d756938b523835c03f4c5623bddb13fdc06813d539db59a3d19a8b6",
+    "xtendrmt/kernel/modules/rmt-prewarm-worker-runtime.js": "e8c732d730f7226533f9e39c5f8677c70cf1bc8bd4a4a93cb6172645ad5d8e54",
+    "xtendrmt/kernel/modules/rmt-prewarm-worker-source.js": "3c82c481f606dd22aa6f74e6a320b67e9f8f86ff7cd1f2ab33879afca09bc9d3",
+    "xtendrmt/kernel/modules/rmt-product-surface.js": "552a53f9131b435573b1096d31184bc8a205d42cf5ce9bc2d2e2384ef0c2b0cc",
+    "xtendrmt/kernel/modules/rmt-public-api.js": "0290ce9a8e99aef92eff7b09d907db470368cd21008106df726268e6099df1a3",
+    "xtendrmt/kernel/modules/rmt-public-island-controller.js": "df55f4ef442b141fb1b4cd2f19c073eb7aefcbc6682b20ac299f2c4d74e72101",
+    "xtendrmt/kernel/modules/rmt-reactivity.js": "845548a9d8b33eea107872fe0ac00ed5c364bc00283098a0c0c479d4847f3935",
+    "xtendrmt/kernel/modules/rmt-server-prerender-runtime.js": "44d490002ed6c38d43d7b31d4e5f8498e1b07aed836241121edda53a38b8351f",
+    "xtendrmt/kernel/modules/rmt-state-telemetry-adapter.js": "28764f195a0008514db1845088b3f11979c64b97c6e8295cf616b8bcf4b6593d",
+    "xtendrmt/kernel/modules/rmt-surface-adapter.js": "3959ccc5aaf8f139e0b35d04b21dae0ef586c8ea3eedec8458a6c9b1633c19cf",
+    "xtendrmt/kernel/modules/rmt-template-artifacts.js": "c72667b5f4a077000a2b52c0122ceaba28c753765fb1d3b37eff325ad3072cde",
+    "xtendrmt/kernel/modules/rmt-template-binding-model.js": "81c5dfbdddaa4aa1652a25cb0982ace57debcb83487dd11c1712527d4e3439af",
+    "xtendrmt/kernel/modules/rmt-template-compiler.js": "9c70f2a46e990cb9bb65b244d8656fdd1bc8ed7dccb801ad1e135deb9d7c38d1",
+    "xtendrmt/kernel/modules/rmt-template-execution-controller.js": "3262b1887f46c97e4bd7a696c8c92f265a27235e78608991e2d91e0570328397",
+    "xtendrmt/kernel/modules/rmt-template-execution-model.js": "5b6caf3618b181c38d8c8552e3695c6045f99e7a59367eec5591a3c77939b7f9",
+    "xtendrmt/kernel/modules/rmt-template-execution-path.js": "bf047375da110089edfcb6f78fe28d7bc6fffbba84dba37625a1f31b3ec8c700",
+    "xtendrmt/kernel/modules/rmt-template-interaction-adapter.js": "c1518ee332ea90af585a3082c096142e8f9ee1b2e7423ad18085ef19e292ee70",
+    "xtendrmt/kernel/modules/rmt-template-loader.js": "a1b8cb29ff8dda6495537c663f8039b804a80713ba6f5f3721875770ffe7806c",
+    "xtendrmt/kernel/modules/rmt-template-recovery-model.js": "3819ed9aabecf8bd29107d257d4a3e90d8b3eceb351539f12d317256d4f1aa76",
+    "xtendrmt/kernel/modules/rmt-template-registry.js": "c08e197ab92c0b2ef763074ccf1fd79740ca3d4b69694757cda3a86bf157731e",
+    "xtendrmt/kernel/modules/rmt-template-runtime-renderer.js": "d24766b173fb0ecb5a783cff8096c0210482d49318d6d75ae369e4490b8ce25a",
+    "xtendrmt/kernel/modules/rmt-template-transport-adapters.js": "680638f6541a25289811901136b469d9b03214fc6dd56565b56b01927773c393",
+    "xtendrmt/kernel/modules/rmt-template-trust-model.js": "bf5383e65071a92774ad04c2a706395fbd26b5854961be2d79e776273a21199d",
+    "xtendrmt/kernel/modules/rmt-worker-prerender-runtime.js": "fa9ff5b79427a014a2e8627a7087fe636cc069eebe231ca04cf6bb819a55057d",
+    "xtendrmt/kernel/modules/rmt-xtend-component-adapter.js": "d517a554b856507182fb02a557d03121c04182aaa115c8c07df51e7225ed1dca",
+    "xtendrmt/kernel/rmt-kernel-sources.json": "c9b248e592d618b90e246c289bdc10aa5f12c60bc40aaa740ccc59207804e6be",
+    "xtendrmt/kernel/templates/rmt-browser-preamble.js": "bba5f3d0015255b2d3f7d158a35a2781027bf811019a570cf36818b7f1522ef7",
+    "xtendrmt/kernel/templates/rmt-browser-suffix.js": "7633c654495ebf98733d753ed01f5d920b4808908d4f01c35e2de85cfd0a0580",
+    "xtendrmt/kernel/templates/rmt-core.d.ts": "a2e87e9babbc022c31c7ad8544dd3c654295e9ffcd2a389e8a3adf2080eafbb6",
+    "xtendrmt/kernel/templates/rmt-esm-preamble.js": "eb31fbf3ade50643824bb3d6d960f27a7e88f455b54dbbc667fadc134adb5ff6",
+    "xtendrmt/kernel/templates/rmt-esm-suffix.js": "4f4dd90ad41225ae08d765f76fabda22a2c45b6cd96b48de17e5496872e6d222",
+    "xtendrmt/node-page-host.d.ts": "54ff4dba79ffc41bb5e9f31621af68e01082bf230ee41b10b6a656e65e78679f",
+    "xtendrmt/node-page-host.mjs": "89e2d3f916b9b63a45f91cb18b4a7e0a65170a7f1427a0ad145ef38a0c4362ba",
+    "xtendrmt/page-client.d.ts": "6be1c33071a4b8778cb8da201a0b10c1c55375761fec57e2cd375a37c897d1de",
+    "xtendrmt/page-client.mjs": "db6eec245f8c9a9e5a67f81995f482a194d30bdea26688ef6ca3f35f531e975c",
+    "xtendrmt/page-contract.d.ts": "f7cc8793e50e0612d205965b8ce6bd60d485360fd1681bf8c5ba2af7e3b35e8c",
+    "xtendrmt/page-contract.mjs": "cded5b66eb8e9bf9dbebd7d5361d61b5f0b7bf5c44544225299cd5e6ae473d7b",
+    "xtendrmt/page-form.d.ts": "7edec0e53d79011b81473241cc0007f15b60ccd13a9606cd961f48dca44f0d2f",
+    "xtendrmt/page-form.mjs": "44bb3493376f2357aeaf1767ba43acecedccec26687ef6f0897a6d00ace0e053",
+    "xtendrmt/page-initial.mjs": "7feadf3f96fdfb13b5fa46ca96ea415d978d65d3235cc2c3757ec97fd2811abb",
+    "xtendrmt/page-resource-cache.d.ts": "ef153ffb82e45ccf4b9f44e6e981c800aa9e547c893568db32ff45e15d771301",
+    "xtendrmt/page-resource-cache.mjs": "9749a6c0dcc2313ff21708984f445ab8279972b691be0eb0c8f2aa042d8fd691",
+    "xtendrmt/page-wire.mjs": "26935b4ec79e3e5e8bf840ac8d23fbd87b938f8b254c08f8a38206d73ed964f6",
+    "xtendrmt/rmt-action-effect-runtime.d.ts": "ae7879152babd171a6e44035cb21e3753329b44aca530a2a80997c23eece1bb8",
+    "xtendrmt/rmt-action-effect-runtime.js": "3798c901579959de2aec8e6cedf9f07ee969bfd00bf0cc3478c0ad8831c6bcaa",
+    "xtendrmt/rmt-animation-engine-runtime.d.ts": "3daefd59ccf5f3133e55cad2ae23c7f8eedf8a68ec7c7a8be7ad3c05e879fd0b",
+    "xtendrmt/rmt-animation-engine-runtime.js": "9f3fae4164be62cc175c56eb4751cedda729ffc3beecd1e1f6623f34d11ce696",
+    "xtendrmt/rmt-app-host-adapter.d.ts": "0af5e8b568cc1d19f65f0df79f6faee2be563adde4b64ced93393f2ef95dfcfd",
+    "xtendrmt/rmt-app-host-adapter.js": "3ecd0c1b660dfa96de8a36de7605b17e89b1470a7c052df4b69da78538d486da",
+    "xtendrmt/rmt-app-runtime.d.ts": "0bc064822dd784d9738b89522d8ecfdce18ac40df6fa4e3b862a290271636dab",
+    "xtendrmt/rmt-app-runtime.js": "3d20461b92e62ac73af1317e855bd2426337f3886f51c91d23297f92c90fdceb",
+    "xtendrmt/rmt-app-view-projector.d.ts": "9b5c4b7713ed2f43a11672fe649a7d7ab0830564c52ca9b3e7368c5ac2d93883",
+    "xtendrmt/rmt-app-view-projector.js": "b7e38a3dbda64a39ead08ed7cd24a3dde761ed4c9e2f010635e10e0bf849d5c4",
+    "xtendrmt/rmt-browser-scheduler.d.ts": "3ff242e81d3aaa16db6b357fb2b66b44c7bd592c9eb6c3afecb6a8802e2f9f5f",
+    "xtendrmt/rmt-browser-scheduler.js": "6e24844041cebc85a2912c6d30d338b013e505221b0573ac12e110bfcc185ea3",
+    "xtendrmt/rmt-component-capability-registry.d.ts": "f38d086da4eda119d8cb1f782d223f6dae60daf3040a3c40fff3ec92d8c61e13",
+    "xtendrmt/rmt-component-capability-registry.js": "8cafb4a7aa91ce63e395eaed43cf71ae28e8621052a5f64cc795b4c924de040f",
+    "xtendrmt/rmt-core.d.ts": "0cddf0a20f9326824e6962773ad0ed91b93cd55b7ecb3d245280744abb06cb33",
+    "xtendrmt/rmt-core.esm.js": "f7a02860104b2526957890f2b34e046501f9a328f5012c9827704cdeab28c0d0",
+    "xtendrmt/rmt-dom-descriptor-renderer.d.ts": "02642144b47cbcf74304c912aff6777c4c5a7b3758b0d67c93fed612e1aa2a8e",
+    "xtendrmt/rmt-dom-descriptor-renderer.js": "69981e6ec2f51094e1607e52c39324a02358ac9be75dc4b0a120d4dcb895a555",
+    "xtendrmt/rmt-event-routing-runtime.d.ts": "9ced058aafc45f43bcb9a2ddccc3016faadf1f50573b6cf930f881926fba231e",
+    "xtendrmt/rmt-event-routing-runtime.js": "257b2f73fecc4d659f3c393b51dc7b2c940d196eee84caef67d29f3ec2e4448e",
+    "xtendrmt/rmt-form-validation-evaluator.js": "e7af3af5c7e3a3e8c8ae2d9170411f43a5ceac9b5e56cd3156e08be2591cbcc8",
+    "xtendrmt/rmt-form-validation-model-command-adapter.js": "0cb436c24421d5338cd6db42960c6a2339a60ea601581ad0358a4c4fa24c2fa9",
+    "xtendrmt/rmt-form-validation-runtime.d.ts": "14d1d0a5c54f28d299e17368d7fa5a47b803d2a54694a08148ad0cff8cb69c3e",
+    "xtendrmt/rmt-form-validation-runtime.js": "0d9dcf864b5e66c0e3871f8b653c38d4d70c210be017d9b41ae0db7775417f70",
+    "xtendrmt/rmt-form-validation-view-projector.js": "3f3f59dd368df398702b30d745ff394fa398f4c8c55eec9d236414270de56efa",
+    "xtendrmt/rmt-kernel-feature-adoption-registry.d.ts": "c99b006cf3da2f51c0e89f7974733673fb4911dca764928e1ecef3e3f0b31781",
+    "xtendrmt/rmt-kernel-feature-adoption-registry.js": "4480b8ac58d149f671f10b0dc645ef0910b865fa6b30c73b386e4c3e9f4b4313",
+    "xtendrmt/rmt-kernel-module-manifest.json": "26a20a051d490357d85e32282713ac3df9a6a53db15e6f725f599066a9529256",
+    "xtendrmt/rmt-kernel-orchestration-controller.d.ts": "64a3b7f319efd1a972e88437e8582fa2e54c36f931157e15a31c92a96e74c705",
+    "xtendrmt/rmt-kernel-orchestration-controller.js": "b4ce03f075831a483f388cec00e4b1ff458b84dc640645a04e44fb904954af10",
+    "xtendrmt/rmt-kernel-scheduler.d.ts": "c39dd306a6b2f662ec80d20e6773b0dd07098ef818e6871559c61f1c4b488003",
+    "xtendrmt/rmt-kernel-scheduler.js": "cb6968fa9b5a784f93e6c941e4a634bdd527525247a1f4653f9c7b204829e766",
+    "xtendrmt/rmt-maraca-view-projection-adapter.d.ts": "6b59fb671624728cd9b3bcb9b4b846aa7cc784d4385d7649529036828851c887",
+    "xtendrmt/rmt-maraca-view-projection-adapter.js": "ee09855bee0e3973cfd8ec521c6b661256c3f1be7e4e8b6e782dd323ffb313be",
+    "xtendrmt/rmt-native-shell-runtime.d.ts": "d7b08aa7e3b25cd312957bc7699b0bc59ecbc7f1b4d4b1865637cd4003b17226",
+    "xtendrmt/rmt-native-shell-runtime.js": "f522437db32e20b3b26681e79cfa6d7018a3ab043f8cd81abf8e5e1c9bdb490c",
+    "xtendrmt/rmt-node-ssr-adapter.d.ts": "c245d9b820e04bf430e4a39ca6070fd1858c4260abd8adf61f75bd84298b956e",
+    "xtendrmt/rmt-node-ssr-adapter.js": "0a40b931761390a330ea870af2e20b450f89f00a7cad51586545524e1ac84a20",
+    "xtendrmt/rmt-portable-render.d.ts": "9c35a51a95098d3f39791d2090c1c873f2af51a087143881f5843034c2e01431",
+    "xtendrmt/rmt-portable-render.js": "ebddbb95cff37ea8515f65fd3d3a6781d6d2df1132bd69dfe1b9625bc1c2d0a7",
+    "xtendrmt/rmt-presentation-effect-adapter.d.ts": "03e3978c6e101c39f6d8b10ac755c3b7e9dd266a716558faa4f3a2644fa9577c",
+    "xtendrmt/rmt-presentation-effect-adapter.js": "87c7d4a3e886bfd45d98b7b5dd385ce06a578dc408a3ceb0a6122f5010f9cd0f",
+    "xtendrmt/rmt-resume-capture-adapter.d.ts": "1916a2cabf1eefa346c81171b1b6c4254c3a39bf8d953886abebe9aff3809fe1",
+    "xtendrmt/rmt-resume-capture-adapter.js": "8536cb95233a4823c9a649aba6eb60ef5029ab24386216c96f21258cd66a8b3f",
+    "xtendrmt/rmt-resume-command-adapter.js": "188c073aa37ef260f37682e65cf29651e3f6b4a37b6737da7a28a64007f3c896",
+    "xtendrmt/rmt-resume-command-controller.js": "c12f618a4dd04090499ded4f27b5825d7da136775639be86016ab2e1846b2f3d",
+    "xtendrmt/rmt-resume-host-adapter.js": "33d981e5028a48feaeec60c98dba59555375561f123d6721d9b4dec60701ef5f",
+    "xtendrmt/rmt-resume-protocol.js": "efc18ddc7e240c5640fbc9153ce83f95c35844d24282b23d8b8897d2eb618477",
+    "xtendrmt/rmt-resume-runtime.d.ts": "997a9778db3fb0fb9f6d51a8363b0a9fbe99c431c7d812b89928416459b0207d",
+    "xtendrmt/rmt-resume-runtime.js": "34fa4effde845c60a49f859d3728e1f83c3ec56555b9e8939cbad1e4e1098a57",
+    "xtendrmt/rmt-runtime.browser.js": "59773e7ceeae4d0936480adf68973972a7944e70eb105fd469fc02898c3f94d7",
+    "xtendrmt/rmt-runtime.esm.js": "185cc0e40510d240f70da76ef558e4e1cb25ccd116dfbd6c470c0fba825c4770",
+    "xtendrmt/rmt-safe-preview.d.ts": "10697cdb9e7e9d2e6426bd5875c97fdbafd4c3186ad28733ac5ac4c416d01e77",
+    "xtendrmt/rmt-safe-preview.js": "03c5e6d416462526ea572a7a8d473b9975baa46e5ecb8e814ea1240c0b0a7b6b",
+    "xtendrmt/rmt-ssr-stream-host.js": "d2fadb9ea55eaa0ed8b1a6c21732f431fbae440398e6994b41313cb794753f8f",
+    "xtendrmt/rmt-state-binding-view-projector.d.ts": "29bb92b9713cd52bc7f4dfb053f5ad1ffd92b14fe8559f4c4ffecd63f94f2e24",
+    "xtendrmt/rmt-state-binding-view-projector.js": "ae1bb4ecfe246701f55b026f4f6a6fb4160c81bf0db21a6b0ce4fc404eb25589",
+    "xtendrmt/rmt-state-host-adapter.d.ts": "a0ee415d337ae0f140086615e6174c3db94de93a3c63065416f398046743e59f",
+    "xtendrmt/rmt-state-host-adapter.js": "1c3b0ce150cee986ecdda1d0a9c92e7f323ee31cbb920c5072aa2772cd078de6",
+    "xtendrmt/rmt-state-selector-runtime.d.ts": "62922d37860e756f5c3ba931a8701bb55f6aabe4faa103ac1bbf2a8e4f232756",
+    "xtendrmt/rmt-state-selector-runtime.js": "150f5ae1a279cf7457be54fc7a466afeb1a2a026a911ab1cb1d16ae5da2a669d",
+    "xtendrmt/rmt-surface-resource-graph-runtime.d.ts": "774dbe5de8411937b84ec0f0d64eaca9deab5123bd4152ae6bfd8949c63fb589",
+    "xtendrmt/rmt-surface-resource-graph-runtime.js": "9344b64339e1e08d4bd64933fabe5c14a12fadd24cd546b787cf727de469f446",
+    "xtendrmt/rmt-surface-transition-runtime.d.ts": "c67c182be0e52b0b25a1201f48182b1ba2992621aed0e523226b79cc1fa579a5",
+    "xtendrmt/rmt-surface-transition-runtime.js": "03d0245ea17603a4b9fd17ddac0dd13c9b240edf1acf21ebdb89901d24ff221b"
+  },
+  "historicalEvidence": {
+    "path": "development/rmtx-a06/syntax-comparison/native-header-evidence.before-lifecycle-fix.json",
+    "sha256": "88e667ce68437a37272d3c07a7d625124dc1fe3663e3ff0c3e6f5f52fad95f63"
+  },
+  "syntaxDecisionStatus": "accepted-in-separate-adr",
+  "productionFrontendImplemented": false,
+  "acceptedForRelease": false
+}

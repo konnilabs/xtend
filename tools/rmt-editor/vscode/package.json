@@ -1,8 +1,8 @@
 {
   "name": "xtend-rmt-language",
-  "displayName": "XTendRMT Language Support",
-  "description": "VS Code DX integration for native .rmt authoring plus the bundled XTend MCP knowledge and tooling server.",
-  "version": "0.1.0-rc.1",
+  "displayName": "XTend RMT Classic & RMTX",
+  "description": "RMT Classic language tooling, declarative RMTX TSX syntax highlighting, and the bundled XTend MCP server.",
+  "version": "0.2.3",
   "private": false,
   "publisher": "CCS Networks",
   "license": "Apache-2.0",
@@ -21,6 +21,7 @@
   "activationEvents": [
     "onStartupFinished",
     "onLanguage:rmt",
+    "onLanguage:rmtx",
     "onCommand:xtendRmt.showLanguageServerCommand",
     "onCommand:xtendRmt.restartLanguageServer",
     "onCommand:xtendRmt.runActiveLint",
@@ -43,7 +44,7 @@
   ],
   "main": "./extension.js",
   "scripts": {
-    "package": "node build-vsix.js --out xtend-rmt-language-0.1.0-rc.1.vsix"
+    "package": "node build-vsix.js --out xtend-rmt-language-0.2.3.vsix"
   },
   "files": [
     "extension.js",
@@ -55,7 +56,9 @@
     "tools/rmt-language-server/**",
     "tools/rmt-language/**",
     "XTend-Logo.png",
-    "README.md"
+    "README.md",
+    "rmtx-language-configuration.json",
+    "icons/**"
   ],
   "contributes": {
     "mcpServerDefinitionProviders": [
@@ -74,7 +77,26 @@
         "extensions": [
           ".rmt"
         ],
-        "configuration": "./language-configuration.json"
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./icons/rmt-light.svg",
+          "dark": "./icons/rmt-dark.svg"
+        }
+      },
+      {
+        "id": "rmtx",
+        "aliases": [
+          "RMTX",
+          "XTend RMTX"
+        ],
+        "extensions": [
+          ".rmtx"
+        ],
+        "configuration": "./rmtx-language-configuration.json",
+        "icon": {
+          "light": "./icons/rmtx-light.svg",
+          "dark": "./icons/rmtx-dark.svg"
+        }
       }
     ],
     "grammars": [
@@ -82,12 +104,28 @@
         "language": "rmt",
         "scopeName": "source.rmt",
         "path": "./syntaxes/rmt.tmLanguage.json"
+      },
+      {
+        "language": "rmtx",
+        "scopeName": "source.rmtx",
+        "path": "./syntaxes/rmtx.tmLanguage.json"
+      },
+      {
+        "scopeName": "rmtx.operators.injection",
+        "path": "./syntaxes/rmtx-operators.injection.tmLanguage.json",
+        "injectTo": [
+          "source.rmtx"
+        ]
       }
     ],
     "snippets": [
       {
         "language": "rmt",
         "path": "./snippets/rmt.code-snippets"
+      },
+      {
+        "language": "rmtx",
+        "path": "./snippets/rmtx.code-snippets"
       }
     ],
     "taskDefinitions": [
@@ -296,5 +334,8 @@
         }
       }
     }
-  }
+  },
+  "extensionDependencies": [
+    "vscode.typescript"
+  ]
 }

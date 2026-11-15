@@ -18699,6 +18699,42 @@
       "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
       "recommendation": "Confirm that the variants are intentional before adding another shape.",
       "baseline": "a06-operator-backend-fix-observation-review"
+    },
+    {
+      "reviewId": "polymorphic-a9f59393f4b1",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "The explicit unsupported-language branch returns the existing editor code-action fields with initialize:null before a Classic server exists. It is a closed partial rejection observation alongside the existing Classic result, not a new authoritative schema or a release-policy waiver."
+      },
+      "schemaIds": [
+        "xtend.rmt.editor.vscode-active-document-code-actions.v1"
+      ],
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "a06-rmtx-editor-0.2.1-closed-language-guard-observation-review"
+    },
+    {
+      "reviewId": "polymorphic-62553bcdd7db",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "The new native lifecycle projection report has a complete declared-type result and a distinct partial implementation observation. Bind the exact fingerprint set while retaining completeness/authority distinctions; no compatibility waiver or alias is introduced."
+      },
+      "schemaIds": [
+        "xtend.rmt.maraca-surface-lifecycle-projection.v1"
+      ],
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "a06-native-view-lifecycle-initial-observation-review"
     }
   ],
   "entries": [
@@ -373194,10 +373230,10 @@
     {
       "aliasOf": null,
       "canonicalDefinition": {
-        "definitionType": "constant",
         "path": "xtend-maraca/plan-runtime.mjs",
-        "role": "definition",
         "symbol": "PLAN_RUNTIME_SCHEMA",
+        "definitionType": "constant",
+        "role": "definition",
         "visibility": "public"
       },
       "description": "Unreleased A02.5.2 versioned URL-state Router/Maraca integration contract. Serialized public grants are separate from trusted navigation/Model/History ports; real View/Props completion precedes History. No 0.9 feature acceptance or publication permission.",
@@ -374212,7 +374248,9 @@
             "development/rmtx-a01/inventory.json",
             "development/rmtx-a02/README.md",
             "development/rmtx-a02/url-history/integration-evidence.json",
-            "development/rmtx-a02/url-history/integration-inspect.cjs"
+            "development/rmtx-a02/url-history/integration-inspect.cjs",
+            "development/rmtx-a06/native-lifecycle-fix-evidence.json",
+            "development/rmtx-a06/syntax-comparison/native-header-evidence.json"
           ],
           "interfaceReferences": [
             {
@@ -701999,16 +702037,95 @@
           ],
           "completeness": "partial",
           "authoritative": false
+        },
+        {
+          "hash": "sha256:20b742fc5a48f2a822263c3515c50a2beefdc21297f9afb32d6d7ff25c19c581",
+          "shape": {
+            "fieldCount": 8,
+            "fields": [
+              "actions",
+              "diagnostics",
+              "document",
+              "initialize",
+              "ok",
+              "rootDir",
+              "status",
+              "workpackage"
+            ],
+            "signature": "actions:array<>|diagnostics:array<>|document:unknown|initialize:null|ok:boolean|rootDir:unknown|status:string|workpackage:string",
+            "normalized": {
+              "fields": {
+                "actions": {
+                  "optional": false,
+                  "type": {
+                    "array": []
+                  }
+                },
+                "diagnostics": {
+                  "optional": false,
+                  "type": {
+                    "array": []
+                  }
+                },
+                "document": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "initialize": {
+                  "optional": false,
+                  "type": "null"
+                },
+                "ok": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "rootDir": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "status": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "workpackage": {
+                  "optional": false,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "tools/rmt-editor/vscode/extension.js"
+          ],
+          "symbols": [
+            "requestPrimitiveCodeActionsForDocument"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "tools/rmt-editor/vscode/extension.js",
+              "symbol": "requestPrimitiveCodeActionsForDocument"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
         }
       ],
       "shapePolicy": {
         "acceptedFingerprints": [
-          "sha256:015beb0d83108d278dc8c465a88e0582c6e8786057a4707b318d23f4144baf6f"
+          "sha256:015beb0d83108d278dc8c465a88e0582c6e8786057a4707b318d23f4144baf6f",
+          "sha256:20b742fc5a48f2a822263c3515c50a2beefdc21297f9afb32d6d7ff25c19c581"
         ],
         "authoritativeFingerprints": [],
-        "mode": "single",
-        "rationale": "One statically comparable shape is accepted by the initial repository audit.",
-        "releasedFingerprintSetHash": null
+        "mode": "polymorphic",
+        "rationale": "The existing Classic active-document code-action result and the explicit unsupported-language rejection are two partial static observations of the same editor DTO. RMTX rejection occurs before creating a Classic language server and uses initialize:null with empty diagnostics/actions. Both exact observed fingerprints are bound without promoting either to complete schema authority or changing existing authoritative/released sets.",
+        "releasedFingerprintSetHash": null,
+        "decision": "a06-rmtx-editor-0.2.1-closed-language-guard-observation-review"
       },
       "status": "active",
       "usages": [
@@ -728303,6 +728420,86 @@
           "authoritative": false
         },
         {
+          "hash": "sha256:bfa1afb065e9e6c01885bbf68a9f2b359f1cbeb0c1d1d58c6691d3c703bcf8da",
+          "shape": {
+            "fieldCount": 9,
+            "fields": [
+              "canonicalModuleCount",
+              "compatibilityComposerCount",
+              "globalMirrorCompatibilityCount",
+              "legacyBundleModuleCount",
+              "ok",
+              "sourceManifestPath",
+              "status",
+              "strict",
+              "violations"
+            ],
+            "signature": "canonicalModuleCount:number|compatibilityComposerCount:number|globalMirrorCompatibilityCount:number|legacyBundleModuleCount:number|ok:boolean|sourceManifestPath:string|status:string|strict:boolean|violations:array<>",
+            "normalized": {
+              "fields": {
+                "canonicalModuleCount": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "compatibilityComposerCount": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "globalMirrorCompatibilityCount": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "legacyBundleModuleCount": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "ok": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "sourceManifestPath": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "status": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "strict": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "violations": {
+                  "optional": false,
+                  "type": {
+                    "array": []
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "development/rmtx-a06/native-lifecycle-fix-evidence.json"
+          ],
+          "symbols": [
+            "/kernel/architecture"
+          ],
+          "evidence": [
+            {
+              "type": "docs",
+              "completeness": "complete",
+              "authoritative": false,
+              "path": "development/rmtx-a06/native-lifecycle-fix-evidence.json",
+              "symbol": "/kernel/architecture"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
+          ],
+          "completeness": "complete",
+          "authoritative": false
+        },
+        {
           "hash": "sha256:ef04abc4c5f6d162a7c9f760456f28fcd859e8e2eea48a85fa90d706e5d522dd",
           "shape": {
             "fieldCount": 9,
@@ -728401,6 +728598,7 @@
         "acceptedFingerprints": [
           "sha256:2ad0f07b44523964bc3aa0a62009c4ade6d94b2ed058f49784f4100effbfa839",
           "sha256:6856f8f4f38ac5d31e791481674cd8a012d0d3a6e7fd9f665a4788f01e676a39",
+          "sha256:bfa1afb065e9e6c01885bbf68a9f2b359f1cbeb0c1d1d58c6691d3c703bcf8da",
           "sha256:ef04abc4c5f6d162a7c9f760456f28fcd859e8e2eea48a85fa90d706e5d522dd"
         ],
         "authoritativeFingerprints": [],
@@ -728468,6 +728666,21 @@
               "type": "symbol",
               "path": "xtend-builder/generators/rmt-kernel-lab.js",
               "symbol": "createRmtKernelLabBuild"
+            }
+          ]
+        },
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a06/native-lifecycle-fix-evidence.json"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "development/rmtx-a06/native-lifecycle-fix-evidence.json",
+              "pointer": "/kernel/architecture"
             }
           ]
         }
@@ -764747,102 +764960,204 @@
       "version": 1
     },
     {
+      "schemaId": "xtend.rmt.maraca-surface-lifecycle-projection.v1",
+      "familyId": "xtend.rmt.maraca-surface-lifecycle-projection",
+      "version": 1,
+      "kinds": [
+        "runtime-discriminator"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
       "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": "sha256:92590180058802aa74791b2dfb269ef95c3587cdb761bf68f59fae97193da9a1",
+      "description": "Native View lifecycle projection result v1 with phase, projection/visibility/removal/retention counts and current Surface IDs; development-native header acceptance does not imply full RMTX or 0.9 release acceptance.",
+      "descriptionStatus": "curated",
       "canonicalDefinition": {
         "path": "xtendrmt/rmt-maraca-view-projection-adapter.js",
-        "symbol": "RMT_MARACA_VIEW_PROJECTION_ADAPTER_SCHEMA",
+        "symbol": "RMT_MARACA_SURFACE_LIFECYCLE_PROJECTION_SCHEMA",
         "definitionType": "constant",
         "role": "definition",
         "visibility": "public"
       },
-      "description": "Identifies the rmt maraca view projection adapter event payload used by XTendRMT.",
-      "descriptionStatus": "accepted-initial-audit",
-      "familyId": "xtend.rmt.maraca-view-projection-adapter",
-      "kinds": [
-        "event-id",
-        "runtime-discriminator"
-      ],
-      "lifecycle": {
-        "rollout": "complete",
-        "status": "active"
-      },
-      "releasedFingerprintSetHash": "sha256:7405f3c91ad5cdb0476b8c76960038e4ac13e861f1287cfef6103ce678266a6a",
-      "replacedBy": null,
-      "schemaId": "xtend.rmt.maraca-view-projection-adapter.v1",
-      "shapeFingerprints": [
+      "usages": [
         {
-          "hash": "sha256:0d45f6c1a14169bac1a7cd26769777798612d8cdc15171261cc9ec1180701027",
-          "shape": {
-            "fieldCount": 4,
-            "fields": [
-              "capabilities",
-              "diagnosticCount",
-              "disposed",
-              "surfaceCount"
-            ],
-            "signature": "capabilities:unknown|diagnosticCount:{\"unresolved\":\"diagnostics.length\"}|disposed:boolean|surfaceCount:{\"unresolved\":\"surfaceElements.size\"}",
-            "normalized": {
-              "fields": {
-                "capabilities": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "diagnosticCount": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "diagnostics.length"
-                  }
-                },
-                "disposed": {
-                  "optional": false,
-                  "type": "boolean"
-                },
-                "surfaceCount": {
-                  "optional": false,
-                  "type": {
-                    "unresolved": "surfaceElements.size"
-                  }
-                }
-              }
-            }
-          },
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
           "sourcePaths": [
-            "xtendrmt/rmt-maraca-view-projection-adapter.js"
+            "development/rmtx-a06/native-header-check.md",
+            "development/rmtx-a06/native-view-lifecycle-contract.md"
           ],
-          "symbols": [
-            "snapshot"
-          ],
-          "evidence": [
+          "interfaceReferences": [
             {
-              "type": "runtime-observation",
-              "completeness": "partial",
-              "authoritative": false,
-              "path": "xtendrmt/rmt-maraca-view-projection-adapter.js",
-              "symbol": "snapshot"
+              "type": "repo-symbol",
+              "path": "development/rmtx-a06/native-header-check.md",
+              "symbol": null
             }
-          ],
-          "evidenceTypes": [
-            "runtime-observation"
-          ],
-          "completeness": "partial",
-          "authoritative": false
+          ]
         },
         {
-          "hash": "sha256:54a3b0734d4332e39eff72d9d44a24d8db9c3605c0c6c8a393c6068a354b15e0",
+          "application": "XTend Maraca",
+          "role": "producer",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/plan-runtime.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/plan-runtime",
+              "path": "xtend-maraca/plan-runtime.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/plan-runtime",
+              "path": "xtend-maraca/plan-runtime.d.ts"
+            }
+          ]
+        },
+        {
+          "application": "XTendRMT",
+          "role": "definition",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtendrmt/rmt-maraca-view-projection-adapter.d.ts",
+            "xtendrmt/rmt-maraca-view-projection-adapter.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-rmt/maraca-view-projection-adapter",
+              "path": "xtendrmt/rmt-maraca-view-projection-adapter.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-rmt/maraca-view-projection-adapter",
+              "path": "xtendrmt/rmt-maraca-view-projection-adapter.js"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/rmt/maraca-view-projection-adapter",
+              "path": "xtendrmt/rmt-maraca-view-projection-adapter.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/rmt/maraca-view-projection-adapter",
+              "path": "xtendrmt/rmt-maraca-view-projection-adapter.js"
+            },
+            {
+              "type": "symbol",
+              "path": "xtendrmt/rmt-maraca-view-projection-adapter.d.ts",
+              "symbol": "MaracaSurfaceLifecycleProjectionReport"
+            },
+            {
+              "type": "symbol",
+              "path": "xtendrmt/rmt-maraca-view-projection-adapter.d.ts",
+              "symbol": "RMT_MARACA_SURFACE_LIFECYCLE_PROJECTION_SCHEMA"
+            },
+            {
+              "type": "symbol",
+              "path": "xtendrmt/rmt-maraca-view-projection-adapter.js",
+              "symbol": "RMT_MARACA_SURFACE_LIFECYCLE_PROJECTION_SCHEMA"
+            }
+          ]
+        },
+        {
+          "application": "XTendRMT",
+          "role": "producer",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtendrmt/rmt-maraca-view-projection-adapter.d.ts",
+            "xtendrmt/rmt-maraca-view-projection-adapter.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-rmt/maraca-view-projection-adapter",
+              "path": "xtendrmt/rmt-maraca-view-projection-adapter.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-rmt/maraca-view-projection-adapter",
+              "path": "xtendrmt/rmt-maraca-view-projection-adapter.js"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/rmt/maraca-view-projection-adapter",
+              "path": "xtendrmt/rmt-maraca-view-projection-adapter.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/rmt/maraca-view-projection-adapter",
+              "path": "xtendrmt/rmt-maraca-view-projection-adapter.js"
+            },
+            {
+              "type": "symbol",
+              "path": "xtendrmt/rmt-maraca-view-projection-adapter.js",
+              "symbol": "projectSurfaceLifecycle"
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "polymorphic",
+        "acceptedFingerprints": [
+          "sha256:449b52687a3730f7ed36b21aaaee6e64daaa33262df213bbded32605ddcb6404",
+          "sha256:db24427b66dc697008cf5c901fafe2663137d2fb2642562ca8d978f86d9b2009"
+        ],
+        "authoritativeFingerprints": [
+          "sha256:db24427b66dc697008cf5c901fafe2663137d2fb2642562ca8d978f86d9b2009"
+        ],
+        "releasedFingerprintSetHash": "sha256:92590180058802aa74791b2dfb269ef95c3587cdb761bf68f59fae97193da9a1",
+        "rationale": "Initial exact source/type observations for the versioned native View lifecycle contract. Complete declared-type authority and partial runtime records remain distinct; no partial observation is promoted to authority and no existing released set is changed.",
+        "decision": "a06-native-view-lifecycle-initial-observation-review"
+      },
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:449b52687a3730f7ed36b21aaaee6e64daaa33262df213bbded32605ddcb6404",
           "shape": {
-            "fieldCount": 2,
+            "fieldCount": 7,
             "fields": [
-              "count",
+              "hidden",
+              "phase",
+              "projected",
+              "removed",
+              "restored",
+              "retained",
               "surfaceIds"
             ],
-            "signature": "count:{\"unresolved\":\"surfaceElements.size\"}|surfaceIds:unknown",
+            "signature": "hidden:number|phase:{\"unresolved\":\"input.phase || 'project'\"}|projected:number|removed:number|restored:number|retained:number|surfaceIds:unknown",
             "normalized": {
               "fields": {
-                "count": {
+                "hidden": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "phase": {
                   "optional": false,
                   "type": {
-                    "unresolved": "surfaceElements.size"
+                    "unresolved": "input.phase || 'project'"
                   }
+                },
+                "projected": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "removed": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "restored": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "retained": {
+                  "optional": false,
+                  "type": "number"
                 },
                 "surfaceIds": {
                   "optional": false,
@@ -764855,7 +765170,7 @@
             "xtendrmt/rmt-maraca-view-projection-adapter.js"
           ],
           "symbols": [
-            "reindexSurfaces"
+            "projectSurfaceLifecycle"
           ],
           "evidence": [
             {
@@ -764863,7 +765178,7 @@
               "completeness": "partial",
               "authoritative": false,
               "path": "xtendrmt/rmt-maraca-view-projection-adapter.js",
-              "symbol": "reindexSurfaces"
+              "symbol": "projectSurfaceLifecycle"
             }
           ],
           "evidenceTypes": [
@@ -764872,6 +765187,110 @@
           "completeness": "partial",
           "authoritative": false
         },
+        {
+          "hash": "sha256:db24427b66dc697008cf5c901fafe2663137d2fb2642562ca8d978f86d9b2009",
+          "shape": {
+            "fieldCount": 7,
+            "fields": [
+              "hidden",
+              "phase",
+              "projected",
+              "removed",
+              "restored",
+              "retained",
+              "surfaceIds"
+            ],
+            "signature": "hidden:number|phase:union<literal<\"prepare\">|literal<\"project\">>|projected:number|removed:number|restored:number|retained:number|surfaceIds:array<string>",
+            "normalized": {
+              "fields": {
+                "hidden": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "phase": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "literal": "prepare"
+                      },
+                      {
+                        "literal": "project"
+                      }
+                    ]
+                  }
+                },
+                "projected": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "removed": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "restored": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "retained": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "surfaceIds": {
+                  "optional": false,
+                  "type": {
+                    "elementType": "string"
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "xtendrmt/rmt-maraca-view-projection-adapter.d.ts"
+          ],
+          "symbols": [
+            "MaracaSurfaceLifecycleProjectionReport"
+          ],
+          "evidence": [
+            {
+              "type": "declared-type",
+              "completeness": "complete",
+              "authoritative": true,
+              "path": "xtendrmt/rmt-maraca-view-projection-adapter.d.ts",
+              "symbol": "MaracaSurfaceLifecycleProjectionReport"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "completeness": "complete",
+          "authoritative": true
+        }
+      ]
+    },
+    {
+      "aliasOf": null,
+      "canonicalDefinition": {
+        "path": "xtendrmt/rmt-maraca-view-projection-adapter.js",
+        "symbol": "RMT_MARACA_VIEW_PROJECTION_ADAPTER_LEGACY_SCHEMA",
+        "definitionType": "constant",
+        "role": "definition",
+        "visibility": "public"
+      },
+      "description": "Identifies the rmt maraca view projection adapter event payload used by XTendRMT.",
+      "descriptionStatus": "accepted-initial-audit",
+      "familyId": "xtend.rmt.maraca-view-projection-adapter",
+      "kinds": [
+        "event-id"
+      ],
+      "lifecycle": {
+        "rollout": "complete",
+        "status": "deprecated"
+      },
+      "releasedFingerprintSetHash": "sha256:7405f3c91ad5cdb0476b8c76960038e4ac13e861f1287cfef6103ce678266a6a",
+      "replacedBy": null,
+      "schemaId": "xtend.rmt.maraca-view-projection-adapter.v1",
+      "shapeFingerprints": [
         {
           "hash": "sha256:6d4577f0813ccb71a1d2b9562898356234e9a84793c1f917bd81a312608bb868",
           "shape": {
@@ -764958,7 +765377,7 @@
             "xtendrmt/rmt-maraca-view-projection-adapter.d.ts"
           ],
           "symbols": [
-            "RmtMaracaViewProjectionAdapter"
+            "RmtMaracaLegacyViewProjectionAdapter"
           ],
           "evidence": [
             {
@@ -764966,7 +765385,7 @@
               "completeness": "complete",
               "authoritative": true,
               "path": "xtendrmt/rmt-maraca-view-projection-adapter.d.ts",
-              "symbol": "RmtMaracaViewProjectionAdapter"
+              "symbol": "RmtMaracaLegacyViewProjectionAdapter"
             }
           ],
           "evidenceTypes": [
@@ -764974,188 +765393,17 @@
           ],
           "completeness": "complete",
           "authoritative": true
-        },
-        {
-          "hash": "sha256:8c32365c8ca6204b35fa80e2ed7c835a22743fa5136f913860ac341f9118ba8b",
-          "shape": {
-            "fieldCount": 1,
-            "fields": [
-              "valid"
-            ],
-            "signature": "valid:boolean",
-            "normalized": {
-              "fields": {
-                "valid": {
-                  "optional": false,
-                  "type": "boolean"
-                }
-              }
-            }
-          },
-          "sourcePaths": [
-            "xtendrmt/rmt-maraca-view-projection-adapter.js"
-          ],
-          "symbols": [
-            "validateRoot"
-          ],
-          "evidence": [
-            {
-              "type": "runtime-observation",
-              "completeness": "complete",
-              "authoritative": false,
-              "path": "xtendrmt/rmt-maraca-view-projection-adapter.js",
-              "symbol": "validateRoot"
-            }
-          ],
-          "evidenceTypes": [
-            "runtime-observation"
-          ],
-          "completeness": "complete",
-          "authoritative": false
-        },
-        {
-          "hash": "sha256:9c8e7cd3ac6b2c2dd22dbe6f78deaaad23c75ad2180ac37a504976e3faf75eba",
-          "shape": {
-            "fieldCount": 14,
-            "fields": [
-              "clearOwnedDom",
-              "dispatchHostEvent",
-              "dispose",
-              "getDocumentTarget",
-              "listDiagnostics",
-              "readChildNodes",
-              "reindexSurfaces",
-              "resetSurfaceIndex",
-              "resolveBindingTarget",
-              "resolveField",
-              "resolveSurface",
-              "resolveTarget",
-              "snapshot",
-              "validateRoot"
-            ],
-            "signature": "clearOwnedDom:{\"unresolvedReference\":\"clearOwnedDom\"}|dispatchHostEvent:{\"unresolvedReference\":\"dispatchHostEvent\"}|dispose:{\"unresolvedReference\":\"dispose\"}|getDocumentTarget:{\"unresolvedReference\":\"getDocumentTarget\"}|listDiagnostics:function|readChildNodes:{\"unresolvedReference\":\"readChildNodes\"}|reindexSurfaces:{\"unresolvedReference\":\"reindexSurfaces\"}|resetSurfaceIndex:{\"unresolvedReference\":\"resetSurfaceIndex\"}|resolveBindingTarget:{\"unresolvedReference\":\"resolveBindingTarget\"}|resolveField:{\"unresolvedReference\":\"resolveField\"}|resolveSurface:{\"unresolvedReference\":\"resolveSurface\"}|resolveTarget:{\"unresolvedReference\":\"resolveTarget\"}|snapshot:{\"unresolvedReference\":\"snapshot\"}|validateRoot:{\"unresolvedReference\":\"validateRoot\"}",
-            "normalized": {
-              "fields": {
-                "clearOwnedDom": {
-                  "optional": false,
-                  "type": {
-                    "unresolvedReference": "clearOwnedDom"
-                  }
-                },
-                "dispatchHostEvent": {
-                  "optional": false,
-                  "type": {
-                    "unresolvedReference": "dispatchHostEvent"
-                  }
-                },
-                "dispose": {
-                  "optional": false,
-                  "type": {
-                    "unresolvedReference": "dispose"
-                  }
-                },
-                "getDocumentTarget": {
-                  "optional": false,
-                  "type": {
-                    "unresolvedReference": "getDocumentTarget"
-                  }
-                },
-                "listDiagnostics": {
-                  "optional": false,
-                  "type": "function"
-                },
-                "readChildNodes": {
-                  "optional": false,
-                  "type": {
-                    "unresolvedReference": "readChildNodes"
-                  }
-                },
-                "reindexSurfaces": {
-                  "optional": false,
-                  "type": {
-                    "unresolvedReference": "reindexSurfaces"
-                  }
-                },
-                "resetSurfaceIndex": {
-                  "optional": false,
-                  "type": {
-                    "unresolvedReference": "resetSurfaceIndex"
-                  }
-                },
-                "resolveBindingTarget": {
-                  "optional": false,
-                  "type": {
-                    "unresolvedReference": "resolveBindingTarget"
-                  }
-                },
-                "resolveField": {
-                  "optional": false,
-                  "type": {
-                    "unresolvedReference": "resolveField"
-                  }
-                },
-                "resolveSurface": {
-                  "optional": false,
-                  "type": {
-                    "unresolvedReference": "resolveSurface"
-                  }
-                },
-                "resolveTarget": {
-                  "optional": false,
-                  "type": {
-                    "unresolvedReference": "resolveTarget"
-                  }
-                },
-                "snapshot": {
-                  "optional": false,
-                  "type": {
-                    "unresolvedReference": "snapshot"
-                  }
-                },
-                "validateRoot": {
-                  "optional": false,
-                  "type": {
-                    "unresolvedReference": "validateRoot"
-                  }
-                }
-              }
-            }
-          },
-          "sourcePaths": [
-            "xtendrmt/rmt-maraca-view-projection-adapter.js"
-          ],
-          "symbols": [
-            "createRmtMaracaViewProjectionAdapter"
-          ],
-          "evidence": [
-            {
-              "type": "runtime-observation",
-              "completeness": "partial",
-              "authoritative": false,
-              "path": "xtendrmt/rmt-maraca-view-projection-adapter.js",
-              "symbol": "createRmtMaracaViewProjectionAdapter"
-            }
-          ],
-          "evidenceTypes": [
-            "runtime-observation"
-          ],
-          "completeness": "partial",
-          "authoritative": false
         }
       ],
       "shapePolicy": {
         "acceptedFingerprints": [
-          "sha256:0d45f6c1a14169bac1a7cd26769777798612d8cdc15171261cc9ec1180701027",
-          "sha256:54a3b0734d4332e39eff72d9d44a24d8db9c3605c0c6c8a393c6068a354b15e0",
-          "sha256:6d4577f0813ccb71a1d2b9562898356234e9a84793c1f917bd81a312608bb868",
-          "sha256:8c32365c8ca6204b35fa80e2ed7c835a22743fa5136f913860ac341f9118ba8b",
-          "sha256:9c8e7cd3ac6b2c2dd22dbe6f78deaaad23c75ad2180ac37a504976e3faf75eba"
+          "sha256:6d4577f0813ccb71a1d2b9562898356234e9a84793c1f917bd81a312608bb868"
         ],
         "authoritativeFingerprints": [
           "sha256:6d4577f0813ccb71a1d2b9562898356234e9a84793c1f917bd81a312608bb868"
         ],
         "decision": "accepted-initial-audit",
-        "mode": "polymorphic",
+        "mode": "single",
         "rationale": "All observed variants are fingerprint-bound after the XTend 0.7 State metadata migration; future fingerprint changes require a new review.",
         "releasedFingerprintSetHash": "sha256:7405f3c91ad5cdb0476b8c76960038e4ac13e861f1287cfef6103ce678266a6a"
       },
@@ -765172,6 +765420,183 @@
             {
               "type": "repo-symbol",
               "path": "docs/generated/shell/xtend.maraca.mjs",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Maraca",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/maraca/native-surface-lifecycle.test.mjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/maraca/native-surface-lifecycle.test.mjs",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Rmt",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/rmt/maraca-view-lifecycle.test.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/rmt/maraca-view-lifecycle.test.cjs",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTendRMT",
+          "role": "definition",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtendrmt/rmt-maraca-view-projection-adapter.d.ts",
+            "xtendrmt/rmt-maraca-view-projection-adapter.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-rmt/maraca-view-projection-adapter",
+              "path": "xtendrmt/rmt-maraca-view-projection-adapter.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-rmt/maraca-view-projection-adapter",
+              "path": "xtendrmt/rmt-maraca-view-projection-adapter.js"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/rmt/maraca-view-projection-adapter",
+              "path": "xtendrmt/rmt-maraca-view-projection-adapter.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/rmt/maraca-view-projection-adapter",
+              "path": "xtendrmt/rmt-maraca-view-projection-adapter.js"
+            },
+            {
+              "type": "symbol",
+              "path": "xtendrmt/rmt-maraca-view-projection-adapter.d.ts",
+              "symbol": "RMT_MARACA_VIEW_PROJECTION_ADAPTER_LEGACY_SCHEMA"
+            },
+            {
+              "type": "symbol",
+              "path": "xtendrmt/rmt-maraca-view-projection-adapter.d.ts",
+              "symbol": "RmtMaracaLegacyViewProjectionAdapter"
+            },
+            {
+              "type": "symbol",
+              "path": "xtendrmt/rmt-maraca-view-projection-adapter.js",
+              "symbol": "RMT_MARACA_VIEW_PROJECTION_ADAPTER_LEGACY_SCHEMA"
+            }
+          ]
+        },
+        {
+          "application": "XTendRMT",
+          "role": "reference",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtendrmt/rmt-maraca-view-projection-adapter.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-rmt/maraca-view-projection-adapter",
+              "path": "xtendrmt/rmt-maraca-view-projection-adapter.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/rmt/maraca-view-projection-adapter",
+              "path": "xtendrmt/rmt-maraca-view-projection-adapter.d.ts"
+            }
+          ]
+        }
+      ],
+      "version": 1
+    },
+    {
+      "schemaId": "xtend.rmt.maraca-view-projection-adapter.v2",
+      "familyId": "xtend.rmt.maraca-view-projection-adapter",
+      "version": 2,
+      "kinds": [
+        "identifier-only"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": "sha256:fb6990f15227a959d51ab80da9103dd33f1c37bbc4615f158e7a9be73b68087b",
+      "description": "Versioned native Maraca View projection port: full authoritative lifecycle visibility, terminal native cleanup, retained private foreign roots, and generation-bound recreation; explicit legacy adapter v1 remains supported.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "xtendrmt/rmt-maraca-view-projection-adapter.js",
+        "symbol": "RMT_MARACA_VIEW_PROJECTION_ADAPTER_SCHEMA",
+        "definitionType": "constant",
+        "role": "definition",
+        "visibility": "public"
+      },
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a06/native-header-check.md",
+            "development/rmtx-a06/native-lifecycle-fix-evidence.json",
+            "development/rmtx-a06/native-view-lifecycle-contract.md",
+            "development/rmtx-a06/syntax-comparison/native-header-evidence.json"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "development/rmtx-a06/native-header-check.md",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Maraca",
+          "role": "reference",
+          "visibility": "public",
+          "sourcePaths": [
+            "xtend-maraca/plan-runtime.mjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-maraca/plan-runtime",
+              "path": "xtend-maraca/plan-runtime.mjs"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/maraca/plan-runtime",
+              "path": "xtend-maraca/plan-runtime.mjs"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Rmt",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/rmt/maraca-view-lifecycle.test.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/rmt/maraca-view-lifecycle.test.cjs",
               "symbol": null
             }
           ]
@@ -765224,11 +765649,10 @@
         },
         {
           "application": "XTendRMT",
-          "role": "producer",
+          "role": "reference",
           "visibility": "public",
           "sourcePaths": [
-            "xtendrmt/rmt-maraca-view-projection-adapter.d.ts",
-            "xtendrmt/rmt-maraca-view-projection-adapter.js"
+            "xtendrmt/rmt-maraca-view-projection-adapter.d.ts"
           ],
           "interfaceReferences": [
             {
@@ -765238,43 +765662,133 @@
             },
             {
               "type": "package-export",
-              "module": "@ccslabs/xtend-rmt/maraca-view-projection-adapter",
-              "path": "xtendrmt/rmt-maraca-view-projection-adapter.js"
-            },
-            {
-              "type": "package-export",
               "module": "@ccslabs/xtend/rmt/maraca-view-projection-adapter",
               "path": "xtendrmt/rmt-maraca-view-projection-adapter.d.ts"
-            },
-            {
-              "type": "package-export",
-              "module": "@ccslabs/xtend/rmt/maraca-view-projection-adapter",
-              "path": "xtendrmt/rmt-maraca-view-projection-adapter.js"
-            },
-            {
-              "type": "symbol",
-              "path": "xtendrmt/rmt-maraca-view-projection-adapter.js",
-              "symbol": "createRmtMaracaViewProjectionAdapter"
-            },
-            {
-              "type": "symbol",
-              "path": "xtendrmt/rmt-maraca-view-projection-adapter.js",
-              "symbol": "reindexSurfaces"
-            },
-            {
-              "type": "symbol",
-              "path": "xtendrmt/rmt-maraca-view-projection-adapter.js",
-              "symbol": "snapshot"
-            },
-            {
-              "type": "symbol",
-              "path": "xtendrmt/rmt-maraca-view-projection-adapter.js",
-              "symbol": "validateRoot"
             }
           ]
         }
       ],
-      "version": 1
+      "shapePolicy": {
+        "mode": "single",
+        "acceptedFingerprints": [
+          "sha256:55520036dc2838b304bb4f32ff7e35b501f6eac58f59d348b416a99d046c4de1"
+        ],
+        "authoritativeFingerprints": [
+          "sha256:55520036dc2838b304bb4f32ff7e35b501f6eac58f59d348b416a99d046c4de1"
+        ],
+        "releasedFingerprintSetHash": "sha256:fb6990f15227a959d51ab80da9103dd33f1c37bbc4615f158e7a9be73b68087b",
+        "rationale": "Initial exact source/type observations for the versioned native View lifecycle contract. Complete declared-type authority and partial runtime records remain distinct; no partial observation is promoted to authority and no existing released set is changed."
+      },
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:55520036dc2838b304bb4f32ff7e35b501f6eac58f59d348b416a99d046c4de1",
+          "shape": {
+            "fieldCount": 15,
+            "fields": [
+              "clearOwnedDom",
+              "dispatchHostEvent",
+              "dispose",
+              "getDocumentTarget",
+              "listDiagnostics",
+              "projectSurfaceLifecycle",
+              "readChildNodes",
+              "reindexSurfaces",
+              "resetSurfaceIndex",
+              "resolveBindingTarget",
+              "resolveField",
+              "resolveSurface",
+              "resolveTarget",
+              "snapshot",
+              "validateRoot"
+            ],
+            "signature": "clearOwnedDom:function|dispatchHostEvent:function|dispose:function|getDocumentTarget:function|listDiagnostics:function|projectSurfaceLifecycle:function|readChildNodes:function|reindexSurfaces:function|resetSurfaceIndex:function|resolveBindingTarget:function|resolveField:function|resolveSurface:function|resolveTarget:function|snapshot:function|validateRoot:function",
+            "normalized": {
+              "fields": {
+                "clearOwnedDom": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "dispatchHostEvent": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "dispose": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "getDocumentTarget": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "listDiagnostics": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "projectSurfaceLifecycle": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "readChildNodes": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "reindexSurfaces": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "resetSurfaceIndex": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "resolveBindingTarget": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "resolveField": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "resolveSurface": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "resolveTarget": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "snapshot": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "validateRoot": {
+                  "optional": false,
+                  "type": "function"
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "xtendrmt/rmt-maraca-view-projection-adapter.d.ts"
+          ],
+          "symbols": [
+            "RmtMaracaViewProjectionAdapter"
+          ],
+          "evidence": [
+            {
+              "type": "declared-type",
+              "completeness": "complete",
+              "authoritative": true,
+              "path": "xtendrmt/rmt-maraca-view-projection-adapter.d.ts",
+              "symbol": "RmtMaracaViewProjectionAdapter"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "completeness": "complete",
+          "authoritative": true
+        }
+      ]
     },
     {
       "aliasOf": null,
@@ -860227,7 +860741,7 @@
           },
           {
             "path": "development/rmtx-a01/inventory.json",
-            "sha256": "56ec09f7b5e375735d41523e218a601961243d54ccca2ed4128dbd88d618ce76"
+            "sha256": "51949fbf2b2a54540685c1ec465c937445df113f75e7def51e30e2479a341c2c"
           },
           {
             "path": "docs/de/rmt-vnext-authoring.md",
@@ -860243,7 +860757,7 @@
           },
           {
             "path": "package.json",
-            "sha256": "650f1f09d5aeffce8ecab03e51c72db4218758eca58d341dce28e1ae404b42bf"
+            "sha256": "6a633e38e9df751aca00058537bef4c190430cefe95d144f783100ae4e5734b5"
           },
           {
             "path": "scripts/generate_rmt_classic_contract.js",
@@ -1102799,8 +1103313,25 @@
       ]
     },
     {
-      "activeSchemaId": "xtend.rmt.maraca-view-projection-adapter.v1",
+      "familyId": "xtend.rmt.maraca-surface-lifecycle-projection",
       "currentVersion": 1,
+      "activeSchemaId": "xtend.rmt.maraca-surface-lifecycle-projection.v1",
+      "versions": [
+        {
+          "schemaId": "xtend.rmt.maraca-surface-lifecycle-projection.v1",
+          "version": 1,
+          "lifecycle": {
+            "status": "active",
+            "rollout": "planned"
+          },
+          "releasedFingerprintSetHash": "sha256:92590180058802aa74791b2dfb269ef95c3587cdb761bf68f59fae97193da9a1"
+        }
+      ],
+      "tombstones": []
+    },
+    {
+      "activeSchemaId": "xtend.rmt.maraca-view-projection-adapter.v2",
+      "currentVersion": 2,
       "familyId": "xtend.rmt.maraca-view-projection-adapter",
       "tombstones": [],
       "versions": [
@@ -1102809,9 +1103340,18 @@
           "version": 1,
           "lifecycle": {
             "rollout": "complete",
-            "status": "active"
+            "status": "deprecated"
           },
           "releasedFingerprintSetHash": "sha256:7405f3c91ad5cdb0476b8c76960038e4ac13e861f1287cfef6103ce678266a6a"
+        },
+        {
+          "schemaId": "xtend.rmt.maraca-view-projection-adapter.v2",
+          "version": 2,
+          "lifecycle": {
+            "status": "active",
+            "rollout": "planned"
+          },
+          "releasedFingerprintSetHash": "sha256:fb6990f15227a959d51ab80da9103dd33f1c37bbc4615f158e7a9be73b68087b"
         }
       ]
     },

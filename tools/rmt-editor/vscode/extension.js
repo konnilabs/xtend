@@ -759,7 +759,12 @@ function getWorkspaceContext(vscodeApi, options = {}) {
   };
 }
 
+function isRmtxDocument(activeFile, document = {}) {
+  return document.languageId === 'rmtx' || (typeof activeFile === 'string' && activeFile.toLowerCase().endsWith('.rmtx'));
+}
+
 function isActiveRmtFile(activeFile, document = {}) {
+  if (isRmtxDocument(activeFile, document)) return false;
   if (document && document.languageId === 'rmt') return true;
   return typeof activeFile === 'string' && activeFile.toLowerCase().endsWith('.rmt');
 }
@@ -1002,6 +1007,10 @@ function showDxProblem(vscodeApi, output, result = {}) {
 }
 
 function toVsCodeTask(vscodeApi, context = {}, definition = {}, options = {}) {
+  const active = getWorkspaceContext(vscodeApi, options);
+  if (definition.requiresFile && isRmtxDocument(active.activeFile, active.document || {})) {
+    return createActiveFileUnavailableResult({ taskId: definition.id });
+  }
   if (!vscodeApi || !vscodeApi.Task || !vscodeApi.ShellExecution) {
     return {
       schema: RMT_VSCODE_TASKS_SCHEMA,
@@ -1520,6 +1529,19 @@ function documentFullRange(document = {}) {
 function requestPrimitiveCodeActionsForDocument(document = {}, context = {}, options = {}) {
   const normalized = normalizeTextDocument(document);
   const rootDir = resolveWorkspaceRoot(options.vscode, document, options);
+  if (!isActiveRmtFile(normalized.filePath, normalized)) {
+    return {
+      schema: 'xtend.rmt.editor.vscode-active-document-code-actions.v1',
+      workpackage: RMT_VSCODE_PRIMITIVE_AUTHORING_WORKPACKAGE,
+      status: 'unsupported-language',
+      ok: false,
+      rootDir,
+      document: normalized,
+      diagnostics: [],
+      actions: [],
+      initialize: null
+    };
+  }
   const server = createLanguageServer(context, {
     ...options,
     rootDir
@@ -1635,6 +1657,7 @@ function createActiveDocumentPrimitiveAuthoringExperience(context = {}, options 
   }, {
     source: 'vscode-active-document'
   });
+  if (!request.ok) { experience.status = request.status; experience.ok = false; }
 
   return {
     ...experience,

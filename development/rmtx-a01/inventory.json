@@ -170,7 +170,7 @@
     },
     {
       "file": "xtend-maraca/plan-runtime.mjs",
-      "sha256": "a773be6364d850559f6264540c038c278d028ff0d0c3a92cfcb62940550acd76"
+      "sha256": "0a4970152bddfa0c3b431e72e104b4ed1ae5756e381ea41e0b14c226d0f131a6"
     },
     {
       "file": "xtendrmt/contracts/portable-render.v2.json",
@@ -194,7 +194,7 @@
     },
     {
       "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-      "sha256": "7a412f0be5b9f803fd04c60f8d415f1cea1c60faa557ba85a48aaceffe5be82c"
+      "sha256": "69981e6ec2f51094e1607e52c39324a02358ac9be75dc4b0a120d4dcb895a555"
     },
     {
       "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
@@ -246,11 +246,11 @@
     },
     {
       "file": "xtendrmt/rmt-surface-resource-graph-runtime.d.ts",
-      "sha256": "3172e43d786c84a76ed8017fcbdd33def533d6abe5d319b0d1cf1e862e004a1c"
+      "sha256": "774dbe5de8411937b84ec0f0d64eaca9deab5123bd4152ae6bfd8949c63fb589"
     },
     {
       "file": "xtendrmt/rmt-surface-resource-graph-runtime.js",
-      "sha256": "5cac73161a80489e60cca3dc31eb44475570581a7f4fc6d71d5d9cedf212870f"
+      "sha256": "9344b64339e1e08d4bd64933fabe5c14a12fadd24cd546b787cf727de469f446"
     },
     {
       "file": "xtendrmt/rmt-surface-transition-runtime.d.ts",
@@ -7367,7 +7367,7 @@
             "replace-children"
           ],
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3383,
+          "line": 3427,
           "symbol": "validateCommitRequest"
         }
       ],
@@ -7411,7 +7411,7 @@
             "uppercase"
           ],
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 1362,
+          "line": 1405,
           "symbol": "evaluateExpression"
         },
         {
@@ -7434,7 +7434,7 @@
             "when"
           ],
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 2642,
+          "line": 2685,
           "symbol": "renderNode"
         }
       ],
@@ -7472,7 +7472,7 @@
           ],
           "dispatch": "normalizedOp",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 1254,
+          "line": 1297,
           "symbol": "compareValues"
         },
         {
@@ -7481,7 +7481,7 @@
           ],
           "dispatch": "normalizedOp",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 1254,
+          "line": 1297,
           "symbol": "compareValues"
         },
         {
@@ -7490,7 +7490,7 @@
           ],
           "dispatch": "normalizedOp",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 1255,
+          "line": 1298,
           "symbol": "compareValues"
         },
         {
@@ -7499,7 +7499,7 @@
           ],
           "dispatch": "normalizedOp",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 1255,
+          "line": 1298,
           "symbol": "compareValues"
         },
         {
@@ -7508,7 +7508,7 @@
           ],
           "dispatch": "normalizedOp",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 1256,
+          "line": 1299,
           "symbol": "compareValues"
         },
         {
@@ -7517,7 +7517,7 @@
           ],
           "dispatch": "normalizedOp",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 1257,
+          "line": 1300,
           "symbol": "compareValues"
         },
         {
@@ -7526,7 +7526,7 @@
           ],
           "dispatch": "normalizedOp",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 1258,
+          "line": 1301,
           "symbol": "compareValues"
         },
         {
@@ -7535,7 +7535,7 @@
           ],
           "dispatch": "normalizedOp",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 1259,
+          "line": 1302,
           "symbol": "compareValues"
         },
         {
@@ -7544,7 +7544,7 @@
           ],
           "dispatch": "normalizedOp",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 1260,
+          "line": 1303,
           "symbol": "compareValues"
         },
         {
@@ -7553,7 +7553,7 @@
           ],
           "dispatch": "normalizedOp",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 1261,
+          "line": 1304,
           "symbol": "compareValues"
         },
         {
@@ -7562,7 +7562,7 @@
           ],
           "dispatch": "normalizedOp",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 1262,
+          "line": 1305,
           "symbol": "compareValues"
         },
         {
@@ -7571,7 +7571,7 @@
           ],
           "dispatch": "normalizedOp",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 1263,
+          "line": 1306,
           "symbol": "compareValues"
         },
         {
@@ -7580,7 +7580,7 @@
           ],
           "dispatch": "normalizedOp",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 1263,
+          "line": 1306,
           "symbol": "compareValues"
         },
         {
@@ -7591,7 +7591,7 @@
           ],
           "dispatch": "op",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 1351,
+          "line": 1394,
           "symbol": "evaluateExpression"
         },
         {
@@ -7600,7 +7600,7 @@
           ],
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3399,
+          "line": 3443,
           "symbol": "validateCommitRequest"
         },
         {
@@ -7609,7 +7609,7 @@
           ],
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3399,
+          "line": 3443,
           "symbol": "validateCommitRequest"
         },
         {
@@ -7618,7 +7618,7 @@
           ],
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3406,
+          "line": 3450,
           "symbol": "validateCommitRequest"
         },
         {
@@ -7627,7 +7627,7 @@
           ],
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3406,
+          "line": 3450,
           "symbol": "validateCommitRequest"
         },
         {
@@ -7636,7 +7636,7 @@
           ],
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3418,
+          "line": 3462,
           "symbol": "validateCommitRequest"
         },
         {
@@ -7645,7 +7645,7 @@
           ],
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3459,
+          "line": 3503,
           "symbol": "createBindingCommitState"
         },
         {
@@ -7654,7 +7654,7 @@
           ],
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3491,
+          "line": 3535,
           "symbol": "<anonymous>"
         },
         {
@@ -7663,7 +7663,7 @@
           ],
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3503,
+          "line": 3547,
           "symbol": "<anonymous>"
         },
         {
@@ -7672,7 +7672,7 @@
           ],
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3503,
+          "line": 3547,
           "symbol": "<anonymous>"
         },
         {
@@ -7681,7 +7681,7 @@
           ],
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3509,
+          "line": 3553,
           "symbol": "<anonymous>"
         },
         {
@@ -7690,7 +7690,7 @@
           ],
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3518,
+          "line": 3562,
           "symbol": "<anonymous>"
         },
         {
@@ -7699,7 +7699,7 @@
           ],
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3530,
+          "line": 3574,
           "symbol": "<anonymous>"
         },
         {
@@ -7708,7 +7708,7 @@
           ],
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3544,
+          "line": 3588,
           "symbol": "<anonymous>"
         },
         {
@@ -7717,7 +7717,7 @@
           ],
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3545,
+          "line": 3589,
           "symbol": "<anonymous>"
         },
         {
@@ -7726,7 +7726,7 @@
           ],
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3546,
+          "line": 3590,
           "symbol": "<anonymous>"
         },
         {
@@ -7735,7 +7735,7 @@
           ],
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3549,
+          "line": 3593,
           "symbol": "<anonymous>"
         },
         {
@@ -7744,7 +7744,7 @@
           ],
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3550,
+          "line": 3594,
           "symbol": "<anonymous>"
         },
         {
@@ -7753,7 +7753,7 @@
           ],
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3559,
+          "line": 3603,
           "symbol": "<anonymous>"
         },
         {
@@ -7762,7 +7762,7 @@
           ],
           "dispatch": "operation",
           "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
-          "line": 3567,
+          "line": 3611,
           "symbol": "<anonymous>"
         }
       ],
@@ -12275,6 +12275,26 @@
           "symbol": "<anonymous>"
         },
         {
+          "name": "RmtSurfaceMaterializeOptions",
+          "fields": [
+            {
+              "name": "hydrate",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "hydrate?: boolean;"
+            },
+            {
+              "name": "preserveDestroyed",
+              "optional": true,
+              "type": "boolean",
+              "declaration": "preserveDestroyed?: boolean;"
+            }
+          ],
+          "file": "xtendrmt/rmt-surface-resource-graph-runtime.d.ts",
+          "line": 226,
+          "symbol": "<anonymous>"
+        },
+        {
           "name": "RmtSurfaceResourceGraphRuntime",
           "fields": [
             {
@@ -12287,7 +12307,7 @@
               "name": "materialize",
               "optional": false,
               "type": "{\n    schema: 'xtend.epic18.rmt-surface-materialize-report.v1';\n    createdCount: number;\n    reusedCount: number;\n    created: string[];\n    reused: string[];\n  }",
-              "declaration": "materialize(recordsBySource?: unknown[] | Record<string, unknown[]>, options?: Record<string, unknown>): {\n    schema: 'xtend.epic18.rmt-surface-materialize-report.v1';\n    createdCount: number;\n    reusedCount: number;\n    created: string[];\n    reused: string[];\n  };"
+              "declaration": "materialize(recordsBySource?: unknown[] | Record<string, unknown[]>, options?: RmtSurfaceMaterializeOptions): {\n    schema: 'xtend.epic18.rmt-surface-materialize-report.v1';\n    createdCount: number;\n    reusedCount: number;\n    created: string[];\n    reused: string[];\n  };"
             },
             {
               "name": "openSurface",
@@ -12429,7 +12449,7 @@
             }
           ],
           "file": "xtendrmt/rmt-surface-resource-graph-runtime.d.ts",
-          "line": 226,
+          "line": 232,
           "symbol": "<anonymous>"
         }
       ],

@@ -1,16 +1,33 @@
-# XTendRMT VS Code DX
+# XTend RMT Classic and RMTX VS Code DX
 
 - Schema: `xtend.rmt.editor.vscode-bridge.v1`
 - DX Schema: `xtend.rmt.editor.vscode-dx.v1`
 - Tasks Schema: `xtend.rmt.editor.vscode-tasks.v1`
 - Launch Schema: `xtend.rmt.editor.vscode-launch.v1`
 - Workpackage: `WP-E14-12`
-- Language ID: `rmt`
-- Primary extension: `.rmt`
+- Language IDs: `rmt` (Classic), `rmtx` (declarative TSX syntax)
+- File extensions: `.rmt` (Classic), `.rmtx` (RMTX)
 
-This extension contributes the native `.rmt` language id, RMT Classic-aware TextMate grammar, snippets, a real `vscode-languageclient` wrapper, XTend CLI tasks, a VS Code problem matcher, Debug Console launch templates, and the bundled XTend MCP 0.1 server.
+Version **0.2.3** contributes the native `.rmt` and `.rmtx` language IDs, RMT Classic-aware TextMate grammar, snippets, a real `vscode-languageclient` wrapper, XTend CLI tasks, a VS Code problem matcher, Debug Console launch templates, and the bundled XTend MCP 0.1 server.
 
-The RMT Language Server remains the only source of truth for diagnostics, completion, hover, symbols, definitions and code actions. The extension does not implement RMT analysis and does not import XTend UI runtime modules.
+For **RMT Classic**, the RMT Language Server remains the only source of truth for diagnostics, completion, hover, symbols, definitions and code actions. The extension does not implement RMT analysis and does not import XTend UI runtime modules.
+
+## RMTX support
+
+RMTX uses `.rmtx` with TSX grammar and qualified operators such as `<RMT.Surface id="root" />` or `<RMT.Surface id="root">…</RMT.Surface>`. A self-closing tag does not also have a closing tag. Operator names and properties remain the responsibility of the RMTX semantic frontend.
+
+The `rmtx` language reuses VS Code’s built-in TypeScriptReact TextMate grammar (`source.tsx`) for TypeScript expressions, JSX attributes, strings, comments and nested tags. A scoped injection highlights `RMT.<Operator>` names. The built-in `vscode.typescript` extension is an explicit dependency. RMTX has its own comment/bracket configuration and three syntax snippets: `rmtx-operator`, `rmtx-paired`, `rmtx-expression`. Classic retains its existing grammar and snippets.
+
+This version provides **syntax highlighting and language configuration** for RMTX. It does not claim RMTX semantic diagnostics, TypeScript project integration, rename, hover, completion or a production RMTX compiler. The Classic LanguageClient selects only `rmt`; direct Classic code-action and active-file CLI operations reject `.rmtx` as well, including a `.rmtx` file manually relabeled as `rmt`. No RMTX source is sent to the Classic parser.
+
+Run the standalone TextMate probe with the installed VS Code runtime (or provide ordinary `vscode-textmate`/`vscode-oniguruma` test dependencies):
+
+```sh
+ELECTRON_RUN_AS_NODE=1 /usr/share/code/code tools/rmt-editor/vscode/test-highlighting.js
+node --test tests/rmt-language/rmtx-editor.test.cjs
+```
+
+The highlighting probe checks real token scopes for qualified operators, paired and self-closing tags, JSX expression attributes, nested objects, strings, comments and ordinary TSX. It fails if the TSX grammar or tokenizer dependencies are missing.
 
 ## VSIX Packaging
 

@@ -47,29 +47,29 @@
   ],
   "sizes": {
     "react": {
-      "totalBytes": 2052285,
+      "totalBytes": 2065553,
       "applicationBytes": 87,
       "envelopeBytes": 7023,
-      "frameworkBytes": 2030050,
-      "frameworkBaselineBytes": 2564503,
+      "frameworkBytes": 2043318,
+      "frameworkBaselineBytes": 2582669,
       "xtensionRuntimeBytes": 211833,
       "withinBudget": true
     },
     "vue": {
-      "totalBytes": 2050302,
+      "totalBytes": 2063570,
       "applicationBytes": 87,
       "envelopeBytes": 7015,
-      "frameworkBytes": 2028067,
-      "frameworkBaselineBytes": 2562430,
+      "frameworkBytes": 2041335,
+      "frameworkBaselineBytes": 2580596,
       "xtensionRuntimeBytes": 210200,
       "withinBudget": true
     },
     "mixed": {
-      "totalBytes": 2101927,
+      "totalBytes": 2115195,
       "applicationBytes": 87,
       "envelopeBytes": 8005,
-      "frameworkBytes": 2079692,
-      "frameworkBaselineBytes": 2596693,
+      "frameworkBytes": 2092960,
+      "frameworkBaselineBytes": 2614859,
       "xtensionRuntimeBytes": 233929,
       "withinBudget": true
     }
@@ -90,7 +90,7 @@
     "tests/xtensions/xtensions_runtime_gate_suite.js": "c8096abef6ee2f5ae04c000bd06e0f9aebaf7853bfe8f07e5f497f733ff04811",
     "tests/xtensions/xtensions_consumer_package_suite.js": "033badcea1aa05beb0cc33134618f7f29cf76105d95e6a333dd360017d600545",
     "tests/types/xtensions_integrated_composition.mts": "0e7de34ce7c4324143fabf822ac6c83aba229f90f9368ac5b65250311bd2b601",
-    "scripts/check_release_preparation.cjs": "ded2db484cf147f6defd94fd42f91cf224e83e549c0c48ab269b91f07830b8dc",
-    "tests/release/preparation-gates.test.cjs": "bb0593eaa0edb75174f808c50ba598ec7ba062706443fc50cb58977af45c2664"
+    "scripts/check_release_preparation.cjs": "6f387d3a070ee02971ceceda17d93a44683c5f12ebe1f0224f5cbed52bd92593",
+    "tests/release/preparation-gates.test.cjs": "5330a3f8d77fc37cacd9c7f4de6dc493c30658f5e1ca3f32265e43a60972b885"
   }
 }

@@ -1,5 +1,5 @@
 import type { RmtPresentationBoundaryPort } from './rmt-core';
-export const RMT_SURFACE_RESOURCE_GRAPH_API_VERSION: '2.1.0';
+export const RMT_SURFACE_RESOURCE_GRAPH_API_VERSION: '2.2.1';
 export const RMT_SURFACE_RESOURCE_GRAPH_DIAGNOSTIC_SCHEMA: 'xtend.epic18.rmt-surface-resource-graph-diagnostic.v1';
 export const RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_SCHEMA: 'xtend.epic18.rmt-surface-resource-graph-runtime.v2';
 
@@ -223,9 +223,15 @@ export interface RmtSurfaceResourceGraphRuntimeOptions {
   diagnosticChannel?: string;
 }
 
+export interface RmtSurfaceMaterializeOptions extends Record<string, unknown> {
+  hydrate?: boolean;
+  /** Keep destroyed instances until an explicit openSurface(..., {recreate:true}). */
+  preserveDestroyed?: boolean;
+}
+
 export interface RmtSurfaceResourceGraphRuntime {
   schema: typeof RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_SCHEMA;
-  materialize(recordsBySource?: unknown[] | Record<string, unknown[]>, options?: Record<string, unknown>): {
+  materialize(recordsBySource?: unknown[] | Record<string, unknown[]>, options?: RmtSurfaceMaterializeOptions): {
     schema: 'xtend.epic18.rmt-surface-materialize-report.v1';
     createdCount: number;
     reusedCount: number;

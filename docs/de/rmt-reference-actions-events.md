@@ -64,10 +64,12 @@ Bei direkter Verwendung von `createRmtActionEffectRuntime` benötigt die Publika
 
 Ein `when` am Eventbinding bleibt als Condition-AST bis zum Eventrouter erhalten. Falsche Guards verhindern Payloadmapping, Event-Governance und Dispatch. Model-/Selectorwerte kommen aus einem read-only Snapshot; unbekannte oder nicht auflösbare Guards geben keine Freigabe. Details einschließlich Classic-Präzedenz stehen unter [Conditions und Expressions](./rmt-reference-conditions-expressions.md#eventbedingungen-im-maraca-pfad).
 
-Dieser Stand verwendet Classic Compiler API **4.1.0**, den kompatiblen vNext-Compiler-Einstieg **1.2.0**, Event Routing API **3.0.0**, Action Effect API **2.0.0**, Surface Resource Graph API **2.1.0** und DOM Descriptor Renderer API **2.1.0**. Bestehende Classic-AST-/Wire-IDs bleiben erhalten. Damit wird keine neue RMTX-Syntax festgelegt.
+Dieser Stand verwendet Classic Compiler API **4.1.0**, den kompatiblen vNext-Compiler-Einstieg **1.2.0**, Event Routing API **3.0.0**, Action Effect API **2.0.0**, Surface Resource Graph API **2.2.1** und DOM Descriptor Renderer API **2.2.0**. Bestehende Classic-AST-/Wire-IDs bleiben erhalten. Damit wird keine neue RMTX-Syntax festgelegt.
 
 Result-Overlays werden innerhalb des deklarierten, eindeutig auflösbaren App-Portals geöffnet. Der Shared Renderer erhält native Portal-Roots auch über weitere View-Commits und nutzt dafür intern die Besitzinformation tatsächlicher Create-Node-Aufträge. HTML-Attribute und Deskriptormarker verleihen diese Reservierung nicht. Die Portalauflösung bleibt im View-/Resource-Graph-Adapter; der Controller liest kein DOM.
 
+
+Der native Maraca-View-Lifecycle verwendet den View Projection Adapter **2.0.0** mit Schema `.v2`; ein ausdrücklich gewählter `.v1`-Port bleibt unterstützt. Close verbirgt die native Ansicht, Resume erhält ihre Identität und vorhandene Sichtbarkeitswerte. Destroy beendet alte Presentation-Tokens und entfernt die native Ansicht, ohne aktive fremde Roots über ihre Eltern indirekt zu entfernen. Ein normaler Model-/Viewcommit belebt zerstörte Owner nicht wieder: Der Managed-Pfad setzt `materialize(..., { preserveDestroyed: true })`; eine neue Generation erfordert einen ausdrücklichen Lifecycle-Recreate. DOM-Projektion bleibt Viewarbeit, und die existierenden Kernel-/Fabric-/Modelgrenzen bleiben erhalten.
 
 ### Component-Commands
 

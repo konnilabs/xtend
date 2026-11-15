@@ -1,0 +1,25 @@
+{
+  "RMTX self-closing operator": {
+    "prefix": "rmtx-operator",
+    "body": [
+      "<RMT.${1:Operator} ${2:prop}=\"${3:value}\" />"
+    ],
+    "description": "Qualified RMTX operator syntax; names and properties require the RMTX semantic frontend."
+  },
+  "RMTX paired operator": {
+    "prefix": "rmtx-paired",
+    "body": [
+      "<RMT.${1:Operator} ${2:prop}=\"${3:value}\">",
+      "  $0",
+      "</RMT.${1:Operator}>"
+    ],
+    "description": "Matching opening and closing RMTX operator tags."
+  },
+  "RMTX expression property": {
+    "prefix": "rmtx-expression",
+    "body": [
+      "<RMT.${1:Operator} ${2:prop}={${3:model.value}} />"
+    ],
+    "description": "TSX expression syntax; the RMTX compiler determines the supported declarative expression subset."
+  }
+}

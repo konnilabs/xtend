@@ -1,0 +1,37 @@
+/** @jsxImportSource . */
+// Native-header acceptance source. The extra Action changes the displayed product ID.
+import { RMT, model, input, providers, ProductHeader } from './authoring';
+export default (
+  <RMT.Program id="product.details" documentId="a06-product-details">
+    <RMT.State id="product" type="object" preserve initial={{ id: 'p1', images: ['front', 'back'], selectedImageId: 'front', reviewsSort: 'recent' }} />
+    <RMT.State id="hosts" type="object" preserve initial={{ gallery: true, reviews: true }} />
+    <RMT.Action id="product.selectImage">
+      <RMT.Input name="imageId" type="string" />
+      <RMT.Reduce state="product" path="selectedImageId" value={input.imageId} />
+    </RMT.Action>
+    <RMT.Action id="product.changeSort">
+      <RMT.Input name="sort" type="string" />
+      <RMT.Reduce state="product" path="reviewsSort" value={input.sort} />
+    </RMT.Action>
+    <RMT.Action id="hosts.replace">
+      <RMT.Input name="hosts" type="object" />
+      <RMT.Reduce state="hosts" value={input.hosts} />
+    </RMT.Action>
+    <RMT.Action id="product.rename">
+      <RMT.Input name="imageId" type="string" />
+      <RMT.Reduce state="product" path="id" value={input.imageId} />
+    </RMT.Action>
+    <RMT.Portal id="surface.root" root="#xtend-maraca-root" layer="surface" />
+    <RMT.Surface id="product-details" kind="region" component="section" portal="surface.root" lane="visible" mount="product-header">
+      <ProductHeader product={model.product} />
+      <RMT.XTension declarationId="product-gallery" targetSurface="product-gallery-host" provider={providers.gallery} lane="visible"
+        presence={model.hosts.gallery}
+        props={{ images: model.product.images, selectedImageId: model.product.selectedImageId }}
+        intents={{ selectImage: { action: 'product.selectImage' } }} />
+      <RMT.XTension declarationId="product-reviews" targetSurface="product-reviews-host" provider={providers.reviews} lane="idle"
+        presence={model.hosts.reviews}
+        props={{ productId: model.product.id, sort: model.product.reviewsSort }}
+        intents={{ changeSort: { action: 'product.changeSort', payload: { sort: 'order' } } }} />
+    </RMT.Surface>
+  </RMT.Program>
+);

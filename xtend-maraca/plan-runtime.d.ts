@@ -15,6 +15,7 @@ import type {
   XtendSurfaceController,
   XtendSurfaceStateProjectionAdapter
 } from '@ccslabs/xtend/components/xsurfacemanager-controller.js' with { 'resolution-mode': 'import' };
+import type { MaracaSurfaceLifecycleRecord } from '@ccslabs/xtend/rmt/maraca-view-projection-adapter' with { 'resolution-mode': 'import' };
 
 export interface MaracaPlanRuntimeSnapshot {
   readonly schema: 'xtend.maraca.plan-runtime.v7';
@@ -162,6 +163,25 @@ export interface MaracaViewProjectionPort {
   resolveBindingTarget(binding: Readonly<Record<string, unknown>>, root?: ParentNode): EventTarget | null;
   dispatchHostEvent(name: string, detail?: unknown): boolean;
   clearOwnedDom(): boolean;
+  /** Optional native lifecycle projection introduced by the v2 View port.
+   * v1 ports retain their legacy DOM behavior. Lifecycle authority remains
+   * with SurfaceController; the adapter owns all DOM reads and writes.
+   */
+  projectSurfaceLifecycle?(snapshot: Readonly<{ surfaces: readonly MaracaSurfaceLifecycleRecord[] }>, options: {
+    readonly renderer: RmtDomDescriptorRenderer;
+    readonly ownership?: Readonly<Record<string, unknown>>;
+    readonly context?: Readonly<Record<string, unknown>>;
+    readonly phase?: 'prepare' | 'project';
+  }): Readonly<{
+    schema: 'xtend.rmt.maraca-surface-lifecycle-projection.v1';
+    phase: 'prepare' | 'project';
+    projected: number;
+    hidden: number;
+    restored: number;
+    removed: number;
+    retained: number;
+    surfaceIds: readonly string[];
+  }>;
   resetSurfaceIndex?(): boolean;
   dispose?(): boolean | void;
 }

@@ -37,7 +37,7 @@
     "tools/xtensions/state-binding.js": "19b0f4266fc7546016eb68df9eec391b554ab22a96d5eb97d001c0efa047ca79",
     "tools/xtensions/state-binding.d.ts": "d9d73412a744b3009f892da0d4ffb2e91bcbe0425a6ed88ecaaccefb3d435341",
     "tools/package.json": "5ba8082739322f2e20861609b36144aa80616f85364a9135c903004f188a5e08",
-    "xtend-maraca/plan-runtime.d.ts": "c2565c8ebfd0dcd5653b8ea4d921ea78ee8ff1a674394d5126b9606093526da3",
+    "xtend-maraca/plan-runtime.d.ts": "30344c8b55e0d4b857224ea28a8565894172e6a3054aa7865b19eb989c76b075",
     "tests/xtensions/work-budget-acceptance.js": "7fcd2ab8138daad09452fe73af31f880d3c6d8f81164c8378022e69763140fe1",
     "tests/xtensions/work-budget-maraca-acceptance.js": "864b8aa6ccee6d9aeb896999cb2a2ffa3c683d5632a0ef45a0e6fc1e0d4e6a80",
     "tests/types/xtensions_work_budget.mts": "b486b8d98c90bae96d1e0c7e38bb7a2e5961ca84612767aa8049825b43f3bef8",

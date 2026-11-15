@@ -58,15 +58,15 @@
   ],
   "sizes": {
     "react": {
-      "frameworkBytes": 2018083,
+      "frameworkBytes": 2031351,
       "xtensionRuntimeBytes": 209197
     },
     "vue": {
-      "frameworkBytes": 2016196,
+      "frameworkBytes": 2029464,
       "xtensionRuntimeBytes": 207603
     },
     "mixed": {
-      "frameworkBytes": 2064147,
+      "frameworkBytes": 2077415,
       "xtensionRuntimeBytes": 229895
     }
   },

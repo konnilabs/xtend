@@ -36,15 +36,15 @@
   ],
   "sizes": {
     "react": {
-      "frameworkBytes": 2022472,
+      "frameworkBytes": 2035740,
       "xtensionRuntimeBytes": 211833
     },
     "vue": {
-      "frameworkBytes": 2020497,
+      "frameworkBytes": 2033765,
       "xtensionRuntimeBytes": 210200
     },
     "mixed": {
-      "frameworkBytes": 2071132,
+      "frameworkBytes": 2084400,
       "xtensionRuntimeBytes": 233929
     }
   },
@@ -58,15 +58,15 @@
     "xtend-maraca/xtension-size-budget.js": "c847f8c684b16c134671071219877ebbd9dcf28b0191509a8898ac5d01e5ac4a",
     "xtend-maraca/browser-composition-runtime.mjs": "945873b3bc254db756998f2170392b9b254a9ca0835d9b52448e66da8a24ebbe",
     "xtend-maraca/browser-composition-runtime.d.ts": "0bbc0a1d17ce936447db360cfd16ddd1128b2a342329ea2b2a6e1b6db4b5860f",
-    "xtend-maraca/plan-runtime.mjs": "a773be6364d850559f6264540c038c278d028ff0d0c3a92cfcb62940550acd76",
-    "xtend-maraca/plan-runtime.d.ts": "c2565c8ebfd0dcd5653b8ea4d921ea78ee8ff1a674394d5126b9606093526da3",
+    "xtend-maraca/plan-runtime.mjs": "0a4970152bddfa0c3b431e72e104b4ed1ae5756e381ea41e0b14c226d0f131a6",
+    "xtend-maraca/plan-runtime.d.ts": "30344c8b55e0d4b857224ea28a8565894172e6a3054aa7865b19eb989c76b075",
     "development/rmtx-a04/integration-reference.cjs": "58ff4d03422edf792c84ba9166830de20c412b12aabe802b223f346c1f4773a8",
     "development/rmtx-a04/delivery-inspect.cjs": "34102e5f96fd8985af750586bc8b6389624e39fbc04aea6941fe5f517cf27d8c",
     "scripts/test_xtensions_delivery.cjs": "aed5dec01d8d70885155d480bd27844f03faff81a154e60aee34873f104e10e4",
     "tests/xtensions/xtensions_runtime_gate_suite.js": "c8096abef6ee2f5ae04c000bd06e0f9aebaf7853bfe8f07e5f497f733ff04811",
     "tests/xtensions/xtensions_consumer_package_suite.js": "033badcea1aa05beb0cc33134618f7f29cf76105d95e6a333dd360017d600545",
     "tests/types/xtensions_integrated_composition.mts": "0e7de34ce7c4324143fabf822ac6c83aba229f90f9368ac5b65250311bd2b601",
-    "scripts/check_release_preparation.cjs": "ded2db484cf147f6defd94fd42f91cf224e83e549c0c48ab269b91f07830b8dc",
-    "tests/release/preparation-gates.test.cjs": "bb0593eaa0edb75174f808c50ba598ec7ba062706443fc50cb58977af45c2664"
+    "scripts/check_release_preparation.cjs": "6f387d3a070ee02971ceceda17d93a44683c5f12ebe1f0224f5cbed52bd92593",
+    "tests/release/preparation-gates.test.cjs": "5330a3f8d77fc37cacd9c7f4de6dc493c30658f5e1ca3f32265e43a60972b885"
   }
 }

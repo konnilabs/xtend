@@ -1,0 +1,1975 @@
+{
+  "format": 1,
+  "version": "1.0.0",
+  "stage": "A06-two-host-syntax-comparison",
+  "date": "2026-11-15",
+  "passed": true,
+  "acceptanceCasesPerVariantPerEnvironment": 13,
+  "differentialStagesPerEnvironment": 7,
+  "differentialTraceEqualAcrossVariantsAndEnvironments": true,
+  "sourceStableAcrossAllRuns": true,
+  "nativeHeaderRuntimeEvaluated": false,
+  "ssrAcceptancePerformed": false,
+  "productionFrontendImplemented": false,
+  "acceptedForRelease": false,
+  "sourceManifestSha256": "b0d3aa4e715f6ce1d913fe8476f55d754bd33a9650609048eca02560be64036b",
+  "sources": {
+    "development/rmtx-a06/syntax-comparison/authoring.d.ts": "61ab277b1b7789dfb5a09525a5a9cac121a4f28c7f7aa8bfb0073dd503552306",
+    "development/rmtx-a06/syntax-comparison/classic.rmt": "3468c5d11497f8357b9078a449c27b308b44b872dbac812f97eae1abcf1aa88a",
+    "development/rmtx-a06/syntax-comparison/comparison.cjs": "5726124c3950ea8c81871c165bc15c2322d04ca11eeef8c7a5a74d72e60da15c",
+    "development/rmtx-a06/syntax-comparison/declarative.rmtx": "2eb2d495516c8b44ceda04e8d5e69e80693c352e6a5d59b3620b1a5bbb7d0704",
+    "development/rmtx-a06/syntax-comparison/declarative.tsx": "2eb2d495516c8b44ceda04e8d5e69e80693c352e6a5d59b3620b1a5bbb7d0704",
+    "development/rmtx-a06/syntax-comparison/extension-probes.cjs": "6e0266eef24e54ed39e2ca3e91f1cacb3c5af21ffe2dced5e03916df873c0a8f",
+    "development/rmtx-a06/syntax-comparison/inspect.cjs": "208f9b34c84600f5d48ecb918303eb913abf81eb46c8b11c0faa31b773ed5e06",
+    "development/rmtx-a06/syntax-comparison/jsx-runtime.d.ts": "c713e1235ffd7f6e47a554ffd3f57aa92452194dc82dcde2245afa4f94131ddd",
+    "development/rmtx-a06/syntax-comparison/runtime-comparison.cjs": "0a0fd57d602bf9de31c69ae7f187821d8fd9a6459b596f2ecf2e90bbdd632aed",
+    "development/rmtx-a06/syntax-comparison/view.tsx": "eba25929d68792c1b5c616317aac0937d5a5878bba3355c2fea16362000e4551",
+    "development/rmtx-a06/two-host-runtime.mjs": "795952fbbb6681492a98ac93246c60f8f76c07a98b872d25653979c44eb9c482",
+    "development/rmtx-a06/two-host-acceptance.mjs": "de23588a7d23b83bce2f9a9c2198b216b480226bfe0f802908d945c90cc235d8",
+    "development/rmtx-a06/two-host-reference.cjs": "64084cf748ed44586bb0eecd3a8e15fcbc4b7e967ca0c4e1b96ad00b3c7fcc08",
+    "development/rmtx-a06/providers/catalog.json": "4f38fa3e2b73c374b0fab112b5ba1d6f12da2b95253e4148088389f7d087f801",
+    "development/rmtx-a06/providers/react-gallery.mjs": "9846140e741d787f0feef302fb3ca3ef75e7519dd54a7fc1f0fd9448cb07df37",
+    "development/rmtx-a06/providers/vue-reviews.mjs": "71e48dfdb1e797493aba0748e9777b9cb3afdbee6faf90c217df3f88aa239db8",
+    "xtend-maraca/plan-runtime.mjs": "a773be6364d850559f6264540c038c278d028ff0d0c3a92cfcb62940550acd76",
+    "xtendrmt/rmt-dom-descriptor-renderer.js": "7a412f0be5b9f803fd04c60f8d415f1cea1c60faa557ba85a48aaceffe5be82c",
+    "xtendrmt/rmt-runtime.esm.js": "bde3fb1c19e6fb982214842657e8fb5c154028818ff9b38cadbc291a5aedd517",
+    "xtendrmt/rmt-kernel-scheduler.js": "cb6968fa9b5a784f93e6c941e4a634bdd527525247a1f4653f9c7b204829e766",
+    "xtendrmt/rmt-state-selector-runtime.js": "150f5ae1a279cf7457be54fc7a466afeb1a2a026a911ab1cb1d16ae5da2a669d",
+    "xtendrmt/rmt-state-host-adapter.js": "1c3b0ce150cee986ecdda1d0a9c92e7f323ee31cbb920c5072aa2772cd078de6",
+    "xtendrmt/rmt-action-effect-runtime.js": "3798c901579959de2aec8e6cedf9f07ee969bfd00bf0cc3478c0ad8831c6bcaa",
+    "xtendrmt/rmt-app-runtime.js": "3d20461b92e62ac73af1317e855bd2426337f3886f51c91d23297f92c90fdceb",
+    "xtendrmt/rmt-maraca-view-projection-adapter.js": "820434f28d7dfabd73f7f82635c8306c76d2835fe727c2abc9c5c4fd9e6d4de7",
+    "xtendrmt/rmt-presentation-effect-adapter.js": "87c7d4a3e886bfd45d98b7b5dd385ce06a578dc408a3ceb0a6122f5010f9cd0f",
+    "xtendrmt/rmt-event-routing-runtime.js": "257b2f73fecc4d659f3c393b51dc7b2c940d196eee84caef67d29f3ec2e4448e",
+    "xtendrmt/rmt-surface-resource-graph-runtime.js": "5cac73161a80489e60cca3dc31eb44475570581a7f4fc6d71d5d9cedf212870f",
+    "components/xsurfacemanager-controller.js": "a747e5a4bd9d4c1205dc464d046eb5bc65531acc74d083d78e10d5c614afa7a5",
+    "components/xtend-state.js": "a53defa3247b3778d115e147a3094624206cb46ca9f5bcd18b345a3d059d849b",
+    "fabric/xtend-fabric.js": "ea7fa64431048e724a336ecd3117c90c6bb8a0ab2871e1ba618d8381ed3f822d",
+    "tools/xtensions/component-interface.js": "8d3b813dcc2b4bbb230d8e18720487c7f19e84bcf2bcbcea55cd251f0b6e7646",
+    "tools/xtensions/component-interface-build.js": "7dade34c20e63b7f7f17fac03026cbb18ece5209d1ebbb712dafa86ca644d5f4",
+    "tools/xtensions/state-binding.js": "19b0f4266fc7546016eb68df9eec391b554ab22a96d5eb97d001c0efa047ca79",
+    "tools/xtensions/react-runtime-adapter.js": "e780ccdfcc00ca7d75bec3b2bdebb383e3caa2fc40d3bfdaf4bfe85995a0308a",
+    "tools/xtensions/vue-runtime-adapter.js": "d68a72b9782be8c3d705d10af40ca4a6576c3cc0e3a9884c8db02073c8b9745c",
+    "development/rmtx-a06/providers/react.interface.json": "45394fbe58a8f81445891526967d691786ef1ecf2fd6eb08e520e69322c76539",
+    "development/rmtx-a06/providers/vue.interface.json": "30de14608052cdd250f1f56b06fa0b5c7df8dda73803d5d5daa96355e5a6f1e4"
+  },
+  "runs": [
+    {
+      "format": 1,
+      "version": "1.0.0",
+      "stage": "A06-two-host-syntax-comparison",
+      "node": "v24.18.0",
+      "mode": "jsdom-native-frameworks",
+      "browserVersion": null,
+      "pageErrors": [],
+      "versions": {
+        "react": "18.3.1",
+        "vue": "3.5.43"
+      },
+      "passed": true,
+      "variants": {
+        "declarative": {
+          "acceptance": {
+            "passed": true,
+            "cases": 13,
+            "names": [
+              "two actual framework roots share one native resource owner and retain separate targets",
+              "framework events run declared Actions and return controlled props through XTend State",
+              "unknown, mistyped, extra-field and forged-source intents do not write Model",
+              "common Surface close stages latest Model props and resume preserves both roots",
+              "removing one host preserves its sibling and invalidates old intents across reincarnation",
+              "common Surface destroy immediately revokes both scopes and late provider completion",
+              "common Surface destroy cancels active work on both hosts and fences result callbacks",
+              "source lane requests do not manufacture trusted application grants",
+              "caller-added Vue title is blocked before provider delivery even in tampered plan data",
+              "runtime update guard prevents unknown attributes from reaching an existing Vue root",
+              "provider-owned Vue prop declaration and disabled inheritance prevent direct fallthrough",
+              "provider order field maps to Action sort; old and malformed payloads cannot dispatch",
+              "runtime refuses a forged interface pin from serialized call-site data"
+            ]
+          },
+          "trace": [
+            {
+              "phase": "initial",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [
+                "front",
+                "recent"
+              ],
+              "outputs": [
+                "front",
+                "recent"
+              ],
+              "resources": 2,
+              "commands": [],
+              "laneAdmissions": [
+                {
+                  "declarationId": "product-gallery",
+                  "lane": "visible",
+                  "kernelFabricAdmission": true
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "lane": "idle",
+                  "kernelFabricAdmission": true
+                }
+              ]
+            },
+            {
+              "phase": "provider-dom-events",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "back",
+                "reviewsSort": "rating"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "back",
+                "reviewsSort": "rating"
+              },
+              "controls": [
+                "back",
+                "rating"
+              ],
+              "outputs": [
+                "back",
+                "rating"
+              ],
+              "resources": 2,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "siblingRootsPreserved": true
+            },
+            {
+              "phase": "closed-owner-stages-model",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [
+                "back",
+                "rating"
+              ],
+              "outputs": [
+                "back",
+                "rating"
+              ],
+              "resources": 2,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "allSuspended": true
+            },
+            {
+              "phase": "resumed-owner",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [
+                "front",
+                "recent"
+              ],
+              "outputs": [
+                "front",
+                "recent"
+              ],
+              "resources": 2,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "nativeRootsPreserved": true
+            },
+            {
+              "phase": "gallery-removed",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [
+                "recent"
+              ],
+              "outputs": [
+                "recent"
+              ],
+              "resources": 1,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "retiredDisposed": true,
+              "siblingRootPreserved": true
+            },
+            {
+              "phase": "gallery-recreated",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [
+                "front",
+                "recent"
+              ],
+              "outputs": [
+                "front",
+                "recent"
+              ],
+              "resources": 2,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "logicalAddressRetained": true,
+              "freshIncarnation": true,
+              "retiredCallbackAccepted": false
+            },
+            {
+              "phase": "owner-destroyed",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [],
+              "outputs": [],
+              "resources": 0,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "allDisposed": true
+            }
+          ]
+        },
+        "hybrid": {
+          "acceptance": {
+            "passed": true,
+            "cases": 13,
+            "names": [
+              "two actual framework roots share one native resource owner and retain separate targets",
+              "framework events run declared Actions and return controlled props through XTend State",
+              "unknown, mistyped, extra-field and forged-source intents do not write Model",
+              "common Surface close stages latest Model props and resume preserves both roots",
+              "removing one host preserves its sibling and invalidates old intents across reincarnation",
+              "common Surface destroy immediately revokes both scopes and late provider completion",
+              "common Surface destroy cancels active work on both hosts and fences result callbacks",
+              "source lane requests do not manufacture trusted application grants",
+              "caller-added Vue title is blocked before provider delivery even in tampered plan data",
+              "runtime update guard prevents unknown attributes from reaching an existing Vue root",
+              "provider-owned Vue prop declaration and disabled inheritance prevent direct fallthrough",
+              "provider order field maps to Action sort; old and malformed payloads cannot dispatch",
+              "runtime refuses a forged interface pin from serialized call-site data"
+            ]
+          },
+          "trace": [
+            {
+              "phase": "initial",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [
+                "front",
+                "recent"
+              ],
+              "outputs": [
+                "front",
+                "recent"
+              ],
+              "resources": 2,
+              "commands": [],
+              "laneAdmissions": [
+                {
+                  "declarationId": "product-gallery",
+                  "lane": "visible",
+                  "kernelFabricAdmission": true
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "lane": "idle",
+                  "kernelFabricAdmission": true
+                }
+              ]
+            },
+            {
+              "phase": "provider-dom-events",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "back",
+                "reviewsSort": "rating"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "back",
+                "reviewsSort": "rating"
+              },
+              "controls": [
+                "back",
+                "rating"
+              ],
+              "outputs": [
+                "back",
+                "rating"
+              ],
+              "resources": 2,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "siblingRootsPreserved": true
+            },
+            {
+              "phase": "closed-owner-stages-model",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [
+                "back",
+                "rating"
+              ],
+              "outputs": [
+                "back",
+                "rating"
+              ],
+              "resources": 2,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "allSuspended": true
+            },
+            {
+              "phase": "resumed-owner",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [
+                "front",
+                "recent"
+              ],
+              "outputs": [
+                "front",
+                "recent"
+              ],
+              "resources": 2,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "nativeRootsPreserved": true
+            },
+            {
+              "phase": "gallery-removed",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [
+                "recent"
+              ],
+              "outputs": [
+                "recent"
+              ],
+              "resources": 1,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "retiredDisposed": true,
+              "siblingRootPreserved": true
+            },
+            {
+              "phase": "gallery-recreated",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [
+                "front",
+                "recent"
+              ],
+              "outputs": [
+                "front",
+                "recent"
+              ],
+              "resources": 2,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "logicalAddressRetained": true,
+              "freshIncarnation": true,
+              "retiredCallbackAccepted": false
+            },
+            {
+              "phase": "owner-destroyed",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [],
+              "outputs": [],
+              "resources": 0,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "allDisposed": true
+            }
+          ]
+        }
+      },
+      "differentialTraceEqual": true,
+      "differentialStages": 7,
+      "nativeHeaderRuntimeEvaluated": false,
+      "ssrAcceptancePerformed": false,
+      "productionFrontendImplemented": false,
+      "acceptedForRelease": false,
+      "sourceStableDuringExecution": true,
+      "sourceManifestSha256": "b0d3aa4e715f6ce1d913fe8476f55d754bd33a9650609048eca02560be64036b",
+      "originalReportSha256": "b211d79a9c5183dd69e1b5fba82b17f491566b8be98ecf5abd3968cfad14a6aa"
+    },
+    {
+      "format": 1,
+      "version": "1.0.0",
+      "stage": "A06-two-host-syntax-comparison",
+      "node": "v26.5.0",
+      "mode": "jsdom-native-frameworks",
+      "browserVersion": null,
+      "pageErrors": [],
+      "versions": {
+        "react": "18.3.1",
+        "vue": "3.5.43"
+      },
+      "passed": true,
+      "variants": {
+        "declarative": {
+          "acceptance": {
+            "passed": true,
+            "cases": 13,
+            "names": [
+              "two actual framework roots share one native resource owner and retain separate targets",
+              "framework events run declared Actions and return controlled props through XTend State",
+              "unknown, mistyped, extra-field and forged-source intents do not write Model",
+              "common Surface close stages latest Model props and resume preserves both roots",
+              "removing one host preserves its sibling and invalidates old intents across reincarnation",
+              "common Surface destroy immediately revokes both scopes and late provider completion",
+              "common Surface destroy cancels active work on both hosts and fences result callbacks",
+              "source lane requests do not manufacture trusted application grants",
+              "caller-added Vue title is blocked before provider delivery even in tampered plan data",
+              "runtime update guard prevents unknown attributes from reaching an existing Vue root",
+              "provider-owned Vue prop declaration and disabled inheritance prevent direct fallthrough",
+              "provider order field maps to Action sort; old and malformed payloads cannot dispatch",
+              "runtime refuses a forged interface pin from serialized call-site data"
+            ]
+          },
+          "trace": [
+            {
+              "phase": "initial",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [
+                "front",
+                "recent"
+              ],
+              "outputs": [
+                "front",
+                "recent"
+              ],
+              "resources": 2,
+              "commands": [],
+              "laneAdmissions": [
+                {
+                  "declarationId": "product-gallery",
+                  "lane": "visible",
+                  "kernelFabricAdmission": true
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "lane": "idle",
+                  "kernelFabricAdmission": true
+                }
+              ]
+            },
+            {
+              "phase": "provider-dom-events",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "back",
+                "reviewsSort": "rating"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "back",
+                "reviewsSort": "rating"
+              },
+              "controls": [
+                "back",
+                "rating"
+              ],
+              "outputs": [
+                "back",
+                "rating"
+              ],
+              "resources": 2,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "siblingRootsPreserved": true
+            },
+            {
+              "phase": "closed-owner-stages-model",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [
+                "back",
+                "rating"
+              ],
+              "outputs": [
+                "back",
+                "rating"
+              ],
+              "resources": 2,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "allSuspended": true
+            },
+            {
+              "phase": "resumed-owner",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [
+                "front",
+                "recent"
+              ],
+              "outputs": [
+                "front",
+                "recent"
+              ],
+              "resources": 2,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "nativeRootsPreserved": true
+            },
+            {
+              "phase": "gallery-removed",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [
+                "recent"
+              ],
+              "outputs": [
+                "recent"
+              ],
+              "resources": 1,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "retiredDisposed": true,
+              "siblingRootPreserved": true
+            },
+            {
+              "phase": "gallery-recreated",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [
+                "front",
+                "recent"
+              ],
+              "outputs": [
+                "front",
+                "recent"
+              ],
+              "resources": 2,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "logicalAddressRetained": true,
+              "freshIncarnation": true,
+              "retiredCallbackAccepted": false
+            },
+            {
+              "phase": "owner-destroyed",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [],
+              "outputs": [],
+              "resources": 0,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "allDisposed": true
+            }
+          ]
+        },
+        "hybrid": {
+          "acceptance": {
+            "passed": true,
+            "cases": 13,
+            "names": [
+              "two actual framework roots share one native resource owner and retain separate targets",
+              "framework events run declared Actions and return controlled props through XTend State",
+              "unknown, mistyped, extra-field and forged-source intents do not write Model",
+              "common Surface close stages latest Model props and resume preserves both roots",
+              "removing one host preserves its sibling and invalidates old intents across reincarnation",
+              "common Surface destroy immediately revokes both scopes and late provider completion",
+              "common Surface destroy cancels active work on both hosts and fences result callbacks",
+              "source lane requests do not manufacture trusted application grants",
+              "caller-added Vue title is blocked before provider delivery even in tampered plan data",
+              "runtime update guard prevents unknown attributes from reaching an existing Vue root",
+              "provider-owned Vue prop declaration and disabled inheritance prevent direct fallthrough",
+              "provider order field maps to Action sort; old and malformed payloads cannot dispatch",
+              "runtime refuses a forged interface pin from serialized call-site data"
+            ]
+          },
+          "trace": [
+            {
+              "phase": "initial",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [
+                "front",
+                "recent"
+              ],
+              "outputs": [
+                "front",
+                "recent"
+              ],
+              "resources": 2,
+              "commands": [],
+              "laneAdmissions": [
+                {
+                  "declarationId": "product-gallery",
+                  "lane": "visible",
+                  "kernelFabricAdmission": true
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "lane": "idle",
+                  "kernelFabricAdmission": true
+                }
+              ]
+            },
+            {
+              "phase": "provider-dom-events",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "back",
+                "reviewsSort": "rating"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "back",
+                "reviewsSort": "rating"
+              },
+              "controls": [
+                "back",
+                "rating"
+              ],
+              "outputs": [
+                "back",
+                "rating"
+              ],
+              "resources": 2,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "siblingRootsPreserved": true
+            },
+            {
+              "phase": "closed-owner-stages-model",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [
+                "back",
+                "rating"
+              ],
+              "outputs": [
+                "back",
+                "rating"
+              ],
+              "resources": 2,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "allSuspended": true
+            },
+            {
+              "phase": "resumed-owner",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [
+                "front",
+                "recent"
+              ],
+              "outputs": [
+                "front",
+                "recent"
+              ],
+              "resources": 2,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "nativeRootsPreserved": true
+            },
+            {
+              "phase": "gallery-removed",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [
+                "recent"
+              ],
+              "outputs": [
+                "recent"
+              ],
+              "resources": 1,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "retiredDisposed": true,
+              "siblingRootPreserved": true
+            },
+            {
+              "phase": "gallery-recreated",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [
+                "front",
+                "recent"
+              ],
+              "outputs": [
+                "front",
+                "recent"
+              ],
+              "resources": 2,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "logicalAddressRetained": true,
+              "freshIncarnation": true,
+              "retiredCallbackAccepted": false
+            },
+            {
+              "phase": "owner-destroyed",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [],
+              "outputs": [],
+              "resources": 0,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "allDisposed": true
+            }
+          ]
+        }
+      },
+      "differentialTraceEqual": true,
+      "differentialStages": 7,
+      "nativeHeaderRuntimeEvaluated": false,
+      "ssrAcceptancePerformed": false,
+      "productionFrontendImplemented": false,
+      "acceptedForRelease": false,
+      "sourceStableDuringExecution": true,
+      "sourceManifestSha256": "b0d3aa4e715f6ce1d913fe8476f55d754bd33a9650609048eca02560be64036b",
+      "originalReportSha256": "65d907af8fd940ad062a7d94847dd9e1f88424393126b3b9d2487ed59e0ded7f"
+    },
+    {
+      "format": 1,
+      "version": "1.0.0",
+      "stage": "A06-two-host-syntax-comparison",
+      "node": "v24.18.0",
+      "mode": "chromium",
+      "browserVersion": "155.0.8059.79",
+      "pageErrors": [],
+      "versions": {
+        "react": "18.3.1",
+        "vue": "3.5.43"
+      },
+      "passed": true,
+      "variants": {
+        "declarative": {
+          "acceptance": {
+            "passed": true,
+            "cases": 13,
+            "names": [
+              "two actual framework roots share one native resource owner and retain separate targets",
+              "framework events run declared Actions and return controlled props through XTend State",
+              "unknown, mistyped, extra-field and forged-source intents do not write Model",
+              "common Surface close stages latest Model props and resume preserves both roots",
+              "removing one host preserves its sibling and invalidates old intents across reincarnation",
+              "common Surface destroy immediately revokes both scopes and late provider completion",
+              "common Surface destroy cancels active work on both hosts and fences result callbacks",
+              "source lane requests do not manufacture trusted application grants",
+              "caller-added Vue title is blocked before provider delivery even in tampered plan data",
+              "runtime update guard prevents unknown attributes from reaching an existing Vue root",
+              "provider-owned Vue prop declaration and disabled inheritance prevent direct fallthrough",
+              "provider order field maps to Action sort; old and malformed payloads cannot dispatch",
+              "runtime refuses a forged interface pin from serialized call-site data"
+            ]
+          },
+          "trace": [
+            {
+              "phase": "initial",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [
+                "front",
+                "recent"
+              ],
+              "outputs": [
+                "front",
+                "recent"
+              ],
+              "resources": 2,
+              "commands": [],
+              "laneAdmissions": [
+                {
+                  "declarationId": "product-gallery",
+                  "lane": "visible",
+                  "kernelFabricAdmission": true
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "lane": "idle",
+                  "kernelFabricAdmission": true
+                }
+              ]
+            },
+            {
+              "phase": "provider-dom-events",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "back",
+                "reviewsSort": "rating"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "back",
+                "reviewsSort": "rating"
+              },
+              "controls": [
+                "back",
+                "rating"
+              ],
+              "outputs": [
+                "back",
+                "rating"
+              ],
+              "resources": 2,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "siblingRootsPreserved": true
+            },
+            {
+              "phase": "closed-owner-stages-model",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [
+                "back",
+                "rating"
+              ],
+              "outputs": [
+                "back",
+                "rating"
+              ],
+              "resources": 2,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "allSuspended": true
+            },
+            {
+              "phase": "resumed-owner",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [
+                "front",
+                "recent"
+              ],
+              "outputs": [
+                "front",
+                "recent"
+              ],
+              "resources": 2,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "nativeRootsPreserved": true
+            },
+            {
+              "phase": "gallery-removed",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [
+                "recent"
+              ],
+              "outputs": [
+                "recent"
+              ],
+              "resources": 1,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "retiredDisposed": true,
+              "siblingRootPreserved": true
+            },
+            {
+              "phase": "gallery-recreated",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [
+                "front",
+                "recent"
+              ],
+              "outputs": [
+                "front",
+                "recent"
+              ],
+              "resources": 2,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "logicalAddressRetained": true,
+              "freshIncarnation": true,
+              "retiredCallbackAccepted": false
+            },
+            {
+              "phase": "owner-destroyed",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [],
+              "outputs": [],
+              "resources": 0,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "allDisposed": true
+            }
+          ]
+        },
+        "hybrid": {
+          "acceptance": {
+            "passed": true,
+            "cases": 13,
+            "names": [
+              "two actual framework roots share one native resource owner and retain separate targets",
+              "framework events run declared Actions and return controlled props through XTend State",
+              "unknown, mistyped, extra-field and forged-source intents do not write Model",
+              "common Surface close stages latest Model props and resume preserves both roots",
+              "removing one host preserves its sibling and invalidates old intents across reincarnation",
+              "common Surface destroy immediately revokes both scopes and late provider completion",
+              "common Surface destroy cancels active work on both hosts and fences result callbacks",
+              "source lane requests do not manufacture trusted application grants",
+              "caller-added Vue title is blocked before provider delivery even in tampered plan data",
+              "runtime update guard prevents unknown attributes from reaching an existing Vue root",
+              "provider-owned Vue prop declaration and disabled inheritance prevent direct fallthrough",
+              "provider order field maps to Action sort; old and malformed payloads cannot dispatch",
+              "runtime refuses a forged interface pin from serialized call-site data"
+            ]
+          },
+          "trace": [
+            {
+              "phase": "initial",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [
+                "front",
+                "recent"
+              ],
+              "outputs": [
+                "front",
+                "recent"
+              ],
+              "resources": 2,
+              "commands": [],
+              "laneAdmissions": [
+                {
+                  "declarationId": "product-gallery",
+                  "lane": "visible",
+                  "kernelFabricAdmission": true
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "lane": "idle",
+                  "kernelFabricAdmission": true
+                }
+              ]
+            },
+            {
+              "phase": "provider-dom-events",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "back",
+                "reviewsSort": "rating"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "back",
+                "reviewsSort": "rating"
+              },
+              "controls": [
+                "back",
+                "rating"
+              ],
+              "outputs": [
+                "back",
+                "rating"
+              ],
+              "resources": 2,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "siblingRootsPreserved": true
+            },
+            {
+              "phase": "closed-owner-stages-model",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [
+                "back",
+                "rating"
+              ],
+              "outputs": [
+                "back",
+                "rating"
+              ],
+              "resources": 2,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "allSuspended": true
+            },
+            {
+              "phase": "resumed-owner",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [
+                "front",
+                "recent"
+              ],
+              "outputs": [
+                "front",
+                "recent"
+              ],
+              "resources": 2,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "nativeRootsPreserved": true
+            },
+            {
+              "phase": "gallery-removed",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [
+                "recent"
+              ],
+              "outputs": [
+                "recent"
+              ],
+              "resources": 1,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "retiredDisposed": true,
+              "siblingRootPreserved": true
+            },
+            {
+              "phase": "gallery-recreated",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [
+                "front",
+                "recent"
+              ],
+              "outputs": [
+                "front",
+                "recent"
+              ],
+              "resources": 2,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "logicalAddressRetained": true,
+              "freshIncarnation": true,
+              "retiredCallbackAccepted": false
+            },
+            {
+              "phase": "owner-destroyed",
+              "product": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "projected": {
+                "id": "p1",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent"
+              },
+              "controls": [],
+              "outputs": [],
+              "resources": 0,
+              "commands": [
+                {
+                  "declarationId": "product-gallery",
+                  "event": "selectImage"
+                },
+                {
+                  "declarationId": "product-reviews",
+                  "event": "changeSort"
+                }
+              ],
+              "allDisposed": true
+            }
+          ]
+        }
+      },
+      "differentialTraceEqual": true,
+      "differentialStages": 7,
+      "nativeHeaderRuntimeEvaluated": false,
+      "ssrAcceptancePerformed": false,
+      "productionFrontendImplemented": false,
+      "acceptedForRelease": false,
+      "sourceStableDuringExecution": true,
+      "sourceManifestSha256": "b0d3aa4e715f6ce1d913fe8476f55d754bd33a9650609048eca02560be64036b",
+      "originalReportSha256": "a58e30aa854353c6622413c7d37e8e7e5c282cf9d7abfb9affe2b0619af00a9d"
+    }
+  ]
+}

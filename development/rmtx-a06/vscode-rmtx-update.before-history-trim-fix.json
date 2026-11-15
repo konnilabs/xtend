@@ -1,0 +1,349 @@
+{
+  "format": 1,
+  "version": "1.1.0",
+  "date": "2026-11-15",
+  "status": "installed-and-isolated-host-verified",
+  "purpose": "Refresh the editor package with the corrected native Surface/View lifecycle backend, regenerated public Kernel outputs and fresh AI-kit/Knowledge bytes.",
+  "vscodeVersion": "1.145.2",
+  "previousInstalledVersion": "0.2.1",
+  "installedVersion": "0.2.2",
+  "vsix": {
+    "path": "tools/rmt-editor/vscode/xtend-rmt-language-0.2.2.vsix",
+    "bytes": 25240059,
+    "sha256": "d9d3a116eacbaec9bd8f02399644ab5110642f1d86e6a7ea0c21369b4f3d0839"
+  },
+  "installation": {
+    "command": [
+      "/usr/bin/code",
+      "--install-extension",
+      "/home/konni/Downloads/xtend-dev/xtend/tools/rmt-editor/vscode/xtend-rmt-language-0.2.2.vsix",
+      "--force"
+    ],
+    "exitCode": 0,
+    "extensionId": "ccs networks.xtend-rmt-language",
+    "installedPath": "/home/konni/.vscode/extensions/ccs networks.xtend-rmt-language-0.2.2",
+    "archiveFilesCompared": 5040,
+    "mismatches": [],
+    "packageJsonNormalization": "Only VS Code-injected __metadata is excluded from package.json comparison; other archive bytes match exactly."
+  },
+  "backendClosure": {
+    "sourcesCompared": 27,
+    "mismatches": [],
+    "files": {
+      "node_modules/@ccslabs/xtend-rmt/rmt-dom-descriptor-renderer.js": {
+        "source": "xtendrmt/rmt-dom-descriptor-renderer.js",
+        "sha256": "69981e6ec2f51094e1607e52c39324a02358ac9be75dc4b0a120d4dcb895a555"
+      },
+      "node_modules/@ccslabs/xtend-rmt/rmt-dom-descriptor-renderer.d.ts": {
+        "source": "xtendrmt/rmt-dom-descriptor-renderer.d.ts",
+        "sha256": "02642144b47cbcf74304c912aff6777c4c5a7b3758b0d67c93fed612e1aa2a8e"
+      },
+      "node_modules/@ccslabs/xtend-rmt/rmt-maraca-view-projection-adapter.js": {
+        "source": "xtendrmt/rmt-maraca-view-projection-adapter.js",
+        "sha256": "ee09855bee0e3973cfd8ec521c6b661256c3f1be7e4e8b6e782dd323ffb313be"
+      },
+      "node_modules/@ccslabs/xtend-rmt/rmt-maraca-view-projection-adapter.d.ts": {
+        "source": "xtendrmt/rmt-maraca-view-projection-adapter.d.ts",
+        "sha256": "6b59fb671624728cd9b3bcb9b4b846aa7cc784d4385d7649529036828851c887"
+      },
+      "node_modules/@ccslabs/xtend-rmt/rmt-surface-resource-graph-runtime.js": {
+        "source": "xtendrmt/rmt-surface-resource-graph-runtime.js",
+        "sha256": "93f8210bddfdb2be15d823b7da3af81f82feddff4affcef2fcf1f8afca4ba464"
+      },
+      "node_modules/@ccslabs/xtend-rmt/rmt-surface-resource-graph-runtime.d.ts": {
+        "source": "xtendrmt/rmt-surface-resource-graph-runtime.d.ts",
+        "sha256": "5e3ce50038f9a2044d16ee539bbe6978762943e5d2e97e8126013a15e4c68578"
+      },
+      "node_modules/@ccslabs/xtend-rmt/rmt-manifest.json": {
+        "source": "xtendrmt/rmt-manifest.json",
+        "sha256": "f93319d6eaeefaa3b91d7f7bfad6056d89d93909fa334145dddf65014f1b8440"
+      },
+      "node_modules/@ccslabs/xtend-rmt/rmt-core.esm.js": {
+        "source": "xtendrmt/rmt-core.esm.js",
+        "sha256": "f7a02860104b2526957890f2b34e046501f9a328f5012c9827704cdeab28c0d0"
+      },
+      "node_modules/@ccslabs/xtend-rmt/rmt-runtime.esm.js": {
+        "source": "xtendrmt/rmt-runtime.esm.js",
+        "sha256": "185cc0e40510d240f70da76ef558e4e1cb25ccd116dfbd6c470c0fba825c4770"
+      },
+      "node_modules/@ccslabs/xtend-rmt/rmt-runtime.browser.js": {
+        "source": "xtendrmt/rmt-runtime.browser.js",
+        "sha256": "59773e7ceeae4d0936480adf68973972a7944e70eb105fd469fc02898c3f94d7"
+      },
+      "node_modules/@ccslabs/xtend-rmt/rmt-core.d.ts": {
+        "source": "xtendrmt/rmt-core.d.ts",
+        "sha256": "0cddf0a20f9326824e6962773ad0ed91b93cd55b7ecb3d245280744abb06cb33"
+      },
+      "node_modules/@ccslabs/xtend-maraca/plan-runtime.mjs": {
+        "source": "xtend-maraca/plan-runtime.mjs",
+        "sha256": "333789c73709abcb2bce81a6dfbcfc4f5afe1b8c136532e1837b94d221357da9"
+      },
+      "node_modules/@ccslabs/xtend-maraca/plan-runtime.d.ts": {
+        "source": "xtend-maraca/plan-runtime.d.ts",
+        "sha256": "f42582415c090594699f07f255d82e17362a6173a9176eafe40003cb190c6c4a"
+      },
+      "products/xtend-mcp/generated/knowledge-manifest.json": {
+        "source": "products/xtend-mcp/generated/knowledge-manifest.json",
+        "sha256": "3be942c68758a94299475dd8e341d2ed007f348a9d8e9b3a9e3e538df1884040"
+      },
+      "products/xtend-mcp/generated/docs.jsonl": {
+        "source": "products/xtend-mcp/generated/docs.jsonl",
+        "sha256": "d2659777c9f7e66efde4ca32ced1cfd9029ab6cce90609ba9d1a4712bfe84d51"
+      },
+      "products/xtend-mcp/generated/rmt-ai-kit/rmt-ai-kit.manifest.json": {
+        "source": "products/xtend-mcp/generated/rmt-ai-kit/rmt-ai-kit.manifest.json",
+        "sha256": "fbd522758a95b44c3b7d69ce408460d5a9bd55c685ef27cecd7adaef020e8c52"
+      },
+      "tools/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.manifest.json": {
+        "source": "tools/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.manifest.json",
+        "sha256": "fbd522758a95b44c3b7d69ce408460d5a9bd55c685ef27cecd7adaef020e8c52"
+      },
+      "package.json": {
+        "source": "tools/rmt-editor/vscode/package.json",
+        "sha256": "23372f4acf7f6508b4d2505e3490d3fb660dfb9dc1f6ae8b5423f645f30610b6"
+      },
+      "extension.js": {
+        "source": "tools/rmt-editor/vscode/extension.js",
+        "sha256": "ae1ccac5d4ac10c567451f743205ca3ccb1b27d423747946576be61c5642942c"
+      },
+      "rmtx-language-configuration.json": {
+        "source": "tools/rmt-editor/vscode/rmtx-language-configuration.json",
+        "sha256": "29e86355f1d1efa48265395946550e70677a8189450c6d9502c9ee0d01a071eb"
+      },
+      "syntaxes/rmtx.tmLanguage.json": {
+        "source": "tools/rmt-editor/vscode/syntaxes/rmtx.tmLanguage.json",
+        "sha256": "4001888af76e3ec0f402ac6d6f75c875504a76facc7992a0817b9c3fcf98c936"
+      },
+      "syntaxes/rmtx-operators.injection.tmLanguage.json": {
+        "source": "tools/rmt-editor/vscode/syntaxes/rmtx-operators.injection.tmLanguage.json",
+        "sha256": "8326dbccb46ddd501978c351b887255d1bad44d1a1261adbbfd6bfdc56c3010e"
+      },
+      "snippets/rmtx.code-snippets": {
+        "source": "tools/rmt-editor/vscode/snippets/rmtx.code-snippets",
+        "sha256": "1af61d46b23c098dd89719ca819699ca75479a375dfcc1d1996ac8604462f3aa"
+      },
+      "icons/rmt-light.svg": {
+        "source": "tools/rmt-editor/vscode/icons/rmt-light.svg",
+        "sha256": "f60d45254f168f7f66581f5f8633c29eb16f9a0dafec9cf95f8faad0de774c8b"
+      },
+      "icons/rmt-dark.svg": {
+        "source": "tools/rmt-editor/vscode/icons/rmt-dark.svg",
+        "sha256": "c8b975cde0499dec0999ba04c40ead061edd337cd39dc4afc20e0dd1467b38ec"
+      },
+      "icons/rmtx-light.svg": {
+        "source": "tools/rmt-editor/vscode/icons/rmtx-light.svg",
+        "sha256": "834cb1091696042a76147fe7b86dec651e5b02040ef4094b702940bcda8b43ee"
+      },
+      "icons/rmtx-dark.svg": {
+        "source": "tools/rmt-editor/vscode/icons/rmtx-dark.svg",
+        "sha256": "e03a22b4952ca52ea5f787ebe92f18e9778c20f6c05db02cde07d3d3841dbb1d"
+      }
+    },
+    "publishedManifest": "rmt-manifest.json",
+    "internalKernelModuleManifestPublished": false,
+    "description": "Closure checks follow the unchanged published @ccslabs/xtend-rmt package files list; the internal kernel module manifest is not a published VSIX member."
+  },
+  "isolatedHost": {
+    "format": 1,
+    "version": "1.0.0",
+    "passed": true,
+    "checks": [
+      "real-package-discovery",
+      "real-extension-activation",
+      "rmtx-document-language",
+      "classic-language-retained",
+      "rmtx-grammar-contribution",
+      "classic-lint-guard",
+      "classic-build-guard",
+      "no-classic-parser-diagnostics",
+      "language-icon-files-present",
+      "real-editor-snippet-insertion-self-closing",
+      "real-editor-snippet-insertion-paired",
+      "real-editor-snippet-insertion-expression",
+      "restart-extension-host-command-registered"
+    ],
+    "vscodeVersion": "1.145.2",
+    "node": "v24.22.1",
+    "extension": {
+      "id": "CCS Networks.xtend-rmt-language",
+      "version": "0.2.2",
+      "path": "/home/konni/.vscode/extensions/ccs networks.xtend-rmt-language-0.2.2",
+      "isActive": true
+    },
+    "document": {
+      "path": "/home/konni/Downloads/xtend-dev/xtend/development/rmtx-a06/syntax-comparison/declarative.rmtx",
+      "languageId": "rmtx",
+      "diagnosticCount": 0
+    },
+    "grammar": {
+      "language": "rmtx",
+      "scopeName": "source.rmtx",
+      "path": "./syntaxes/rmtx.tmLanguage.json"
+    },
+    "restartCommand": {
+      "id": "workbench.action.restartExtensionHost",
+      "paletteTitle": "Developer: Restart Extension Host",
+      "registered": true
+    },
+    "theme": {
+      "effective": "vs-seti",
+      "defaultValue": "vs-seti"
+    },
+    "languageIcons": {
+      "rmt.light": "f60d45254f168f7f66581f5f8633c29eb16f9a0dafec9cf95f8faad0de774c8b",
+      "rmt.dark": "c8b975cde0499dec0999ba04c40ead061edd337cd39dc4afc20e0dd1467b38ec",
+      "rmtx.light": "834cb1091696042a76147fe7b86dec651e5b02040ef4094b702940bcda8b43ee",
+      "rmtx.dark": "e03a22b4952ca52ea5f787ebe92f18e9778c20f6c05db02cde07d3d3841dbb1d"
+    },
+    "snippets": [
+      {
+        "name": "RMTX self-closing operator",
+        "text": "<RMT.Operator prop=\"value\" />",
+        "parseDiagnostics": 0
+      },
+      {
+        "name": "RMTX paired operator",
+        "text": "<RMT.Operator prop=\"value\">\n  \n</RMT.Operator>",
+        "parseDiagnostics": 0
+      },
+      {
+        "name": "RMTX expression property",
+        "text": "<RMT.Operator prop={model.value} />",
+        "parseDiagnostics": 0
+      }
+    ],
+    "session": "isolated-headless-test-host",
+    "currentUserSessionRestarted": false
+  },
+  "currentUserSession": {
+    "restartedByAgent": false,
+    "windowReloadForced": false,
+    "updatedExtensionActivationObserved": false,
+    "lastReadOnlyObservedUserHostVersion": "0.2.1",
+    "lastReadOnlyObservedActivation": "2026-11-15 21:38:09.268",
+    "lastObservedRestartWasUserInitiated": true,
+    "activationAction": {
+      "id": "workbench.action.restartExtensionHost",
+      "paletteTitle": "Developer: Restart Extension Host",
+      "registered": true
+    },
+    "note": "The user restarted the prior 0.2.1 host; this 0.2.2 update was installed and activated only in an isolated verification host. The current Codex session was left running."
+  },
+  "icons": {
+    "registration": "contributes.languages[].icon",
+    "effectiveTestHostTheme": "vs-seti",
+    "userIconThemeExplicitlyConfigured": false,
+    "workspaceIconThemeExplicitlyConfigured": false,
+    "settingsChanged": false,
+    "themeChanged": false,
+    "setiExplicitRmtOrRmtxMapping": false,
+    "setiShowLanguageModeIconsDisabled": false,
+    "explorerPixelInspectionPerformed": false
+  },
+  "checks": {
+    "editorTests": [
+      {
+        "node": "v24.18.0",
+        "passed": 11,
+        "failed": 0,
+        "skipped": 0,
+        "logSha256": "06482b1f65b6b1e70b7f4de8b519174b91c52fb0147b624d23a44f21bcf96e22"
+      },
+      {
+        "node": "v26.5.0",
+        "passed": 11,
+        "failed": 0,
+        "skipped": 0,
+        "logSha256": "9c606d47ce938c9e7344ee5b49b000582406a880fcf8f883808be0752690e043"
+      }
+    ],
+    "highlighting": {
+      "passed": true,
+      "node": "v24.22.1",
+      "checks": 16,
+      "reportSha256": "6d8d55f8b67ae9c553a6011fe6bf4042b83376c23604b36c88427a28818df206"
+    },
+    "packaging": {
+      "passed": true,
+      "assertions": 243,
+      "failed": 0,
+      "reportSha256": "8c6987cad78ef6ea7f5702104249a2f7ee253aea8eef7eff6f1dfc3cb87e4073"
+    },
+    "bundledMcp": {
+      "passed": true,
+      "command": "/usr/share/code/code",
+      "electronRunAsNode": true,
+      "nodeOptionsUsed": false,
+      "nodeVersion": "24.22.1",
+      "tools": [
+        "xtend_knowledge_search",
+        "xtend_knowledge_context",
+        "xtend_rmt_diagnostics",
+        "xtend_rmt_compile_check",
+        "xtend_maraca_plan",
+        "xtend_rmt_repair_plan"
+      ],
+      "compileOk": true,
+      "compileStatus": "compiled",
+      "planOk": true,
+      "planStatus": "planned",
+      "reportSha256": "e74b3583675f28307eb8eb9c4df44d8a1aefeb6ad9e746741e00f298d83d6562"
+    }
+  },
+  "previousDeployment": {
+    "path": "development/rmtx-a06/vscode-rmtx-update.before-lifecycle-fix.json",
+    "sha256": "1be7860671e41a041a9463c43b2417b7d468a60e392f201684f1d884a58757e5",
+    "vsixPath": "tools/rmt-editor/vscode/xtend-rmt-language-0.2.1.vsix",
+    "vsixSha256": "9fa813f2291081a7285b6b2ad2dfae77603c8ef225f5d94688598897f83e533d"
+  },
+  "runtimeReceipts": {
+    "hostLogSha256": "8e1037d78f1bbbfb2f2b912af5563083c1420c7f44d6222a78d4c3aa33f6fc78",
+    "hostTestSource": "/tmp/xtend-vscode-rmtx-update/test-host/runner.cjs",
+    "hostTestSourceSha256": "5c46644c3505ba66023f4a2b8a3ce50414a5419d94463c5ad2a817a5725e8e9e",
+    "hostProcess": {
+      "exitCode": 0,
+      "headless": true,
+      "userDataDir": "/tmp/xtend-vscode-rmtx-update/test-profile-final-022",
+      "currentSessionRestarted": false
+    },
+    "buildReportSha256": "b2f558210e998e3ae0113a77226cc368c34268b86225bb95b9bc4c316ec97f55",
+    "packageParityReportSha256": "067e1d95bbdf1cb989299245b10e7d167cc9d0a58d747335692206ffd2a5dd2f",
+    "installationLogSha256": "dfa650192a87862835c360f1dc876a360c66962e0c8b8fb985d88c0765f94cd1"
+  },
+  "sources": {
+    "package.json": "7626466bf3c02bcaf5c9e84cfd7255e85e91918fad1f8150675572c2340cd917",
+    "products/xtend-mcp/generated/docs.jsonl": "d2659777c9f7e66efde4ca32ced1cfd9029ab6cce90609ba9d1a4712bfe84d51",
+    "products/xtend-mcp/generated/knowledge-manifest.json": "3be942c68758a94299475dd8e341d2ed007f348a9d8e9b3a9e3e538df1884040",
+    "products/xtend-mcp/generated/rmt-ai-kit/rmt-ai-kit.manifest.json": "fbd522758a95b44c3b7d69ce408460d5a9bd55c685ef27cecd7adaef020e8c52",
+    "tests/rmt-language/rmt_editor_packaging_suite.js": "cb7429bd35983fa7d16f1619857aa5db33aae319327583fadf606508f43d1f66",
+    "tests/rmt-language/rmtx-editor.test.cjs": "f4c6bef36078a52352810a417a36c9b9ba9d3aa08c6b0f66504c6efab4ba6417",
+    "tools/rmt-editor/vscode/build-vsix.js": "372d7329b01ef4fa65bad30f4065ed04782df32c10ed4f04a1b54fd30e2db644",
+    "tools/rmt-editor/vscode/extension.js": "ae1ccac5d4ac10c567451f743205ca3ccb1b27d423747946576be61c5642942c",
+    "tools/rmt-editor/vscode/icons/rmt-dark.svg": "c8b975cde0499dec0999ba04c40ead061edd337cd39dc4afc20e0dd1467b38ec",
+    "tools/rmt-editor/vscode/icons/rmt-light.svg": "f60d45254f168f7f66581f5f8633c29eb16f9a0dafec9cf95f8faad0de774c8b",
+    "tools/rmt-editor/vscode/icons/rmtx-dark.svg": "e03a22b4952ca52ea5f787ebe92f18e9778c20f6c05db02cde07d3d3841dbb1d",
+    "tools/rmt-editor/vscode/icons/rmtx-light.svg": "834cb1091696042a76147fe7b86dec651e5b02040ef4094b702940bcda8b43ee",
+    "tools/rmt-editor/vscode/package.json": "23372f4acf7f6508b4d2505e3490d3fb660dfb9dc1f6ae8b5423f645f30610b6",
+    "tools/rmt-editor/vscode/rmtx-language-configuration.json": "29e86355f1d1efa48265395946550e70677a8189450c6d9502c9ee0d01a071eb",
+    "tools/rmt-editor/vscode/snippets/rmtx.code-snippets": "1af61d46b23c098dd89719ca819699ca75479a375dfcc1d1996ac8604462f3aa",
+    "tools/rmt-editor/vscode/syntaxes/rmtx-operators.injection.tmLanguage.json": "8326dbccb46ddd501978c351b887255d1bad44d1a1261adbbfd6bfdc56c3010e",
+    "tools/rmt-editor/vscode/syntaxes/rmtx.tmLanguage.json": "4001888af76e3ec0f402ac6d6f75c875504a76facc7992a0817b9c3fcf98c936",
+    "tools/rmt-editor/vscode/test-highlighting.js": "3ec8aef83fa8b7e1237737bd779096f77d20afc3578f668f4f378e86f1510268",
+    "tools/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.manifest.json": "fbd522758a95b44c3b7d69ce408460d5a9bd55c685ef27cecd7adaef020e8c52",
+    "xtend-maraca/plan-runtime.d.ts": "f42582415c090594699f07f255d82e17362a6173a9176eafe40003cb190c6c4a",
+    "xtend-maraca/plan-runtime.mjs": "333789c73709abcb2bce81a6dfbcfc4f5afe1b8c136532e1837b94d221357da9",
+    "xtendrmt/rmt-core.d.ts": "0cddf0a20f9326824e6962773ad0ed91b93cd55b7ecb3d245280744abb06cb33",
+    "xtendrmt/rmt-core.esm.js": "f7a02860104b2526957890f2b34e046501f9a328f5012c9827704cdeab28c0d0",
+    "xtendrmt/rmt-dom-descriptor-renderer.d.ts": "02642144b47cbcf74304c912aff6777c4c5a7b3758b0d67c93fed612e1aa2a8e",
+    "xtendrmt/rmt-dom-descriptor-renderer.js": "69981e6ec2f51094e1607e52c39324a02358ac9be75dc4b0a120d4dcb895a555",
+    "xtendrmt/rmt-manifest.json": "f93319d6eaeefaa3b91d7f7bfad6056d89d93909fa334145dddf65014f1b8440",
+    "xtendrmt/rmt-maraca-view-projection-adapter.d.ts": "6b59fb671624728cd9b3bcb9b4b846aa7cc784d4385d7649529036828851c887",
+    "xtendrmt/rmt-maraca-view-projection-adapter.js": "ee09855bee0e3973cfd8ec521c6b661256c3f1be7e4e8b6e782dd323ffb313be",
+    "xtendrmt/rmt-runtime.browser.js": "59773e7ceeae4d0936480adf68973972a7944e70eb105fd469fc02898c3f94d7",
+    "xtendrmt/rmt-runtime.esm.js": "185cc0e40510d240f70da76ef558e4e1cb25ccd116dfbd6c470c0fba825c4770",
+    "xtendrmt/rmt-surface-resource-graph-runtime.d.ts": "5e3ce50038f9a2044d16ee539bbe6978762943e5d2e97e8126013a15e4c68578",
+    "xtendrmt/rmt-surface-resource-graph-runtime.js": "93f8210bddfdb2be15d823b7da3af81f82feddff4affcef2fcf1f8afca4ba464"
+  },
+  "semanticRmtxLanguageServerImplemented": false,
+  "productionRmtxFrontendImplemented": false
+}

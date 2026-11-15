@@ -885,7 +885,8 @@
       "consumes": [],
       "dependsOn": [],
       "ports": [
-        "MaracaViewProjectionPort"
+        "MaracaViewProjectionPort",
+        "RmtDomCommitPort"
       ],
       "capabilities": [
         "dom.read",

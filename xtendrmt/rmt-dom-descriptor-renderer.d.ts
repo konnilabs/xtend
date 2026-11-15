@@ -1,4 +1,4 @@
-export const RMT_DOM_DESCRIPTOR_RENDERER_API_VERSION: '2.1.0';
+export const RMT_DOM_DESCRIPTOR_RENDERER_API_VERSION: '2.2.0';
 export const RMT_DOM_DESCRIPTOR_RENDERER_DIAGNOSTIC_SCHEMA: 'xtend.epic18.rmt-dom-renderer-diagnostic.v2';
 export const RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA: 'xtend.epic18.rmt-dom-descriptor-renderer.v2';
 export const RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA: 'xtend.epic18.rmt-dom-descriptor-renderer.v1';

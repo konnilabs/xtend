@@ -18,6 +18,7 @@ const FILES_TO_STAGE = [
   'extension.js',
   'extension.d.ts',
   'language-configuration.json',
+  'rmtx-language-configuration.json',
   'package.json',
   'README.md',
   'XTend-Logo.png'
@@ -26,7 +27,8 @@ const FILES_TO_STAGE = [
 const DIRECTORIES_TO_STAGE = [
   'syntaxes',
   'snippets',
-  'templates'
+  'templates',
+  'icons'
 ];
 
 const REPO_DIRECTORIES_TO_STAGE = [
@@ -82,11 +84,24 @@ function packageTarget(root, packageName) {
   return path.join(root, 'node_modules', ...packageName.split('/'));
 }
 
-function packageSource(packageName) {
+function packageSource(packageName, resolvingFrom = REPO_ROOT) {
   const localSource = MCP_LOCAL_PACKAGES.get(packageName);
-  return localSource
-    ? path.join(REPO_ROOT, localSource)
-    : path.join(REPO_ROOT, 'node_modules', ...packageName.split('/'));
+  if (localSource) return path.join(REPO_ROOT, localSource);
+  // Resolve relative to the actual installed package (including SDK symlinks),
+  // so its transitive and nested versions retain Node's own lookup semantics.
+  let directory = fs.existsSync(resolvingFrom) ? fs.realpathSync(resolvingFrom) : resolvingFrom;
+  for (;;) {
+    const candidate = packageTarget(directory, packageName);
+    if (fs.existsSync(path.join(candidate, 'package.json'))) return candidate;
+    const parent = path.dirname(directory);
+    if (parent === directory) break;
+    directory = parent;
+  }
+  try {
+    return path.dirname(require.resolve(`${packageName}/package.json`, { paths: [resolvingFrom, REPO_ROOT] }));
+  } catch {
+    return packageTarget(REPO_ROOT, packageName);
+  }
 }
 
 function copyPublishedPackage(sourceRoot, targetRoot) {
@@ -109,22 +124,31 @@ function copyPublishedPackage(sourceRoot, targetRoot) {
   return pkg;
 }
 
-function stageRuntimePackage(packageName, seen = new Set()) {
-  if (seen.has(packageName)) return;
-  seen.add(packageName);
-  const sourceRoot = packageSource(packageName);
+function stageRuntimePackage(packageName, seen = new Map(), resolvingFrom = REPO_ROOT, parentTarget = EXTENSION_STAGE_DIR) {
+  const sourceRoot = packageSource(packageName, resolvingFrom);
   if (!fs.existsSync(path.join(sourceRoot, 'package.json'))) {
     throw new Error(`Missing installed MCP runtime dependency: ${packageName}`);
   }
-  const targetRoot = packageTarget(EXTENSION_STAGE_DIR, packageName);
+  const sourceIdentity = fs.realpathSync(sourceRoot);
+  const globalSource = seen.get(packageName);
+  if (globalSource === sourceIdentity) return;
+  const targetRoot = packageTarget(globalSource ? parentTarget : EXTENSION_STAGE_DIR, packageName);
+  if (seen.get(targetRoot) === sourceIdentity) return;
+  if (!globalSource) seen.set(packageName, sourceIdentity);
+  seen.set(targetRoot, sourceIdentity);
   ensureDir(path.dirname(targetRoot));
   fs.rmSync(targetRoot, { recursive: true, force: true });
   const pkg = MCP_LOCAL_PACKAGES.has(packageName)
     ? copyPublishedPackage(sourceRoot, targetRoot)
     : (fs.cpSync(sourceRoot, targetRoot, { recursive: true }), JSON.parse(fs.readFileSync(path.join(sourceRoot, 'package.json'), 'utf8')));
-  Object.keys({ ...(pkg.dependencies || {}), ...(pkg.optionalDependencies || {}) })
-    .filter((dependency) => fs.existsSync(path.join(packageSource(dependency), 'package.json')))
-    .forEach((dependency) => stageRuntimePackage(dependency, seen));
+  const optional = new Set(Object.keys(pkg.optionalDependencies || {}));
+  for (const dependency of Object.keys({ ...(pkg.dependencies || {}), ...(pkg.optionalDependencies || {}) })) {
+    const installed = fs.existsSync(path.join(packageSource(dependency, sourceIdentity), 'package.json'));
+    // Local compiler/bundler peers remain optional for read-only MCP operations;
+    // an installed external SDK package must have its full required closure.
+    if (!installed && (optional.has(dependency) || MCP_LOCAL_PACKAGES.has(packageName))) continue;
+    stageRuntimePackage(dependency, seen, sourceIdentity, targetRoot);
+  }
 }
 
 function stageMcpPackage() {
@@ -134,7 +158,7 @@ function stageMcpPackage() {
   if (pkg.version !== EXPECTED_MCP_VERSION) {
     throw new Error(`VSIX expects XTend MCP ${EXPECTED_MCP_VERSION}, found ${pkg.version}.`);
   }
-  const seen = new Set();
+  const seen = new Map();
   Object.keys(pkg.dependencies || {}).forEach((dependency) => stageRuntimePackage(dependency, seen));
   const manifest = fs.readFileSync(path.join(targetRoot, 'generated', 'knowledge-manifest.json'));
   const parsedManifest = JSON.parse(manifest.toString('utf8'));
@@ -159,7 +183,7 @@ function readPackage() {
 
 function manifestXml(pkg) {
   const categories = Array.isArray(pkg.categories) ? pkg.categories.join(',') : '';
-  const tags = ['snippet', 'rmt', 'RMT', 'XTendRMT', '__ext_rmt'].join(',');
+  const tags = ['snippet', 'rmt', 'RMT', 'rmtx', 'RMTX', 'XTendRMT', '__ext_rmt', '__ext_rmtx'].join(',');
   const vscodeEngine = pkg.engines && pkg.engines.vscode ? pkg.engines.vscode : '*';
   const icon = pkg.icon ? `<Icon>extension/${xmlEscape(pkg.icon)}</Icon>` : '';
   const iconAsset = pkg.icon
@@ -204,6 +228,7 @@ function contentTypesXml() {
   <Default Extension="ts" ContentType="application/octet-stream" />
   <Default Extension="md" ContentType="text/markdown" />
   <Default Extension="png" ContentType="image/png" />
+  <Default Extension="svg" ContentType="image/svg+xml" />
   <Default Extension="xml" ContentType="application/xml" />
   <Override PartName="/extension.vsixmanifest" ContentType="text/xml" />
 </Types>

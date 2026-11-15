@@ -56,24 +56,24 @@
     "react": {
       "profile": "production",
       "mode": "strict",
-      "baselineBytes": 2560440,
-      "frameworkBytes": 2010859,
+      "baselineBytes": 2578606,
+      "frameworkBytes": 2024127,
       "xtensionRuntimeBytes": 206197,
       "xtensionBaselineBytes": 275695
     },
     "vue": {
       "profile": "max",
       "mode": "strict",
-      "baselineBytes": 2558424,
-      "frameworkBytes": 2009016,
+      "baselineBytes": 2576590,
+      "frameworkBytes": 2022284,
       "xtensionRuntimeBytes": 204625,
       "xtensionBaselineBytes": 273679
     },
     "mixed": {
       "profile": "production",
       "mode": "strict",
-      "baselineBytes": 2589499,
-      "frameworkBytes": 2051617,
+      "baselineBytes": 2607665,
+      "frameworkBytes": 2064885,
       "xtensionRuntimeBytes": 224448,
       "xtensionBaselineBytes": 296354
     }
@@ -89,8 +89,8 @@
     "xtend-maraca/xtension-composition-runtime.mjs": "4fdcbdf003430c441e4b05183942eba43086f25c4f4dd59f4a5adef7d8917d03",
     "xtend-maraca/xtension-composition.d.ts": "978b3f0b2cec4a628d1cde4c9a13e88e634baabb73f5a28c18a926a727b1e9f5",
     "xtend-maraca/xtension-composition-runtime.d.ts": "c98ff14a311b4a45fa9858ed2295afb7a9c67ffbc75bf66d9e5772d9bace7b2f",
-    "xtend-maraca/plan-runtime.mjs": "a773be6364d850559f6264540c038c278d028ff0d0c3a92cfcb62940550acd76",
-    "xtend-maraca/plan-runtime.d.ts": "c2565c8ebfd0dcd5653b8ea4d921ea78ee8ff1a674394d5126b9606093526da3",
+    "xtend-maraca/plan-runtime.mjs": "0a4970152bddfa0c3b431e72e104b4ed1ae5756e381ea41e0b14c226d0f131a6",
+    "xtend-maraca/plan-runtime.d.ts": "30344c8b55e0d4b857224ea28a8565894172e6a3054aa7865b19eb989c76b075",
     "xtend-maraca/abort-boundary.d.ts": "d4f589fcd486496917ccaeff07ef07e76f02a623c8853c7b39d2ff84747b0e41",
     "xtend-maraca/browser-composition-runtime.mjs": "945873b3bc254db756998f2170392b9b254a9ca0835d9b52448e66da8a24ebbe",
     "xtend-maraca/browser-composition-runtime.d.ts": "0bbc0a1d17ce936447db360cfd16ddd1128b2a342329ea2b2a6e1b6db4b5860f",
@@ -104,7 +104,7 @@
     "tests/xtensions/xtensions_consumer_package_suite.js": "033badcea1aa05beb0cc33134618f7f29cf76105d95e6a333dd360017d600545",
     "tests/types/xtensions_integrated_composition.mts": "0e7de34ce7c4324143fabf822ac6c83aba229f90f9368ac5b65250311bd2b601",
     "scripts/test_xtensions_runtime_adapters.cjs": "d9df3dfd883ea4e46c87bb94359b4728602ca15d1c535205fcaa5755a42a39b8",
-    "scripts/check_release_preparation.cjs": "ded2db484cf147f6defd94fd42f91cf224e83e549c0c48ab269b91f07830b8dc",
-    "tests/release/preparation-gates.test.cjs": "bb0593eaa0edb75174f808c50ba598ec7ba062706443fc50cb58977af45c2664"
+    "scripts/check_release_preparation.cjs": "6f387d3a070ee02971ceceda17d93a44683c5f12ebe1f0224f5cbed52bd92593",
+    "tests/release/preparation-gates.test.cjs": "5330a3f8d77fc37cacd9c7f4de6dc493c30658f5e1ca3f32265e43a60972b885"
   }
 }

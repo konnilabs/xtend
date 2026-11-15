@@ -11,6 +11,7 @@ test('development checks validate Classic drift, observations, versions and scop
   assert.deepEqual(CHECKS, [
     ['scripts/generate_rmt_classic_contract.js', '--check'],
     ['--test', 'tests/rmt-language/action-execution-lowering.test.cjs', 'tests/rmt-language/event-condition-guards.test.cjs', 'tests/rmt-language/action-backend-regressions.test.cjs', 'tests/rmt/renderer-structural-ownership.test.cjs'],
+    ['--test', 'tests/rmt/surface-materialize-lifetime.test.cjs', 'tests/rmt/maraca-view-lifecycle.test.cjs', 'tests/maraca/native-surface-lifecycle.test.mjs'],
     ['development/rmtx-a01/inspect.cjs', '--check'],
     ['development/rmtx-a02/inspect.cjs', '--check'],
     ['development/rmtx-a02/url-history/inspect.cjs', '--check'],
