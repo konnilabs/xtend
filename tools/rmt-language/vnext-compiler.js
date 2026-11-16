@@ -15,7 +15,7 @@ const {
 
 const RMT_VNEXT_CORE_SCHEMA = 'xtend.rmt.core-format.vnext.v1';
 const RMT_VNEXT_COMPILER_SCHEMA = 'xtend.rmt.vnext-compiler.v1';
-const RMT_VNEXT_COMPILER_API_VERSION = '1.2.0';
+const RMT_VNEXT_COMPILER_API_VERSION = '1.3.0';
 const RMT_VNEXT_COMPILER_REPORT_SCHEMA = 'xtend.rmt.vnext-compiler-report.v1';
 const RMT_VNEXT_COMPILER_WORKPACKAGE = 'WP-E15-05';
 const RMT_VNEXT_PRIMITIVE_LOWERING_SCHEMA = 'xtend.rmt.vnext.primitive-lowering.v1';
@@ -126,7 +126,7 @@ function createCoreDocument(manifest = {}) {
     manifest: {
       documentId: manifest.documentId || 'rmt.vnext.document',
       namespace: manifest.namespace || namespaceFromDocumentId(manifest.documentId),
-      sourceSyntax: 'rmt-vnext',
+      sourceSyntax: manifest.sourceSyntax || 'rmt-vnext',
       contracts: [
         'xtend.rmt.vnext.grammar.v1',
         RMT_VNEXT_CORE_SCHEMA
@@ -861,7 +861,7 @@ function createAppPlatformRecords(core) {
   return {
     schema: RMT_APP_PLATFORM_RECORDS_SCHEMA,
     workpackage: RMT_VNEXT_PRIMITIVE_LOWERING_WORKPACKAGE,
-    sourceSyntax: 'rmt-vnext',
+    sourceSyntax: core.manifest && core.manifest.sourceSyntax || 'rmt-vnext',
     state: core.states.map((record) => ({
       id: record.name,
       type: record.type,
@@ -4266,7 +4266,7 @@ function createRmtAppOrchestrationArtifacts(core) {
   return {
     schema: RMT_APP_ORCHESTRATION_SCHEMA,
     workpackage: RMT_APP_ORCHESTRATION_WORKPACKAGE,
-    sourceSyntax: 'rmt-vnext',
+    sourceSyntax: core.manifest && core.manifest.sourceSyntax || 'rmt-vnext',
     runtimeOrder: ['kernel', 'state', 'resource', 'validation', 'animation', 'transition', 'action', 'event', 'surface', 'renderer'],
     kernel: createKernelOrchestrationArtifact(core),
     state: {
@@ -4337,12 +4337,13 @@ function createRmtAppOrchestrationArtifacts(core) {
 }
 
 class VNextCompiler {
-  constructor(ast, options = {}) {
+  constructor(ast, options = {}, sourceProfile = null) {
     this.ast = ast;
     const documentId = options.documentId || findFirstNamedDeclaration(ast) || 'rmt.vnext.document';
     this.core = createCoreDocument({
       documentId,
-      namespace: options.namespace || namespaceFromDocumentId(documentId)
+      namespace: options.namespace || namespaceFromDocumentId(documentId),
+      sourceSyntax: sourceProfile ? sourceProfile.syntax : 'rmt-vnext'
     });
     this.diagnostics = [];
     this.semanticGraph = options.semanticGraph || null;
@@ -5465,11 +5466,12 @@ class VNextCompiler {
   }
 }
 
-function compileRmtVNextAst(ast, options = {}) {
+function createAstParserResult(ast, options, sourceProfile = null) {
   const sourceModel = options.sourceModel || createRmtSourceModel({
-    text: options.sourceText || '', filePath: options.filePath, uri: options.uri
+    text: options.sourceText || '', filePath: options.filePath, uri: options.uri,
+    ...(sourceProfile ? { languageId: sourceProfile.syntax } : {})
   });
-  const result = compileRmtVNextParserResult({
+  return {
     schema: RMT_VNEXT_PARSER_SCHEMA,
     ok: true,
     phase: 'parse',
@@ -5477,7 +5479,34 @@ function compileRmtVNextAst(ast, options = {}) {
     ast,
     sourceModel,
     diagnostics: []
-  }, options);
+  };
+}
+
+function validateFrontendSourceProfile(options) {
+  const profile = options.sourceProfile;
+  if (profile === undefined) return null;
+  const plain = profile && typeof profile === 'object' && !Array.isArray(profile)
+    && [Object.prototype, null].includes(Object.getPrototypeOf(profile));
+  const fields = plain && Object.getOwnPropertyDescriptors(profile);
+  const valid = fields && Reflect.ownKeys(fields).length === 2
+    && ['syntax', 'version'].every(key => fields[key] && fields[key].enumerable && 'value' in fields[key])
+    && fields.syntax.value === 'rmtx' && fields.version.value === '1.0.0';
+  if (!valid) throw Object.assign(new TypeError('Unsupported compiler frontend source profile.'), {
+    code: 'rmt.compiler.source-profile.unsupported'
+  });
+  return { syntax: fields.syntax.value, version: fields.version.value };
+}
+
+// The new result API accepts a lowered declarative AST, never a caller-supplied
+// success flag or parsed-result envelope. Every AST goes through all shared gates.
+function compileRmtVNextAstResult(ast, options = {}) {
+  const sourceProfile = validateFrontendSourceProfile(options);
+  return compileRmtVNextParserResult(createAstParserResult(ast, options, sourceProfile), options, sourceProfile);
+}
+
+function compileRmtVNextAst(ast, options = {}) {
+  // Preserve the legacy source identity and Core-only/throwing return contract.
+  const result = compileRmtVNextParserResult(createAstParserResult(ast, options), options);
   if (!result.ok) {
     const error = new Error(result.diagnostics.map(diagnostic => diagnostic.message).join('\n'));
     error.name = 'RmtAstCompilationError';
@@ -5528,7 +5557,7 @@ function compileRmtVNextSource(input = {}, options = {}) {
   return compileRmtVNextParserResult(parseRmtVNextSource(input, options), options);
 }
 
-function compileRmtVNextParserResult(parserResult, options = {}) {
+function compileRmtVNextParserResult(parserResult, options = {}, sourceProfile = null) {
   if (!parserResult.ok) {
     return {
       schema: RMT_VNEXT_COMPILER_SCHEMA,
@@ -5589,7 +5618,7 @@ function compileRmtVNextParserResult(parserResult, options = {}) {
   const compiler = new VNextCompiler(parserResult.ast, {
     ...options,
     semanticGraph: primitiveSemanticGraph
-  });
+  }, sourceProfile);
   const coreDocument = compiler.compile();
   if (!coreDocument) {
     return {
@@ -5715,6 +5744,7 @@ module.exports = {
   RMT_KERNEL_RECORDS_SCHEMA,
   RMT_VNEXT_PARSER_WORKPACKAGE,
   compileRmtVNextAst,
+  compileRmtVNextAstResult,
   compileRmtVNextSource,
   createRmtAppServiceDemands,
   createRmtAppOrchestrationArtifacts,

@@ -68,6 +68,18 @@
       "types": "./rmt-language/classic-compiler.d.ts",
       "default": "./rmt-language/classic-compiler.js"
     },
+    "./rmt-language/rmtx-parser": {
+      "types": "./rmt-language/rmtx-parser.d.ts",
+      "default": "./rmt-language/rmtx-parser.js"
+    },
+    "./rmt-language/rmtx-compiler": {
+      "types": "./rmt-language/rmtx-compiler.d.ts",
+      "default": "./rmt-language/rmtx-compiler.js"
+    },
+    "./rmt-language/rmtx": {
+      "types": "./rmt-language/rmtx.d.ts",
+      "default": "./rmt-language/rmtx.js"
+    },
     "./rmt-language/classic-parser": {
       "types": "./rmt-language/classic-parser.d.ts",
       "default": "./rmt-language/classic-parser.js"
@@ -183,5 +195,8 @@
     "@ccslabs/xtend-rmt": {
       "optional": true
     }
+  },
+  "dependencies": {
+    "typescript": "5.9.3"
   }
 }

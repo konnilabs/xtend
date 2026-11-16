@@ -1,0 +1,184 @@
+{
+  "format": 1,
+  "version": "1.0.0",
+  "date": "2026-11-16",
+  "stage": "A06.2-productive-rmtx-frontend",
+  "passed": true,
+  "productiveRmtxFrontendUsed": true,
+  "completeRmtxFrontendImplemented": false,
+  "sourceStableAcrossRuns": true,
+  "casesPerRun": 8,
+  "runs": [
+    {
+      "schema": "xtend.rmtx.frontend-runtime-acceptance.v1",
+      "format": 1,
+      "version": "1.0.0",
+      "stage": "A06.2-productive-rmtx-frontend",
+      "mode": "jsdom-native-esm",
+      "node": "v24.22.2",
+      "browserVersion": null,
+      "pageErrors": [],
+      "compiler": {
+        "schema": "xtend.rmtx.compile-result.v1",
+        "apiVersion": "1.0.0",
+        "sourceProfile": {
+          "syntax": "rmtx",
+          "version": "1.0.0"
+        },
+        "source": "development/rmtx-a06/frontend/two-host.rmtx",
+        "sourceHash": "c3fc93e6982969a03a7d4b839f3733348be9b390b8ae267d2708e896fdb1cca5",
+        "planCompilerSchema": "xtend.rmtx.compile-result.v1"
+      },
+      "versions": {
+        "react": "18.3.1",
+        "vue": "3.5.43"
+      },
+      "sources": {
+        "development/rmtx-a06/frontend/runtime-test.cjs": "700c9ea40fcf814a3d8a930877193434c77260afb587f98c1219c94097076567",
+        "development/rmtx-a06/frontend/two-host.rmtx": "c3fc93e6982969a03a7d4b839f3733348be9b390b8ae267d2708e896fdb1cca5",
+        "development/rmtx-a06/automatic-reference.cjs": "5d12d3ba201ce94ce8330058fc08e854f5018cec84536eacc73e5c4e040e302a",
+        "development/rmtx-a06/automatic-acceptance.mjs": "11d84c000b8042c50454d6e8167435752d7ec96079435dd447aae5c2bdd2d924",
+        "tools/rmt-language/rmtx-parser.js": "e0426e015f8327c8b7257ea79daea12a5a5267f8a840ec583c41a1f4c1fe8ebf",
+        "tools/rmt-language/rmtx-compiler.js": "ab0c1537efa1fa9e5f200d10ec9a13203378226350be07a7e69e52fad353b02f",
+        "tools/rmt-language/classic-compiler.js": "aa261ed48ce70b5f9918fa58bd1042c204b509b1e2055856c976c46374a1d565",
+        "tools/rmt-language/vnext-compiler.js": "e278fff06061bec760cccf5a420c9544e218c0aa49ed9db6bb82cb1a12fee8c7"
+      },
+      "passed": true,
+      "cases": 8,
+      "names": [
+        "generated v8 browser app boots both providers with exact component interfaces through Kernel/Fabric",
+        "provider events update Model/XTend State and preserve the sibling framework root",
+        "common owner close/resume controls both hosts and stages the latest controlled values",
+        "conditional removal retains sibling and revokes the former callback across reincarnation",
+        "runtime rejects extra props and invalid raw Vue payloads before dispatch",
+        "common owner destruction immediately cancels work and releases both native resource leases",
+        "destroying the shared owner during native provider loading fences both late roots",
+        "disposing a pending automatic boot fences late provider imports and releases native ownership"
+      ],
+      "automaticCompositionSupported": true,
+      "ssrAcceptancePerformed": false,
+      "acceptedForRelease": false,
+      "productiveRmtxFrontendUsed": true,
+      "completeRmtxFrontendImplemented": false
+    },
+    {
+      "schema": "xtend.rmtx.frontend-runtime-acceptance.v1",
+      "format": 1,
+      "version": "1.0.0",
+      "stage": "A06.2-productive-rmtx-frontend",
+      "mode": "jsdom-native-esm",
+      "node": "v26.5.0",
+      "browserVersion": null,
+      "pageErrors": [],
+      "compiler": {
+        "schema": "xtend.rmtx.compile-result.v1",
+        "apiVersion": "1.0.0",
+        "sourceProfile": {
+          "syntax": "rmtx",
+          "version": "1.0.0"
+        },
+        "source": "development/rmtx-a06/frontend/two-host.rmtx",
+        "sourceHash": "c3fc93e6982969a03a7d4b839f3733348be9b390b8ae267d2708e896fdb1cca5",
+        "planCompilerSchema": "xtend.rmtx.compile-result.v1"
+      },
+      "versions": {
+        "react": "18.3.1",
+        "vue": "3.5.43"
+      },
+      "sources": {
+        "development/rmtx-a06/frontend/runtime-test.cjs": "700c9ea40fcf814a3d8a930877193434c77260afb587f98c1219c94097076567",
+        "development/rmtx-a06/frontend/two-host.rmtx": "c3fc93e6982969a03a7d4b839f3733348be9b390b8ae267d2708e896fdb1cca5",
+        "development/rmtx-a06/automatic-reference.cjs": "5d12d3ba201ce94ce8330058fc08e854f5018cec84536eacc73e5c4e040e302a",
+        "development/rmtx-a06/automatic-acceptance.mjs": "11d84c000b8042c50454d6e8167435752d7ec96079435dd447aae5c2bdd2d924",
+        "tools/rmt-language/rmtx-parser.js": "e0426e015f8327c8b7257ea79daea12a5a5267f8a840ec583c41a1f4c1fe8ebf",
+        "tools/rmt-language/rmtx-compiler.js": "ab0c1537efa1fa9e5f200d10ec9a13203378226350be07a7e69e52fad353b02f",
+        "tools/rmt-language/classic-compiler.js": "aa261ed48ce70b5f9918fa58bd1042c204b509b1e2055856c976c46374a1d565",
+        "tools/rmt-language/vnext-compiler.js": "e278fff06061bec760cccf5a420c9544e218c0aa49ed9db6bb82cb1a12fee8c7"
+      },
+      "passed": true,
+      "cases": 8,
+      "names": [
+        "generated v8 browser app boots both providers with exact component interfaces through Kernel/Fabric",
+        "provider events update Model/XTend State and preserve the sibling framework root",
+        "common owner close/resume controls both hosts and stages the latest controlled values",
+        "conditional removal retains sibling and revokes the former callback across reincarnation",
+        "runtime rejects extra props and invalid raw Vue payloads before dispatch",
+        "common owner destruction immediately cancels work and releases both native resource leases",
+        "destroying the shared owner during native provider loading fences both late roots",
+        "disposing a pending automatic boot fences late provider imports and releases native ownership"
+      ],
+      "automaticCompositionSupported": true,
+      "ssrAcceptancePerformed": false,
+      "acceptedForRelease": false,
+      "productiveRmtxFrontendUsed": true,
+      "completeRmtxFrontendImplemented": false
+    },
+    {
+      "schema": "xtend.rmtx.frontend-runtime-acceptance.v1",
+      "format": 1,
+      "version": "1.0.0",
+      "stage": "A06.2-productive-rmtx-frontend",
+      "mode": "chromium-sealed-native-esm",
+      "node": "v24.22.2",
+      "browserVersion": "155.0.8059.79",
+      "pageErrors": [],
+      "compiler": {
+        "schema": "xtend.rmtx.compile-result.v1",
+        "apiVersion": "1.0.0",
+        "sourceProfile": {
+          "syntax": "rmtx",
+          "version": "1.0.0"
+        },
+        "source": "development/rmtx-a06/frontend/two-host.rmtx",
+        "sourceHash": "c3fc93e6982969a03a7d4b839f3733348be9b390b8ae267d2708e896fdb1cca5",
+        "planCompilerSchema": "xtend.rmtx.compile-result.v1"
+      },
+      "versions": {
+        "react": "18.3.1",
+        "vue": "3.5.43"
+      },
+      "sources": {
+        "development/rmtx-a06/frontend/runtime-test.cjs": "700c9ea40fcf814a3d8a930877193434c77260afb587f98c1219c94097076567",
+        "development/rmtx-a06/frontend/two-host.rmtx": "c3fc93e6982969a03a7d4b839f3733348be9b390b8ae267d2708e896fdb1cca5",
+        "development/rmtx-a06/automatic-reference.cjs": "5d12d3ba201ce94ce8330058fc08e854f5018cec84536eacc73e5c4e040e302a",
+        "development/rmtx-a06/automatic-acceptance.mjs": "11d84c000b8042c50454d6e8167435752d7ec96079435dd447aae5c2bdd2d924",
+        "tools/rmt-language/rmtx-parser.js": "e0426e015f8327c8b7257ea79daea12a5a5267f8a840ec583c41a1f4c1fe8ebf",
+        "tools/rmt-language/rmtx-compiler.js": "ab0c1537efa1fa9e5f200d10ec9a13203378226350be07a7e69e52fad353b02f",
+        "tools/rmt-language/classic-compiler.js": "aa261ed48ce70b5f9918fa58bd1042c204b509b1e2055856c976c46374a1d565",
+        "tools/rmt-language/vnext-compiler.js": "e278fff06061bec760cccf5a420c9544e218c0aa49ed9db6bb82cb1a12fee8c7"
+      },
+      "passed": true,
+      "cases": 8,
+      "names": [
+        "generated v8 browser app boots both providers with exact component interfaces through Kernel/Fabric",
+        "provider events update Model/XTend State and preserve the sibling framework root",
+        "common owner close/resume controls both hosts and stages the latest controlled values",
+        "conditional removal retains sibling and revokes the former callback across reincarnation",
+        "runtime rejects extra props and invalid raw Vue payloads before dispatch",
+        "common owner destruction immediately cancels work and releases both native resource leases",
+        "destroying the shared owner during native provider loading fences both late roots",
+        "disposing a pending automatic boot fences late provider imports and releases native ownership"
+      ],
+      "automaticCompositionSupported": true,
+      "ssrAcceptancePerformed": false,
+      "acceptedForRelease": false,
+      "productiveRmtxFrontendUsed": true,
+      "completeRmtxFrontendImplemented": false
+    }
+  ],
+  "executionReceipts": [
+    {
+      "reportSha256": "f094222f6a1a76595e81afda0639ea1307000ea41bae9deb145b4e5781d1db3d",
+      "logSha256": "ea89a21c51b35d5aae04f95d886f07ccd4a6ce129c5e3ca312fce343be8f42cd"
+    },
+    {
+      "reportSha256": "47880958cf1f8c9615699db6923e2276c0eea999310ba3b15fa9d2794d1c48c0",
+      "logSha256": "7d3697ae34c263b0d8d8d39ebc054763a53475c755088dbc5e7d14034bb5e52e"
+    },
+    {
+      "reportSha256": "84d8c7935d1de6ba153165769d4364ebd204b73269d92022f6b788a563217cdd",
+      "logSha256": "c7aca96266d07fa67bdacb8fbd309bcfe7a50f95f6f1b31a59841cc58a948eb5"
+    }
+  ],
+  "acceptedForRelease": false
+}

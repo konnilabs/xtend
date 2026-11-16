@@ -166,6 +166,7 @@ export interface MaracaRunOptions {
   /** Validated static artifacts from prepareRmtJitKernelCache; scoped to this synchronous plan. */
   kernelSourceArtifacts?: { key: string; artifacts: Record<string, { ok: boolean; content: string; [key: string]: unknown }> };
   rootDir?: string;
+  /** Explicit frontend port. RMTX callers may inject compileRmtxSource; file extensions alone do not select a compiler. */
   compileSource?:import('@ccslabs/xtend/rmt-language/compilation-session').RmtCompilationSession['compileSource'];
 }
 

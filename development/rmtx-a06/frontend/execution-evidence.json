@@ -1,0 +1,463 @@
+{
+  "format": 1,
+  "version": "1.0.0",
+  "date": "2026-11-16",
+  "stage": "A06.2-productive-rmtx-frontend",
+  "sourceBaseSha": "c207b3bb54ff084bc35ed688e389094fca3532e6",
+  "passed": true,
+  "productiveFrontendProfileImplemented": true,
+  "completeRmtxFrontendImplemented": false,
+  "acceptedForRelease": false,
+  "repositoryGatesFullyGreen": false,
+  "sourceProfile": {
+    "syntax": "rmtx",
+    "version": "1.0.0"
+  },
+  "apiVersions": {
+    "rmtxParser": "1.0.0",
+    "rmtxCompiler": "1.0.0",
+    "classicCompiler": "4.2.0",
+    "vnextCompiler": "1.3.0"
+  },
+  "scope": {
+    "operators": [
+      "Program",
+      "State",
+      "Action",
+      "Input",
+      "Reduce",
+      "Portal",
+      "Surface",
+      "Lane",
+      "Mount"
+    ],
+    "explicitMaracaCompilerPort": true,
+    "existingXTensionBindingSidecars": true,
+    "sourceImportsOrExpressionsExecuted": false,
+    "automaticLanguageDiscoveryImplemented": false,
+    "generalNativeUIProfileImplemented": false,
+    "semanticEditorIntegrationImplemented": false,
+    "rmtxSSRProfileAccepted": false,
+    "compilerTarballTestIncludesDeclaredMaracaPeer": true
+  },
+  "staticEvidence": {
+    "path": "development/rmtx-a06/frontend/evidence.json",
+    "sha256": "46e35d7799b992ac263081fa5decefca9a712d33bb05eec5831f2746473f560c"
+  },
+  "nodeLanes": [
+    {
+      "node": "v24.22.2",
+      "frontendTests": {
+        "tests": 32,
+        "pass": 32,
+        "fail": 0,
+        "skipped": 0,
+        "receipt": {
+          "fileName": "root-final-frontend24-a.log",
+          "sha256": "c89187e2ba7e02e9e082afbd44fe8205a305735599d41e87237b5ef986b4805f"
+        }
+      },
+      "newBackendTests": {
+        "cases": 8,
+        "includedInRegressionRun": {
+          "tests": 73,
+          "pass": 73,
+          "fail": 0,
+          "skipped": 0,
+          "receipt": {
+            "fileName": "backend-review-final-regressions24.log",
+            "sha256": "5aebcfb690d20c0d26410e5673d6032c5896a6b0eff417ca4ddeab88e6a13af5"
+          }
+        }
+      },
+      "packageAndMaracaTests": {
+        "tests": 6,
+        "pass": 6,
+        "fail": 0,
+        "skipped": 0,
+        "receipt": {
+          "fileName": "final-integration24-unique.log",
+          "sha256": "cd0317de00023b427af89eaaa129f82d51035aa3285b1110684ab97bd72afea2"
+        }
+      },
+      "totalNewCases": 46,
+      "domainSuites": {
+        "suites": 20,
+        "assertions": 2961,
+        "skips": 0,
+        "receipt": {
+          "fileName": "backend-review-final-suites24.json",
+          "sha256": "83a78a317726ae95b5215a73bb5d7b49ca62f81d7f3f85f6e3d73357827a2e85"
+        }
+      },
+      "compilerBindingRegression": {
+        "assertions": 88,
+        "receipt": {
+          "fileName": "backend-review-bindings24.json",
+          "sha256": "e34dd1817b1175695b641cac96aaf7f3382524867f06f29be51aab3fe86877a7"
+        }
+      }
+    },
+    {
+      "node": "v26.5.0",
+      "frontendTests": {
+        "tests": 32,
+        "pass": 32,
+        "fail": 0,
+        "skipped": 0,
+        "receipt": {
+          "fileName": "root-final-frontend26-a.log",
+          "sha256": "dd068635937a2a9763502bada2b4138bb7c0947153f73b93fbc5397c9eb12448"
+        }
+      },
+      "newBackendTests": {
+        "cases": 8,
+        "includedInRegressionRun": {
+          "tests": 73,
+          "pass": 73,
+          "fail": 0,
+          "skipped": 0,
+          "receipt": {
+            "fileName": "backend-review-final-regressions26.log",
+            "sha256": "ac9bf16f4302b11da9b71bf505a3ff2dcd535c7dcb49478312879623fa4542b3"
+          }
+        }
+      },
+      "packageAndMaracaTests": {
+        "tests": 6,
+        "pass": 6,
+        "fail": 0,
+        "skipped": 0,
+        "receipt": {
+          "fileName": "final-integration26-unique.log",
+          "sha256": "a29b187a957c36864c68318d394a24dc054de5e122c49a9948f1674134dc28bd"
+        }
+      },
+      "totalNewCases": 46,
+      "domainSuites": {
+        "suites": 20,
+        "assertions": 2961,
+        "skips": 0,
+        "receipt": {
+          "fileName": "backend-review-final-suites26.json",
+          "sha256": "329b16d26f0c73a88de259903d05fe83289ed673d347f299a1ab7cdce7b37cad"
+        }
+      },
+      "compilerBindingRegression": {
+        "assertions": 88,
+        "receipt": {
+          "fileName": "backend-review-bindings26.json",
+          "sha256": "c12f020150d996fcab8b95d62773d9eab016260fc8c22fa7f07963ebd89ad976"
+        }
+      }
+    }
+  ],
+  "runtimeEvidence": {
+    "path": "development/rmtx-a06/frontend/runtime-evidence.json",
+    "sha256": "6b2dc90625c08d71f0b08505808cb94b0ba0c969ce0591b1c01e95e9b0aaab25",
+    "runs": 3,
+    "casesPerRun": 8,
+    "supportedNodeLanes": [
+      "v24.22.2",
+      "v26.5.0"
+    ],
+    "browser": "155.0.8059.79",
+    "usesActualRmtxSourceAndRegularBuild": true
+  },
+  "nativeHeaderRegression": {
+    "usesExistingClosedHeaderReference": true,
+    "casesPerVariant": 21,
+    "runs": [
+      {
+        "node": "v24.22.2",
+        "mode": "jsdom-native-frameworks",
+        "browserVersion": null,
+        "variants": {
+          "declarative": {
+            "cases": 21,
+            "passedCases": 21,
+            "failedCases": 0
+          },
+          "hybrid": {
+            "cases": 21,
+            "passedCases": 21,
+            "failedCases": 0
+          }
+        },
+        "receipt": {
+          "fileName": "root-final-header24-a.json",
+          "sha256": "91c6d21bc31b91eb14fbc00666ad01a9ccacf1d8504785c42426f7800d479b22"
+        }
+      },
+      {
+        "node": "v26.5.0",
+        "mode": "jsdom-native-frameworks",
+        "browserVersion": null,
+        "variants": {
+          "declarative": {
+            "cases": 21,
+            "passedCases": 21,
+            "failedCases": 0
+          },
+          "hybrid": {
+            "cases": 21,
+            "passedCases": 21,
+            "failedCases": 0
+          }
+        },
+        "receipt": {
+          "fileName": "root-final-header26-a.json",
+          "sha256": "10c75a4dff48c56132c364d282a2e72b116cbc09c779de925cc0b07af93b50a6"
+        }
+      },
+      {
+        "node": "v24.22.2",
+        "mode": "chromium",
+        "browserVersion": "155.0.8059.79",
+        "variants": {
+          "declarative": {
+            "cases": 21,
+            "passedCases": 21,
+            "failedCases": 0
+          },
+          "hybrid": {
+            "cases": 21,
+            "passedCases": 21,
+            "failedCases": 0
+          }
+        },
+        "receipt": {
+          "fileName": "root-final-header-browser-a.json",
+          "sha256": "f12cf4239516e697d6d7dd0a9490b3f153e5c2886dc84791f67dfe4c7e618d0d"
+        }
+      }
+    ]
+  },
+  "artifactParity": {
+    "passed": true,
+    "assertions": 291,
+    "receipt": {
+      "fileName": "root-final-parity-a.json",
+      "sha256": "c64e7dda44eb8dc29bd82353b10ea4b2444aa155325b29efb87432f7084bf352"
+    }
+  },
+  "releasePreparation": {
+    "passed": true,
+    "receipt": {
+      "fileName": "preparation-20261116-01.log",
+      "sha256": "d4be206e21754046f00608989a6c21e2a499803e1b9433c17b90c76540abe0dc"
+    },
+    "supervisorReceipt": {
+      "fileName": "readiness-and-knowledge-final.json",
+      "sha256": "8e718795a16b7ceb454d4a4957e087813af9ced8696a269a6c7559f324bdad06"
+    }
+  },
+  "knowledgeAndReadiness": {
+    "date": "2026-11-16",
+    "node": "v24.22.2",
+    "inspectors": {
+      "passed": true,
+      "count": 22,
+      "receipt": {
+        "path": "/tmp/xtend-rmtx-a062/inspector-regeneration-final.json",
+        "sha256": "cec31e0b701502f763cda4830d1b784cc3ca63d3f2132ad13d8dedd824b227e1"
+      }
+    },
+    "releasePreparation": {
+      "passed": true,
+      "exitCode": 0,
+      "path": "/tmp/xtend-rmtx-a062/preparation-20261116-01.log",
+      "sha256": "d4be206e21754046f00608989a6c21e2a499803e1b9433c17b90c76540abe0dc"
+    },
+    "kitTests": {
+      "passed": true,
+      "assertions": 286,
+      "path": "/tmp/xtend-rmtx-a062/kit-tests-20261116-02.json",
+      "sha256": "596b29b2d2012c2992638f5f087f72b06bd9387fa08f2b2a537c7befd17ec069"
+    },
+    "mcpTests": {
+      "passed": true,
+      "tests": 27,
+      "failed": 0,
+      "skipped": 0,
+      "path": "/tmp/xtend-rmtx-a062/mcp-tests-20261116-02.log",
+      "sha256": "3ed4f06c2487a25e7bb1ec9850def88d18fa0d90794302fe099d9f324072c34c"
+    },
+    "knowledge": {
+      "passed": true,
+      "docs": 356,
+      "references": 32,
+      "recipes": 6,
+      "path": "/tmp/xtend-rmtx-a062/knowledge-check-20261116-02.log",
+      "sha256": "fef4872a226226b5067829d4c5e5e179f67a364ed0f49642f67c1369aae3b367"
+    },
+    "docsQuality": {
+      "passed": true,
+      "slugs": 178,
+      "markdownFiles": 357,
+      "path": "/tmp/xtend-rmtx-a062/docs-quality-20261116-01.json",
+      "sha256": "9b266545e190c3e23ac052001c8d0fb512b09149df533089fc6cbf34108e6c40"
+    },
+    "docsSearch": {
+      "passed": false,
+      "unchangedBudget": 153600,
+      "baselineGzipBytes": 155634,
+      "currentGzipBytes": 155993,
+      "newDocumentationDeltaBytes": 359,
+      "reproduction": "/tmp/xtend-rmtx-a062/docs-search-baseline-20261116-01",
+      "failureLog": {
+        "path": "/tmp/xtend-rmtx-a062/docs-search-regeneration-20261116-01.log",
+        "sha256": "8267f01b3853586e391d36881095d9501f383fec4a0e411b7e7700111844e4bd"
+      }
+    },
+    "workspaceAliases": [
+      {
+        "path": "/home/konni/Downloads/xtend-dev/xtend/node_modules/@ccslabs/xtend",
+        "target": "/home/konni/Downloads/xtend-dev/xtend",
+        "createdByTask": true,
+        "removedAfterChecks": true
+      },
+      {
+        "path": "/home/konni/Downloads/xtend-dev/xtend/node_modules/@ccslabs/xtend-maraca",
+        "target": "/home/konni/Downloads/xtend-dev/xtend/xtend-maraca",
+        "createdByTask": true,
+        "removedAfterChecks": true
+      }
+    ],
+    "kitManifestSourcePins": {
+      "count": 43,
+      "mismatches": []
+    }
+  },
+  "knownBaselineIssue": {
+    "area": "docs-search-index-size-and-freshness",
+    "preexisting": true,
+    "budgetBytes": 153600,
+    "headGzipBytes": 155634,
+    "updatedDocsGzipBytes": 155993,
+    "indexRegenerated": false,
+    "budgetOrProducerChanged": false,
+    "runtimeSearchSemanticsChanged": false,
+    "reproductionReceipt": {
+      "fileName": "reproduction.json",
+      "sha256": "f2baf43a1b86e8069c2c6658f085539862142e596df1388a0cd9d3a8199c5204"
+    },
+    "compressionReviewReceipt": {
+      "fileName": "compression-results.json",
+      "sha256": "c474616667c738b147f23b6ae9f377330a1ab07ff3619dcfafe2a5af6d401b28"
+    }
+  },
+  "sourcePinsVerifiedAtAssembly": true,
+  "sources": {
+    "catalog/epic13-package-export-lock.js": "764cdcd4d1adb164e3c0cee7444750842c30c0e0c1d4cc819edbd8e678856dc9",
+    "catalog/type-exports-rmt.js": "79abef3e35379c6a245365706fab797089b210b80884c4d2166d52e57c2c2e3b",
+    "components/xsurfacemanager-controller.js": "a747e5a4bd9d4c1205dc464d046eb5bc65531acc74d083d78e10d5c614afa7a5",
+    "components/xtend-state.js": "a53defa3247b3778d115e147a3094624206cb46ca9f5bcd18b345a3d059d849b",
+    "development/rmtx-a06/automatic-acceptance.mjs": "11d84c000b8042c50454d6e8167435752d7ec96079435dd447aae5c2bdd2d924",
+    "development/rmtx-a06/automatic-reference.cjs": "5d12d3ba201ce94ce8330058fc08e854f5018cec84536eacc73e5c4e040e302a",
+    "development/rmtx-a06/frontend/inspect.cjs": "d8121aa2c2106701917d46ad9204e704e6d27d03ab6cc2fa6014515520b82ac8",
+    "development/rmtx-a06/frontend/runtime-test.cjs": "700c9ea40fcf814a3d8a930877193434c77260afb587f98c1219c94097076567",
+    "development/rmtx-a06/frontend/two-host.rmt": "3fcf6cd15a5d53712380313a1a06977436b6fe10012b36325a0ce6f73fd96c96",
+    "development/rmtx-a06/frontend/two-host.rmtx": "c3fc93e6982969a03a7d4b839f3733348be9b390b8ae267d2708e896fdb1cca5",
+    "development/rmtx-a06/providers/catalog.json": "4f38fa3e2b73c374b0fab112b5ba1d6f12da2b95253e4148088389f7d087f801",
+    "development/rmtx-a06/providers/react-gallery.mjs": "9846140e741d787f0feef302fb3ca3ef75e7519dd54a7fc1f0fd9448cb07df37",
+    "development/rmtx-a06/providers/react.interface.json": "45394fbe58a8f81445891526967d691786ef1ecf2fd6eb08e520e69322c76539",
+    "development/rmtx-a06/providers/vue-reviews.mjs": "71e48dfdb1e797493aba0748e9777b9cb3afdbee6faf90c217df3f88aa239db8",
+    "development/rmtx-a06/providers/vue.interface.json": "30de14608052cdd250f1f56b06fa0b5c7df8dda73803d5d5daa96355e5a6f1e4",
+    "development/rmtx-a06/syntax-comparison/authoring.d.ts": "61ab277b1b7789dfb5a09525a5a9cac121a4f28c7f7aa8bfb0073dd503552306",
+    "development/rmtx-a06/syntax-comparison/classic.rmt": "3468c5d11497f8357b9078a449c27b308b44b872dbac812f97eae1abcf1aa88a",
+    "development/rmtx-a06/syntax-comparison/comparison.cjs": "5726124c3950ea8c81871c165bc15c2322d04ca11eeef8c7a5a74d72e60da15c",
+    "development/rmtx-a06/syntax-comparison/declarative.rmtx": "2eb2d495516c8b44ceda04e8d5e69e80693c352e6a5d59b3620b1a5bbb7d0704",
+    "development/rmtx-a06/syntax-comparison/declarative.tsx": "2eb2d495516c8b44ceda04e8d5e69e80693c352e6a5d59b3620b1a5bbb7d0704",
+    "development/rmtx-a06/syntax-comparison/extension-probes.cjs": "6e0266eef24e54ed39e2ca3e91f1cacb3c5af21ffe2dced5e03916df873c0a8f",
+    "development/rmtx-a06/syntax-comparison/inspect.cjs": "208f9b34c84600f5d48ecb918303eb913abf81eb46c8b11c0faa31b773ed5e06",
+    "development/rmtx-a06/syntax-comparison/jsx-runtime.d.ts": "c713e1235ffd7f6e47a554ffd3f57aa92452194dc82dcde2245afa4f94131ddd",
+    "development/rmtx-a06/syntax-comparison/native-header-acceptance.mjs": "93bcf8f3c8a49bb31e8c96a7653a951454fe6eb404f516c73b967693315886fc",
+    "development/rmtx-a06/syntax-comparison/native-header-reference.cjs": "1bd9aa26aba501505d87e737eeb8c108490f3d481ef42c8d62b35af87f5eb2cb",
+    "development/rmtx-a06/syntax-comparison/native-header-test.cjs": "65d80c5a9a89601e61a4922bd12a44bb734dbdc45d474e08f59dcf26737a1db0",
+    "development/rmtx-a06/syntax-comparison/native-header.rmt": "2fd7b3ebbacdfd3793e74abe7a6036337363d84aef794cbc57aa41e7c6a927b7",
+    "development/rmtx-a06/syntax-comparison/native-header.rmtx": "91114ddf5c2253f1bf64f69c1c0bf3d3190112c2c5684cf2b7ebdd4fede213dc",
+    "development/rmtx-a06/syntax-comparison/runtime-comparison.cjs": "0a0fd57d602bf9de31c69ae7f187821d8fd9a6459b596f2ecf2e90bbdd632aed",
+    "development/rmtx-a06/syntax-comparison/view.tsx": "eba25929d68792c1b5c616317aac0937d5a5878bba3355c2fea16362000e4551",
+    "development/rmtx-a06/two-host-acceptance.mjs": "de23588a7d23b83bce2f9a9c2198b216b480226bfe0f802908d945c90cc235d8",
+    "development/rmtx-a06/two-host-reference.cjs": "64084cf748ed44586bb0eecd3a8e15fcbc4b7e967ca0c4e1b96ad00b3c7fcc08",
+    "development/rmtx-a06/two-host-runtime.mjs": "795952fbbb6681492a98ac93246c60f8f76c07a98b872d25653979c44eb9c482",
+    "fabric/xtend-fabric.js": "ea7fa64431048e724a336ecd3117c90c6bb8a0ab2871e1ba618d8381ed3f822d",
+    "package-lock.json": "077718338d06b83181d43d8c5e8264d1d24fd6b8d969569eddf499e6780f7d21",
+    "package.json": "773eaecc423d6ba9d358949b906aba0a7b52712b15a8a06df730cbec2c9bf989",
+    "scripts/check_release_preparation.cjs": "ac9f3efd37f01544c1a81798c0ffe25dbe89c4b4b898696f3f3aea6002f4b355",
+    "tests/release/preparation-gates.test.cjs": "f878a0676f152b36dc4571efcab27577b683e6d7bb40bc19f6a2e895102ff5fe",
+    "tests/rmt-language/backend-ast-result.test.cjs": "414dc984ddc046f8cd7d3cbcb3cbc4e2a0b522ff47beb2e486306cb7676c8f94",
+    "tests/rmt-language/rmt_vnext_compiler_suite.js": "9935c929d854021b81aee87f8ffc8e02b1e38fafcb6490fb303e885586055f47",
+    "tests/rmt-language/rmt_vnext_component_primitives_suite.js": "1bbb3ebeee16d86a81cddbbf4725d6bd1efdf96882b4dd95f6848dd1f6c43c53",
+    "tests/rmt-language/rmt_vnext_conditions_suite.js": "16676cad0cdc37e831efb9d6d3d173a36c8dd1743c9f140d836e08d5d2f767c8",
+    "tests/rmt-language/rmt_vnext_cross_surface_events_suite.js": "fd5a80b1b7cd0c21a38dec95bb8d57696145a6016509db49f6cd27874c06ec84",
+    "tests/rmt-language/rmt_vnext_events_suite.js": "63708f2b590359e6ba9f9828f076d67298500b3515f594079a60bd605b690cca",
+    "tests/rmt-language/rmt_vnext_lifecycle_suite.js": "a6caefff1431fbf42e253381b9e926114cbe76179ecc82fa80a568075b38dd6c",
+    "tests/rmt-language/rmt_vnext_parser_suite.js": "f5c3410a390444b2628c9b7f6fe33cdb207774f041c7d29ef05cd9fbc4d037c6",
+    "tests/rmt-language/rmt_vnext_remote_compatibility_suite.js": "f347e740116917b31c9d1c79f203c86c655f83a50b0f01e832e8f905f5bb7f62",
+    "tests/rmt-language/rmt_vnext_remote_compiler_suite.js": "89b229f04c35c6fa21988b10515b4058a0b1bc285ac834d10fbd15a1d42b2bb0",
+    "tests/rmt-language/rmt_vnext_remote_manifest_suite.js": "f130225c3edff0f438cd3c80fbd595e3fdf680b417f6952e6235f73a46823047",
+    "tests/rmt-language/rmt_vnext_remote_security_suite.js": "5b286ff94b5d732093aa71591b0fde58eec3e488ecb7d4442186fe77d0662c52",
+    "tests/rmt-language/rmt_vnext_remote_tooling_suite.js": "673e7a849b7b090de49a82216d3914f28aa1ea1f5aa0f83a82b043111bdddd1b",
+    "tests/rmt-language/rmt_vnext_scheduler_suite.js": "e063ada484ded1271d45a1dac7c1904daad01d9d27f98b909b0d27a3edfbfa9f",
+    "tests/rmt-language/rmt_vnext_security_suite.js": "0712626525527f62716e88bd6272f26a3404dcd82daf448a423d64f17782cdf5",
+    "tests/rmt-language/rmt_vnext_streaming_suite.js": "2afebc5d68414253142c77ab3bb54e2fb767bde51d7fdad6eb6132678e0ccbff",
+    "tests/rmt-language/rmtx-frontend.test.cjs": "cc9fb5fecb7b8c0c2d02bd585fb8b4f5a4d75514cc451f10ed2834180ffaa2ae",
+    "tests/rmt-language/rmtx-maraca-integration.test.cjs": "59bd15c9312b3fc026dccc5cd53a5ded8d457063ab5d8567a1a75f35f0124d23",
+    "tests/rmt/rmt_action_effect_runtime_suite.js": "a1f183afad8dc69cce2653188b694830f8a8f3f3f9239daed03db1b746630403",
+    "tests/rmt/rmt_component_template_primitives_suite.js": "e064275ae3e644bc104b8a3eb33127fe52d5d08b735ba1fd11583bc407b6692a",
+    "tests/rmt/rmt_event_routing_runtime_suite.js": "06112bd1c47080cb16a5eef5620b8b944fdfb20ed1624b4bc80d8c7ad43a1a7f",
+    "tests/rmt/rmt_state_selector_runtime_suite.js": "2120aff3b4c3d078d8c42a482145161e45fb2c7509c248cd7b60e7db66d4f306",
+    "tests/rmt/rmt_surface_resource_graph_runtime_suite.js": "8c91c0499c0eec38df1d2bbdfcf93234baac879a1811ab01c4007d6f803b17af",
+    "tests/xtensions/xtensions_runtime_gate_suite.js": "f6c4652cf1af5c557028a8683b45bed679458bfe2719e8b39c17cbf184449f81",
+    "tools/package.json": "a1bd6886b53f4a889d60fb185b3295a164d6abc63f1001cee0ab2766e0444103",
+    "tools/rmt-language/action-execution-lowering.js": "783f180c2253fc96f1e8853c808cd2c0fe243a2d014670118d76b24759b3e856",
+    "tools/rmt-language/classic-ast-contract.js": "3e17596b6615c7ca5528bb5a72551143e1d3403d8a8c606cf83569d71a3c79d4",
+    "tools/rmt-language/classic-ast-rules.js": "269c0ad5d14ba86a149e33877e7db28b3a4004d0217b8c6b829b26931a327b0d",
+    "tools/rmt-language/classic-compiler.d.ts": "cd7256d276a7ec770dfb5fc18f4ffb31d49be590c7763dc81cc275f0e4bcddc2",
+    "tools/rmt-language/classic-compiler.js": "aa261ed48ce70b5f9918fa58bd1042c204b509b1e2055856c976c46374a1d565",
+    "tools/rmt-language/classic-semantic-rules.js": "113846c48ef5dc4d5ce0b29ddb7a01076e50d3fa86f80d84f1af5420fb593d81",
+    "tools/rmt-language/contracts/classic-ast.v1.schema.json": "2f0b45c8c05dbc38adb7355fcc3ae36bbf8eb2f3b26c4ec024b71ed04fb2b457",
+    "tools/rmt-language/rmtx-compiler.d.ts": "63f16c4ebabdd3586b5022df57f1d7812628a098a686941695ca1ba0d23c7a81",
+    "tools/rmt-language/rmtx-compiler.js": "ab0c1537efa1fa9e5f200d10ec9a13203378226350be07a7e69e52fad353b02f",
+    "tools/rmt-language/rmtx-parser.d.ts": "b0dd00db1ebc67bb6fcd90fa0524348f44205063e4f987498aa55d797149ce5f",
+    "tools/rmt-language/rmtx-parser.js": "e0426e015f8327c8b7257ea79daea12a5a5267f8a840ec583c41a1f4c1fe8ebf",
+    "tools/rmt-language/rmtx.d.ts": "e95f7d64583e9d9ae0a88038d3632d49735984b9fce198339094136713ed66de",
+    "tools/rmt-language/rmtx.js": "cea29245e73bfd6f526991e7f30cda3388d1f3d052bb55ec18bbacc069f15d83",
+    "tools/rmt-language/source-model.js": "73aa135d823f7452283da29eb29b5c9e5a45a20e7649c9f99c38a08d04d243b6",
+    "tools/rmt-language/vnext-compiler.d.ts": "111ee79a5f92d4ff5005c084590d995263fd0724d18f159911c4028dc6f70df2",
+    "tools/rmt-language/vnext-compiler.js": "e278fff06061bec760cccf5a420c9544e218c0aa49ed9db6bb82cb1a12fee8c7",
+    "tools/xtensions/component-interface-build.js": "7dade34c20e63b7f7f17fac03026cbb18ece5209d1ebbb712dafa86ca644d5f4",
+    "tools/xtensions/component-interface.js": "8d3b813dcc2b4bbb230d8e18720487c7f19e84bcf2bcbcea55cd251f0b6e7646",
+    "tools/xtensions/react-runtime-adapter.js": "e780ccdfcc00ca7d75bec3b2bdebb383e3caa2fc40d3bfdaf4bfe85995a0308a",
+    "tools/xtensions/state-binding-artifact.js": "e6565df9bec95916ad2d597734d0deb13c05d05f572040c0e500ab50615c86c4",
+    "tools/xtensions/state-binding.js": "19b0f4266fc7546016eb68df9eec391b554ab22a96d5eb97d001c0efa047ca79",
+    "tools/xtensions/vue-runtime-adapter.js": "d68a72b9782be8c3d705d10af40ca4a6576c3cc0e3a9884c8db02073c8b9745c",
+    "xtend-maraca/index.d.ts": "483605501842d234f6b9a8d6f089df7de3c3f46be21fded93d0d9299317572f6",
+    "xtend-maraca/index.js": "d3a189d0ccb16b557263c854dcce60410355580997f12e2fb4874bb9dcf860ad",
+    "xtend-maraca/plan-runtime.d.ts": "30344c8b55e0d4b857224ea28a8565894172e6a3054aa7865b19eb989c76b075",
+    "xtend-maraca/plan-runtime.mjs": "0a4970152bddfa0c3b431e72e104b4ed1ae5756e381ea41e0b14c226d0f131a6",
+    "xtendrmt/kernel/rmt-kernel-sources.json": "c9b248e592d618b90e246c289bdc10aa5f12c60bc40aaa740ccc59207804e6be",
+    "xtendrmt/rmt-action-effect-runtime.d.ts": "ae7879152babd171a6e44035cb21e3753329b44aca530a2a80997c23eece1bb8",
+    "xtendrmt/rmt-action-effect-runtime.js": "3798c901579959de2aec8e6cedf9f07ee969bfd00bf0cc3478c0ad8831c6bcaa",
+    "xtendrmt/rmt-app-runtime.js": "3d20461b92e62ac73af1317e855bd2426337f3886f51c91d23297f92c90fdceb",
+    "xtendrmt/rmt-core.d.ts": "0cddf0a20f9326824e6962773ad0ed91b93cd55b7ecb3d245280744abb06cb33",
+    "xtendrmt/rmt-core.esm.js": "f7a02860104b2526957890f2b34e046501f9a328f5012c9827704cdeab28c0d0",
+    "xtendrmt/rmt-dom-descriptor-renderer.d.ts": "02642144b47cbcf74304c912aff6777c4c5a7b3758b0d67c93fed612e1aa2a8e",
+    "xtendrmt/rmt-dom-descriptor-renderer.js": "69981e6ec2f51094e1607e52c39324a02358ac9be75dc4b0a120d4dcb895a555",
+    "xtendrmt/rmt-event-routing-runtime.d.ts": "9ced058aafc45f43bcb9a2ddccc3016faadf1f50573b6cf930f881926fba231e",
+    "xtendrmt/rmt-event-routing-runtime.js": "257b2f73fecc4d659f3c393b51dc7b2c940d196eee84caef67d29f3ec2e4448e",
+    "xtendrmt/rmt-kernel-module-manifest.json": "26a20a051d490357d85e32282713ac3df9a6a53db15e6f725f599066a9529256",
+    "xtendrmt/rmt-kernel-scheduler.js": "cb6968fa9b5a784f93e6c941e4a634bdd527525247a1f4653f9c7b204829e766",
+    "xtendrmt/rmt-maraca-view-projection-adapter.d.ts": "6b59fb671624728cd9b3bcb9b4b846aa7cc784d4385d7649529036828851c887",
+    "xtendrmt/rmt-maraca-view-projection-adapter.js": "ee09855bee0e3973cfd8ec521c6b661256c3f1be7e4e8b6e782dd323ffb313be",
+    "xtendrmt/rmt-presentation-effect-adapter.js": "87c7d4a3e886bfd45d98b7b5dd385ce06a578dc408a3ceb0a6122f5010f9cd0f",
+    "xtendrmt/rmt-runtime.browser.js": "59773e7ceeae4d0936480adf68973972a7944e70eb105fd469fc02898c3f94d7",
+    "xtendrmt/rmt-runtime.esm.js": "185cc0e40510d240f70da76ef558e4e1cb25ccd116dfbd6c470c0fba825c4770",
+    "xtendrmt/rmt-state-host-adapter.js": "1c3b0ce150cee986ecdda1d0a9c92e7f323ee31cbb920c5072aa2772cd078de6",
+    "xtendrmt/rmt-state-selector-runtime.js": "150f5ae1a279cf7457be54fc7a466afeb1a2a026a911ab1cb1d16ae5da2a669d",
+    "xtendrmt/rmt-surface-resource-graph-runtime.d.ts": "774dbe5de8411937b84ec0f0d64eaca9deab5123bd4152ae6bfd8949c63fb589",
+    "xtendrmt/rmt-surface-resource-graph-runtime.js": "9344b64339e1e08d4bd64933fabe5c14a12fadd24cd546b787cf727de469f446"
+  }
+}

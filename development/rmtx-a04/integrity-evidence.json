@@ -75,11 +75,11 @@
     }
   },
   "sources": {
-    ".github/workflows/xtend-default-gates.yml": "6f4f43823bfc0dd114562719e10e547f93480c818acecc69106bd9facf3384d5",
-    ".github/workflows/xtend-migration-completion.yml": "c5dcd652fa0f3f5ac4bc51bdb4973f4d5dcabdc950d6f9564d981c0c9daac29c",
-    ".github/workflows/xtend-nightly-build.yml": "5116830c0687063cec7fa910a16e125d55b15d24e29308a50aa7df4382ca1d2c",
-    "scripts/test-runner/catalog.json": "f6b36b1e2344230cc5f6dd6484c51c7f71b86614769e6de04c6351a7a6b629c9",
-    "xtend-maraca/index.js": "32dae73cc1a95002804a039f90f1debefa4c6ed53d389ed048b014611e3d67ba",
+    ".github/workflows/xtend-default-gates.yml": "ebc9673c1f2425e563d786367009e0894d716b6d3251681a832b680c7e8288b8",
+    ".github/workflows/xtend-migration-completion.yml": "1bdcce1e1f615f158a317ab19b9eb23d8979f3d24e1f51f93fc1b5a96131bb46",
+    ".github/workflows/xtend-nightly-build.yml": "e721cb8882ee5ca55fc112b3d1f7df9de04d2aa76292eaa2e341b649b44a56de",
+    "scripts/test-runner/catalog.json": "9be9a52548440ab1a55cca5ec25d3ff1b980f5282a0b6fbb822d6888171140a8",
+    "xtend-maraca/index.js": "d3a189d0ccb16b557263c854dcce60410355580997f12e2fb4874bb9dcf860ad",
     "xtend-maraca/xtension-deployment.js": "9df6fa876cb92d65f77e6cd68fa9d65fc1e9edeb226e2717479c25e723662729",
     "xtend-maraca/xtension-composition.js": "9872caa16b4375a5696598d814caf97cea165afc9f33044059c323e4c128d574",
     "xtend-maraca/xtension-composition.d.ts": "978b3f0b2cec4a628d1cde4c9a13e88e634baabb73f5a28c18a926a727b1e9f5",
@@ -87,10 +87,10 @@
     "development/rmtx-a04/integration-reference.cjs": "58ff4d03422edf792c84ba9166830de20c412b12aabe802b223f346c1f4773a8",
     "development/rmtx-a04/integrity-inspect.cjs": "d789ef0fe9c36457b827ae5c29822a76d94629517b08c0ebeb46cd95e7cdd254",
     "scripts/test_xtensions_integrity.cjs": "c61da961dcdd114de793d443a8add804e2326559ab78c9bd4813fbbaa7b7cff3",
-    "tests/xtensions/xtensions_runtime_gate_suite.js": "c8096abef6ee2f5ae04c000bd06e0f9aebaf7853bfe8f07e5f497f733ff04811",
+    "tests/xtensions/xtensions_runtime_gate_suite.js": "f6c4652cf1af5c557028a8683b45bed679458bfe2719e8b39c17cbf184449f81",
     "tests/xtensions/xtensions_consumer_package_suite.js": "033badcea1aa05beb0cc33134618f7f29cf76105d95e6a333dd360017d600545",
     "tests/types/xtensions_integrated_composition.mts": "0e7de34ce7c4324143fabf822ac6c83aba229f90f9368ac5b65250311bd2b601",
-    "scripts/check_release_preparation.cjs": "6f387d3a070ee02971ceceda17d93a44683c5f12ebe1f0224f5cbed52bd92593",
-    "tests/release/preparation-gates.test.cjs": "5330a3f8d77fc37cacd9c7f4de6dc493c30658f5e1ca3f32265e43a60972b885"
+    "scripts/check_release_preparation.cjs": "ac9f3efd37f01544c1a81798c0ffe25dbe89c4b4b898696f3f3aea6002f4b355",
+    "tests/release/preparation-gates.test.cjs": "f878a0676f152b36dc4571efcab27577b683e6d7bb40bc19f6a2e895102ff5fe"
   }
 }

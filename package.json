@@ -483,6 +483,18 @@
       "types": "./tools/rmt-language/classic-compiler.d.ts",
       "default": "./tools/rmt-language/classic-compiler.js"
     },
+    "./rmt-language/rmtx-parser": {
+      "types": "./tools/rmt-language/rmtx-parser.d.ts",
+      "default": "./tools/rmt-language/rmtx-parser.js"
+    },
+    "./rmt-language/rmtx-compiler": {
+      "types": "./tools/rmt-language/rmtx-compiler.d.ts",
+      "default": "./tools/rmt-language/rmtx-compiler.js"
+    },
+    "./rmt-language/rmtx": {
+      "types": "./tools/rmt-language/rmtx.d.ts",
+      "default": "./tools/rmt-language/rmtx.js"
+    },
     "./rmt-language/classic-ast.schema.json": "./tools/rmt-language/contracts/classic-ast.v1.schema.json",
     "./rmt-language/vnext-parser": {
       "types": "./tools/rmt-language/vnext-parser.d.ts",
@@ -15644,7 +15656,7 @@
       "packageDryRunArtifact": ".xtend-test-results/xtend-pack-dry-run.json",
       "packageExportSurfaceArtifact": ".xtend-test-results/xtend-package-export-surface-lock.json",
       "packageExportLockReportArtifact": ".xtend-test-results/xtend-package-export-lock-report.json",
-      "expectedExportCount": 214,
+      "expectedExportCount": 217,
       "localGateRequiresNpmPackExecution": false,
       "artifactRequiredForRc1": true,
       "nextWorkpackage": "WP-E13-13",
@@ -15669,8 +15681,8 @@
       "localGate": "node scripts/run_xtend_tests.js type-exports --json",
       "packageScript": "npm run test:type-exports",
       "reportArtifact": ".xtend-test-results/xtend-type-exports-report.json",
-      "expectedExportCount": 214,
-      "lockedExportFingerprint": "8a443b512c6993227950c2393eaa722ded512ea4f2243d4c09f527aaf3605924",
+      "expectedExportCount": 217,
+      "lockedExportFingerprint": "953bb6cb388411430ce1e8cf805b791fdb1b12d1fd695ec7f6c70b006567e088",
       "p0Exports": [
         ".",
         "./loader",
@@ -18326,7 +18338,6 @@
   },
   "devDependencies": {
     "@types/node": "^24.13.3",
-    "typescript": "^5.9.3",
     "vite": "^8.3.3",
     "acorn": "8.18.0",
     "esbuild": "^0.28.2",
@@ -18334,6 +18345,7 @@
     "tar": "7.5.22"
   },
   "dependencies": {
-    "jsdom": "30.1.2"
+    "jsdom": "30.1.2",
+    "typescript": "5.9.3"
   }
 }

@@ -18735,6 +18735,60 @@
       "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
       "recommendation": "Confirm that the variants are intentional before adding another shape.",
       "baseline": "a06-native-view-lifecycle-initial-observation-review"
+    },
+    {
+      "reviewId": "polymorphic-333d06d71086",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "Exact initial partial TypeScript-result and runtime-result observations for the restricted declarative TSX parser. They share the new result ID but provide no complete extracted formal authority. The validated Classic AST authority remains independently unchanged."
+      },
+      "schemaIds": [
+        "xtend.rmtx.parser-result.v1"
+      ],
+      "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "a062-productive-frontend-observation-review"
+    },
+    {
+      "reviewId": "polymorphic-b5f36c7e843b",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "Exact initial compiler result, factory output-format metadata and executed compiler receipt observations. Factory/receipt objects name the produced result format; they are not full compiler results or accepted inputs. All extracted observations are non-authoritative; the bound set grants no compatibility or release waiver."
+      },
+      "schemaIds": [
+        "xtend.rmtx.compile-result.v1"
+      ],
+      "rationale": "Static analysis observes 5 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "a062-productive-frontend-observation-review"
+    },
+    {
+      "reviewId": "polymorphic-c8358f940670",
+      "type": "same-id-multiple-shapes",
+      "confidence": "medium",
+      "status": "accepted-polymorphic-for-inventory",
+      "origin": "scanner",
+      "baselineAccepted": true,
+      "resolution": {
+        "kind": "accepted-polymorphic",
+        "rationale": "Exact initial partial report producer and complete concrete Node/browser report instances. Concrete evidence values are not a formal authoritative schema, and variation in browser/null fields grants no production capability or release acceptance."
+      },
+      "schemaIds": [
+        "xtend.rmtx.frontend-runtime-acceptance.v1"
+      ],
+      "rationale": "Static analysis observes 3 normalized shapes for this identifier.",
+      "recommendation": "Confirm that the variants are intentional before adding another shape.",
+      "baseline": "a062-productive-frontend-observation-review"
     }
   ],
   "entries": [
@@ -259799,6 +259853,7 @@
       "descriptionStatus": "accepted-initial-audit",
       "familyId": "xtend.maraca.app-service-demands",
       "kinds": [
+        "event-id",
         "runtime-discriminator"
       ],
       "lifecycle": {
@@ -260379,6 +260434,46 @@
           "authoritative": true
         },
         {
+          "hash": "sha256:2878a5b76a4dd0264f83f057579e6c5d2cc43e751fe775d7fbc8e52638d678bf",
+          "shape": {
+            "fieldCount": 1,
+            "fields": [
+              "fields"
+            ],
+            "signature": "fields:{\"unresolved\":\"plain && Object.getOwnPropertyDescriptors(profile)\"}",
+            "normalized": {
+              "fields": {
+                "fields": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "plain && Object.getOwnPropertyDescriptors(profile)"
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "tools/rmt-language/vnext-compiler.js"
+          ],
+          "symbols": [
+            "result"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "tools/rmt-language/vnext-compiler.js",
+              "symbol": "result"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
           "hash": "sha256:425e72d1384730cf49a3557bd15237a6b78d86cc07f1702cc87b7a2a1592c3d9",
           "shape": {
             "fieldCount": 2,
@@ -260468,44 +260563,6 @@
           ],
           "evidenceTypes": [
             "test"
-          ],
-          "completeness": "partial",
-          "authoritative": false
-        },
-        {
-          "hash": "sha256:82f6b44400ced465d3afd1ba38430cf6a91cecb1338a806919a54002135ef0c8",
-          "shape": {
-            "fieldCount": 1,
-            "fields": [
-              "fields"
-            ],
-            "signature": "fields:unknown",
-            "normalized": {
-              "fields": {
-                "fields": {
-                  "optional": false,
-                  "type": "unknown"
-                }
-              }
-            }
-          },
-          "sourcePaths": [
-            "tools/rmt-language/vnext-compiler.js"
-          ],
-          "symbols": [
-            "result"
-          ],
-          "evidence": [
-            {
-              "type": "runtime-observation",
-              "completeness": "partial",
-              "authoritative": false,
-              "path": "tools/rmt-language/vnext-compiler.js",
-              "symbol": "result"
-            }
-          ],
-          "evidenceTypes": [
-            "runtime-observation"
           ],
           "completeness": "partial",
           "authoritative": false
@@ -260649,9 +260706,9 @@
       "shapePolicy": {
         "acceptedFingerprints": [
           "sha256:0686f5c2034dd467486e48942f774ba699ac281d906a27dbf9b30eb91c8cd7b5",
+          "sha256:2878a5b76a4dd0264f83f057579e6c5d2cc43e751fe775d7fbc8e52638d678bf",
           "sha256:425e72d1384730cf49a3557bd15237a6b78d86cc07f1702cc87b7a2a1592c3d9",
           "sha256:74239bfcac08fdd31b2d58bc6074f48033916cffda84ffe81b2da0614610f2ac",
-          "sha256:82f6b44400ced465d3afd1ba38430cf6a91cecb1338a806919a54002135ef0c8",
           "sha256:ad9c8f218d95e6ea92d1f5a13cfe0003a1f9e180e5f4da1e31a98c6215d87caf",
           "sha256:f82fdf4e08825ff86152cc8fe2462b682cceefe2a2242dcf49e40920d5364714"
         ],
@@ -260659,9 +260716,9 @@
           "sha256:0686f5c2034dd467486e48942f774ba699ac281d906a27dbf9b30eb91c8cd7b5",
           "sha256:f82fdf4e08825ff86152cc8fe2462b682cceefe2a2242dcf49e40920d5364714"
         ],
-        "decision": "accepted-initial-audit",
+        "decision": "a062-productive-frontend-observation-review",
         "mode": "polymorphic",
-        "rationale": "All observed variants are fingerprint-bound after the XTend 0.7 State metadata migration; future fingerprint changes require a new review.",
+        "rationale": "Scoped A06.2 review of exact non-authoritative compiler, documentation, test/fixture and regenerated-inspector observations. Existing complete authoritative definitions and released fingerprint sets are unchanged; additional reference objects do not extend legacy accepted inputs.",
         "releasedFingerprintSetHash": "sha256:8034c684081fdc96a0c12b9871d613df9defd4a0c19b35fa613c45761c40a3a5"
       },
       "status": "active",
@@ -447862,6 +447919,7 @@
           "sourcePaths": [
             "development/rmtx-a04/integrity-inspect.cjs",
             "development/rmtx-a06/automatic-test.cjs",
+            "development/rmtx-a06/frontend/runtime-test.cjs",
             "development/rmtx-a06/scoped-ssr-test.cjs",
             "development/rmtx-a06/scoped-test.cjs"
           ],
@@ -447874,6 +447932,11 @@
             {
               "type": "symbol",
               "path": "development/rmtx-a06/automatic-test.cjs",
+              "symbol": "sealed"
+            },
+            {
+              "type": "symbol",
+              "path": "development/rmtx-a06/frontend/runtime-test.cjs",
               "symbol": "sealed"
             },
             {
@@ -447897,6 +447960,7 @@
             "development/rmtx-a04/integrity.md",
             "development/rmtx-a04/runtime-inspect.cjs",
             "development/rmtx-a06/automatic-test.cjs",
+            "development/rmtx-a06/frontend/runtime-test.cjs",
             "development/rmtx-a06/scoped-ssr-test.cjs",
             "development/rmtx-a06/scoped-test.cjs"
           ],
@@ -448001,18 +448065,19 @@
       ],
       "shapePolicy": {
         "mode": "polymorphic",
-        "decision": "reviewed-a0435-native-integrity-deployment",
+        "decision": "a062-productive-frontend-observation-review",
         "acceptedFingerprints": [
           "sha256:07d75ddd0d3e8e759b2a320b744c5c4d8b208ff40272b1ab18eb34fce61a6068",
           "sha256:30f03e823d2f0294246d735ddf2438badbea2f9ed16e1579b313fe2593eaea55",
           "sha256:59e5ec3b73998eeeb0d2a47c91922a6e54c1435d525642d881262f263fed49d5",
           "sha256:94cf3309b7dfe42332b60fb5550e7c3a15c785c19d88cbfae5fbf74bd4088fe3",
           "sha256:dc9a61b2acfa8d4fd1feb50e2d2740e065541230571c3cc54f98c10227ae9abe",
-          "sha256:e66b30e0ee5655d0eda3cb4a661197131458b0242d290830a464041b7ec1da78"
+          "sha256:e66b30e0ee5655d0eda3cb4a661197131458b0242d290830a464041b7ec1da78",
+          "sha256:e9d10ae18f49f080a505ce9396683b9173869ac0996cfb94eaab68c45928ef5c"
         ],
         "authoritativeFingerprints": [],
         "releasedFingerprintSetHash": null,
-        "rationale": "Scoped A04.3.5 review: public composition build API7 adds deployment API1 with closed config/manifest/result v1 and a separate real native-integrity acceptance report v1. Existing runtime API6, manifest v5, artifact/report v6, load-plan v2 and delivery-plan v1 retain complete semantics. Actual regular-build capture and explicit application pins produce a complete finite browser JavaScript inventory, native import-map integrity, external bootstrap SRI and hash-only CSP. Trusted document/headers and externally anchored manifest digest remain required. A private immutable HTTP snapshot serves exact bytes; restart loading verifies every member. Twenty-three actual HTTP/Chromium cases include full React/Vue/mixed boot, tampered bootstrap/peers/app/platform/kernel/companion/helper, missing metadata, existing Service Worker cache responses, changed redirect responses and unlisted modules. No final-URL attestation, PWA/AppServices integration or universal unsupported-browser claim is made. All previous authoritative/released fingerprint sets, strict reference ceilings, 341 runtime cases and 88 compiler checks remain mandatory. Complete 0.9 feature acceptance remains pending. See development/rmtx-a04/integrity.md."
+        "rationale": "Scoped A06.2 review of exact non-authoritative compiler, documentation, test/fixture and regenerated-inspector observations. Existing complete authoritative definitions and released fingerprint sets are unchanged; additional reference objects do not extend legacy accepted inputs."
       },
       "shapeFingerprints": [
         {
@@ -448530,6 +448595,102 @@
               "completeness": "partial",
               "authoritative": false,
               "path": "development/rmtx-a06/scoped-ssr-test.cjs",
+              "symbol": "sealed"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:e9d10ae18f49f080a505ce9396683b9173869ac0996cfb94eaab68c45928ef5c",
+          "shape": {
+            "fieldCount": 4,
+            "fields": [
+              "application",
+              "build",
+              "outputDir",
+              "publicPath"
+            ],
+            "signature": "application:{bootstrap:{fileName:string,sha256:unknown},modules:array<{fileName:string,sha256:unknown}>,rootDir:unknown}|build:{\"unresolved\":\"await require('../../../xtend-maraca').buildMaracaBundleAsync(input, { rootDir: root, compileSource: compiler.compileRmtxSource })\"}|outputDir:unknown|publicPath:string",
+            "normalized": {
+              "fields": {
+                "application": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "bootstrap": {
+                        "optional": false,
+                        "type": {
+                          "fields": {
+                            "fileName": {
+                              "optional": false,
+                              "type": "string"
+                            },
+                            "sha256": {
+                              "optional": false,
+                              "type": "unknown"
+                            }
+                          }
+                        }
+                      },
+                      "modules": {
+                        "optional": false,
+                        "type": {
+                          "array": [
+                            {
+                              "fields": {
+                                "fileName": {
+                                  "optional": false,
+                                  "type": "string"
+                                },
+                                "sha256": {
+                                  "optional": false,
+                                  "type": "unknown"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "rootDir": {
+                        "optional": false,
+                        "type": "unknown"
+                      }
+                    }
+                  }
+                },
+                "build": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "await require('../../../xtend-maraca').buildMaracaBundleAsync(input, { rootDir: root, compileSource: compiler.compileRmtxSource })"
+                  }
+                },
+                "outputDir": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "publicPath": {
+                  "optional": false,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "development/rmtx-a06/frontend/runtime-test.cjs"
+          ],
+          "symbols": [
+            "sealed"
+          ],
+          "evidence": [
+            {
+              "type": "docs",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "development/rmtx-a06/frontend/runtime-test.cjs",
               "symbol": "sealed"
             }
           ],
@@ -634235,7 +634396,7 @@
           "authoritative": false
         },
         {
-          "hash": "sha256:a77f75abcdb438f7b449a5cb5ec2a52eabfdd10a5546061f04707332892b270c",
+          "hash": "sha256:64e25e13265b14d648c3a8fb0695e4c1ca558335a5edb6c983024e6b8da66574",
           "shape": {
             "fieldCount": 26,
             "fields": [
@@ -634266,7 +634427,7 @@
               "validation",
               "workpackage"
             ],
-            "signature": "actions:{actions:unknown,dataSources:unknown,effects:unknown,resources:unknown}|animationEngine:unknown|css:unknown|diagnostics:unknown|events:unknown|hostContracts:unknown|hydration:unknown|kernel:unknown|observability:unknown|overlays:unknown|patchPlan:unknown|portals:unknown|render:{descriptors:unknown,diagnostics:{\"unresolved\":\"renderComposition.diagnostics\"},mode:string,root:{\"unresolved\":\"renderComposition.root\"}}|resources:unknown|runtimeGraph:unknown|runtimeOrder:array<string>|search:{sources:unknown}|security:{componentIsolation:string,htmlSinks:string,isolationChannels:array<string>,shadowRootAccess:boolean,trustedDomBoundaryRequired:boolean}|sourceMap:unknown|sourceSyntax:string|state:{reducers:unknown,selectors:unknown,states:unknown}|surfaces:unknown|telemetry:unknown|transitions:unknown|validation:unknown|workpackage:string",
+            "signature": "actions:{actions:unknown,dataSources:unknown,effects:unknown,resources:unknown}|animationEngine:unknown|css:unknown|diagnostics:unknown|events:unknown|hostContracts:unknown|hydration:unknown|kernel:unknown|observability:unknown|overlays:unknown|patchPlan:unknown|portals:unknown|render:{descriptors:unknown,diagnostics:{\"unresolved\":\"renderComposition.diagnostics\"},mode:string,root:{\"unresolved\":\"renderComposition.root\"}}|resources:unknown|runtimeGraph:unknown|runtimeOrder:array<string>|search:{sources:unknown}|security:{componentIsolation:string,htmlSinks:string,isolationChannels:array<string>,shadowRootAccess:boolean,trustedDomBoundaryRequired:boolean}|sourceMap:unknown|sourceSyntax:{\"unresolved\":\"core.manifest && core.manifest.sourceSyntax || 'rmt-vnext'\"}|state:{reducers:unknown,selectors:unknown,states:unknown}|surfaces:unknown|telemetry:unknown|transitions:unknown|validation:unknown|workpackage:string",
             "normalized": {
               "fields": {
                 "actions": {
@@ -634427,7 +634588,9 @@
                 },
                 "sourceSyntax": {
                   "optional": false,
-                  "type": "string"
+                  "type": {
+                    "unresolved": "core.manifest && core.manifest.sourceSyntax || 'rmt-vnext'"
+                  }
                 },
                 "state": {
                   "optional": false,
@@ -634593,13 +634756,13 @@
         "acceptedFingerprints": [
           "sha256:1f11a9609950a4340d8ee40e0712a082a95b076c3cb07f4fa7b56b5bd7ab12bd",
           "sha256:28e04787335e45ce47c51fe6b5a269443c0dc8bb303733c562f8c6649a6a5cce",
-          "sha256:a77f75abcdb438f7b449a5cb5ec2a52eabfdd10a5546061f04707332892b270c",
+          "sha256:64e25e13265b14d648c3a8fb0695e4c1ca558335a5edb6c983024e6b8da66574",
           "sha256:d85c15b3b1f96230a762099386383bf4a8b2ab0a83618204aa5f5ac6f316e9dd"
         ],
         "authoritativeFingerprints": [],
-        "decision": "reviewed-a022-versioned-binding",
+        "decision": "a062-productive-frontend-observation-review",
         "mode": "polymorphic",
-        "rationale": "Scoped A02.2 review: changed contracts have distinct major schema versions or explicit API SemVer. Remaining differences are non-authoritative compiler, fixture, archived-type or generated-bundle observations. Every existing authoritative fingerprint and released set stays unchanged; see development/rmtx-a02/README.md, sections 7-8.",
+        "rationale": "Scoped A06.2 review of exact non-authoritative compiler, documentation, test/fixture and regenerated-inspector observations. Existing complete authoritative definitions and released fingerprint sets are unchanged; additional reference objects do not extend legacy accepted inputs.",
         "releasedFingerprintSetHash": null
       },
       "status": "active",
@@ -672991,7 +673154,7 @@
           "authoritative": false
         },
         {
-          "hash": "sha256:cd1e912e6dcef9b34b7fe7f511847a2c55f820d90648b9bccda0bce42c524b24",
+          "hash": "sha256:e289a8c2bd55eb8f4250a738aae93ce001a2709517618e6cdbf5a84723d559f3",
           "shape": {
             "fieldCount": 28,
             "fields": [
@@ -673024,7 +673187,7 @@
               "validations",
               "version"
             ],
-            "signature": "actions:array<>|animations:array<>|appPlatform:null|dataSources:array<>|effects:array<>|events:array<>|hydrationPolicies:array<>|imports:array<>|kernelRecords:null|kind:string|lanes:array<>|manifest:{contracts:array<string>,documentId:{\"unresolved\":\"manifest.documentId || 'rmt.vnext.document'\"},namespace:{\"unresolved\":\"manifest.namespace || namespaceFromDocumentId(manifest.documentId)\"},sourceSyntax:string}|operations:array<>|overlays:array<>|portals:array<>|remoteSurfaces:array<>|resources:array<>|searchSources:array<>|securityPolicies:array<>|selectors:array<>|slots:array<>|sourceMap:array<>|states:array<>|surfaces:array<>|templates:array<>|transitions:array<>|validations:array<>|version:string",
+            "signature": "actions:array<>|animations:array<>|appPlatform:null|dataSources:array<>|effects:array<>|events:array<>|hydrationPolicies:array<>|imports:array<>|kernelRecords:null|kind:string|lanes:array<>|manifest:{contracts:array<string>,documentId:{\"unresolved\":\"manifest.documentId || 'rmt.vnext.document'\"},namespace:{\"unresolved\":\"manifest.namespace || namespaceFromDocumentId(manifest.documentId)\"},sourceSyntax:{\"unresolved\":\"manifest.sourceSyntax || 'rmt-vnext'\"}}|operations:array<>|overlays:array<>|portals:array<>|remoteSurfaces:array<>|resources:array<>|searchSources:array<>|securityPolicies:array<>|selectors:array<>|slots:array<>|sourceMap:array<>|states:array<>|surfaces:array<>|templates:array<>|transitions:array<>|validations:array<>|version:string",
             "normalized": {
               "fields": {
                 "actions": {
@@ -673113,7 +673276,9 @@
                       },
                       "sourceSyntax": {
                         "optional": false,
-                        "type": "string"
+                        "type": {
+                          "unresolved": "manifest.sourceSyntax || 'rmt-vnext'"
+                        }
                       }
                     }
                   }
@@ -675183,13 +675348,13 @@
           "sha256:7fee59eaf01b8eb704c54b60de29c17cdb46fc7f836ed88e637a5ac2194e0509",
           "sha256:b60b2e5b88fe67451fa69e440e76b2f85062e957d112aca9766b8bdb1da82bc3",
           "sha256:c1650645c394590233d796a4f5b54ed2da6dc65b27f36092e01e2e5579a13798",
-          "sha256:cd1e912e6dcef9b34b7fe7f511847a2c55f820d90648b9bccda0bce42c524b24",
+          "sha256:e289a8c2bd55eb8f4250a738aae93ce001a2709517618e6cdbf5a84723d559f3",
           "sha256:e4c73329bd22b1aad6caea3958303cb89bc5f3d02ae45ff6ddf5123b1e899f09"
         ],
         "authoritativeFingerprints": [],
-        "decision": "reviewed-0.9-classic-preparation",
+        "decision": "a062-productive-frontend-observation-review",
         "mode": "polymorphic",
-        "rationale": "Scoped 0.9 Classic preparation review: current parser/compiler/diagnostic, tooling or generated observations are bound explicitly. Complete released authorities remain unchanged; see development/rmtx-a01/README.md, section 14.",
+        "rationale": "Scoped A06.2 review of exact non-authoritative compiler, documentation, test/fixture and regenerated-inspector observations. Existing complete authoritative definitions and released fingerprint sets are unchanged; additional reference objects do not extend legacy accepted inputs.",
         "releasedFingerprintSetHash": null
       },
       "status": "active",
@@ -675598,6 +675763,7 @@
           "role": "assertion",
           "visibility": "test",
           "sourcePaths": [
+            "tests/rmt-language/backend-ast-result.test.cjs",
             "tests/rmt-language/rmt_node_ssr_adapter_suite.js",
             "tests/rmt-language/rmt_php_ssr_adapter_suite.js",
             "tests/rmt-language/rmt_vnext_compiler_suite.js",
@@ -675606,7 +675772,7 @@
           "interfaceReferences": [
             {
               "type": "repo-symbol",
-              "path": "tests/rmt-language/rmt_node_ssr_adapter_suite.js",
+              "path": "tests/rmt-language/backend-ast-result.test.cjs",
               "symbol": null
             }
           ]
@@ -846154,6 +846320,7 @@
       "descriptionStatus": "accepted-initial-audit",
       "familyId": "xtend.rmt.vnext.app-platform-records",
       "kinds": [
+        "event-id",
         "runtime-discriminator"
       ],
       "lifecycle": {
@@ -846164,119 +846331,6 @@
       "replacedBy": null,
       "schemaId": "xtend.rmt.vnext.app-platform-records.v1",
       "shapeFingerprints": [
-        {
-          "hash": "sha256:351e0cc8e5771b7d4728cca7adbe54c65fe8f127abe34e64fb1ba33b2a1a8d4f",
-          "shape": {
-            "fieldCount": 16,
-            "fields": [
-              "actions",
-              "animations",
-              "dataSources",
-              "events",
-              "overlays",
-              "overlaysByPortal",
-              "portals",
-              "resources",
-              "searchSources",
-              "selectors",
-              "sourceSyntax",
-              "state",
-              "surfaces",
-              "transitions",
-              "validations",
-              "workpackage"
-            ],
-            "signature": "actions:unknown|animations:unknown|dataSources:unknown|events:unknown|overlays:unknown|overlaysByPortal:unknown|portals:unknown|resources:unknown|searchSources:unknown|selectors:unknown|sourceSyntax:string|state:unknown|surfaces:unknown|transitions:unknown|validations:unknown|workpackage:string",
-            "normalized": {
-              "fields": {
-                "actions": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "animations": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "dataSources": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "events": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "overlays": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "overlaysByPortal": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "portals": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "resources": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "searchSources": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "selectors": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "sourceSyntax": {
-                  "optional": false,
-                  "type": "string"
-                },
-                "state": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "surfaces": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "transitions": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "validations": {
-                  "optional": false,
-                  "type": "unknown"
-                },
-                "workpackage": {
-                  "optional": false,
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "sourcePaths": [
-            "tools/rmt-language/vnext-compiler.js"
-          ],
-          "symbols": [
-            "createAppPlatformRecords"
-          ],
-          "evidence": [
-            {
-              "type": "runtime-observation",
-              "completeness": "partial",
-              "authoritative": false,
-              "path": "tools/rmt-language/vnext-compiler.js",
-              "symbol": "createAppPlatformRecords"
-            }
-          ],
-          "evidenceTypes": [
-            "runtime-observation"
-          ],
-          "completeness": "partial",
-          "authoritative": false
-        },
         {
           "hash": "sha256:a419a5c5bc8faa71245b821ee52ab2596ce727dc77f6d40717ace537fb0c562d",
           "shape": {
@@ -849006,6 +849060,121 @@
           "authoritative": false
         },
         {
+          "hash": "sha256:ed742c312fabdc9ee9a8e36de0b54be03459bd67670b284e725aacc57445aa8a",
+          "shape": {
+            "fieldCount": 16,
+            "fields": [
+              "actions",
+              "animations",
+              "dataSources",
+              "events",
+              "overlays",
+              "overlaysByPortal",
+              "portals",
+              "resources",
+              "searchSources",
+              "selectors",
+              "sourceSyntax",
+              "state",
+              "surfaces",
+              "transitions",
+              "validations",
+              "workpackage"
+            ],
+            "signature": "actions:unknown|animations:unknown|dataSources:unknown|events:unknown|overlays:unknown|overlaysByPortal:unknown|portals:unknown|resources:unknown|searchSources:unknown|selectors:unknown|sourceSyntax:{\"unresolved\":\"core.manifest && core.manifest.sourceSyntax || 'rmt-vnext'\"}|state:unknown|surfaces:unknown|transitions:unknown|validations:unknown|workpackage:string",
+            "normalized": {
+              "fields": {
+                "actions": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "animations": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "dataSources": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "events": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "overlays": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "overlaysByPortal": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "portals": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "resources": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "searchSources": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "selectors": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "sourceSyntax": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "core.manifest && core.manifest.sourceSyntax || 'rmt-vnext'"
+                  }
+                },
+                "state": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "surfaces": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "transitions": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "validations": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "workpackage": {
+                  "optional": false,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "tools/rmt-language/vnext-compiler.js"
+          ],
+          "symbols": [
+            "createAppPlatformRecords"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "tools/rmt-language/vnext-compiler.js",
+              "symbol": "createAppPlatformRecords"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
           "hash": "sha256:f1ab074f5e363816ffa28085e3c1295aa1c05141c6d2fb0ab2ff7cbe790fa5bb",
           "shape": {
             "fieldCount": 16,
@@ -849964,17 +850133,17 @@
       ],
       "shapePolicy": {
         "acceptedFingerprints": [
-          "sha256:351e0cc8e5771b7d4728cca7adbe54c65fe8f127abe34e64fb1ba33b2a1a8d4f",
           "sha256:a419a5c5bc8faa71245b821ee52ab2596ce727dc77f6d40717ace537fb0c562d",
           "sha256:bd6d9c0926803c9585b9c9ea987f6cbec72014e859bc1aa0ddfbc0d089f49789",
           "sha256:bf9e6161d5d9129f91cb1851034264f394a4a40fde7eb7cc906f1579762bb07c",
+          "sha256:ed742c312fabdc9ee9a8e36de0b54be03459bd67670b284e725aacc57445aa8a",
           "sha256:f1ab074f5e363816ffa28085e3c1295aa1c05141c6d2fb0ab2ff7cbe790fa5bb",
           "sha256:f914b18415973d171b25fb4907d757c0c76e4c6d265ba68cfa23db5678bca1d0"
         ],
         "authoritativeFingerprints": [],
-        "decision": "accepted-initial-audit",
+        "decision": "a062-productive-frontend-observation-review",
         "mode": "polymorphic",
-        "rationale": "All observed variants are fingerprint-bound after the XTend 0.7 State metadata migration; future fingerprint changes require a new review.",
+        "rationale": "Scoped A06.2 review of exact non-authoritative compiler, documentation, test/fixture and regenerated-inspector observations. Existing complete authoritative definitions and released fingerprint sets are unchanged; additional reference objects do not extend legacy accepted inputs.",
         "releasedFingerprintSetHash": null
       },
       "status": "active",
@@ -850177,6 +850346,193 @@
           ],
           "evidenceTypes": [
             "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:217be02f87785d10bde7526bc8cd5d0ea793811bfa376390935236dae329ff3a",
+          "shape": {
+            "fieldCount": 1,
+            "fields": [
+              "body"
+            ],
+            "signature": "body:array<unknown>",
+            "normalized": {
+              "fields": {
+                "body": {
+                  "optional": false,
+                  "type": {
+                    "array": [
+                      "unknown"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "tools/rmt-language/rmtx-parser.js"
+          ],
+          "symbols": [
+            "ast"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "tools/rmt-language/rmtx-parser.js",
+              "symbol": "ast"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:3cec282031d7d406d0b97fc367838c9e24d3f7acd7b08ca9387fbf584f6ef982",
+          "shape": {
+            "fieldCount": 2,
+            "fields": [
+              "body",
+              "type"
+            ],
+            "signature": "body:array<{body:array<>,dataType:{type:string,value:string},initial:{kind:string,type:string,value:string},name:string,range:unknown,type:string}|{body:array<{expression:string,range:unknown,target:string,type:string}>,name:string,range:unknown,type:string}>|type:string",
+            "normalized": {
+              "fields": {
+                "body": {
+                  "optional": false,
+                  "type": {
+                    "array": [
+                      {
+                        "fields": {
+                          "body": {
+                            "optional": false,
+                            "type": {
+                              "array": []
+                            }
+                          },
+                          "dataType": {
+                            "optional": false,
+                            "type": {
+                              "fields": {
+                                "type": {
+                                  "optional": false,
+                                  "type": "string"
+                                },
+                                "value": {
+                                  "optional": false,
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          },
+                          "initial": {
+                            "optional": false,
+                            "type": {
+                              "fields": {
+                                "kind": {
+                                  "optional": false,
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "optional": false,
+                                  "type": "string"
+                                },
+                                "value": {
+                                  "optional": false,
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          },
+                          "name": {
+                            "optional": false,
+                            "type": "string"
+                          },
+                          "range": {
+                            "optional": false,
+                            "type": "unknown"
+                          },
+                          "type": {
+                            "optional": false,
+                            "type": "string"
+                          }
+                        }
+                      },
+                      {
+                        "fields": {
+                          "body": {
+                            "optional": false,
+                            "type": {
+                              "array": [
+                                {
+                                  "fields": {
+                                    "expression": {
+                                      "optional": false,
+                                      "type": "string"
+                                    },
+                                    "range": {
+                                      "optional": false,
+                                      "type": "unknown"
+                                    },
+                                    "target": {
+                                      "optional": false,
+                                      "type": "string"
+                                    },
+                                    "type": {
+                                      "optional": false,
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          "name": {
+                            "optional": false,
+                            "type": "string"
+                          },
+                          "range": {
+                            "optional": false,
+                            "type": "unknown"
+                          },
+                          "type": {
+                            "optional": false,
+                            "type": "string"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "type": {
+                  "optional": false,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "tests/rmt-language/backend-ast-result.test.cjs"
+          ],
+          "symbols": [
+            "ast"
+          ],
+          "evidence": [
+            {
+              "type": "test",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "tests/rmt-language/backend-ast-result.test.cjs",
+              "symbol": "ast"
+            }
+          ],
+          "evidenceTypes": [
+            "test"
           ],
           "completeness": "partial",
           "authoritative": false
@@ -860466,15 +860822,17 @@
       "shapePolicy": {
         "acceptedFingerprints": [
           "sha256:03c80a608f4ba37515a2ebef034b757c7afd071257a0f54ee5fde41dd95d7913",
+          "sha256:217be02f87785d10bde7526bc8cd5d0ea793811bfa376390935236dae329ff3a",
+          "sha256:3cec282031d7d406d0b97fc367838c9e24d3f7acd7b08ca9387fbf584f6ef982",
           "sha256:4f346f0bf7f896c8da451702772f3ebcd61a9137f288896a95c3b967df948e3e"
         ],
         "authoritativeFingerprints": [
           "sha256:4f346f0bf7f896c8da451702772f3ebcd61a9137f288896a95c3b967df948e3e"
         ],
         "mode": "polymorphic",
-        "rationale": "Scoped 0.9 Classic preparation review: current parser/compiler/diagnostic, tooling or generated observations are bound explicitly. Complete released authorities remain unchanged; see development/rmtx-a01/README.md, section 14.",
+        "rationale": "Scoped A06.2 review of exact non-authoritative compiler, documentation, test/fixture and regenerated-inspector observations. Existing complete authoritative definitions and released fingerprint sets are unchanged; additional reference objects do not extend legacy accepted inputs.",
         "releasedFingerprintSetHash": null,
-        "decision": "reviewed-0.9-classic-preparation"
+        "decision": "a062-productive-frontend-observation-review"
       },
       "status": "active",
       "usages": [
@@ -860560,10 +860918,26 @@
         },
         {
           "application": "XTend Tests: Rmt Language",
+          "role": "producer",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/rmt-language/backend-ast-result.test.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "tests/rmt-language/backend-ast-result.test.cjs",
+              "symbol": "ast"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Rmt Language",
           "role": "assertion",
           "visibility": "test",
           "sourcePaths": [
-            "tests/rmt-language/action-execution-lowering.test.cjs"
+            "tests/rmt-language/action-execution-lowering.test.cjs",
+            "tests/rmt-language/backend-ast-result.test.cjs"
           ],
           "interfaceReferences": [
             {
@@ -860642,6 +861016,7 @@
             "tools/rmt-language/classic-compiler.d.ts",
             "tools/rmt-language/classic-parser.d.ts",
             "tools/rmt-language/contracts/classic-ast.v1.schema.json",
+            "tools/rmt-language/rmtx-parser.js",
             "tools/rmt-language/vnext-parser.js"
           ],
           "interfaceReferences": [
@@ -860659,6 +861034,11 @@
               "type": "package-export",
               "module": "@ccslabs/xtend-compiler/rmt-language/classic-parser",
               "path": "tools/rmt-language/classic-parser.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-compiler/rmt-language/rmtx-parser",
+              "path": "tools/rmt-language/rmtx-parser.js"
             },
             {
               "type": "package-export",
@@ -860682,8 +861062,18 @@
             },
             {
               "type": "package-export",
+              "module": "@ccslabs/xtend/rmt-language/rmtx-parser",
+              "path": "tools/rmt-language/rmtx-parser.js"
+            },
+            {
+              "type": "package-export",
               "module": "@ccslabs/xtend/rmt-language/vnext-parser",
               "path": "tools/rmt-language/vnext-parser.js"
+            },
+            {
+              "type": "symbol",
+              "path": "tools/rmt-language/rmtx-parser.js",
+              "symbol": "ast"
             },
             {
               "type": "symbol",
@@ -860729,7 +861119,7 @@
           },
           {
             "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
-            "sha256": "4e976a390e87b1284058696e0abfaba0722e1856e041df8e9c36c1323ae7445e"
+            "sha256": "47d99cd7d444eb0dc7d7a6758f1d4047474bed4b8a1e5eabbaf0a2a7fc278f5f"
           },
           {
             "path": "development/rmtx-a01/README.md",
@@ -860741,7 +861131,7 @@
           },
           {
             "path": "development/rmtx-a01/inventory.json",
-            "sha256": "51949fbf2b2a54540685c1ec465c937445df113f75e7def51e30e2479a341c2c"
+            "sha256": "3657ec5d87345a39c4fc7ff618e81f7a35bfeabf07c656a87e431b072092b359"
           },
           {
             "path": "docs/de/rmt-vnext-authoring.md",
@@ -860757,7 +861147,7 @@
           },
           {
             "path": "package.json",
-            "sha256": "6a633e38e9df751aca00058537bef4c190430cefe95d144f783100ae4e5734b5"
+            "sha256": "773eaecc423d6ba9d358949b906aba0a7b52712b15a8a06df730cbec2c9bf989"
           },
           {
             "path": "scripts/generate_rmt_classic_contract.js",
@@ -860765,7 +861155,11 @@
           },
           {
             "path": "tests/rmt-language/action-execution-lowering.test.cjs",
-            "sha256": "a13abb5a1f467bb41ce860ea840e266b8933a2a999abcde9ae4c4ebe2d39bad7"
+            "sha256": "20c28730663a47fe010d6d192172eab94ac25ca4d7a3bb4b76bc770ee0200d5b"
+          },
+          {
+            "path": "tests/rmt-language/backend-ast-result.test.cjs",
+            "sha256": "414dc984ddc046f8cd7d3cbcb3cbc4e2a0b522ff47beb2e486306cb7676c8f94"
           },
           {
             "path": "tests/rmt-language/fixtures/classic-contract-consumer.ts",
@@ -860789,11 +861183,11 @@
           },
           {
             "path": "tools/rmt-language/classic-compiler.d.ts",
-            "sha256": "5252e64211b4039c4c3272c73334342332a539703bbbf760d860e3a77240c858"
+            "sha256": "cd7256d276a7ec770dfb5fc18f4ffb31d49be590c7763dc81cc275f0e4bcddc2"
           },
           {
             "path": "tools/rmt-language/classic-compiler.js",
-            "sha256": "d321ae4c25ca3b56ca877399f9a259b86afeb8a4c6dab8a67119baaa92c52581"
+            "sha256": "aa261ed48ce70b5f9918fa58bd1042c204b509b1e2055856c976c46374a1d565"
           },
           {
             "path": "tools/rmt-language/classic-parser.d.ts",
@@ -860812,12 +861206,16 @@
             "sha256": "2f0b45c8c05dbc38adb7355fcc3ae36bbf8eb2f3b26c4ec024b71ed04fb2b457"
           },
           {
+            "path": "tools/rmt-language/rmtx-parser.js",
+            "sha256": "e0426e015f8327c8b7257ea79daea12a5a5267f8a840ec583c41a1f4c1fe8ebf"
+          },
+          {
             "path": "tools/rmt-language/semantic-graph.js",
             "sha256": "e3706bcca6f8b5155b1292889b44767f177bdedb9dc73d5ddd98dea1e0b11762"
           },
           {
             "path": "tools/rmt-language/vnext-compiler.js",
-            "sha256": "9ee9aac4cd163ac3d78a6ae228d4515974eabfcf3ef89c45c38ff937684ff510"
+            "sha256": "e278fff06061bec760cccf5a420c9544e218c0aa49ed9db6bb82cb1a12fee8c7"
           },
           {
             "path": "tools/rmt-language/vnext-parser.js",
@@ -860830,10 +861228,14 @@
         ],
         "observedFingerprints": [
           "sha256:03c80a608f4ba37515a2ebef034b757c7afd071257a0f54ee5fde41dd95d7913",
+          "sha256:217be02f87785d10bde7526bc8cd5d0ea793811bfa376390935236dae329ff3a",
+          "sha256:3cec282031d7d406d0b97fc367838c9e24d3f7acd7b08ca9387fbf584f6ef982",
           "sha256:4f346f0bf7f896c8da451702772f3ebcd61a9137f288896a95c3b967df948e3e"
         ],
         "acceptedFingerprints": [
           "sha256:03c80a608f4ba37515a2ebef034b757c7afd071257a0f54ee5fde41dd95d7913",
+          "sha256:217be02f87785d10bde7526bc8cd5d0ea793811bfa376390935236dae329ff3a",
+          "sha256:3cec282031d7d406d0b97fc367838c9e24d3f7acd7b08ca9387fbf584f6ef982",
           "sha256:4f346f0bf7f896c8da451702772f3ebcd61a9137f288896a95c3b967df948e3e"
         ],
         "authoritativeFingerprints": [
@@ -872749,6 +873151,1757 @@
         }
       ],
       "version": 1
+    },
+    {
+      "schemaId": "xtend.rmtx.compile-result.v1",
+      "familyId": "xtend.rmtx.compile-result",
+      "version": 1,
+      "kinds": [
+        "runtime-discriminator"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": null,
+      "description": "RMTX profile 1.0.0 compilation result and reported compiler output-format identifier. Partial runtime/type and compiler-factory/receipt observations remain distinct; no receipt is accepted as a full compiler result or execution authority.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "tools/rmt-language/rmtx-compiler.js",
+        "symbol": "RMTX_COMPILE_RESULT_SCHEMA",
+        "definitionType": "constant",
+        "role": "definition",
+        "visibility": "internal"
+      },
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a06/frontend/evidence.json",
+            "development/rmtx-a06/frontend/runtime-evidence.json"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "development/rmtx-a06/frontend/runtime-evidence.json",
+              "pointer": "/runs/0/compiler"
+            },
+            {
+              "type": "json-pointer",
+              "path": "development/rmtx-a06/frontend/runtime-evidence.json",
+              "pointer": "/runs/1/compiler"
+            },
+            {
+              "type": "json-pointer",
+              "path": "development/rmtx-a06/frontend/runtime-evidence.json",
+              "pointer": "/runs/2/compiler"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Xtensions",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/xtensions/xtensions_runtime_gate_suite.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/xtensions/xtensions_runtime_gate_suite.js",
+              "symbol": null
+            }
+          ]
+        },
+        {
+          "application": "XTend Tooling",
+          "role": "definition",
+          "visibility": "internal",
+          "sourcePaths": [
+            "tools/rmt-language/rmtx-compiler.d.ts",
+            "tools/rmt-language/rmtx-compiler.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-compiler/rmt-language/rmtx-compiler",
+              "path": "tools/rmt-language/rmtx-compiler.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-compiler/rmt-language/rmtx-compiler",
+              "path": "tools/rmt-language/rmtx-compiler.js"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/rmt-language/rmtx-compiler",
+              "path": "tools/rmt-language/rmtx-compiler.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/rmt-language/rmtx-compiler",
+              "path": "tools/rmt-language/rmtx-compiler.js"
+            },
+            {
+              "type": "symbol",
+              "path": "tools/rmt-language/rmtx-compiler.d.ts",
+              "symbol": "RMTX_COMPILE_RESULT_SCHEMA"
+            },
+            {
+              "type": "symbol",
+              "path": "tools/rmt-language/rmtx-compiler.d.ts",
+              "symbol": "RmtxCompileResult"
+            },
+            {
+              "type": "symbol",
+              "path": "tools/rmt-language/rmtx-compiler.d.ts",
+              "symbol": "RmtxCompiler"
+            },
+            {
+              "type": "symbol",
+              "path": "tools/rmt-language/rmtx-compiler.js",
+              "symbol": "RMTX_COMPILE_RESULT_SCHEMA"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tooling",
+          "role": "producer",
+          "visibility": "internal",
+          "sourcePaths": [
+            "tools/rmt-language/rmtx-compiler.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-compiler/rmt-language/rmtx-compiler",
+              "path": "tools/rmt-language/rmtx-compiler.js"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/rmt-language/rmtx-compiler",
+              "path": "tools/rmt-language/rmtx-compiler.js"
+            },
+            {
+              "type": "symbol",
+              "path": "tools/rmt-language/rmtx-compiler.js",
+              "symbol": "compileRmtxSource"
+            },
+            {
+              "type": "symbol",
+              "path": "tools/rmt-language/rmtx-compiler.js",
+              "symbol": "createRmtxCompiler"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tooling",
+          "role": "reference",
+          "visibility": "internal",
+          "sourcePaths": [
+            "tools/rmt-language/rmtx-compiler.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-compiler/rmt-language/rmtx-compiler",
+              "path": "tools/rmt-language/rmtx-compiler.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/rmt-language/rmtx-compiler",
+              "path": "tools/rmt-language/rmtx-compiler.d.ts"
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "polymorphic",
+        "acceptedFingerprints": [
+          "sha256:279fa129c6e9e7d905252c6c61a016973c3b9a975db8324fd6df4a606ef10874",
+          "sha256:43b9861cef58e9c44d5792b69b93d502167d189ab175a9d5d62bdbc504bd0e5e",
+          "sha256:68bdf396279ce485c949cb72f2b79726b36f471ed6157903fdbb3d447d9254ed",
+          "sha256:8e03db50a80f1b382641a8d40124c87ed4e57e5b9ac4147fcaeaa996c15bfa67",
+          "sha256:9929a1a0438beebfbf2ab29a9a58c2f5b8e23de3fad5d258e4b5494790892016"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "decision": "a062-productive-frontend-observation-review",
+        "rationale": "First exact source-bound observations of the restricted A06.2 frontend profile. Partial implementation/type and concrete evidence records remain non-authoritative. These initial version anchors are not XTend 0.9 release acceptance."
+      },
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:279fa129c6e9e7d905252c6c61a016973c3b9a975db8324fd6df4a606ef10874",
+          "shape": {
+            "fieldCount": 4,
+            "fields": [
+              "apiVersion",
+              "compileSource",
+              "name",
+              "sourceProfile"
+            ],
+            "signature": "apiVersion:string|compileSource:function|name:string|sourceProfile:{\"unresolvedReference\":\"RMTX_SOURCE_PROFILE\"}",
+            "normalized": {
+              "fields": {
+                "apiVersion": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "compileSource": {
+                  "optional": false,
+                  "type": "function"
+                },
+                "name": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "sourceProfile": {
+                  "optional": false,
+                  "type": {
+                    "unresolvedReference": "RMTX_SOURCE_PROFILE"
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "tools/rmt-language/rmtx-compiler.js"
+          ],
+          "symbols": [
+            "createRmtxCompiler"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "tools/rmt-language/rmtx-compiler.js",
+              "symbol": "createRmtxCompiler"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:43b9861cef58e9c44d5792b69b93d502167d189ab175a9d5d62bdbc504bd0e5e",
+          "shape": {
+            "fieldCount": 10,
+            "fields": [
+              "apiVersion",
+              "compilerDiagnostics",
+              "coreDocument",
+              "coreJson",
+              "orchestrationArtifacts",
+              "parserResult",
+              "phase",
+              "sourceProfile",
+              "status",
+              "xtensionBindings"
+            ],
+            "signature": "apiVersion:{\"unresolvedReference\":\"typeof RMTX_COMPILER_API_VERSION\"}|compilerDiagnostics:array<{\"arguments\":[],\"unresolvedReference\":\"RmtToolingDiagnostic\"}>|coreDocument:union<{\"arguments\":[],\"unresolvedReference\":\"RmtVNextCoreDocument\"}|literal<null>>|coreJson:union<string|literal<null>>|orchestrationArtifacts:union<{\"arguments\":[],\"unresolvedReference\":\"RmtJsonValue\"}|literal<null>>|parserResult:{\"arguments\":[],\"unresolvedReference\":\"RmtxParseResult\"}|phase:string|sourceProfile:{\"unresolvedReference\":\"typeof RMTX_SOURCE_PROFILE\"}|status:string|xtensionBindings?:union<{\"arguments\":[],\"unresolvedReference\":\"XTensionStateBindingArtifact\"}|literal<null>>",
+            "normalized": {
+              "fields": {
+                "apiVersion": {
+                  "optional": false,
+                  "type": {
+                    "unresolvedReference": "typeof RMTX_COMPILER_API_VERSION"
+                  }
+                },
+                "compilerDiagnostics": {
+                  "optional": false,
+                  "type": {
+                    "elementType": {
+                      "arguments": [],
+                      "unresolvedReference": "RmtToolingDiagnostic"
+                    }
+                  }
+                },
+                "coreDocument": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "arguments": [],
+                        "unresolvedReference": "RmtVNextCoreDocument"
+                      },
+                      {
+                        "literal": null
+                      }
+                    ]
+                  }
+                },
+                "coreJson": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      "string",
+                      {
+                        "literal": null
+                      }
+                    ]
+                  }
+                },
+                "orchestrationArtifacts": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "arguments": [],
+                        "unresolvedReference": "RmtJsonValue"
+                      },
+                      {
+                        "literal": null
+                      }
+                    ]
+                  }
+                },
+                "parserResult": {
+                  "optional": false,
+                  "type": {
+                    "arguments": [],
+                    "unresolvedReference": "RmtxParseResult"
+                  }
+                },
+                "phase": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "sourceProfile": {
+                  "optional": false,
+                  "type": {
+                    "unresolvedReference": "typeof RMTX_SOURCE_PROFILE"
+                  }
+                },
+                "status": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "xtensionBindings": {
+                  "optional": true,
+                  "type": {
+                    "union": [
+                      {
+                        "arguments": [],
+                        "unresolvedReference": "XTensionStateBindingArtifact"
+                      },
+                      {
+                        "literal": null
+                      }
+                    ]
+                  }
+                }
+              },
+              "unresolvedSpreads": [
+                {
+                  "arguments": [
+                    {
+                      "arguments": [],
+                      "unresolvedReference": "RmtVNextCoreDocument"
+                    }
+                  ],
+                  "unresolvedReference": "RmtCompileResult"
+                }
+              ]
+            }
+          },
+          "sourcePaths": [
+            "tools/rmt-language/rmtx-compiler.d.ts"
+          ],
+          "symbols": [
+            "RmtxCompileResult"
+          ],
+          "evidence": [
+            {
+              "type": "declared-type",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "tools/rmt-language/rmtx-compiler.d.ts",
+              "symbol": "RmtxCompileResult"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:68bdf396279ce485c949cb72f2b79726b36f471ed6157903fdbb3d447d9254ed",
+          "shape": {
+            "fieldCount": 5,
+            "fields": [
+              "apiVersion",
+              "planCompilerSchema",
+              "source",
+              "sourceHash",
+              "sourceProfile"
+            ],
+            "signature": "apiVersion:string|planCompilerSchema:string|source:string|sourceHash:string|sourceProfile:{syntax:string,version:string}",
+            "normalized": {
+              "fields": {
+                "apiVersion": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "planCompilerSchema": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "source": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "sourceHash": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "sourceProfile": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "syntax": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "version": {
+                        "optional": false,
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "development/rmtx-a06/frontend/runtime-evidence.json"
+          ],
+          "symbols": [
+            "/runs/0/compiler",
+            "/runs/1/compiler",
+            "/runs/2/compiler"
+          ],
+          "evidence": [
+            {
+              "type": "docs",
+              "completeness": "complete",
+              "authoritative": false,
+              "path": "development/rmtx-a06/frontend/runtime-evidence.json",
+              "symbol": "/runs/0/compiler"
+            },
+            {
+              "type": "docs",
+              "completeness": "complete",
+              "authoritative": false,
+              "path": "development/rmtx-a06/frontend/runtime-evidence.json",
+              "symbol": "/runs/1/compiler"
+            },
+            {
+              "type": "docs",
+              "completeness": "complete",
+              "authoritative": false,
+              "path": "development/rmtx-a06/frontend/runtime-evidence.json",
+              "symbol": "/runs/2/compiler"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
+          ],
+          "completeness": "complete",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:8e03db50a80f1b382641a8d40124c87ed4e57e5b9ac4147fcaeaa996c15bfa67",
+          "shape": {
+            "fieldCount": 4,
+            "fields": [
+              "apiVersion",
+              "compileSource",
+              "name",
+              "sourceProfile"
+            ],
+            "signature": "apiVersion:{\"unresolvedReference\":\"typeof RMTX_COMPILER_API_VERSION\"}|compileSource:{\"unresolvedReference\":\"typeof compileRmtxSource\"}|name:literal<\"RMTX\">|sourceProfile:{\"unresolvedReference\":\"typeof RMTX_SOURCE_PROFILE\"}",
+            "normalized": {
+              "fields": {
+                "apiVersion": {
+                  "optional": false,
+                  "type": {
+                    "unresolvedReference": "typeof RMTX_COMPILER_API_VERSION"
+                  }
+                },
+                "compileSource": {
+                  "optional": false,
+                  "type": {
+                    "unresolvedReference": "typeof compileRmtxSource"
+                  }
+                },
+                "name": {
+                  "optional": false,
+                  "type": {
+                    "literal": "RMTX"
+                  }
+                },
+                "sourceProfile": {
+                  "optional": false,
+                  "type": {
+                    "unresolvedReference": "typeof RMTX_SOURCE_PROFILE"
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "tools/rmt-language/rmtx-compiler.d.ts"
+          ],
+          "symbols": [
+            "RmtxCompiler"
+          ],
+          "evidence": [
+            {
+              "type": "declared-type",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "tools/rmt-language/rmtx-compiler.d.ts",
+              "symbol": "RmtxCompiler"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:9929a1a0438beebfbf2ab29a9a58c2f5b8e23de3fad5d258e4b5494790892016",
+          "shape": {
+            "fieldCount": 13,
+            "fields": [
+              "apiVersion",
+              "appServiceDemands",
+              "compilerDiagnostics",
+              "coreDocument",
+              "coreJson",
+              "diagnostics",
+              "ok",
+              "orchestrationArtifacts",
+              "parserResult",
+              "phase",
+              "primitiveArtifacts",
+              "sourceProfile",
+              "status"
+            ],
+            "signature": "apiVersion:string|appServiceDemands:null|compilerDiagnostics:unknown|coreDocument:null|coreJson:null|diagnostics:unknown|ok:boolean|orchestrationArtifacts:null|parserResult:unknown|phase:{\"unresolved\":\"parserResult.phase\"}|primitiveArtifacts:null|sourceProfile:{\"unresolvedReference\":\"RMTX_SOURCE_PROFILE\"}|status:string",
+            "normalized": {
+              "fields": {
+                "apiVersion": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "appServiceDemands": {
+                  "optional": false,
+                  "type": "null"
+                },
+                "compilerDiagnostics": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "coreDocument": {
+                  "optional": false,
+                  "type": "null"
+                },
+                "coreJson": {
+                  "optional": false,
+                  "type": "null"
+                },
+                "diagnostics": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "ok": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "orchestrationArtifacts": {
+                  "optional": false,
+                  "type": "null"
+                },
+                "parserResult": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "phase": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "parserResult.phase"
+                  }
+                },
+                "primitiveArtifacts": {
+                  "optional": false,
+                  "type": "null"
+                },
+                "sourceProfile": {
+                  "optional": false,
+                  "type": {
+                    "unresolvedReference": "RMTX_SOURCE_PROFILE"
+                  }
+                },
+                "status": {
+                  "optional": false,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "tools/rmt-language/rmtx-compiler.js"
+          ],
+          "symbols": [
+            "compileRmtxSource"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "tools/rmt-language/rmtx-compiler.js",
+              "symbol": "compileRmtxSource"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        }
+      ]
+    },
+    {
+      "schemaId": "xtend.rmtx.frontend-runtime-acceptance.v1",
+      "familyId": "xtend.rmtx.frontend-runtime-acceptance",
+      "version": 1,
+      "kinds": [
+        "runtime-discriminator"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": null,
+      "description": "Executed A06.2 restricted RMTX frontend acceptance report from Node and Chromium. Records are test evidence, including compiler/profile facts, and do not grant production release or framework authority.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "scripts/test-runner/catalog.json",
+        "symbol": null,
+        "definitionType": "identifier-reference",
+        "role": "reference",
+        "visibility": "internal"
+      },
+      "usages": [
+        {
+          "application": "XTend Build and Test Tooling",
+          "role": "reference",
+          "visibility": "internal",
+          "sourcePaths": [
+            "scripts/test-runner/catalog.json"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "scripts/test-runner/catalog.json",
+              "pointer": "/"
+            }
+          ]
+        },
+        {
+          "application": "XTend Development Contracts",
+          "role": "definition",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a06/frontend/runtime-test.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "development/rmtx-a06/frontend/runtime-test.cjs",
+              "symbol": "RMTX_FRONTEND_RUNTIME_ACCEPTANCE_SCHEMA"
+            }
+          ]
+        },
+        {
+          "application": "XTend Development Contracts",
+          "role": "producer",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a06/frontend/runtime-test.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "development/rmtx-a06/frontend/runtime-test.cjs",
+              "symbol": "report"
+            }
+          ]
+        },
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a06/frontend/runtime-evidence.json",
+            "development/rmtx-a06/frontend/runtime-test.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "development/rmtx-a06/frontend/runtime-evidence.json",
+              "pointer": "/runs/0"
+            },
+            {
+              "type": "json-pointer",
+              "path": "development/rmtx-a06/frontend/runtime-evidence.json",
+              "pointer": "/runs/1"
+            },
+            {
+              "type": "json-pointer",
+              "path": "development/rmtx-a06/frontend/runtime-evidence.json",
+              "pointer": "/runs/2"
+            },
+            {
+              "type": "symbol",
+              "path": "development/rmtx-a06/frontend/runtime-test.cjs",
+              "symbol": "RMTX_FRONTEND_RUNTIME_ACCEPTANCE_SCHEMA"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Xtensions",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/xtensions/xtensions_runtime_gate_suite.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/xtensions/xtensions_runtime_gate_suite.js",
+              "symbol": null
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "polymorphic",
+        "acceptedFingerprints": [
+          "sha256:405e470b3888fd135eafba7842ce5a8f2f30f8f6241b56aa2f5f0ac0fd220520",
+          "sha256:441b7a222a9105c6032e465b5ddacff5e65578a68ef62665f25854a1e1169922",
+          "sha256:6000aadd5b00aec81f92f082503e121e802f09bbb3724958242f49f2ceedbca2"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "decision": "a062-productive-frontend-observation-review",
+        "rationale": "First exact source-bound observations of the restricted A06.2 frontend profile. Partial implementation/type and concrete evidence records remain non-authoritative. These initial version anchors are not XTend 0.9 release acceptance."
+      },
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:405e470b3888fd135eafba7842ce5a8f2f30f8f6241b56aa2f5f0ac0fd220520",
+          "shape": {
+            "fieldCount": 18,
+            "fields": [
+              "acceptedForRelease",
+              "automaticCompositionSupported",
+              "browserVersion",
+              "cases",
+              "compiler",
+              "completeRmtxFrontendImplemented",
+              "format",
+              "mode",
+              "names",
+              "node",
+              "pageErrors",
+              "passed",
+              "productiveRmtxFrontendUsed",
+              "sources",
+              "ssrAcceptancePerformed",
+              "stage",
+              "version",
+              "versions"
+            ],
+            "signature": "acceptedForRelease:boolean|automaticCompositionSupported:boolean|browserVersion:null|cases:number|compiler:{apiVersion:string,planCompilerSchema:string,source:string,sourceHash:string,sourceProfile:{syntax:string,version:string}}|completeRmtxFrontendImplemented:boolean|format:number|mode:string|names:array<string>|node:string|pageErrors:array<>|passed:boolean|productiveRmtxFrontendUsed:boolean|sources:{development/rmtx-a06/automatic-acceptance.mjs:string,development/rmtx-a06/automatic-reference.cjs:string,development/rmtx-a06/frontend/runtime-test.cjs:string,development/rmtx-a06/frontend/two-host.rmtx:string,tools/rmt-language/classic-compiler.js:string,tools/rmt-language/rmtx-compiler.js:string,tools/rmt-language/rmtx-parser.js:string,tools/rmt-language/vnext-compiler.js:string}|ssrAcceptancePerformed:boolean|stage:string|version:string|versions:{react:string,vue:string}",
+            "normalized": {
+              "fields": {
+                "acceptedForRelease": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "automaticCompositionSupported": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "browserVersion": {
+                  "optional": false,
+                  "type": "null"
+                },
+                "cases": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "compiler": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "apiVersion": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "planCompilerSchema": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "source": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "sourceHash": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "sourceProfile": {
+                        "optional": false,
+                        "type": {
+                          "fields": {
+                            "syntax": {
+                              "optional": false,
+                              "type": "string"
+                            },
+                            "version": {
+                              "optional": false,
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "completeRmtxFrontendImplemented": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "format": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "mode": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "names": {
+                  "optional": false,
+                  "type": {
+                    "array": [
+                      "string"
+                    ]
+                  }
+                },
+                "node": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "pageErrors": {
+                  "optional": false,
+                  "type": {
+                    "array": []
+                  }
+                },
+                "passed": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "productiveRmtxFrontendUsed": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "sources": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "development/rmtx-a06/automatic-acceptance.mjs": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "development/rmtx-a06/automatic-reference.cjs": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "development/rmtx-a06/frontend/runtime-test.cjs": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "development/rmtx-a06/frontend/two-host.rmtx": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "tools/rmt-language/classic-compiler.js": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "tools/rmt-language/rmtx-compiler.js": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "tools/rmt-language/rmtx-parser.js": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "tools/rmt-language/vnext-compiler.js": {
+                        "optional": false,
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "ssrAcceptancePerformed": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "stage": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "version": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "versions": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "react": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "vue": {
+                        "optional": false,
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "development/rmtx-a06/frontend/runtime-evidence.json"
+          ],
+          "symbols": [
+            "/runs/0",
+            "/runs/1"
+          ],
+          "evidence": [
+            {
+              "type": "docs",
+              "completeness": "complete",
+              "authoritative": false,
+              "path": "development/rmtx-a06/frontend/runtime-evidence.json",
+              "symbol": "/runs/0"
+            },
+            {
+              "type": "docs",
+              "completeness": "complete",
+              "authoritative": false,
+              "path": "development/rmtx-a06/frontend/runtime-evidence.json",
+              "symbol": "/runs/1"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
+          ],
+          "completeness": "complete",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:441b7a222a9105c6032e465b5ddacff5e65578a68ef62665f25854a1e1169922",
+          "shape": {
+            "fieldCount": 18,
+            "fields": [
+              "acceptedForRelease",
+              "automaticCompositionSupported",
+              "browserVersion",
+              "cases",
+              "compiler",
+              "completeRmtxFrontendImplemented",
+              "format",
+              "mode",
+              "names",
+              "node",
+              "pageErrors",
+              "passed",
+              "productiveRmtxFrontendUsed",
+              "sources",
+              "ssrAcceptancePerformed",
+              "stage",
+              "version",
+              "versions"
+            ],
+            "signature": "acceptedForRelease:boolean|automaticCompositionSupported:boolean|browserVersion:string|cases:number|compiler:{apiVersion:string,planCompilerSchema:string,source:string,sourceHash:string,sourceProfile:{syntax:string,version:string}}|completeRmtxFrontendImplemented:boolean|format:number|mode:string|names:array<string>|node:string|pageErrors:array<>|passed:boolean|productiveRmtxFrontendUsed:boolean|sources:{development/rmtx-a06/automatic-acceptance.mjs:string,development/rmtx-a06/automatic-reference.cjs:string,development/rmtx-a06/frontend/runtime-test.cjs:string,development/rmtx-a06/frontend/two-host.rmtx:string,tools/rmt-language/classic-compiler.js:string,tools/rmt-language/rmtx-compiler.js:string,tools/rmt-language/rmtx-parser.js:string,tools/rmt-language/vnext-compiler.js:string}|ssrAcceptancePerformed:boolean|stage:string|version:string|versions:{react:string,vue:string}",
+            "normalized": {
+              "fields": {
+                "acceptedForRelease": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "automaticCompositionSupported": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "browserVersion": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "cases": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "compiler": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "apiVersion": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "planCompilerSchema": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "source": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "sourceHash": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "sourceProfile": {
+                        "optional": false,
+                        "type": {
+                          "fields": {
+                            "syntax": {
+                              "optional": false,
+                              "type": "string"
+                            },
+                            "version": {
+                              "optional": false,
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "completeRmtxFrontendImplemented": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "format": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "mode": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "names": {
+                  "optional": false,
+                  "type": {
+                    "array": [
+                      "string"
+                    ]
+                  }
+                },
+                "node": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "pageErrors": {
+                  "optional": false,
+                  "type": {
+                    "array": []
+                  }
+                },
+                "passed": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "productiveRmtxFrontendUsed": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "sources": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "development/rmtx-a06/automatic-acceptance.mjs": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "development/rmtx-a06/automatic-reference.cjs": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "development/rmtx-a06/frontend/runtime-test.cjs": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "development/rmtx-a06/frontend/two-host.rmtx": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "tools/rmt-language/classic-compiler.js": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "tools/rmt-language/rmtx-compiler.js": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "tools/rmt-language/rmtx-parser.js": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "tools/rmt-language/vnext-compiler.js": {
+                        "optional": false,
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "ssrAcceptancePerformed": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "stage": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "version": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "versions": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "react": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "vue": {
+                        "optional": false,
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "development/rmtx-a06/frontend/runtime-evidence.json"
+          ],
+          "symbols": [
+            "/runs/2"
+          ],
+          "evidence": [
+            {
+              "type": "docs",
+              "completeness": "complete",
+              "authoritative": false,
+              "path": "development/rmtx-a06/frontend/runtime-evidence.json",
+              "symbol": "/runs/2"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
+          ],
+          "completeness": "complete",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:6000aadd5b00aec81f92f082503e121e802f09bbb3724958242f49f2ceedbca2",
+          "shape": {
+            "fieldCount": 13,
+            "fields": [
+              "acceptedForRelease",
+              "browserVersion",
+              "compiler",
+              "completeRmtxFrontendImplemented",
+              "format",
+              "mode",
+              "node",
+              "pageErrors",
+              "productiveRmtxFrontendUsed",
+              "sources",
+              "stage",
+              "version",
+              "versions"
+            ],
+            "signature": "acceptedForRelease:boolean|browserVersion:null|compiler:{apiVersion:{\"unresolved\":\"compiled.apiVersion\"},planCompilerSchema:{\"unresolved\":\"build.plan.rmt.compilerSchema\"},source:{\"unresolved\":\"build.plan.source\"},sourceHash:{\"unresolved\":\"build.plan.sourceHash\"},sourceProfile:{\"unresolved\":\"compiled.sourceProfile\"}}|completeRmtxFrontendImplemented:boolean|format:number|mode:union<string>|node:{\"unresolved\":\"process.version\"}|pageErrors:array<>|productiveRmtxFrontendUsed:boolean|sources:unknown|stage:string|version:string|versions:{react:{\"unresolved\":\"peers('react/package.json').version\"},vue:{\"unresolved\":\"peers('vue/package.json').version\"}}",
+            "normalized": {
+              "fields": {
+                "acceptedForRelease": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "browserVersion": {
+                  "optional": false,
+                  "type": "null"
+                },
+                "compiler": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "apiVersion": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "compiled.apiVersion"
+                        }
+                      },
+                      "planCompilerSchema": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "build.plan.rmt.compilerSchema"
+                        }
+                      },
+                      "source": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "build.plan.source"
+                        }
+                      },
+                      "sourceHash": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "build.plan.sourceHash"
+                        }
+                      },
+                      "sourceProfile": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "compiled.sourceProfile"
+                        }
+                      }
+                    }
+                  }
+                },
+                "completeRmtxFrontendImplemented": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "format": {
+                  "optional": false,
+                  "type": "number"
+                },
+                "mode": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      "string"
+                    ]
+                  }
+                },
+                "node": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "process.version"
+                  }
+                },
+                "pageErrors": {
+                  "optional": false,
+                  "type": {
+                    "array": []
+                  }
+                },
+                "productiveRmtxFrontendUsed": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "sources": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "stage": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "version": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "versions": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "react": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "peers('react/package.json').version"
+                        }
+                      },
+                      "vue": {
+                        "optional": false,
+                        "type": {
+                          "unresolved": "peers('vue/package.json').version"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "unresolvedSpreads": [
+                {
+                  "unresolvedReference": "result"
+                }
+              ]
+            }
+          },
+          "sourcePaths": [
+            "development/rmtx-a06/frontend/runtime-test.cjs"
+          ],
+          "symbols": [
+            "report"
+          ],
+          "evidence": [
+            {
+              "type": "docs",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "development/rmtx-a06/frontend/runtime-test.cjs",
+              "symbol": "report"
+            }
+          ],
+          "evidenceTypes": [
+            "docs"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        }
+      ]
+    },
+    {
+      "schemaId": "xtend.rmtx.parser-result.v1",
+      "familyId": "xtend.rmtx.parser-result",
+      "version": 1,
+      "kinds": [
+        "runtime-discriminator"
+      ],
+      "status": "active",
+      "lifecycle": {
+        "status": "active",
+        "rollout": "planned"
+      },
+      "aliasOf": null,
+      "replacedBy": null,
+      "releasedFingerprintSetHash": null,
+      "description": "RMTX profile 1.0.0 parser result: restricted declarative TSX lowered to the existing validated Classic AST, with original-source diagnostics. Runtime/type observations are partial and are not promoted to formal authority.",
+      "descriptionStatus": "curated",
+      "canonicalDefinition": {
+        "path": "tools/rmt-language/rmtx-parser.js",
+        "symbol": "RMTX_PARSER_SCHEMA",
+        "definitionType": "constant",
+        "role": "definition",
+        "visibility": "internal"
+      },
+      "usages": [
+        {
+          "application": "XTend Development Contracts",
+          "role": "documentation",
+          "visibility": "docs",
+          "sourcePaths": [
+            "development/rmtx-a06/frontend/evidence.json"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "development/rmtx-a06/frontend/evidence.json",
+              "pointer": "/"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tooling",
+          "role": "definition",
+          "visibility": "internal",
+          "sourcePaths": [
+            "tools/rmt-language/rmtx-parser.d.ts",
+            "tools/rmt-language/rmtx-parser.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-compiler/rmt-language/rmtx-parser",
+              "path": "tools/rmt-language/rmtx-parser.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-compiler/rmt-language/rmtx-parser",
+              "path": "tools/rmt-language/rmtx-parser.js"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/rmt-language/rmtx-parser",
+              "path": "tools/rmt-language/rmtx-parser.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/rmt-language/rmtx-parser",
+              "path": "tools/rmt-language/rmtx-parser.js"
+            },
+            {
+              "type": "symbol",
+              "path": "tools/rmt-language/rmtx-parser.d.ts",
+              "symbol": "RMTX_PARSER_SCHEMA"
+            },
+            {
+              "type": "symbol",
+              "path": "tools/rmt-language/rmtx-parser.d.ts",
+              "symbol": "RmtxParseResult"
+            },
+            {
+              "type": "symbol",
+              "path": "tools/rmt-language/rmtx-parser.js",
+              "symbol": "RMTX_PARSER_SCHEMA"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tooling",
+          "role": "producer",
+          "visibility": "internal",
+          "sourcePaths": [
+            "tools/rmt-language/rmtx-parser.js"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-compiler/rmt-language/rmtx-parser",
+              "path": "tools/rmt-language/rmtx-parser.js"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/rmt-language/rmtx-parser",
+              "path": "tools/rmt-language/rmtx-parser.js"
+            },
+            {
+              "type": "symbol",
+              "path": "tools/rmt-language/rmtx-parser.js",
+              "symbol": "result"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tooling",
+          "role": "reference",
+          "visibility": "internal",
+          "sourcePaths": [
+            "tools/rmt-language/rmtx-parser.d.ts"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend-compiler/rmt-language/rmtx-parser",
+              "path": "tools/rmt-language/rmtx-parser.d.ts"
+            },
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/rmt-language/rmtx-parser",
+              "path": "tools/rmt-language/rmtx-parser.d.ts"
+            }
+          ]
+        }
+      ],
+      "shapePolicy": {
+        "mode": "polymorphic",
+        "acceptedFingerprints": [
+          "sha256:0f08ae02065fe71fbe79c60de7c92ea9408dfae67501b523e66e3d65ac4e186f",
+          "sha256:4822db7f924b4913d656a413fd651ec7e5cac40bf82a793a37f512c778c1d0ea"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "decision": "a062-productive-frontend-observation-review",
+        "rationale": "First exact source-bound observations of the restricted A06.2 frontend profile. Partial implementation/type and concrete evidence records remain non-authoritative. These initial version anchors are not XTend 0.9 release acceptance."
+      },
+      "shapeFingerprints": [
+        {
+          "hash": "sha256:0f08ae02065fe71fbe79c60de7c92ea9408dfae67501b523e66e3d65ac4e186f",
+          "shape": {
+            "fieldCount": 8,
+            "fields": [
+              "apiVersion",
+              "ast",
+              "diagnostics",
+              "ok",
+              "phase",
+              "sourceModel",
+              "sourceProfile",
+              "status"
+            ],
+            "signature": "apiVersion:{\"unresolvedReference\":\"typeof RMTX_PARSER_API_VERSION\"}|ast:union<{\"arguments\":[],\"unresolvedReference\":\"RmtClassicAst\"}|literal<null>>|diagnostics:array<{\"arguments\":[],\"unresolvedReference\":\"RmtToolingDiagnostic\"}>|ok:boolean|phase:string|sourceModel:{filePath:union<string|literal<null>>,filePolicy:{canonical:boolean,diagnosticCode:union<string|literal<null>>,extension:string,fallback:boolean},languageId:literal<\"rmtx\">,positionAt:function,rangeForOffsets:function,text:string,uri:string}|sourceProfile:{\"unresolvedReference\":\"typeof RMTX_SOURCE_PROFILE\"}|status:union<literal<\"invalid\">|literal<\"parsed\">>",
+            "normalized": {
+              "fields": {
+                "apiVersion": {
+                  "optional": false,
+                  "type": {
+                    "unresolvedReference": "typeof RMTX_PARSER_API_VERSION"
+                  }
+                },
+                "ast": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "arguments": [],
+                        "unresolvedReference": "RmtClassicAst"
+                      },
+                      {
+                        "literal": null
+                      }
+                    ]
+                  }
+                },
+                "diagnostics": {
+                  "optional": false,
+                  "type": {
+                    "elementType": {
+                      "arguments": [],
+                      "unresolvedReference": "RmtToolingDiagnostic"
+                    }
+                  }
+                },
+                "ok": {
+                  "optional": false,
+                  "type": "boolean"
+                },
+                "phase": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "sourceModel": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "filePath": {
+                        "optional": false,
+                        "type": {
+                          "union": [
+                            "string",
+                            {
+                              "literal": null
+                            }
+                          ]
+                        }
+                      },
+                      "filePolicy": {
+                        "optional": false,
+                        "type": {
+                          "fields": {
+                            "canonical": {
+                              "optional": false,
+                              "type": "boolean"
+                            },
+                            "diagnosticCode": {
+                              "optional": false,
+                              "type": {
+                                "union": [
+                                  "string",
+                                  {
+                                    "literal": null
+                                  }
+                                ]
+                              }
+                            },
+                            "extension": {
+                              "optional": false,
+                              "type": "string"
+                            },
+                            "fallback": {
+                              "optional": false,
+                              "type": "boolean"
+                            }
+                          }
+                        }
+                      },
+                      "languageId": {
+                        "optional": false,
+                        "type": {
+                          "literal": "rmtx"
+                        }
+                      },
+                      "positionAt": {
+                        "optional": false,
+                        "type": "function"
+                      },
+                      "rangeForOffsets": {
+                        "optional": false,
+                        "type": "function"
+                      },
+                      "text": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "uri": {
+                        "optional": false,
+                        "type": "string"
+                      }
+                    },
+                    "indexSignatures": [
+                      {
+                        "key": "string",
+                        "readonly": true,
+                        "value": "unknown"
+                      }
+                    ]
+                  }
+                },
+                "sourceProfile": {
+                  "optional": false,
+                  "type": {
+                    "unresolvedReference": "typeof RMTX_SOURCE_PROFILE"
+                  }
+                },
+                "status": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      {
+                        "literal": "invalid"
+                      },
+                      {
+                        "literal": "parsed"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "tools/rmt-language/rmtx-parser.d.ts"
+          ],
+          "symbols": [
+            "RmtxParseResult"
+          ],
+          "evidence": [
+            {
+              "type": "declared-type",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "tools/rmt-language/rmtx-parser.d.ts",
+              "symbol": "RmtxParseResult"
+            }
+          ],
+          "evidenceTypes": [
+            "declared-type"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:4822db7f924b4913d656a413fd651ec7e5cac40bf82a793a37f512c778c1d0ea",
+          "shape": {
+            "fieldCount": 8,
+            "fields": [
+              "apiVersion",
+              "ast",
+              "diagnostics",
+              "ok",
+              "phase",
+              "sourceModel",
+              "sourceProfile",
+              "status"
+            ],
+            "signature": "apiVersion:string|ast:unknown|diagnostics:array<>|ok:{\"unresolved\":\"diagnostics.length === 0\"}|phase:{\"unresolvedReference\":\"phase\"}|sourceModel:unknown|sourceProfile:unknown|status:union<string>",
+            "normalized": {
+              "fields": {
+                "apiVersion": {
+                  "optional": false,
+                  "type": "string"
+                },
+                "ast": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "diagnostics": {
+                  "optional": false,
+                  "type": {
+                    "array": []
+                  }
+                },
+                "ok": {
+                  "optional": false,
+                  "type": {
+                    "unresolved": "diagnostics.length === 0"
+                  }
+                },
+                "phase": {
+                  "optional": false,
+                  "type": {
+                    "unresolvedReference": "phase"
+                  }
+                },
+                "sourceModel": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "sourceProfile": {
+                  "optional": false,
+                  "type": "unknown"
+                },
+                "status": {
+                  "optional": false,
+                  "type": {
+                    "union": [
+                      "string"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "tools/rmt-language/rmtx-parser.js"
+          ],
+          "symbols": [
+            "result"
+          ],
+          "evidence": [
+            {
+              "type": "runtime-observation",
+              "completeness": "partial",
+              "authoritative": false,
+              "path": "tools/rmt-language/rmtx-parser.js",
+              "symbol": "result"
+            }
+          ],
+          "evidenceTypes": [
+            "runtime-observation"
+          ],
+          "completeness": "partial",
+          "authoritative": false
+        }
+      ]
     },
     {
       "aliasOf": null,
@@ -906301,14 +908454,8 @@
       "usages": [
         {
           "application": "XTend Development Contracts",
-          "interfaceReferences": [
-            {
-              "path": "development/XTensions-Runtime-Adapters-WP1.md",
-              "symbol": null,
-              "type": "repo-symbol"
-            }
-          ],
           "role": "documentation",
+          "visibility": "docs",
           "sourcePaths": [
             "development/XTensions-Runtime-Adapters-WP1.md",
             "development/rmtx-a02/bindings.v1.json",
@@ -906321,68 +908468,89 @@
             "development/rmtx-a06/providers/vue.interface.json",
             "development/rmtx-a06/two-host.contract.v1.json"
           ],
-          "visibility": "docs"
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "development/XTensions-Runtime-Adapters-WP1.md",
+              "symbol": null
+            }
+          ]
         },
         {
           "application": "XTend Tests: Fixtures",
-          "interfaceReferences": [
-            {
-              "path": "tests/fixtures/xtensions/signal-bridge-valid.json",
-              "pointer": "/",
-              "type": "json-pointer"
-            }
-          ],
           "role": "fixture",
+          "visibility": "fixture",
           "sourcePaths": [
             "tests/fixtures/xtensions/signal-bridge-valid.json"
           ],
-          "visibility": "fixture"
+          "interfaceReferences": [
+            {
+              "type": "json-pointer",
+              "path": "tests/fixtures/xtensions/signal-bridge-valid.json",
+              "pointer": "/"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Rmt Language",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/rmt-language/rmtx-maraca-integration.test.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/rmt-language/rmtx-maraca-integration.test.cjs",
+              "symbol": null
+            }
+          ]
         },
         {
           "application": "XTend Tests: Types",
-          "interfaceReferences": [
-            {
-              "path": "tests/types/xtensions_runtime_adapters.ts",
-              "symbol": null,
-              "type": "repo-symbol"
-            }
-          ],
           "role": "assertion",
+          "visibility": "test",
           "sourcePaths": [
             "tests/types/xtensions_runtime_adapters.ts"
           ],
-          "visibility": "test"
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/types/xtensions_runtime_adapters.ts",
+              "symbol": null
+            }
+          ]
         },
         {
           "application": "XTend Tests: Xtensions",
-          "interfaceReferences": [
-            {
-              "path": "tests/xtensions/capability-negotiation-acceptance.js",
-              "symbol": null,
-              "type": "repo-symbol"
-            }
-          ],
           "role": "assertion",
+          "visibility": "test",
           "sourcePaths": [
             "tests/xtensions/capability-negotiation-acceptance.js",
             "tests/xtensions/runtime-adapter-acceptance.js"
           ],
-          "visibility": "test"
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/xtensions/capability-negotiation-acceptance.js",
+              "symbol": null
+            }
+          ]
         },
         {
           "application": "XTensions",
-          "interfaceReferences": [
-            {
-              "module": "@ccslabs/xtend/xtensions/signal-bridge-contract",
-              "path": "tools/xtensions/signal-bridge-contract.js",
-              "type": "package-export"
-            }
-          ],
           "role": "reference",
+          "visibility": "internal",
           "sourcePaths": [
             "tools/xtensions/signal-bridge-contract.js"
           ],
-          "visibility": "internal"
+          "interfaceReferences": [
+            {
+              "type": "package-export",
+              "module": "@ccslabs/xtend/xtensions/signal-bridge-contract",
+              "path": "tools/xtensions/signal-bridge-contract.js"
+            }
+          ]
         }
       ],
       "version": 1
@@ -1049365,13 +1051533,43 @@
           "interfaceReferences": [
             {
               "type": "package-export",
-              "path": "xtend-maraca/index.js",
-              "module": "@ccslabs/xtend-maraca"
+              "module": "@ccslabs/xtend-maraca",
+              "path": "xtend-maraca/index.js"
             },
             {
               "type": "package-export",
-              "path": "xtend-maraca/index.js",
-              "module": "@ccslabs/xtend/maraca"
+              "module": "@ccslabs/xtend/maraca",
+              "path": "xtend-maraca/index.js"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Rmt Language",
+          "role": "producer",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/rmt-language/rmtx-maraca-integration.test.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "tests/rmt-language/rmtx-maraca-integration.test.cjs",
+              "symbol": "bindings"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Rmt Language",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/rmt-language/rmtx-maraca-integration.test.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/rmt-language/rmtx-maraca-integration.test.cjs",
+              "symbol": null
             }
           ]
         },
@@ -1049438,16 +1051636,133 @@
         }
       ],
       "shapePolicy": {
-        "mode": "single",
+        "mode": "polymorphic",
         "acceptedFingerprints": [
+          "sha256:7efe4fd4c712c6b0dee83ba4cea51351fd3a354f2b1e264a4400c3e414d28dc5",
           "sha256:83217f1911a94a6effd356acf350859af48ffed2b214002c5377180edc4d027f"
         ],
         "authoritativeFingerprints": [],
         "releasedFingerprintSetHash": null,
-        "rationale": "Scoped A02.4 review: nested repeated hosts and keyed bindings use new major schemas; legacy input shapes stay closed, every pre-existing authority and release hash stays unchanged. Other differences are generated mirrors, archived declarations or non-authoritative reference observations. See development/rmtx-a02/README.md sections 8-10.",
-        "decision": "reviewed-a024-repeated-hosts"
+        "rationale": "Scoped A06.2 review of exact non-authoritative compiler, documentation, test/fixture and regenerated-inspector observations. Existing complete authoritative definitions and released fingerprint sets are unchanged; additional reference objects do not extend legacy accepted inputs.",
+        "decision": "a062-productive-frontend-observation-review"
       },
       "shapeFingerprints": [
+        {
+          "hash": "sha256:7efe4fd4c712c6b0dee83ba4cea51351fd3a354f2b1e264a4400c3e414d28dc5",
+          "shape": {
+            "fieldCount": 2,
+            "fields": [
+              "bindings",
+              "documentId"
+            ],
+            "signature": "bindings:array<{binding:{address:{declarationId:string,documentId:string,keys:array<>},intents:{rename:{command:string,fields:{},payloadSchema:string}},props:{}},surface:string}>|documentId:string",
+            "normalized": {
+              "fields": {
+                "bindings": {
+                  "optional": false,
+                  "type": {
+                    "array": [
+                      {
+                        "fields": {
+                          "binding": {
+                            "optional": false,
+                            "type": {
+                              "fields": {
+                                "address": {
+                                  "optional": false,
+                                  "type": {
+                                    "fields": {
+                                      "declarationId": {
+                                        "optional": false,
+                                        "type": "string"
+                                      },
+                                      "documentId": {
+                                        "optional": false,
+                                        "type": "string"
+                                      },
+                                      "keys": {
+                                        "optional": false,
+                                        "type": {
+                                          "array": []
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "intents": {
+                                  "optional": false,
+                                  "type": {
+                                    "fields": {
+                                      "rename": {
+                                        "optional": false,
+                                        "type": {
+                                          "fields": {
+                                            "command": {
+                                              "optional": false,
+                                              "type": "string"
+                                            },
+                                            "fields": {
+                                              "optional": false,
+                                              "type": {
+                                                "fields": {}
+                                              }
+                                            },
+                                            "payloadSchema": {
+                                              "optional": false,
+                                              "type": "string"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "props": {
+                                  "optional": false,
+                                  "type": {
+                                    "fields": {}
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "surface": {
+                            "optional": false,
+                            "type": "string"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "documentId": {
+                  "optional": false,
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "tests/rmt-language/rmtx-maraca-integration.test.cjs"
+          ],
+          "symbols": [
+            "bindings"
+          ],
+          "evidence": [
+            {
+              "type": "test",
+              "completeness": "complete",
+              "authoritative": false,
+              "path": "tests/rmt-language/rmtx-maraca-integration.test.cjs",
+              "symbol": "bindings"
+            }
+          ],
+          "evidenceTypes": [
+            "test"
+          ],
+          "completeness": "complete",
+          "authoritative": false
+        },
         {
           "hash": "sha256:83217f1911a94a6effd356acf350859af48ffed2b214002c5377180edc4d027f",
           "shape": {
@@ -1050980,6 +1053295,36 @@
           ]
         },
         {
+          "application": "XTend Tests: Rmt Language",
+          "role": "producer",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/rmt-language/rmtx-maraca-integration.test.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "symbol",
+              "path": "tests/rmt-language/rmtx-maraca-integration.test.cjs",
+              "symbol": "bindings"
+            }
+          ]
+        },
+        {
+          "application": "XTend Tests: Rmt Language",
+          "role": "assertion",
+          "visibility": "test",
+          "sourcePaths": [
+            "tests/rmt-language/rmtx-maraca-integration.test.cjs"
+          ],
+          "interfaceReferences": [
+            {
+              "type": "repo-symbol",
+              "path": "tests/rmt-language/rmtx-maraca-integration.test.cjs",
+              "symbol": null
+            }
+          ]
+        },
+        {
           "application": "XTend Tests: Types",
           "role": "assertion",
           "visibility": "test",
@@ -1051082,12 +1053427,13 @@
           "sha256:11a183fa3d6d292841ae21aa3131545c3aeee6eb929a8cfb3750ae0e98e0e66d",
           "sha256:2f797e7042558e04d2ad14d06ee74814fb0b17ff432c08cef32964e0cd9fcb8a",
           "sha256:3896fb5ffef342b82f39de1a975d8a075629a42fce19ed4c8d05c1846fedcfa7",
-          "sha256:676e7b1abbc11c7f566baf12d85f0ca4bff09e1c0dbf47f095c895e8501aa995"
+          "sha256:676e7b1abbc11c7f566baf12d85f0ca4bff09e1c0dbf47f095c895e8501aa995",
+          "sha256:ea407c4085a709bc7a3a1868822926f8bc6653149fc0fce5f34ddf8993c337f0"
         ],
         "authoritativeFingerprints": [],
         "releasedFingerprintSetHash": null,
-        "rationale": "Scoped A02.4 review: nested repeated hosts and keyed bindings use new major schemas; legacy input shapes stay closed, every pre-existing authority and release hash stays unchanged. Other differences are generated mirrors, archived declarations or non-authoritative reference observations. See development/rmtx-a02/README.md sections 8-10.",
-        "decision": "reviewed-a024-repeated-hosts"
+        "rationale": "Scoped A06.2 review of exact non-authoritative compiler, documentation, test/fixture and regenerated-inspector observations. Existing complete authoritative definitions and released fingerprint sets are unchanged; additional reference objects do not extend legacy accepted inputs.",
+        "decision": "a062-productive-frontend-observation-review"
       },
       "shapeFingerprints": [
         {
@@ -1052091,6 +1054437,97 @@
             "declared-type"
           ],
           "completeness": "partial",
+          "authoritative": false
+        },
+        {
+          "hash": "sha256:ea407c4085a709bc7a3a1868822926f8bc6653149fc0fce5f34ddf8993c337f0",
+          "shape": {
+            "fieldCount": 3,
+            "fields": [
+              "address",
+              "intents",
+              "props"
+            ],
+            "signature": "address:{declarationId:string,documentId:string,keys:array<>}|intents:{rename:{command:string,fields:{},payloadSchema:string}}|props:{}",
+            "normalized": {
+              "fields": {
+                "address": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "declarationId": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "documentId": {
+                        "optional": false,
+                        "type": "string"
+                      },
+                      "keys": {
+                        "optional": false,
+                        "type": {
+                          "array": []
+                        }
+                      }
+                    }
+                  }
+                },
+                "intents": {
+                  "optional": false,
+                  "type": {
+                    "fields": {
+                      "rename": {
+                        "optional": false,
+                        "type": {
+                          "fields": {
+                            "command": {
+                              "optional": false,
+                              "type": "string"
+                            },
+                            "fields": {
+                              "optional": false,
+                              "type": {
+                                "fields": {}
+                              }
+                            },
+                            "payloadSchema": {
+                              "optional": false,
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "props": {
+                  "optional": false,
+                  "type": {
+                    "fields": {}
+                  }
+                }
+              }
+            }
+          },
+          "sourcePaths": [
+            "tests/rmt-language/rmtx-maraca-integration.test.cjs"
+          ],
+          "symbols": [
+            "bindings"
+          ],
+          "evidence": [
+            {
+              "type": "test",
+              "completeness": "complete",
+              "authoritative": false,
+              "path": "tests/rmt-language/rmtx-maraca-integration.test.cjs",
+              "symbol": "bindings"
+            }
+          ],
+          "evidenceTypes": [
+            "test"
+          ],
+          "completeness": "complete",
           "authoritative": false
         }
       ],
@@ -1107787,6 +1110224,57 @@
           "releasedFingerprintSetHash": null
         }
       ]
+    },
+    {
+      "familyId": "xtend.rmtx.compile-result",
+      "currentVersion": 1,
+      "activeSchemaId": "xtend.rmtx.compile-result.v1",
+      "versions": [
+        {
+          "schemaId": "xtend.rmtx.compile-result.v1",
+          "version": 1,
+          "lifecycle": {
+            "status": "active",
+            "rollout": "planned"
+          },
+          "releasedFingerprintSetHash": null
+        }
+      ],
+      "tombstones": []
+    },
+    {
+      "familyId": "xtend.rmtx.frontend-runtime-acceptance",
+      "currentVersion": 1,
+      "activeSchemaId": "xtend.rmtx.frontend-runtime-acceptance.v1",
+      "versions": [
+        {
+          "schemaId": "xtend.rmtx.frontend-runtime-acceptance.v1",
+          "version": 1,
+          "lifecycle": {
+            "status": "active",
+            "rollout": "planned"
+          },
+          "releasedFingerprintSetHash": null
+        }
+      ],
+      "tombstones": []
+    },
+    {
+      "familyId": "xtend.rmtx.parser-result",
+      "currentVersion": 1,
+      "activeSchemaId": "xtend.rmtx.parser-result.v1",
+      "versions": [
+        {
+          "schemaId": "xtend.rmtx.parser-result.v1",
+          "version": 1,
+          "lifecycle": {
+            "status": "active",
+            "rollout": "planned"
+          },
+          "releasedFingerprintSetHash": null
+        }
+      ],
+      "tombstones": []
     },
     {
       "activeSchemaId": "xtend.router.adoption-pending-release.v1",

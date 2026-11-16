@@ -73,3 +73,11 @@ The A02.5.2 contract was exactly 212 ordered export keys, SHA-256 `cc95ac4c5a1f9
 ## A04.1 composition APIs (2026-11-10)
 
 The current contract is exactly 214 ordered export keys, SHA-256 `8a443b512c6993227950c2393eaa722ded512ea4f2243d4c09f527aaf3605924`. The previous 212 keys and targets retain their order. Appended `./maraca/xtension-composition` and `./maraca/xtension-composition-runtime` expose separate API-1.0.0 build/runtime contracts with matching declarations in Root and Maraca. The first captures verified local provider bytes; the second composes actual API-6 hosts with explicit application grants and shared native ports. Strict addition/substitution/order/target checks remain active; full 0.9 feature acceptance remains pending.
+
+## A06.2 RMTX frontend entrypoints (2026-11-16)
+
+The public root surface now contains exactly **217 ordered export keys**, SHA-256 `953bb6cb388411430ce1e8cf805b791fdb1b12d1fd695ec7f6c70b006567e088` (UTF-8 keys joined by newline, without a final newline). The three additive typed entries are `./rmt-language/rmtx-parser`, `./rmt-language/rmtx-compiler` and `./rmt-language/rmtx`. The compiler package exposes the same subpaths against its own shipped files. The existing entries retain their order and targets.
+
+The parser and compiler provide a closed declarative TSX frontend; the authoring entry supplies compiler-recognized markers rather than a framework runtime. TypeScript **5.9.3** is an exact production dependency of the two packages that expose the parser. It is a build-tool dependency, not a new kernel or implicit React/Vue dependency. Maraca uses the existing explicit compiler port; a `.rmtx` filename alone does not select a different compiler in this first section.
+
+The RMT TypeExports catalog includes all three declaration/runtime pairs. Actual npm tarballs and strict TypeScript consumers independently check both package surfaces and the existing Maraca compiler port. The earlier counts and fingerprints above remain historical snapshots. This additive package change does not declare the complete RMTX language or the 0.9 features release-ready. The current implementation sequence is in the [RMTX/XTensions working document](XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md).

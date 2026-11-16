@@ -1,6 +1,6 @@
 # RMT-Classic-Compilervertrag
 
-**RMT Classic** ist der neue Name der bisherigen RMT-vNext-Autorensprache. RMTX wird ein eigenes Template-Frontend für dasselbe geprüfte Compiler-Backend. Seine konkrete Syntax bleibt offen.
+**RMT Classic** ist der neue Name der bisherigen RMT-vNext-Autorensprache. RMTX verwendet eine deklarative TSX-Grammatik mit `.rmtx` und qualifizierten `RMT.<Operator>`-Elementen. Das erste geschlossene [Frontendprofil A06.2](../../development/rmtx-a06/frontend/README.md) nutzt dasselbe geprüfte Compiler-Backend; weitere Operatoren, native UI und semantisches Tooling folgen separat.
 
 ## Öffentliche API
 
@@ -13,6 +13,8 @@ const core = compileRmtClassicAst(parsed.ast, { contractVersion: '1.0.0' });
 ```
 
 Der Compilerexport bietet außerdem `compileRmtClassicSource`, `createRmtClassicCompiler`, `validateRmtClassicAst`, `isRmtClassicAst`, `getRmtClassicAstSchema` und generierte TypeScript-Typen. Das Schema ist auch als `classic-ast.schema.json` exportiert.
+
+Die neue freie Funktion `compileRmtClassicAstResult(ast, options)` liefert das vollständige geprüfte Compilerergebnis einschließlich Diagnosen und abgeleiteter Pläne. Dafür beträgt die Classic-Modul-API **4.2.0**, die kompatible vNext-Modul-API **1.3.0**. Die bisherigen Factorymethoden und der Core-only-/Fehlerrückgabevertrag von `compileRmtClassicAst` bleiben erhalten. Nur der neue vollständige AST-Einstieg akzeptiert das geschlossene RMTX-Quellprofil; RMTX-Autorentext wird über `rmt-language/rmtx-compiler` kompiliert.
 
 ## Vertrag und Kompatibilität
 

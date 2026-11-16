@@ -102,11 +102,11 @@
     },
     {
       "file": "tools/rmt-language/classic-compiler.d.ts",
-      "sha256": "5252e64211b4039c4c3272c73334342332a539703bbbf760d860e3a77240c858"
+      "sha256": "cd7256d276a7ec770dfb5fc18f4ffb31d49be590c7763dc81cc275f0e4bcddc2"
     },
     {
       "file": "tools/rmt-language/classic-compiler.js",
-      "sha256": "d321ae4c25ca3b56ca877399f9a259b86afeb8a4c6dab8a67119baaa92c52581"
+      "sha256": "aa261ed48ce70b5f9918fa58bd1042c204b509b1e2055856c976c46374a1d565"
     },
     {
       "file": "tools/rmt-language/classic-parser.d.ts",
@@ -134,11 +134,11 @@
     },
     {
       "file": "tools/rmt-language/vnext-compiler.d.ts",
-      "sha256": "c99380eef1283e488569b151fc4e51f476bf9646dc8159096bc9f8fcb2ff87a1"
+      "sha256": "111ee79a5f92d4ff5005c084590d995263fd0724d18f159911c4028dc6f70df2"
     },
     {
       "file": "tools/rmt-language/vnext-compiler.js",
-      "sha256": "9ee9aac4cd163ac3d78a6ae228d4515974eabfcf3ef89c45c38ff937684ff510"
+      "sha256": "e278fff06061bec760cccf5a420c9544e218c0aa49ed9db6bb82cb1a12fee8c7"
     },
     {
       "file": "tools/rmt-language/vnext-composition.js",
@@ -2658,7 +2658,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4384,
+          "line": 4385,
           "symbol": "compileImport"
         },
         {
@@ -2679,7 +2679,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4396,
+          "line": 4397,
           "symbol": "compileTemplate"
         },
         {
@@ -2713,7 +2713,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4480,
+          "line": 4481,
           "symbol": "compileSurface"
         },
         {
@@ -2744,7 +2744,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4550,
+          "line": 4551,
           "symbol": "compileSurfaceEvent"
         },
         {
@@ -2769,7 +2769,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4601,
+          "line": 4602,
           "symbol": "compilePrimitiveState"
         },
         {
@@ -2794,7 +2794,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4617,
+          "line": 4618,
           "symbol": "compilePrimitiveSelector"
         },
         {
@@ -2824,7 +2824,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4655,
+          "line": 4656,
           "symbol": "compilePrimitiveDataSource"
         },
         {
@@ -2854,7 +2854,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4718,
+          "line": 4719,
           "symbol": "compilePrimitiveAction"
         },
         {
@@ -2880,7 +2880,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4746,
+          "line": 4747,
           "symbol": "compilePrimitiveValidation"
         },
         {
@@ -2911,7 +2911,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4792,
+          "line": 4793,
           "symbol": "compilePrimitiveAnimation"
         },
         {
@@ -2948,7 +2948,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4847,
+          "line": 4848,
           "symbol": "compilePrimitiveTransition"
         },
         {
@@ -2975,7 +2975,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4860,
+          "line": 4861,
           "symbol": "compilePrimitiveEffect"
         },
         {
@@ -3001,7 +3001,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4898,
+          "line": 4899,
           "symbol": "compilePrimitivePortal"
         },
         {
@@ -3026,7 +3026,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4916,
+          "line": 4917,
           "symbol": "compilePrimitiveOverlay"
         },
         {
@@ -3054,7 +3054,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4951,
+          "line": 4952,
           "symbol": "compilePrimitiveResource"
         },
         {
@@ -3092,7 +3092,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4994,
+          "line": 4995,
           "symbol": "compilePrimitiveSearchSource"
         },
         {
@@ -3122,7 +3122,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5186,
+          "line": 5187,
           "symbol": "compileRemoteSurface"
         },
         {
@@ -3145,7 +3145,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5256,
+          "line": 5257,
           "symbol": "compileLane"
         },
         {
@@ -3168,7 +3168,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5317,
+          "line": 5318,
           "symbol": "compileOperation"
         },
         {
@@ -3189,7 +3189,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5329,
+          "line": 5330,
           "symbol": "compileDataSource"
         },
         {
@@ -3210,7 +3210,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5374,
+          "line": 5375,
           "symbol": "compileSlot"
         },
         {
@@ -3234,7 +3234,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5413,
+          "line": 5414,
           "symbol": "compileEvent"
         },
         {
@@ -3255,7 +3255,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5418,
+          "line": 5419,
           "symbol": "compileSecurityPolicy"
         },
         {
@@ -3276,7 +3276,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5426,
+          "line": 5427,
           "symbol": "compileSecurityPolicy"
         },
         {
@@ -3298,7 +3298,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5436,
+          "line": 5437,
           "symbol": "compileHydrationPolicy"
         },
         {
@@ -3322,7 +3322,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5446,
+          "line": 5447,
           "symbol": "compileHydrationPolicy"
         },
         {
@@ -3345,7 +3345,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5457,
+          "line": 5458,
           "symbol": "compileHydrationPolicy"
         }
       ],
@@ -3411,7 +3411,7 @@
             },
             {
               "path": "/manifest/sourceSyntax",
-              "form": "StringLiteral"
+              "form": "BinaryExpression"
             },
             {
               "path": "/manifest/contracts",
@@ -3555,7 +3555,7 @@
             },
             {
               "path": "/sourceSyntax",
-              "form": "StringLiteral"
+              "form": "BinaryExpression"
             },
             {
               "path": "/state",
@@ -3770,7 +3770,7 @@
             },
             {
               "path": "/sourceSyntax",
-              "form": "StringLiteral"
+              "form": "BinaryExpression"
             },
             {
               "path": "/runtimeOrder",
@@ -4095,6 +4095,20 @@
           "symbol": "<anonymous>"
         },
         {
+          "name": "RmtClassicAstResultOptions",
+          "fields": [
+            {
+              "name": "sourceProfile",
+              "optional": true,
+              "type": "RmtCompilerSourceProfile",
+              "declaration": "sourceProfile?: RmtCompilerSourceProfile"
+            }
+          ],
+          "file": "tools/rmt-language/classic-compiler.d.ts",
+          "line": 11,
+          "symbol": "<anonymous>"
+        },
+        {
           "name": "RmtClassicCompileResult",
           "fields": [
             {
@@ -4153,7 +4167,7 @@
             }
           ],
           "file": "tools/rmt-language/classic-compiler.d.ts",
-          "line": 11,
+          "line": 12,
           "symbol": "<anonymous>"
         },
         {
@@ -4221,7 +4235,7 @@
             }
           ],
           "file": "tools/rmt-language/classic-compiler.d.ts",
-          "line": 34,
+          "line": 37,
           "symbol": "<anonymous>"
         }
       ],
@@ -4662,8 +4676,8 @@
             {
               "name": "apiVersion",
               "optional": false,
-              "type": "'1.1.0'",
-              "declaration": "readonly apiVersion: '1.1.0';"
+              "type": "'1.3.0'",
+              "declaration": "readonly apiVersion: '1.3.0';"
             },
             {
               "name": "schema",
@@ -4704,6 +4718,96 @@
           ],
           "file": "tools/rmt-language/vnext-compiler.d.ts",
           "line": 15,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtCompilerSourceProfile",
+          "fields": [
+            {
+              "name": "syntax",
+              "optional": false,
+              "type": "'rmtx'",
+              "declaration": "readonly syntax: 'rmtx';"
+            },
+            {
+              "name": "version",
+              "optional": false,
+              "type": "'1.0.0'",
+              "declaration": "readonly version: '1.0.0'"
+            }
+          ],
+          "file": "tools/rmt-language/vnext-compiler.d.ts",
+          "line": 26,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtVNextAstResultOptions",
+          "fields": [
+            {
+              "name": "sourceProfile",
+              "optional": true,
+              "type": "RmtCompilerSourceProfile",
+              "declaration": "sourceProfile?: RmtCompilerSourceProfile"
+            }
+          ],
+          "file": "tools/rmt-language/vnext-compiler.d.ts",
+          "line": 27,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtVNextAstCompileResult",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "string",
+              "declaration": "schema: string;"
+            },
+            {
+              "name": "phase",
+              "optional": false,
+              "type": "string",
+              "declaration": "phase: string;"
+            },
+            {
+              "name": "status",
+              "optional": false,
+              "type": "string",
+              "declaration": "status: string;"
+            },
+            {
+              "name": "coreDocument",
+              "optional": false,
+              "type": "RmtVNextCoreDocument | null",
+              "declaration": "coreDocument: RmtVNextCoreDocument | null;"
+            },
+            {
+              "name": "coreJson",
+              "optional": false,
+              "type": "string | null",
+              "declaration": "coreJson: string | null;"
+            },
+            {
+              "name": "parserResult",
+              "optional": false,
+              "type": "RmtParseResult & { sourceModel: unknown }",
+              "declaration": "parserResult: RmtParseResult & { sourceModel: unknown };"
+            },
+            {
+              "name": "compilerDiagnostics",
+              "optional": false,
+              "type": "RmtToolingDiagnostic[]",
+              "declaration": "compilerDiagnostics: RmtToolingDiagnostic[];"
+            },
+            {
+              "name": "orchestrationArtifacts",
+              "optional": false,
+              "type": "RmtJsonValue | null",
+              "declaration": "orchestrationArtifacts: RmtJsonValue | null;"
+            }
+          ],
+          "file": "tools/rmt-language/vnext-compiler.d.ts",
+          "line": 28,
           "symbol": "<anonymous>"
         }
       ],

@@ -12,6 +12,8 @@ test('development checks validate Classic drift, observations, versions and scop
     ['scripts/generate_rmt_classic_contract.js', '--check'],
     ['--test', 'tests/rmt-language/action-execution-lowering.test.cjs', 'tests/rmt-language/event-condition-guards.test.cjs', 'tests/rmt-language/action-backend-regressions.test.cjs', 'tests/rmt/renderer-structural-ownership.test.cjs'],
     ['--test', 'tests/rmt/surface-materialize-lifetime.test.cjs', 'tests/rmt/maraca-view-lifecycle.test.cjs', 'tests/maraca/native-surface-lifecycle.test.mjs'],
+    ['--test', 'tests/rmt-language/backend-ast-result.test.cjs', 'tests/rmt-language/rmtx-frontend.test.cjs', 'tests/rmt-language/rmtx-maraca-integration.test.cjs'],
+    ['development/rmtx-a06/frontend/inspect.cjs', '--check'],
     ['development/rmtx-a01/inspect.cjs', '--check'],
     ['development/rmtx-a02/inspect.cjs', '--check'],
     ['development/rmtx-a02/url-history/inspect.cjs', '--check'],

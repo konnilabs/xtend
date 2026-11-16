@@ -43,10 +43,10 @@
     "xtend-maraca/browser-composition-runtime.d.ts": "0bbc0a1d17ce936447db360cfd16ddd1128b2a342329ea2b2a6e1b6db4b5860f",
     "xtend-maraca/plan-runtime.mjs": "0a4970152bddfa0c3b431e72e104b4ed1ae5756e381ea41e0b14c226d0f131a6",
     "xtend-maraca/plan-runtime.d.ts": "30344c8b55e0d4b857224ea28a8565894172e6a3054aa7865b19eb989c76b075",
-    "xtend-maraca/index.js": "32dae73cc1a95002804a039f90f1debefa4c6ed53d389ed048b014611e3d67ba",
-    "xtend-maraca/index.d.ts": "16a39e84cd3f6c63fde6b2ee90d04e9e3d5291d58bc79d4eb3998999630d2919",
+    "xtend-maraca/index.js": "d3a189d0ccb16b557263c854dcce60410355580997f12e2fb4874bb9dcf860ad",
+    "xtend-maraca/index.d.ts": "483605501842d234f6b9a8d6f089df7de3c3f46be21fded93d0d9299317572f6",
     "xtend-maraca/package.json": "a802d6462ed9df05546d68d70e65ae2c14cee64b568c157377d179bd874972d0",
-    "tools/package.json": "5ba8082739322f2e20861609b36144aa80616f85364a9135c903004f188a5e08",
+    "tools/package.json": "a1bd6886b53f4a889d60fb185b3295a164d6abc63f1001cee0ab2766e0444103",
     "tools/xtensions/component-interface.js": "8d3b813dcc2b4bbb230d8e18720487c7f19e84bcf2bcbcea55cd251f0b6e7646",
     "tools/xtensions/component-interface.d.ts": "53671d929255b91046bda33c7002cab84ebc785c5fb6e31a93cb014653e3232f",
     "tools/xtensions/component-interface-build.js": "7dade34c20e63b7f7f17fac03026cbb18ece5209d1ebbb712dafa86ca644d5f4",
@@ -61,7 +61,7 @@
     "development/rmtx-a06/providers/catalog.json": "4f38fa3e2b73c374b0fab112b5ba1d6f12da2b95253e4148088389f7d087f801",
     "development/rmtx-a06/providers/react.interface.json": "45394fbe58a8f81445891526967d691786ef1ecf2fd6eb08e520e69322c76539",
     "development/rmtx-a06/providers/vue.interface.json": "30de14608052cdd250f1f56b06fa0b5c7df8dda73803d5d5daa96355e5a6f1e4",
-    "scripts/check_release_preparation.cjs": "6f387d3a070ee02971ceceda17d93a44683c5f12ebe1f0224f5cbed52bd92593",
-    "tests/release/preparation-gates.test.cjs": "5330a3f8d77fc37cacd9c7f4de6dc493c30658f5e1ca3f32265e43a60972b885"
+    "scripts/check_release_preparation.cjs": "ac9f3efd37f01544c1a81798c0ffe25dbe89c4b4b898696f3f3aea6002f4b355",
+    "tests/release/preparation-gates.test.cjs": "f878a0676f152b36dc4571efcab27577b683e6d7bb40bc19f6a2e895102ff5fe"
   }
 }

@@ -2,7 +2,7 @@
 const legacy = require('./vnext-compiler');
 const { RMT_CLASSIC_COMPILER_CONTRACT, getRmtClassicAstSchema, validateRmtClassicAst } = require('./classic-ast-contract');
 const { validateStateBindingArtifact } = require('../xtensions/state-binding-artifact');
-const RMT_CLASSIC_COMPILER_API_VERSION = '4.1.0';
+const RMT_CLASSIC_COMPILER_API_VERSION = '4.2.0';
 const RMT_CLASSIC_COMPILE_RESULT_SCHEMA = 'xtend.rmt.classic.compile-result.v4';
 
 function assertContractVersion(options) {
@@ -15,6 +15,9 @@ function assertContractVersion(options) {
 function compileRmtClassicSource(input = {}, options = {}) {
   assertContractVersion(options);
   const result = { ...legacy.compileRmtVNextSource(input, options), schema: RMT_CLASSIC_COMPILE_RESULT_SCHEMA };
+  return withStateBindingResult(result, options);
+}
+function withStateBindingResult(result, options) {
   if (!Object.hasOwn(options, 'xtensionBindings') || !result.ok) return result;
   try {
     return { ...result, xtensionBindings: validateStateBindingArtifact(options.xtensionBindings, result.orchestrationArtifacts) };
@@ -23,6 +26,10 @@ function compileRmtClassicSource(input = {}, options = {}) {
     return { ...result, ok: false, status: 'invalid', phase: 'xtension-bindings', diagnostics: [...result.diagnostics, ...diagnostics],
       compilerDiagnostics: [...result.compilerDiagnostics, ...diagnostics], coreDocument: null, coreJson: null, orchestrationArtifacts: null, xtensionBindings: null };
   }
+}
+function compileRmtClassicAstResult(ast, options = {}) {
+  assertContractVersion(options);
+  return withStateBindingResult({ ...legacy.compileRmtVNextAstResult(ast, options), schema: RMT_CLASSIC_COMPILE_RESULT_SCHEMA }, options);
 }
 function compileRmtClassicAst(ast, options = {}) {
   assertContractVersion(options);
@@ -50,6 +57,6 @@ module.exports = {
   validateStateBindingArtifact,
   RMT_CLASSIC_COMPILER_CONTRACT, getRmtClassicAstSchema, validateRmtClassicAst, createRmtClassicCompiler,
   isRmtClassicAst: ast => validateRmtClassicAst(ast).length === 0,
-  compileRmtClassicSource, compileRmtClassicAst, compileRmtClassicAstWithBindings,
+  compileRmtClassicSource, compileRmtClassicAst, compileRmtClassicAstResult, compileRmtClassicAstWithBindings,
   serializeRmtClassicCore: legacy.serializeRmtVNextCore
 };

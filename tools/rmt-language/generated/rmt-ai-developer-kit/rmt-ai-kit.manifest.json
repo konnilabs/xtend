@@ -141,8 +141,8 @@
     },
     {
       "path": "docs/de/release-0-9.md",
-      "sha256": "b1de48b695b542e3ed1410f88bd4c711a436fb4e8cec7091cde9869883052d58",
-      "bytes": 1879
+      "sha256": "7b5520331ac26e40a5debbb156ab1dc766b38b5ecaa1690156b7c28771796989",
+      "bytes": 2651
     },
     {
       "path": "docs/de/rmt-app-platform-tooling.md",
@@ -151,8 +151,8 @@
     },
     {
       "path": "docs/de/rmt-classic-contract.md",
-      "sha256": "b2b3ddd76d65f7fb5b4baccfef4469fbef34cf4b525b291a7260cd8f4ad26c39",
-      "bytes": 1939
+      "sha256": "b3ed5fa7a6ddeeb18a207cd1ecfa05f7064c8109f71bcb71757982a7ffcdc1cf",
+      "bytes": 2669
     },
     {
       "path": "docs/de/rmt-reference-actions-events.md",
@@ -231,18 +231,18 @@
     },
     {
       "path": "docs/en/release-0-9.md",
-      "sha256": "7d4cbe0cfeb749c120476fa2d6709864276f84188aa6045898c6f8b474d3b2ba",
-      "bytes": 1984
+      "sha256": "240755f613439407375051470cf3141783d1897bcd801caf69b92be40c13f1f3",
+      "bytes": 2615
     },
     {
       "path": "docs/en/rmt-classic-contract.md",
-      "sha256": "4e6b4f55adc90bd5f2d044bef68e46fda9f587933ebc2cd6f5c8299e6f8e1a40",
-      "bytes": 1864
+      "sha256": "ce7ed3bc04516399b0b782c22dbc0c84f7700e65438d6dbf84221374a106211a",
+      "bytes": 2557
     },
     {
       "path": "tools/rmt-language/classic-compiler.d.ts",
-      "sha256": "5252e64211b4039c4c3272c73334342332a539703bbbf760d860e3a77240c858",
-      "bytes": 3392
+      "sha256": "cd7256d276a7ec770dfb5fc18f4ffb31d49be590c7763dc81cc275f0e4bcddc2",
+      "bytes": 3771
     },
     {
       "path": "tools/rmt-language/classic-parser.d.ts",
@@ -266,8 +266,8 @@
     },
     {
       "path": "tools/rmt-language/vnext-compiler.d.ts",
-      "sha256": "c99380eef1283e488569b151fc4e51f476bf9646dc8159096bc9f8fcb2ff87a1",
-      "bytes": 3444
+      "sha256": "111ee79a5f92d4ff5005c084590d995263fd0724d18f159911c4028dc6f70df2",
+      "bytes": 4280
     },
     {
       "path": "tools/rmt-linter/reporter.d.ts",
@@ -286,8 +286,8 @@
     },
     {
       "path": "xtend-maraca/index.d.ts",
-      "sha256": "16a39e84cd3f6c63fde6b2ee90d04e9e3d5291d58bc79d4eb3998999630d2919",
-      "bytes": 47664
+      "sha256": "483605501842d234f6b9a8d6f089df7de3c3f46be21fded93d0d9299317572f6",
+      "bytes": 47788
     }
   ],
   "rootDir": ""

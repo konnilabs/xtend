@@ -2275,7 +2275,7 @@ function compileSource(options, compile = null) {
   const settings = Object.hasOwn(options, 'xtensionBindings') ? { xtensionBindings: options.xtensionBindings } : {};
   let compileResult = (compile || compiler.compileRmtClassicSource)({ text: sourceText, filePath: options.sourcePath }, settings);
   if (compileResult.ok && Object.hasOwn(settings, 'xtensionBindings')) {
-    try { compileResult = { ...compileResult, schema: compiler.RMT_CLASSIC_COMPILE_RESULT_SCHEMA,
+    try { compileResult = { ...compileResult, schema: compileResult.schema || compiler.RMT_CLASSIC_COMPILE_RESULT_SCHEMA,
       xtensionBindings: compiler.validateStateBindingArtifact(settings.xtensionBindings, compileResult.orchestrationArtifacts) }; }
     catch (error) { compileResult = { ...compileResult, ok: false, coreDocument: null, diagnostics: [...(compileResult.diagnostics || []), ...(error.diagnostics || [])] }; }
   }

@@ -52,6 +52,20 @@ function runXTensionsRuntimeGate({ rootDir, browser = false } = {}) {
     context.assert(!scopedExecution.error&&scopedExecution.status===0,`Actual component key scopes pass: ${scopedExecution.stderr||scopedExecution.stdout||scopedExecution.error||''}`);
     const scoped=JSON.parse(fs.readFileSync(scopedArtifact,'utf8'));
     context.assert(scoped.schema==='xtend.xtensions.component-scope-acceptance.v1'&&scoped.passed&&scoped.node===process.version&&scoped.cases>=6&&scoped.mode===(browser?'chromium-sealed-native-esm':'jsdom-native-esm')&&(!browser||Boolean(scoped.browserVersion)&&scoped.pageErrors.length===0)&&scoped.typedKeyScopes&&scoped.ssrAcceptancePerformed===false,'Nested typed component scopes, lifetime and State paths are independently required');
+    const rmtxArtifact = path.join(rootDir, '.xtend-test-results', `xtend-rmtx-frontend-runtime-${browser ? 'browser' : 'node'}-report.json`);
+    fs.rmSync(rmtxArtifact, { force: true });
+    const rmtxExecution = spawnSync(process.execPath, ['development/rmtx-a06/frontend/runtime-test.cjs', ...(browser ? ['--browser'] : []), '--output', rmtxArtifact], {
+      cwd: rootDir, env, encoding: 'utf8', timeout: 180000, maxBuffer: 16 * 1024 * 1024
+    });
+    context.assert(!rmtxExecution.error && rmtxExecution.status === 0, `Actual productive RMTX frontend acceptance passes: ${rmtxExecution.stderr || rmtxExecution.stdout || rmtxExecution.error || ''}`);
+    const rmtx = JSON.parse(fs.readFileSync(rmtxArtifact, 'utf8'));
+    context.assert(rmtx.schema === 'xtend.rmtx.frontend-runtime-acceptance.v1' && rmtx.passed && rmtx.node === process.version && rmtx.cases >= 8
+      && rmtx.mode === (browser ? 'chromium-sealed-native-esm' : 'jsdom-native-esm')
+      && (!browser || Boolean(rmtx.browserVersion) && rmtx.pageErrors.length === 0)
+      && rmtx.compiler?.schema === 'xtend.rmtx.compile-result.v1' && rmtx.compiler.planCompilerSchema === rmtx.compiler.schema
+      && rmtx.compiler.sourceProfile?.syntax === 'rmtx' && rmtx.compiler.sourceProfile.version === '1.0.0'
+      && rmtx.productiveRmtxFrontendUsed === true && rmtx.completeRmtxFrontendImplemented === false && rmtx.acceptedForRelease === false,
+    'RMTX source must use the productive compiler and generated React/Vue host chain with explicit source profile and retained release limits');
     if(browser){
       const componentSSRArtifact=path.join(rootDir,'.xtend-test-results','xtend-component-ssr-report.json');fs.rmSync(componentSSRArtifact,{force:true});
       const execution=spawnSync(process.execPath,['development/rmtx-a06/scoped-ssr-test.cjs','--output',componentSSRArtifact],{cwd:rootDir,env,encoding:'utf8',timeout:180000,maxBuffer:16*1024*1024});
