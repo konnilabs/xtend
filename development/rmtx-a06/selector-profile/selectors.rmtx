@@ -1,0 +1,30 @@
+import { RMT, model, selectors, item, params, contains } from '@ccslabs/xtend/rmt-language/rmtx';
+export default (
+  <RMT.Program id="selector.demo">
+    <RMT.State id="rows" type="array" initial={[
+      { id: 'a', enabled: true, kind: 'image', label: 'Alpha', rank: 10 },
+      { id: 'b', enabled: true, kind: 'image', label: 'Beta', rank: 2 },
+      { id: 'c', enabled: false, kind: 'image', label: 'Gamma', rank: 4 },
+      { id: 'd', enabled: true, kind: 'audio', label: 'Delta', rank: 3 }
+    ]} />
+    <RMT.State id="criteria" type="object" initial={{ minimum: 2, selectedId: 'b' }} />
+    <RMT.State id="selected" type="json" initial={null} />
+    <RMT.Selector id="eligible" from={model.rows}>
+      <RMT.Where test={item.enabled === true} />
+      <RMT.Where test={item.rank >= model.criteria.minimum && !(item.kind !== 'image')} />
+      <RMT.Sort by={item.rank} direction="asc" />
+      <RMT.Output type="object[]" />
+    </RMT.Selector>
+    <RMT.Selector id="search" from={selectors.eligible}>
+      <RMT.Where test={contains(item.label, params.term)} />
+      <RMT.Output type="object[]" />
+    </RMT.Selector>
+    <RMT.Selector id="chosen" from={selectors.eligible}>
+      <RMT.Find test={item.id === model.criteria.selectedId} />
+      <RMT.Output type="object" />
+    </RMT.Selector>
+    <RMT.Action id="selection.apply">
+      <RMT.Reduce state="selected" value={selectors.chosen} />
+    </RMT.Action>
+  </RMT.Program>
+);

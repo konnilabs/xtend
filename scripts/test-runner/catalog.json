@@ -13734,6 +13734,20 @@
           "producer": "full_release",
           "expectedSchema": "xtend.rmtx.frontend-runtime-acceptance.v1",
           "expectedMode": "chromium-sealed-native-esm"
+        },
+        {
+          "path": ".xtend-test-results/xtend-rmtx-selector-runtime-node-report.json",
+          "kind": "outcome",
+          "producer": "full_release",
+          "expectedSchema": "xtend.rmtx.selector-runtime-acceptance.v1",
+          "expectedMode": "jsdom-native-esm"
+        },
+        {
+          "path": ".xtend-test-results/xtend-rmtx-selector-runtime-browser-report.json",
+          "kind": "outcome",
+          "producer": "full_release",
+          "expectedSchema": "xtend.rmtx.selector-runtime-acceptance.v1",
+          "expectedMode": "chromium-sealed-native-esm"
         }
       ]
     },

@@ -14,7 +14,7 @@ const core = compileRmtClassicAst(parsed.ast, { contractVersion: '1.0.0' });
 
 Der Compilerexport bietet außerdem `compileRmtClassicSource`, `createRmtClassicCompiler`, `validateRmtClassicAst`, `isRmtClassicAst`, `getRmtClassicAstSchema` und generierte TypeScript-Typen. Das Schema ist auch als `classic-ast.schema.json` exportiert.
 
-Die neue freie Funktion `compileRmtClassicAstResult(ast, options)` liefert das vollständige geprüfte Compilerergebnis einschließlich Diagnosen und abgeleiteter Pläne. Dafür beträgt die Classic-Modul-API **4.2.0**, die kompatible vNext-Modul-API **1.3.0**. Die bisherigen Factorymethoden und der Core-only-/Fehlerrückgabevertrag von `compileRmtClassicAst` bleiben erhalten. Nur der neue vollständige AST-Einstieg akzeptiert das geschlossene RMTX-Quellprofil; RMTX-Autorentext wird über `rmt-language/rmtx-compiler` kompiliert.
+Die neue freie Funktion `compileRmtClassicAstResult(ast, options)` liefert das vollständige geprüfte Compilerergebnis einschließlich Diagnosen und abgeleiteter Pläne. Dafür beträgt die Classic-Modul-API inzwischen **4.3.0**, die kompatible vNext-Modul-API **1.4.0**. Die bisherigen Factorymethoden und der Core-only-/Fehlerrückgabevertrag von `compileRmtClassicAst` bleiben erhalten. Nur der neue vollständige AST-Einstieg akzeptiert die geschlossenen RMTX-Quellprofile 1.0.0 und 2.0.0; RMTX-Autorentext wird über `rmt-language/rmtx-compiler` kompiliert.
 
 ## Vertrag und Kompatibilität
 
@@ -25,3 +25,5 @@ Bestehende `vnext-*`-APIs, AST-/Core-Wire-IDs und Source-Tags bleiben kompatibel
 ## Prüfung
 
 `npm run check:rmt-classic-contract` prüft Schema-/Typ-Drift. Die vollständigen [Feld-, Referenz-, Diagnose- und Versionierungsregeln](../../development/rmtx-a01/compiler-contract.md) beschreiben die Backend-Grenze. Der [Releaseplan 0.9](./release-0-9.md) führt RMTX und XTensions 2.0 als verpflichtenden Umfang.
+
+Das [A06.3.1-Selektorprofil](../../development/rmtx-a06/selector-profile/README.md) ergänzt den Operator-/Ausdruckskatalog, boolesche Selectorprädikate und statische Readsets. Parser-/Compiler-Module haben Capability-API **2.0.0**, behalten aber v1 als Default. Das zusätzliche Syntaxprofil **2.0.0** wird ausdrücklich gewählt und liefert eigene v2-Resultate; bisherige v1-Daten bleiben erhalten. Die Readsets verändern keine Runtime-Subscriptions oder Neuberechnung.

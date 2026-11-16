@@ -58,7 +58,7 @@
     "tests/xtensions/component-interface.test.cjs": "2061b086e09820c0e3a5406b89cfeeb2d5e9dde8a9558e90eae926e9ea225cf1",
     "tests/types/xtensions_component_interface.tsx": "24ffa5e0cf31bdf69194d2ca7267b3c2b3ec6113f1d64654fdea75e1fa03d9e1",
     "tests/types/xtensions_component_candidate.d.ts": "e6d5f4c3aca47c1e0b0910c6851890973618d22c6266878661fe3d870bc3c013",
-    "scripts/check_release_preparation.cjs": "ac9f3efd37f01544c1a81798c0ffe25dbe89c4b4b898696f3f3aea6002f4b355",
-    "tests/release/preparation-gates.test.cjs": "f878a0676f152b36dc4571efcab27577b683e6d7bb40bc19f6a2e895102ff5fe"
+    "scripts/check_release_preparation.cjs": "dbbf014b43ac1ee92b2565078ef185d94f4f5ec55c272bc13c38692112d16d9f",
+    "tests/release/preparation-gates.test.cjs": "040e36a232f272882a1febab643a55c538741cfada6a9c715e507cfc76167aa8"
   }
 }

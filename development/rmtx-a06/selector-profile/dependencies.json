@@ -1,0 +1,154 @@
+{
+  "schema": "xtend.rmtx.selector-dependencies.v1",
+  "sourceProfile": {
+    "syntax": "rmtx",
+    "version": "2.0.0"
+  },
+  "topologicalOrder": [
+    "eligible",
+    "search",
+    "chosen"
+  ],
+  "selectors": [
+    {
+      "id": "eligible",
+      "source": {
+        "kind": "state",
+        "symbol": "rows"
+      },
+      "stateReads": [
+        {
+          "symbol": "criteria",
+          "path": [
+            "minimum"
+          ],
+          "reference": "state.criteria.minimum"
+        },
+        {
+          "symbol": "rows",
+          "path": [],
+          "reference": "state.rows"
+        }
+      ],
+      "selectorReads": [],
+      "transitiveStateReads": [
+        {
+          "symbol": "criteria",
+          "path": [
+            "minimum"
+          ],
+          "reference": "state.criteria.minimum"
+        },
+        {
+          "symbol": "rows",
+          "path": [],
+          "reference": "state.rows"
+        }
+      ],
+      "rowPaths": [
+        [
+          "enabled"
+        ],
+        [
+          "kind"
+        ],
+        [
+          "rank"
+        ]
+      ],
+      "parameterPaths": []
+    },
+    {
+      "id": "search",
+      "source": {
+        "kind": "selector",
+        "symbol": "eligible"
+      },
+      "stateReads": [],
+      "selectorReads": [
+        {
+          "symbol": "eligible",
+          "path": [],
+          "reference": "selector.eligible"
+        }
+      ],
+      "transitiveStateReads": [
+        {
+          "symbol": "criteria",
+          "path": [
+            "minimum"
+          ],
+          "reference": "state.criteria.minimum"
+        },
+        {
+          "symbol": "rows",
+          "path": [],
+          "reference": "state.rows"
+        }
+      ],
+      "rowPaths": [
+        [
+          "label"
+        ]
+      ],
+      "parameterPaths": [
+        [
+          "term"
+        ]
+      ]
+    },
+    {
+      "id": "chosen",
+      "source": {
+        "kind": "selector",
+        "symbol": "eligible"
+      },
+      "stateReads": [
+        {
+          "symbol": "criteria",
+          "path": [
+            "selectedId"
+          ],
+          "reference": "state.criteria.selectedId"
+        }
+      ],
+      "selectorReads": [
+        {
+          "symbol": "eligible",
+          "path": [],
+          "reference": "selector.eligible"
+        }
+      ],
+      "transitiveStateReads": [
+        {
+          "symbol": "criteria",
+          "path": [
+            "minimum"
+          ],
+          "reference": "state.criteria.minimum"
+        },
+        {
+          "symbol": "criteria",
+          "path": [
+            "selectedId"
+          ],
+          "reference": "state.criteria.selectedId"
+        },
+        {
+          "symbol": "rows",
+          "path": [],
+          "reference": "state.rows"
+        }
+      ],
+      "rowPaths": [
+        [
+          "id"
+        ]
+      ],
+      "parameterPaths": []
+    }
+  ],
+  "incrementalRecomputation": false,
+  "runtimeTracking": false,
+  "parametersForwardedToDependencies": false
+}

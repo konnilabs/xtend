@@ -14,7 +14,7 @@ const core = compileRmtClassicAst(parsed.ast, { contractVersion: '1.0.0' });
 
 The compiler export also provides `compileRmtClassicSource`, `createRmtClassicCompiler`, `validateRmtClassicAst`, `isRmtClassicAst`, `getRmtClassicAstSchema`, and generated TypeScript types. The schema is also exported as `classic-ast.schema.json`.
 
-The new standalone function `compileRmtClassicAstResult(ast, options)` returns the complete validated compiler result, including diagnostics and derived plans. The Classic module API is therefore **4.2.0**, and the compatible vNext module API is **1.3.0**. Existing factory methods and the Core-only/throwing contract of `compileRmtClassicAst` remain supported. Only the new complete AST entrypoint accepts the closed RMTX source profile; compile RMTX authoring text through `rmt-language/rmtx-compiler`.
+The new standalone function `compileRmtClassicAstResult(ast, options)` returns the complete validated compiler result, including diagnostics and derived plans. The Classic module API is now **4.3.0**, and the compatible vNext module API is **1.4.0**. Existing factory methods and the Core-only/throwing contract of `compileRmtClassicAst` remain supported. Only the new complete AST entrypoint accepts the closed RMTX source profiles 1.0.0 and 2.0.0; compile RMTX authoring text through `rmt-language/rmtx-compiler`.
 
 ## Contract and compatibility
 
@@ -25,3 +25,5 @@ Existing `vnext-*` APIs, AST/Core wire IDs, and source tags remain compatible. U
 ## Verification
 
 `npm run check:rmt-classic-contract` detects schema/type drift. The complete [field, reference, diagnostic, and versioning rules](../../development/rmtx-a01/compiler-contract.md) describe the backend boundary. The [0.9 release plan](./release-0-9.md) requires both RMTX and XTensions 2.0.
+
+The [A06.3.1 selector profile](../../development/rmtx-a06/selector-profile/README.md) adds the operator/expression catalog, boolean selector predicates and static readsets. Parser/compiler modules now expose capability API **2.0.0**, while v1 remains the default. Explicitly selecting syntax profile **2.0.0** produces separate v2 results; existing v1 data is retained. Readsets do not change runtime subscriptions or recomputation.

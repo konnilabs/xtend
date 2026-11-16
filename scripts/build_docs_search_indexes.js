@@ -65,7 +65,7 @@ function parseArticle(markdown, fallbackTitle) {
   };
 }
 
-function compactBody(markdown) {
+function compactBody(markdown, normalizeSearchText) {
   const normalized = stripMarkdown(markdown)
     .normalize('NFKC')
     .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
@@ -79,7 +79,11 @@ function compactBody(markdown) {
     result.push(token);
     if (result.length >= 520) break;
   }
-  return result.join(' ');
+  // Normalize only after the existing ordered, bounded token selection. Search
+  // applies this exact function to body fields anyway; doing it here avoids
+  // transferring redundant spellings without changing prefixes or phrases.
+  // Do not sort or deduplicate again: both would change the searchable string.
+  return normalizeSearchText(result.join(' '));
 }
 
 function normalizeArticleReference(reference, locale, canonicalSlugs) {
@@ -112,7 +116,7 @@ function extractRelatedSlugs(markdown, locale, canonicalSlugs, currentSlug) {
   return related;
 }
 
-function buildLocale(locale, menu) {
+function buildLocale(locale, menu, normalizeSearchText) {
   const compactEntries = [];
   const fulltextEntries = [];
   const sourceParts = [];
@@ -146,7 +150,7 @@ function buildLocale(locale, menu) {
       relatedSlugs: extractRelatedSlugs(markdown, locale, canonicalSlugs, entry.slug)
     };
     compactEntries.push(common);
-    fulltextEntries.push({ ...common, body: compactBody(markdown) });
+    fulltextEntries.push({ ...common, body: compactBody(markdown, normalizeSearchText) });
     sourceParts.push(`${entry.slug}\0${markdown}`);
   });
 
@@ -189,13 +193,14 @@ function artifactRecord(locale, kind, value, budget) {
   };
 }
 
-function main() {
+async function main() {
+  const { normalizeSearchText } = await import('../xtendrmt/rmt-app-runtime.js');
   const write = process.argv.includes('--write');
   const menu = readJson(path.join(DOCS_DIR, 'menu.json'));
   if (menu.length !== EXPECTED_CANONICAL_SLUG_COUNT) throw new Error(`Expected ${EXPECTED_CANONICAL_SLUG_COUNT} docs entries, received ${menu.length}.`);
   const artifacts = [];
   LOCALES.forEach((locale) => {
-    const indexes = buildLocale(locale, menu);
+    const indexes = buildLocale(locale, menu, normalizeSearchText);
     artifacts.push(artifactRecord(locale, 'compact', indexes.compact, COMPACT_BUDGET));
     artifacts.push(artifactRecord(locale, 'fulltext', indexes.fulltext, FULLTEXT_BUDGET));
   });
@@ -214,4 +219,12 @@ function main() {
   if (drift) process.exitCode = 1;
 }
 
-main();
+if (require.main === module) {
+  main().catch((error) => {
+    process.stderr.write(`${error.stack || error}\n`);
+    process.exitCode = 1;
+  });
+}
+
+// Internal producer helpers for corpus-level compatibility regression checks.
+module.exports = { buildLocale, compactBody };

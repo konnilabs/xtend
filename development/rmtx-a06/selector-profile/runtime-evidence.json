@@ -1,0 +1,225 @@
+{
+  "format": 1,
+  "version": "1.0.0",
+  "date": "2026-11-16",
+  "stage": "A06.3.1-selector-action-model-props",
+  "passed": true,
+  "sourceProfile": {
+    "syntax": "rmtx",
+    "version": "2.0.0"
+  },
+  "casesPerRun": 11,
+  "existingAutomaticCases": 8,
+  "selectorActionModelPropsCases": 3,
+  "sourceStableAcrossRuns": true,
+  "runs": [
+    {
+      "schema": "xtend.rmtx.selector-runtime-acceptance.v1",
+      "format": 1,
+      "version": "1.0.0",
+      "stage": "A06.3.1-selector-runtime",
+      "mode": "jsdom-native-esm",
+      "node": "v24.22.2",
+      "browserVersion": null,
+      "pageErrors": [],
+      "compiler": {
+        "schema": "xtend.rmtx.compile-result.v2",
+        "apiVersion": "2.0.0",
+        "sourceProfile": {
+          "syntax": "rmtx",
+          "version": "2.0.0"
+        },
+        "source": "development/rmtx-a06/selector-profile/two-host.rmtx",
+        "sourceHash": "f98fe6e856c396c36caf68f139baa547e339cf6baebf0ad60fdc563dba721369",
+        "planCompilerSchema": "xtend.rmtx.compile-result.v2"
+      },
+      "versions": {
+        "react": "18.3.1",
+        "vue": "3.5.43"
+      },
+      "sources": {
+        "development/rmtx-a06/selector-profile/runtime-test.cjs": "9ec8bd2deaf3eeb18839f3d70230ca7a147ae4a426b352cd9a4b959610af702d",
+        "development/rmtx-a06/selector-profile/runtime-acceptance.mjs": "46809039eb96b3aa8e745a4a3e3fa365a32c7a2175fa71e24035c49f241a8447",
+        "development/rmtx-a06/selector-profile/two-host.rmtx": "f98fe6e856c396c36caf68f139baa547e339cf6baebf0ad60fdc563dba721369",
+        "development/rmtx-a06/automatic-reference.cjs": "5d12d3ba201ce94ce8330058fc08e854f5018cec84536eacc73e5c4e040e302a",
+        "development/rmtx-a06/automatic-acceptance.mjs": "11d84c000b8042c50454d6e8167435752d7ec96079435dd447aae5c2bdd2d924",
+        "tools/rmt-language/rmtx-parser.js": "2b7bae7def1906f72df01bbb4a09bf8a80c4c40fb7fe74f9f24a341f953cd288",
+        "tools/rmt-language/rmtx-compiler.js": "2bb9d927dbaf0071712593a9610ce18cf12779274f06e747fa165e968da56cd7",
+        "tools/rmt-language/rmtx-operator-profiles.js": "f9b40ec0b68ed8a989e6ff1917391ede4d406ec4e5801f83d56716848259cd0c",
+        "tools/rmt-language/rmtx.js": "3346b662bbf61351842568fe4c44a50c5cce2d319d7124321765b85baf9c00fb",
+        "xtend-maraca/index.js": "d3a189d0ccb16b557263c854dcce60410355580997f12e2fb4874bb9dcf860ad",
+        "xtendrmt/rmt-state-selector-runtime.js": "150f5ae1a279cf7457be54fc7a466afeb1a2a026a911ab1cb1d16ae5da2a669d",
+        "tools/rmt-language/classic-compiler.js": "5a402d5fb541cf82f16455e0c0a752ec50c4f69b60a42a36bfa036b870e7df08",
+        "tools/rmt-language/vnext-compiler.js": "3a2a09162285a13ff2198a7ece51c038157f5990dd030ace932f7c906659de31"
+      },
+      "passed": true,
+      "cases": 11,
+      "names": [
+        "generated v8 browser app boots both providers with exact component interfaces through Kernel/Fabric",
+        "provider events update Model/XTend State and preserve the sibling framework root",
+        "common owner close/resume controls both hosts and stages the latest controlled values",
+        "conditional removal retains sibling and revokes the former callback across reincarnation",
+        "runtime rejects extra props and invalid raw Vue payloads before dispatch",
+        "common owner destruction immediately cancels work and releases both native resource leases",
+        "destroying the shared owner during native provider loading fences both late roots",
+        "disposing a pending automatic boot fences late provider imports and releases native ownership",
+        "v2 selector output flows through Action and Model into actual React props while Vue retains its root",
+        "source replacement and query changes recompute the v2 selector before a later props commit",
+        "closed owner stages changed v2 selector props and resumes with both framework nodes preserved"
+      ],
+      "existingAutomaticCases": 8,
+      "selectorActionModelPropsCases": 3,
+      "selectorActionModelPropsVerified": true,
+      "automaticCompositionSupported": true,
+      "ssrAcceptancePerformed": false,
+      "acceptedForRelease": false,
+      "productiveRmtxFrontendUsed": true,
+      "completeRmtxFrontendImplemented": false
+    },
+    {
+      "schema": "xtend.rmtx.selector-runtime-acceptance.v1",
+      "format": 1,
+      "version": "1.0.0",
+      "stage": "A06.3.1-selector-runtime",
+      "mode": "jsdom-native-esm",
+      "node": "v26.5.0",
+      "browserVersion": null,
+      "pageErrors": [],
+      "compiler": {
+        "schema": "xtend.rmtx.compile-result.v2",
+        "apiVersion": "2.0.0",
+        "sourceProfile": {
+          "syntax": "rmtx",
+          "version": "2.0.0"
+        },
+        "source": "development/rmtx-a06/selector-profile/two-host.rmtx",
+        "sourceHash": "f98fe6e856c396c36caf68f139baa547e339cf6baebf0ad60fdc563dba721369",
+        "planCompilerSchema": "xtend.rmtx.compile-result.v2"
+      },
+      "versions": {
+        "react": "18.3.1",
+        "vue": "3.5.43"
+      },
+      "sources": {
+        "development/rmtx-a06/selector-profile/runtime-test.cjs": "9ec8bd2deaf3eeb18839f3d70230ca7a147ae4a426b352cd9a4b959610af702d",
+        "development/rmtx-a06/selector-profile/runtime-acceptance.mjs": "46809039eb96b3aa8e745a4a3e3fa365a32c7a2175fa71e24035c49f241a8447",
+        "development/rmtx-a06/selector-profile/two-host.rmtx": "f98fe6e856c396c36caf68f139baa547e339cf6baebf0ad60fdc563dba721369",
+        "development/rmtx-a06/automatic-reference.cjs": "5d12d3ba201ce94ce8330058fc08e854f5018cec84536eacc73e5c4e040e302a",
+        "development/rmtx-a06/automatic-acceptance.mjs": "11d84c000b8042c50454d6e8167435752d7ec96079435dd447aae5c2bdd2d924",
+        "tools/rmt-language/rmtx-parser.js": "2b7bae7def1906f72df01bbb4a09bf8a80c4c40fb7fe74f9f24a341f953cd288",
+        "tools/rmt-language/rmtx-compiler.js": "2bb9d927dbaf0071712593a9610ce18cf12779274f06e747fa165e968da56cd7",
+        "tools/rmt-language/rmtx-operator-profiles.js": "f9b40ec0b68ed8a989e6ff1917391ede4d406ec4e5801f83d56716848259cd0c",
+        "tools/rmt-language/rmtx.js": "3346b662bbf61351842568fe4c44a50c5cce2d319d7124321765b85baf9c00fb",
+        "xtend-maraca/index.js": "d3a189d0ccb16b557263c854dcce60410355580997f12e2fb4874bb9dcf860ad",
+        "xtendrmt/rmt-state-selector-runtime.js": "150f5ae1a279cf7457be54fc7a466afeb1a2a026a911ab1cb1d16ae5da2a669d",
+        "tools/rmt-language/classic-compiler.js": "5a402d5fb541cf82f16455e0c0a752ec50c4f69b60a42a36bfa036b870e7df08",
+        "tools/rmt-language/vnext-compiler.js": "3a2a09162285a13ff2198a7ece51c038157f5990dd030ace932f7c906659de31"
+      },
+      "passed": true,
+      "cases": 11,
+      "names": [
+        "generated v8 browser app boots both providers with exact component interfaces through Kernel/Fabric",
+        "provider events update Model/XTend State and preserve the sibling framework root",
+        "common owner close/resume controls both hosts and stages the latest controlled values",
+        "conditional removal retains sibling and revokes the former callback across reincarnation",
+        "runtime rejects extra props and invalid raw Vue payloads before dispatch",
+        "common owner destruction immediately cancels work and releases both native resource leases",
+        "destroying the shared owner during native provider loading fences both late roots",
+        "disposing a pending automatic boot fences late provider imports and releases native ownership",
+        "v2 selector output flows through Action and Model into actual React props while Vue retains its root",
+        "source replacement and query changes recompute the v2 selector before a later props commit",
+        "closed owner stages changed v2 selector props and resumes with both framework nodes preserved"
+      ],
+      "existingAutomaticCases": 8,
+      "selectorActionModelPropsCases": 3,
+      "selectorActionModelPropsVerified": true,
+      "automaticCompositionSupported": true,
+      "ssrAcceptancePerformed": false,
+      "acceptedForRelease": false,
+      "productiveRmtxFrontendUsed": true,
+      "completeRmtxFrontendImplemented": false
+    },
+    {
+      "schema": "xtend.rmtx.selector-runtime-acceptance.v1",
+      "format": 1,
+      "version": "1.0.0",
+      "stage": "A06.3.1-selector-runtime",
+      "mode": "chromium-sealed-native-esm",
+      "node": "v24.22.2",
+      "browserVersion": "155.0.8059.79",
+      "pageErrors": [],
+      "compiler": {
+        "schema": "xtend.rmtx.compile-result.v2",
+        "apiVersion": "2.0.0",
+        "sourceProfile": {
+          "syntax": "rmtx",
+          "version": "2.0.0"
+        },
+        "source": "development/rmtx-a06/selector-profile/two-host.rmtx",
+        "sourceHash": "f98fe6e856c396c36caf68f139baa547e339cf6baebf0ad60fdc563dba721369",
+        "planCompilerSchema": "xtend.rmtx.compile-result.v2"
+      },
+      "versions": {
+        "react": "18.3.1",
+        "vue": "3.5.43"
+      },
+      "sources": {
+        "development/rmtx-a06/selector-profile/runtime-test.cjs": "9ec8bd2deaf3eeb18839f3d70230ca7a147ae4a426b352cd9a4b959610af702d",
+        "development/rmtx-a06/selector-profile/runtime-acceptance.mjs": "46809039eb96b3aa8e745a4a3e3fa365a32c7a2175fa71e24035c49f241a8447",
+        "development/rmtx-a06/selector-profile/two-host.rmtx": "f98fe6e856c396c36caf68f139baa547e339cf6baebf0ad60fdc563dba721369",
+        "development/rmtx-a06/automatic-reference.cjs": "5d12d3ba201ce94ce8330058fc08e854f5018cec84536eacc73e5c4e040e302a",
+        "development/rmtx-a06/automatic-acceptance.mjs": "11d84c000b8042c50454d6e8167435752d7ec96079435dd447aae5c2bdd2d924",
+        "tools/rmt-language/rmtx-parser.js": "2b7bae7def1906f72df01bbb4a09bf8a80c4c40fb7fe74f9f24a341f953cd288",
+        "tools/rmt-language/rmtx-compiler.js": "2bb9d927dbaf0071712593a9610ce18cf12779274f06e747fa165e968da56cd7",
+        "tools/rmt-language/rmtx-operator-profiles.js": "f9b40ec0b68ed8a989e6ff1917391ede4d406ec4e5801f83d56716848259cd0c",
+        "tools/rmt-language/rmtx.js": "3346b662bbf61351842568fe4c44a50c5cce2d319d7124321765b85baf9c00fb",
+        "xtend-maraca/index.js": "d3a189d0ccb16b557263c854dcce60410355580997f12e2fb4874bb9dcf860ad",
+        "xtendrmt/rmt-state-selector-runtime.js": "150f5ae1a279cf7457be54fc7a466afeb1a2a026a911ab1cb1d16ae5da2a669d",
+        "tools/rmt-language/classic-compiler.js": "5a402d5fb541cf82f16455e0c0a752ec50c4f69b60a42a36bfa036b870e7df08",
+        "tools/rmt-language/vnext-compiler.js": "3a2a09162285a13ff2198a7ece51c038157f5990dd030ace932f7c906659de31"
+      },
+      "passed": true,
+      "cases": 11,
+      "names": [
+        "generated v8 browser app boots both providers with exact component interfaces through Kernel/Fabric",
+        "provider events update Model/XTend State and preserve the sibling framework root",
+        "common owner close/resume controls both hosts and stages the latest controlled values",
+        "conditional removal retains sibling and revokes the former callback across reincarnation",
+        "runtime rejects extra props and invalid raw Vue payloads before dispatch",
+        "common owner destruction immediately cancels work and releases both native resource leases",
+        "destroying the shared owner during native provider loading fences both late roots",
+        "disposing a pending automatic boot fences late provider imports and releases native ownership",
+        "v2 selector output flows through Action and Model into actual React props while Vue retains its root",
+        "source replacement and query changes recompute the v2 selector before a later props commit",
+        "closed owner stages changed v2 selector props and resumes with both framework nodes preserved"
+      ],
+      "existingAutomaticCases": 8,
+      "selectorActionModelPropsCases": 3,
+      "selectorActionModelPropsVerified": true,
+      "automaticCompositionSupported": true,
+      "ssrAcceptancePerformed": false,
+      "acceptedForRelease": false,
+      "productiveRmtxFrontendUsed": true,
+      "completeRmtxFrontendImplemented": false
+    }
+  ],
+  "executionReceipts": [
+    {
+      "reportFileName": "selector-runtime24-A.json",
+      "reportSha256": "11385f14f26dccd38849c651ee3b25ae77ecdb0d52aa548fd8c2bcdf11acd9e0",
+      "logSha256": "3c49e5fff41a75829bf6df36e3a8d34e306fb107cf73ac5115a0a4a10b754ff7"
+    },
+    {
+      "reportFileName": "selector-runtime26-A.json",
+      "reportSha256": "93e3bc29bbc301d295555b2a5cbbbdcf77f8c3e2b2538554f80e5173a1714305",
+      "logSha256": "29c0957759954a2db80938c2187efd54473ffaeeb86c5a66e4caf2fd7c952fcf"
+    },
+    {
+      "reportFileName": "selector-runtime-browser-A.json",
+      "reportSha256": "94684fe2482871ede1b8bbc5a5d8af6a7a1e120d2ed018b24a11767e569b9cb2",
+      "logSha256": "4721b36243225f2e5213790a336b3229fafe1bf427536356ad73aae9f4a2942f"
+    }
+  ],
+  "completeA063Implemented": false,
+  "acceptedForRelease": false
+}

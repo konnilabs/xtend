@@ -97,14 +97,14 @@
     "xtend-maraca/package.json": "a802d6462ed9df05546d68d70e65ae2c14cee64b568c157377d179bd874972d0",
     "development/rmtx-a04/updates-inspect.cjs": "17c72021baefa0993b4551caa07f2822e2653eb9c646082c21125b0de7179a5b",
     "scripts/test_xtensions_updates.cjs": "8b8930013802ecbe04d727e8559e2b8166cce19de641dead5754f99c56db0672",
-    "tests/xtensions/xtensions_runtime_gate_suite.js": "f6c4652cf1af5c557028a8683b45bed679458bfe2719e8b39c17cbf184449f81",
+    "tests/xtensions/xtensions_runtime_gate_suite.js": "70a1f2cabc392008a377945dc033fb1b5de28deed71cb32c5cced94b0ed6e90e",
     "tests/xtensions/xtensions_consumer_package_suite.js": "033badcea1aa05beb0cc33134618f7f29cf76105d95e6a333dd360017d600545",
     "tests/types/xtensions_integrated_composition.mts": "0e7de34ce7c4324143fabf822ac6c83aba229f90f9368ac5b65250311bd2b601",
-    "scripts/check_release_preparation.cjs": "ac9f3efd37f01544c1a81798c0ffe25dbe89c4b4b898696f3f3aea6002f4b355",
-    "tests/release/preparation-gates.test.cjs": "f878a0676f152b36dc4571efcab27577b683e6d7bb40bc19f6a2e895102ff5fe",
-    "scripts/test-runner/catalog.json": "9be9a52548440ab1a55cca5ec25d3ff1b980f5282a0b6fbb822d6888171140a8",
-    ".github/workflows/xtend-default-gates.yml": "ebc9673c1f2425e563d786367009e0894d716b6d3251681a832b680c7e8288b8",
-    ".github/workflows/xtend-migration-completion.yml": "1bdcce1e1f615f158a317ab19b9eb23d8979f3d24e1f51f93fc1b5a96131bb46",
-    ".github/workflows/xtend-nightly-build.yml": "e721cb8882ee5ca55fc112b3d1f7df9de04d2aa76292eaa2e341b649b44a56de"
+    "scripts/check_release_preparation.cjs": "dbbf014b43ac1ee92b2565078ef185d94f4f5ec55c272bc13c38692112d16d9f",
+    "tests/release/preparation-gates.test.cjs": "040e36a232f272882a1febab643a55c538741cfada6a9c715e507cfc76167aa8",
+    "scripts/test-runner/catalog.json": "0978a25cd95cb41a6d657806ad49dbe010daa26782ec24bf140cd3fe2eedcc77",
+    ".github/workflows/xtend-default-gates.yml": "87375be996ee709d8d028aad70b9cd33249cd155e0dc05d8e7b24e2b4d43f644",
+    ".github/workflows/xtend-migration-completion.yml": "20fb933ccb68505a7f2599a8d29931b667ac11ae427af497219b528376488264",
+    ".github/workflows/xtend-nightly-build.yml": "f362337ab31a44a16c507e86ddd56bb25c24740f056375016d10b4e6fbc1fc89"
   }
 }

@@ -2,12 +2,14 @@
 
 const ts = require('typescript');
 const { createRmtSourceModel } = require('./source-model');
-const RMTX_PARSER_API_VERSION = '1.0.0';
+const { getRmtxOperatorProfile, RMTX_OPERATOR_PROFILE_SCHEMA } = require('./rmtx-operator-profiles');
+const RMTX_PARSER_API_VERSION = '2.0.0';
 const RMTX_PARSER_SCHEMA = 'xtend.rmtx.parser-result.v1';
+const RMTX_PARSER_SCHEMA_V2 = 'xtend.rmtx.parser-result.v2';
 const RMTX_SYNTAX_VERSION = '1.0.0';
 const RMTX_SOURCE_PROFILE = Object.freeze({ syntax: 'rmtx', version: RMTX_SYNTAX_VERSION });
+const RMTX_SELECTOR_SOURCE_PROFILE = Object.freeze({ syntax: 'rmtx', version: '2.0.0' });
 const MODULES = new Set(['@ccslabs/xtend/rmt-language/rmtx', '@ccslabs/xtend-compiler/rmt-language/rmtx']);
-const OPERATORS = Object.freeze(['Program', 'State', 'Action', 'Input', 'Reduce', 'Portal', 'Surface', 'Lane', 'Mount']);
 const UNSAFE = new Set(['__proto__', 'prototype', 'constructor']);
 const own = (value, key) => Object.hasOwn(value, key);
 
@@ -18,17 +20,20 @@ class SourceError extends Error {
 /** Parse a closed declarative TSX profile. No source imports or expressions execute. */
 function parseRmtxSource(input = {}, options = {}) {
   input = typeof input === 'string' ? { text: input } : input && typeof input === 'object' ? input : {};
+  const selectedVersion = options.syntaxVersion === '2.0.0' ? '2.0.0' : RMTX_SYNTAX_VERSION;
+  const profile = getRmtxOperatorProfile(selectedVersion);
+  const sourceProfile = selectedVersion === '2.0.0' ? RMTX_SELECTOR_SOURCE_PROFILE : RMTX_SOURCE_PROFILE;
   const sourceModel = createRmtSourceModel({ ...input, languageId: 'rmtx', uri: input.uri || (input.filePath ? undefined : 'untitled:rmtx-document') });
   const diagnostics = [];
-  const result = (ast = null, phase = 'syntax') => ({ schema: RMTX_PARSER_SCHEMA, apiVersion: RMTX_PARSER_API_VERSION,
-    sourceProfile: RMTX_SOURCE_PROFILE, ok: diagnostics.length === 0, phase,
+  const result = (ast = null, phase = 'syntax') => ({ schema: selectedVersion === '2.0.0' ? RMTX_PARSER_SCHEMA_V2 : RMTX_PARSER_SCHEMA,
+    apiVersion: selectedVersion, sourceProfile, ok: diagnostics.length === 0, phase,
     status: diagnostics.length ? 'invalid' : 'parsed', sourceModel, ast, diagnostics });
   const diagnostic = (code, message, node, start, end) => diagnostics.push(sourceModel.createDiagnostic({
     code, message, severity: 'error', source: 'rmtx',
     range: sourceModel.rangeForOffsets(start ?? node?.getStart(file) ?? 0, end ?? node?.end ?? 1)
   }));
   let file;
-  if (options.syntaxVersion !== undefined && options.syntaxVersion !== RMTX_SYNTAX_VERSION) {
+  if (options.syntaxVersion !== undefined && !['1.0.0', '2.0.0'].includes(options.syntaxVersion)) {
     diagnostic('rmtx.syntax.version.unsupported', `Unsupported RMTX syntax version ${String(options.syntaxVersion)}.`);
     return result(null, 'profile');
   }
@@ -38,7 +43,7 @@ function parseRmtxSource(input = {}, options = {}) {
     diagnostic('rmtx.source.extension', 'RMTX sources require the .rmtx extension.'); return result(null, 'profile');
   }
   sourceModel.filePolicy = { extension: '.rmtx', canonical: true, fallback: false, diagnosticCode: null };
-  if (Buffer.byteLength(sourceModel.text, 'utf8') > 1024 * 1024) {
+  if (Buffer.byteLength(sourceModel.text, 'utf8') > profile.limits.sourceUtf8Bytes) {
     diagnostic('rmtx.source.limit', 'The initial RMTX profile accepts at most 1 MiB of source.'); return result(null, 'profile');
   }
   try {
@@ -53,7 +58,7 @@ function parseRmtxSource(input = {}, options = {}) {
     const range = node => sourceModel.rangeForOffsets(node.getStart(file), node.end);
     let count = 0;
     const make = (type, node, fields = {}) => {
-      if (++count > 50000) fail('rmtx.source.limit', 'Too many declarative nodes.', node);
+      if (++count > profile.limits.generatedNodes) fail('rmtx.source.limit', 'Too many declarative nodes.', node);
       return { type, range: range(node), ...fields };
     };
     const unparen = node => { while (ts.isParenthesizedExpression(node)) node = node.expression; return node; };
@@ -64,7 +69,7 @@ function parseRmtxSource(input = {}, options = {}) {
     };
     function literal(node, depth = 0) {
       node = unparen(node);
-      if (depth > 64) fail('rmtx.source.limit', 'Literal nesting exceeds 64 levels.', node);
+      if (depth > profile.limits.literalDepth) fail('rmtx.source.limit', 'Literal nesting exceeds 64 levels.', node);
       if (ts.isStringLiteral(node)) return make('RmtPrimitiveValue', node, { kind: 'literal', value: node.text });
       if (ts.isNumericLiteral(node)) {
         const value = Number(node.text.replaceAll('_', ''));
@@ -145,13 +150,74 @@ function parseRmtxSource(input = {}, options = {}) {
         fail('rmtx.expression.unsupported', 'Expected a direct imported model/input path; calls, computed paths and optional chains are not supported.', expression);
       return [bindings.get(expression.text) === 'model' ? 'state' : 'input', ...parts].join('.');
     }
+    function scopedPath(expression, allowed, allowItemRoot = false) {
+      const original = expression;
+      expression = unparen(expression);
+      const parts = [];
+      while (ts.isPropertyAccessExpression(expression) && !expression.questionDotToken) {
+        parts.unshift(safe(expression.name.text, expression.name));
+        expression = expression.expression;
+      }
+      const binding = ts.isIdentifier(expression) && bindings.get(expression.text);
+      if (!binding || !allowed.includes(binding) || (!parts.length && !(allowItemRoot && binding === 'item')))
+        fail('rmtx.scope.path', `Expected a direct ${allowed.join('/')} path in this context.`, original);
+      const root = { model: 'state', selectors: 'selector', item: 'item', params: 'input', input: 'input' }[binding];
+      return { path: [root, ...parts], binding };
+    }
+    function expressionField(fields, key) {
+      const field = fields[key];
+      if (!field) fail('rmtx.attribute.required', `Missing required attribute ${key}.`, current);
+      if (!field.initializer || !ts.isJsxExpression(field.initializer) || !field.initializer.expression)
+        fail('rmtx.expression.required', `${key} requires an explicit declarative expression.`, field);
+      return field.initializer.expression;
+    }
+    function scalarExpression(node, depth) {
+      if (depth > profile.limits.expressionDepth) fail('rmtx.source.limit', 'Predicate nesting exceeds the expression limit.', node);
+      if (ts.isParenthesizedExpression(node)) return scalarExpression(node.expression, depth + 1);
+      if (ts.isIdentifier(node) || ts.isPropertyAccessExpression(node)) {
+        const { path } = scopedPath(node, ['model', 'selectors', 'item', 'params'], true);
+        return make('RmtSelectorExpression', node, { kind: 'path', path, value: path.join('.') });
+      }
+      const value = literal(node);
+      if (value.kind !== 'literal') fail('rmtx.predicate.scalar', 'Comparisons and contains require scalar literals or direct paths.', node);
+      return make('RmtConditionExpression', node, { kind: 'literal', value: value.value });
+    }
+    function predicate(node, depth = 0) {
+      if (depth > profile.limits.expressionDepth) fail('rmtx.source.limit', 'Predicate nesting exceeds the expression limit.', node);
+      if (ts.isParenthesizedExpression(node)) return make('RmtConditionExpression', node,
+        { kind: 'group', expression: predicate(node.expression, depth + 1) });
+      if ([ts.SyntaxKind.TrueKeyword, ts.SyntaxKind.FalseKeyword].includes(node.kind))
+        return make('RmtConditionExpression', node, { kind: 'literal', value: node.kind === ts.SyntaxKind.TrueKeyword });
+      if (ts.isPrefixUnaryExpression(node) && node.operator === ts.SyntaxKind.ExclamationToken) {
+        if (!ts.isParenthesizedExpression(node.operand)) fail('rmtx.predicate.negation', 'Use !(predicate) with explicit parentheses; Classic and JavaScript negation precedence differ.', node);
+        return make('RmtConditionExpression', node, { kind: 'unary', op: '!', argument: predicate(node.operand, depth + 1) });
+      }
+      if (ts.isBinaryExpression(node)) {
+        const op = node.operatorToken.kind;
+        if ([ts.SyntaxKind.AmpersandAmpersandToken, ts.SyntaxKind.BarBarToken].includes(op)) return make('RmtConditionExpression', node,
+          { kind: 'logical', op: op === ts.SyntaxKind.AmpersandAmpersandToken ? '&&' : '||',
+            left: predicate(node.left, depth + 1), right: predicate(node.right, depth + 1) });
+        const operators = new Map([[ts.SyntaxKind.EqualsEqualsEqualsToken, '=='], [ts.SyntaxKind.ExclamationEqualsEqualsToken, '!='],
+          [ts.SyntaxKind.LessThanToken, '<'], [ts.SyntaxKind.LessThanEqualsToken, '<='], [ts.SyntaxKind.GreaterThanToken, '>'], [ts.SyntaxKind.GreaterThanEqualsToken, '>=']]);
+        if (operators.has(op)) return make('RmtConditionExpression', node, { kind: 'binary', op: operators.get(op),
+          left: scalarExpression(node.left, depth + 1), right: scalarExpression(node.right, depth + 1) });
+        if ([ts.SyntaxKind.EqualsEqualsToken, ts.SyntaxKind.ExclamationEqualsToken].includes(op))
+          fail('rmtx.predicate.equality', 'Use === or !==; the underlying RMT comparison is strict.', node.operatorToken);
+      }
+      if (ts.isCallExpression(node) && !node.questionDotToken && !node.typeArguments?.length && ts.isIdentifier(node.expression)
+        && bindings.get(node.expression.text) === 'contains' && node.arguments.length === 2) {
+        return make('RmtSelectorExpression', node, { kind: 'call', name: 'contains', args: node.arguments.map(arg => scalarExpression(arg, depth + 1)) });
+      }
+      fail('rmtx.predicate.boolean', 'Expected an explicit boolean comparison, contains, or a composed boolean predicate; compare paths explicitly.', node);
+    }
     function reducerValue(fields) {
       const field = fields.value;
       if (!field) fail('rmtx.attribute.required', 'Missing required attribute value.', current);
       const expression = field.initializer;
       if (expression && ts.isJsxExpression(expression) && expression.expression) {
         const node = unparen(expression.expression);
-        if (ts.isIdentifier(node) || ts.isPropertyAccessExpression(node)) return pathReference(node);
+        if (ts.isIdentifier(node) || ts.isPropertyAccessExpression(node)) return selectedVersion === '1.0.0' ? pathReference(node)
+          : scopedPath(node, ['model', 'input', 'selectors']).path.join('.');
       }
       const v = value(fields, 'value', true);
       if (v.kind !== 'literal') fail('rmtx.reduce.value', 'This profile supports scalar reducer literals or direct model/input paths.', field);
@@ -165,7 +231,7 @@ function parseRmtxSource(input = {}, options = {}) {
           fail('rmtx.import.unsupported', 'Only named static imports from the RMTX authoring module are supported.', statement);
         for (const specifier of clause.namedBindings.elements) {
           const imported = (specifier.propertyName || specifier.name).text;
-          if (specifier.isTypeOnly || !['RMT', 'model', 'input'].includes(imported) || bindings.has(specifier.name.text))
+          if (specifier.isTypeOnly || !profile.imports.includes(imported) || bindings.has(specifier.name.text))
             fail('rmtx.import.binding', 'Unknown or duplicate authoring binding.', specifier);
           bindings.set(specifier.name.text, imported);
         }
@@ -176,7 +242,7 @@ function parseRmtxSource(input = {}, options = {}) {
     let current = program;
     function element(node, expected, depth = 0) {
       current = node;
-      if (depth > 64) fail('rmtx.source.limit', 'Operator nesting exceeds 64 levels.', node);
+      if (depth > profile.limits.operatorDepth) fail('rmtx.source.limit', 'Operator nesting exceeds 64 levels.', node);
       if (!ts.isJsxElement(node) && !ts.isJsxSelfClosingElement(node)) fail('rmtx.child.unsupported', 'Expected a declarative RMT operator element.', node);
       const opening = ts.isJsxElement(node) ? node.openingElement : node;
       if (opening.typeArguments?.length) fail('rmtx.operator.type-arguments', 'Operator type arguments are not supported by this syntax profile.', opening.typeArguments[0]);
@@ -184,7 +250,7 @@ function parseRmtxSource(input = {}, options = {}) {
       if (!ts.isPropertyAccessExpression(tag) || !ts.isIdentifier(tag.expression) || bindings.get(tag.expression.text) !== 'RMT')
         fail('rmtx.operator.binding', 'Operators must resolve to the imported RMT namespace.', tag);
       const op = tag.name.text;
-      if (!OPERATORS.includes(op)) fail('rmtx.operator.unknown', `Unsupported RMT operator ${op} in syntax profile ${RMTX_SYNTAX_VERSION}.`, tag.name);
+      if (!own(profile.operators, op)) fail('rmtx.operator.unknown', `Unsupported RMT operator ${op} in syntax profile ${selectedVersion}.`, tag.name);
       if (!expected.includes(op)) fail('rmtx.operator.context', `${op} is not valid in this child context.`, tag.name);
       const children = ts.isJsxElement(node) ? node.children.filter(child => {
         if (ts.isJsxText(child)) {
@@ -194,51 +260,68 @@ function parseRmtxSource(input = {}, options = {}) {
         if (ts.isJsxExpression(child) && !child.expression && !child.dotDotDotToken) return false;
         return true;
       }) : [];
-      const lowerChildren = kinds => children.map(child => element(child, kinds, depth + 1));
+      const lowerChildren = () => children.map(child => element(child, profile.operators[op].children, depth + 1));
       const leaf = () => { if (children.length) fail('rmtx.child.unsupported', `${op} cannot have children.`, children[0]); };
-      let fields;
+      let fields = attrs(opening, Object.keys(profile.operators[op].attributes));
       switch (op) {
         case 'Program':
-          fields = attrs(opening, ['id']);
           return make('RmtTemplateDeclaration', node, { name: text(fields, 'id', true, true),
-            body: lowerChildren(['State', 'Action', 'Portal', 'Surface']) });
+            body: lowerChildren() });
         case 'State': {
-          leaf(); fields = attrs(opening, ['id', 'type', 'initial', 'preserve']);
+          leaf();
           const preserve = value(fields, 'preserve');
           if (preserve && (preserve.kind !== 'literal' || typeof preserve.value !== 'boolean')) fail('rmtx.attribute.boolean', 'preserve requires a boolean.', fields.preserve);
           return make('RmtStateDeclaration', node, { name: text(fields, 'id', true, true), dataType: make('RmtTypeReference', fields.type || node, { value: text(fields, 'type', true) }),
             initial: value(fields, 'initial', true), preserve: preserve ? preserve.value : false, body: [] });
         }
         case 'Action':
-          fields = attrs(opening, ['id']);
-          return make('RmtActionDeclaration', node, { name: text(fields, 'id', true, true), body: lowerChildren(['Input', 'Reduce']) });
+          return make('RmtActionDeclaration', node, { name: text(fields, 'id', true, true), body: lowerChildren() });
         case 'Input':
-          leaf(); fields = attrs(opening, ['name', 'type']);
+          leaf();
           return make('RmtActionInputClause', node, { name: text(fields, 'name', true, true),
             dataType: make('RmtTypeReference', fields.type || node, { value: text(fields, 'type', true) }), policy: null });
         case 'Reduce': {
-          leaf(); fields = attrs(opening, ['state', 'path', 'value']);
+          leaf();
           const target = 'state.' + text(fields, 'state', true, true) + (fields.path ? '.' + text(fields, 'path', true, true) : '');
           return make('RmtReducerStatement', node, { target, targetNode: identifier(target, fields.state), expression: reducerValue(fields) });
         }
         case 'Portal':
-          leaf(); fields = attrs(opening, ['id', 'root', 'layer']);
+          leaf();
           return make('RmtPortalDeclaration', node, { name: text(fields, 'id', true, true), body: [], attributes: ['root', 'layer'].filter(key => fields[key]).map(key =>
             make('RmtPrimitiveAttribute', fields[key], { keyword: key, value: make('RmtPrimitiveValue', fields[key], { kind: 'literal', value: text(fields, key, true) }) })) });
         case 'Surface': {
-          fields = attrs(opening, ['id', 'kind', 'component', 'portal']);
           const name = text(fields, 'id', true, true);
           const metadata = ['kind', 'component'].filter(key => fields[key]).map(key => make('RmtSurfaceHeaderClause', fields[key],
             { keyword: key, value: make('RmtPrimitiveValue', fields[key], { kind: 'literal', value: text(fields, key, true) }) }));
           const body = fields.portal ? [make('RmtSurfacePortalClause', fields.portal, { keyword: 'portal', path: text(fields, 'portal', true, true) })] : [];
-          return make('RmtSurfaceDeclaration', node, { name, metadata, body: body.concat(lowerChildren(['Lane'])) });
+          return make('RmtSurfaceDeclaration', node, { name, metadata, body: body.concat(lowerChildren()) });
         }
         case 'Lane':
-          fields = attrs(opening, ['name']);
-          return make('RmtLaneDeclaration', node, { name: text(fields, 'name', true, true), weight: null, body: lowerChildren(['Mount']) });
+          return make('RmtLaneDeclaration', node, { name: text(fields, 'name', true, true), weight: null, body: lowerChildren() });
         case 'Mount':
-          leaf(); fields = attrs(opening, ['target']);
+          leaf();
           return make('RmtLifecycleStatement', node, { op: 'mount', target: identifier(text(fields, 'target', true, true), fields.target), source: null, condition: null, policy: null });
+        case 'Selector': {
+          const sourceNode = expressionField(fields, 'from');
+          const sourcePath = scopedPath(sourceNode, ['model', 'selectors']).path;
+          return make('RmtSelectorDeclaration', node, { name: text(fields, 'id', true, true),
+            source: make('RmtPrimitiveSourceReference', sourceNode, { kind: sourcePath[0], value: sourcePath.slice(1).join('.') }), body: lowerChildren() });
+        }
+        case 'Where':
+        case 'Find': {
+          leaf(); const sourceNode = expressionField(fields, 'test');
+          return make(op === 'Where' ? 'RmtSelectorWhereClause' : 'RmtSelectorFindClause', node,
+            { keyword: op.toLowerCase(), expression: predicate(sourceNode) });
+        }
+        case 'Sort': {
+          leaf(); const sourceNode = expressionField(fields, 'by');
+          const by = scopedPath(sourceNode, ['item']).path.join('.');
+          const direction = fields.direction ? text(fields, 'direction', true) : null;
+          if (direction && !['asc', 'desc'].includes(direction)) fail('rmtx.sort.direction', 'Sort direction must be asc or desc.', fields.direction);
+          return make('RmtSelectorSortClause', node, { by, direction });
+        }
+        case 'Output':
+          leaf(); return make('RmtSelectorOutputClause', node, { dataType: make('RmtTypeReference', fields.type || node, { value: text(fields, 'type', true) }) });
         default: throw new Error('Unreachable RMTX operator.');
       }
     }
@@ -262,4 +345,5 @@ function parseRmtxSource(input = {}, options = {}) {
   }
 }
 
-module.exports = { RMTX_PARSER_API_VERSION, RMTX_PARSER_SCHEMA, RMTX_SYNTAX_VERSION, RMTX_SOURCE_PROFILE, parseRmtxSource };
+module.exports = { RMTX_PARSER_API_VERSION, RMTX_PARSER_SCHEMA, RMTX_PARSER_SCHEMA_V2, RMTX_SYNTAX_VERSION,
+  RMTX_SOURCE_PROFILE, RMTX_SELECTOR_SOURCE_PROFILE, RMTX_OPERATOR_PROFILE_SCHEMA, getRmtxOperatorProfile, parseRmtxSource };

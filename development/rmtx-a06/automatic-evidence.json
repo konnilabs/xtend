@@ -61,7 +61,7 @@
     "development/rmtx-a06/providers/catalog.json": "4f38fa3e2b73c374b0fab112b5ba1d6f12da2b95253e4148088389f7d087f801",
     "development/rmtx-a06/providers/react.interface.json": "45394fbe58a8f81445891526967d691786ef1ecf2fd6eb08e520e69322c76539",
     "development/rmtx-a06/providers/vue.interface.json": "30de14608052cdd250f1f56b06fa0b5c7df8dda73803d5d5daa96355e5a6f1e4",
-    "scripts/check_release_preparation.cjs": "ac9f3efd37f01544c1a81798c0ffe25dbe89c4b4b898696f3f3aea6002f4b355",
-    "tests/release/preparation-gates.test.cjs": "f878a0676f152b36dc4571efcab27577b683e6d7bb40bc19f6a2e895102ff5fe"
+    "scripts/check_release_preparation.cjs": "dbbf014b43ac1ee92b2565078ef185d94f4f5ec55c272bc13c38692112d16d9f",
+    "tests/release/preparation-gates.test.cjs": "040e36a232f272882a1febab643a55c538741cfada6a9c715e507cfc76167aa8"
   }
 }

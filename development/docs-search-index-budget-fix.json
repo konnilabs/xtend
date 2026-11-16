@@ -1,0 +1,271 @@
+{
+  "format": 1,
+  "version": "1.0.0",
+  "date": "2026-11-16",
+  "stage": "docs-search-index-budget-bugfix",
+  "sourceBaseSha": "390a7384b7046b52ede01c8e0bf9e5c3253adad7",
+  "precedingA0631CaptureSha": "7e78c8ae6169dd90ed1a662a74d4cb4b36e9447f",
+  "passed": true,
+  "searchIndexBudgetAndFreshnessResolved": true,
+  "repositoryWideGateRunPerformed": false,
+  "acceptedForRelease": false,
+  "fix": {
+    "sharedRuntimeNormalizationAppliedAfterExistingOrderedTokenSelection": true,
+    "originalUniqueTokenLimit": 520,
+    "tokenOrderChanged": false,
+    "tokenSelectionChanged": false,
+    "deduplicationAfterNormalization": false,
+    "budgetChanged": false,
+    "runtimeChanged": false,
+    "metadataChangedByNormalization": false,
+    "wireSchemaOrApiChanged": false,
+    "schemaVersionBumpRequired": false,
+    "schemaVersionRationale": "The v1 envelope/entry fields and their search semantics are unchanged. Body was already an internal bounded search-token string, not article source text. The producer now applies the existing consumer normalizer earlier; all prepared body fields remain exactly equal."
+  },
+  "generationReceipt": {
+    "fileName": "generate24-01.log",
+    "sha256": "3d36df67b85c1d3b9532cf9c52f587701677375b67cc5e81809893b96cabc801"
+  },
+  "nodeLanes": [
+    {
+      "node": "v24.22.2",
+      "zlib": "1.3.2.1-motley-285e94b",
+      "suites": [
+        {
+          "id": "rmt-search-runtime",
+          "assertions": 53,
+          "failures": 0,
+          "skips": 0
+        },
+        {
+          "id": "docs-shell-catfooding",
+          "assertions": 100,
+          "failures": 0,
+          "skips": 0
+        },
+        {
+          "id": "docs-related-recommendations",
+          "assertions": 36,
+          "failures": 0,
+          "skips": 0
+        },
+        {
+          "id": "rmt-prewarm-worker-search",
+          "assertions": 7,
+          "failures": 0,
+          "skips": 0
+        }
+      ],
+      "assertions": 196,
+      "newRegressionAssertions": 37,
+      "runtimeReceipt": {
+        "fileName": "runtime24-02.json",
+        "sha256": "88c12d20479990bd7038566fccfc1f819ed5c5aa7a4e476a91d48d82c5e6a9fd"
+      },
+      "relatedSuitesReceipt": {
+        "fileName": "related-suites24-01.json",
+        "sha256": "9ae24874dc8dbad610fc75e02b5aaff4b37daa2482bd87ae44ab1152fbb203d7"
+      },
+      "freshnessReceipt": {
+        "fileName": "freshness24-01.log",
+        "sha256": "3d36df67b85c1d3b9532cf9c52f587701677375b67cc5e81809893b96cabc801"
+      },
+      "corpus": {
+        "date": "2026-11-16",
+        "node": "v24.22.2",
+        "zlib": "1.3.2.1-motley-285e94b",
+        "passed": true,
+        "budgetChanged": false,
+        "runtimeChanged": false,
+        "schemaChanged": false,
+        "rows": [
+          {
+            "locale": "de",
+            "entries": 178,
+            "metadataEqual": true,
+            "compactDataEqual": true,
+            "allPreparedBodiesEqual": true,
+            "bodyChanges": 178,
+            "oldFulltextGzipBytes": 156241,
+            "newFulltextGzipBytes": 149475,
+            "files": {
+              "compact": {
+                "path": "docs/generated/search/de.compact.json",
+                "sha256": "9565a846d7ab1e3edd92c6dfcfc5a61a6394e67716e3fbd64e3183a399525871",
+                "gzipBytes": 24313,
+                "budgetBytes": 25600
+              },
+              "fulltext": {
+                "path": "docs/generated/search/de.fulltext.json",
+                "sha256": "b010c6435b9e2e84cf3559509ab0e242a43ded65d3ead20f559165a284a69175",
+                "gzipBytes": 149475,
+                "budgetBytes": 153600
+              }
+            }
+          },
+          {
+            "locale": "en",
+            "entries": 178,
+            "metadataEqual": true,
+            "compactDataEqual": true,
+            "allPreparedBodiesEqual": true,
+            "bodyChanges": 178,
+            "oldFulltextGzipBytes": 126736,
+            "newFulltextGzipBytes": 122059,
+            "files": {
+              "compact": {
+                "path": "docs/generated/search/en.compact.json",
+                "sha256": "4c729b42edd7a045b051facaadcc1fc40f54832891eb65f7165580eb636d7c1a",
+                "gzipBytes": 23009,
+                "budgetBytes": 25600
+              },
+              "fulltext": {
+                "path": "docs/generated/search/en.fulltext.json",
+                "sha256": "423a413f2c67f2ce8a98fd782c10b264d440be50904d199846fceb2660192d45",
+                "gzipBytes": 122059,
+                "budgetBytes": 153600
+              }
+            }
+          }
+        ]
+      },
+      "corpusReceipt": {
+        "fileName": "corpus24-01.json",
+        "sha256": "b74d15043e0489ea07ddc9a07adc1cde771e88be7b671ea087634af4f10adc58"
+      }
+    },
+    {
+      "node": "v26.5.0",
+      "zlib": "1.3.2.1-motley-3246f1b",
+      "suites": [
+        {
+          "id": "rmt-search-runtime",
+          "assertions": 53,
+          "failures": 0,
+          "skips": 0
+        },
+        {
+          "id": "docs-shell-catfooding",
+          "assertions": 100,
+          "failures": 0,
+          "skips": 0
+        },
+        {
+          "id": "docs-related-recommendations",
+          "assertions": 36,
+          "failures": 0,
+          "skips": 0
+        },
+        {
+          "id": "rmt-prewarm-worker-search",
+          "assertions": 7,
+          "failures": 0,
+          "skips": 0
+        }
+      ],
+      "assertions": 196,
+      "newRegressionAssertions": 37,
+      "runtimeReceipt": {
+        "fileName": "runtime26-02.json",
+        "sha256": "3ed14d15e3ceb93553737a14727514ac44cb60a718172b2c0a84e9ddf708d3a1"
+      },
+      "relatedSuitesReceipt": {
+        "fileName": "related-suites26-01.json",
+        "sha256": "f782719d577eee05e99d9bdedc2c32835a6496ca974a205553ea9eef1eb2cae3"
+      },
+      "freshnessReceipt": {
+        "fileName": "freshness26-01.log",
+        "sha256": "3d36df67b85c1d3b9532cf9c52f587701677375b67cc5e81809893b96cabc801"
+      },
+      "corpus": {
+        "date": "2026-11-16",
+        "node": "v26.5.0",
+        "zlib": "1.3.2.1-motley-3246f1b",
+        "passed": true,
+        "budgetChanged": false,
+        "runtimeChanged": false,
+        "schemaChanged": false,
+        "rows": [
+          {
+            "locale": "de",
+            "entries": 178,
+            "metadataEqual": true,
+            "compactDataEqual": true,
+            "allPreparedBodiesEqual": true,
+            "bodyChanges": 178,
+            "oldFulltextGzipBytes": 156241,
+            "newFulltextGzipBytes": 149475,
+            "files": {
+              "compact": {
+                "path": "docs/generated/search/de.compact.json",
+                "sha256": "9565a846d7ab1e3edd92c6dfcfc5a61a6394e67716e3fbd64e3183a399525871",
+                "gzipBytes": 24313,
+                "budgetBytes": 25600
+              },
+              "fulltext": {
+                "path": "docs/generated/search/de.fulltext.json",
+                "sha256": "b010c6435b9e2e84cf3559509ab0e242a43ded65d3ead20f559165a284a69175",
+                "gzipBytes": 149475,
+                "budgetBytes": 153600
+              }
+            }
+          },
+          {
+            "locale": "en",
+            "entries": 178,
+            "metadataEqual": true,
+            "compactDataEqual": true,
+            "allPreparedBodiesEqual": true,
+            "bodyChanges": 178,
+            "oldFulltextGzipBytes": 126736,
+            "newFulltextGzipBytes": 122059,
+            "files": {
+              "compact": {
+                "path": "docs/generated/search/en.compact.json",
+                "sha256": "4c729b42edd7a045b051facaadcc1fc40f54832891eb65f7165580eb636d7c1a",
+                "gzipBytes": 23009,
+                "budgetBytes": 25600
+              },
+              "fulltext": {
+                "path": "docs/generated/search/en.fulltext.json",
+                "sha256": "423a413f2c67f2ce8a98fd782c10b264d440be50904d199846fceb2660192d45",
+                "gzipBytes": 122059,
+                "budgetBytes": 153600
+              }
+            }
+          }
+        ]
+      },
+      "corpusReceipt": {
+        "fileName": "corpus26-01.json",
+        "sha256": "c27234521ea543b2fb228d01ca8bd71d69491900770be6f23d8f751833c38b3b"
+      }
+    }
+  ],
+  "sourceHashes": {
+    "scripts/build_docs_search_indexes.js": "ff99b41095adfd62598053ebf72e8ce3f6f88b27402db972258cb4b965069789",
+    "tests/docs/docs_shell_catfooding_suite.js": "bd0f1477d6ecbc7f75f5b6e2305735e971c577b0c0a789411b8c6214f986b66f",
+    "xtendrmt/rmt-app-runtime.js": "3d20461b92e62ac73af1317e855bd2426337f3886f51c91d23297f92c90fdceb",
+    "docs/menu.json": "ae78a16612a0ae11dc25e6bfd9e19c906e665234164fffe37c40b6aab8b6a433",
+    "docs/generated/search/de.compact.json": "9565a846d7ab1e3edd92c6dfcfc5a61a6394e67716e3fbd64e3183a399525871",
+    "docs/generated/search/de.fulltext.json": "b010c6435b9e2e84cf3559509ab0e242a43ded65d3ead20f559165a284a69175",
+    "docs/generated/search/en.compact.json": "4c729b42edd7a045b051facaadcc1fc40f54832891eb65f7165580eb636d7c1a",
+    "docs/generated/search/en.fulltext.json": "423a413f2c67f2ce8a98fd782c10b264d440be50904d199846fceb2660192d45"
+  },
+  "historicalA0631Evidence": {
+    "path": "development/rmtx-a06/selector-profile/execution-evidence.json",
+    "sha256": "ba130ad806701e9a45ee4853a52be6d6d45a71f505377cab1ecbf7c71c33b824",
+    "unchanged": true,
+    "priorBudgetFailureWasReal": true,
+    "priorGermanFulltextGzipBytes": 156241,
+    "priorBudgetBytes": 153600,
+    "historicalExecutionsNotRewritten": true
+  },
+  "scope": {
+    "publicDocumentationOrMenuModified": false,
+    "rmtxFrontendModified": false,
+    "ssrOrBrowserUiModified": false,
+    "newRuntimeOrSourceExecutionIntroduced": false,
+    "fullFeatureAcceptanceInferred": false
+  }
+}

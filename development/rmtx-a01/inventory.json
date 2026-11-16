@@ -102,11 +102,11 @@
     },
     {
       "file": "tools/rmt-language/classic-compiler.d.ts",
-      "sha256": "cd7256d276a7ec770dfb5fc18f4ffb31d49be590c7763dc81cc275f0e4bcddc2"
+      "sha256": "f0e6cdb00982be4b2b16e60446d59582b8918378dbd43dd9c4ee311d5004ec31"
     },
     {
       "file": "tools/rmt-language/classic-compiler.js",
-      "sha256": "aa261ed48ce70b5f9918fa58bd1042c204b509b1e2055856c976c46374a1d565"
+      "sha256": "5a402d5fb541cf82f16455e0c0a752ec50c4f69b60a42a36bfa036b870e7df08"
     },
     {
       "file": "tools/rmt-language/classic-parser.d.ts",
@@ -134,11 +134,11 @@
     },
     {
       "file": "tools/rmt-language/vnext-compiler.d.ts",
-      "sha256": "111ee79a5f92d4ff5005c084590d995263fd0724d18f159911c4028dc6f70df2"
+      "sha256": "2e1b741439a8f30b430f8e0e75690e8641977a01182ddf1be02d12aa6b2b826c"
     },
     {
       "file": "tools/rmt-language/vnext-compiler.js",
-      "sha256": "e278fff06061bec760cccf5a420c9544e218c0aa49ed9db6bb82cb1a12fee8c7"
+      "sha256": "3a2a09162285a13ff2198a7ece51c038157f5990dd030ace932f7c906659de31"
     },
     {
       "file": "tools/rmt-language/vnext-composition.js",
@@ -4109,6 +4109,20 @@
           "symbol": "<anonymous>"
         },
         {
+          "name": "RmtClassicAstResultOptionsV2",
+          "fields": [
+            {
+              "name": "sourceProfile",
+              "optional": false,
+              "type": "RmtCompilerSourceProfileV2",
+              "declaration": "sourceProfile: RmtCompilerSourceProfileV2"
+            }
+          ],
+          "file": "tools/rmt-language/classic-compiler.d.ts",
+          "line": 12,
+          "symbol": "<anonymous>"
+        },
+        {
           "name": "RmtClassicCompileResult",
           "fields": [
             {
@@ -4167,7 +4181,7 @@
             }
           ],
           "file": "tools/rmt-language/classic-compiler.d.ts",
-          "line": 12,
+          "line": 13,
           "symbol": "<anonymous>"
         },
         {
@@ -4235,7 +4249,7 @@
             }
           ],
           "file": "tools/rmt-language/classic-compiler.d.ts",
-          "line": 37,
+          "line": 41,
           "symbol": "<anonymous>"
         }
       ],
@@ -4676,8 +4690,8 @@
             {
               "name": "apiVersion",
               "optional": false,
-              "type": "'1.3.0'",
-              "declaration": "readonly apiVersion: '1.3.0';"
+              "type": "typeof RMT_VNEXT_COMPILER_API_VERSION",
+              "declaration": "readonly apiVersion: typeof RMT_VNEXT_COMPILER_API_VERSION;"
             },
             {
               "name": "schema",
@@ -4741,6 +4755,26 @@
           "symbol": "<anonymous>"
         },
         {
+          "name": "RmtCompilerSourceProfileV2",
+          "fields": [
+            {
+              "name": "syntax",
+              "optional": false,
+              "type": "'rmtx'",
+              "declaration": "readonly syntax: 'rmtx';"
+            },
+            {
+              "name": "version",
+              "optional": false,
+              "type": "'2.0.0'",
+              "declaration": "readonly version: '2.0.0'"
+            }
+          ],
+          "file": "tools/rmt-language/vnext-compiler.d.ts",
+          "line": 27,
+          "symbol": "<anonymous>"
+        },
+        {
           "name": "RmtVNextAstResultOptions",
           "fields": [
             {
@@ -4751,7 +4785,21 @@
             }
           ],
           "file": "tools/rmt-language/vnext-compiler.d.ts",
-          "line": 27,
+          "line": 28,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtVNextAstResultOptionsV2",
+          "fields": [
+            {
+              "name": "sourceProfile",
+              "optional": false,
+              "type": "RmtCompilerSourceProfileV2",
+              "declaration": "sourceProfile: RmtCompilerSourceProfileV2"
+            }
+          ],
+          "file": "tools/rmt-language/vnext-compiler.d.ts",
+          "line": 29,
           "symbol": "<anonymous>"
         },
         {
@@ -4807,7 +4855,7 @@
             }
           ],
           "file": "tools/rmt-language/vnext-compiler.d.ts",
-          "line": 28,
+          "line": 30,
           "symbol": "<anonymous>"
         }
       ],

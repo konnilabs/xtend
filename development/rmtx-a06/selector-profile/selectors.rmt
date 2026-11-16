@@ -1,0 +1,25 @@
+template selector.demo {
+  state rows type array initial [
+    { id "a"; enabled true; kind "image"; label "Alpha"; rank 10 },
+    { id "b"; enabled true; kind "image"; label "Beta"; rank 2 },
+    { id "c"; enabled false; kind "image"; label "Gamma"; rank 4 },
+    { id "d"; enabled true; kind "audio"; label "Delta"; rank 3 }
+  ]
+  state criteria type object initial { minimum 2; selectedId "b" }
+  state selected type json initial null
+  selector eligible from state rows {
+    where item.enabled == true
+    where item.rank >= state.criteria.minimum && !(item.kind != "image")
+    sort by item.rank asc
+    output object[]
+  }
+  selector search from selector eligible {
+    where contains(item.label, input.term)
+    output object[]
+  }
+  selector chosen from selector eligible {
+    find item.id == state.criteria.selectedId
+    output object
+  }
+  action selection.apply { reduce state.selected = selector.chosen }
+}

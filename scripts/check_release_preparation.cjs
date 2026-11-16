@@ -10,6 +10,8 @@ const CHECKS = Object.freeze([
   ['--test', 'tests/rmt/surface-materialize-lifetime.test.cjs', 'tests/rmt/maraca-view-lifecycle.test.cjs', 'tests/maraca/native-surface-lifecycle.test.mjs'],
   ['--test', 'tests/rmt-language/backend-ast-result.test.cjs', 'tests/rmt-language/rmtx-frontend.test.cjs', 'tests/rmt-language/rmtx-maraca-integration.test.cjs'],
   ['development/rmtx-a06/frontend/inspect.cjs', '--check'],
+  ['--test', 'tests/rmt-language/rmtx-operator-profiles.test.cjs', 'tests/rmt-language/rmtx-selector-dependencies.test.cjs', 'tests/rmt-language/rmtx-selectors.test.cjs'],
+  ['development/rmtx-a06/selector-profile/inspect.cjs', '--check'],
   ['development/rmtx-a01/inspect.cjs', '--check'],
   ['development/rmtx-a02/inspect.cjs', '--check'],
   ['development/rmtx-a02/url-history/inspect.cjs', '--check'],

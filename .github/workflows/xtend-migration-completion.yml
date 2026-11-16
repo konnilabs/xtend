@@ -416,6 +416,8 @@ jobs:
             .xtend-test-results/xtend-component-ssr-report.json
             .xtend-test-results/xtend-rmtx-frontend-runtime-node-report.json
             .xtend-test-results/xtend-rmtx-frontend-runtime-browser-report.json
+            .xtend-test-results/xtend-rmtx-selector-runtime-node-report.json
+            .xtend-test-results/xtend-rmtx-selector-runtime-browser-report.json
             .xtend-test-results/xtend-xtensions-consumer-package-report.json
             .xtend-test-results/xtend-xtensions-runtime-gate-report.json
             .xtend-test-results/xtend-dev-surface-report.json

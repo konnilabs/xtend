@@ -13,7 +13,7 @@ export interface RmtAstCompilationError extends Error {
   diagnostics: RmtToolingDiagnostic[];
 }
 export interface RmtVNextCompiler {
-  readonly apiVersion: '1.3.0';
+  readonly apiVersion: typeof RMT_VNEXT_COMPILER_API_VERSION;
   readonly schema: string;
   readonly coreSchema: string;
   readonly compileSource: typeof compileRmtVNextSource;
@@ -24,7 +24,9 @@ export interface RmtVNextCompiler {
 /** Runs the shared semantic/compiler pipeline; throws RmtAstCompilationError on rejection. */
 export declare function compileRmtVNextAst(ast: RmtJsonValue, options?: Record<string, unknown>): RmtVNextCoreDocument;
 export interface RmtCompilerSourceProfile { readonly syntax: 'rmtx'; readonly version: '1.0.0' }
+export interface RmtCompilerSourceProfileV2 { readonly syntax: 'rmtx'; readonly version: '2.0.0' }
 export interface RmtVNextAstResultOptions extends Record<string, unknown> { sourceProfile?: RmtCompilerSourceProfile }
+export interface RmtVNextAstResultOptionsV2 extends Record<string, unknown> { sourceProfile: RmtCompilerSourceProfileV2 }
 export interface RmtVNextAstCompileResult extends RmtCompileResult<RmtVNextCoreDocument> {
   schema: string; phase: string; status: string;
   coreDocument: RmtVNextCoreDocument | null; coreJson: string | null;
@@ -34,6 +36,9 @@ export interface RmtVNextAstCompileResult extends RmtCompileResult<RmtVNextCoreD
 }
 /** Full shared-pipeline result. Only this new AST-result entry accepts the closed sourceProfile option. */
 export declare function compileRmtVNextAstResult(ast: RmtJsonValue, options?: RmtVNextAstResultOptions): RmtVNextAstCompileResult;
+/** Additional source profile; the existing v1 option type remains unchanged. */
+export declare function compileRmtVNextAstResult(ast: RmtJsonValue, options: RmtVNextAstResultOptionsV2): RmtVNextAstCompileResult;
+export declare function compileRmtVNextAstResult(ast: RmtJsonValue, options?: RmtVNextAstResultOptions | RmtVNextAstResultOptionsV2): RmtVNextAstCompileResult;
 export declare const compileRmtVNextSource: RmtToolingFunction<RmtCompileResult>;
 export declare const createRmtAppServiceDemands: (coreDocument?: RmtJsonValue) => RmtAppServiceDemandManifest;
 export declare const createRmtVNextCompiler: RmtToolingFactory<RmtVNextCompiler>;
@@ -54,7 +59,7 @@ export declare const RMT_VNEXT_COMPILER_MODULE_PATH: RmtToolingConstant;
 export declare const RMT_VNEXT_COMPILER_PACKAGE_SCRIPT: RmtToolingConstant;
 export declare const RMT_VNEXT_COMPILER_REPORT_SCHEMA: RmtToolingConstant;
 export declare const RMT_VNEXT_COMPILER_SCHEMA: RmtToolingConstant;
-export declare const RMT_VNEXT_COMPILER_API_VERSION: '1.3.0';
+export declare const RMT_VNEXT_COMPILER_API_VERSION: '1.4.0';
 export declare const RMT_VNEXT_COMPILER_SUITE_PATH: RmtToolingConstant;
 export declare const RMT_VNEXT_COMPILER_WORKPACKAGE: RmtToolingConstant;
 export declare const RMT_VNEXT_CORE_SCHEMA: RmtToolingConstant;

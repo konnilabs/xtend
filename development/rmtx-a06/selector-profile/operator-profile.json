@@ -1,0 +1,390 @@
+{
+  "schema": "xtend.rmtx.operator-profile.v1",
+  "apiVersion": "1.0.0",
+  "syntaxVersion": "2.0.0",
+  "sourceProfile": {
+    "syntax": "rmtx",
+    "version": "2.0.0"
+  },
+  "imports": [
+    "RMT",
+    "model",
+    "input",
+    "selectors",
+    "item",
+    "params",
+    "contains"
+  ],
+  "operators": {
+    "Program": {
+      "astType": "RmtTemplateDeclaration",
+      "attributes": {
+        "id": {
+          "kind": "symbol",
+          "required": true
+        }
+      },
+      "children": [
+        "State",
+        "Action",
+        "Portal",
+        "Surface",
+        "Selector"
+      ]
+    },
+    "State": {
+      "astType": "RmtStateDeclaration",
+      "attributes": {
+        "id": {
+          "kind": "symbol",
+          "required": true
+        },
+        "type": {
+          "kind": "string",
+          "required": true
+        },
+        "initial": {
+          "kind": "json-literal",
+          "required": true,
+          "expressionContext": "initial"
+        },
+        "preserve": {
+          "kind": "boolean",
+          "required": false
+        }
+      },
+      "children": []
+    },
+    "Action": {
+      "astType": "RmtActionDeclaration",
+      "attributes": {
+        "id": {
+          "kind": "symbol",
+          "required": true
+        }
+      },
+      "children": [
+        "Input",
+        "Reduce"
+      ]
+    },
+    "Input": {
+      "astType": "RmtActionInputClause",
+      "attributes": {
+        "name": {
+          "kind": "symbol",
+          "required": true
+        },
+        "type": {
+          "kind": "string",
+          "required": true
+        }
+      },
+      "children": []
+    },
+    "Reduce": {
+      "astType": "RmtReducerStatement",
+      "attributes": {
+        "state": {
+          "kind": "symbol",
+          "required": true
+        },
+        "path": {
+          "kind": "symbol",
+          "required": false
+        },
+        "value": {
+          "kind": "reducer-value",
+          "required": true,
+          "expressionContext": "reduce"
+        }
+      },
+      "children": []
+    },
+    "Portal": {
+      "astType": "RmtPortalDeclaration",
+      "attributes": {
+        "id": {
+          "kind": "symbol",
+          "required": true
+        },
+        "root": {
+          "kind": "string",
+          "required": false
+        },
+        "layer": {
+          "kind": "string",
+          "required": false
+        }
+      },
+      "children": []
+    },
+    "Surface": {
+      "astType": "RmtSurfaceDeclaration",
+      "attributes": {
+        "id": {
+          "kind": "symbol",
+          "required": true
+        },
+        "kind": {
+          "kind": "string",
+          "required": false
+        },
+        "component": {
+          "kind": "string",
+          "required": false
+        },
+        "portal": {
+          "kind": "symbol",
+          "required": false
+        }
+      },
+      "children": [
+        "Lane"
+      ]
+    },
+    "Lane": {
+      "astType": "RmtLaneDeclaration",
+      "attributes": {
+        "name": {
+          "kind": "symbol",
+          "required": true
+        }
+      },
+      "children": [
+        "Mount"
+      ]
+    },
+    "Mount": {
+      "astType": "RmtLifecycleStatement",
+      "attributes": {
+        "target": {
+          "kind": "symbol",
+          "required": true
+        }
+      },
+      "children": []
+    },
+    "Selector": {
+      "astType": "RmtSelectorDeclaration",
+      "attributes": {
+        "id": {
+          "kind": "symbol",
+          "required": true
+        },
+        "from": {
+          "kind": "model-or-selector-path",
+          "required": true,
+          "expressionContext": "selector-source"
+        }
+      },
+      "children": [
+        "Where",
+        "Find",
+        "Sort",
+        "Output"
+      ],
+      "childCardinality": {
+        "Where": {
+          "min": 0,
+          "max": null
+        },
+        "Find": {
+          "min": 0,
+          "max": 1
+        },
+        "Sort": {
+          "min": 0,
+          "max": 1
+        },
+        "Output": {
+          "min": 0,
+          "max": 1
+        }
+      }
+    },
+    "Where": {
+      "astType": "RmtSelectorWhereClause",
+      "attributes": {
+        "test": {
+          "kind": "boolean-predicate",
+          "required": true,
+          "expressionContext": "predicate"
+        }
+      },
+      "children": []
+    },
+    "Find": {
+      "astType": "RmtSelectorFindClause",
+      "attributes": {
+        "test": {
+          "kind": "boolean-predicate",
+          "required": true,
+          "expressionContext": "predicate"
+        }
+      },
+      "children": []
+    },
+    "Sort": {
+      "astType": "RmtSelectorSortClause",
+      "attributes": {
+        "by": {
+          "kind": "item-path",
+          "required": true,
+          "expressionContext": "sort-path"
+        },
+        "direction": {
+          "kind": "enum",
+          "required": false,
+          "values": [
+            "asc",
+            "desc"
+          ],
+          "default": "asc"
+        }
+      },
+      "children": []
+    },
+    "Output": {
+      "astType": "RmtSelectorOutputClause",
+      "attributes": {
+        "type": {
+          "kind": "string",
+          "required": true
+        }
+      },
+      "children": []
+    }
+  },
+  "expressionContexts": {
+    "initial": {
+      "literals": "finite-acyclic-json",
+      "objectFields": "explicit-static-only",
+      "prototypeFields": "reject"
+    },
+    "reduce": {
+      "literals": "json-scalars",
+      "roots": [
+        "model",
+        "input",
+        "selectors"
+      ],
+      "paths": "direct-property-only",
+      "computedPaths": false,
+      "optionalPaths": false
+    },
+    "selector-source": {
+      "roots": [
+        "model",
+        "selectors"
+      ],
+      "paths": "direct-property-only",
+      "wholeDeclaredSymbolOnly": true
+    },
+    "sort-path": {
+      "roots": [
+        "item"
+      ],
+      "paths": "direct-property-only",
+      "fieldRequired": true
+    },
+    "predicate": {
+      "result": "boolean",
+      "literals": [
+        "true",
+        "false"
+      ],
+      "scalarOperands": "json-scalars-or-direct-paths",
+      "roots": [
+        "model",
+        "selectors",
+        "item",
+        "params"
+      ],
+      "equality": {
+        "===": "==",
+        "!==": "!="
+      },
+      "equalitySemantics": "strict",
+      "comparisons": [
+        "<",
+        "<=",
+        ">",
+        ">="
+      ],
+      "comparisonSemantics": "existing-classic-ordering",
+      "logical": [
+        "&&",
+        "||"
+      ],
+      "logicalOperands": "boolean-predicates",
+      "negation": {
+        "operator": "!",
+        "requiresParenthesizedPredicate": true
+      },
+      "calls": {
+        "contains": {
+          "binding": "contains",
+          "arguments": 2,
+          "operands": "json-scalars-or-direct-paths",
+          "semantics": "classic-string-substring",
+          "nullOperand": "empty-string"
+        }
+      },
+      "barePathTruthiness": false,
+      "scalarTruthiness": false,
+      "looseEquality": false,
+      "computedPaths": false,
+      "optionalPaths": false,
+      "methodCalls": false
+    }
+  },
+  "limits": {
+    "sourceUtf8Bytes": 1048576,
+    "literalDepth": 64,
+    "operatorDepth": 64,
+    "expressionDepth": 64,
+    "generatedNodes": 50000
+  },
+  "semantics": {
+    "sourceExecution": false,
+    "importsExecuted": false,
+    "backendInput": "validated-classic-ast",
+    "sourceModule": "one-default-program-export",
+    "operatorIdentity": "canonical-authoring-import-binding",
+    "unknownAttributes": "reject",
+    "unknownOperators": "reject",
+    "attributeSpreads": false,
+    "operatorTypeArguments": false,
+    "nativeUIChildren": false,
+    "prototypePathSegments": "reject",
+    "literalReferenceDistinction": true,
+    "selector": {
+      "executionOrder": [
+        "where",
+        "find",
+        "sort"
+      ],
+      "sourceClauseOrderIndependent": true,
+      "sort": {
+        "comparison": "string-locale-compare",
+        "copiesSource": true,
+        "numeric": false
+      },
+      "output": {
+        "role": "metadata-only",
+        "runtimeValueValidation": false
+      },
+      "parameters": {
+        "forwardedToDependencies": false
+      }
+    }
+  },
+  "reads": {
+    "tracking": "static-reference-paths",
+    "allSyntacticBranches": true,
+    "symbolResolution": "longest-declared-prefix",
+    "runtimeTracking": false,
+    "runtimeSubscriptionsChanged": false
+  }
+}

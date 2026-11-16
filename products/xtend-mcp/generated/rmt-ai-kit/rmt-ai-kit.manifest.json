@@ -141,8 +141,8 @@
     },
     {
       "path": "docs/de/release-0-9.md",
-      "sha256": "7b5520331ac26e40a5debbb156ab1dc766b38b5ecaa1690156b7c28771796989",
-      "bytes": 2651
+      "sha256": "c3cf54ebf6dddc069072a073fca95632740b57ea8de36f0a576737cd73623a26",
+      "bytes": 3071
     },
     {
       "path": "docs/de/rmt-app-platform-tooling.md",
@@ -151,8 +151,8 @@
     },
     {
       "path": "docs/de/rmt-classic-contract.md",
-      "sha256": "b3ed5fa7a6ddeeb18a207cd1ecfa05f7064c8109f71bcb71757982a7ffcdc1cf",
-      "bytes": 2669
+      "sha256": "af3cf58b53e3f773fe0ab0a98cb2127a8e56f633bc2ce275b89a728b6ae629cb",
+      "bytes": 3173
     },
     {
       "path": "docs/de/rmt-reference-actions-events.md",
@@ -231,18 +231,18 @@
     },
     {
       "path": "docs/en/release-0-9.md",
-      "sha256": "240755f613439407375051470cf3141783d1897bcd801caf69b92be40c13f1f3",
-      "bytes": 2615
+      "sha256": "bb242248d6212a543c2e4b1faf4b82d5cd5c2b312a2e49cec705b45b5220594a",
+      "bytes": 3007
     },
     {
       "path": "docs/en/rmt-classic-contract.md",
-      "sha256": "ce7ed3bc04516399b0b782c22dbc0c84f7700e65438d6dbf84221374a106211a",
-      "bytes": 2557
+      "sha256": "189f58d37406789c5dd7dc1928ebe8b4234ef4b8e6721e70ba3773284e63ef36",
+      "bytes": 3002
     },
     {
       "path": "tools/rmt-language/classic-compiler.d.ts",
-      "sha256": "cd7256d276a7ec770dfb5fc18f4ffb31d49be590c7763dc81cc275f0e4bcddc2",
-      "bytes": 3771
+      "sha256": "f0e6cdb00982be4b2b16e60446d59582b8918378dbd43dd9c4ee311d5004ec31",
+      "bytes": 4308
     },
     {
       "path": "tools/rmt-language/classic-parser.d.ts",
@@ -266,8 +266,8 @@
     },
     {
       "path": "tools/rmt-language/vnext-compiler.d.ts",
-      "sha256": "111ee79a5f92d4ff5005c084590d995263fd0724d18f159911c4028dc6f70df2",
-      "bytes": 4280
+      "sha256": "2e1b741439a8f30b430f8e0e75690e8641977a01182ddf1be02d12aa6b2b826c",
+      "bytes": 4904
     },
     {
       "path": "tools/rmt-linter/reporter.d.ts",

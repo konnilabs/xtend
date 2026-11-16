@@ -1,0 +1,46 @@
+import { RMT, input, model, selectors, item, contains } from '@ccslabs/xtend/rmt-language/rmtx';
+export default (
+  <RMT.Program id="product.details">
+    <RMT.State id="product" type="object" preserve initial={{ id: 'p1', images: ['front', 'back'], selectedImageId: 'front', reviewsSort: 'recent' }} />
+    <RMT.State id="hosts" type="object" preserve initial={{ gallery: true, reviews: true }} />
+    <RMT.Action id="product.selectImage">
+      <RMT.Input name="imageId" type="string" />
+      <RMT.Reduce state="product" path="selectedImageId" value={input.imageId} />
+    </RMT.Action>
+    <RMT.Action id="product.changeSort">
+      <RMT.Input name="sort" type="string" />
+      <RMT.Reduce state="product" path="reviewsSort" value={input.sort} />
+    </RMT.Action>
+    <RMT.Action id="hosts.replace">
+      <RMT.Input name="hosts" type="object" />
+      <RMT.Reduce state="hosts" value={input.hosts} />
+    </RMT.Action>
+    <RMT.State id="sourceImages" type="array" initial={['front', 'back']} />
+    <RMT.State id="imageQuery" type="string" initial="" />
+    <RMT.Selector id="visibleImages" from={model.sourceImages}>
+      <RMT.Where test={contains(item, model.imageQuery)} />
+      <RMT.Output type="string[]" />
+    </RMT.Selector>
+    <RMT.Action id="product.applyImages">
+      <RMT.Reduce state="product" path="images" value={selectors.visibleImages} />
+    </RMT.Action>
+    <RMT.Action id="sourceImages.replace">
+      <RMT.Input name="images" type="array" />
+      <RMT.Reduce state="sourceImages" value={input.images} />
+    </RMT.Action>
+    <RMT.Action id="imageQuery.replace">
+      <RMT.Input name="value" type="string" />
+      <RMT.Reduce state="imageQuery" value={input.value} />
+    </RMT.Action>
+    <RMT.Portal id="surface.root" root="#xtend-maraca-root" layer="surface" />
+    <RMT.Surface id="product-details" kind="region" component="section" portal="surface.root">
+      <RMT.Lane name="visible"><RMT.Mount target="product-header" /></RMT.Lane>
+    </RMT.Surface>
+    <RMT.Surface id="product-gallery-host" kind="region" component="div" portal="surface.root">
+      <RMT.Lane name="visible"><RMT.Mount target="product-gallery" /></RMT.Lane>
+    </RMT.Surface>
+    <RMT.Surface id="product-reviews-host" kind="region" component="div" portal="surface.root">
+      <RMT.Lane name="idle"><RMT.Mount target="product-reviews" /></RMT.Lane>
+    </RMT.Surface>
+  </RMT.Program>
+);

@@ -66,6 +66,22 @@ function runXTensionsRuntimeGate({ rootDir, browser = false } = {}) {
       && rmtx.compiler.sourceProfile?.syntax === 'rmtx' && rmtx.compiler.sourceProfile.version === '1.0.0'
       && rmtx.productiveRmtxFrontendUsed === true && rmtx.completeRmtxFrontendImplemented === false && rmtx.acceptedForRelease === false,
     'RMTX source must use the productive compiler and generated React/Vue host chain with explicit source profile and retained release limits');
+    const selectorArtifact = path.join(rootDir, '.xtend-test-results', `xtend-rmtx-selector-runtime-${browser ? 'browser' : 'node'}-report.json`);
+    fs.rmSync(selectorArtifact, { force: true });
+    const selectorExecution = spawnSync(process.execPath, ['development/rmtx-a06/selector-profile/runtime-test.cjs', ...(browser ? ['--browser'] : []), '--output', selectorArtifact], {
+      cwd: rootDir, env, encoding: 'utf8', timeout: 180000, maxBuffer: 16 * 1024 * 1024
+    });
+    context.assert(!selectorExecution.error && selectorExecution.status === 0, `Actual RMTX selector/action/provider acceptance passes: ${selectorExecution.stderr || selectorExecution.stdout || selectorExecution.error || ''}`);
+    const selector = JSON.parse(fs.readFileSync(selectorArtifact, 'utf8'));
+    context.assert(selector.schema === 'xtend.rmtx.selector-runtime-acceptance.v1' && selector.passed && selector.node === process.version && selector.cases >= 11
+      && selector.mode === (browser ? 'chromium-sealed-native-esm' : 'jsdom-native-esm')
+      && (!browser || Boolean(selector.browserVersion) && selector.pageErrors.length === 0)
+      && selector.compiler?.schema === 'xtend.rmtx.compile-result.v2' && selector.compiler.planCompilerSchema === selector.compiler.schema
+      && selector.compiler.sourceProfile?.syntax === 'rmtx' && selector.compiler.sourceProfile.version === '2.0.0'
+      && selector.existingAutomaticCases >= 8 && selector.selectorActionModelPropsCases >= 3 && selector.selectorActionModelPropsVerified === true
+      && selector.productiveRmtxFrontendUsed === true && selector.completeRmtxFrontendImplemented === false
+      && selector.ssrAcceptancePerformed === false && selector.acceptedForRelease === false,
+    'Opt-in RMTX v2 selectors must actually drive Actions, Model and React props while preserving Vue roots and owner staging');
     if(browser){
       const componentSSRArtifact=path.join(rootDir,'.xtend-test-results','xtend-component-ssr-report.json');fs.rmSync(componentSSRArtifact,{force:true});
       const execution=spawnSync(process.execPath,['development/rmtx-a06/scoped-ssr-test.cjs','--output',componentSSRArtifact],{cwd:rootDir,env,encoding:'utf8',timeout:180000,maxBuffer:16*1024*1024});

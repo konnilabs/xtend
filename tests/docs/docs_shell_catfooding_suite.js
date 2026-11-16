@@ -4,6 +4,7 @@ const { EXPECTED_CANONICAL_SLUG_COUNT } = require('../../scripts/verify_docs_pub
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const vm = require('vm');
 const zlib = require('zlib');
 const {
   createSuiteContext,
@@ -43,10 +44,88 @@ function loadAppRuntime(rootDir) {
   return appRuntimePromise;
 }
 
+function runDocsSearchBodyNormalizationChecks(rootDir, runtime, context) {
+  const { buildLocale, compactBody } = require(resolveRepoPath('scripts/build_docs_search_indexes.js', rootDir));
+  const menu = readJson('docs/menu.json', rootDir);
+  const sameData = (left, right) => JSON.stringify(left) === JSON.stringify(right);
+  const withoutBodies = (index) => ({
+    ...index,
+    entries: index.entries.map(({ body, ...metadata }) => metadata)
+  });
+
+  for (const locale of ['de', 'en']) {
+    // Identity normalization reproduces the previous producer after its original
+    // ordered, unique-token selection. Compare every searchable body, not a sample.
+    const previous = buildLocale(locale, menu, value => value);
+    const current = buildLocale(locale, menu, runtime.normalizeSearchText);
+    context.assert(previous.fulltext.entries.length === EXPECTED_CANONICAL_SLUG_COUNT
+      && current.fulltext.entries.length === EXPECTED_CANONICAL_SLUG_COUNT,
+    `${locale} normalized fulltext retains the complete article inventory`);
+    context.assert(sameData(previous.compact, current.compact), `${locale} body normalization leaves the compact index unchanged`);
+    context.assert(sameData(withoutBodies(previous.fulltext), withoutBodies(current.fulltext)),
+      `${locale} body normalization preserves all fulltext metadata and source fingerprints`);
+    context.assert(previous.fulltext.entries.every((entry, index) => (
+      runtime.normalizeSearchText(entry.body) === current.fulltext.entries[index].body
+      && runtime.normalizeSearchText(current.fulltext.entries[index].body) === current.fulltext.entries[index].body
+    )), `${locale} every normalized fulltext body preserves the exact runtime field and token order`);
+
+    const queries = locale === 'de'
+      ? ['Änderung', 'Straße', 'rmt.state', 'stabile Elementschlüssel', 'hydratoin']
+      : ['RMTX', 'state/key', 'state management', 'hydratoin', 'strasse'];
+    for (const query of queries) {
+      context.assert(sameData(
+        runtime.searchEntries(previous.fulltext.entries, query, { resultLimit: 100 }),
+        runtime.searchEntries(current.fulltext.entries, query, { resultLimit: 100 })
+      ), `${locale} normalized corpus preserves result order, scores and field scores for ${query}`);
+    }
+  }
+
+  const markdown = 'Beta alpha Straße Strasse A/B a-b A.B';
+  const normalized = compactBody(markdown, runtime.normalizeSearchText);
+  context.assert(normalized === 'beta alpha strasse strasse a b a b a b',
+    'body normalization preserves prefix/phrase order and colliding sharp-s/punctuation tokens');
+  const limitFixture = `${Array.from({ length: 518 }, (_, index) => `token${index}`).join(' ')} Straße Strasse beyondlimit`;
+  const limited = compactBody(limitFixture, runtime.normalizeSearchText);
+  context.assert(limited.endsWith('token517 strasse strasse') && !limited.includes('beyondlimit'),
+    'the 520-token cutoff is applied before normalization without deduplicating newly equal tokens');
+
+  const samples = [
+    { id: 'prefix', slug: 'prefix', body: markdown },
+    { id: 'reverse', slug: 'reverse', body: 'alpha Beta Straße' },
+    { id: 'suffix', slug: 'suffix', body: 'suffix Beta alpha' }
+  ];
+  const previousEntries = samples.map(entry => ({ ...entry, body: compactBody(entry.body, value => value) }));
+  const currentEntries = samples.map(entry => ({ ...entry, body: compactBody(entry.body, runtime.normalizeSearchText) }));
+  const prefixResult = runtime.searchEntries(currentEntries, 'bet', { resultLimit: 8 });
+  context.assert(prefixResult[0]?.slug === 'prefix' && prefixResult[0].fieldScores.body === 0.94,
+    'body prefix matches retain their 0.94 field score instead of an unordered token-prefix score');
+
+  const messages = [];
+  const worker = { postMessage(message) { messages.push(message); } };
+  vm.runInNewContext(runtime.createRmtSearchWorkerSource(), { self: worker });
+  for (const query of ['bet', 'beta al', 'alpha be', 'Straße', 'strasse', 'a.b', 'a/b', 'strase']) {
+    const options = { resultLimit: 8 };
+    const expected = runtime.searchEntries(previousEntries, query, options);
+    context.assert(sameData(expected, runtime.searchEntries(currentEntries, query, options)),
+      `normalized synthetic bodies preserve scores and order for ${query}`);
+    worker.onmessage({ data: { id: `previous:${query}`, action: 'search_index', envelope: {
+      resourceId: 'previous', entries: previousEntries, query, options
+    } } });
+    worker.onmessage({ data: { id: `current:${query}`, action: 'search_index', envelope: {
+      resourceId: 'current', entries: currentEntries, query, options
+    } } });
+    const [before, after] = messages.slice(-2);
+    context.assert(before.ok && after.ok && sameData(before.result.results, expected)
+      && sameData(after.result.results, expected),
+    `actual generated worker preserves main-thread results for both body encodings of ${query}`);
+  }
+}
+
 async function runRmtSearchRuntimeSuite(options = {}) {
   const rootDir = resolveRootDir(options.rootDir || path.resolve(__dirname, '..', '..'));
   const context = createSuiteContext({ id: 'rmt-search-runtime', label: 'RMT search runtime' });
   const runtime = await loadAppRuntime(rootDir);
+  runDocsSearchBodyNormalizationChecks(rootDir, runtime, context);
   const compact = [
     { id: 'hydration', slug: 'hydration-policies', title: 'Hydration Policies', keywords: ['Hydrierung', 'resume', 'SSR'] },
     { id: 'devtools', slug: 'xtend-dev-surface', title: 'XTend Dev Surface', keywords: ['telemetry', 'Chromium'] },

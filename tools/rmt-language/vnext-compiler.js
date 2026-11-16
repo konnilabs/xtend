@@ -15,7 +15,7 @@ const {
 
 const RMT_VNEXT_CORE_SCHEMA = 'xtend.rmt.core-format.vnext.v1';
 const RMT_VNEXT_COMPILER_SCHEMA = 'xtend.rmt.vnext-compiler.v1';
-const RMT_VNEXT_COMPILER_API_VERSION = '1.3.0';
+const RMT_VNEXT_COMPILER_API_VERSION = '1.4.0';
 const RMT_VNEXT_COMPILER_REPORT_SCHEMA = 'xtend.rmt.vnext-compiler-report.v1';
 const RMT_VNEXT_COMPILER_WORKPACKAGE = 'WP-E15-05';
 const RMT_VNEXT_PRIMITIVE_LOWERING_SCHEMA = 'xtend.rmt.vnext.primitive-lowering.v1';
@@ -5490,7 +5490,7 @@ function validateFrontendSourceProfile(options) {
   const fields = plain && Object.getOwnPropertyDescriptors(profile);
   const valid = fields && Reflect.ownKeys(fields).length === 2
     && ['syntax', 'version'].every(key => fields[key] && fields[key].enumerable && 'value' in fields[key])
-    && fields.syntax.value === 'rmtx' && fields.version.value === '1.0.0';
+    && fields.syntax.value === 'rmtx' && ['1.0.0', '2.0.0'].includes(fields.version.value);
   if (!valid) throw Object.assign(new TypeError('Unsupported compiler frontend source profile.'), {
     code: 'rmt.compiler.source-profile.unsupported'
   });

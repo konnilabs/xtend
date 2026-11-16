@@ -2,7 +2,7 @@
 const legacy = require('./vnext-compiler');
 const { RMT_CLASSIC_COMPILER_CONTRACT, getRmtClassicAstSchema, validateRmtClassicAst } = require('./classic-ast-contract');
 const { validateStateBindingArtifact } = require('../xtensions/state-binding-artifact');
-const RMT_CLASSIC_COMPILER_API_VERSION = '4.2.0';
+const RMT_CLASSIC_COMPILER_API_VERSION = '4.3.0';
 const RMT_CLASSIC_COMPILE_RESULT_SCHEMA = 'xtend.rmt.classic.compile-result.v4';
 
 function assertContractVersion(options) {

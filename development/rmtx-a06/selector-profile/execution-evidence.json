@@ -1,0 +1,768 @@
+{
+  "format": 1,
+  "version": "1.0.0",
+  "date": "2026-11-16",
+  "stage": "A06.3.1-operator-selector-expression-profile",
+  "sourceBaseSha": "390a7384b7046b52ede01c8e0bf9e5c3253adad7",
+  "passed": true,
+  "a0631Implemented": true,
+  "completeA063Implemented": false,
+  "completeRmtxFrontendImplemented": false,
+  "acceptedForRelease": false,
+  "repositoryGatesFullyGreen": false,
+  "defaultSourceProfile": {
+    "syntax": "rmtx",
+    "version": "1.0.0"
+  },
+  "additionalSourceProfile": {
+    "syntax": "rmtx",
+    "version": "2.0.0"
+  },
+  "apiVersions": {
+    "parser": "2.0.0",
+    "compiler": "2.0.0",
+    "classic": "4.3.0",
+    "vnext": "1.4.0"
+  },
+  "scope": {
+    "catalogOperators": 14,
+    "legacyDefaultOperators": 9,
+    "newOperators": [
+      "Selector",
+      "Where",
+      "Find",
+      "Sort",
+      "Output"
+    ],
+    "closedBooleanPredicateGrammar": true,
+    "staticCanonicalDependencyReport": true,
+    "existingModelAndActionRuntime": true,
+    "existingXTensionProviderBindings": true,
+    "sourceImportsOrExpressionsExecuted": false,
+    "incrementalSelectorRecomputationImplemented": false,
+    "runtimeDependencyTrackingImplemented": false,
+    "parametersForwardedToDependencies": false,
+    "generalModelFieldTypeInferenceImplemented": false,
+    "automaticLanguageDiscoveryImplemented": false,
+    "generalNativeUIProfileImplemented": false,
+    "semanticEditorIntegrationImplemented": false,
+    "rmtxSSRProfileAccepted": false
+  },
+  "staticEvidence": {
+    "path": "development/rmtx-a06/selector-profile/evidence.json",
+    "sha256": "531c80743efb4c4acaeb4693f20edbeb65810f68138209b48193858d6dea3f99"
+  },
+  "operatorProfile": {
+    "path": "development/rmtx-a06/selector-profile/operator-profile.json",
+    "sha256": "53b91ad5e2a7117c2f527eda5f849523f7182390fdaade0a4c03a5153b6ae706"
+  },
+  "dependencyReport": {
+    "path": "development/rmtx-a06/selector-profile/dependencies.json",
+    "sha256": "6087c5367f2c8db42a797368c88e43c3ee1fddfb58a28c4c57a13de94af63541"
+  },
+  "nodeLanes": [
+    {
+      "node": "v24.22.2",
+      "newProfileTests": {
+        "tests": 59,
+        "pass": 59,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "receipt": {
+          "fileName": "root-newcases24-final-A.log",
+          "sha256": "8e0c5ffbae120450f196746dd5d137190fcfbb0c2c339ce51e80182ad101c735"
+        }
+      },
+      "legacyFrontendTests": {
+        "tests": 32,
+        "pass": 32,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "receipt": {
+          "fileName": "root-legacy24-final-B.log",
+          "sha256": "7cd09d8e0b106757de0e3b832c43c3c5e13e91cc82ac982f010122ecd1870b15"
+        }
+      },
+      "packageAndMaracaTests": {
+        "tests": 6,
+        "pass": 6,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "receipt": {
+          "fileName": "profile-package24-C.log",
+          "sha256": "3aea75e2ec14938af7727598dd48786c9993effddbbd9933f20b08fbc237a819"
+        }
+      },
+      "regressionTests": {
+        "tests": 73,
+        "pass": 73,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "backendCases": 8,
+        "actionEventRendererCases": 65,
+        "receipt": {
+          "fileName": "review-final-07-regressions24.log",
+          "sha256": "36574b1fcafb37a9e54327d59d3fd9530ab89b6a16e08640d8db952795196607"
+        }
+      },
+      "domainSuites": {
+        "suites": 20,
+        "assertions": 2961,
+        "failures": 0,
+        "skips": 0,
+        "receipt": {
+          "fileName": "review-final-07-suites24.json",
+          "sha256": "7245e626ab8323e5eefb5327deb6544178cc9a26d0b3ee72567ace1339b36e1e"
+        }
+      },
+      "compilerBindingChecks": {
+        "assertions": 88,
+        "receipt": {
+          "fileName": "review-final-07-bindings24.json",
+          "sha256": "36e06bbb0800808452457b0001f2f33ab32d258a333c4dd415c1ee659c36a7a9"
+        }
+      },
+      "legacyBaseline": {
+        "node": "v24.22.2",
+        "cases": 6,
+        "defaultEqualsExplicitV1": true,
+        "drift": [],
+        "moduleApis": {
+          "parser": "2.0.0",
+          "compiler": "2.0.0"
+        },
+        "receipt": {
+          "path": "/tmp/xtend-rmtx-a063/governance/legacy-v1-current24-freeze1.json",
+          "sha256": "3535a5129d9f4e262d8b685315afb5d8ffe619e45150d10ae89eafc18595b87f"
+        }
+      }
+    },
+    {
+      "node": "v26.5.0",
+      "newProfileTests": {
+        "tests": 59,
+        "pass": 59,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "receipt": {
+          "fileName": "root-newcases26-final-A.log",
+          "sha256": "9c3deff8a1a9909c684fc714dd83a799b1b2d31151bcf0d44374df8fa9c9de2c"
+        }
+      },
+      "legacyFrontendTests": {
+        "tests": 32,
+        "pass": 32,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "receipt": {
+          "fileName": "root-legacy26-final-B.log",
+          "sha256": "35c6bdefe7dccf414bf587d34055b3f97ad53241759a04326def26e2be267119"
+        }
+      },
+      "packageAndMaracaTests": {
+        "tests": 6,
+        "pass": 6,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "receipt": {
+          "fileName": "profile-package26-C.log",
+          "sha256": "b26b9a1a94ba427ddc62bff41f1997375b6b95bef5810b4790300a15b057d4b8"
+        }
+      },
+      "regressionTests": {
+        "tests": 73,
+        "pass": 73,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "backendCases": 8,
+        "actionEventRendererCases": 65,
+        "receipt": {
+          "fileName": "review-final-07-regressions26.log",
+          "sha256": "a11bfd839ac0d11cf490eae20bd9ea214620f3e054661e901c2c7e21bd6bd31f"
+        }
+      },
+      "domainSuites": {
+        "suites": 20,
+        "assertions": 2961,
+        "failures": 0,
+        "skips": 0,
+        "receipt": {
+          "fileName": "review-final-07-suites26.json",
+          "sha256": "501453002c87e0148cee38b2b268a0e336f1fd2f94b70748a7bc15cdd660d227"
+        }
+      },
+      "compilerBindingChecks": {
+        "assertions": 88,
+        "receipt": {
+          "fileName": "review-final-07-bindings26.json",
+          "sha256": "04def8cee03fe935f82764de34893d0f0c42d8682b96a47a9ba67557a594f9ae"
+        }
+      },
+      "legacyBaseline": {
+        "node": "v26.5.0",
+        "cases": 6,
+        "defaultEqualsExplicitV1": true,
+        "drift": [],
+        "moduleApis": {
+          "parser": "2.0.0",
+          "compiler": "2.0.0"
+        },
+        "receipt": {
+          "path": "/tmp/xtend-rmtx-a063/governance/legacy-v1-current26-freeze1.json",
+          "sha256": "3c80fcb67a252dc81ac67825ef4fad605b59a824c939bc2562ea1f1398e3a621"
+        }
+      }
+    }
+  ],
+  "legacyBaseline": {
+    "commit": "390a7384b7046b52ede01c8e0bf9e5c3253adad7",
+    "normalizedCases": [
+      "empty",
+      "scalarAction",
+      "alias",
+      "unknownSelector",
+      "unknownImport",
+      "unsafeExpression"
+    ],
+    "baselineReceipt": {
+      "fileName": "legacy-v1-profile-baseline.json",
+      "sha256": "6df6657de048d916f5149789615a592fdd0f9ff48e79173d40e3012d32ab3484"
+    },
+    "comparisonReceipt": {
+      "fileName": "legacy-v1-recheck-freeze1.json",
+      "sha256": "c32f191a03dd5d9463a06c413208f4e0b18792696a626274a3ba840f8b3b7386"
+    },
+    "resultDataDrift": false,
+    "defaultEqualsExplicitV1": true,
+    "factoryMetadataPreserved": true,
+    "moduleCapabilityApisIntentionallyRaised": true
+  },
+  "frameworkRuntime": {
+    "evidence": {
+      "path": "development/rmtx-a06/selector-profile/runtime-evidence.json",
+      "sha256": "ebc2dba38db5c487cac73eec16a8ca542da8de0aaa51255f3bd212a1dcf51012"
+    },
+    "casesPerRun": 11,
+    "runs": [
+      {
+        "mode": "jsdom-native-esm",
+        "node": "v24.22.2",
+        "browserVersion": null,
+        "cases": 11,
+        "passed": true
+      },
+      {
+        "mode": "jsdom-native-esm",
+        "node": "v26.5.0",
+        "browserVersion": null,
+        "cases": 11,
+        "passed": true
+      },
+      {
+        "mode": "chromium-sealed-native-esm",
+        "node": "v24.22.2",
+        "browserVersion": "155.0.8059.79",
+        "cases": 11,
+        "passed": true
+      }
+    ],
+    "existingAutomaticCasesPerRun": 8,
+    "newSelectorActionModelPropsCasesPerRun": 3,
+    "pinnedRuntimeSources": 13,
+    "sourceStableAcrossRuns": true
+  },
+  "targetedToolingChecks": {
+    "aiDeveloperKit": {
+      "assertions": 286,
+      "receipt": {
+        "fileName": "kit-tests-01.json",
+        "sha256": "b418445d72280abe68d1087f6041f066ae01056c4ed6acc3d54dc249e97d514f"
+      }
+    },
+    "mcp": {
+      "tests": 27,
+      "receipt": {
+        "fileName": "mcp-tests-01.log",
+        "sha256": "c874c0cb28fd5f3122e6bd681051f2a21891543003ef38af0f8a2696a8db8f3c"
+      }
+    },
+    "knowledgeIndex": {
+      "documents": 356,
+      "references": 32,
+      "recipes": 6,
+      "receipt": {
+        "fileName": "knowledge-check-01.log",
+        "sha256": "fef4872a226226b5067829d4c5e5e179f67a364ed0f49642f67c1369aae3b367"
+      }
+    },
+    "publicDocsQuality": {
+      "slugs": 178,
+      "markdownDocuments": 357,
+      "receipt": {
+        "fileName": "docs-quality-01.log",
+        "sha256": "9b266545e190c3e23ac052001c8d0fb512b09149df533089fc6cbf34108e6c40"
+      }
+    },
+    "testRunnerCatalog": {
+      "assertions": 45,
+      "receipt": {
+        "fileName": "profile-test-runner-gate-D.json",
+        "sha256": "9d925615594d42cec3931b913f7b23feca4d4bfdc164b1af0a970d20482592ca"
+      }
+    }
+  },
+  "sourceVerification": {
+    "capturedRegressionPaths": 315,
+    "stableRegressionSourceCount": 314,
+    "stableRegressionSources": {
+      "tests/rmt-language/action-backend-regressions.test.cjs": "6e761ed25c7de53b105eac5b1eed6f622d5cbdc4c4ef442266fb7068d0136dd0",
+      "tests/rmt-language/action-execution-lowering.test.cjs": "500bd27894232c14c5f9569de437e072174b1fc68264249c8dff0c2f0633cb7e",
+      "tests/rmt-language/backend-ast-result.test.cjs": "be4dc62e23d1f25d5a1977d91f032875e9ab9b2188669e060bbd41f6037eef01",
+      "tests/rmt-language/event-condition-guards.test.cjs": "1e97ee38fdca1b9e6b6a45f94946096b3eff11a153b4769bb524ad8803204a95",
+      "tests/rmt-language/fixtures/classic-contract-consumer.ts": "ef66c2a793606534522abacd949d738d0596411657200eee9c5903e1d09fa9ea",
+      "tests/rmt-language/project_index_suite.js": "ceb928351788deb40f9220690423ea9e5033487ef01c011ad69522ec22c89da1",
+      "tests/rmt-language/rmt_agent_repair_report_suite.js": "b0b10d6adfcc5bb1bad81739efee3820f90d4fc8c98b83143cd41c51335dd128",
+      "tests/rmt-language/rmt_ai_developer_kit_suite.js": "52410f5a975c0cebd6dd3a8297ada114d7d46d53ba4e922c2f5b7066005db937",
+      "tests/rmt-language/rmt_app_platform_tooling_suite.js": "09e08ef7ac9b23accf58da8309f830def9f7d64fc7778d62241bcc15519ac03e",
+      "tests/rmt-language/rmt_classic_contract_checks.js": "9f77acee56aa8c9a1330cd60c870c90aadf637c7abba66acaf88d737c11620ee",
+      "tests/rmt-language/rmt_code_actions_suite.js": "677148439599354613d481bec287794cf5c151fa5212b641b34a3ee06483c4f9",
+      "tests/rmt-language/rmt_completion_suite.js": "be4717e89096f00d8dfdac6a779a54e2448d5f4e09c24518a8becedd3c5048d8",
+      "tests/rmt-language/rmt_editor_packaging_suite.js": "c6ee2bfaa1fca573c78992bc8b3e07ced249279b87ee86cb418cbaa3f287b0b5",
+      "tests/rmt-language/rmt_hydrangea_suite.js": "4faf4a8295375960513e6ad822037cbdc3dfd12dbbf6f1ed12a8efc8bb8b0ae9",
+      "tests/rmt-language/rmt_kernel_binding_security_suite.js": "4905de9f25990f29f6497c13b68c30feb8cc3ae3c1ea28ef4deb1128ff064fbb",
+      "tests/rmt-language/rmt_kernel_escalation_suite.js": "5da65eedd8f78aa34bcb09650c250801217b45353c7bbbd6e1b1ea4b30fa7604",
+      "tests/rmt-language/rmt_kernel_handoff_docs_suite.js": "d99b6535d738ba98ccc47556f381b733a4364523ff31e386776fbaacaffcb971",
+      "tests/rmt-language/rmt_kernel_panic_monitor_suite.js": "753d6084168ce05c5bb1eae841f25913896aa4b4e0e02616184f688ad9be607b",
+      "tests/rmt-language/rmt_kernel_policy_parity_suite.js": "c43b42510e8ecf7bce8bf2a782a5c78167c8767639ccc7a4b189c0bcde07803c",
+      "tests/rmt-language/rmt_kernel_recovery_suite.js": "740cd626c1a3ca81fcb4c2446055d192eb818b2fc2e21435b07920fb1d6f9b73",
+      "tests/rmt-language/rmt_kernel_scheduler_failure_suite.js": "94880c55e08b0a8cfc765b3db4c1690595869e0c8d6816bd394cc4bd4e6ca186",
+      "tests/rmt-language/rmt_kernel_scheduler_suite.js": "973d9f485ee10952883de27ab2817c34091262b985c5082a8efbf59e0e9d27bf",
+      "tests/rmt-language/rmt_kernel_security_regression_suite.js": "fbb310a67e6f00573028c79c2065ce50ecae1bb07a5ec78fc0bb41a29e426a8f",
+      "tests/rmt-language/rmt_kernel_trust_authority_suite.js": "f605ca1dd87155d28b858060373841ade201773cf2a58ac527ddf93a4fa12ed3",
+      "tests/rmt-language/rmt_kernel_trusted_dom_runtime_suite.js": "bf473ca77c3593313dcc2dab898631e0226709ac861b352d0a5ec58f262ca28b",
+      "tests/rmt-language/rmt_language_regression_suite.js": "2532a7d311fbf2ee6427075bccd59f334ca43b0cec801e15023d9604287a9499",
+      "tests/rmt-language/rmt_language_server_suite.js": "4de53d4661c33bfdcdbfa9995be1238e0b142f022e32f20efa68c19b8ed243bd",
+      "tests/rmt-language/rmt_linter_cli_suite.js": "10fb8f10773fea576cf39af677f438ecb46631e816197ffcd2afe6630f7630ce",
+      "tests/rmt-language/rmt_linter_rules_suite.js": "07f9f8931ba9e5b3eaeac2f9730fcf1f0dc39a375d43e7ca806d4314d8ea1674",
+      "tests/rmt-language/rmt_navigation_suite.js": "e56dc5399cac2d880e5789dfa485fe25012b75ea09bea9301f4c7c3baf616e33",
+      "tests/rmt-language/rmt_node_ssr_adapter_suite.js": "97e576c010d5a802c8a4915ddc8251288cab80977e5085e0f8b6601a7cb631d9",
+      "tests/rmt-language/rmt_parser_suite.js": "bb34feb50e2407bc080f0f93686c047e58de0806543a35ab5d4198136f29b039",
+      "tests/rmt-language/rmt_php_app_service_adapter_suite.js": "2a20ec0397931630fc5d18764894add3fdb83bab904736c58d70247e619ce640",
+      "tests/rmt-language/rmt_php_ssr_adapter_suite.js": "00edd0c1fbb472b642798e0a2cbd40b16c166d07070ba31f95184d3f26686414",
+      "tests/rmt-language/rmt_resume_runtime_suite.js": "6458639b29bd94ee90d0f3fc3c652570c2610e419f8e1fa390c7d29f057599c8",
+      "tests/rmt-language/rmt_semantic_graph_suite.js": "4198241a9aeee29493c05018df5ab13c5e57e5e9f20822d4bdf51d8bde8679a6",
+      "tests/rmt-language/rmt_source_model_suite.js": "4704e73aeda42267d5bad21a9abd0953e43eb9a9d9bc59e9eddfe048d485067c",
+      "tests/rmt-language/rmt_vnext_compatibility_suite.js": "e3c99ea77694134367e66a67759d425af7ce73526f4cbb0bfc40e1d32fb4ba3b",
+      "tests/rmt-language/rmt_vnext_compiler_suite.js": "9935c929d854021b81aee87f8ffc8e02b1e38fafcb6490fb303e885586055f47",
+      "tests/rmt-language/rmt_vnext_component_primitives_suite.js": "1bbb3ebeee16d86a81cddbbf4725d6bd1efdf96882b4dd95f6848dd1f6c43c53",
+      "tests/rmt-language/rmt_vnext_composition_suite.js": "83eda3309364e1e90a276ed4fad6a41ef53c8d725b5f2f82ddfaa370e47e6418",
+      "tests/rmt-language/rmt_vnext_conditions_suite.js": "16676cad0cdc37e831efb9d6d3d173a36c8dd1743c9f140d836e08d5d2f767c8",
+      "tests/rmt-language/rmt_vnext_cross_surface_events_suite.js": "fd5a80b1b7cd0c21a38dec95bb8d57696145a6016509db49f6cd27874c06ec84",
+      "tests/rmt-language/rmt_vnext_degradation_suite.js": "049905ddde240df4bb096a9650b9739ebbb870bcf91735ae657c97d16aa495ce",
+      "tests/rmt-language/rmt_vnext_enterprise_fixtures_suite.js": "4b669085461b42d320de3423298d6c77fa79a482f3d330ee50c50eb338127e71",
+      "tests/rmt-language/rmt_vnext_enterprise_registry_suite.js": "b691369a68a30aed149254d7c0f762516a86e6188eb1aa8d467fe0fa70d82f90",
+      "tests/rmt-language/rmt_vnext_enterprise_release_suite.js": "1d9a934309fab5ebe22adcc7a14eb8ce056e60f11079b8e887f3fb64aa74ad74",
+      "tests/rmt-language/rmt_vnext_event_governance_suite.js": "bcab1f6c97e446084b6d36e02d3095cbd8c7448879831943b5a64e79af5dd1b7",
+      "tests/rmt-language/rmt_vnext_events_suite.js": "63708f2b590359e6ba9f9828f076d67298500b3515f594079a60bd605b690cca",
+      "tests/rmt-language/rmt_vnext_fabric_bridge_suite.js": "bae8641970d704c24b245d3ca98824fba40aeececf0ea1568a8ba485ad08fd25",
+      "tests/rmt-language/rmt_vnext_import_resolver_suite.js": "94d39f5faec5ae583dfbd1716cd684692039eaeeac171efbef06d7eb54cf7f7a",
+      "tests/rmt-language/rmt_vnext_lifecycle_suite.js": "a6caefff1431fbf42e253381b9e926114cbe76179ecc82fa80a568075b38dd6c",
+      "tests/rmt-language/rmt_vnext_parser_suite.js": "f5c3410a390444b2628c9b7f6fe33cdb207774f041c7d29ef05cd9fbc4d037c6",
+      "tests/rmt-language/rmt_vnext_regression_suite.js": "c1d5a06b492be509733e8541c3bbc417d2f7f96257b07c5c7a28280d8598cdc0",
+      "tests/rmt-language/rmt_vnext_release_handoff_suite.js": "5f7367bc79e045f6dc88d7e9220c5aadea4b05a165da208924f265312c8039b2",
+      "tests/rmt-language/rmt_vnext_remote_compatibility_suite.js": "f347e740116917b31c9d1c79f203c86c655f83a50b0f01e832e8f905f5bb7f62",
+      "tests/rmt-language/rmt_vnext_remote_compiler_suite.js": "89b229f04c35c6fa21988b10515b4058a0b1bc285ac834d10fbd15a1d42b2bb0",
+      "tests/rmt-language/rmt_vnext_remote_manifest_suite.js": "f130225c3edff0f438cd3c80fbd595e3fdf680b417f6952e6235f73a46823047",
+      "tests/rmt-language/rmt_vnext_remote_security_suite.js": "5b286ff94b5d732093aa71591b0fde58eec3e488ecb7d4442186fe77d0662c52",
+      "tests/rmt-language/rmt_vnext_remote_tooling_suite.js": "673e7a849b7b090de49a82216d3914f28aa1ea1f5aa0f83a82b043111bdddd1b",
+      "tests/rmt-language/rmt_vnext_scheduler_suite.js": "e063ada484ded1271d45a1dac7c1904daad01d9d27f98b909b0d27a3edfbfa9f",
+      "tests/rmt-language/rmt_vnext_security_suite.js": "0712626525527f62716e88bd6272f26a3404dcd82daf448a423d64f17782cdf5",
+      "tests/rmt-language/rmt_vnext_source_to_sea_suite.js": "3361522ed0bc6b708cf10ca5b2e79aff85c61f4fa642ad71834acf519fade274",
+      "tests/rmt-language/rmt_vnext_streaming_suite.js": "2afebc5d68414253142c77ab3bb54e2fb767bde51d7fdad6eb6132678e0ccbff",
+      "tests/rmt-language/rmt_vnext_surface_registry_suite.js": "964be9ad5ed11c25aa0e2a764380f6663edbe6be8d4ab0739676ad3caa5d7e89",
+      "tests/rmt-language/rmt_vnext_tooling_suite.js": "a87c22ee872ba3dd2f597e5e6f8b7817788ee1f2ec5e0b4f454d1986d1e956d7",
+      "tests/rmt-language/rmt_xscaler_ssr_hydration_parity_suite.js": "c2ae1685243089055668c5554c3b7aad59d54895677887b8b5086f6f832d5761",
+      "tests/rmt-language/rmtx-editor.test.cjs": "f4c6bef36078a52352810a417a36c9b9ba9d3aa08c6b0f66504c6efab4ba6417",
+      "tests/rmt-language/rmtx-frontend.test.cjs": "adf8f7822c92011c816735a2d5db426b4f9bbd490d8417fe1dc5d24da01c453c",
+      "tests/rmt-language/rmtx-maraca-integration.test.cjs": "59bd15c9312b3fc026dccc5cd53a5ded8d457063ab5d8567a1a75f35f0124d23",
+      "tests/rmt-language/rmtx-operator-profiles.test.cjs": "a6bea524a352776517ceb93542c88531e3d84770facf72172a764e0ebb0dfbd8",
+      "tests/rmt-language/rmtx-selector-dependencies.test.cjs": "ac4d03171567d256e621a065c97266f51f9226526f428fc53ad31a050c71e1a2",
+      "tests/rmt-language/rmtx-selectors.test.cjs": "9e6a5bdfab7608daaed1d782fbf2ef71e4a048115392482b3b02b7fe558e1081",
+      "tests/rmt/docs_php_ssr_cls_budget_suite.js": "fbaef8d025a0eb454b583010c33997d5d60a46c32b364bc866b243dce63555e4",
+      "tests/rmt/docs_php_ssr_performance_budget_suite.js": "87cc5f070d741aca5a611eb59c0b1479a9b348a199f8b3d1303c6d740ca4ad74",
+      "tests/rmt/docs_php_ssr_prehydration_suite.js": "b4b378ee6150a796fb72f529690a4f5b2f2f805d44720103c4ba7ff65d4af49f",
+      "tests/rmt/docs_rmt_pilot_suite.js": "135a8257b8a7a8b1ce4fc7baac8805c9d4b08d99aeeb91018cb2414555f1e769",
+      "tests/rmt/maraca-view-lifecycle.test.cjs": "4565729c77241177e6c3abbe85f5654f4cb4b98b39b2239539a612f1c123b2a8",
+      "tests/rmt/renderer-structural-ownership.test.cjs": "eaf9b81cab762e0f54c683b7e31b3ace036fa1cfdc0804f77b143da868d25d74",
+      "tests/rmt/rmt_action_effect_runtime_suite.js": "a1f183afad8dc69cce2653188b694830f8a8f3f3f9239daed03db1b746630403",
+      "tests/rmt/rmt_app_platform_authoring_suite.js": "ed4a208f70193a3c803a8d0b26547457b48c735d8eb4e120a69f5275b7788b9c",
+      "tests/rmt/rmt_app_platform_fixture_suite.js": "9f3ded572351129783f9a40461c748ecea7d1a987de13b4094bfc3e5411340d1",
+      "tests/rmt/rmt_app_runtime_suite.js": "81c4662732ca156559de4241755d40e818768d00ddff59a8e3969926f6ffa997",
+      "tests/rmt/rmt_bestcase_flagship_suite.js": "14e8e43b55be2550e6afbfede306fe566b29457f6871cb5028a41e6336ab290c",
+      "tests/rmt/rmt_compatibility_suite.js": "3f6eb16614e093b11afdf9739a7916a7e7f9bc1c3c37bc0e2f48311c03a14742",
+      "tests/rmt/rmt_component_fabric_lane_ingestion_suite.js": "58d30b6ea6eddbf76edd32bf4e451da40117169a9f927ff998c0becf55135bba",
+      "tests/rmt/rmt_component_lifecycle_telemetry_suite.js": "a8da3b92bcdb668024a5716480aed1087912f09937b02a2845d897df415516e9",
+      "tests/rmt/rmt_component_template_primitives_suite.js": "e064275ae3e644bc104b8a3eb33127fe52d5d08b735ba1fd11583bc407b6692a",
+      "tests/rmt/rmt_demo_inventory_suite.js": "a8182869f19f2cbf466155676f02b823acf3013f69961a7fb9ba953a4d02e920",
+      "tests/rmt/rmt_detached_runtime_harness_suite.js": "258c8670d9cd2303136c9cab308c26717c01e84dde3cf2527f86a1471b6c98d0",
+      "tests/rmt/rmt_dom_compat_parity_suite.js": "770fe5fd35291876da67799e1797c607c1feb23765476af5ef2946432180ee6a",
+      "tests/rmt/rmt_dom_descriptor_renderer_suite.js": "3dc16eb1c8a647d5937101a97a1cedf9759c9a02388e553a69cf31be062a7dc8",
+      "tests/rmt/rmt_dsl_authoring_polish_suite.js": "a67c4e0ed72e09933a9f98ed4b25266c64795fda68f2a967244ee19911370036",
+      "tests/rmt/rmt_event_routing_runtime_suite.js": "06112bd1c47080cb16a5eef5620b8b944fdfb20ed1624b4bc80d8c7ad43a1a7f",
+      "tests/rmt/rmt_first_class_app_authoring_suite.js": "ee77c1fd8eec6835ecae0c76c8b6b22ef9992003f8cc6a39c65bc5d09c2d72f4",
+      "tests/rmt/rmt_first_demo_app_suite.js": "186a4a154ce357742ab1f8ae1dfd8fc539767e81feed6f4cde4df9e93c8c274e",
+      "tests/rmt/rmt_lifecycle_demo_suite.js": "b470a83e548d0d0d5fb67c4480dcaebac0c0af240a764ea21019468f10d64d32",
+      "tests/rmt/rmt_native_shell_migration_suite.js": "11386ea889a8c249d8be84ccf0766f2a865438344faeac574102efc96fbc40f7",
+      "tests/rmt/rmt_shell_authoring_component_ux_suite.js": "d9faf437439001ea7fde53fff6ed3bbdc04af93a424d4338ab9f93984c28ea03",
+      "tests/rmt/rmt_state_selector_runtime_suite.js": "2120aff3b4c3d078d8c42a482145161e45fb2c7509c248cd7b60e7db66d4f306",
+      "tests/rmt/rmt_surface_manager_authoring_suite.js": "f33fa51d67840365c2425ba8a17d11477012ecd86bebcbc0b219421beb4d7eeb",
+      "tests/rmt/rmt_surface_resource_graph_runtime_suite.js": "8c91c0499c0eec38df1d2bbdfcf93234baac879a1811ab01c4007d6f803b17af",
+      "tests/rmt/rmt_tailwind_source_inventory_suite.js": "0687220bcff08ed6d9f32b47817bdbbcbbe944b7973e67c9f29ecaa30bc2be06",
+      "tests/rmt/runtime_retention_assertions.js": "89a7c288f07c2199b6de5cfa7a0d763bbc9b7ec2937620b0f94f63e0b008a28d",
+      "tests/rmt/super_prewarm_worker_experiment_suite.js": "b56561902e65501c15804902f1028bdbfabc20a5101f81e282b0c7f91d231d34",
+      "tests/rmt/surface-materialize-lifetime.test.cjs": "f3b797c8e0c2eb9da19f27341ae6da6462b073a989209f9ca349fc6967a555f5",
+      "tests/rmt/surface_manager_adapter_runtime_suite.js": "7fbcfb0414ca7924440493cd200d3ec7d8d235d9aa7d9ae45efbfa90c3da7089",
+      "tests/rmt/surface_manager_materialization_suite.js": "9d527cf970fe4475715538a40a74fbca03df66c852817c951a4f0c0fe2192bb6",
+      "tests/rmt/surface_manager_native_rmt_surfaces_suite.js": "a57e1c24abd6f585e40aa3be0e3a6bf419f20c1974a4ab97282613781ce0dc18",
+      "tests/rmt/surface_manager_release_handoff_suite.js": "2ba4d269460c8a2382c6afe43bb77905ce740b44e9f7a3f5d87c5f95450f3dcc",
+      "tests/rmt/surface_manager_runtime_release_handoff_suite.js": "f4d3da195bff766dc3371fa5c996ab4613d12ea6dd2c6bf36df518bc428db44c",
+      "tests/rmt/surface_manager_workbench_fixture_suite.js": "73bd2f223602310e71bae3f3b9f9f0d8d9c73026ec69300b4b29cda3c7195785",
+      "tests/rmt/ui_coprocessor_suite.js": "382a582778600f418fb02b0f832922d8560dc0f0f77535ac92d66bd7f1e3b1b7",
+      "tests/rmt/xcommand_kernel_suite.js": "e5d5be0bf50d199dd566152ba59349cded037bedbbe3288b2d6f5e63852efe65",
+      "tests/rmt/xscaler_php_preflight_parity_suite.js": "110b99110f5177c269c1a9acec7268651391b03f9f3545d945cb096350a62d4d",
+      "tests/rmt/xscaler_protocol_suite.js": "f796bf687b6cdb830297dbf5a8bd4ebd310ebfa91fcbaef329b85d97440304a0",
+      "tests/rmt/xscaler_public_api_suite.js": "4a2b322c4c37a84430dbd7485afef8894b973329858e05c57be18a93cbf5e5e5",
+      "tests/rmt/xscaler_source_to_sea_suite.js": "29026e89eb2f28497b5865d898c3626d39c2c4c56ff1a1988083a77dc384c18a",
+      "tests/xtensions/capability-negotiation-acceptance.js": "9652752c186e6aae55a400ac3587060a9c7588f979f6d66521e2bf0f6408caaf",
+      "tests/xtensions/capability-negotiation-maraca-acceptance.js": "3a42e8a9fe380882ac6c5a42c7ea854f5ebbc44473c1b757fbe65c1d973f150c",
+      "tests/xtensions/compiled-state-binding-acceptance.js": "55242a03ae309a698cbb20c326bd5a2c83cafc1693a03b1a3cefa8c76c1a0f8c",
+      "tests/xtensions/compiled-state-binding-compiler.cjs": "6c0a8c35242ef74be27adecbd8b4517e019156687b9856ebb18709b24cf53687",
+      "tests/xtensions/component-composition.test.cjs": "6795e9e4f982f9d01bfd0d0c384b403f500fbaee4e6bf91e0a5b2639531ad3e7",
+      "tests/xtensions/component-interface.test.cjs": "2061b086e09820c0e3a5406b89cfeeb2d5e9dde8a9558e90eae926e9ea225cf1",
+      "tests/xtensions/composition-maraca-acceptance.js": "8996a43c0225ee153398e6d955d87426f084ddccf7083c19ee775f7b9246854c",
+      "tests/xtensions/integrated-composition-acceptance.js": "dd939eaa421e398354a4a1b78c20e7edaa896b991fb7105bd1bfa11381bd1d68",
+      "tests/xtensions/kernel-maraca-acceptance.js": "50344373ace1530805e5849219462dd425bf648bbcfb36b19ceecb24f0165291",
+      "tests/xtensions/kernel-runtime-acceptance.js": "3e3d4b2f4e27d82b2e0bdda14e90a36ad7b34547a2044f6a089952558f24dfcb",
+      "tests/xtensions/maraca_xtensions_suite.js": "087f3466a9de294606deec1ff20bdcfbff89d4b19d5aa1c43ffd08a6d9a56154",
+      "tests/xtensions/repeated-state-binding-acceptance.js": "cdbd13438be0470a89decc960338200a20c94acd3e8fcece694087283aa5c14f",
+      "tests/xtensions/repeated-state-binding-compiler.cjs": "018e137997db1f28afe7c040dcdae29f9a64fa0a1041a975a53ff7fbe5035266",
+      "tests/xtensions/resource-graph-acceptance.js": "b0273e06199aa8c9c5cf8038bbd80146d078259137e6a7e3e6fa45fb7aa59714",
+      "tests/xtensions/resource-graph-maraca-acceptance.js": "0483e2b7add52963cc8911fd3da04954d16210d7fda681248580fdfdac034225",
+      "tests/xtensions/runtime-adapter-acceptance.js": "ca2227735f3515f6eb1d1a7f19ae2176c0db3f0aa96d8440e9c04ff7aecadc29",
+      "tests/xtensions/runtime-adapter-exports.cjs": "5e4f31865018c6309ce2bfd9e0943c30f9f0373f21c31dfae76f1629cbcf63ef",
+      "tests/xtensions/scoped-components.test.cjs": "2992845d16b99682d40b3be7e1e7da2143913233b48487ed63124f9bf9c664dc",
+      "tests/xtensions/state-binding-acceptance.js": "bbad7c903370445f5856fb2578661b0ed89092cf141d350eb4b17ab20fcbfada",
+      "tests/xtensions/url-history-acceptance.js": "1045500d714b4f0840a11e6d5cef73798af0f7e9758de4cccbd8103386c6d4f7",
+      "tests/xtensions/url-history-contract-checks.cjs": "4de35d80e5ba6e08a89d71bf1b691f0c784be7b476a7a421da05a527949cd7ec",
+      "tests/xtensions/url-state-maraca-acceptance.js": "6173882864115203429b624f7b52f722b8a24549b3f7217f8a75fc68929e44a3",
+      "tests/xtensions/work-budget-acceptance.js": "7fcd2ab8138daad09452fe73af31f880d3c6d8f81164c8378022e69763140fe1",
+      "tests/xtensions/work-budget-maraca-acceptance.js": "864b8aa6ccee6d9aeb896999cb2a2ffa3c683d5632a0ef45a0e6fc1e0d4e6a80",
+      "tests/xtensions/xtensions_adoption_handoff_suite.js": "bc6ebf3c462a45508c5f8cd27c37b3f8a65200d0eba2ddc45783919bcb8a3265",
+      "tests/xtensions/xtensions_angular_host_adapter_suite.js": "5407544a167c9aa0b0ba8c5792c04ba3743a132a2604368096d453b1e523eaa5",
+      "tests/xtensions/xtensions_consumer_package_suite.js": "033badcea1aa05beb0cc33134618f7f29cf76105d95e6a333dd360017d600545",
+      "tests/xtensions/xtensions_diagnostic_trail_suite.js": "f2e5359596661dbfc98bc6d10a344711376ad512a73bd0c773a4c827c4c35275",
+      "tests/xtensions/xtensions_host_controller_suite.js": "5b0489da5891ff64b58173de91e7c68c4462fd44993a6b5108245381a8ed46bc",
+      "tests/xtensions/xtensions_imperative_host_pocs_suite.js": "3a9599bb34174ae5f280841e740e8bb04152a324e712a0efcc7acd6d27e3c211",
+      "tests/xtensions/xtensions_multi_framework_dashboard_suite.js": "f1cacae45c81d8800371c6ab49dc8d8b91d8e255f9db48f3a84e10812a95bdf4",
+      "tests/xtensions/xtensions_openui5_host_adapter_suite.js": "b757dcc35cbc0aa422836ff6701357d59df00eac729cc0f1c8cd1d500ba15256",
+      "tests/xtensions/xtensions_react_host_adapter_suite.js": "9a4187994daa4fd783411b5cc5b67762f850be2e8a264527645934d6547d691c",
+      "tests/xtensions/xtensions_react_host_controller_poc_suite.js": "0bb384d328f0c981f7c3de4b35fb6674fa5b02d729474f00b755623773aa3b82",
+      "tests/xtensions/xtensions_registry_package_strategy_suite.js": "801cf0a8f7d0ae1f4c6a9aebe5315817dbfc32e61ca058f96e0e14833ccf3ded",
+      "tests/xtensions/xtensions_resume_adapter_suite.js": "910fb6773cffea266a68d49a73af7cd71a56f6267e7545d2d82cd9b47ced83bd",
+      "tests/xtensions/xtensions_runtime_capability_registry_suite.js": "bd8d0321f58d36481d23f7a288692716c751da7f6f3f49724019ea630b4a5fee",
+      "tests/xtensions/xtensions_security_integrity_gate_suite.js": "d01ed09ce38a87ad9f1d5a9256e9d59d32e1221e106fac2998ec0ae717683d95",
+      "tests/xtensions/xtensions_signal_bridge_suite.js": "88887e5db5a6ea03733f941eecc8089f8538f81b9237751e196c0f003c0dccd0",
+      "tests/xtensions/xtensions_static_introspection_suite.js": "a2b6acd621a2bbc30dae190bd83f2ea5dbf8d27ec981faf444a7a8ee083bdad4",
+      "tests/xtensions/xtensions_three_render_loop_poc_suite.js": "3be7741e8b8e5865efb48921e0845099378fd8966de8623f1775bb514f5d0295",
+      "tests/xtensions/xtensions_vanilla_host_adapter_suite.js": "0af2df94890abbe194d0f2e9c7eecb8a2d636c70ca5f8f1e25db754a5d0436bc",
+      "tests/xtensions/xtensions_vue_host_adapter_suite.js": "1f49d686f88c80b3c16a04fe76528c9cd7a466b881e8803f5efd27632202bf20",
+      "tests/xtensions/xtensions_vue_host_controller_poc_suite.js": "ba4c56596c215350d6eb322659b85a8583db2857d9d27f8c0d43b7dd42d28c44",
+      "tools/rmt-language/action-execution-lowering.js": "783f180c2253fc96f1e8853c808cd2c0fe243a2d014670118d76b24759b3e856",
+      "tools/rmt-language/app-platform-tooling.d.ts": "2f5a34a44e2f67486aa087e55c4fafccab3a95dd663ca9683df6a5173252394b",
+      "tools/rmt-language/app-platform-tooling.js": "b4d84dbd3c74865d6e976ea76f9692e875aa768cbacab4a68fab9288a9609d1b",
+      "tools/rmt-language/classic-ast-contract.js": "3e17596b6615c7ca5528bb5a72551143e1d3403d8a8c606cf83569d71a3c79d4",
+      "tools/rmt-language/classic-ast-rules.js": "269c0ad5d14ba86a149e33877e7db28b3a4004d0217b8c6b829b26931a327b0d",
+      "tools/rmt-language/classic-ast-types.d.ts": "5487aa747c0b647acd2d2ef02275d5af03e14b24f7ac69ae58bedc6bcedb3c52",
+      "tools/rmt-language/classic-compiler.d.ts": "f0e6cdb00982be4b2b16e60446d59582b8918378dbd43dd9c4ee311d5004ec31",
+      "tools/rmt-language/classic-compiler.js": "5a402d5fb541cf82f16455e0c0a752ec50c4f69b60a42a36bfa036b870e7df08",
+      "tools/rmt-language/classic-parser.d.ts": "efd754914ccb1c0067fd85d07f9131e96bc4fde1f03379648ac27baa6fc9a9d9",
+      "tools/rmt-language/classic-parser.js": "f4d051313259d160d3a46892df3607ae68f6c3a69e5d62731cf0b028b3721b42",
+      "tools/rmt-language/classic-semantic-rules.js": "113846c48ef5dc4d5ce0b29ddb7a01076e50d3fa86f80d84f1af5420fb593d81",
+      "tools/rmt-language/code-actions.d.ts": "e6122f52faef3413c07588f84e9ce340a3cc8e61af6d1eccc509bd0263294d45",
+      "tools/rmt-language/code-actions.js": "d13f6f667628854a3614ca1be846691eef30eeb7192e2da989c696b4051d4819",
+      "tools/rmt-language/compilation-session.d.ts": "96d9f877b46ce5b31dd9bc4bd5ee5e85732dc0ae3c56c21ee8589ae4c722636d",
+      "tools/rmt-language/compilation-session.js": "0a607d1f30c0031343e07e83761ab8b0991dbbad5bb919b4bbd6a3d07af4e09f",
+      "tools/rmt-language/completions.d.ts": "6722e80d831e1d744cee63cc031d3a23a25e13c4782adf634a5ae2a2d80eb413",
+      "tools/rmt-language/completions.js": "d1a3b8e4ed3a09c5a24a0134293940b7c95585f853e9cb1fb65784b49f67fd28",
+      "tools/rmt-language/definitions.d.ts": "c75b2021eb9ee84f99a7422396f07896d74ff6868d7fd66d974873ed72b9ea05",
+      "tools/rmt-language/definitions.js": "e91e72fc4aea6da2d13d65380ba83c56ddb3d455f6f54394479448b10b98eeaf",
+      "tools/rmt-language/diagnostics.d.ts": "af6cb0f8694971ec2ddf5baf9a01ea4cc8a9151b3e64e2885af4e3a93fa430b6",
+      "tools/rmt-language/diagnostics.js": "376358da022971504a3698d5787ce882672a18688ca04216fcd83b7c8c5d3bc6",
+      "tools/rmt-language/format-adapter.d.ts": "b97df3c7afb646e6f6ad8945058f0f6697c064c3cc9106ce15c2e922b23c57d8",
+      "tools/rmt-language/format-adapter.js": "3bcbba373882142df1cef4ee1b3607e8838e65e9e63e8e18460fc50642663e1a",
+      "tools/rmt-language/hover.d.ts": "ef4bacdb87eed9e97d13a027ec856695b962bdf6aea56fdee439c6e733755a1f",
+      "tools/rmt-language/hover.js": "96ee29f1b71262b914ce75a377d4c86ce6e73a0642c0fdec70ab73660f31b584",
+      "tools/rmt-language/html-sink-syntax.js": "a9dba87510b3825027224ca84403450598561bda16e04ba275dd57299a9ddf82",
+      "tools/rmt-language/kernel-escalation.d.ts": "8623b575def9f27e9907651067b3941851ec21f0bcd0dbab6383868c5e2458a3",
+      "tools/rmt-language/kernel-escalation.js": "16f168d62902c90a9ddb0f2699bf6961c5569924b553df3c18b7087c6ba9ce38",
+      "tools/rmt-language/kernel-panic-monitor.d.ts": "df597569617b558dedc5f613a317c50d9340e0ab29e3518dc821e4fe2e8bf38c",
+      "tools/rmt-language/kernel-panic-monitor.js": "1997ad2903ba5631af58bcb518584e882ec08da1e631fef7afcb24835f0ab4fb",
+      "tools/rmt-language/kernel-policy-parity.d.ts": "cd77dff1e7f416f6a8e422fe2178c5a7f4c322c199d1d3f89c568b34cfc96acc",
+      "tools/rmt-language/kernel-policy-parity.js": "bfe8d3b01dfce2a2c4bacc1f1f1d4da84f3371302c73d18ba1bf15834ed8b3fd",
+      "tools/rmt-language/kernel-recovery.d.ts": "ab2ddc6a4843231f556c74eecdfdf5c89355aee0feeba1419f05ea7f9498c430",
+      "tools/rmt-language/kernel-recovery.js": "e00d09855df670f9bf0a622169a1bff8ceba6d348afd22003e60586c562bc04f",
+      "tools/rmt-language/kernel-scheduler-failure.d.ts": "e90ccba29538a2904de66d2643625cc8e24a5590c85ea42b3361fc5a596e6641",
+      "tools/rmt-language/kernel-scheduler-failure.js": "574f3bb234252517d168deff26fa8955693587567f8aea9b63253376deecc0b7",
+      "tools/rmt-language/kernel-security-regression.d.ts": "f10379bbffca40b72f84122a2f0539c671d23b628f0c2a630b9af1da36358d46",
+      "tools/rmt-language/kernel-security-regression.js": "7191d5cb9abbbfc4cb98f38ebb3f726ce5485cd08da2196b5986f52b2407f022",
+      "tools/rmt-language/kernel-trust-authority.d.ts": "d95ff0439f948c64262373b1f002df4df7ec1c5d9aee2698fed303be55b4d586",
+      "tools/rmt-language/kernel-trust-authority.js": "1b84c3f7e9d4053b56f8f38b358e6eaa15a0df1eba0c29611b4f528e9698fbf3",
+      "tools/rmt-language/navigation-facts.js": "803525a851a2d959094a6dd54ebb0090d66c1984ac7e8b7e80e8e91db33f4c72",
+      "tools/rmt-language/page-build.d.ts": "257d7f7186d758a49834fe51e9fe465e4d7b9fa530fdf1e1cc7e247c15217fb0",
+      "tools/rmt-language/page-build.js": "04f6e0fb50e11b2f042c18f5208032f4e442bd57d752b186c769fe406cd71fd6",
+      "tools/rmt-language/parser.d.ts": "e6ee789e1bb184792e59d5bf40668f6814f89cae3f1b5bbd0fccf62539559857",
+      "tools/rmt-language/parser.js": "a4e0dc973cf4043b93901bb73cdad84fcdb94ef7aeda8778b223bb7d8db4347c",
+      "tools/rmt-language/rmt-ai-developer-kit.d.ts": "6076fc2b37b3c52abc78850ce8e14a0bf26c06be09bba6f404ef4ff8d17724cc",
+      "tools/rmt-language/rmt-ai-developer-kit.js": "c13c17079e4a163a702c073e03baebc33dd569893806a45d839a76f8fa22f483",
+      "tools/rmt-language/rmt-tooling-public-types.d.ts": "a7c4d28ad15b9d7d42de1cb17824715852f12d922f5d66255704a2425637e139",
+      "tools/rmt-language/rmtx-compiler.d.ts": "1b47926a0472f34660f16b14db8a2ea7dbedf3b866a8bd24fca0021d8b21685e",
+      "tools/rmt-language/rmtx-compiler.js": "2bb9d927dbaf0071712593a9610ce18cf12779274f06e747fa165e968da56cd7",
+      "tools/rmt-language/rmtx-operator-profiles.d.ts": "ca9e07f1305b0cee15b0b758192f7fcb2c8607cfba6ba0e3f541261465e95a45",
+      "tools/rmt-language/rmtx-operator-profiles.js": "f9b40ec0b68ed8a989e6ff1917391ede4d406ec4e5801f83d56716848259cd0c",
+      "tools/rmt-language/rmtx-parser.d.ts": "b20dffa5e24af62613b1b1b87cacd1afa656c4bfd146162584e8e9021804a92c",
+      "tools/rmt-language/rmtx-parser.js": "2b7bae7def1906f72df01bbb4a09bf8a80c4c40fb7fe74f9f24a341f953cd288",
+      "tools/rmt-language/rmtx-selector-dependencies.d.ts": "f5223b61c3a515ed2cea48ab8e72a2750cba884fb58d96494eac034b45ceaedf",
+      "tools/rmt-language/rmtx-selector-dependencies.js": "b1b9fef3932bfb6f85027db16927eaf86b5d4b7d5340ba39207a568f83d1f7ca",
+      "tools/rmt-language/rmtx.d.ts": "faf83a2cb3c302b9704db62168e3e7510447718dfeb22143ddf8056f6fd8e0b4",
+      "tools/rmt-language/rmtx.js": "3346b662bbf61351842568fe4c44a50c5cce2d319d7124321765b85baf9c00fb",
+      "tools/rmt-language/rules/app-platform-policy.js": "38bbc3d3b4d4e4d1c2c920c2f8125849d71106ecdd18714deb8b417db496facd",
+      "tools/rmt-language/rules/boundary-policy.js": "07aa0def755f48717a7303171e56a6901cd99fc32565eca2a9ce014f99ea33d6",
+      "tools/rmt-language/rules/document-policy.js": "f1727373e4812c64cc827d9d8627414f91e1aea29585b0092a073579817903d2",
+      "tools/rmt-language/rules/index.js": "68af24ee425be4c24a0cf1aedb6bddf00796b1c19a1ae930447ac78695da787d",
+      "tools/rmt-language/rules/route-policy.js": "c33f04d0e5cc02b8bb9f192ffc8061409c1d2f749080002dd55c45a29ee31a45",
+      "tools/rmt-language/rules/scheduler-policy.js": "b5236b5c6caef98328518aa570c1fd6b0952175f8609d1b546f0a9c93e70f5ee",
+      "tools/rmt-language/rules/template-policy.js": "b362bf682baf9c43ea09b3446a2251f476b8cda2ad046c021b7aa7ad3cb015ea",
+      "tools/rmt-language/scheduler-lanes.js": "a0d76615b3cfbe2639a96af01179f987407554040acce54aa9b4dd99516f9b76",
+      "tools/rmt-language/semantic-graph.d.ts": "62c8e33564438919ebf8193e88fdbd061fe1d4e19a126f2c2cff07bd3e20d2b7",
+      "tools/rmt-language/semantic-graph.js": "e3706bcca6f8b5155b1292889b44767f177bdedb9dc73d5ddd98dea1e0b11762",
+      "tools/rmt-language/snippets/index.d.ts": "8bbbd7596aff39971e9488d63c5975f80deb0d16de6507c5aa8073df12ae0a3e",
+      "tools/rmt-language/snippets/index.js": "0a279fc8079ef4d1aa3b0aa92dcae47cf3c34ef592e7d0330ce5e4084df2b9f7",
+      "tools/rmt-language/source-model.d.ts": "eb5cd92198321a6c74b01e4ae91ad4d671f249f2acebc6cd5d40940bdaa155de",
+      "tools/rmt-language/source-model.js": "73aa135d823f7452283da29eb29b5c9e5a45a20e7649c9f99c38a08d04d243b6",
+      "tools/rmt-language/super-prewarm-worker-experiment.d.ts": "3befe5297e5a31157a268b1bbfc678967aabd83274d4b4abc01a630573d2acfa",
+      "tools/rmt-language/super-prewarm-worker-experiment.js": "250e5fca8637df0b8a95d02b821bafe38b4eb07702aa2bb1939b02ab9fb437f3",
+      "tools/rmt-language/symbols.d.ts": "405d259a498d66d956bf9e5d10451076b55b4be4ada9e8a1866b2e007f873859",
+      "tools/rmt-language/symbols.js": "8d5f4d1be5b3382ec08ededbc670fe3e53986ae13ed8244f3266a57f40d8f89b",
+      "tools/rmt-language/vnext-compatibility.d.ts": "cb04c2653a45f029e1da4bf797e28fdba5b072fb62122130016fd2e4db09ff0b",
+      "tools/rmt-language/vnext-compatibility.js": "1f7f1b22cc489f278a4b07ecaecf10c782ef25bb701abe1fac035e9ad8e6d960",
+      "tools/rmt-language/vnext-compiler.d.ts": "2e1b741439a8f30b430f8e0e75690e8641977a01182ddf1be02d12aa6b2b826c",
+      "tools/rmt-language/vnext-compiler.js": "3a2a09162285a13ff2198a7ece51c038157f5990dd030ace932f7c906659de31",
+      "tools/rmt-language/vnext-composition.d.ts": "ec8b20cce62c7f15c818408d07a6321a730c86378c7a1aec335deb1d21cec400",
+      "tools/rmt-language/vnext-composition.js": "7a0b2aac4a26e761b182c95efa3f489c6e776c8c03ba57a7bb7f87a29f285390",
+      "tools/rmt-language/vnext-conditions.d.ts": "7da0425e2ce56494b2d446b9053723a50127072ee3a1ef619547ef7529603c31",
+      "tools/rmt-language/vnext-conditions.js": "8cbcb89982b8b0bb8dfca5f9d7807d6338748f8905c3981afce0b80d15102125",
+      "tools/rmt-language/vnext-cross-surface-events.d.ts": "8e8a37ef5f5ba733447ced67bd0446d0efbb906abbc6f575b79b6d0624166fb5",
+      "tools/rmt-language/vnext-cross-surface-events.js": "c50bd4a8c15c77835ffe73704c236b54bed16707a92ee337ac134581988d7cae",
+      "tools/rmt-language/vnext-degradation.d.ts": "62be8b20689840031fc9c020e00d4aa8600f8f634e1cbc99cadac45e7d143428",
+      "tools/rmt-language/vnext-degradation.js": "c70a2552a2e10128954e18493d239b60aa966cdb4e5f408737e367298551696d",
+      "tools/rmt-language/vnext-enterprise-fixtures.d.ts": "b1bc8a316539e1b0e6edefb31f5d4179e2786d77fcd05a2741c37b5edb80929d",
+      "tools/rmt-language/vnext-enterprise-fixtures.js": "35bf3ffc53646d7b1373b714257dca8c8108f459e8872ee371df652e30245fc8",
+      "tools/rmt-language/vnext-enterprise-registry.d.ts": "b2e08b1b321acdb728dc671018e301f29de25033fb5d72a47c8647ec954a361c",
+      "tools/rmt-language/vnext-enterprise-registry.js": "66d67ca37a482bf4135f37c6c55c42d2103efd367eb1d496916ffb96bc254905",
+      "tools/rmt-language/vnext-enterprise-release.d.ts": "d67b1b2578f2761e12c9861b594ee6525cf1a745a42648c1503ea7cf3e066a66",
+      "tools/rmt-language/vnext-enterprise-release.js": "fd5d09dbe72a59aa1bc2c358b3c8a2ac75a73588e4f243618f3c4cf5fc8f5114",
+      "tools/rmt-language/vnext-event-governance.d.ts": "614266ac7785f38acbad0039b709d749dc7c7ed8863c42a31538ee7c54b11a3a",
+      "tools/rmt-language/vnext-event-governance.js": "a0ad1e6aae8da5c41bf814239cb41202bd92c3cffb9fda1f22e42b9d2cd65e52",
+      "tools/rmt-language/vnext-events.d.ts": "132e3381fde4d6326c9a5591e7874e547115766bd3bd826b30fda010499cfbae",
+      "tools/rmt-language/vnext-events.js": "679e1a7da335cb9adf992ff272163670d1ab406d3cb9f7c9381f008d1c5defc2",
+      "tools/rmt-language/vnext-import-resolver.d.ts": "5f19779741b094e8398590266a3b4af7f0f5284d1f732c27899f78d6cba37df4",
+      "tools/rmt-language/vnext-import-resolver.js": "868e9504655bce2b012f4a02bffac16d4d6185e3553548908eace74bb059085d",
+      "tools/rmt-language/vnext-lifecycle.d.ts": "548d0601160b4df9a3486fec5deecb27c63b8859fc34a8c8d4296b7f13468aff",
+      "tools/rmt-language/vnext-lifecycle.js": "4e96015e0853dbe932486e6526476590849cfc8341de53c01a3ce0a191b69436",
+      "tools/rmt-language/vnext-parser.d.ts": "39d3c176c235a3293cfbe51635541f2aef831b6b79a0588463968b825d12690b",
+      "tools/rmt-language/vnext-parser.js": "80668bc8c738f5fda9ed3149b367c3e3388eac9f1ae4f90650d65910a5359579",
+      "tools/rmt-language/vnext-regression.d.ts": "328cca56f15fc73da30d3f976a787a45dad8e624b11eb63c488b82905b79b5fb",
+      "tools/rmt-language/vnext-regression.js": "323cf5349cb82075434a2c8fb0c71d8dafe22bd6b0c5da2ce261f84abe076163",
+      "tools/rmt-language/vnext-release.d.ts": "eb4f92b0847221fa1f75575e4bad222afd217629ee29395fa97449953e4b4bae",
+      "tools/rmt-language/vnext-release.js": "4dda3ec30d064d7771c4d723db4275f46f9258f0fe267761bb26583936cd57f0",
+      "tools/rmt-language/vnext-remote-compatibility.d.ts": "364b246a47d9b7dc8f999f8c52c3f7e8457a560581c71cae15f0d3917ba7bfb0",
+      "tools/rmt-language/vnext-remote-compatibility.js": "0f845c1a742bd7eaed5e21e6eb016f4d3d03bc6d50a20eb2d79e10e95df94082",
+      "tools/rmt-language/vnext-remote-compiler.d.ts": "db8e79c600222ba87c7ac9425cb51e51fd2adaacffee2bf39fa19efccbf5cab6",
+      "tools/rmt-language/vnext-remote-compiler.js": "ede3cc4e5e5975e260a2d751e59278c1d538fca89430725d52afb029ad5f0564",
+      "tools/rmt-language/vnext-remote-manifest.d.ts": "0b7ae83faf71b1a3c785feb69467a7d86db32f9eeb0b2ac43b6112b3e366a9ff",
+      "tools/rmt-language/vnext-remote-manifest.js": "5c452b16935ab6897b0ee877258a7a2d8932ed5400980823fd2f5bf42f4e6409",
+      "tools/rmt-language/vnext-remote-security.d.ts": "89db6588d55a73432e5acdede73acc3e90241281b5686dd3877d27615727b51e",
+      "tools/rmt-language/vnext-remote-security.js": "2339cd2870690d0c8c04c17c24b57dbc8c530821c88f52e6364a837af99daf8a",
+      "tools/rmt-language/vnext-remote-tooling.d.ts": "1d5d055e195fa9efeff26b00292701ad649ca0058f78fa5e1cc49be3a22d8f0f",
+      "tools/rmt-language/vnext-remote-tooling.js": "27a22693053bff686b298765eda3d4f2aba32209426c185feff847cfed11cbe5",
+      "tools/rmt-language/vnext-scheduler.d.ts": "a764d2f061a7647e8265e512f6d783cc57d78c108212396521545b56e3ba0f87",
+      "tools/rmt-language/vnext-scheduler.js": "9d6895fbb88fa58a1b1821f7dae139a27beb170ab1abd49d68ce09db68a2a5c1",
+      "tools/rmt-language/vnext-security.d.ts": "2b3295c73364164bb7785e2330a223017a0552be4bedc131cb3e0a3a82fff894",
+      "tools/rmt-language/vnext-security.js": "370f5c798d2612cd4d42ffef496b7dd2098162200e21b0234d2be52cfda8a336",
+      "tools/rmt-language/vnext-source-to-sea.d.ts": "dc13afa296db98924dde64300d6c8689c07a9aefe2d824d42de61776281f83ee",
+      "tools/rmt-language/vnext-source-to-sea.js": "d07e97db6a18dbed5220de08d6cbe3a47d9da382ab01ae870760206ff938a3fa",
+      "tools/rmt-language/vnext-streaming.d.ts": "650aee2761f40ce1fc36504a9a0d0b82a9f85c215c3faccf76024ca7d15b64a5",
+      "tools/rmt-language/vnext-streaming.js": "e8a5bfb65f985edf221b6aff61313f7a4ed223ef0156eb981bdc8f2c6b3a2265",
+      "tools/rmt-language/vnext-surfaces.d.ts": "16cdfaf5b2e122d7d383c7897648f52aed262fc4912bde73a5605aab64b3f28e",
+      "tools/rmt-language/vnext-surfaces.js": "1597067ef327723606460f6d9718f6f47178f3ca4aad8a667df363c10ae9e385",
+      "tools/rmt-language/vnext-tooling.d.ts": "14af60e315c3eede3a554b7bec11b9e695c1b8bea8cfa41de01561416a53464b",
+      "tools/rmt-language/vnext-tooling.js": "12bdf9cbbd4c44ffa49d374071d80569fb65f56d22c7abada0cc352b2488f6ee",
+      "tools/rmt-language/xscaler-protocol.d.ts": "092f22b583a1f944282cadb4a186ae61b15b42f99a188febd478f023547fa3a2",
+      "tools/rmt-language/xscaler-protocol.js": "b9637746b9e7432859eb49d9b175e1653c4deacc295481b44ae1d737fbf02377",
+      "xtend-maraca/index.d.ts": "483605501842d234f6b9a8d6f089df7de3c3f46be21fded93d0d9299317572f6",
+      "xtend-maraca/index.js": "d3a189d0ccb16b557263c854dcce60410355580997f12e2fb4874bb9dcf860ad",
+      "xtend-maraca/plan-runtime.d.ts": "30344c8b55e0d4b857224ea28a8565894172e6a3054aa7865b19eb989c76b075",
+      "xtend-maraca/plan-runtime.mjs": "0a4970152bddfa0c3b431e72e104b4ed1ae5756e381ea41e0b14c226d0f131a6",
+      "xtendrmt/kernel/rmt-kernel-sources.json": "c9b248e592d618b90e246c289bdc10aa5f12c60bc40aaa740ccc59207804e6be",
+      "xtendrmt/rmt-action-effect-runtime.d.ts": "ae7879152babd171a6e44035cb21e3753329b44aca530a2a80997c23eece1bb8",
+      "xtendrmt/rmt-action-effect-runtime.js": "3798c901579959de2aec8e6cedf9f07ee969bfd00bf0cc3478c0ad8831c6bcaa",
+      "xtendrmt/rmt-core.d.ts": "0cddf0a20f9326824e6962773ad0ed91b93cd55b7ecb3d245280744abb06cb33",
+      "xtendrmt/rmt-core.esm.js": "f7a02860104b2526957890f2b34e046501f9a328f5012c9827704cdeab28c0d0",
+      "xtendrmt/rmt-dom-descriptor-renderer.d.ts": "02642144b47cbcf74304c912aff6777c4c5a7b3758b0d67c93fed612e1aa2a8e",
+      "xtendrmt/rmt-dom-descriptor-renderer.js": "69981e6ec2f51094e1607e52c39324a02358ac9be75dc4b0a120d4dcb895a555",
+      "xtendrmt/rmt-event-routing-runtime.d.ts": "9ced058aafc45f43bcb9a2ddccc3016faadf1f50573b6cf930f881926fba231e",
+      "xtendrmt/rmt-event-routing-runtime.js": "257b2f73fecc4d659f3c393b51dc7b2c940d196eee84caef67d29f3ec2e4448e",
+      "xtendrmt/rmt-kernel-module-manifest.json": "26a20a051d490357d85e32282713ac3df9a6a53db15e6f725f599066a9529256",
+      "xtendrmt/rmt-maraca-view-projection-adapter.d.ts": "6b59fb671624728cd9b3bcb9b4b846aa7cc784d4385d7649529036828851c887",
+      "xtendrmt/rmt-maraca-view-projection-adapter.js": "ee09855bee0e3973cfd8ec521c6b661256c3f1be7e4e8b6e782dd323ffb313be",
+      "xtendrmt/rmt-runtime.browser.js": "59773e7ceeae4d0936480adf68973972a7944e70eb105fd469fc02898c3f94d7",
+      "xtendrmt/rmt-runtime.esm.js": "185cc0e40510d240f70da76ef558e4e1cb25ccd116dfbd6c470c0fba825c4770",
+      "xtendrmt/rmt-surface-resource-graph-runtime.d.ts": "774dbe5de8411937b84ec0f0d64eaca9deab5123bd4152ae6bfd8949c63fb589",
+      "xtendrmt/rmt-surface-resource-graph-runtime.js": "9344b64339e1e08d4bd64933fabe5c14a12fadd24cd546b787cf727de469f446"
+    },
+    "observedConcurrentDrift": [
+      {
+        "path": "tests/xtensions/xtensions_runtime_gate_suite.js",
+        "beforeSha256": "f6c4652cf1af5c557028a8683b45bed679458bfe2719e8b39c17cbf184449f81",
+        "afterSha256": "70a1f2cabc392008a377945dc033fb1b5de28deed71cb32c5cced94b0ed6e90e",
+        "reason": "The runtime-gate report catalog was updated concurrently. This file was not an executed regression suite; the product sources, executed domain suites and binding sources remained stable. The final gate file is separately pinned by the new static inspector."
+      }
+    ],
+    "allAfterPinsMatchCurrentFiles": true,
+    "beforeReceipt": {
+      "fileName": "review-final-07-sources-before.json",
+      "sha256": "6f3c60a606a33ae627fc66eb61a706908a0ad12ae072521c27e6ea6af0e96e17"
+    },
+    "afterReceipt": {
+      "fileName": "review-final-07-sources-after.json",
+      "sha256": "112a44d9eae2c22827c87708421ec9b241fc6372bbe6c2369b41b9961cc23546"
+    },
+    "independentReview": {
+      "rows": [
+        {
+          "node": "v24.22.2",
+          "regressions": {
+            "tests": 73,
+            "pass": 73,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          },
+          "backendRegressionTests": 8,
+          "actionEventRendererRegressionTests": 65,
+          "domainSuites": 20,
+          "domainAssertions": 2961,
+          "domainFailed": 0,
+          "domainSkipped": 0,
+          "bindingChecks": 88,
+          "suiteSourcesStable": true,
+          "bindingSourcesStable": true,
+          "files": {
+            "review-final-07-regressions24.log": "36574b1fcafb37a9e54327d59d3fd9530ab89b6a16e08640d8db952795196607",
+            "review-final-07-suites24.json": "7245e626ab8323e5eefb5327deb6544178cc9a26d0b3ee72567ace1339b36e1e",
+            "review-final-07-suites24.log": "6c944118dd0d4690b6c89c5f5f0e17f63b770a5d1cd8dbcda548e01403eeb34e",
+            "review-final-07-bindings24.json": "36e06bbb0800808452457b0001f2f33ab32d258a333c4dd415c1ee659c36a7a9",
+            "review-final-07-bindings24.log": "2237887ea9c7f46a844b6b57e199416117d8b6472a4b90c5356296b0c31e6dc4"
+          }
+        },
+        {
+          "node": "v26.5.0",
+          "regressions": {
+            "tests": 73,
+            "pass": 73,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          },
+          "backendRegressionTests": 8,
+          "actionEventRendererRegressionTests": 65,
+          "domainSuites": 20,
+          "domainAssertions": 2961,
+          "domainFailed": 0,
+          "domainSkipped": 0,
+          "bindingChecks": 88,
+          "suiteSourcesStable": true,
+          "bindingSourcesStable": true,
+          "files": {
+            "review-final-07-regressions26.log": "a11bfd839ac0d11cf490eae20bd9ea214620f3e054661e901c2c7e21bd6bd31f",
+            "review-final-07-suites26.json": "501453002c87e0148cee38b2b268a0e336f1fd2f94b70748a7bc15cdd660d227",
+            "review-final-07-suites26.log": "94a29fda06a3d9081a1dbc94e4ddb9faee50e9c642a5debb49276a5d7744e7b3",
+            "review-final-07-bindings26.json": "04def8cee03fe935f82764de34893d0f0c42d8682b96a47a9ba67557a594f9ae",
+            "review-final-07-bindings26.log": "ab48140d3db00971c4a1119d7f18eeba15fb2ae574364834229e45485d3ae473"
+          }
+        }
+      ],
+      "sourcePinCount": 315,
+      "sourceDrift": [
+        "tests/xtensions/xtensions_runtime_gate_suite.js"
+      ],
+      "readOnly": true,
+      "findings": [],
+      "checks": {
+        "booleanTyping": "Only true/false predicates, comparisons, contains and boolean compositions; scalar/path truthiness rejected.",
+        "negation": "Explicit parenthesized predicate required; nested predicate lowering preserves TSX AST grouping.",
+        "scopes": "Canonical imported bindings only; v1 old scopes unchanged, v2 item/params restricted to predicates, item.field to sort; whole selector source symbol validated by shared semantics.",
+        "partialArtifactClear": "All unsuccessful RMTX results clear executable artifacts and bindings; v2 dependency report null on failure.",
+        "v1Compatibility": "Default and explicit v1 preserve data schema/api/profile, no selectorDependencies; legacy wire schemas and factory ports unchanged.",
+        "catalog": "Immutable plain data; child cardinality and whole-source-symbol rules enforced by shared backend; no runtime tracking/source execution/subscription optimization claimed."
+      },
+      "receipt": {
+        "fileName": "review-final-07-report.json",
+        "sha256": "5d7aa8cc9eb8985fc183a768433221f3e30fa192ec72bd4efee620864a2dbd4d"
+      }
+    },
+    "staticAndRuntimePinsMatchCurrentFiles": true
+  },
+  "knownRepositoryGateIssue": {
+    "passed": false,
+    "preexistingBaselineIssue": true,
+    "log": "/tmp/xtend-rmtx-a063/docs-search-current-01.log",
+    "locale": "de",
+    "kind": "fulltext",
+    "gzipBytes": 156241,
+    "budgetBytes": 153600,
+    "receipt": {
+      "fileName": "docs-search-current-01.log",
+      "sha256": "92cad4d41d01f7dfa31f7dd3b80611ce45964c9c7f169c5395bdee61efc41097"
+    },
+    "freshSearchIndexProduced": false,
+    "budgetChanged": false,
+    "producerOrSearchRankingChanged": false,
+    "releaseAcceptanceInferred": false
+  },
+  "followUp": [
+    "A06.3: conditions, repeated hosts and stable typed key scopes",
+    "A06.3: additional action/event/policy and inline provider expression profiles",
+    "A06.4: general native UI lowering",
+    "A06.5: semantic editor and project tooling",
+    "A06.6: joint feature/release acceptance"
+  ]
+}
