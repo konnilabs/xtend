@@ -1,0 +1,54 @@
+{
+  "scope": "Versioned platform capability closures after legacy delivery budget regression",
+  "sources": [
+    {
+      "path": "xtend-maraca/xtension-platform-build.js",
+      "sha256": "c9cda2f3aacec3cd2c7852c1666787865fb5f4130bbcd6c4384fb8f5a58a3d62"
+    },
+    {
+      "path": "xtend-maraca/xtension-component-binding-disabled.mjs",
+      "sha256": "58a1ba6f8560ab5b94bcab77985f6d172cc6796f6e4c0e3bc62a90faf48dd191"
+    },
+    {
+      "path": "tools/xtensions/state-binding-projection-disabled.js",
+      "sha256": "c0bfee6ef6138a4a14d9f95526d1cf97ff04d57a77dd10c6769f9fb60d4137b5"
+    },
+    {
+      "path": "xtend-maraca/package.json",
+      "sha256": "e80eca21789d6709667b981fbfe6e1e2f740ff0d9b2606554d73051d5b363cd3"
+    },
+    {
+      "path": "tests/xtensions/platform-projection-profile.test.cjs",
+      "sha256": "35bb70dadfc74c6b1ffabb25d1a96672e4c50a3d13b7798ac85938d839514af1"
+    }
+  ],
+  "logs": [
+    {
+      "path": "/tmp/xtend-rmtx-a0633/platform-profile24-03.log",
+      "sha256": "ba5afc7f38df867efeb935bf0e7533911502ebb7906b3280c55670cd3196d4ad"
+    },
+    {
+      "path": "/tmp/xtend-rmtx-a0633/platform-profile26-03.log",
+      "sha256": "2a9af65dd657a3e0b9d30aacc3a4a1d57a65b23ae4f482df2bed1f2e4a41ea52"
+    },
+    {
+      "path": "/tmp/xtend-rmtx-a0633/platform-delivery-budget24-02.json",
+      "sha256": "dc4108eef420b7b06be9d69f22753b5c6ef8239bf909ec1f2ebf553b1211e220"
+    },
+    {
+      "path": "/tmp/xtend-rmtx-a0633/platform-source4-node24-02.log",
+      "sha256": "3565240404121790da6ce2f79de05b844203c25cc8a2850d88e49629d5119250"
+    }
+  ],
+  "componentCapability": "manifest6\u20138 only",
+  "projectionCapability": "manifest8 only",
+  "legacyRuntimeCeiling": 240000,
+  "deliveryRuntimeBytes": {
+    "react": 214822,
+    "vue": 213189,
+    "mixed": 236918
+  },
+  "profileRegressionTestsPerLane": 3,
+  "source4RuntimeCases": 12,
+  "source4CompileChecks": 10
+}

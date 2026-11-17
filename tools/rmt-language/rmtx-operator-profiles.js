@@ -2,8 +2,11 @@
 
 // Declarative authoring contracts. The compiler interprets these records; they
 // never contain callbacks or execute template expressions.
-const RMTX_OPERATOR_PROFILE_API_VERSION = '1.0.0';
+const { RMTX_EXTENDED_OPERATOR_RULES, RMTX_EXTENDED_PROGRAM_CHILDREN } = require('./rmtx-operator-coverage');
+const RMTX_OPERATOR_PROFILE_API_VERSION = '3.0.0';
 const RMTX_OPERATOR_PROFILE_SCHEMA = 'xtend.rmtx.operator-profile.v1';
+const RMTX_OPERATOR_PROFILE_SCHEMA_V2 = 'xtend.rmtx.operator-profile.v2';
+const RMTX_OPERATOR_PROFILE_SCHEMA_V3 = 'xtend.rmtx.operator-profile.v3';
 const attribute = (kind, required = false, extra = {}) => ({ kind, required, ...extra });
 const operator = (astType, attributes, children = []) => ({ astType, attributes, children });
 const baseOperators = {
@@ -49,7 +52,8 @@ function freeze(value) {
 }
 function profile(version, imports, operators, expressionContexts, semantics = {}) {
   return freeze({
-    schema: RMTX_OPERATOR_PROFILE_SCHEMA, apiVersion: RMTX_OPERATOR_PROFILE_API_VERSION,
+    schema: version === '4.0.0' ? RMTX_OPERATOR_PROFILE_SCHEMA_V3 : version === '3.0.0' ? RMTX_OPERATOR_PROFILE_SCHEMA_V2 : RMTX_OPERATOR_PROFILE_SCHEMA,
+    apiVersion: version === '4.0.0' ? RMTX_OPERATOR_PROFILE_API_VERSION : version === '3.0.0' ? '2.0.0' : '1.0.0',
     syntaxVersion: version, sourceProfile: { syntax: 'rmtx', version }, imports, operators,
     expressionContexts, limits: { ...limits }, semantics: { ...baseSemantics, ...semantics },
     reads: {
@@ -104,7 +108,121 @@ const v2 = profile('2.0.0', ['RMT', 'model', 'input', 'selectors', 'item', 'para
     parameters: { forwardedToDependencies: false }
   }
 });
-const profiles = freeze({ '1.0.0': v1, '2.0.0': v2 });
+const v3 = profile('3.0.0', [...v2.imports], {
+  ...v2.operators,
+  Program: { ...v2.operators.Program, children: [...v2.operators.Program.children, 'Repeat'] },
+  Surface: {
+    ...v2.operators.Surface,
+    attributes: {
+      ...v2.operators.Surface.attributes,
+      present: attribute('boolean-model-or-item-path', false, { expressionContext: 'host-presence' })
+    },
+    children: ['Lane', 'On']
+  },
+  Repeat: {
+    ...operator('RmtxHostRepeatScope', {
+      from: attribute('model-or-item-path', true, { expressionContext: 'repeat-source' }),
+      keyBy: attribute('item-path', true, { expressionContext: 'repeat-key' })
+    }, ['Repeat', 'Surface']),
+    lowering: 'host-scope-source-contract'
+  },
+  On: operator('RmtEventBinding', {
+    event: attribute('symbol', true), action: attribute('symbol', true),
+    payload: attribute('event-payload-map', true, { expressionContext: 'event-payload' }),
+    when: attribute('boolean-condition', false, { expressionContext: 'condition' })
+  })
+}, {
+  ...v2.expressionContexts,
+  'event-payload': { kind: 'nonempty-static-field-map', sources: ['detail', 'target'], values: 'direct-path-strings', callbacks: false },
+  'repeat-source': {
+    roots: ['model', 'item'], rootScope: 'model', nestedScope: 'item',
+    paths: 'direct-property-only', fieldRequired: true, computedPaths: false, optionalPaths: false
+  },
+  'repeat-key': {
+    roots: ['item'], paths: 'direct-property-only', fieldRequired: true,
+    computedPaths: false, optionalPaths: false
+  },
+  'host-presence': {
+    roots: ['model', 'item'], paths: 'direct-property-only', fieldRequired: true,
+    itemRequiresRepeatScope: true, result: 'boolean-model-value', predicates: false,
+    barePathTruthiness: false, computedPaths: false, optionalPaths: false
+  },
+  condition: {
+    result: 'boolean', literals: ['true', 'false'], scalarOperands: 'json-scalars-or-direct-model-paths',
+    roots: ['model'], equality: { '===': '==', '!==': '!=' }, equalitySemantics: 'strict',
+    comparisons: ['<', '<=', '>', '>='], comparisonSemantics: 'existing-classic-ordering',
+    logical: ['&&', '||'], logicalOperands: 'boolean-predicates',
+    negation: { operator: '!', requiresParenthesizedPredicate: true }, calls: {},
+    barePathTruthiness: false, scalarTruthiness: false, looseEquality: false,
+    computedPaths: false, optionalPaths: false, methodCalls: false
+  }
+}, {
+  selector: v2.semantics.selector,
+  hostScopes: {
+    sourceContract: 'xtend.rmtx.host-scopes.v1',
+    lowering: 'flattened-static-surfaces-with-host-scope-contract',
+    bindingArtifact: 'xtend.xtensions.state-binding-artifact.v3',
+    matchingXTensionBindingRequired: true,
+    propsAndIntents: 'external-sidecars',
+    nativeSurfaceRepeat: false,
+    repeatedNativeEventsAndResources: false,
+    nativeEventsOnScopedHosts: false,
+    key: {
+      values: ['nonempty-safe-string', 'nonnegative-safe-integer'],
+      typeIdentityPreserved: true, uniqueWithinParent: true,
+      ancestryIncludedInAddress: true, indexFallback: false
+    },
+    presence: { requiredValueType: 'boolean', truthiness: false }
+  },
+  events: { when: 'runtime-event-condition', target: 'owning-surface-dom-selector',
+    inputNames: 'exact-declared-action-inputs', nativePayloadTypeValidation: false, mountWhenSupported: false }
+});
+const v4 = profile('4.0.0', [...v3.imports, 'result', 'error', 'payload'], {
+  ...v3.operators,
+  ...RMTX_EXTENDED_OPERATOR_RULES,
+  Program: { ...v3.operators.Program, children: [...v3.operators.Program.children, ...RMTX_EXTENDED_PROGRAM_CHILDREN] },
+  Action: { ...v3.operators.Action, children: ['Input', 'Status', 'Execution', 'Effect', 'Reduce', 'Recipe', 'Emit', 'ResultHandler'] },
+  Input: { ...v3.operators.Input,
+    attributes: { ...v3.operators.Input.attributes, optional: attribute('boolean'), nullable: attribute('boolean'), default: attribute('json-literal', false, { expressionContext: 'initial' }) },
+    children: ['InputPolicy'] },
+  Reduce: { ...v3.operators.Reduce, attributes: { ...v3.operators.Reduce.attributes, value: attribute('primitive-expression', true, { expressionContext: 'action-value' }) } },
+  Surface: { ...v3.operators.Surface, children: [...v3.operators.Surface.children, 'SurfaceSource', 'SurfaceBounds', 'SurfacePreserve', 'SurfaceDestroy', 'XTension'] },
+  Lane: { ...v3.operators.Lane, attributes: { ...v3.operators.Lane.attributes, weight: attribute('number') },
+    children: ['Mount', 'Hydrate', 'Suspend', 'Resume', 'Invalidate', 'Dispose', 'Prewarm', 'Recycle', 'Detach', 'Reattach', 'Stream'] },
+  On: { ...v3.operators.On, attributes: { ...v3.operators.On.attributes, preventDefault: attribute('boolean') } },
+  XTension: {
+    ...operator('RmtxXTensionDeclaration', {
+      id: attribute('symbol', true), provider: attribute('string', true), owner: attribute('string', true), lane: attribute('symbol', true),
+      props: attribute('projection-object', true, { expressionContext: 'props' }),
+      intents: attribute('intent-map', false, { expressionContext: 'intents' })
+    }), lowering: 'inline-provider-binding-source-contract'
+  }
+}, {
+  ...v3.expressionContexts,
+  reduce: { literals: 'finite-acyclic-json', roots: ['model', 'input', 'selectors', 'result', 'error', 'payload'], paths: 'direct-property-only', computedPaths: false, optionalPaths: false },
+  'action-value': { literals: 'finite-acyclic-json', roots: ['model', 'input', 'selectors', 'result', 'error', 'payload'],
+    objectFields: 'explicit-static-only', projections: ['object', 'array'], paths: 'direct-property-only', computedPaths: false, optionalPaths: false, calls: false },
+  'policy-values': { literals: 'json-scalars', container: 'nonempty-static-array', sourceText: false },
+  props: { literals: 'finite-acyclic-json', roots: ['model', 'selectors', 'item'], objectFields: 'explicit-static-only',
+    projections: ['object', 'array', 'conditional', 'unary', 'binary'], paths: 'direct-property-only', computedPaths: false, optionalPaths: false,
+    calls: false, getters: false, spreads: false, runtimeTracking: false },
+  intents: { kind: 'provider-event-to-declared-action', mappings: 'explicit-provider-payload-paths-and-typed-key-positions', callbacks: false }
+}, {
+  selector: v3.semantics.selector,
+  hostScopes: { ...v3.semantics.hostScopes, sourceContract: 'xtend.rmtx.host-scopes.v2', bindingArtifact: 'xtend.xtensions.state-binding-artifact.v4',
+    propsAndIntents: 'validated-inline-provider-interface' },
+  events: { ...v3.semantics.events, inputNames: 'all-required-and-only-declared-action-inputs', nativePayloadTypeValidation: true, optionalNullableDefaults: true },
+  operators: { grammar: 'closed-qualified-operator-tags', astCoverage: '122-classic-nodes-classified', rawAstEscapeHatch: false,
+    classicSourceStringEscapeHatch: false, tokenFields: 'generated-from-closed-attributes', lifecycleConditions: false,
+    nativeDomRepeat: false, nativeUiChildren: false, imports: 'declarative-classic-source-metadata', sourceModuleGraph: false },
+  actions: { values: 'closed-literal-path-object-array-trees', resultHandlers: ['reduce', 'emit', 'overlay'], callbacks: false },
+  components: { providerInterface: 'xtend.xtensions.component-interface.v2', declaration: 'XTension', props: 'closed-projection-object',
+    acceptedProviderInterfaces: ['xtend.xtensions.component-interface.v1', 'xtend.xtensions.component-interface.v2'],
+    intents: 'provider-owned-payload-schema-and-required-action-input-mapping-with-typed-optional-defaults', nativeChildren: false,
+    runtimeAuthority: 'validated-provider-interface-through-fabric-kernel' },
+  acceptance: { release: 'preparing', nativeUi: false, projectTooling: false, ssrParity: false }
+});
+const profiles = freeze({ '1.0.0': v1, '2.0.0': v2, '3.0.0': v3, '4.0.0': v4 });
 
 /** Return an immutable profile. Mutating a separately cloned copy cannot alter it. */
 function getRmtxOperatorProfile(version = '1.0.0') {
@@ -113,4 +231,4 @@ function getRmtxOperatorProfile(version = '1.0.0') {
   }
   return profiles[version];
 }
-module.exports = { RMTX_OPERATOR_PROFILE_API_VERSION, RMTX_OPERATOR_PROFILE_SCHEMA, getRmtxOperatorProfile };
+module.exports = { RMTX_OPERATOR_PROFILE_API_VERSION, RMTX_OPERATOR_PROFILE_SCHEMA, RMTX_OPERATOR_PROFILE_SCHEMA_V2, RMTX_OPERATOR_PROFILE_SCHEMA_V3, getRmtxOperatorProfile };

@@ -94,7 +94,7 @@ async function inspect() {
         // The named-ESM projection can fit even without minification. Inject a
         // real platform-byte overrun; ordinary Rollup/kernel transforms still run.
         terser.minify = async (...args) => {
-          if (!injected) { injected = true; assert.equal(typeof args[0], 'string'); assert(args[0].includes('XTENSION_COMPOSITION_API_VERSION')); return { code: args[0] + '\n/*' + 'x'.repeat(Math.max(0, 240001 - Buffer.byteLength(args[0]))) + '*/' }; }
+          if (!injected) { injected = true; assert.equal(typeof args[0], 'string'); assert(args[0].includes('XTENSION_COMPOSITION_API_VERSION')); return { code: args[0] + '\n/*' + 'x'.repeat(Math.max(0, referenceBuild.sizeBudgetReport.xtensions.baselineBytes + 1 - Buffer.byteLength(args[0]))) + '*/' }; }
           return minify(...args);
         };
         denied = await reference.buildIntegratedReference('react', path.join(temp, 'partial-minification'), { profile: 'production' });

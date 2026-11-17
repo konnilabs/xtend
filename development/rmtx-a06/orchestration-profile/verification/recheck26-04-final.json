@@ -1,0 +1,373 @@
+{
+  "format": "a0633-legacy-source-recheck",
+  "node": "v26.5.0",
+  "baselineManifestSha256": "2fd0639e8781d3df4b18e15e572a2b93bcc5a089f1c739ccb6a1dfe612bbe424",
+  "ok": true,
+  "cases": 35,
+  "counts": {
+    "1.0.0": 10,
+    "2.0.0": 13,
+    "3.0.0": 12
+  },
+  "profilesMatch": true,
+  "factoriesMatch": true,
+  "moduleCapabilities": {
+    "parser": "4.0.0",
+    "compiler": "4.0.0"
+  },
+  "rows": [
+    {
+      "id": "v1-empty",
+      "syntaxVersion": "1.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "054e32ed42db4da14a7b3841deb5688d90235f3365f58e28deea997d24979340",
+      "compilerSha256": "d012282d1889b521877000ad9fc19a2f81571cb6bd90c8f0fa131faddefd28e2",
+      "defaultParserMatches": true,
+      "defaultCompilerMatches": true
+    },
+    {
+      "id": "v1-scalar-action",
+      "syntaxVersion": "1.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "f8b3c90f0861db9c7f6155a30636af7bd1639b8a889c7c00da4e7e53b9575e8f",
+      "compilerSha256": "fa3e8bc5f1a9f2be43dc684b27303497c7d853f4dc2ba608f8932365bcad5816",
+      "defaultParserMatches": true,
+      "defaultCompilerMatches": true
+    },
+    {
+      "id": "v1-import-alias",
+      "syntaxVersion": "1.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "f05690e1f63bb70a00c8cd3919c45ba599cc3c2ddece572dc4c6bdcb6dbb79c8",
+      "compilerSha256": "1e526907ba2081e2655f4404cedfd91f8b23b152af3b8c65edeaa7d44a52989c",
+      "defaultParserMatches": true,
+      "defaultCompilerMatches": true
+    },
+    {
+      "id": "v1-unknown-reducer-state",
+      "syntaxVersion": "1.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "b8c86a57edffc31335feb5679009b4f33f196be27dc44d6a6cca7d20aa36effc",
+      "compilerSha256": "05c6e8ca65ee8892a3c98cba8c988f3d508c884bec2a5b619f3c1d9de2ea5bad",
+      "defaultParserMatches": true,
+      "defaultCompilerMatches": true
+    },
+    {
+      "id": "v1-unknown-import",
+      "syntaxVersion": "1.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "c5482170124c6a272781f54c434b597fe3b95446d37b1fd947e5dc3d5934ec85",
+      "compilerSha256": "a74639d31457a5cadb472502a0e55109db939122a31989d8f88994bf4f0d8f71",
+      "defaultParserMatches": true,
+      "defaultCompilerMatches": true
+    },
+    {
+      "id": "v1-source-execution-rejected",
+      "syntaxVersion": "1.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "5fdb3a84057281a878d4b5f61d07e86220b1d9dfacee39bbf746fa43054ff9ee",
+      "compilerSha256": "5b06f57be31e4c1dd3ae9fdc6cf34ef9410370c68b69cf28f05342e12da207d1",
+      "defaultParserMatches": true,
+      "defaultCompilerMatches": true
+    },
+    {
+      "id": "v1-two-host",
+      "syntaxVersion": "1.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "3c390200992515f1669adb3390e502ea828678e76100d12a3fcd57453131d2bb",
+      "compilerSha256": "9a99aafdfc76a681675557a40e4454676a0410d6a40637f6e9d4ed622eb479ed",
+      "defaultParserMatches": true,
+      "defaultCompilerMatches": true
+    },
+    {
+      "id": "v2-empty",
+      "syntaxVersion": "2.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "992943f407d9dc698a91c6ee8ffbb4e5c6f06c74d4580e7bc26d6a908c83e20a",
+      "compilerSha256": "2b03df0e194bfd7ddff645fc70af0d3807f9e7f68091c3aadbda3dcd1261bc2a"
+    },
+    {
+      "id": "v2-selector-reference",
+      "syntaxVersion": "2.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "592d96814787fa50ac40c96743043dcc85b84fb5e2c619faff53875e7f42090f",
+      "compilerSha256": "7f094a6ec5cbc1ae765402abb3720bf1e3a59eccbdf5e85e37008bff9bd4790d"
+    },
+    {
+      "id": "v2-two-host",
+      "syntaxVersion": "2.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "1ab464d92f4987012d1edb0602324fef8dae329605452c516ec0231ca62189f9",
+      "compilerSha256": "2a430e263be42b1364dc478d374d2ec9d53597ae0d23c383146597c9818f7084"
+    },
+    {
+      "id": "v2-import-alias-params",
+      "syntaxVersion": "2.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "745216a3b5266e1d0459662e17647965d4ab2a7ce72b991975247de57ffcc9f6",
+      "compilerSha256": "0f774c34f26da46f9bbb1a9b604539a066bddf49dc08a0499da1554f7e7132a4"
+    },
+    {
+      "id": "v2-falsy-find",
+      "syntaxVersion": "2.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "9b54fb7f2e7d72c1613eae2368bb152f866b32f337a38aa710b915551c38bc57",
+      "compilerSha256": "153bed2aa01b1753356484e1a47910b046bed4e32662a816050af8dc2efe78f9"
+    },
+    {
+      "id": "v2-unknown-selector",
+      "syntaxVersion": "2.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "a7759310bdd5e54d1e6a12be01f6a877ee43efb165fc0746c46b0387445e70e5",
+      "compilerSha256": "b9608e9f32d4eb51cacb6a7744cecccf946a67d90322c5fb88be3b38846f399b"
+    },
+    {
+      "id": "v2-selector-cycle",
+      "syntaxVersion": "2.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "927c32ab0b714acaadbde36cf50ab9cba000ccfdd49c1ea3b8d519eb1d3089d9",
+      "compilerSha256": "7648ec356c88e45e87fc02a7b31edd7dbc68beb336bc0b19d0eedc284264d97e"
+    },
+    {
+      "id": "v2-loose-equality-rejected",
+      "syntaxVersion": "2.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "dd16f55a723113fa2bc508088ae8432d881be326ce7ebe9b63a39f7ee23d393b",
+      "compilerSha256": "d9440223aee8e009f8d8403c5b4fa48bba09ff5348d68607a48850998abb13d5"
+    },
+    {
+      "id": "v2-truthiness-rejected",
+      "syntaxVersion": "2.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "1120669b8394a0a061f24c1caa7c770fb0a3efc73101fc5de01d91fccf450f59",
+      "compilerSha256": "5cd22d833c937863adcbeefd87d2f662efb7ef06acfeec773cd5b322127e67f0"
+    },
+    {
+      "id": "v2-unsafe-prototype-rejected",
+      "syntaxVersion": "2.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "41e921077d75d4e3545a88ac3e140b4db73492460ef71ab368e089d10c7e86c8",
+      "compilerSha256": "adce2960a07492fcec4ac1986a5fba2ead28a159db6786a0c341a385e1f75377"
+    },
+    {
+      "id": "v1-mount-condition-unsupported",
+      "syntaxVersion": "1.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "491320642e1d8ca4346ccf8b1cfced5ecca0e5930dbe7e90fe6d5fd24a7455e8",
+      "compilerSha256": "f3947dd29f3f155686fd0200c03296fabb49177cb204e49f1cc98c3f7b4e143a",
+      "defaultParserMatches": true,
+      "defaultCompilerMatches": true
+    },
+    {
+      "id": "v1-repeat-unsupported",
+      "syntaxVersion": "1.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "24e52f6b17937058b710e614958199e10879b5bf3d794095014c73927c1ce320",
+      "compilerSha256": "404b6cee8abbfcbe36101f20077182f31d61f15ab9f459fa724b732678283383",
+      "defaultParserMatches": true,
+      "defaultCompilerMatches": true
+    },
+    {
+      "id": "v1-key-unsupported",
+      "syntaxVersion": "1.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "49eb003b6483253687f54ed434686365d0474acc195fab95a26cd7f65bdbca07",
+      "compilerSha256": "fa68cf94531e1f31c48745e59039be54514db15bb7abeefa8ee7ccdcc6e3abfa",
+      "defaultParserMatches": true,
+      "defaultCompilerMatches": true
+    },
+    {
+      "id": "v2-mount-condition-unsupported",
+      "syntaxVersion": "2.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "ead63e7dab370b55b83f83989ca97b1ffdeeadc4db88084025b6206d7ec9560a",
+      "compilerSha256": "a9c80749d0eede0ff43732139023bba13242d17ae3e8cca6458125ab68587f5f"
+    },
+    {
+      "id": "v2-repeat-unsupported",
+      "syntaxVersion": "2.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "f9aa45130ea4c48cec1450d294fd556ef55ddfe150d523a9e40ad9fe3ba5bb05",
+      "compilerSha256": "ad5975e33519cabff3c12e9145a2a58799aa7b560ec73841fc72aefe523171bd"
+    },
+    {
+      "id": "v2-key-unsupported",
+      "syntaxVersion": "2.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "7f12782aea6f1d6cbf610383dc74b70be3a610b6ff6c6a09eaafaf80d1c22762",
+      "compilerSha256": "662f9de327ff53d10b3930076d6368b1a5b10ad6e087f98b3c1336f0e98e575d"
+    },
+    {
+      "id": "v3-empty",
+      "syntaxVersion": "3.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "6a6bbbbc9c52164f359e40115f116d3c1fd360873cdd6ad8232bb4bc15b3e5c9",
+      "compilerSha256": "ad3e1f30a564ee523c695562b551404e4cdf6dec880a2caafc507bd91e961da9"
+    },
+    {
+      "id": "v3-nested-hosts",
+      "syntaxVersion": "3.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "78df9053d5f30f7a56e49069e4b62a52e85669d19242c10af102852f0ada4c76",
+      "compilerSha256": "4c94646c13687b5fd2fc0fadf43c1b499294691128a3a20d8ff8fb7a3bf559db"
+    },
+    {
+      "id": "v3-static-native-on",
+      "syntaxVersion": "3.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "e84a3a11ef56801ccb999266b1e1e392ec6a958bf31247f58af5ff8eb36de62f",
+      "compilerSha256": "406a2d72d07fb0d39b11df46da4fb1dd779706735a24afc3c1e702869a73a4d5"
+    },
+    {
+      "id": "v3-native-on-input-name",
+      "syntaxVersion": "3.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "32362760cb2e1483c0031c01aa74ed6703fa093609cbea93e7c7813e9bad9c84",
+      "compilerSha256": "0324e5b8d032ccb2c2fc130749c0aa2a442ed592c099ccdfe2a7f6919fe9dcb2"
+    },
+    {
+      "id": "v3-duplicate-key",
+      "syntaxVersion": "3.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "ef15f35a56e22ec4f4b96c7d8563690b675ab5b7e606617152cf307889838c9c",
+      "compilerSha256": "9a4c290561bd0deae4d3d6fdd75504b6a0a332210ec5b59b2a5aaf6d41601adb"
+    },
+    {
+      "id": "v3-missing-host-binding",
+      "syntaxVersion": "3.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "1b0877d56c12ee89f27c3fdb02120f1374c1d11fb3070f6b60f2a7567812ea20",
+      "compilerSha256": "df65f196ddcd5cae4d1132910f6132b4e3d0e47c13c771c037771cd12bc3fbea"
+    },
+    {
+      "id": "v3-scoped-native-on",
+      "syntaxVersion": "3.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "3cb12e143e23d4cd3676fb480f89a9853e018c486dd5e734134023815ab3a0ff",
+      "compilerSha256": "52eb22086e9dbd9a141b076aa85a4b92458c7929f20db7f8589bada5bad8035c"
+    },
+    {
+      "id": "v3-mount-when",
+      "syntaxVersion": "3.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "0fa3e741c34c7d497bf6e6306f4d393d4b4e14d562bb749f7b53748e39ebf15c",
+      "compilerSha256": "7e373a58408c954e61624fd27d2b06438c8492749fe0135e8290313212cc6cc8"
+    },
+    {
+      "id": "v3-datasource-unsupported",
+      "syntaxVersion": "3.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "9a1b32182248f953fdb1ab50da0129479018c39b8c4750753ea1864fabc28326",
+      "compilerSha256": "be3b2eec17da5117061a23f9c2729108af477dbc76c58d65bee497cc2274fe00"
+    },
+    {
+      "id": "v3-inline-provider-unsupported",
+      "syntaxVersion": "3.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "6d6829d5f0733f24ac6b9c27fbf3fd4004507d42ccef2365253cabf1ef110a04",
+      "compilerSha256": "ed659ac9431a52ff57121111ae2a1ee81f2fd325df62468e89e75bc18ef2c7e2"
+    },
+    {
+      "id": "v3-object-reducer-unsupported",
+      "syntaxVersion": "3.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "f3deefe3e9488f66c68e34a6ef1dbef76f8445e6b5c34c3825b8daa8eb6acbb5",
+      "compilerSha256": "c2cbee73ece47e0ac2d9eb202894f19eb7c7950b29b3697c16662262ee8e57e0"
+    },
+    {
+      "id": "v3-result-binding-unsupported",
+      "syntaxVersion": "3.0.0",
+      "parserMatches": true,
+      "compilerMatches": true,
+      "parserSha256": "7e14e1b0cbc18c956ae12dfd7e013620fae8df0aedd0cb71d52870046522ebe1",
+      "compilerSha256": "ee8c2856b8b12fddbba1c0cbec1c2925e09982df9aa6b048993cea43766bfc99"
+    }
+  ],
+  "sources": {
+    "before": {
+      "tools/rmt-language/action-execution-lowering.js": "661647a20aaadf2c1f2bdcfacbfbb2a5de992cc6069b56002e187f2b0e91948e",
+      "tools/rmt-language/action-input-contract.js": "a2587bf7f380b3759747d7752a407e8cbdcd4f40ff7a854f8a23ab9bc3b408f5",
+      "tools/rmt-language/classic-ast-contract.js": "3e17596b6615c7ca5528bb5a72551143e1d3403d8a8c606cf83569d71a3c79d4",
+      "tools/rmt-language/classic-compiler.js": "51b0a119706689b193ba01cc289e914a63be02d1757f7cef105c921e7ea8c572",
+      "tools/rmt-language/classic-semantic-rules.js": "09e7a8706201958104fbebee8eea749d3f7b78de4b491eed0d0d79c2f4451549",
+      "tools/rmt-language/contracts/classic-ast.v1.schema.json": "2f0b45c8c05dbc38adb7355fcc3ae36bbf8eb2f3b26c4ec024b71ed04fb2b457",
+      "tools/rmt-language/format-adapter.js": "3bcbba373882142df1cef4ee1b3607e8838e65e9e63e8e18460fc50642663e1a",
+      "tools/rmt-language/parser.js": "a4e0dc973cf4043b93901bb73cdad84fcdb94ef7aeda8778b223bb7d8db4347c",
+      "tools/rmt-language/rmtx-compiler.js": "a82fdab327ab3be0fa9574eb730362447b5f256263eb5b10693e1737963e610a",
+      "tools/rmt-language/rmtx-host-scopes.js": "cb56b867e74e87bf6bb796b3ae1c36675b9030d9a45a550f97d3553a885c7d2f",
+      "tools/rmt-language/rmtx-operator-coverage.js": "c4742d000786d1679dbfa375b223499567dc93ef55649b6cd7589a033cf05f94",
+      "tools/rmt-language/rmtx-operator-coverage.json": "38a39759c35f6bcd1e85eb46d4e24680761da48779f3766520f43bed675ca17c",
+      "tools/rmt-language/rmtx-operator-profiles.js": "1d1332c2ea078e0d36faa152f33c1dea2e7449753ce638f2adec5a8d518d0def",
+      "tools/rmt-language/rmtx-parser.js": "de11824a2ec993cbf82f77d92a94e07d2e7a78af07c07384d10e096e6bdf1ad1",
+      "tools/rmt-language/rmtx-selector-dependencies.js": "c2fc91a2d057ea93a7d2acb9d9407a39f4b38b2f6db7f5cfa60bdbf7ea2e16b4",
+      "tools/rmt-language/semantic-graph.js": "5ef6c052b44a4e94d05f08e0327517e5dc073d706bf023a4fef2f47a45d08e43",
+      "tools/rmt-language/source-model.js": "73aa135d823f7452283da29eb29b5c9e5a45a20e7649c9f99c38a08d04d243b6",
+      "tools/rmt-language/vendor/fastpass-contract.js": "af8e26104243deea58ccf3a334d67ecb3286617146257074a29eeb7866a3b1a3",
+      "tools/rmt-language/vnext-compiler.js": "c3dce058c55a93a2d8520469285f21360141681679ca3869c55d5edfe5eb9888",
+      "tools/rmt-language/vnext-parser.js": "80668bc8c738f5fda9ed3149b367c3e3388eac9f1ae4f90650d65910a5359579",
+      "tools/xtensions/state-binding-artifact.js": "ec7a1e1de5a9d4dc53052012ad72ed151fde786659e06e262d6974cf5206713f",
+      "tools/xtensions/state-binding-contract.js": "857867ed26115ea9aa966b7c3e74099675c890f5bb3bbc4c890dfa5d581af2b6",
+      "tools/xtensions/state-binding-projection.js": "62d116bb6a8fcdeccdd0426d5c6a21537d3e01c952393b4cc82f1f88b0aea739"
+    },
+    "after": {
+      "tools/rmt-language/action-execution-lowering.js": "661647a20aaadf2c1f2bdcfacbfbb2a5de992cc6069b56002e187f2b0e91948e",
+      "tools/rmt-language/action-input-contract.js": "a2587bf7f380b3759747d7752a407e8cbdcd4f40ff7a854f8a23ab9bc3b408f5",
+      "tools/rmt-language/classic-ast-contract.js": "3e17596b6615c7ca5528bb5a72551143e1d3403d8a8c606cf83569d71a3c79d4",
+      "tools/rmt-language/classic-compiler.js": "51b0a119706689b193ba01cc289e914a63be02d1757f7cef105c921e7ea8c572",
+      "tools/rmt-language/classic-semantic-rules.js": "09e7a8706201958104fbebee8eea749d3f7b78de4b491eed0d0d79c2f4451549",
+      "tools/rmt-language/contracts/classic-ast.v1.schema.json": "2f0b45c8c05dbc38adb7355fcc3ae36bbf8eb2f3b26c4ec024b71ed04fb2b457",
+      "tools/rmt-language/format-adapter.js": "3bcbba373882142df1cef4ee1b3607e8838e65e9e63e8e18460fc50642663e1a",
+      "tools/rmt-language/parser.js": "a4e0dc973cf4043b93901bb73cdad84fcdb94ef7aeda8778b223bb7d8db4347c",
+      "tools/rmt-language/rmtx-compiler.js": "a82fdab327ab3be0fa9574eb730362447b5f256263eb5b10693e1737963e610a",
+      "tools/rmt-language/rmtx-host-scopes.js": "cb56b867e74e87bf6bb796b3ae1c36675b9030d9a45a550f97d3553a885c7d2f",
+      "tools/rmt-language/rmtx-operator-coverage.js": "c4742d000786d1679dbfa375b223499567dc93ef55649b6cd7589a033cf05f94",
+      "tools/rmt-language/rmtx-operator-coverage.json": "38a39759c35f6bcd1e85eb46d4e24680761da48779f3766520f43bed675ca17c",
+      "tools/rmt-language/rmtx-operator-profiles.js": "1d1332c2ea078e0d36faa152f33c1dea2e7449753ce638f2adec5a8d518d0def",
+      "tools/rmt-language/rmtx-parser.js": "de11824a2ec993cbf82f77d92a94e07d2e7a78af07c07384d10e096e6bdf1ad1",
+      "tools/rmt-language/rmtx-selector-dependencies.js": "c2fc91a2d057ea93a7d2acb9d9407a39f4b38b2f6db7f5cfa60bdbf7ea2e16b4",
+      "tools/rmt-language/semantic-graph.js": "5ef6c052b44a4e94d05f08e0327517e5dc073d706bf023a4fef2f47a45d08e43",
+      "tools/rmt-language/source-model.js": "73aa135d823f7452283da29eb29b5c9e5a45a20e7649c9f99c38a08d04d243b6",
+      "tools/rmt-language/vendor/fastpass-contract.js": "af8e26104243deea58ccf3a334d67ecb3286617146257074a29eeb7866a3b1a3",
+      "tools/rmt-language/vnext-compiler.js": "c3dce058c55a93a2d8520469285f21360141681679ca3869c55d5edfe5eb9888",
+      "tools/rmt-language/vnext-parser.js": "80668bc8c738f5fda9ed3149b367c3e3388eac9f1ae4f90650d65910a5359579",
+      "tools/xtensions/state-binding-artifact.js": "ec7a1e1de5a9d4dc53052012ad72ed151fde786659e06e262d6974cf5206713f",
+      "tools/xtensions/state-binding-contract.js": "857867ed26115ea9aa966b7c3e74099675c890f5bb3bbc4c890dfa5d581af2b6",
+      "tools/xtensions/state-binding-projection.js": "62d116bb6a8fcdeccdd0426d5c6a21537d3e01c952393b4cc82f1f88b0aea739"
+    },
+    "sourceDrift": []
+  }
+}

@@ -2,13 +2,20 @@
 
 const ts = require('typescript');
 const { createRmtSourceModel } = require('./source-model');
-const { getRmtxOperatorProfile, RMTX_OPERATOR_PROFILE_SCHEMA } = require('./rmtx-operator-profiles');
-const RMTX_PARSER_API_VERSION = '2.0.0';
+const { getRmtxOperatorProfile, RMTX_OPERATOR_PROFILE_SCHEMA, RMTX_OPERATOR_PROFILE_SCHEMA_V2, RMTX_OPERATOR_PROFILE_SCHEMA_V3 } = require('./rmtx-operator-profiles');
+const RMTX_PARSER_API_VERSION = '4.0.0';
 const RMTX_PARSER_SCHEMA = 'xtend.rmtx.parser-result.v1';
 const RMTX_PARSER_SCHEMA_V2 = 'xtend.rmtx.parser-result.v2';
+const RMTX_PARSER_SCHEMA_V3 = 'xtend.rmtx.parser-result.v3';
+const RMTX_PARSER_SCHEMA_V4 = 'xtend.rmtx.parser-result.v4';
+const RMTX_HOST_SCOPES_SCHEMA = 'xtend.rmtx.host-scopes.v1';
+const RMTX_HOST_SCOPES_SCHEMA_V2 = 'xtend.rmtx.host-scopes.v2';
+const RMTX_COMPONENTS_SCHEMA = 'xtend.rmtx.components.v1';
 const RMTX_SYNTAX_VERSION = '1.0.0';
 const RMTX_SOURCE_PROFILE = Object.freeze({ syntax: 'rmtx', version: RMTX_SYNTAX_VERSION });
 const RMTX_SELECTOR_SOURCE_PROFILE = Object.freeze({ syntax: 'rmtx', version: '2.0.0' });
+const RMTX_KEYED_SOURCE_PROFILE = Object.freeze({ syntax: 'rmtx', version: '3.0.0' });
+const RMTX_ORCHESTRATION_SOURCE_PROFILE = Object.freeze({ syntax: 'rmtx', version: '4.0.0' });
 const MODULES = new Set(['@ccslabs/xtend/rmt-language/rmtx', '@ccslabs/xtend-compiler/rmt-language/rmtx']);
 const UNSAFE = new Set(['__proto__', 'prototype', 'constructor']);
 const own = (value, key) => Object.hasOwn(value, key);
@@ -20,20 +27,25 @@ class SourceError extends Error {
 /** Parse a closed declarative TSX profile. No source imports or expressions execute. */
 function parseRmtxSource(input = {}, options = {}) {
   input = typeof input === 'string' ? { text: input } : input && typeof input === 'object' ? input : {};
-  const selectedVersion = options.syntaxVersion === '2.0.0' ? '2.0.0' : RMTX_SYNTAX_VERSION;
+  const selectedVersion = ['2.0.0', '3.0.0', '4.0.0'].includes(options.syntaxVersion) ? options.syntaxVersion : RMTX_SYNTAX_VERSION;
+  const extended = selectedVersion === '4.0.0';
   const profile = getRmtxOperatorProfile(selectedVersion);
-  const sourceProfile = selectedVersion === '2.0.0' ? RMTX_SELECTOR_SOURCE_PROFILE : RMTX_SOURCE_PROFILE;
+  const sourceProfile = extended ? RMTX_ORCHESTRATION_SOURCE_PROFILE : selectedVersion === '3.0.0' ? RMTX_KEYED_SOURCE_PROFILE : selectedVersion === '2.0.0' ? RMTX_SELECTOR_SOURCE_PROFILE : RMTX_SOURCE_PROFILE;
   const sourceModel = createRmtSourceModel({ ...input, languageId: 'rmtx', uri: input.uri || (input.filePath ? undefined : 'untitled:rmtx-document') });
   const diagnostics = [];
-  const result = (ast = null, phase = 'syntax') => ({ schema: selectedVersion === '2.0.0' ? RMTX_PARSER_SCHEMA_V2 : RMTX_PARSER_SCHEMA,
+  let hostScopes = null;
+  let components = null, actionInputRules = null;
+  const result = (ast = null, phase = 'syntax') => ({ schema: extended ? RMTX_PARSER_SCHEMA_V4 : selectedVersion === '3.0.0' ? RMTX_PARSER_SCHEMA_V3 : selectedVersion === '2.0.0' ? RMTX_PARSER_SCHEMA_V2 : RMTX_PARSER_SCHEMA,
     apiVersion: selectedVersion, sourceProfile, ok: diagnostics.length === 0, phase,
-    status: diagnostics.length ? 'invalid' : 'parsed', sourceModel, ast, diagnostics });
+    status: diagnostics.length ? 'invalid' : 'parsed', sourceModel, ast, diagnostics,
+    ...(['3.0.0', '4.0.0'].includes(selectedVersion) ? { hostScopes: ast ? hostScopes : null } : {}),
+    ...(extended ? { components: ast ? components : null, actionInputRules: ast ? actionInputRules : null } : {}) });
   const diagnostic = (code, message, node, start, end) => diagnostics.push(sourceModel.createDiagnostic({
     code, message, severity: 'error', source: 'rmtx',
     range: sourceModel.rangeForOffsets(start ?? node?.getStart(file) ?? 0, end ?? node?.end ?? 1)
   }));
   let file;
-  if (options.syntaxVersion !== undefined && !['1.0.0', '2.0.0'].includes(options.syntaxVersion)) {
+  if (options.syntaxVersion !== undefined && !['1.0.0', '2.0.0', '3.0.0', '4.0.0'].includes(options.syntaxVersion)) {
     diagnostic('rmtx.syntax.version.unsupported', `Unsupported RMTX syntax version ${String(options.syntaxVersion)}.`);
     return result(null, 'profile');
   }
@@ -52,6 +64,7 @@ function parseRmtxSource(input = {}, options = {}) {
       entry.start ?? 0, (entry.start ?? 0) + (entry.length ?? 1));
     if (diagnostics.length) return result();
     const bindings = new Map();
+    const scopeDeclarations = [], conditionReads = [], eventDeclarations = [], componentDeclarations = [], inputRules = new Map();
     let program = null;
     const fail = (code, message, node) => { throw new SourceError(code, message, node); };
     const safe = (key, node) => { if (UNSAFE.has(key)) fail('rmtx.path.unsafe', `Unsafe field ${key}.`, node); return key; };
@@ -159,10 +172,74 @@ function parseRmtxSource(input = {}, options = {}) {
         expression = expression.expression;
       }
       const binding = ts.isIdentifier(expression) && bindings.get(expression.text);
-      if (!binding || !allowed.includes(binding) || (!parts.length && !(allowItemRoot && binding === 'item')))
+      if (!binding || !allowed.includes(binding) || (!parts.length && !(allowItemRoot && (binding === 'item' || extended && ['result', 'error', 'payload', 'input'].includes(binding)))))
         fail('rmtx.scope.path', `Expected a direct ${allowed.join('/')} path in this context.`, original);
-      const root = { model: 'state', selectors: 'selector', item: 'item', params: 'input', input: 'input' }[binding];
+      const root = { model: 'state', selectors: 'selector', item: 'item', params: 'input', input: 'input', result: 'result', error: 'error', payload: 'payload' }[binding];
       return { path: [root, ...parts], binding };
+    }
+    // A finite syntax tree, never a JavaScript evaluator. References are explicit
+    // imported markers; objects and arrays keep the same closed JSON boundary.
+    function primitiveExpression(node, depth = 0) {
+      node = unparen(node);
+      if (depth > profile.limits.literalDepth) fail('rmtx.source.limit', 'Expression nesting exceeds 64 levels.', node);
+      if (ts.isPropertyAccessExpression(node) || ts.isIdentifier(node) && bindings.has(node.text)) {
+        const { path } = scopedPath(node, ['model', 'input', 'selectors', 'result', 'error', 'payload'], true);
+        return make('RmtPrimitiveValue', node, { kind: 'path', value: path.join('.'), path });
+      }
+      if (ts.isArrayLiteralExpression(node)) return make('RmtPrimitiveValue', node,
+        { kind: 'array', items: node.elements.map(child => primitiveExpression(child, depth + 1)) });
+      if (ts.isObjectLiteralExpression(node)) {
+        const seen = new Set();
+        return make('RmtPrimitiveValue', node, { kind: 'object', fields: node.properties.map(property => {
+          if (!ts.isPropertyAssignment(property)) fail('rmtx.expression.object', 'Only explicit fields are allowed in declarative projections.', property);
+          const key = propertyName(property.name);
+          if (seen.has(key)) fail('rmtx.literal.duplicate', `Duplicate object field ${key}.`, property);
+          seen.add(key);
+          return make('RmtObjectValueField', property, { key, value: primitiveExpression(property.initializer, depth + 1) });
+        }) });
+      }
+      return literal(node, depth);
+    }
+    function serializePrimitive(value) {
+      if (value.kind === 'literal') return JSON.stringify(value.value);
+      if (value.kind === 'path') return value.path.map(part => part.includes('$') ? '`' + part + '`' : part).join('.');
+      if (value.kind === 'array') return `[${value.items.map(serializePrimitive).join(',')}]`;
+      return `{${value.fields.map(field => `${JSON.stringify(field.key)} ${serializePrimitive(field.value)}`).join(' ')}}`;
+    }
+    function projection(node, depth = 0) {
+      node = unparen(node);
+      if (depth > profile.limits.expressionDepth) fail('rmtx.source.limit', 'Props projection exceeds the expression depth limit.', node);
+      if (ts.isPropertyAccessExpression(node) || ts.isIdentifier(node) && bindings.has(node.text)) {
+        const source = scopedPath(node, ['model', 'selectors', 'item'], true);
+        return { kind: 'unresolved-path', binding: source.binding, path: source.path, node };
+      }
+      if (ts.isArrayLiteralExpression(node)) return { kind: 'array', items: node.elements.map(child => projection(child, depth + 1)) };
+      if (ts.isObjectLiteralExpression(node)) {
+        const fields = {}, seen = new Set();
+        for (const property of node.properties) {
+          if (!ts.isPropertyAssignment(property)) fail('rmtx.props.object', 'Props require explicit fields; spread, accessors and methods are forbidden.', property);
+          const key = propertyName(property.name);
+          if (seen.has(key)) fail('rmtx.literal.duplicate', `Duplicate object field ${key}.`, property);
+          seen.add(key); fields[key] = projection(property.initializer, depth + 1);
+        }
+        return { kind: 'object', fields };
+      }
+      if (ts.isConditionalExpression(node)) return { kind: 'conditional', test: projection(node.condition, depth + 1),
+        then: projection(node.whenTrue, depth + 1), else: projection(node.whenFalse, depth + 1) };
+      if (ts.isPrefixUnaryExpression(node)) {
+        const op = new Map([[ts.SyntaxKind.ExclamationToken, '!'], [ts.SyntaxKind.MinusToken, '-'], [ts.SyntaxKind.PlusToken, '+']]).get(node.operator);
+        if (op) return { kind: 'unary', op, value: projection(node.operand, depth + 1) };
+      }
+      if (ts.isBinaryExpression(node)) {
+        const op = new Map([[ts.SyntaxKind.EqualsEqualsEqualsToken, '==='], [ts.SyntaxKind.ExclamationEqualsEqualsToken, '!=='],
+          [ts.SyntaxKind.LessThanToken, '<'], [ts.SyntaxKind.LessThanEqualsToken, '<='], [ts.SyntaxKind.GreaterThanToken, '>'], [ts.SyntaxKind.GreaterThanEqualsToken, '>='],
+          [ts.SyntaxKind.AmpersandAmpersandToken, '&&'], [ts.SyntaxKind.BarBarToken, '||'], [ts.SyntaxKind.PlusToken, '+'], [ts.SyntaxKind.MinusToken, '-'],
+          [ts.SyntaxKind.AsteriskToken, '*'], [ts.SyntaxKind.SlashToken, '/'], [ts.SyntaxKind.PercentToken, '%']]).get(node.operatorToken.kind);
+        if (op) return { kind: 'binary', op, left: projection(node.left, depth + 1), right: projection(node.right, depth + 1) };
+      }
+      const value = literal(node);
+      if (value.kind !== 'literal') fail('rmtx.props.expression', 'Unsupported props projection.', node);
+      return { kind: 'literal', value: value.value };
     }
     function expressionField(fields, key) {
       const field = fields[key];
@@ -171,40 +248,41 @@ function parseRmtxSource(input = {}, options = {}) {
         fail('rmtx.expression.required', `${key} requires an explicit declarative expression.`, field);
       return field.initializer.expression;
     }
-    function scalarExpression(node, depth) {
+    function scalarExpression(node, depth, condition = false) {
       if (depth > profile.limits.expressionDepth) fail('rmtx.source.limit', 'Predicate nesting exceeds the expression limit.', node);
-      if (ts.isParenthesizedExpression(node)) return scalarExpression(node.expression, depth + 1);
+      if (ts.isParenthesizedExpression(node)) return scalarExpression(node.expression, depth + 1, condition);
       if (ts.isIdentifier(node) || ts.isPropertyAccessExpression(node)) {
-        const { path } = scopedPath(node, ['model', 'selectors', 'item', 'params'], true);
-        return make('RmtSelectorExpression', node, { kind: 'path', path, value: path.join('.') });
+        const { path } = scopedPath(node, condition ? ['model'] : ['model', 'selectors', 'item', 'params'], !condition);
+        if (condition) conditionReads.push({ path, node });
+        return make(condition ? 'RmtConditionExpression' : 'RmtSelectorExpression', node, { kind: 'path', path, value: path.join('.') });
       }
       const value = literal(node);
       if (value.kind !== 'literal') fail('rmtx.predicate.scalar', 'Comparisons and contains require scalar literals or direct paths.', node);
       return make('RmtConditionExpression', node, { kind: 'literal', value: value.value });
     }
-    function predicate(node, depth = 0) {
+    function predicate(node, depth = 0, condition = false) {
       if (depth > profile.limits.expressionDepth) fail('rmtx.source.limit', 'Predicate nesting exceeds the expression limit.', node);
       if (ts.isParenthesizedExpression(node)) return make('RmtConditionExpression', node,
-        { kind: 'group', expression: predicate(node.expression, depth + 1) });
+        { kind: 'group', expression: predicate(node.expression, depth + 1, condition) });
       if ([ts.SyntaxKind.TrueKeyword, ts.SyntaxKind.FalseKeyword].includes(node.kind))
         return make('RmtConditionExpression', node, { kind: 'literal', value: node.kind === ts.SyntaxKind.TrueKeyword });
       if (ts.isPrefixUnaryExpression(node) && node.operator === ts.SyntaxKind.ExclamationToken) {
         if (!ts.isParenthesizedExpression(node.operand)) fail('rmtx.predicate.negation', 'Use !(predicate) with explicit parentheses; Classic and JavaScript negation precedence differ.', node);
-        return make('RmtConditionExpression', node, { kind: 'unary', op: '!', argument: predicate(node.operand, depth + 1) });
+        return make('RmtConditionExpression', node, { kind: 'unary', op: '!', argument: predicate(node.operand, depth + 1, condition) });
       }
       if (ts.isBinaryExpression(node)) {
         const op = node.operatorToken.kind;
         if ([ts.SyntaxKind.AmpersandAmpersandToken, ts.SyntaxKind.BarBarToken].includes(op)) return make('RmtConditionExpression', node,
           { kind: 'logical', op: op === ts.SyntaxKind.AmpersandAmpersandToken ? '&&' : '||',
-            left: predicate(node.left, depth + 1), right: predicate(node.right, depth + 1) });
+            left: predicate(node.left, depth + 1, condition), right: predicate(node.right, depth + 1, condition) });
         const operators = new Map([[ts.SyntaxKind.EqualsEqualsEqualsToken, '=='], [ts.SyntaxKind.ExclamationEqualsEqualsToken, '!='],
           [ts.SyntaxKind.LessThanToken, '<'], [ts.SyntaxKind.LessThanEqualsToken, '<='], [ts.SyntaxKind.GreaterThanToken, '>'], [ts.SyntaxKind.GreaterThanEqualsToken, '>=']]);
         if (operators.has(op)) return make('RmtConditionExpression', node, { kind: 'binary', op: operators.get(op),
-          left: scalarExpression(node.left, depth + 1), right: scalarExpression(node.right, depth + 1) });
+          left: scalarExpression(node.left, depth + 1, condition), right: scalarExpression(node.right, depth + 1, condition) });
         if ([ts.SyntaxKind.EqualsEqualsToken, ts.SyntaxKind.ExclamationEqualsToken].includes(op))
           fail('rmtx.predicate.equality', 'Use === or !==; the underlying RMT comparison is strict.', node.operatorToken);
       }
-      if (ts.isCallExpression(node) && !node.questionDotToken && !node.typeArguments?.length && ts.isIdentifier(node.expression)
+      if (!condition && ts.isCallExpression(node) && !node.questionDotToken && !node.typeArguments?.length && ts.isIdentifier(node.expression)
         && bindings.get(node.expression.text) === 'contains' && node.arguments.length === 2) {
         return make('RmtSelectorExpression', node, { kind: 'call', name: 'contains', args: node.arguments.map(arg => scalarExpression(arg, depth + 1)) });
       }
@@ -214,6 +292,8 @@ function parseRmtxSource(input = {}, options = {}) {
       const field = fields.value;
       if (!field) fail('rmtx.attribute.required', 'Missing required attribute value.', current);
       const expression = field.initializer;
+      if (extended && expression && ts.isJsxExpression(expression) && expression.expression)
+        return serializePrimitive(primitiveExpression(expression.expression));
       if (expression && ts.isJsxExpression(expression) && expression.expression) {
         const node = unparen(expression.expression);
         if (ts.isIdentifier(node) || ts.isPropertyAccessExpression(node)) return selectedVersion === '1.0.0' ? pathReference(node)
@@ -240,7 +320,7 @@ function parseRmtxSource(input = {}, options = {}) {
     }
     if (!program) fail('rmtx.program.required', 'Expected one default RMT.Program export.', file);
     let current = program;
-    function element(node, expected, depth = 0) {
+    function element(node, expected, depth = 0, scopeStack = [], surfaceTarget = null) {
       current = node;
       if (depth > profile.limits.operatorDepth) fail('rmtx.source.limit', 'Operator nesting exceeds 64 levels.', node);
       if (!ts.isJsxElement(node) && !ts.isJsxSelfClosingElement(node)) fail('rmtx.child.unsupported', 'Expected a declarative RMT operator element.', node);
@@ -260,9 +340,15 @@ function parseRmtxSource(input = {}, options = {}) {
         if (ts.isJsxExpression(child) && !child.expression && !child.dotDotDotToken) return false;
         return true;
       }) : [];
-      const lowerChildren = () => children.map(child => element(child, profile.operators[op].children, depth + 1));
+      const lowerChildren = (scopes = scopeStack, target = surfaceTarget) => children.flatMap(child => element(child, profile.operators[op].children, depth + 1, scopes, target));
       const leaf = () => { if (children.length) fail('rmtx.child.unsupported', `${op} cannot have children.`, children[0]); };
       let fields = attrs(opening, Object.keys(profile.operators[op].attributes));
+      if (extended) {
+        const lowered = require('./rmtx-extended-operators').lowerExtendedOperator(op,
+          { ts, file, make, fail, identifier, attrs, value, text, expressionField, scopedPath, predicate, literal,
+            primitiveExpression, serializePrimitive, lowerChildren, leaf, fields, node, op, scopeStack, surfaceTarget });
+        if (lowered !== undefined) return lowered;
+      }
       switch (op) {
         case 'Program':
           return make('RmtTemplateDeclaration', node, { name: text(fields, 'id', true, true),
@@ -276,10 +362,30 @@ function parseRmtxSource(input = {}, options = {}) {
         }
         case 'Action':
           return make('RmtActionDeclaration', node, { name: text(fields, 'id', true, true), body: lowerChildren() });
-        case 'Input':
-          leaf();
-          return make('RmtActionInputClause', node, { name: text(fields, 'name', true, true),
-            dataType: make('RmtTypeReference', fields.type || node, { value: text(fields, 'type', true) }), policy: null });
+        case 'Input': {
+          if (!extended) leaf();
+          const name = text(fields, 'name', true, true), type = text(fields, 'type', true);
+          const policy = extended ? lowerChildren() : [];
+          if (policy.length > 1) fail('rmtx.input.policy', 'An Input accepts at most one InputPolicy.', node);
+          const rule = { name, type };
+          if (extended) {
+            for (const key of ['optional', 'nullable']) if (fields[key]) {
+              const flag = value(fields, key);
+              if (flag.kind !== 'literal' || typeof flag.value !== 'boolean') fail('rmtx.input.rule', `${key} requires a boolean literal.`, fields[key]);
+              rule[key] = flag.value;
+            }
+            if (fields.default) {
+              const json = value(fields, 'default');
+              const decodeValue = v => v.kind === 'literal' ? v.value : v.kind === 'array' ? v.items.map(decodeValue)
+                : Object.fromEntries(v.fields.map(field => [field.key, decodeValue(field.value)]));
+              rule.default = decodeValue(json);
+            }
+          }
+          const lowered = make('RmtActionInputClause', node, { name,
+            dataType: make('RmtTypeReference', fields.type || node, { value: type }), policy: policy[0] || null });
+          if (extended) inputRules.set(lowered, rule);
+          return lowered;
+        }
         case 'Reduce': {
           leaf();
           const target = 'state.' + text(fields, 'state', true, true) + (fields.path ? '.' + text(fields, 'path', true, true) : '');
@@ -291,13 +397,31 @@ function parseRmtxSource(input = {}, options = {}) {
             make('RmtPrimitiveAttribute', fields[key], { keyword: key, value: make('RmtPrimitiveValue', fields[key], { kind: 'literal', value: text(fields, key, true) }) })) });
         case 'Surface': {
           const name = text(fields, 'id', true, true);
+          if (scopeStack.length || fields.present) {
+            const presenceNode = fields.present ? expressionField(fields, 'present') : null;
+            const presence = presenceNode ? scopedPath(presenceNode, scopeStack.length ? ['model', 'item'] : ['model']) : null;
+            scopeDeclarations.push({ surface: name, repeats: scopeStack,
+              presence: presence && { ...presence, node: presenceNode }, range: range(node) });
+          }
           const metadata = ['kind', 'component'].filter(key => fields[key]).map(key => make('RmtSurfaceHeaderClause', fields[key],
             { keyword: key, value: make('RmtPrimitiveValue', fields[key], { kind: 'literal', value: text(fields, key, true) }) }));
           const body = fields.portal ? [make('RmtSurfacePortalClause', fields.portal, { keyword: 'portal', path: text(fields, 'portal', true, true) })] : [];
-          return make('RmtSurfaceDeclaration', node, { name, metadata, body: body.concat(lowerChildren()) });
+          const lowered = lowerChildren(scopeStack, name);
+          if (extended && componentDeclarations.some(entry => entry.surface === name)) {
+            if (lowered.some(child => ['RmtEventBinding', 'RmtLaneDeclaration'].includes(child.type)))
+              fail('rmtx.component.host', 'An inline XTension owns its host lifecycle and provider-intent boundary.', node);
+            const declaration = componentDeclarations.find(entry => entry.surface === name);
+            lowered.push(make('RmtLaneDeclaration', node, { name: declaration.lane, weight: null, body: [
+              make('RmtLifecycleStatement', node, { op: 'mount', target: identifier(name, node), source: null, condition: null, policy: null })
+            ] }));
+          }
+          if ((scopeStack.length || fields.present) && lowered.some(child => child.type === 'RmtEventBinding'))
+            fail('rmtx.host-scope.native-event', 'Scoped XTension hosts use validated provider intents; native On bindings belong on ordinary owner surfaces.', node);
+          return make('RmtSurfaceDeclaration', node, { name, metadata, body: body.concat(lowered) });
         }
         case 'Lane':
-          return make('RmtLaneDeclaration', node, { name: text(fields, 'name', true, true), weight: null, body: lowerChildren() });
+          return make('RmtLaneDeclaration', node, { name: text(fields, 'name', true, true),
+            weight: extended && fields.weight ? value(fields, 'weight').value : null, body: lowerChildren() });
         case 'Mount':
           leaf();
           return make('RmtLifecycleStatement', node, { op: 'mount', target: identifier(text(fields, 'target', true, true), fields.target), source: null, condition: null, policy: null });
@@ -322,11 +446,130 @@ function parseRmtxSource(input = {}, options = {}) {
         }
         case 'Output':
           leaf(); return make('RmtSelectorOutputClause', node, { dataType: make('RmtTypeReference', fields.type || node, { value: text(fields, 'type', true) }) });
+        case 'Repeat': {
+          const fromNode = expressionField(fields, 'from');
+          const source = scopedPath(fromNode, scopeStack.length ? ['item'] : ['model']);
+          const keyNode = expressionField(fields, 'keyBy');
+          const key = scopedPath(keyNode, ['item']).path.slice(1);
+          if (!children.length) fail('rmtx.repeat.empty', 'A host Repeat requires Surface declarations or nested Repeat scopes.', node);
+          return lowerChildren([...scopeStack, { source, key, node: fromNode }]);
+        }
+        case 'On': {
+          leaf();
+          const event = text(fields, 'event', true, true), action = text(fields, 'action', true, true);
+          const payload = value(fields, 'payload', true);
+          if (payload.kind !== 'object' || !extended && !payload.fields.length)
+            fail('rmtx.event.payload', 'On requires a nonempty static payload map from Action fields to detail/target paths.', fields.payload);
+          const mappings = payload.fields.map(field => {
+            const path = field.value;
+            if (!/^[A-Za-z_$][\w$-]*$/u.test(field.key) || path.kind !== 'literal' || typeof path.value !== 'string'
+                || !/^(?:detail|target)(?:\.[A-Za-z_$][\w$-]*)+$/u.test(path.value))
+              fail('rmtx.event.payload', 'Payload values must be explicit direct detail/target path strings.', fields.payload);
+            field.key.split('.').forEach(part => safe(part, fields.payload));
+            path.value.split('.').forEach(part => safe(part, fields.payload));
+            return make('RmtEventPayloadMapping', fields.payload, { name: field.key, source: path.value });
+          });
+          eventDeclarations.push({ action, fields: mappings.map(mapping => mapping.name), node: fields.payload, actionNode: fields.action });
+          if (extended && fields.preventDefault) {
+            const option = value(fields, 'preventDefault');
+            if (option.kind !== 'literal' || typeof option.value !== 'boolean') fail('rmtx.event.option', 'preventDefault requires a boolean literal.', fields.preventDefault);
+            mappings.push(make('RmtEventOptionClause', fields.preventDefault, { keyword: 'preventDefault', value: option }));
+          }
+          return make('RmtEventBinding', node, { event, action,
+            selector: make('RmtEventSelector', node, { value: `[data-rmt-surface="${surfaceTarget}"]` }), target: null,
+            condition: fields.when ? make('RmtConditionClause', fields.when,
+              { expression: predicate(expressionField(fields, 'when'), 0, true) }) : null,
+            policy: make('RmtEventPayloadBlock', fields.payload, { body: mappings }) });
+        }
+        case 'XTension': {
+          leaf();
+          if (!surfaceTarget || componentDeclarations.some(entry => entry.surface === surfaceTarget))
+            fail('rmtx.component.host', 'An XTension requires its own Surface with exactly one provider declaration.', node);
+          const props = fields.props ? projection(expressionField(fields, 'props')) : { kind: 'object', fields: {} };
+          if (props.kind !== 'object') fail('rmtx.component.props', 'XTension props require an explicit object projection.', fields.props || node);
+          const decodeValue = v => v.kind === 'literal' ? v.value : v.kind === 'array' ? v.items.map(decodeValue)
+            : Object.fromEntries(v.fields.map(field => [field.key, decodeValue(field.value)]));
+          const intents = fields.intents ? decodeValue(value(fields, 'intents')) : {};
+          if (!intents || Array.isArray(intents) || typeof intents !== 'object') fail('rmtx.component.intents', 'Intents require an explicit static object.', fields.intents || node);
+          componentDeclarations.push({ declarationId: text(fields, 'id', true, true), surface: surfaceTarget,
+            providerId: text(fields, 'provider', true), ownerSurface: text(fields, 'owner', true, true),
+            lane: text(fields, 'lane', true, true), props: props.fields, intents, range: range(node) });
+          return [];
+        }
         default: throw new Error('Unreachable RMTX operator.');
       }
     }
     const template = element(program, ['Program']);
-    const ast = make('RmtVNextDocument', program, { schema: 'xtend.rmt.vnext.ast.v1', body: [template] });
+    const documentDeclarations = extended ? template.body.filter(child => child.type === 'RmtRemoteSurfaceDeclaration') : [];
+    if (extended) template.body = template.body.filter(child => child.type !== 'RmtRemoteSurfaceDeclaration');
+    const ast = make('RmtVNextDocument', program, { schema: 'xtend.rmt.vnext.ast.v1', body: [template, ...documentDeclarations] });
+    if (selectedVersion === '3.0.0' || extended) {
+      const states = template.body.filter(node => node.type === 'RmtStateDeclaration').map(node => node.name)
+        .sort((left, right) => right.length - left.length);
+      function modelPath(path, node) {
+        const reference = path.slice(1).join('.');
+        const state = states.find(id => reference === id || reference.startsWith(id + '.'));
+        if (!state) fail('rmtx.model.reference', `Unknown Model state in ${reference}.`, node);
+        const suffix = reference.slice(state.length);
+        return { state, path: suffix ? suffix.slice(1).split('.') : [] };
+      }
+      conditionReads.forEach(read => modelPath(read.path, read.node));
+      const actions = new Map(template.body.filter(node => node.type === 'RmtActionDeclaration').map(node => [node.name, node]));
+      if (extended) actionInputRules = { schema: 'xtend.rmtx.action-input-rules.v1', sourceProfile,
+        actions: [...actions.values()].map(action => ({ id: action.name,
+          inputs: action.body.filter(child => child.type === 'RmtActionInputClause').map(child => inputRules.get(child)) })) };
+      for (const declaration of eventDeclarations) {
+        const action = actions.get(declaration.action);
+        if (!action) fail('rmtx.action.reference', `Unknown Action ${declaration.action}.`, declaration.actionNode);
+        const inputs = action.body.filter(node => node.type === 'RmtActionInputClause').map(node => node.name);
+        const required = extended ? action.body.filter(child => child.type === 'RmtActionInputClause'
+          && !inputRules.get(child).optional && !own(inputRules.get(child), 'default')).map(child => child.name) : inputs;
+        if ((!extended && inputs.length !== declaration.fields.length) || declaration.fields.some(name => !inputs.includes(name)) || required.some(name => !declaration.fields.includes(name)))
+          fail('rmtx.event.payload.inputs', 'On payload fields must exactly match the declared Action inputs.', declaration.node);
+      }
+      hostScopes = { schema: extended ? RMTX_HOST_SCOPES_SCHEMA_V2 : RMTX_HOST_SCOPES_SCHEMA, sourceProfile,
+        hosts: scopeDeclarations.map(declaration => {
+          const repeat = declaration.repeats.map((scope, index) => ({
+            ...(index === 0 ? modelPath(scope.source.path, scope.node) : { path: scope.source.path.slice(1) }), key: scope.key
+          }));
+          const presence = !declaration.presence ? null : declaration.presence.binding === 'model'
+            ? modelPath(declaration.presence.path, declaration.presence.node)
+            : { state: repeat[0].state,
+              path: [...repeat.flatMap((scope, index) => [...scope.path, { repeat: index }]), ...declaration.presence.path.slice(1)] };
+          return { surface: declaration.surface, ...(repeat.length ? { repeat } : {}), ...(presence ? { presence } : {}), range: declaration.range };
+        }) };
+      if (extended) {
+        const selectorNames = template.body.filter(node => node.type === 'RmtSelectorDeclaration').map(node => node.name).sort((a, b) => b.length - a.length);
+        const resolveProjection = (expression, host) => {
+          if (expression.kind === 'unresolved-path') {
+            if (expression.binding === 'model') return { kind: 'path', root: 'state', symbol: modelPath(expression.path, expression.node).state,
+              path: modelPath(expression.path, expression.node).path };
+            if (expression.binding === 'selectors') {
+              const reference = expression.path.slice(1).join('.'), symbol = selectorNames.find(id => reference === id || reference.startsWith(id + '.'));
+              if (!symbol) fail('rmtx.selector.reference', `Unknown Selector in ${reference}.`, expression.node);
+              return { kind: 'path', root: 'selector', symbol, path: reference === symbol ? [] : reference.slice(symbol.length + 1).split('.') };
+            }
+            if (!host.repeat?.length) fail('rmtx.component.item', 'item props require a source Repeat host.', expression.node);
+            return { kind: 'path', root: 'state', symbol: host.repeat[0].state,
+              path: [...host.repeat.flatMap((scope, index) => [...scope.path, { repeat: index }]), ...expression.path.slice(1)] };
+          }
+          if (expression.kind === 'object') return { kind: 'object', fields: Object.fromEntries(Object.entries(expression.fields).map(([key, child]) => [key, resolveProjection(child, host)])) };
+          if (expression.kind === 'array') return { kind: 'array', items: expression.items.map(child => resolveProjection(child, host)) };
+          if (expression.kind === 'conditional') return { kind: 'conditional', test: resolveProjection(expression.test, host), then: resolveProjection(expression.then, host), else: resolveProjection(expression.else, host) };
+          if (expression.kind === 'unary') return { kind: 'unary', op: expression.op, value: resolveProjection(expression.value, host) };
+          if (expression.kind === 'binary') return { kind: 'binary', op: expression.op, left: resolveProjection(expression.left, host), right: resolveProjection(expression.right, host) };
+          return expression;
+        };
+        components = { schema: RMTX_COMPONENTS_SCHEMA, sourceProfile, documentId: template.name,
+          hosts: componentDeclarations.map(declaration => {
+            const scope = hostScopes.hosts.find(host => host.surface === declaration.surface) || {};
+            return { ...declaration, ...(scope.repeat ? { repeat: scope.repeat } : {}), ...(scope.presence ? { presence: scope.presence } : {}),
+              props: Object.fromEntries(Object.entries(declaration.props).map(([key, expression]) => [key, resolveProjection(expression, scope)])) };
+          }) };
+        for (const scope of hostScopes.hosts) if (!components.hosts.some(host => host.surface === scope.surface))
+          fail('rmtx.component.host', 'Source4 Repeat/present requires an inline XTension in each scoped Surface.', program);
+      }
+    }
     function pointers(value, pointer = '') {
       if (!value || typeof value !== 'object') return;
       if (value.type) value.astPointer = pointer || '/';
@@ -345,5 +588,7 @@ function parseRmtxSource(input = {}, options = {}) {
   }
 }
 
-module.exports = { RMTX_PARSER_API_VERSION, RMTX_PARSER_SCHEMA, RMTX_PARSER_SCHEMA_V2, RMTX_SYNTAX_VERSION,
-  RMTX_SOURCE_PROFILE, RMTX_SELECTOR_SOURCE_PROFILE, RMTX_OPERATOR_PROFILE_SCHEMA, getRmtxOperatorProfile, parseRmtxSource };
+module.exports = { RMTX_PARSER_API_VERSION, RMTX_PARSER_SCHEMA, RMTX_PARSER_SCHEMA_V2, RMTX_PARSER_SCHEMA_V3, RMTX_PARSER_SCHEMA_V4,
+  RMTX_HOST_SCOPES_SCHEMA, RMTX_HOST_SCOPES_SCHEMA_V2, RMTX_COMPONENTS_SCHEMA, RMTX_SYNTAX_VERSION,
+  RMTX_SOURCE_PROFILE, RMTX_SELECTOR_SOURCE_PROFILE, RMTX_KEYED_SOURCE_PROFILE, RMTX_ORCHESTRATION_SOURCE_PROFILE,
+  RMTX_OPERATOR_PROFILE_SCHEMA, RMTX_OPERATOR_PROFILE_SCHEMA_V2, RMTX_OPERATOR_PROFILE_SCHEMA_V3, getRmtxOperatorProfile, parseRmtxSource };

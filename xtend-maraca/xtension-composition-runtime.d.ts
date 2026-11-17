@@ -4,7 +4,7 @@ import type {
 } from '@ccslabs/xtend-compiler/xtensions/react-runtime-adapter';
 import type { XTensionBindingHostContext, XTensionStateBindingArtifact } from '@ccslabs/xtend-compiler/xtensions/state-binding';
 import type { MaracaBuildPlan } from './index';
-export const XTENSION_COMPOSITION_API_VERSION: '9.0.0';
+export const XTENSION_COMPOSITION_API_VERSION: '10.0.0';
 export type XTensionCompositionProvider = {
   readonly id: string;
   readonly version: string;
@@ -265,7 +265,7 @@ export type ScopedComponentHostContext = ComponentXTensionHostContext & {readonl
 export interface ScopedComponentHostOptions extends Omit<ComponentXTensionHostCompositionOptions,'artifact'|'plan'> {
   readonly artifact:ScopedComponentArtifact;
   readonly plan:Omit<import('./index').MaracaScopedComponentBuildPlan,'xtensionComposition'> & {readonly xtensionComposition:ScopedComponentManifest|ScopedComponentArtifact};
-  resolveHostBinding(address:XTensionBindingHostContext['identity']['address']): ReturnType<XTensionCompositionBindingRuntime['materializeStateBindingArtifact']>[number]|undefined;
+  resolveHostBinding(address:XTensionBindingHostContext['identity']['address']): import('@ccslabs/xtend-compiler/xtensions/state-binding').XTensionMaterializedBinding|undefined;
 }
 export interface ScopedComponentPorts extends Omit<ParametersOfLegacyPort,'plan'> {readonly plan:ScopedComponentHostOptions['plan']; resolveHostBinding:ScopedComponentHostOptions['resolveHostBinding'] }
 type ParametersOfLegacyPort=Parameters<MaracaXTensionCompositionPort['bind']>[0];
@@ -294,3 +294,42 @@ export function createMaracaXTensionCompositionPort(options:ScopedComponentPortO
 
 export interface ScopedComponentSSRHostOptions extends Omit<ScopedComponentHostOptions,'ssrSession'> {readonly ssrSession:MaracaScopedSSRSession}
 export function createMaracaXTensionHostFactory(options:ScopedComponentSSRHostOptions):(context:ScopedComponentHostContext)=>import('@ccslabs/xtend-compiler/xtensions/react-runtime-adapter').SSRRuntimeHostController;
+
+export interface ProjectionComponentManifest extends Omit<ScopedComponentManifest, 'schema' | 'hosts'> {
+  readonly schema: 'xtend.maraca.xtension-composition-manifest.v8';
+  readonly hosts: readonly {
+    readonly declarationId: string; readonly providerId: string; readonly ownerSurface: string; readonly targetSurface: string;
+    readonly capabilityRequirements: HostCapabilityRequirements; readonly interfaceVersion: string; readonly interfaceSha256: string;
+    readonly intents: Readonly<Record<string, { readonly command: string; readonly payloadSchema: string; readonly payload: Readonly<Record<string, readonly string[]>>; readonly keyFields?: Readonly<Record<string, { readonly index: number; readonly type: 'string' | 'number' | 'json' }>> }>>;
+  }[];
+}
+export interface ProjectionComponentArtifact extends Omit<ScopedComponentArtifact, 'schema' | 'apiVersion' | 'plan' | 'manifest' | 'componentInterfaces'> {
+  readonly schema: 'xtend.maraca.xtension-composition-artifact.v9'; readonly apiVersion: '9.0.0'; readonly manifest: ProjectionComponentManifest;
+  readonly plan: { readonly schema: 'xtend.maraca.build-plan.v8'; readonly sourceHash: string; readonly program: unknown; readonly bindings: import('@ccslabs/xtend-compiler/xtensions/state-binding').XTensionProjectionStateBindingArtifact; readonly compositionManifest: ProjectionComponentManifest };
+  readonly componentInterfaces: readonly { readonly definition: import('@ccslabs/xtend-compiler/xtensions/component-interface').ComponentInterface | import('@ccslabs/xtend-compiler/xtensions/component-interface').ComponentInterfaceV2; readonly interfaceSha256: string; readonly moduleSha256: string; readonly fileName: string; readonly sourceBytes: number }[];
+}
+export interface ProjectionComponentBindingRuntime {
+  readonly XTENSION_STATE_BINDING_API_VERSION: '2.4.0'; readonly XTENSION_PROJECTION_STATE_BINDING_API_VERSION: '3.0.0';
+  validateStateBindingArtifact: typeof import('@ccslabs/xtend-compiler/xtensions/state-binding').validateStateBindingArtifact;
+  materializeStateBindingArtifact: typeof import('@ccslabs/xtend-compiler/xtensions/state-binding').materializeStateBindingArtifact;
+  createXTensionProjectionStateRegistry: typeof import('@ccslabs/xtend-compiler/xtensions/state-binding').createXTensionProjectionStateRegistry;
+}
+export interface ProjectionComponentHostOptions extends Omit<ScopedComponentHostOptions, 'artifact' | 'plan' | 'bindingsRuntime' | 'ssrSession' | 'resolveHostBinding'> {
+  readonly artifact: ProjectionComponentArtifact; readonly plan: import('./index').MaracaInlineComponentBuildPlan;
+  readonly bindingsRuntime: ProjectionComponentBindingRuntime; readonly ssrSession?: never;
+  resolveHostBinding(address: import('@ccslabs/xtend-compiler/xtensions/state-binding').XTensionInstanceAddress): { readonly surface: string; readonly hostSurface: string; readonly binding: import('@ccslabs/xtend-compiler/xtensions/state-binding').XTensionProjectionStateBinding } | null;
+}
+export interface ProjectionComponentPort {
+  readonly schema: 'xtend.maraca.xtension-composition-port.v6'; readonly bindingsRuntime: ProjectionComponentBindingRuntime;
+  bind(ports: { readonly plan: import('./index').MaracaInlineComponentBuildPlan; readonly [key: string]: unknown }): (context: ProjectionComponentHostContext) => NegotiatedRuntimeHostController;
+}
+export type ProjectionComponentPortOptions = Omit<ProjectionComponentHostOptions, 'artifact' | 'plan' | 'fabric' | 'kernelWork' | 'resourceGraph' | 'loadProviders' | 'resolveHostBinding'> & {
+  readonly plan: import('./index').MaracaInlineComponentBuildPlan & { readonly xtensionComposition: ProjectionComponentArtifact };
+  readonly companion: { readonly artifact: ProjectionComponentArtifact; createHostFactory(ports: Readonly<Record<string, unknown>>): ReturnType<typeof createMaracaXTensionHostFactory> };
+  readonly ssr?: never;
+};
+export function createMaracaXTensionCompositionPort(options: ProjectionComponentPortOptions): ProjectionComponentPort;
+
+export type ProjectionComponentHostContext = Omit<ScopedComponentHostContext, 'binding'> & { readonly binding: import('@ccslabs/xtend-compiler/xtensions/state-binding').XTensionProjectionStateBinding };
+export function createMaracaXTensionHostFactory(options: ProjectionComponentHostOptions): (context: ProjectionComponentHostContext) => NegotiatedRuntimeHostController;
+export function createMaracaXTensionCompositionPort(options: ProjectionComponentPortOptions & { readonly ssr?: never }): ProjectionComponentPort;

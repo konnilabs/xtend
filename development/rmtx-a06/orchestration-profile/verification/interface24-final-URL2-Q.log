@@ -1,0 +1,33 @@
+✔ provider interfaces produce immutable versioned catalog entries independent of call-site data (1352.51995ms)
+✔ catalog rejects unknown provider (0.436985ms)
+✔ catalog rejects wrong interface version (0.167302ms)
+✔ catalog rejects wrong interface hash (0.141772ms)
+✔ catalog rejects old component version (0.156272ms)
+✔ provider contract rejects added title attribute (0.280053ms)
+✔ provider contract rejects caller-defined prop type (0.174082ms)
+✔ provider contract rejects missing required prop (0.168512ms)
+✔ provider contract rejects unknown event (0.207442ms)
+✔ provider contract rejects caller-defined intent fields (0.273073ms)
+✔ provider contract rejects unknown mapped source (0.223723ms)
+✔ provider contract rejects duplicate mapped source (0.166422ms)
+✔ Vue payload mapping derives Action field types from provider fields (1.083831ms)
+✔ runtime prop guard rejects undeclared attributes and malformed nested values (0.245072ms)
+✔ interface rejects grants (0.182892ms)
+✔ interface rejects native children (0.148921ms)
+✔ interface rejects capability prop (0.183052ms)
+✔ interface rejects unbounded attributes (0.112521ms)
+✔ interface rejects peer/framework mismatch (0.100861ms)
+✔ interface rejects unknown value type (0.194212ms)
+✔ interface accessors are rejected without executing them (0.165301ms)
+✔ formal declaration and runtime validator identify the same closed v1 profile (0.534295ms)
+✔ generated provider map typechecks actual providers, actual TSX candidate and negative call-sites (625.574199ms)
+✔ archived case v1 cannot silently acquire interface v2 semantics (0.591666ms)
+✔ capture binds metadata and code bytes; post-capture source replacement cannot change a factory (2.952431ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2017.834097

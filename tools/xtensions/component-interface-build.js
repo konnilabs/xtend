@@ -5,7 +5,7 @@ const { data, fields, freeze } = require('./state-binding-contract');
 const { normalizeComponentInterface, createComponentInterfaceCatalog } = require('./component-interface');
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const captured = new WeakMap(), interfaceSources = new WeakMap();
-const COMPONENT_INTERFACE_BUILD_API_VERSION = '2.0.0';
+const COMPONENT_INTERFACE_BUILD_API_VERSION = '3.0.0';
 function readLocal(root, file) {
   if (typeof file !== 'string' || !/^\.\/(?:[a-zA-Z0-9_-]+\/)*[a-zA-Z0-9_.-]+\.(?:json|mjs|js)$/.test(file)) throw new TypeError('A canonical local component file is required.');
   const target = fs.realpathSync(path.resolve(root, file));
@@ -75,4 +75,25 @@ function capturedInterfaceFiles(capture) {
   if (!files) throw new TypeError('An actual component interface capture is required.');
   return files.map(({ file, bytes }) => ({ file, bytes: Buffer.from(bytes) }));
 }
-module.exports = { COMPONENT_INTERFACE_BUILD_API_VERSION, captureComponentInterfaces, capturedComponentPlugin, capturedInterfaceFiles };
+/** Synchronous pin capture for the sync compiler/build-plan boundary. No imports execute. */
+function captureComponentInterfaceMetadata({ rootDir, interfaces }) {
+  data(interfaces);
+  if (!Array.isArray(interfaces) || !interfaces.length || interfaces.length > 64) throw new TypeError('A bounded provider pin catalog is required.');
+  const root = fs.realpathSync(rootDir), seen = new Set(), records = [];
+  for (const pin of interfaces) {
+    fields(pin, ['file', 'sha256'], 'Provider interface pin');
+    const bytes = readLocal(root, pin.file);
+    if (bytes.length > 65536 || hash(bytes) !== pin.sha256) throw new TypeError('Provider interface pin mismatch.');
+    const definition = normalizeComponentInterface(JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes)));
+    if (seen.has(definition.providerId)) throw new TypeError('Duplicate provider catalog identity.');
+    seen.add(definition.providerId);
+    const code = readLocal(root, definition.entry.module);
+    if (hash(code) !== definition.entry.sha256) throw new TypeError('Provider module differs from its captured interface.');
+    records.push({ definition, interfaceSha256: pin.sha256, moduleSha256: definition.entry.sha256, file: pin.file });
+  }
+  return freeze({ schema: 'xtend.xtensions.component-interface-catalog.v1', apiVersion: '1.0.0', records,
+    providers: records.map(({ definition: value }) => ({ id: value.providerId, framework: value.framework, version: value.componentVersion,
+      entry: { module: value.entry.module, exportName: value.entry.exportName }, integrity: { sha256: value.entry.sha256 }, peers: value.peers })),
+    interfaces: records.map(row => ({ providerId: row.definition.providerId, file: row.file, sha256: row.interfaceSha256 })) });
+}
+module.exports = { COMPONENT_INTERFACE_BUILD_API_VERSION, captureComponentInterfaceMetadata, captureComponentInterfaces, capturedComponentPlugin, capturedInterfaceFiles };

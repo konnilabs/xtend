@@ -389,6 +389,9 @@ export interface MaracaPlanRuntimeOptions {
 
 export declare const PLAN_RUNTIME_SCHEMA: 'xtend.maraca.plan-runtime.v7';
 export declare const LEGACY_PLAN_RUNTIME_SCHEMA: 'xtend.maraca.plan-runtime.v3';
+export function createMaracaPlanRuntime(options: RmtxPlanRuntimeOptions | ProjectionComponentRuntimeOptions): RmtxPlanRuntime;
+export function bootMaracaPlan(options: RmtxPlanRuntimeOptions | ProjectionComponentRuntimeOptions): Promise<RmtxPlanRuntime>;
+
 export declare function createMaracaPlanRuntime(options: SSRComposedMaracaPlanRuntimeOptions): SSRComposedMaracaPlanRuntime;
 export declare function createMaracaPlanRuntime(options: ComposedMaracaPlanRuntimeOptions): ComposedMaracaPlanRuntime;
 export declare function createMaracaPlanRuntime(options: MaracaPlanRuntimeOptions): MaracaPlanRuntime;
@@ -396,7 +399,7 @@ export declare function bootMaracaPlan(options: SSRComposedMaracaPlanRuntimeOpti
 export declare function bootMaracaPlan(options: ComposedMaracaPlanRuntimeOptions): Promise<ComposedMaracaPlanRuntime>;
 export declare function bootMaracaPlan(options: MaracaPlanRuntimeOptions): Promise<MaracaPlanRuntime>;
 
-declare const api: Readonly<{ SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA:typeof SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA;COMPONENT_SSR_PLAN_RUNTIME_SCHEMA:typeof COMPONENT_SSR_PLAN_RUNTIME_SCHEMA;COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA: typeof COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA; SSR_XTENSION_PLAN_RUNTIME_SCHEMA: typeof SSR_XTENSION_PLAN_RUNTIME_SCHEMA; PLAN_RUNTIME_SCHEMA: typeof PLAN_RUNTIME_SCHEMA; XTENSION_PLAN_RUNTIME_SCHEMA: typeof XTENSION_PLAN_RUNTIME_SCHEMA; LEGACY_PLAN_RUNTIME_SCHEMA: typeof LEGACY_PLAN_RUNTIME_SCHEMA; createMaracaPlanRuntime: typeof createMaracaPlanRuntime; bootMaracaPlan: typeof bootMaracaPlan }>;
+declare const api: Readonly<{ RMTX_PLAN_RUNTIME_SCHEMA:typeof RMTX_PLAN_RUNTIME_SCHEMA;SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA:typeof SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA;COMPONENT_SSR_PLAN_RUNTIME_SCHEMA:typeof COMPONENT_SSR_PLAN_RUNTIME_SCHEMA;COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA: typeof COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA; SSR_XTENSION_PLAN_RUNTIME_SCHEMA: typeof SSR_XTENSION_PLAN_RUNTIME_SCHEMA; PLAN_RUNTIME_SCHEMA: typeof PLAN_RUNTIME_SCHEMA; XTENSION_PLAN_RUNTIME_SCHEMA: typeof XTENSION_PLAN_RUNTIME_SCHEMA; LEGACY_PLAN_RUNTIME_SCHEMA: typeof LEGACY_PLAN_RUNTIME_SCHEMA; createMaracaPlanRuntime: typeof createMaracaPlanRuntime; bootMaracaPlan: typeof bootMaracaPlan }>;
 export default api;
 
 /** Separate opt-in v8 contract; manual v7 options, runtime and snapshots remain intact. */
@@ -461,3 +464,25 @@ export function createMaracaPlanRuntime(options:ScopedComponentRuntimeOptions):S
 export function createMaracaPlanRuntime(options:ComponentSSRRuntimeOptions):ComponentSSRRuntime;
 export function bootMaracaPlan(options:ScopedComponentRuntimeOptions):Promise<ScopedComponentRuntime>;
 export function bootMaracaPlan(options:ComponentSSRRuntimeOptions):Promise<ComponentSSRRuntime>;
+
+/** Explicit source4 CSR runtime; typed Action ingress also applies without providers. */
+export const RMTX_PLAN_RUNTIME_SCHEMA: 'xtend.maraca.plan-runtime.v13';
+export interface RmtxPlanSnapshot extends Omit<MaracaPlanRuntimeSnapshot, 'schema'> { readonly schema: typeof RMTX_PLAN_RUNTIME_SCHEMA }
+export interface RmtxPlanRuntime extends Omit<MaracaPlanRuntime, 'schema' | 'boot' | 'snapshot' | 'subscribe' | 'restoreURLState' | 'publishURLState'> {
+  readonly schema: typeof RMTX_PLAN_RUNTIME_SCHEMA;
+  boot(): Promise<RmtxPlanSnapshot>;
+  snapshot(): RmtxPlanSnapshot;
+  subscribe(listener: (snapshot: RmtxPlanSnapshot) => void): () => void;
+  restoreURLState(token: string | null, lifetime: MaracaURLStateLifetime): Promise<Omit<MaracaURLRestoreResult, 'plan'> & { readonly plan?: URLState.RestorePlanV2 }>;
+  publishURLState(options: { cause?: URLState.HistoryProposalV2['cause']; currentToken: string | null; lifetime: MaracaURLStateLifetime; write(proposal: URLState.HistoryProposalV2): void }): Promise<{ status: 'published' | 'superseded'; mode?: URLState.HistoryProposalV2['mode'] }>;
+}
+export interface RmtxPlanRuntimeOptions extends Omit<MaracaPlanRuntimeOptions, 'plan' | 'createXTensionHost' | 'xtensionBindingsRuntime' | 'adoptExisting' | 'urlStatePolicy' | 'urlStateRuntime'> {
+  plan: import('./index').MaracaRmtxBuildPlan;
+  createXTensionHost?: never; xtensionBindingsRuntime?: never; adoptExisting?: false;
+  urlStatePolicy?: URLState.PolicyV2;
+  urlStateRuntime?: URLState.ProjectionURLStateRuntime;
+}
+export interface ProjectionComponentRuntimeOptions extends Omit<RmtxPlanRuntimeOptions, 'plan'> {
+  plan: Omit<import('./index').MaracaInlineComponentBuildPlan, 'xtensionComposition'> & { xtensionComposition: import('./xtension-composition-runtime').ProjectionComponentArtifact };
+  xtensionCompositionPort: import('./xtension-composition-runtime').ProjectionComponentPort;
+}

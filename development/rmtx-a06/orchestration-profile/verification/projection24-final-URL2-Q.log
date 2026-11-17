@@ -1,0 +1,19 @@
+✔ closed projections evaluate objects, arrays, typed arithmetic and boolean branches without JS coercion (2.562406ms)
+✔ static traversal sees all branches while evaluation retains boolean short circuit (0.256793ms)
+✔ projection inputs reject executable, unsafe and unbounded declarations without evaluating accessors (0.739938ms)
+✔ provider-owned optional/default props apply only to omitted source fields (2.291224ms)
+✔ legacy interface data remains exact and does not admit optional/default fields (0.766758ms)
+✔ provider payloads are fully typed before safe nested projection and renaming (2.331534ms)
+✔ the existing materializer resolves typed keys inside projection paths and enforces orchestration versions (2.532066ms)
+✔ selector value validation uses the actual runtime snapshot rather than an invented compile-time evaluator (0.742158ms)
+✔ projection bindings require their explicit registry while legacy registries retain their data version (0.600737ms)
+✔ provider intent rules respect required, optional/default and nested typed-array Action inputs (2.379045ms)
+✔ formal provider interface v2 advertises optional/default data while v1 remains closed (0.848399ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 22.771318

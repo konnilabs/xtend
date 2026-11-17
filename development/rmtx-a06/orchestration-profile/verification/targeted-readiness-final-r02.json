@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-17",
+  "passed": true,
+  "node": "v24.22.2",
+  "inspectors": {
+    "actualWrites": 25,
+    "receipt": {
+      "path": "/tmp/xtend-rmtx-a0633/regeneration/inspector-regeneration-07-final.json",
+      "sha256": "ca720e3bbe629d6c93cb0394a1e08aa8af5f0093e9fc9d84a9926b763afcc97a"
+    },
+    "staticEvidence": {
+      "path": "/home/konni/Downloads/xtend-dev/xtend/development/rmtx-a06/orchestration-profile/evidence.json",
+      "sha256": "bf5c610858f221eb16510ef834c9b69d139423d766ba44348856f9b3e40a6ec0"
+    },
+    "checks": 11,
+    "sourcePins": 133,
+    "allSourcePinsCurrent": true,
+    "checkPassBoundSeparatelyToRootFullPreparation": true,
+    "testOnlyMetadataRefreshActualWrites": 15,
+    "testOnlyMetadataRefreshReceipt": {
+      "path": "/tmp/xtend-rmtx-a0633/regeneration/inspector-regeneration-08-pin-refresh.json",
+      "sha256": "ff79cd021ed2da9997baca7139f900303094fed00d52260e5c7d8801e2e3670c"
+    },
+    "testOnlyMetadataRefreshTargets": {
+      "path": "/tmp/xtend-rmtx-a0633/regeneration/metadata-pin-refresh-targets-08.json",
+      "sha256": "1e29a9cc979c4097501c80c650753d53a1a78944634552757e6f8a6d5ece70f5"
+    }
+  },
+  "legacy": {
+    "completeCasesPerLane": 35,
+    "profiles": [
+      "1.0.0",
+      "2.0.0",
+      "3.0.0"
+    ],
+    "completeResultsCatalogsAndFactoriesEqual": true,
+    "receipts": [
+      {
+        "path": "/tmp/xtend-rmtx-a0633/legacy/recheck24-04-final.json",
+        "sha256": "be9bb92e2d2b559c490cc6d22567e136024de0d413517c12b35746e1a10b801a"
+      },
+      {
+        "path": "/tmp/xtend-rmtx-a0633/legacy/recheck26-04-final.json",
+        "sha256": "39c1a079736b2849c914a15daba341446373bfc42cf78577a7afff87a70ff763"
+      }
+    ]
+  },
+  "kit": {
+    "assertions": 286,
+    "sourcePins": 43,
+    "allSourcePinsCurrent": true,
+    "allGeneratedArtifactsByteEqual": true,
+    "receipt": {
+      "path": "/tmp/xtend-rmtx-a0633/kit-tests-final-r02.json",
+      "sha256": "8af7dc03f1396c699ef54879cefa439a4ef60cb33a7e2aaff6c7cec2b0f30178"
+    },
+    "freshnessReceipt": {
+      "path": "/tmp/xtend-rmtx-a0633/kit-freshness-01.json",
+      "sha256": "e7ea7251b6e66d29997d6ff17e72b0cfa66ff1faea7f4551d4bba3521ab35e7b"
+    }
+  },
+  "testRunner": {
+    "assertions": 45,
+    "receipt": {
+      "path": "/tmp/xtend-rmtx-a0633/test-runner-tests-final-r02.json",
+      "sha256": "dac511ef87a57f80af89a828635cb880126f90a9ad28c2af5e03ca06259cb1b4"
+    }
+  },
+  "mcp": {
+    "tests": 27,
+    "failures": 0,
+    "skips": 0,
+    "receipt": {
+      "path": "/tmp/xtend-rmtx-a0633/mcp-gate-report-final.json",
+      "sha256": "8e3ede43d4c13304967e9ea9e69ca0a76c9305f74c2a72f4b14b8ffd20f35c0e"
+    },
+    "actualLog": {
+      "path": "/tmp/xtend-rmtx-a0633/mcp-gates-final.log",
+      "sha256": "606fbf4048d92d1ed12bb7b9f015da7e0cc21a616729e6a50025ae880e22776a"
+    }
+  },
+  "knowledge": {
+    "documents": 356,
+    "references": 32,
+    "recipes": 6,
+    "receipt": {
+      "path": "/tmp/xtend-rmtx-a0633/knowledge-check-01.log",
+      "sha256": "fef4872a226226b5067829d4c5e5e179f67a364ed0f49642f67c1369aae3b367"
+    }
+  },
+  "docsQuality": {
+    "slugs": 178,
+    "markdownDocuments": 357,
+    "receipt": {
+      "path": "/tmp/xtend-rmtx-a0633/docs-quality-final.log",
+      "sha256": "9b266545e190c3e23ac052001c8d0fb512b09149df533089fc6cbf34108e6c40"
+    }
+  },
+  "searchFreshness": {
+    "node24": {
+      "path": "/tmp/xtend-rmtx-a0633/search-check24-01.log",
+      "sha256": "17f8d4547adc23ee405bb3a5da954c0400fe5ba4462bbd62d11167d7c7bce1ec"
+    },
+    "node26": {
+      "path": "/tmp/xtend-rmtx-a0633/search-check26-01.log",
+      "sha256": "17f8d4547adc23ee405bb3a5da954c0400fe5ba4462bbd62d11167d7c7bce1ec"
+    },
+    "germanCompactBytes": 24310,
+    "germanFulltextBytes": 149618,
+    "englishCompactBytes": 23010,
+    "englishFulltextBytes": 122177,
+    "compactBudgetBytes": 25600,
+    "fulltextBudgetBytes": 153600,
+    "budgetsChanged": false
+  },
+  "workspaceAliases": {
+    "receipt": {
+      "path": "/tmp/xtend-rmtx-a0633/workspace-aliases-created.json",
+      "sha256": "c7d09cc63393a20fe196850daca5355dfccbd6f2b9e39092f740109da5f7c1ce"
+    },
+    "created": 3,
+    "cleanupPendingExplicitRootSignal": true,
+    "stillPresentAndResolveToActualWorkspace": true
+  },
+  "fullPreparationNotClaimed": true,
+  "authorityRegistrationPendingGlobalFreeze": true,
+  "acceptedForRelease": false,
+  "historicalRuntimeAndExecutionReportsRewritten": false,
+  "supersedesReadinessReceipt": {
+    "path": "/tmp/xtend-rmtx-a0633/targeted-readiness-final.json",
+    "sha256": "f39ed677d3773494989c833e32c82a95a2940ac5157a55442b543dd4e97b5afc"
+  },
+  "refreshReason": "Four late test-only capability/future-version assertions were corrected. The 15 inspectors that directly pin these tests were actually rewritten in sequence. The shared 133 productive Source4 pins remain unchanged.",
+  "governanceFilesStillByteEqualToBaseline": true
+}

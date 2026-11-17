@@ -1,0 +1,210 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "xtend.rmt.action-input-contract.v1",
+  "title": "Closed profile4 Action input policy",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "xtend.rmt.action-input-contract.v1"
+    },
+    "apiVersion": {
+      "const": "1.0.0"
+    },
+    "sourceProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "syntax": {
+          "const": "rmtx"
+        },
+        "version": {
+          "const": "4.0.0"
+        }
+      },
+      "required": [
+        "syntax",
+        "version"
+      ]
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "fields": {
+            "type": "object",
+            "propertyNames": {
+              "pattern": "^(?!(__proto__|prototype|constructor)$)[A-Za-z_$][\\w$-]*$"
+            },
+            "additionalProperties": {
+              "$ref": "#/definitions/fieldRule"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "fields"
+        ]
+      }
+    }
+  },
+  "required": [
+    "schema",
+    "apiVersion",
+    "sourceProfile",
+    "actions"
+  ],
+  "definitions": {
+    "valueRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "string",
+            "number",
+            "boolean",
+            "object",
+            "array",
+            "json",
+            "null"
+          ]
+        },
+        "nullable": {
+          "type": "boolean"
+        },
+        "items": {
+          "$ref": "#/definitions/valueRule"
+        }
+      },
+      "required": [
+        "type",
+        "nullable"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "array"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "items"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "items"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "fieldRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "string",
+            "number",
+            "boolean",
+            "object",
+            "array",
+            "json",
+            "null"
+          ]
+        },
+        "nullable": {
+          "type": "boolean"
+        },
+        "items": {
+          "$ref": "#/definitions/valueRule"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "default": {
+          "$ref": "#/definitions/jsonValue"
+        }
+      },
+      "required": [
+        "type",
+        "nullable",
+        "required"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "array"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "items"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "items"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "default"
+            ]
+          },
+          "then": {
+            "properties": {
+              "required": {
+                "const": false
+              }
+            }
+          }
+        }
+      ]
+    },
+    "jsonValue": {
+      "anyOf": [
+        {
+          "type": [
+            "string",
+            "number",
+            "boolean",
+            "null"
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/jsonValue"
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/jsonValue"
+          }
+        }
+      ]
+    }
+  }
+}

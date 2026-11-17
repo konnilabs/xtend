@@ -1,0 +1,35 @@
+{
+  "nodePath": "/tmp/xtend-rmtx-a0633/consumer-build-tools/node_modules",
+  "tools": [
+    {
+      "name": "esbuild",
+      "version": "0.28.2",
+      "link": "/tmp/xtend-rmtx-a0633/consumer-build-tools/node_modules/esbuild",
+      "target": "/tmp/xtend-rmtx-a0632/peers/node_modules/esbuild",
+      "isSymlink": true
+    },
+    {
+      "name": "rollup",
+      "version": "4.60.4",
+      "link": "/tmp/xtend-rmtx-a0633/consumer-build-tools/node_modules/rollup",
+      "target": "/tmp/xtend-rmtx-a0632/peers/node_modules/rollup",
+      "isSymlink": true
+    },
+    {
+      "name": "terser",
+      "version": "5.48.0",
+      "link": "/tmp/xtend-rmtx-a0633/consumer-build-tools/node_modules/terser",
+      "target": "/tmp/xtend-rmtx-a0632/peers/node_modules/terser",
+      "isSymlink": true
+    },
+    {
+      "name": "typescript",
+      "version": "5.9.3",
+      "link": "/tmp/xtend-rmtx-a0633/consumer-build-tools/node_modules/typescript",
+      "target": "/tmp/xtend-rmtx-a0632/peers/node_modules/typescript",
+      "isSymlink": true
+    }
+  ],
+  "frameworkPackagesInNodePath": [],
+  "resolverPreloadUsed": false
+}

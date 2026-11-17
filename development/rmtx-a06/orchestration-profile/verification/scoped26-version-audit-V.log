@@ -1,0 +1,17 @@
+✔ v7 plan/config and v8 artifact preserve old static profile rejection of repeats (1428.974878ms)
+✔ provider rules validate every declaration even when the Model collection has no active hosts (4.051417ms)
+✔ shared materializer retains nested numeric/string address identity and rejects duplicate or absent keys (3.013554ms)
+✔ runtime refuses forged key scope before creating a framework host (9.944003ms)
+✔ runtime refuses wrong target before creating a framework host (8.319994ms)
+✔ runtime refuses absent address before creating a framework host (9.867322ms)
+✔ scoped SSR refuses v1 options and requires the independent interface runtime (1.525147ms)
+✔ scoped public build/runtime/SSR types remain discriminated from old wire formats (599.98907ms)
+✔ component SSR port v5 cannot omit its required v2 session (7.459925ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2079.508483

@@ -86,7 +86,7 @@
     },
     {
       "file": "tools/rmt-language/action-execution-lowering.js",
-      "sha256": "783f180c2253fc96f1e8853c808cd2c0fe243a2d014670118d76b24759b3e856"
+      "sha256": "661647a20aaadf2c1f2bdcfacbfbb2a5de992cc6069b56002e187f2b0e91948e"
     },
     {
       "file": "tools/rmt-language/classic-ast-contract.js",
@@ -102,11 +102,11 @@
     },
     {
       "file": "tools/rmt-language/classic-compiler.d.ts",
-      "sha256": "f0e6cdb00982be4b2b16e60446d59582b8918378dbd43dd9c4ee311d5004ec31"
+      "sha256": "fec9ee4e43fa0713346928adfc49da84c422ac9e0ead36582d9d4398c084c966"
     },
     {
       "file": "tools/rmt-language/classic-compiler.js",
-      "sha256": "5a402d5fb541cf82f16455e0c0a752ec50c4f69b60a42a36bfa036b870e7df08"
+      "sha256": "51b0a119706689b193ba01cc289e914a63be02d1757f7cef105c921e7ea8c572"
     },
     {
       "file": "tools/rmt-language/classic-parser.d.ts",
@@ -118,7 +118,7 @@
     },
     {
       "file": "tools/rmt-language/classic-semantic-rules.js",
-      "sha256": "113846c48ef5dc4d5ce0b29ddb7a01076e50d3fa86f80d84f1af5420fb593d81"
+      "sha256": "09e7a8706201958104fbebee8eea749d3f7b78de4b491eed0d0d79c2f4451549"
     },
     {
       "file": "tools/rmt-language/contracts/classic-ast.v1.schema.json",
@@ -130,15 +130,15 @@
     },
     {
       "file": "tools/rmt-language/semantic-graph.js",
-      "sha256": "e3706bcca6f8b5155b1292889b44767f177bdedb9dc73d5ddd98dea1e0b11762"
+      "sha256": "5ef6c052b44a4e94d05f08e0327517e5dc073d706bf023a4fef2f47a45d08e43"
     },
     {
       "file": "tools/rmt-language/vnext-compiler.d.ts",
-      "sha256": "2e1b741439a8f30b430f8e0e75690e8641977a01182ddf1be02d12aa6b2b826c"
+      "sha256": "9cbf008e0c43c811111d0cf8304630182161b8c8a0014f42955d5902f5582df8"
     },
     {
       "file": "tools/rmt-language/vnext-compiler.js",
-      "sha256": "3a2a09162285a13ff2198a7ece51c038157f5990dd030ace932f7c906659de31"
+      "sha256": "c3dce058c55a93a2d8520469285f21360141681679ca3869c55d5edfe5eb9888"
     },
     {
       "file": "tools/rmt-language/vnext-composition.js",
@@ -170,7 +170,7 @@
     },
     {
       "file": "xtend-maraca/plan-runtime.mjs",
-      "sha256": "0a4970152bddfa0c3b431e72e104b4ed1ae5756e381ea41e0b14c226d0f131a6"
+      "sha256": "6408411df107679f6a65a7f97f8ad8b8bb00fb078966e92b78f78b53b37b354d"
     },
     {
       "file": "xtendrmt/contracts/portable-render.v2.json",
@@ -182,11 +182,11 @@
     },
     {
       "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
-      "sha256": "ae7879152babd171a6e44035cb21e3753329b44aca530a2a80997c23eece1bb8"
+      "sha256": "c8ba766b9299370984f85cd51b3b8bc4ed1dca42b6f9bd70f5434fd4a6346e2e"
     },
     {
       "file": "xtendrmt/rmt-action-effect-runtime.js",
-      "sha256": "3798c901579959de2aec8e6cedf9f07ee969bfd00bf0cc3478c0ad8831c6bcaa"
+      "sha256": "455995d274cf2d12e92be4d1567b154769fc5369b4fb3f7b7886075b2839a4d9"
     },
     {
       "file": "xtendrmt/rmt-animation-engine-runtime.d.ts",
@@ -198,11 +198,11 @@
     },
     {
       "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
-      "sha256": "9ced058aafc45f43bcb9a2ddccc3016faadf1f50573b6cf930f881926fba231e"
+      "sha256": "0d86c676f7a9082a341b5d331eb3a4b59b55a01c9e8dccb84afc53ece5a878c1"
     },
     {
       "file": "xtendrmt/rmt-event-routing-runtime.js",
-      "sha256": "257b2f73fecc4d659f3c393b51dc7b2c940d196eee84caef67d29f3ec2e4448e"
+      "sha256": "7da9757eb83fcd4a74e2c54d09520f513aff9e8c76fbf14c55fca3ca61c79d1d"
     },
     {
       "file": "xtendrmt/rmt-form-validation-runtime.d.ts",
@@ -2217,119 +2217,126 @@
           "name": "RMT_VNEXT_CORE_SCHEMA",
           "value": "xtend.rmt.core-format.vnext.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 16,
+          "line": 17,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_VNEXT_COMPILER_SCHEMA",
           "value": "xtend.rmt.vnext-compiler.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 17,
+          "line": 18,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_VNEXT_COMPILER_REPORT_SCHEMA",
           "value": "xtend.rmt.vnext-compiler-report.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 19,
+          "line": 20,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_VNEXT_PRIMITIVE_LOWERING_SCHEMA",
           "value": "xtend.rmt.vnext.primitive-lowering.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 21,
+          "line": 22,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_APP_ORCHESTRATION_SCHEMA",
           "value": "xtend.rmt.app-orchestration.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 23,
+          "line": 24,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RMT_APP_ORCHESTRATION_SCHEMA_V2",
+          "value": "xtend.rmt.app-orchestration.v2",
+          "file": "tools/rmt-language/vnext-compiler.js",
+          "line": 25,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_APP_SERVICE_DEMANDS_SCHEMA",
           "value": "xtend.maraca.app-service-demands.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 25,
+          "line": 27,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_APP_SERVICE_INPUT_POLICY_SCHEMA",
           "value": "xtend.maraca.app-service-input-policy.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 26,
+          "line": 28,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_COMPONENT_COMMAND_SCHEMA",
           "value": "xtend.rmt.component-command.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 27,
+          "line": 29,
           "symbol": "<anonymous>"
         },
         {
           "name": "SANITIZING_BOUNDARY_CONTRACT",
           "value": "xtend.security.sanitizing-boundary.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 28,
+          "line": 30,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_FORM_VALIDATION_SCHEMA",
           "value": "xtend.rmt.form-validation.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 29,
+          "line": 31,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_SURFACE_TRANSITION_SCHEMA",
           "value": "xtend.rmt.surface-transitions.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 30,
+          "line": 32,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_ANIMATION_ENGINE_SCHEMA",
           "value": "xtend.rmt.animation-engine.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 31,
+          "line": 33,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_SEARCH_RUNTIME_SCHEMA",
           "value": "xtend.rmt.search-runtime.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 32,
+          "line": 34,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_KERNEL_RECORDS_SCHEMA",
           "value": "xtend.rmt.vnext.kernel-records.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 37,
+          "line": 39,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_APP_PLATFORM_RECORDS_SCHEMA",
           "value": "xtend.rmt.vnext.app-platform-records.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 38,
+          "line": 40,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_SERVER_RESUME_ENVELOPE_SCHEMA",
           "value": "xtend.rmt.ssr-resume-envelope.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 2601,
+          "line": 2603,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_RESUMABILITY_CAPABILITY_SCHEMA",
           "value": "xtend.rmt.app-resumability-capability.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 2602,
+          "line": 2604,
           "symbol": "<anonymous>"
         }
       ],
@@ -2341,7 +2348,7 @@
             "surface"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 40,
+          "line": 42,
           "symbol": "<anonymous>"
         },
         {
@@ -2352,7 +2359,7 @@
             "snapshot"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 41,
+          "line": 43,
           "symbol": "<anonymous>"
         },
         {
@@ -2368,7 +2375,7 @@
             "y"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 45,
+          "line": 47,
           "symbol": "<anonymous>"
         },
         {
@@ -2378,7 +2385,7 @@
             "responsive"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 46,
+          "line": 48,
           "symbol": "<anonymous>"
         },
         {
@@ -2388,7 +2395,7 @@
             "viewport"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 47,
+          "line": 49,
           "symbol": "<anonymous>"
         },
         {
@@ -2400,7 +2407,7 @@
             "min"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 48,
+          "line": 50,
           "symbol": "<anonymous>"
         },
         {
@@ -2419,7 +2426,7 @@
             "RmtValidationDeclaration"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 50,
+          "line": 52,
           "symbol": "<anonymous>"
         },
         {
@@ -2434,7 +2441,7 @@
             "RmtSurfaceSourceClause"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 63,
+          "line": 65,
           "symbol": "<anonymous>"
         },
         {
@@ -2451,7 +2458,7 @@
             "surface"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 72,
+          "line": 74,
           "symbol": "<anonymous>"
         },
         {
@@ -2488,7 +2495,7 @@
             "RmtValidationTargetClause"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 1367,
+          "line": 1369,
           "symbol": "sourceMapForOrchestration"
         },
         {
@@ -2517,7 +2524,7 @@
             "RmtValidationTargetClause"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 1402,
+          "line": 1404,
           "symbol": "sourceMapForKernel"
         },
         {
@@ -2528,7 +2535,7 @@
             "prototype"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 1819,
+          "line": 1821,
           "symbol": "<anonymous>"
         },
         {
@@ -2554,7 +2561,7 @@
             "worker_prerender_hydrate"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 2580,
+          "line": 2582,
           "symbol": "<anonymous>"
         },
         {
@@ -2566,7 +2573,7 @@
             "x-textarea"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 2994,
+          "line": 2996,
           "symbol": "<anonymous>"
         },
         {
@@ -2591,7 +2598,7 @@
             "zoom"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 2995,
+          "line": 2997,
           "symbol": "<anonymous>"
         },
         {
@@ -2602,7 +2609,7 @@
             "none"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 3015,
+          "line": 3017,
           "symbol": "<anonymous>"
         },
         {
@@ -2613,7 +2620,7 @@
             "replace"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 3016,
+          "line": 3018,
           "symbol": "<anonymous>"
         },
         {
@@ -2623,7 +2630,7 @@
             "transform"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 3017,
+          "line": 3019,
           "symbol": "<anonymous>"
         },
         {
@@ -2632,7 +2639,7 @@
             "filter"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 3018,
+          "line": 3020,
           "symbol": "<anonymous>"
         }
       ],
@@ -2658,7 +2665,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4385,
+          "line": 4403,
           "symbol": "compileImport"
         },
         {
@@ -2679,7 +2686,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4397,
+          "line": 4415,
           "symbol": "compileTemplate"
         },
         {
@@ -2713,7 +2720,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4481,
+          "line": 4499,
           "symbol": "compileSurface"
         },
         {
@@ -2744,7 +2751,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4551,
+          "line": 4569,
           "symbol": "compileSurfaceEvent"
         },
         {
@@ -2769,7 +2776,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4602,
+          "line": 4620,
           "symbol": "compilePrimitiveState"
         },
         {
@@ -2794,7 +2801,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4618,
+          "line": 4636,
           "symbol": "compilePrimitiveSelector"
         },
         {
@@ -2824,7 +2831,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4656,
+          "line": 4674,
           "symbol": "compilePrimitiveDataSource"
         },
         {
@@ -2854,7 +2861,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4719,
+          "line": 4737,
           "symbol": "compilePrimitiveAction"
         },
         {
@@ -2880,7 +2887,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4747,
+          "line": 4765,
           "symbol": "compilePrimitiveValidation"
         },
         {
@@ -2911,7 +2918,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4793,
+          "line": 4811,
           "symbol": "compilePrimitiveAnimation"
         },
         {
@@ -2948,7 +2955,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4848,
+          "line": 4866,
           "symbol": "compilePrimitiveTransition"
         },
         {
@@ -2975,7 +2982,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4861,
+          "line": 4879,
           "symbol": "compilePrimitiveEffect"
         },
         {
@@ -3001,7 +3008,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4899,
+          "line": 4917,
           "symbol": "compilePrimitivePortal"
         },
         {
@@ -3026,7 +3033,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4917,
+          "line": 4935,
           "symbol": "compilePrimitiveOverlay"
         },
         {
@@ -3054,7 +3061,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4952,
+          "line": 4970,
           "symbol": "compilePrimitiveResource"
         },
         {
@@ -3092,7 +3099,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4995,
+          "line": 5013,
           "symbol": "compilePrimitiveSearchSource"
         },
         {
@@ -3122,7 +3129,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5187,
+          "line": 5205,
           "symbol": "compileRemoteSurface"
         },
         {
@@ -3145,7 +3152,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5257,
+          "line": 5275,
           "symbol": "compileLane"
         },
         {
@@ -3168,7 +3175,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5318,
+          "line": 5336,
           "symbol": "compileOperation"
         },
         {
@@ -3189,7 +3196,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5330,
+          "line": 5348,
           "symbol": "compileDataSource"
         },
         {
@@ -3210,7 +3217,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5375,
+          "line": 5393,
           "symbol": "compileSlot"
         },
         {
@@ -3234,7 +3241,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5414,
+          "line": 5432,
           "symbol": "compileEvent"
         },
         {
@@ -3255,7 +3262,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5419,
+          "line": 5437,
           "symbol": "compileSecurityPolicy"
         },
         {
@@ -3276,7 +3283,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5427,
+          "line": 5445,
           "symbol": "compileSecurityPolicy"
         },
         {
@@ -3298,7 +3305,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5437,
+          "line": 5455,
           "symbol": "compileHydrationPolicy"
         },
         {
@@ -3322,7 +3329,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5447,
+          "line": 5465,
           "symbol": "compileHydrationPolicy"
         },
         {
@@ -3345,7 +3352,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5458,
+          "line": 5476,
           "symbol": "compileHydrationPolicy"
         }
       ],
@@ -3519,7 +3526,7 @@
             }
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 122,
+          "line": 124,
           "symbol": "createCoreDocument"
         },
         {
@@ -3615,7 +3622,7 @@
             }
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 861,
+          "line": 863,
           "symbol": "createAppPlatformRecords"
         },
         {
@@ -3633,7 +3640,7 @@
             }
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 1170,
+          "line": 1172,
           "symbol": "createRmtAppServiceDemands"
         },
         {
@@ -3724,7 +3731,7 @@
             }
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 1251,
+          "line": 1253,
           "symbol": "createKernelRecords"
         },
         {
@@ -3762,7 +3769,7 @@
           "paths": [
             {
               "path": "/schema",
-              "form": "Identifier"
+              "form": "ConditionalExpression"
             },
             {
               "path": "/workpackage",
@@ -3894,7 +3901,7 @@
             }
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4266,
+          "line": 4282,
           "symbol": "createRmtAppOrchestrationArtifacts"
         }
       ]
@@ -3984,7 +3991,7 @@
             "warning"
           ],
           "file": "tools/rmt-language/action-execution-lowering.js",
-          "line": 9,
+          "line": 11,
           "symbol": "<anonymous>"
         }
       ],
@@ -4123,6 +4130,40 @@
           "symbol": "<anonymous>"
         },
         {
+          "name": "RmtClassicAstResultOptionsV3",
+          "fields": [
+            {
+              "name": "sourceProfile",
+              "optional": false,
+              "type": "RmtCompilerSourceProfileV3",
+              "declaration": "sourceProfile: RmtCompilerSourceProfileV3"
+            }
+          ],
+          "file": "tools/rmt-language/classic-compiler.d.ts",
+          "line": 13,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtClassicAstResultOptionsV4",
+          "fields": [
+            {
+              "name": "sourceProfile",
+              "optional": false,
+              "type": "RmtCompilerSourceProfileV4",
+              "declaration": "sourceProfile: RmtCompilerSourceProfileV4;"
+            },
+            {
+              "name": "rmtxActionInputRules",
+              "optional": true,
+              "type": "import('./action-input-contract').RmtxActionInputRules",
+              "declaration": "rmtxActionInputRules?: import('./action-input-contract').RmtxActionInputRules"
+            }
+          ],
+          "file": "tools/rmt-language/classic-compiler.d.ts",
+          "line": 14,
+          "symbol": "<anonymous>"
+        },
+        {
           "name": "RmtClassicCompileResult",
           "fields": [
             {
@@ -4181,7 +4222,7 @@
             }
           ],
           "file": "tools/rmt-language/classic-compiler.d.ts",
-          "line": 13,
+          "line": 15,
           "symbol": "<anonymous>"
         },
         {
@@ -4249,7 +4290,7 @@
             }
           ],
           "file": "tools/rmt-language/classic-compiler.d.ts",
-          "line": 41,
+          "line": 45,
           "symbol": "<anonymous>"
         }
       ],
@@ -4775,6 +4816,46 @@
           "symbol": "<anonymous>"
         },
         {
+          "name": "RmtCompilerSourceProfileV3",
+          "fields": [
+            {
+              "name": "syntax",
+              "optional": false,
+              "type": "'rmtx'",
+              "declaration": "readonly syntax: 'rmtx';"
+            },
+            {
+              "name": "version",
+              "optional": false,
+              "type": "'3.0.0'",
+              "declaration": "readonly version: '3.0.0'"
+            }
+          ],
+          "file": "tools/rmt-language/vnext-compiler.d.ts",
+          "line": 28,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtCompilerSourceProfileV4",
+          "fields": [
+            {
+              "name": "syntax",
+              "optional": false,
+              "type": "'rmtx'",
+              "declaration": "readonly syntax: 'rmtx';"
+            },
+            {
+              "name": "version",
+              "optional": false,
+              "type": "'4.0.0'",
+              "declaration": "readonly version: '4.0.0'"
+            }
+          ],
+          "file": "tools/rmt-language/vnext-compiler.d.ts",
+          "line": 29,
+          "symbol": "<anonymous>"
+        },
+        {
           "name": "RmtVNextAstResultOptions",
           "fields": [
             {
@@ -4785,7 +4866,7 @@
             }
           ],
           "file": "tools/rmt-language/vnext-compiler.d.ts",
-          "line": 28,
+          "line": 30,
           "symbol": "<anonymous>"
         },
         {
@@ -4799,7 +4880,41 @@
             }
           ],
           "file": "tools/rmt-language/vnext-compiler.d.ts",
-          "line": 29,
+          "line": 31,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtVNextAstResultOptionsV3",
+          "fields": [
+            {
+              "name": "sourceProfile",
+              "optional": false,
+              "type": "RmtCompilerSourceProfileV3",
+              "declaration": "sourceProfile: RmtCompilerSourceProfileV3"
+            }
+          ],
+          "file": "tools/rmt-language/vnext-compiler.d.ts",
+          "line": 32,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtVNextAstResultOptionsV4",
+          "fields": [
+            {
+              "name": "sourceProfile",
+              "optional": false,
+              "type": "RmtCompilerSourceProfileV4",
+              "declaration": "sourceProfile: RmtCompilerSourceProfileV4;"
+            },
+            {
+              "name": "rmtxActionInputRules",
+              "optional": true,
+              "type": "import('./action-input-contract').RmtxActionInputRules",
+              "declaration": "rmtxActionInputRules?: import('./action-input-contract').RmtxActionInputRules"
+            }
+          ],
+          "file": "tools/rmt-language/vnext-compiler.d.ts",
+          "line": 33,
           "symbol": "<anonymous>"
         },
         {
@@ -4855,7 +4970,7 @@
             }
           ],
           "file": "tools/rmt-language/vnext-compiler.d.ts",
-          "line": 30,
+          "line": 34,
           "symbol": "<anonymous>"
         }
       ],
@@ -9115,17 +9230,38 @@
           "symbol": "createRmtActionEffectRuntimeModule"
         },
         {
+          "name": "RMT_ACTION_EFFECT_RUNTIME_SCHEMA_V2",
+          "value": "xtend.epic18.rmt-action-effect-runtime.v2",
+          "file": "xtendrmt/rmt-action-effect-runtime.js",
+          "line": 4,
+          "symbol": "createRmtActionEffectRuntimeModule"
+        },
+        {
+          "name": "RMT_ACTION_INPUT_CONTRACT_SCHEMA",
+          "value": "xtend.rmt.action-input-contract.v1",
+          "file": "xtendrmt/rmt-action-effect-runtime.js",
+          "line": 5,
+          "symbol": "createRmtActionEffectRuntimeModule"
+        },
+        {
+          "name": "RMT_ACTION_INPUT_PORT_SCHEMA",
+          "value": "xtend.rmt.action-input-port.v1",
+          "file": "xtendrmt/rmt-action-effect-runtime.js",
+          "line": 6,
+          "symbol": "createRmtActionEffectRuntimeModule"
+        },
+        {
           "name": "RMT_ACTION_EFFECT_DIAGNOSTIC_SCHEMA",
           "value": "xtend.epic18.rmt-action-effect-diagnostic.v1",
           "file": "xtendrmt/rmt-action-effect-runtime.js",
-          "line": 4,
+          "line": 7,
           "symbol": "createRmtActionEffectRuntimeModule"
         },
         {
           "name": "RMT_COMPONENT_COMMAND_SCHEMA",
           "value": "xtend.rmt.component-command.v1",
           "file": "xtendrmt/rmt-action-effect-runtime.js",
-          "line": 5,
+          "line": 8,
           "symbol": "createRmtActionEffectRuntimeModule"
         }
       ],
@@ -9138,7 +9274,7 @@
             "snapshot"
           ],
           "file": "xtendrmt/rmt-action-effect-runtime.js",
-          "line": 6,
+          "line": 9,
           "symbol": "createRmtActionEffectRuntimeModule"
         }
       ],
@@ -9159,17 +9295,31 @@
           "symbol": "createRmtEventRoutingRuntimeModule"
         },
         {
+          "name": "RMT_EVENT_ROUTING_RUNTIME_SCHEMA_V3",
+          "value": "xtend.epic18.rmt-event-routing-runtime.v3",
+          "file": "xtendrmt/rmt-event-routing-runtime.js",
+          "line": 4,
+          "symbol": "createRmtEventRoutingRuntimeModule"
+        },
+        {
+          "name": "RMT_NATIVE_EVENT_BINDING_SCHEMA_V2",
+          "value": "xtend.rmt.native-event-binding.v2",
+          "file": "xtendrmt/rmt-event-routing-runtime.js",
+          "line": 5,
+          "symbol": "createRmtEventRoutingRuntimeModule"
+        },
+        {
           "name": "RMT_EVENT_ROUTING_DIAGNOSTIC_SCHEMA",
           "value": "xtend.epic18.rmt-event-routing-diagnostic.v1",
           "file": "xtendrmt/rmt-event-routing-runtime.js",
-          "line": 4,
+          "line": 6,
           "symbol": "createRmtEventRoutingRuntimeModule"
         },
         {
           "name": "RMT_COMMAND_SCHEMA",
           "value": "xtend.rmt.command.v1",
           "file": "xtendrmt/rmt-event-routing-runtime.js",
-          "line": 5,
+          "line": 7,
           "symbol": "createRmtEventRoutingRuntimeModule"
         }
       ],
@@ -9182,7 +9332,7 @@
             "prototype"
           ],
           "file": "xtendrmt/rmt-event-routing-runtime.js",
-          "line": 7,
+          "line": 9,
           "symbol": "createRmtEventRoutingRuntimeModule"
         }
       ],
@@ -9194,7 +9344,7 @@
           ],
           "dispatch": "op",
           "file": "xtendrmt/rmt-event-routing-runtime.js",
-          "line": 498,
+          "line": 501,
           "symbol": "evaluateCondition"
         },
         {
@@ -9203,7 +9353,7 @@
           ],
           "dispatch": "op",
           "file": "xtendrmt/rmt-event-routing-runtime.js",
-          "line": 498,
+          "line": 501,
           "symbol": "evaluateCondition"
         },
         {
@@ -9212,7 +9362,7 @@
           ],
           "dispatch": "op",
           "file": "xtendrmt/rmt-event-routing-runtime.js",
-          "line": 501,
+          "line": 504,
           "symbol": "evaluateCondition"
         },
         {
@@ -9221,7 +9371,7 @@
           ],
           "dispatch": "op",
           "file": "xtendrmt/rmt-event-routing-runtime.js",
-          "line": 503,
+          "line": 506,
           "symbol": "evaluateCondition"
         },
         {
@@ -9230,7 +9380,7 @@
           ],
           "dispatch": "op",
           "file": "xtendrmt/rmt-event-routing-runtime.js",
-          "line": 504,
+          "line": 507,
           "symbol": "evaluateCondition"
         },
         {
@@ -9239,7 +9389,7 @@
           ],
           "dispatch": "op",
           "file": "xtendrmt/rmt-event-routing-runtime.js",
-          "line": 505,
+          "line": 508,
           "symbol": "evaluateCondition"
         }
       ],
@@ -9277,7 +9427,7 @@
             }
           ],
           "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
-          "line": 11,
+          "line": 15,
           "symbol": "<anonymous>"
         },
         {
@@ -9297,7 +9447,7 @@
             }
           ],
           "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
-          "line": 12,
+          "line": 16,
           "symbol": "<anonymous>"
         },
         {
@@ -9395,7 +9545,7 @@
             }
           ],
           "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
-          "line": 18,
+          "line": 22,
           "symbol": "<anonymous>"
         },
         {
@@ -9469,7 +9619,7 @@
             }
           ],
           "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
-          "line": 36,
+          "line": 40,
           "symbol": "<anonymous>"
         },
         {
@@ -9561,7 +9711,7 @@
             }
           ],
           "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
-          "line": 50,
+          "line": 54,
           "symbol": "<anonymous>"
         },
         {
@@ -9587,7 +9737,7 @@
             }
           ],
           "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
-          "line": 67,
+          "line": 71,
           "symbol": "<anonymous>"
         },
         {
@@ -9643,7 +9793,7 @@
             }
           ],
           "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
-          "line": 78,
+          "line": 82,
           "symbol": "<anonymous>"
         },
         {
@@ -9681,7 +9831,7 @@
             }
           ],
           "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
-          "line": 89,
+          "line": 93,
           "symbol": "<anonymous>"
         },
         {
@@ -9761,7 +9911,7 @@
             }
           ],
           "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
-          "line": 97,
+          "line": 101,
           "symbol": "<anonymous>"
         },
         {
@@ -9811,7 +9961,7 @@
             }
           ],
           "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
-          "line": 116,
+          "line": 120,
           "symbol": "<anonymous>"
         },
         {
@@ -9891,7 +10041,7 @@
             }
           ],
           "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
-          "line": 126,
+          "line": 130,
           "symbol": "<anonymous>"
         },
         {
@@ -10067,7 +10217,125 @@
             }
           ],
           "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
-          "line": 141,
+          "line": 146,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtActionInputValidationPort",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "typeof RMT_ACTION_INPUT_PORT_SCHEMA",
+              "declaration": "readonly schema: typeof RMT_ACTION_INPUT_PORT_SCHEMA;"
+            },
+            {
+              "name": "contract",
+              "optional": false,
+              "type": "RmtActionInputContract",
+              "declaration": "readonly contract: RmtActionInputContract;"
+            },
+            {
+              "name": "validate",
+              "optional": false,
+              "type": "Readonly<Record<string, unknown>>",
+              "declaration": "validate(actionId: string, payload: unknown): Readonly<Record<string, unknown>>;"
+            }
+          ],
+          "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
+          "line": 186,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtActionDefinitionV2",
+          "fields": [
+            {
+              "name": "inputs",
+              "optional": false,
+              "type": "Array<{ name: string; type: string; inputPolicy?: unknown }>",
+              "declaration": "inputs: Array<{ name: string; type: string; inputPolicy?: unknown }>"
+            }
+          ],
+          "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
+          "line": 191,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtActionResultV2",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "'xtend.epic18.rmt-action-result.v2'",
+              "declaration": "schema: 'xtend.epic18.rmt-action-result.v2';"
+            },
+            {
+              "name": "validatedInput",
+              "optional": true,
+              "type": "Readonly<Record<string, unknown>>",
+              "declaration": "validatedInput?: Readonly<Record<string, unknown>>;"
+            },
+            {
+              "name": "error",
+              "optional": true,
+              "type": "{ name: string; message?: string; code?: string; details?: Record<string, unknown> }",
+              "declaration": "error?: { name: string; message?: string; code?: string; details?: Record<string, unknown> };"
+            }
+          ],
+          "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
+          "line": 192,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtActionEffectRuntimeV2",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "typeof RMT_ACTION_EFFECT_RUNTIME_SCHEMA_V2",
+              "declaration": "schema: typeof RMT_ACTION_EFFECT_RUNTIME_SCHEMA_V2;"
+            },
+            {
+              "name": "inputValidationPort",
+              "optional": false,
+              "type": "RmtActionInputValidationPort",
+              "declaration": "readonly inputValidationPort: RmtActionInputValidationPort;"
+            },
+            {
+              "name": "runAction",
+              "optional": false,
+              "type": "Promise<RmtActionResultV2>",
+              "declaration": "runAction(actionId: string, payload?: unknown, metadata?: Record<string, unknown>): Promise<RmtActionResultV2>;"
+            },
+            {
+              "name": "listHistory",
+              "optional": false,
+              "type": "RmtActionResultV2[]",
+              "declaration": "listHistory(): RmtActionResultV2[];"
+            }
+          ],
+          "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
+          "line": 197,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtActionEffectRuntimeOptionsV2",
+          "fields": [
+            {
+              "name": "actions",
+              "optional": false,
+              "type": "RmtActionDefinitionV2[]",
+              "declaration": "actions: RmtActionDefinitionV2[];"
+            },
+            {
+              "name": "inputContract",
+              "optional": false,
+              "type": "RmtActionInputContract",
+              "declaration": "inputContract: RmtActionInputContract;"
+            }
+          ],
+          "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
+          "line": 203,
           "symbol": "<anonymous>"
         },
         {
@@ -10099,7 +10367,7 @@
             }
           ],
           "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
-          "line": 181,
+          "line": 208,
           "symbol": "<anonymous>"
         },
         {
@@ -10119,7 +10387,7 @@
             }
           ],
           "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
-          "line": 188,
+          "line": 215,
           "symbol": "<anonymous>"
         },
         {
@@ -10145,7 +10413,7 @@
             }
           ],
           "file": "xtendrmt/rmt-action-effect-runtime.d.ts",
-          "line": 193,
+          "line": 220,
           "symbol": "<anonymous>"
         }
       ],
@@ -10206,7 +10474,7 @@
             }
           ],
           "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
-          "line": 10,
+          "line": 13,
           "symbol": "<anonymous>"
         },
         {
@@ -10250,7 +10518,7 @@
             }
           ],
           "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
-          "line": 20,
+          "line": 23,
           "symbol": "<anonymous>"
         },
         {
@@ -10276,7 +10544,7 @@
             }
           ],
           "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
-          "line": 38,
+          "line": 41,
           "symbol": "<anonymous>"
         },
         {
@@ -10290,7 +10558,7 @@
             }
           ],
           "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
-          "line": 44,
+          "line": 47,
           "symbol": "<anonymous>"
         },
         {
@@ -10322,7 +10590,7 @@
             }
           ],
           "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
-          "line": 52,
+          "line": 55,
           "symbol": "<anonymous>"
         },
         {
@@ -10642,7 +10910,7 @@
             }
           ],
           "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
-          "line": 59,
+          "line": 62,
           "symbol": "<anonymous>"
         },
         {
@@ -10680,7 +10948,7 @@
             }
           ],
           "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
-          "line": 118,
+          "line": 121,
           "symbol": "<anonymous>"
         },
         {
@@ -10760,7 +11028,7 @@
             }
           ],
           "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
-          "line": 126,
+          "line": 129,
           "symbol": "<anonymous>"
         },
         {
@@ -10786,7 +11054,7 @@
             }
           ],
           "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
-          "line": 148,
+          "line": 151,
           "symbol": "<anonymous>"
         },
         {
@@ -10812,7 +11080,7 @@
             }
           ],
           "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
-          "line": 154,
+          "line": 157,
           "symbol": "<anonymous>"
         },
         {
@@ -10898,7 +11166,7 @@
             }
           ],
           "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
-          "line": 160,
+          "line": 163,
           "symbol": "<anonymous>"
         },
         {
@@ -10942,7 +11210,7 @@
             }
           ],
           "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
-          "line": 184,
+          "line": 187,
           "symbol": "<anonymous>"
         },
         {
@@ -10992,7 +11260,7 @@
             }
           ],
           "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
-          "line": 193,
+          "line": 196,
           "symbol": "<anonymous>"
         },
         {
@@ -11024,7 +11292,7 @@
             }
           ],
           "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
-          "line": 203,
+          "line": 206,
           "symbol": "<anonymous>"
         },
         {
@@ -11104,7 +11372,7 @@
             }
           ],
           "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
-          "line": 210,
+          "line": 213,
           "symbol": "<anonymous>"
         },
         {
@@ -11232,7 +11500,129 @@
             }
           ],
           "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
-          "line": 225,
+          "line": 228,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtNativeEventBindingV2",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "'xtend.rmt.native-event-binding.v2'",
+              "declaration": "schema: 'xtend.rmt.native-event-binding.v2';"
+            },
+            {
+              "name": "action",
+              "optional": false,
+              "type": "string",
+              "declaration": "action: string;"
+            },
+            {
+              "name": "inputContract",
+              "optional": false,
+              "type": "string",
+              "declaration": "inputContract: string;"
+            },
+            {
+              "name": "payload",
+              "optional": false,
+              "type": "Readonly<Record<string, string>>",
+              "declaration": "payload: Readonly<Record<string, string>>;"
+            },
+            {
+              "name": "payloadContract",
+              "optional": true,
+              "type": "unknown",
+              "declaration": "payloadContract?: unknown;"
+            }
+          ],
+          "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
+          "line": 270,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtEventRouteResultV2",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "'xtend.epic18.rmt-event-route-result.v2'",
+              "declaration": "schema: 'xtend.epic18.rmt-event-route-result.v2'"
+            }
+          ],
+          "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
+          "line": 277,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtEventRoutingRuntimeV3",
+          "fields": [
+            {
+              "name": "schema",
+              "optional": false,
+              "type": "typeof RMT_EVENT_ROUTING_RUNTIME_SCHEMA_V3",
+              "declaration": "schema: typeof RMT_EVENT_ROUTING_RUNTIME_SCHEMA_V3;"
+            },
+            {
+              "name": "routeEvent",
+              "optional": false,
+              "type": "Promise<RmtEventRouteResultV2>",
+              "declaration": "routeEvent(bindingId: string, event?: unknown, metadata?: Record<string, unknown>): Promise<RmtEventRouteResultV2>;"
+            },
+            {
+              "name": "listRoutes",
+              "optional": false,
+              "type": "RmtEventRouteResultV2[]",
+              "declaration": "listRoutes(): RmtEventRouteResultV2[];"
+            },
+            {
+              "name": "listBindings",
+              "optional": false,
+              "type": "RmtNativeEventBindingV2[]",
+              "declaration": "listBindings(): RmtNativeEventBindingV2[];"
+            }
+          ],
+          "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
+          "line": 278,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtEventRoutingRuntimeOptionsV3",
+          "fields": [
+            {
+              "name": "bindings",
+              "optional": true,
+              "type": "RmtNativeEventBindingV2[]",
+              "declaration": "bindings?: RmtNativeEventBindingV2[];"
+            },
+            {
+              "name": "events",
+              "optional": true,
+              "type": "RmtNativeEventBindingV2[]",
+              "declaration": "events?: RmtNativeEventBindingV2[];"
+            },
+            {
+              "name": "eventBindings",
+              "optional": true,
+              "type": "RmtNativeEventBindingV2[]",
+              "declaration": "eventBindings?: RmtNativeEventBindingV2[];"
+            },
+            {
+              "name": "inputValidationPort",
+              "optional": false,
+              "type": "RmtActionInputValidationPort",
+              "declaration": "inputValidationPort: RmtActionInputValidationPort;"
+            },
+            {
+              "name": "inputContract",
+              "optional": true,
+              "type": "RmtActionInputContract",
+              "declaration": "inputContract?: RmtActionInputContract;"
+            }
+          ],
+          "file": "xtendrmt/rmt-event-routing-runtime.d.ts",
+          "line": 284,
           "symbol": "<anonymous>"
         }
       ],
@@ -17762,24 +18152,31 @@
           "symbol": "<anonymous>"
         },
         {
+          "name": "RMTX_PLAN_RUNTIME_SCHEMA",
+          "value": "xtend.maraca.plan-runtime.v13",
+          "file": "xtend-maraca/plan-runtime.mjs",
+          "line": 10,
+          "symbol": "<anonymous>"
+        },
+        {
           "name": "COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA",
           "value": "xtend.maraca.plan-runtime.v10",
           "file": "xtend-maraca/plan-runtime.mjs",
-          "line": 10,
+          "line": 11,
           "symbol": "<anonymous>"
         },
         {
           "name": "XTENSION_PLAN_RUNTIME_SCHEMA",
           "value": "xtend.maraca.plan-runtime.v8",
           "file": "xtend-maraca/plan-runtime.mjs",
-          "line": 11,
+          "line": 12,
           "symbol": "<anonymous>"
         },
         {
           "name": "DOM_COMMIT_SCHEMA",
           "value": "xtend.rmt.dom-commit-result.v1",
           "file": "xtend-maraca/plan-runtime.mjs",
-          "line": 13,
+          "line": 14,
           "symbol": "<anonymous>"
         }
       ],
@@ -17795,7 +18192,7 @@
             "writer:change"
           ],
           "file": "xtend-maraca/plan-runtime.mjs",
-          "line": 16,
+          "line": 17,
           "symbol": "<anonymous>"
         },
         {
@@ -17806,7 +18203,7 @@
             "hidden"
           ],
           "file": "xtend-maraca/plan-runtime.mjs",
-          "line": 174,
+          "line": 177,
           "symbol": "<anonymous>"
         },
         {
@@ -17820,7 +18217,7 @@
             "invalid"
           ],
           "file": "xtend-maraca/plan-runtime.mjs",
-          "line": 175,
+          "line": 178,
           "symbol": "<anonymous>"
         },
         {
@@ -17837,7 +18234,7 @@
             "will-change"
           ],
           "file": "xtend-maraca/plan-runtime.mjs",
-          "line": 176,
+          "line": 179,
           "symbol": "<anonymous>"
         }
       ],

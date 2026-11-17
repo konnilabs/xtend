@@ -1,0 +1,40 @@
+{
+  "date": "2026-11-17",
+  "authorizedBy": "root-after-full-preparation-exit0",
+  "passed": true,
+  "creationReceipt": {
+    "path": "/tmp/xtend-rmtx-a0633/workspace-aliases-created.json",
+    "sha256": "c7d09cc63393a20fe196850daca5355dfccbd6f2b9e39092f740109da5f7c1ce"
+  },
+  "owner": "a063_governance",
+  "actualAliasesRemoved": 3,
+  "aliases": [
+    {
+      "path": "/home/konni/Downloads/xtend-dev/xtend/node_modules/@ccslabs/xtend",
+      "target": "/home/konni/Downloads/xtend-dev/xtend",
+      "createdByTask": true,
+      "removed": true,
+      "absentAfterCleanup": true
+    },
+    {
+      "path": "/home/konni/Downloads/xtend-dev/xtend/node_modules/@ccslabs/xtend-compiler",
+      "target": "/home/konni/Downloads/xtend-dev/xtend/tools",
+      "createdByTask": true,
+      "removed": true,
+      "absentAfterCleanup": true
+    },
+    {
+      "path": "/home/konni/Downloads/xtend-dev/xtend/node_modules/@ccslabs/xtend-maraca",
+      "target": "/home/konni/Downloads/xtend-dev/xtend/xtend-maraca",
+      "createdByTask": true,
+      "removed": true,
+      "absentAfterCleanup": true
+    }
+  ],
+  "onlyOwnerCreatedThreeAliasesRemoved": true,
+  "otherToolAliasesOwnedByProfileAgentNotTouched": true,
+  "preexistingAliasesNotTouched": true,
+  "sourcePinCount": 133,
+  "sourceDrift": [],
+  "originalHead": "3bc25783e9a94dd70da3a3abe347ab49c38dd192"
+}

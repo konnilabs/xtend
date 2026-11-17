@@ -1,0 +1,107 @@
+[
+  {
+    "index": 1,
+    "path": "development/rmtx-a06/frontend/inspect.cjs",
+    "changedSources": [
+      "tests/rmt-language/rmtx-frontend.test.cjs"
+    ]
+  },
+  {
+    "index": 2,
+    "path": "development/rmtx-a06/selector-profile/inspect.cjs",
+    "changedSources": [
+      "tests/rmt-language/rmtx-selectors.test.cjs"
+    ]
+  },
+  {
+    "index": 10,
+    "path": "development/rmtx-a03/graph-inspect.cjs",
+    "changedSources": [
+      "tests/xtensions/xtensions_consumer_package_suite.js"
+    ]
+  },
+  {
+    "index": 11,
+    "path": "development/rmtx-a03/budget-inspect.cjs",
+    "changedSources": [
+      "tests/xtensions/xtensions_consumer_package_suite.js"
+    ]
+  },
+  {
+    "index": 12,
+    "path": "development/rmtx-a03/capability-inspect.cjs",
+    "changedSources": [
+      "tests/xtensions/xtensions_consumer_package_suite.js"
+    ]
+  },
+  {
+    "index": 13,
+    "path": "development/rmtx-a04/inspect.cjs",
+    "changedSources": [
+      "tests/xtensions/xtensions_consumer_package_suite.js"
+    ]
+  },
+  {
+    "index": 14,
+    "path": "development/rmtx-a04/integration-inspect.cjs",
+    "changedSources": [
+      "tests/xtensions/xtensions_consumer_package_suite.js"
+    ]
+  },
+  {
+    "index": 15,
+    "path": "development/rmtx-a04/graph-inspect.cjs",
+    "changedSources": [
+      "tests/xtensions/xtensions_consumer_package_suite.js"
+    ]
+  },
+  {
+    "index": 16,
+    "path": "development/rmtx-a04/loading-inspect.cjs",
+    "changedSources": [
+      "tests/xtensions/xtensions_consumer_package_suite.js"
+    ]
+  },
+  {
+    "index": 17,
+    "path": "development/rmtx-a04/peer-inspect.cjs",
+    "changedSources": [
+      "tests/xtensions/xtensions_consumer_package_suite.js"
+    ]
+  },
+  {
+    "index": 18,
+    "path": "development/rmtx-a04/delivery-inspect.cjs",
+    "changedSources": [
+      "tests/xtensions/xtensions_consumer_package_suite.js"
+    ]
+  },
+  {
+    "index": 19,
+    "path": "development/rmtx-a04/integrity-inspect.cjs",
+    "changedSources": [
+      "tests/xtensions/xtensions_consumer_package_suite.js"
+    ]
+  },
+  {
+    "index": 20,
+    "path": "development/rmtx-a04/runtime-inspect.cjs",
+    "changedSources": [
+      "tests/xtensions/xtensions_consumer_package_suite.js"
+    ]
+  },
+  {
+    "index": 21,
+    "path": "development/rmtx-a04/updates-inspect.cjs",
+    "changedSources": [
+      "tests/xtensions/xtensions_consumer_package_suite.js"
+    ]
+  },
+  {
+    "index": 22,
+    "path": "development/rmtx-a05/inspect.cjs",
+    "changedSources": [
+      "tests/xtensions/xtensions_consumer_package_suite.js"
+    ]
+  }
+]

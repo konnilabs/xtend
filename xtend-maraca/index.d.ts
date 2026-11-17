@@ -3,6 +3,8 @@ import type { MaracaServiceBuildPlan, MaracaServiceBuildReport, MaracaServicesCo
 import type { XTensionStateBindingArtifact } from '@ccslabs/xtend/xtensions/state-binding';
 
 export const MARACA_PACKAGE_SCHEMA: 'xtend.maraca.package-metadata.v1';
+/** Productive RMTX v3 source scopes are re-derived before validating host bindings. */
+export const MARACA_RMTX_HOST_SCOPE_API_VERSION: '1.0.0';
 export const MARACA_BUILD_PLAN_SCHEMA: 'xtend.maraca.build-plan.v4';
 export const MARACA_XTENSION_BUILD_PLAN_SCHEMA: 'xtend.maraca.build-plan.v5';
 export const LEGACY_MARACA_BUILD_PLAN_SCHEMA: 'xtend.maraca.build-plan.v1';
@@ -1138,6 +1140,44 @@ export interface MaracaTuneReport {
 }
 
 export const MARACA_SCOPED_COMPONENT_BUILD_PLAN_SCHEMA:'xtend.maraca.build-plan.v7';
+export const MARACA_RMTX_ORCHESTRATION_API_VERSION: '1.0.0';
+export const MARACA_RMTX_BUILD_PLAN_SCHEMA: 'xtend.maraca.build-plan.v8';
+export const MARACA_RMTX_BUILD_CONFIG_SCHEMA: 'xtend.maraca.build-config.v8';
+export interface MaracaRmtxProviderPins {
+  readonly schema: 'xtend.maraca.rmtx-providers.v1';
+  readonly interfaces: readonly { readonly file: string; readonly sha256: string }[];
+}
+export interface MaracaRmtxBuildInput extends Omit<MaracaBuildInput, 'xtensionBindings'> {
+  rmtxProviders?: MaracaRmtxProviderPins;
+  xtensionBindings?: never;
+  xtensionComposition?: never;
+}
+export interface MaracaInlineComponentBuildInput extends MaracaRmtxBuildInput { rmtxProviders: MaracaRmtxProviderPins }
+export interface MaracaRmtxRunOptions extends Omit<MaracaRunOptions, 'compileSource'> {
+  compileSource: import('@ccslabs/xtend/rmt-language/rmtx-compiler').RmtxCompilerV4['compileSource'];
+}
+export interface MaracaRmtxBuildPlan extends Omit<MaracaBuildPlan, 'schema' | 'xtensionBindings'> {
+  schema: typeof MARACA_RMTX_BUILD_PLAN_SCHEMA;
+  xtensionBindings?: import('@ccslabs/xtend/xtensions/state-binding').XTensionProjectionStateBindingArtifact;
+}
+export interface MaracaInlineComponentBuildPlan extends MaracaRmtxBuildPlan {
+  xtensionBindings: import('@ccslabs/xtend/xtensions/state-binding').XTensionProjectionStateBindingArtifact;
+  xtensionComposition: import('./xtension-composition-runtime').ProjectionComponentManifest;
+}
+export interface MaracaRmtxBuildConfig extends Omit<MaracaBuildConfig, 'schema' | 'options'> {
+  schema: typeof MARACA_RMTX_BUILD_CONFIG_SCHEMA; options: MaracaRmtxBuildInput;
+}
+export function createMaracaBuildPlan(input: MaracaInlineComponentBuildInput, options?: MaracaRunOptions): MaracaInlineComponentBuildPlan;
+export function createMaracaBuildPlan(input: MaracaRmtxBuildInput, options: MaracaRmtxRunOptions): MaracaRmtxBuildPlan;
+export function buildMaracaBundleAsync(input: MaracaInlineComponentBuildInput, options?: MaracaRunOptions): Promise<{
+  schema: typeof MARACA_BUNDLE_REPORT_SCHEMA; ok: boolean; status: string; plan: MaracaInlineComponentBuildPlan;
+  bundleReport: MaracaBundleReport | null; sizeBudgetReport: MaracaXTensionSizeBudgetReport | null;
+}>;
+export function buildMaracaBundleAsync(input: MaracaRmtxBuildInput, options: MaracaRmtxRunOptions): Promise<{
+  schema: typeof MARACA_BUNDLE_REPORT_SCHEMA; ok: boolean; status: string; plan: MaracaRmtxBuildPlan;
+  bundleReport: MaracaBundleReport | null; sizeBudgetReport: MaracaSizeBudgetReport | MaracaXTensionSizeBudgetReport | null;
+}>;
+export function createMaracaTuneConfig(input: Record<string, unknown> & { options: MaracaInlineComponentBuildInput }): MaracaRmtxBuildConfig;
 export const MARACA_SCOPED_COMPONENT_BUILD_CONFIG_SCHEMA:'xtend.maraca.build-config.v7';
 export type MaracaScopedComponentBuildInput=MaracaBuildInput & {xtensionComposition:import('./xtension-composition-runtime').ScopedComponentManifest};
 export interface MaracaScopedComponentBuildPlan extends Omit<MaracaComponentBuildPlan,'schema'|'xtensionComposition'> {schema:typeof MARACA_SCOPED_COMPONENT_BUILD_PLAN_SCHEMA;xtensionComposition:import('./xtension-composition-runtime').ScopedComponentManifest}

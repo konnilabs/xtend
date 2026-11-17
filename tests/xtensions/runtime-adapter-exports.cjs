@@ -13,7 +13,7 @@ function runExportChecks() {
   const runtime = {}, all = {};
   const bindingName = '@ccslabs/xtend/xtensions/state-binding';
   const binding = require(bindingName);
-  assert.deepEqual(Object.keys(binding).sort(), ['XTENSION_RESUME_STATE_BINDING_API_VERSION', 'XTENSION_STATE_BINDING_API_VERSION', 'XTENSION_STATE_BINDING_ARTIFACT_SCHEMA', 'XTENSION_STATE_BINDING_SCHEMA', 'createXTensionResumeStateRegistry', 'createXTensionStateRegistry', 'materializeStateBindingArtifact', 'validateStateBinding', 'validateStateBindingArtifact']);
+  assert.deepEqual(Object.keys(binding).sort(), ['PROJECTION_BINDING_SCHEMA', 'PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA', 'XTENSION_PROJECTION_STATE_BINDING_API_VERSION', 'XTENSION_RESUME_STATE_BINDING_API_VERSION', 'XTENSION_STATE_BINDING_API_VERSION', 'XTENSION_STATE_BINDING_ARTIFACT_SCHEMA', 'XTENSION_STATE_BINDING_SCHEMA', 'createXTensionProjectionStateRegistry', 'createXTensionResumeStateRegistry', 'createXTensionStateRegistry', 'materializeStateBindingArtifact', 'validateStateBinding', 'validateStateBindingArtifact']);
   assert.equal(require('@ccslabs/xtend-compiler/xtensions/state-binding').createXTensionStateRegistry, binding.createXTensionStateRegistry);
   all[bindingName] = Object.entries(binding).map(([key, value]) => [key, typeof value]).sort();
   const url = require('@ccslabs/xtend/xtensions/url-state');

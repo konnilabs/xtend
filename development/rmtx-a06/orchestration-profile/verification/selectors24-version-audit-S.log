@@ -1,0 +1,48 @@
+✔ v2 is explicit and produces separate parser/compiler contracts while default and v1 remain unchanged (18.465608ms)
+✔ RMTX selector fixture has the same effective executable state/selector/reducer plans as Classic (47.703693ms)
+✔ static readsets include all branches, row/parameter paths and transitive selector sources (7.65673ms)
+✔ longest declared symbol resolution stays consistent in dependency facts and actual Model reads (2.017183ms)
+✔ bare row values and strict equality preserve zero, false and empty-string Find results (2.131595ms)
+✔ contains follows existing case-sensitive String conversion rather than Array membership (1.942713ms)
+✔ parameters apply to the requested selector and are not silently forwarded through selector dependencies (1.670149ms)
+✔ canonical import aliases bind selectors, item, params and contains without executing source imports (1.296905ms)
+✔ v2 rejects bare item truthiness without executable artifacts (0.650397ms)
+✔ v2 rejects numeric truthiness without executable artifacts (0.594307ms)
+✔ v2 rejects truthy logical operand without executable artifacts (0.511616ms)
+✔ v2 rejects unparenthesized negation without executable artifacts (0.472585ms)
+✔ v2 rejects negation/comparison precedence without executable artifacts (0.433865ms)
+✔ v2 rejects loose equality without executable artifacts (0.521546ms)
+✔ v2 rejects loose inequality without executable artifacts (0.456035ms)
+✔ v2 rejects arithmetic without executable artifacts (0.453246ms)
+✔ v2 rejects comparison chain without executable artifacts (0.742539ms)
+✔ v2 rejects conditional expression without executable artifacts (0.530176ms)
+✔ v2 rejects method call without executable artifacts (0.415445ms)
+✔ v2 rejects unbound helper without executable artifacts (0.397914ms)
+✔ v2 rejects helper arity without executable artifacts (0.426875ms)
+✔ v2 rejects helper type arguments without executable artifacts (0.553306ms)
+✔ v2 rejects nested arbitrary calls without executable artifacts (0.468805ms)
+✔ v2 rejects computed path without executable artifacts (0.614107ms)
+✔ v2 rejects optional path without executable artifacts (0.476966ms)
+✔ v2 rejects action input in selector without executable artifacts (0.411285ms)
+✔ v2 rejects prototype path without executable artifacts (0.463176ms)
+✔ v2 rejects unknown model reference even in skipped branch without executable artifacts (1.122783ms)
+✔ v2 rejects unknown attribute without executable artifacts (0.443335ms)
+✔ v2 rejects invalid sort direction without executable artifacts (0.402385ms)
+✔ v2 rejects sort model scope without executable artifacts (0.330984ms)
+✔ v2 rejects sort bare row without executable artifacts (0.351025ms)
+✔ v2 rejects unsafe sort field without executable artifacts (0.357814ms)
+✔ v2 rejects multiple Find without executable artifacts (1.419147ms)
+✔ v2 rejects multiple Sort without executable artifacts (0.933941ms)
+✔ v2 rejects multiple Output without executable artifacts (0.942851ms)
+✔ Selector source must be a whole declared symbol; item and params cannot escape their contexts (1.453357ms)
+✔ selector cycles and unknown dependencies are rejected by the common semantic backend (1.546858ms)
+✔ all static branches count as dependencies while reference-looking literals do not (1.70233ms)
+✔ predicate diagnostics retain original URI and exact offending equality operator range (0.402775ms)
+ℹ tests 40
+ℹ suites 0
+ℹ pass 40
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 120.594913

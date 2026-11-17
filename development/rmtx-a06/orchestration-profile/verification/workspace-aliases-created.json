@@ -1,0 +1,20 @@
+{
+  "reason": "Existing AppService TypeScript fixtures resolve workspace package subpaths from repository root; third-party cache remains unchanged.",
+  "aliases": [
+    {
+      "path": "/home/konni/Downloads/xtend-dev/xtend/node_modules/@ccslabs/xtend",
+      "target": "/home/konni/Downloads/xtend-dev/xtend",
+      "createdByTask": true
+    },
+    {
+      "path": "/home/konni/Downloads/xtend-dev/xtend/node_modules/@ccslabs/xtend-compiler",
+      "target": "/home/konni/Downloads/xtend-dev/xtend/tools",
+      "createdByTask": true
+    },
+    {
+      "path": "/home/konni/Downloads/xtend-dev/xtend/node_modules/@ccslabs/xtend-maraca",
+      "target": "/home/konni/Downloads/xtend-dev/xtend/xtend-maraca",
+      "createdByTask": true
+    }
+  ]
+}

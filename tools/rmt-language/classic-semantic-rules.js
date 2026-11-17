@@ -1,5 +1,5 @@
 'use strict';
-const { lowerActionEmit, lowerActionResultHandler } = require('./action-execution-lowering');
+const { lowerActionExpression, lowerActionEmit, lowerActionResultHandler } = require('./action-execution-lowering');
 
 const unsafe = path => String(path).split('.').some(part => ['__proto__', 'prototype', 'constructor'].includes(part));
 const scalarTypes = new Set(['string', 'number', 'boolean', 'object', 'array', 'collection']);
@@ -62,7 +62,21 @@ function validateClassicSemantics(state, { diagnostic, reference }) {
     const stateTarget = resolvePath('states', target.slice(6));
     if (!targetAlreadyIndexed) reference({ sourceDomain: 'actions', sourceId: action?.name, field: 'reduce', relationship: 'classic.reduce.state',
       targetDomain: 'states', targetId: stateTarget?.id || target.slice(6), target: stateTarget, node });
-    const source = operand(expression);
+    let source = operand(expression);
+    if (!source && state.allowActionTemplates === true) {
+      try {
+        const lowered = lowerActionExpression(expression, { allowTemplates: true });
+        if (lowered.valueKind === 'reference') source = { path: lowered.value };
+        const visit = tree => {
+          if (tree.kind === 'path') read(node, tree.value, action, null);
+          if (tree.kind === 'array') tree.items.forEach(visit);
+          if (tree.kind === 'object') tree.fields.forEach(field => visit(field.value));
+        };
+        if (lowered.valueKind === 'template') visit(lowered.value);
+        if (lowered.valueKind === 'template') source = { literalType: lowered.value.kind };
+        else if (lowered.value !== null && typeof lowered.value === 'object') source = { literalType: Array.isArray(lowered.value) ? 'array' : 'object' };
+      } catch (_) { /* The diagnostic below remains the single invalid-operand outcome. */ }
+    }
     if (!source) { report(node, 'operand.unsupported', 'Reducer values must be scalar literals or explicit state/selector/input/result/error/payload paths.'); return; }
     const sourceType = source.path ? read(node, source.path, action, null) : source.literalType;
     const targetType = stateTarget?.node.dataType?.value;
@@ -97,7 +111,7 @@ function validateClassicSemantics(state, { diagnostic, reference }) {
     }
     if (node.type === 'RmtEmitStatement' || node.type === 'RmtActionResultHandler') {
       try {
-        const lowered = node.type === 'RmtEmitStatement' ? { kind: 'emit', emit: lowerActionEmit(node) } : lowerActionResultHandler(node);
+        const lowered = node.type === 'RmtEmitStatement' ? { kind: 'emit', emit: lowerActionEmit(node, { allowTemplates: state.allowActionTemplates === true }) } : lowerActionResultHandler(node, { allowTemplates: state.allowActionTemplates === true });
         if (lowered.kind === 'reduce') {
           const match = /^reduce\s+(\S+)\s*=\s*(.+)$/u.exec(node.effect.text);
           reducer(node, action, match[1], match[2], false);

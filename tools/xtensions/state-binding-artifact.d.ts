@@ -27,6 +27,22 @@ export type XTensionStateBindingArtifact = {
 export interface XTensionMaterializedBinding {
   readonly surface: string; readonly hostSurface: string; readonly binding: XTensionStateBinding;
 }
+export function validateStateBindingArtifact(input: XTensionProjectionStateBindingArtifact, program: unknown): XTensionProjectionStateBindingArtifact;
 export function validateStateBindingArtifact(input: unknown, program: unknown): XTensionStateBindingArtifact;
 /** Requires an artifact returned by this runtime's validator. Revalidate after serialization. */
 export function materializeStateBindingArtifact(artifact: XTensionStateBindingArtifact, snapshot: { readonly states: Readonly<Record<string, unknown>> }): readonly XTensionMaterializedBinding[];
+
+export const PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA: 'xtend.xtensions.state-binding-artifact.v4';
+export interface XTensionProjectionStateBindingArtifact {
+  readonly schema: typeof PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA;
+  readonly documentId: string;
+  readonly bindings: readonly {
+    readonly surface: string;
+    readonly binding: import('./state-binding').XTensionProjectionStateBinding;
+    readonly repeat?: readonly [XTensionRepeatScope & { readonly state: string }, ...XTensionRepeatScope[]];
+    readonly presence?: { readonly state: string; readonly path: XTensionTemplatePath };
+  }[];
+}
+export function materializeStateBindingArtifact(artifact: XTensionProjectionStateBindingArtifact, snapshot: { readonly states: Readonly<Record<string, unknown>>; readonly selectors?: Readonly<Record<string, unknown>> }): readonly {
+  readonly surface: string; readonly hostSurface: string; readonly binding: import('./state-binding').XTensionProjectionStateBinding;
+}[];

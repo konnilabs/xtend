@@ -1,10 +1,14 @@
 function createRmtActionEffectRuntimeModule() {
-  const RMT_ACTION_EFFECT_API_VERSION = '2.0.0';
+  const RMT_ACTION_EFFECT_API_VERSION = '3.0.0';
   const RMT_ACTION_EFFECT_RUNTIME_SCHEMA = 'xtend.epic18.rmt-action-effect-runtime.v1';
+  const RMT_ACTION_EFFECT_RUNTIME_SCHEMA_V2 = 'xtend.epic18.rmt-action-effect-runtime.v2';
+  const RMT_ACTION_INPUT_CONTRACT_SCHEMA = 'xtend.rmt.action-input-contract.v1';
+  const RMT_ACTION_INPUT_PORT_SCHEMA = 'xtend.rmt.action-input-port.v1';
   const RMT_ACTION_EFFECT_DIAGNOSTIC_SCHEMA = 'xtend.epic18.rmt-action-effect-diagnostic.v1';
   const RMT_COMPONENT_COMMAND_SCHEMA = 'xtend.rmt.component-command.v1';
   const RMT_COMPONENT_COMMAND_NAMES = new Set(['focus', 'reset', 'snapshot']);
   const DEFAULT_DIAGNOSTIC_CHANNEL = 'rmt.app_platform.action_effect';
+  const SOURCE4_ACTION_VALUE = Symbol('rmtx4.action-value');
 
   function clampString(value, fallback = '') {
     const normalized = String(value == null ? '' : value).trim();
@@ -68,7 +72,10 @@ function createRmtActionEffectRuntimeModule() {
     if (typeof value !== 'string') return cloneValue(value, value);
     const reference = value;
     if (/^(?:state|selector|input|payload|result|error)(?:\.|$)/u.test(reference) && reference.split('.').some(part => ['__proto__', 'prototype', 'constructor'].includes(part))) throw new TypeError('Unsafe action reference.');
-    if (valueKind === 'reference' && (!/^(?:state|selector|input|payload|result|error)(?:\.[A-Za-z_][A-Za-z0-9_-]*)*$/u.test(reference)
+    const referencePattern = context[SOURCE4_ACTION_VALUE]
+      ? /^(?:state|selector|input|payload|result|error)(?:\.[A-Za-z_$][A-Za-z0-9_$-]*)*$/u
+      : /^(?:state|selector|input|payload|result|error)(?:\.[A-Za-z_][A-Za-z0-9_-]*)*$/u;
+    if (valueKind === 'reference' && (!referencePattern.test(reference)
       || reference.split('.').some(part => ['__proto__', 'prototype', 'constructor'].includes(part)))) throw new TypeError('Unsafe or unsupported action reference.');
     for (const scope of ['input', 'payload', 'result', 'error']) {
       if (reference === scope) return context[scope === 'input' ? 'payload' : scope];
@@ -565,9 +572,131 @@ function createRmtActionEffectRuntimeModule() {
     return null;
   }
 
+  function inputError(message, path = '/', code = 'rmt.action.input.invalid') {
+    return Object.assign(new TypeError(message), { code, details: { path } });
+  }
+
+  function inputJson(value, path = '/', seen = new Set(), budget = { nodes: 0 }, depth = 0) {
+    if (++budget.nodes > 50000 || depth > 64) throw inputError('Action input exceeds JSON limits.', path);
+    if (value === null || typeof value === 'string' || typeof value === 'boolean' || typeof value === 'number' && Number.isFinite(value)) return value;
+    if (!value || typeof value !== 'object' || seen.has(value)) throw inputError('Action input requires finite acyclic JSON.', path);
+    const array = Array.isArray(value), prototype = Object.getPrototypeOf(value), keys = Reflect.ownKeys(value);
+    if (array ? prototype !== Array.prototype : prototype !== Object.prototype && prototype !== null)
+      throw inputError('Action input requires plain JSON objects and arrays.', path);
+    if (array && keys.length !== value.length + 1) throw inputError('Action input arrays must be dense.', path);
+    const result = array ? [] : {};
+    seen.add(value);
+    try {
+      for (const key of keys) {
+        if (array && key === 'length') continue;
+        const descriptor = Object.getOwnPropertyDescriptor(value, key);
+        const next = path.replace(/\/$/u, '') + '/' + String(key).replaceAll('~', '~0').replaceAll('/', '~1');
+        if (typeof key !== 'string' || ['__proto__', 'prototype', 'constructor'].includes(key) || !descriptor.enumerable || !hasOwn(descriptor, 'value')
+          || array && (!/^(0|[1-9]\d*)$/u.test(key) || Number(key) >= value.length)) throw inputError('Action input contains unsafe fields or accessors.', next);
+        result[key] = inputJson(descriptor.value, next, seen, budget, depth + 1);
+      }
+      return result;
+    } finally { seen.delete(value); }
+  }
+
+  function inputFields(value, allowed, label) {
+    if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).some(key => !allowed.includes(key)))
+      throw inputError(`Invalid ${label}.`, '/', 'rmt.action.input.contract.invalid');
+  }
+  function inputFreeze(value) {
+    if (value && typeof value === 'object') { Object.values(value).forEach(inputFreeze); Object.freeze(value); }
+    return value;
+  }
+  function inputRule(rule, field = false, depth = 0) {
+    inputFields(rule, ['type', 'nullable', 'items', ...(field ? ['required', 'default'] : [])], 'Action input rule');
+    if (depth > 16 || !['string', 'number', 'boolean', 'object', 'array', 'json', 'null'].includes(rule.type) || typeof rule.nullable !== 'boolean'
+      || field && typeof rule.required !== 'boolean' || rule.type === 'null' && !rule.nullable)
+      throw inputError('Unsupported Action input rule.', '/', 'rmt.action.input.contract.invalid');
+    if (rule.type === 'array') inputRule(rule.items, false, depth + 1);
+    else if (hasOwn(rule, 'items')) throw inputError('Only arrays declare item rules.', '/', 'rmt.action.input.contract.invalid');
+    if (hasOwn(rule, 'default')) {
+      if (rule.required) throw inputError('Defaulted Action inputs cannot be required.', '/', 'rmt.action.input.contract.invalid');
+      try { typedInput(rule.default, rule, '/default'); }
+      catch (error) { error.code = 'rmt.action.input.contract.invalid'; throw error; }
+    }
+  }
+  function typedInput(value, rule, path) {
+    if (value === null) { if (rule.nullable) return; throw inputError('Action input cannot be null.', path); }
+    if (rule.type === 'json') return;
+    if (rule.type === 'null') throw inputError('Action input must be null.', path);
+    if (rule.type === 'array') {
+      if (!Array.isArray(value)) throw inputError('Action input must be an array.', path);
+      value.forEach((item, index) => typedInput(item, rule.items, path + '/' + index)); return;
+    }
+    if (rule.type === 'object') {
+      if (!value || typeof value !== 'object' || Array.isArray(value)) throw inputError('Action input must be an object.', path);
+      return;
+    }
+    if (typeof value !== rule.type) throw inputError(`Action input must have type ${rule.type}.`, path);
+  }
+  function inputTypeMatches(type, rule, depth = 0) {
+    if (typeof type !== 'string' || depth > 16) return false;
+    // Source nullable applies to the declared field, never implicitly to
+    // elements of T[]. Nested rules retain the canonical type's nullability.
+    if (depth > 0 && rule.nullable !== ['json', 'null'].includes(type)) return false;
+    if (type.endsWith('[]')) return rule.type === 'array' && inputTypeMatches(type.slice(0, -2), rule.items || {}, depth + 1);
+    if (type === 'collection' || type === 'array') return rule.type === 'array' && rule.items?.type === 'json' && rule.items.nullable === true;
+    return type === rule.type;
+  }
+
+  /** Trusted controller port; JSON contract data alone never creates this port. */
+  function createRmtActionInputValidationPort(contract, actions = []) {
+    let policy;
+    try { policy = inputJson(contract); }
+    catch (error) { error.code = 'rmt.action.input.contract.invalid'; throw error; }
+    inputFields(policy, ['schema', 'apiVersion', 'sourceProfile', 'actions'], 'Action input contract');
+    inputFields(policy.sourceProfile, ['syntax', 'version'], 'Action input source profile');
+    if (policy.schema !== RMT_ACTION_INPUT_CONTRACT_SCHEMA || policy.apiVersion !== '1.0.0'
+      || policy.sourceProfile.syntax !== 'rmtx' || policy.sourceProfile.version !== '4.0.0' || !Array.isArray(policy.actions))
+      throw inputError('Unsupported Action input contract.', '/', 'rmt.action.input.contract.invalid');
+    const declared = new Map(actions.map(action => [action.id, action])), contracts = new Map();
+    if (declared.size !== actions.length || policy.actions.length !== actions.length)
+      throw inputError('Action input contracts must cover every declared Action exactly once.', '/', 'rmt.action.input.contract.invalid');
+    for (const entry of policy.actions) {
+      inputFields(entry, ['id', 'fields'], 'Action input declaration');
+      if (typeof entry.id !== 'string' || !entry.id || contracts.has(entry.id) || !declared.has(entry.id))
+        throw inputError('Unknown or duplicate Action input declaration.', '/', 'rmt.action.input.contract.invalid');
+      inputFields(entry.fields, Object.keys(entry.fields || {}), 'Action input fields');
+      const inputs = toArray(declared.get(entry.id).inputs);
+      if (new Set(inputs.map(input => input.name)).size !== inputs.length || inputs.length !== Object.keys(entry.fields).length || inputs.some(input => !hasOwn(entry.fields, input.name)
+        || !inputTypeMatches(input.type, entry.fields[input.name])))
+        throw inputError('Action input policy differs from declared inputs.', '/', 'rmt.action.input.contract.invalid');
+      for (const [key, rule] of Object.entries(entry.fields)) {
+        if (!/^[A-Za-z_$][\w$-]*$/u.test(key)) throw inputError('Unsafe Action input field.', '/', 'rmt.action.input.contract.invalid');
+        inputRule(rule, true);
+      }
+      contracts.set(entry.id, entry.fields);
+    }
+    inputFreeze(policy);
+    return Object.freeze({ schema: RMT_ACTION_INPUT_PORT_SCHEMA, contract: policy,
+      validate(actionId, payload) {
+        const rules = contracts.get(actionId);
+        if (!rules) throw inputError('No input contract is bound to this Action.');
+        const candidate = inputJson(payload);
+        if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate)) throw inputError('Action payload must be a JSON object.');
+        for (const key of Object.keys(candidate)) if (!hasOwn(rules, key)) throw inputError('Unknown Action input field.', '/' + key);
+        const result = {};
+        for (const [key, rule] of Object.entries(rules)) {
+          if (!hasOwn(candidate, key)) {
+            if (hasOwn(rule, 'default')) result[key] = inputJson(rule.default);
+            else if (rule.required) throw inputError('Required Action input is missing.', '/' + key);
+          } else { typedInput(candidate[key], rule, '/' + key); result[key] = candidate[key]; }
+        }
+        return inputFreeze(result);
+      }
+    });
+  }
+
   function createRmtActionEffectRuntime(options = {}) {
     const diagnosticsRecorder = createDiagnosticsRecorder(options);
     const actions = normalizeActions(options.actions);
+    const inputValidationPort = hasOwn(options, 'inputContract') ? createRmtActionInputValidationPort(options.inputContract, actions) : null;
+    const actionResultSchema = inputValidationPort ? 'xtend.epic18.rmt-action-result.v2' : 'xtend.epic18.rmt-action-result.v1';
     const dataSources = normalizeDataSources(options.dataSources || options.datasources);
     const effects = normalizeEffects(options.effects);
     const actionIndex = new Map(actions.map((action) => [action.id, action]));
@@ -596,6 +725,10 @@ function createRmtActionEffectRuntimeModule() {
     }
     const activeRuns = new Map();
     let runSequence = 0;
+
+    function actionValueContext(context) {
+      return inputValidationPort ? Object.defineProperty({ ...context }, SOURCE4_ACTION_VALUE, { value: true }) : context;
+    }
 
     function handlersFor(action, phase) {
       return toArray(action.handlers).map(handler => safeActionData(handler)).filter(handler => {
@@ -627,6 +760,7 @@ function createRmtActionEffectRuntimeModule() {
     }
 
     async function runResultPhase(action, phase, context, token, runId) {
+      context = actionValueContext(context);
       const handlers = handlersFor(action, phase), effectsForPhase = [];
       if (!planningOnly) {
         for (const handler of handlers.filter(entry => entry.kind === 'reduce')) {
@@ -660,6 +794,8 @@ function createRmtActionEffectRuntimeModule() {
       return results;
     }
 
+    // Trusted host effect port. This does not dispatch or start an Action;
+    // Action payloads enter exclusively through runAction's selected input policy.
     async function runEffect(effectId, context = {}) {
       const effect = effectIndex.get(clampString(effectId));
       if (!effect) throw new Error(`RMT Effect ${effectId} ist nicht definiert.`);
@@ -767,6 +903,17 @@ function createRmtActionEffectRuntimeModule() {
     async function runAction(actionId, payload = {}, metadata = {}) {
       const action = actionIndex.get(clampString(actionId));
       if (!action) throw new Error(`RMT Action ${actionId} ist nicht definiert.`);
+      if (inputValidationPort) {
+        try { payload = inputValidationPort.validate(action.id, payload); }
+        catch (error) {
+          const diagnostic = createDiagnostic('rmt.action.input.invalid', 'RMT Action input validation rejected the payload.',
+            { action: action.id, path: error.details?.path || '/' }, 'error');
+          diagnosticsRecorder.publish(diagnostic);
+          return { schema: actionResultSchema, id: action.id, runId: '', status: 'error',
+            error: { name: 'RmtActionInputValidationError', code: 'rmt.action.input.invalid', message: error.message, details: { path: error.details?.path || '/' } },
+            effects: [], modelOperations: [], postCommitEffects: [], diagnostics: [diagnostic] };
+        }
+      }
       const source = action.datasource ? dataSourceIndex.get(action.datasource) : null;
       // Per-run collection avoids cross-talk between concurrent executions.
       const runDiagnostics = [];
@@ -840,7 +987,7 @@ function createRmtActionEffectRuntimeModule() {
               action: action.id,
               commandEnvelope: metadata.commandEnvelope || null,
               correlationId: metadata.correlationId || null
-            }, { action, payload, result: data, stateRuntime, ownerId, signal: controller.signal }));
+            }, actionValueContext({ action, payload, result: data, stateRuntime, ownerId, signal: controller.signal })));
           }
         }
         for (const effectId of action.effects) {
@@ -864,7 +1011,8 @@ function createRmtActionEffectRuntimeModule() {
         actionStatus[action.id] = 'success';
         publishRunDiagnostic(createDiagnostic('rmt.action.success', `RMT Action ${action.id} war erfolgreich.`, { action: action.id }, 'info'));
         const result = {
-          schema: 'xtend.epic18.rmt-action-result.v1',
+          schema: actionResultSchema,
+          ...(inputValidationPort ? { validatedInput: payload } : {}),
           id: action.id,
           runId,
           status: 'success',
@@ -898,7 +1046,8 @@ function createRmtActionEffectRuntimeModule() {
         actionStatus[action.id] = 'error';
         publishRunDiagnostic(createDiagnostic('rmt.action.error', `RMT Action ${action.id} ist fehlgeschlagen.`, { action: action.id, error: normalizeError(error) }, 'error'));
         const result = {
-          schema: 'xtend.epic18.rmt-action-result.v1',
+          schema: actionResultSchema,
+          ...(inputValidationPort ? { validatedInput: payload } : {}),
           id: action.id,
           runId,
           status: 'error',
@@ -931,7 +1080,8 @@ function createRmtActionEffectRuntimeModule() {
       runDiagnostics.push(diagnostic);
       diagnosticsRecorder.publish(diagnostic);
       const result = {
-        schema: 'xtend.epic18.rmt-action-result.v1',
+        schema: actionResultSchema,
+        ...(inputValidationPort ? { validatedInput: payload } : {}),
         id: action.id,
         runId,
         status: 'cancelled',
@@ -977,7 +1127,8 @@ function createRmtActionEffectRuntimeModule() {
     }
 
     return Object.freeze({
-      schema: RMT_ACTION_EFFECT_RUNTIME_SCHEMA,
+      schema: inputValidationPort ? RMT_ACTION_EFFECT_RUNTIME_SCHEMA_V2 : RMT_ACTION_EFFECT_RUNTIME_SCHEMA,
+      ...(inputValidationPort ? { inputValidationPort } : {}),
       runAction,
       cancelAction,
       dispose,
@@ -1008,6 +1159,10 @@ function createRmtActionEffectRuntimeModule() {
     RMT_ACTION_EFFECT_API_VERSION,
     RMT_ACTION_EFFECT_DIAGNOSTIC_SCHEMA,
     RMT_ACTION_EFFECT_RUNTIME_SCHEMA,
+    RMT_ACTION_EFFECT_RUNTIME_SCHEMA_V2,
+    RMT_ACTION_INPUT_CONTRACT_SCHEMA,
+    RMT_ACTION_INPUT_PORT_SCHEMA,
+    createRmtActionInputValidationPort,
     RMT_COMPONENT_COMMAND_SCHEMA,
     createRmtActionEffectRuntime,
     createRmtResourceManager
@@ -1021,6 +1176,10 @@ const __XTEND_RMT_ACTION_EFFECT_RUNTIME_API__ = createRmtActionEffectRuntimeModu
 export const RMT_ACTION_EFFECT_API_VERSION = __XTEND_RMT_ACTION_EFFECT_RUNTIME_API__.RMT_ACTION_EFFECT_API_VERSION;
 export const RMT_ACTION_EFFECT_DIAGNOSTIC_SCHEMA = __XTEND_RMT_ACTION_EFFECT_RUNTIME_API__.RMT_ACTION_EFFECT_DIAGNOSTIC_SCHEMA;
 export const RMT_ACTION_EFFECT_RUNTIME_SCHEMA = __XTEND_RMT_ACTION_EFFECT_RUNTIME_API__.RMT_ACTION_EFFECT_RUNTIME_SCHEMA;
+export const RMT_ACTION_EFFECT_RUNTIME_SCHEMA_V2 = __XTEND_RMT_ACTION_EFFECT_RUNTIME_API__.RMT_ACTION_EFFECT_RUNTIME_SCHEMA_V2;
+export const RMT_ACTION_INPUT_CONTRACT_SCHEMA = __XTEND_RMT_ACTION_EFFECT_RUNTIME_API__.RMT_ACTION_INPUT_CONTRACT_SCHEMA;
+export const RMT_ACTION_INPUT_PORT_SCHEMA = __XTEND_RMT_ACTION_EFFECT_RUNTIME_API__.RMT_ACTION_INPUT_PORT_SCHEMA;
+export const createRmtActionInputValidationPort = __XTEND_RMT_ACTION_EFFECT_RUNTIME_API__.createRmtActionInputValidationPort;
 export const RMT_COMPONENT_COMMAND_SCHEMA = __XTEND_RMT_ACTION_EFFECT_RUNTIME_API__.RMT_COMPONENT_COMMAND_SCHEMA;
 export const createRmtActionEffectRuntime = __XTEND_RMT_ACTION_EFFECT_RUNTIME_API__.createRmtActionEffectRuntime;
 export const createRmtResourceManager = __XTEND_RMT_ACTION_EFFECT_RUNTIME_API__.createRmtResourceManager;

@@ -1,0 +1,298 @@
+{
+  "scope": "Actual package and strict SDK acceptance after final legacy delivery capability closure",
+  "nonce": "final-sdk-after-delivery-r03",
+  "sourcesBefore": [
+    {
+      "path": "tests/rmt-language/rmtx-maraca-integration.test.cjs",
+      "sha256": "220dbb1982e4785c43daa13424b25f1297ccd53741938b3dd4defd0e6d51e72f"
+    },
+    {
+      "path": "package.json",
+      "sha256": "773eaecc423d6ba9d358949b906aba0a7b52712b15a8a06df730cbec2c9bf989"
+    },
+    {
+      "path": "tools/package.json",
+      "sha256": "a1bd6886b53f4a889d60fb185b3295a164d6abc63f1001cee0ab2766e0444103"
+    },
+    {
+      "path": "xtend-maraca/package.json",
+      "sha256": "e80eca21789d6709667b981fbfe6e1e2f740ff0d9b2606554d73051d5b363cd3"
+    },
+    {
+      "path": "tools/xtensions/url-state.js",
+      "sha256": "fdaed66f4a27bf5103383e93af8fb27d921a6c9b71d3c6cc571cdcf3191eac73"
+    },
+    {
+      "path": "tools/xtensions/url-state.d.ts",
+      "sha256": "d82df9910a7a9103b8482e146fbd8eaff6cfa06e6154361e75c470367fa8a268"
+    },
+    {
+      "path": "tools/xtensions/component-interface.d.ts",
+      "sha256": "4fb0bb4ab3163c856c0ef7d78d6a888b3a1d94b35c4dbaf0172aef6a8a61dc3c"
+    },
+    {
+      "path": "tools/rmt-language/rmtx-component-bindings.d.ts",
+      "sha256": "a4a0ccc4c030a6b3deaa6b050bc77bffecb54980519bd32b34c472c16d140df5"
+    },
+    {
+      "path": "tools/rmt-language/rmtx-compiler.d.ts",
+      "sha256": "2bdc4221dcf35cace1605e865f03eefaf09eade59ce96bd26fd36323f963124d"
+    },
+    {
+      "path": "tools/rmt-language/rmtx-parser.d.ts",
+      "sha256": "cd44df7748d88ebcba4370a0912ee90617344db089e7de990bbc2272a7bdb573"
+    },
+    {
+      "path": "xtend-maraca/index.d.ts",
+      "sha256": "58e9ae1fb7ff6c6dd135dae621102ce9e0f32a4a315fb367f4b7dec07bfc0a4f"
+    },
+    {
+      "path": "xtend-maraca/plan-runtime.d.ts",
+      "sha256": "46c15173a48156d97249bbf93b2c463e023b171a5f6fa32d477d039bdea65cc6"
+    },
+    {
+      "path": "xtend-maraca/browser-composition-runtime.d.ts",
+      "sha256": "e450f48a3f85fea2332041be7bd4c6384f69f445424c5657e298523086ffb109"
+    },
+    {
+      "path": "xtend-maraca/plan-runtime.mjs",
+      "sha256": "6408411df107679f6a65a7f97f8ad8b8bb00fb078966e92b78f78b53b37b354d"
+    },
+    {
+      "path": "xtend-maraca/browser-composition-runtime.mjs",
+      "sha256": "be18160f34aa31cf742dd0480efd964468965dc0f0a2eac5f2734d5acd41b8a1"
+    },
+    {
+      "path": "xtend-maraca/xtension-platform-build.js",
+      "sha256": "c9cda2f3aacec3cd2c7852c1666787865fb5f4130bbcd6c4384fb8f5a58a3d62"
+    },
+    {
+      "path": "tools/xtensions/state-binding-projection-disabled.js",
+      "sha256": "c0bfee6ef6138a4a14d9f95526d1cf97ff04d57a77dd10c6769f9fb60d4137b5"
+    },
+    {
+      "path": "components/xrouter-url-state.js",
+      "sha256": "dbb6bef58dfdb5267c2690067da39b20930687f5c062264b35be291faad12c92"
+    },
+    {
+      "path": "components/xrouter-url-state.d.ts",
+      "sha256": "1b8416e609d10addde8ddb387e56ee6a8a90061bf72c8f0b06ab382ddbae9442"
+    },
+    {
+      "path": "components/xrouter.d.ts",
+      "sha256": "bdc2fa9bba903f6ac18f4ba53c7548777157f86403b1f8c81bba0a8260f0a70c"
+    },
+    {
+      "path": "tools/xtensions/url-state-contracts/restore-plan.v2.schema.json",
+      "sha256": "3f952e46330a5379fa9a323132e9969608f6ff01f30612df149f12e336ba0ddf"
+    },
+    {
+      "path": "tools/xtensions/url-state-contracts/policy.v2.schema.json",
+      "sha256": "9ec44bb834471bdf94b55f43c01f76e0922a0eb68861263fd2d8a40bc0f29c6a"
+    },
+    {
+      "path": "tools/xtensions/url-state-contracts/restore-plan.v1.schema.json",
+      "sha256": "57d5ea6e30f2378a66f418e5d601e201ac2bc552b719be1bd8d94d03877aeab0"
+    },
+    {
+      "path": "tools/xtensions/url-state-contracts/history-proposal.v1.schema.json",
+      "sha256": "63aadd491141cd781ebcacaf4a903421e079cdedae89689531efd41c65d8f1b0"
+    },
+    {
+      "path": "tools/xtensions/url-state-contracts/state.v1.schema.json",
+      "sha256": "8a569847a037c463aa26b8cfa46f660a20b3a0afc7ede5de1dbd57bfa32a57d8"
+    },
+    {
+      "path": "tools/xtensions/url-state-contracts/history-proposal.v2.schema.json",
+      "sha256": "2b63c3eedfcf9220a609ea04b67d9b588fa8e034db78b7aef46ecacaf78cba0b"
+    },
+    {
+      "path": "tools/xtensions/url-state-contracts/state.v2.schema.json",
+      "sha256": "d9a2f1b973f43bc5adc7b2a49c0e84a473af0968cda3e6a1d720f0cff02fd442"
+    },
+    {
+      "path": "tools/xtensions/url-state-contracts/policy.v1.schema.json",
+      "sha256": "bcc9335779f6cb9f2752800dc9054184a1121bcf8b08af923c0218d7f292067d"
+    },
+    {
+      "path": "components/xrouter.js",
+      "sha256": "590e662947f116334532b83917ce57397f6afe230179232a033b75f33990c9e5"
+    },
+    {
+      "path": "components/xtend-public-types.d.ts",
+      "sha256": "c35ce763e4e4c031add991283e135c76bce4066ab4943c37e5f2af45bf275ed7"
+    },
+    {
+      "path": "xtend-maraca/xtension-component-binding-disabled.mjs",
+      "sha256": "58a1ba6f8560ab5b94bcab77985f6d172cc6796f6e4c0e3bc62a90faf48dd191"
+    },
+    {
+      "path": "tests/xtensions/platform-projection-profile.test.cjs",
+      "sha256": "35bb70dadfc74c6b1ffabb25d1a96672e4c50a3d13b7798ac85938d839514af1"
+    }
+  ],
+  "sources": [
+    {
+      "path": "tests/rmt-language/rmtx-maraca-integration.test.cjs",
+      "sha256": "220dbb1982e4785c43daa13424b25f1297ccd53741938b3dd4defd0e6d51e72f"
+    },
+    {
+      "path": "package.json",
+      "sha256": "773eaecc423d6ba9d358949b906aba0a7b52712b15a8a06df730cbec2c9bf989"
+    },
+    {
+      "path": "tools/package.json",
+      "sha256": "a1bd6886b53f4a889d60fb185b3295a164d6abc63f1001cee0ab2766e0444103"
+    },
+    {
+      "path": "xtend-maraca/package.json",
+      "sha256": "e80eca21789d6709667b981fbfe6e1e2f740ff0d9b2606554d73051d5b363cd3"
+    },
+    {
+      "path": "tools/xtensions/url-state.js",
+      "sha256": "fdaed66f4a27bf5103383e93af8fb27d921a6c9b71d3c6cc571cdcf3191eac73"
+    },
+    {
+      "path": "tools/xtensions/url-state.d.ts",
+      "sha256": "d82df9910a7a9103b8482e146fbd8eaff6cfa06e6154361e75c470367fa8a268"
+    },
+    {
+      "path": "tools/xtensions/component-interface.d.ts",
+      "sha256": "4fb0bb4ab3163c856c0ef7d78d6a888b3a1d94b35c4dbaf0172aef6a8a61dc3c"
+    },
+    {
+      "path": "tools/rmt-language/rmtx-component-bindings.d.ts",
+      "sha256": "a4a0ccc4c030a6b3deaa6b050bc77bffecb54980519bd32b34c472c16d140df5"
+    },
+    {
+      "path": "tools/rmt-language/rmtx-compiler.d.ts",
+      "sha256": "2bdc4221dcf35cace1605e865f03eefaf09eade59ce96bd26fd36323f963124d"
+    },
+    {
+      "path": "tools/rmt-language/rmtx-parser.d.ts",
+      "sha256": "cd44df7748d88ebcba4370a0912ee90617344db089e7de990bbc2272a7bdb573"
+    },
+    {
+      "path": "xtend-maraca/index.d.ts",
+      "sha256": "58e9ae1fb7ff6c6dd135dae621102ce9e0f32a4a315fb367f4b7dec07bfc0a4f"
+    },
+    {
+      "path": "xtend-maraca/plan-runtime.d.ts",
+      "sha256": "46c15173a48156d97249bbf93b2c463e023b171a5f6fa32d477d039bdea65cc6"
+    },
+    {
+      "path": "xtend-maraca/browser-composition-runtime.d.ts",
+      "sha256": "e450f48a3f85fea2332041be7bd4c6384f69f445424c5657e298523086ffb109"
+    },
+    {
+      "path": "xtend-maraca/plan-runtime.mjs",
+      "sha256": "6408411df107679f6a65a7f97f8ad8b8bb00fb078966e92b78f78b53b37b354d"
+    },
+    {
+      "path": "xtend-maraca/browser-composition-runtime.mjs",
+      "sha256": "be18160f34aa31cf742dd0480efd964468965dc0f0a2eac5f2734d5acd41b8a1"
+    },
+    {
+      "path": "xtend-maraca/xtension-platform-build.js",
+      "sha256": "c9cda2f3aacec3cd2c7852c1666787865fb5f4130bbcd6c4384fb8f5a58a3d62"
+    },
+    {
+      "path": "tools/xtensions/state-binding-projection-disabled.js",
+      "sha256": "c0bfee6ef6138a4a14d9f95526d1cf97ff04d57a77dd10c6769f9fb60d4137b5"
+    },
+    {
+      "path": "components/xrouter-url-state.js",
+      "sha256": "dbb6bef58dfdb5267c2690067da39b20930687f5c062264b35be291faad12c92"
+    },
+    {
+      "path": "components/xrouter-url-state.d.ts",
+      "sha256": "1b8416e609d10addde8ddb387e56ee6a8a90061bf72c8f0b06ab382ddbae9442"
+    },
+    {
+      "path": "components/xrouter.d.ts",
+      "sha256": "bdc2fa9bba903f6ac18f4ba53c7548777157f86403b1f8c81bba0a8260f0a70c"
+    },
+    {
+      "path": "tools/xtensions/url-state-contracts/restore-plan.v2.schema.json",
+      "sha256": "3f952e46330a5379fa9a323132e9969608f6ff01f30612df149f12e336ba0ddf"
+    },
+    {
+      "path": "tools/xtensions/url-state-contracts/policy.v2.schema.json",
+      "sha256": "9ec44bb834471bdf94b55f43c01f76e0922a0eb68861263fd2d8a40bc0f29c6a"
+    },
+    {
+      "path": "tools/xtensions/url-state-contracts/restore-plan.v1.schema.json",
+      "sha256": "57d5ea6e30f2378a66f418e5d601e201ac2bc552b719be1bd8d94d03877aeab0"
+    },
+    {
+      "path": "tools/xtensions/url-state-contracts/history-proposal.v1.schema.json",
+      "sha256": "63aadd491141cd781ebcacaf4a903421e079cdedae89689531efd41c65d8f1b0"
+    },
+    {
+      "path": "tools/xtensions/url-state-contracts/state.v1.schema.json",
+      "sha256": "8a569847a037c463aa26b8cfa46f660a20b3a0afc7ede5de1dbd57bfa32a57d8"
+    },
+    {
+      "path": "tools/xtensions/url-state-contracts/history-proposal.v2.schema.json",
+      "sha256": "2b63c3eedfcf9220a609ea04b67d9b588fa8e034db78b7aef46ecacaf78cba0b"
+    },
+    {
+      "path": "tools/xtensions/url-state-contracts/state.v2.schema.json",
+      "sha256": "d9a2f1b973f43bc5adc7b2a49c0e84a473af0968cda3e6a1d720f0cff02fd442"
+    },
+    {
+      "path": "tools/xtensions/url-state-contracts/policy.v1.schema.json",
+      "sha256": "bcc9335779f6cb9f2752800dc9054184a1121bcf8b08af923c0218d7f292067d"
+    },
+    {
+      "path": "components/xrouter.js",
+      "sha256": "590e662947f116334532b83917ce57397f6afe230179232a033b75f33990c9e5"
+    },
+    {
+      "path": "components/xtend-public-types.d.ts",
+      "sha256": "c35ce763e4e4c031add991283e135c76bce4066ab4943c37e5f2af45bf275ed7"
+    },
+    {
+      "path": "xtend-maraca/xtension-component-binding-disabled.mjs",
+      "sha256": "58a1ba6f8560ab5b94bcab77985f6d172cc6796f6e4c0e3bc62a90faf48dd191"
+    },
+    {
+      "path": "tests/xtensions/platform-projection-profile.test.cjs",
+      "sha256": "35bb70dadfc74c6b1ffabb25d1a96672e4c50a3d13b7798ac85938d839514af1"
+    }
+  ],
+  "sourceDrift": [],
+  "logs": [
+    {
+      "path": "/tmp/xtend-rmtx-a0633/sdk-pack-24-final-r03.log",
+      "sha256": "774895c9bf5f2a99455f209a7a4f473687f9ef2bf1c881abfbf3bdd0407a6f45",
+      "nodeLane": 24,
+      "exitCode": 0,
+      "tests": 9,
+      "pass": 9,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "path": "/tmp/xtend-rmtx-a0633/sdk-pack-26-final-r03.log",
+      "sha256": "9b3389f66a642b9d9be52c2c1d9d70c4dd7854952cf43720a29855fc87587123",
+      "nodeLane": 26,
+      "exitCode": 0,
+      "tests": 9,
+      "pass": 9,
+      "fail": 0,
+      "skipped": 0
+    }
+  ],
+  "suiteFile": "tests/rmt-language/rmtx-maraca-integration.test.cjs",
+  "includesProjectionURL2AndXRouter2": true,
+  "includesTypedRoot10Snapshot13": true,
+  "includesNegativeLegacyAndSSRTypes": true,
+  "includesBothPublishedLegacyGuards": true,
+  "typeScript": {
+    "version": "5.9.3",
+    "strict": true,
+    "skipLibCheck": false,
+    "moduleResolution": "NodeNext"
+  }
+}

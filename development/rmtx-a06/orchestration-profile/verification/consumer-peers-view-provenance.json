@@ -1,0 +1,21 @@
+{
+  "view": "/tmp/xtend-rmtx-a0633/consumer-peers-view",
+  "sourceTree": "/tmp/xtend-rmtx-a0632/peers/node_modules",
+  "realModuleTree": "/tmp/xtend-rmtx-a0632/peers/node_modules",
+  "symlink": "/tmp/xtend-rmtx-a0632/peers/node_modules",
+  "committedManifestSha256": "cbf5de1a4435997401d1297b8ce9c1837182a146ab30b121d35fed6f1a9828b9",
+  "committedLockSha256": "8028d0817618f8d400fabb375f9abf3135688f17b66cbf9bfb4e3782c9a569c4",
+  "manifestAndLockCopiedExactly": true,
+  "versions": {
+    "jsdom": "30.1.2",
+    "playwright": "1.56.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "vue": "3.5.43"
+  },
+  "node": "v24.22.2",
+  "readinessFingerprint": "444e10b07f97d820fe2b31637b20f610af5ae128cdcdbb8660d47b9b1201c320",
+  "existingPrepareFunctionExecuted": true,
+  "sharedHarnessUnmodified": true,
+  "installPerformed": false
+}

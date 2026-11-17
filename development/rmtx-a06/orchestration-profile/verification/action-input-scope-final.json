@@ -1,0 +1,256 @@
+{
+  "scope": "A06.3 Source4 native Action input boundary, dollar-path parity and standalone compiler closure",
+  "sourcesBefore": [
+    {
+      "path": "tools/rmt-language/action-input-contract.js",
+      "sha256": "a2587bf7f380b3759747d7752a407e8cbdcd4f40ff7a854f8a23ab9bc3b408f5"
+    },
+    {
+      "path": "tools/rmt-language/action-input-contract.d.ts",
+      "sha256": "a5b4c57524be6c4aa2f777afdc4ea5db4855793e90c0c65a0a03bcc3bef05242"
+    },
+    {
+      "path": "tools/rmt-language/contracts/action-input-contract.v1.schema.json",
+      "sha256": "269ae86ff73fa9b4baaa18fe3273b3a090eb50a51b5c130923530521ef26e7cf"
+    },
+    {
+      "path": "tools/rmt-language/vnext-compiler.js",
+      "sha256": "c3dce058c55a93a2d8520469285f21360141681679ca3869c55d5edfe5eb9888"
+    },
+    {
+      "path": "tools/rmt-language/vnext-compiler.d.ts",
+      "sha256": "9cbf008e0c43c811111d0cf8304630182161b8c8a0014f42955d5902f5582df8"
+    },
+    {
+      "path": "tools/rmt-language/semantic-graph.js",
+      "sha256": "5ef6c052b44a4e94d05f08e0327517e5dc073d706bf023a4fef2f47a45d08e43"
+    },
+    {
+      "path": "xtendrmt/rmt-action-effect-runtime.js",
+      "sha256": "455995d274cf2d12e92be4d1567b154769fc5369b4fb3f7b7886075b2839a4d9"
+    },
+    {
+      "path": "xtendrmt/rmt-action-effect-runtime.d.ts",
+      "sha256": "c8ba766b9299370984f85cd51b3b8bc4ed1dca42b6f9bd70f5434fd4a6346e2e"
+    },
+    {
+      "path": "xtendrmt/rmt-event-routing-runtime.js",
+      "sha256": "7da9757eb83fcd4a74e2c54d09520f513aff9e8c76fbf14c55fca3ca61c79d1d"
+    },
+    {
+      "path": "xtendrmt/rmt-event-routing-runtime.d.ts",
+      "sha256": "0d86c676f7a9082a341b5d331eb3a4b59b55a01c9e8dccb84afc53ece5a878c1"
+    },
+    {
+      "path": "scripts/sync_rmt_compiler_contracts.cjs",
+      "sha256": "1764f0adb1e20edde7979fae5dce6784bd01b08772df48c3acd1c309033412cc"
+    },
+    {
+      "path": "tools/rmt-language/vendor/manifest.json",
+      "sha256": "588c8d474ac376cb59b6787cbd4e5460e746c61a9d5e5b211ae92ab631d58218"
+    },
+    {
+      "path": "tools/rmt-language/vendor/fastpass-contract.js",
+      "sha256": "af8e26104243deea58ccf3a334d67ecb3286617146257074a29eeb7866a3b1a3"
+    },
+    {
+      "path": "tests/rmt-language/action-input-contract.test.cjs",
+      "sha256": "b3a2bf518adb2bf03836224d5537872e1a316d9f8a41f71922706cfd4f7cc27d"
+    },
+    {
+      "path": "tests/rmt-language/rmtx-maraca-integration.test.cjs",
+      "sha256": "5cb72c9e025752737f264245be6115da854452ffbbb73c93ffc4402f2979c458"
+    },
+    {
+      "path": "tests/rmt-language/action-backend-regressions.test.cjs",
+      "sha256": "01cfe0e54f4968f955fe0d035d0e822729a46a3959e39d5fa9ab54fc25a80e20"
+    },
+    {
+      "path": "tests/rmt-language/event-condition-guards.test.cjs",
+      "sha256": "29db136c0b51e082f980b53dfa5cbc424a9d2b713cd7a4104562c7bb6675b191"
+    },
+    {
+      "path": "tools/rmt-language/action-execution-lowering.js",
+      "sha256": "661647a20aaadf2c1f2bdcfacbfbb2a5de992cc6069b56002e187f2b0e91948e"
+    },
+    {
+      "path": "tools/rmt-language/classic-semantic-rules.js",
+      "sha256": "09e7a8706201958104fbebee8eea749d3f7b78de4b491eed0d0d79c2f4451549"
+    },
+    {
+      "path": "tools/rmt-language/rmtx-parser.js",
+      "sha256": "de11824a2ec993cbf82f77d92a94e07d2e7a78af07c07384d10e096e6bdf1ad1"
+    },
+    {
+      "path": "tools/rmt-language/rmtx-compiler.js",
+      "sha256": "a82fdab327ab3be0fa9574eb730362447b5f256263eb5b10693e1737963e610a"
+    },
+    {
+      "path": "tests/rmt-language/rmtx-orchestration.test.cjs",
+      "sha256": "b95d92df75056d67cfa915acb068192048353c3863cfa141d74512712ce5b1b3"
+    },
+    {
+      "path": "tests/rmt-language/rmtx-extended-operators.test.cjs",
+      "sha256": "728b43f8eed59f7af68a979e81de4c3783093b473deeb9fc4d49a5cc1f2c19e5"
+    },
+    {
+      "path": "xtend-maraca/fastpass-contract.js",
+      "sha256": "af8e26104243deea58ccf3a334d67ecb3286617146257074a29eeb7866a3b1a3"
+    }
+  ],
+  "sources": [
+    {
+      "path": "tools/rmt-language/action-input-contract.js",
+      "sha256": "a2587bf7f380b3759747d7752a407e8cbdcd4f40ff7a854f8a23ab9bc3b408f5"
+    },
+    {
+      "path": "tools/rmt-language/action-input-contract.d.ts",
+      "sha256": "a5b4c57524be6c4aa2f777afdc4ea5db4855793e90c0c65a0a03bcc3bef05242"
+    },
+    {
+      "path": "tools/rmt-language/contracts/action-input-contract.v1.schema.json",
+      "sha256": "269ae86ff73fa9b4baaa18fe3273b3a090eb50a51b5c130923530521ef26e7cf"
+    },
+    {
+      "path": "tools/rmt-language/vnext-compiler.js",
+      "sha256": "c3dce058c55a93a2d8520469285f21360141681679ca3869c55d5edfe5eb9888"
+    },
+    {
+      "path": "tools/rmt-language/vnext-compiler.d.ts",
+      "sha256": "9cbf008e0c43c811111d0cf8304630182161b8c8a0014f42955d5902f5582df8"
+    },
+    {
+      "path": "tools/rmt-language/semantic-graph.js",
+      "sha256": "5ef6c052b44a4e94d05f08e0327517e5dc073d706bf023a4fef2f47a45d08e43"
+    },
+    {
+      "path": "xtendrmt/rmt-action-effect-runtime.js",
+      "sha256": "455995d274cf2d12e92be4d1567b154769fc5369b4fb3f7b7886075b2839a4d9"
+    },
+    {
+      "path": "xtendrmt/rmt-action-effect-runtime.d.ts",
+      "sha256": "c8ba766b9299370984f85cd51b3b8bc4ed1dca42b6f9bd70f5434fd4a6346e2e"
+    },
+    {
+      "path": "xtendrmt/rmt-event-routing-runtime.js",
+      "sha256": "7da9757eb83fcd4a74e2c54d09520f513aff9e8c76fbf14c55fca3ca61c79d1d"
+    },
+    {
+      "path": "xtendrmt/rmt-event-routing-runtime.d.ts",
+      "sha256": "0d86c676f7a9082a341b5d331eb3a4b59b55a01c9e8dccb84afc53ece5a878c1"
+    },
+    {
+      "path": "scripts/sync_rmt_compiler_contracts.cjs",
+      "sha256": "1764f0adb1e20edde7979fae5dce6784bd01b08772df48c3acd1c309033412cc"
+    },
+    {
+      "path": "tools/rmt-language/vendor/manifest.json",
+      "sha256": "588c8d474ac376cb59b6787cbd4e5460e746c61a9d5e5b211ae92ab631d58218"
+    },
+    {
+      "path": "tools/rmt-language/vendor/fastpass-contract.js",
+      "sha256": "af8e26104243deea58ccf3a334d67ecb3286617146257074a29eeb7866a3b1a3"
+    },
+    {
+      "path": "tests/rmt-language/action-input-contract.test.cjs",
+      "sha256": "b3a2bf518adb2bf03836224d5537872e1a316d9f8a41f71922706cfd4f7cc27d"
+    },
+    {
+      "path": "tests/rmt-language/rmtx-maraca-integration.test.cjs",
+      "sha256": "5cb72c9e025752737f264245be6115da854452ffbbb73c93ffc4402f2979c458"
+    },
+    {
+      "path": "tests/rmt-language/action-backend-regressions.test.cjs",
+      "sha256": "01cfe0e54f4968f955fe0d035d0e822729a46a3959e39d5fa9ab54fc25a80e20"
+    },
+    {
+      "path": "tests/rmt-language/event-condition-guards.test.cjs",
+      "sha256": "29db136c0b51e082f980b53dfa5cbc424a9d2b713cd7a4104562c7bb6675b191"
+    },
+    {
+      "path": "tools/rmt-language/action-execution-lowering.js",
+      "sha256": "661647a20aaadf2c1f2bdcfacbfbb2a5de992cc6069b56002e187f2b0e91948e"
+    },
+    {
+      "path": "tools/rmt-language/classic-semantic-rules.js",
+      "sha256": "09e7a8706201958104fbebee8eea749d3f7b78de4b491eed0d0d79c2f4451549"
+    },
+    {
+      "path": "tools/rmt-language/rmtx-parser.js",
+      "sha256": "de11824a2ec993cbf82f77d92a94e07d2e7a78af07c07384d10e096e6bdf1ad1"
+    },
+    {
+      "path": "tools/rmt-language/rmtx-compiler.js",
+      "sha256": "a82fdab327ab3be0fa9574eb730362447b5f256263eb5b10693e1737963e610a"
+    },
+    {
+      "path": "tests/rmt-language/rmtx-orchestration.test.cjs",
+      "sha256": "b95d92df75056d67cfa915acb068192048353c3863cfa141d74512712ce5b1b3"
+    },
+    {
+      "path": "tests/rmt-language/rmtx-extended-operators.test.cjs",
+      "sha256": "728b43f8eed59f7af68a979e81de4c3783093b473deeb9fc4d49a5cc1f2c19e5"
+    },
+    {
+      "path": "xtend-maraca/fastpass-contract.js",
+      "sha256": "af8e26104243deea58ccf3a334d67ecb3286617146257074a29eeb7866a3b1a3"
+    }
+  ],
+  "sourceDrift": [],
+  "logs": [
+    {
+      "path": "/tmp/xtend-rmtx-a0632/action-input-runtime24-07.log",
+      "sha256": "e1d141410a55fe26d9ba01affd5a135d90e81f6db629afcc916d1a3ac6d32b14",
+      "nodeLane": 24,
+      "exitCode": 0,
+      "tests": 162,
+      "pass": 162,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "path": "/tmp/xtend-rmtx-a0632/action-input-pack24-04.log",
+      "sha256": "0c020c9048ac7046209baddadb9a6e10ed1e8f9adbcd0da813ede60028ade0e6",
+      "nodeLane": 24,
+      "exitCode": 0,
+      "tests": 9,
+      "pass": 9,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "path": "/tmp/xtend-rmtx-a0632/action-input-runtime26-07.log",
+      "sha256": "e1e3f46547b407c4651a0fe23e4a9ef4478226b6e918b75f30ae948fc8e397e6",
+      "nodeLane": 26,
+      "exitCode": 0,
+      "tests": 162,
+      "pass": 162,
+      "fail": 0,
+      "skipped": 0
+    },
+    {
+      "path": "/tmp/xtend-rmtx-a0632/action-input-pack26-04.log",
+      "sha256": "4417c9bd5addbb350a03fbe630f4663d4c8024491e77625798c21462caaa6be5",
+      "nodeLane": 26,
+      "exitCode": 0,
+      "tests": 9,
+      "pass": 9,
+      "fail": 0,
+      "skipped": 0
+    }
+  ],
+  "runtimeSuiteFiles": [
+    "tests/rmt-language/action-input-contract.test.cjs",
+    "tests/rmt-language/action-backend-regressions.test.cjs",
+    "tests/rmt-language/event-condition-guards.test.cjs",
+    "tests/rmt-language/rmtx-orchestration.test.cjs",
+    "tests/rmt-language/rmtx-extended-operators.test.cjs"
+  ],
+  "packageSuiteFile": "tests/rmt-language/rmtx-maraca-integration.test.cjs",
+  "runtimeBreakdown": {
+    "nativeInput": 17,
+    "legacyActionAndEvent": 30,
+    "extendedOperators": 108,
+    "source4Orchestration": 7
+  }
+}

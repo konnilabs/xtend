@@ -7,6 +7,7 @@ const PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v7';
 const SSR_XTENSION_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v9';
 const SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v11';
 const COMPONENT_SSR_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v12';
+const RMTX_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v13';
 const COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v10';
 const XTENSION_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v8';
 let xtensionRootSequence = 0;
@@ -141,11 +142,13 @@ function actionTemplateValue(node, resolve, seen = new Set()) {
   } finally { seen.delete(node); }
 }
 
-function reducerValue(value, payload, result, modelRuntime, error, valueKind) {
+function reducerValue(value, payload, result, modelRuntime, error, valueKind, extended = false) {
   if (valueKind != null && !['literal', 'reference', 'template'].includes(valueKind)) throw new TypeError('Unknown compiled reducer value kind.');
-  if (valueKind === 'template') return actionTemplateValue(safeActionData(value), reference => reducerValue(reference, payload, result, modelRuntime, error, 'reference'));
+  if (valueKind === 'template') return actionTemplateValue(safeActionData(value), reference => reducerValue(reference, payload, result, modelRuntime, error, 'reference', extended));
   if (valueKind === 'literal') return safeActionData(value);
-  if (valueKind === 'reference' && (typeof value !== 'string' || !/^(?:state|selector|input|payload|result|error)(?:\.[A-Za-z_][A-Za-z0-9_-]*)*$/u.test(value) || value.split('.').some(part => ['__proto__', 'prototype', 'constructor'].includes(part)))) throw new TypeError('Unsafe or unsupported managed reducer reference.');
+  const referencePattern = extended ? /^(?:state|selector|input|payload|result|error)(?:\.[A-Za-z_$][A-Za-z0-9_$-]*)*$/u
+    : /^(?:state|selector|input|payload|result|error)(?:\.[A-Za-z_][A-Za-z0-9_-]*)*$/u;
+  if (valueKind === 'reference' && (typeof value !== 'string' || !referencePattern.test(value) || value.split('.').some(part => ['__proto__', 'prototype', 'constructor'].includes(part)))) throw new TypeError('Unsafe or unsupported managed reducer reference.');
   if (typeof value !== 'string') return clone(value, value);
   if (value === 'input' || value === 'payload') return clone(payload, {});
   if (value.startsWith('input.')) return readPath(payload, value.slice(6));
@@ -244,17 +247,26 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   const ssrSession = ['xtend.maraca.xtension-composition-port.v2','xtend.maraca.xtension-composition-port.v5'].includes(compositionPort?.schema) ? compositionPort.ssrSession : null;
   if (compositionPort?.schema === 'xtend.maraca.xtension-composition-port.v5' && !ssrSession) throw new TypeError('The component SSR port requires its v2 session.');
   if (ssrSession && (ssrSession.schema !== (compositionPort.schema === 'xtend.maraca.xtension-composition-port.v5' ? 'xtend.maraca.xtension-ssr-session.v2' : 'xtend.maraca.xtension-ssr-session.v1') || compositionPort.resumeBindingsRuntime?.XTENSION_RESUME_STATE_BINDING_API_VERSION !== '3.0.0')) throw new TypeError('SSR requires the prepared v1 session and resume binding API 3.');
+  const typedProfile = plan.schema === 'xtend.maraca.build-plan.v8';
+  const inlineProfile = plan.xtensionComposition?.schema === 'xtend.maraca.xtension-composition-artifact.v9';
+  if (typedProfile && (artifact.schema !== 'xtend.rmt.app-orchestration.v2' || artifact.actions?.schema !== 'xtend.rmt.action-plan.v2'
+      || artifact.actions?.inputContract?.schema !== 'xtend.rmt.action-input-contract.v1') || !typedProfile && artifact.schema === 'xtend.rmt.app-orchestration.v2')
+    throw new TypeError('Typed RMTX orchestration requires its matching v8 plan and input contract.');
+  if (typedProfile && (ssrSession || options.adoptExisting === true)) throw new TypeError('RMTX orchestration profile4 currently requires the CSR runtime; SSR adoption is an A06.6 target.');
   const scoped = plan.xtensionComposition?.schema === 'xtend.maraca.xtension-composition-artifact.v8', componentProfile = scoped || plan.xtensionComposition?.schema === 'xtend.maraca.xtension-composition-artifact.v7';
-  const runtimeSchema = scoped ? ssrSession ? COMPONENT_SSR_PLAN_RUNTIME_SCHEMA : SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA : componentProfile ? COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA : ssrSession ? SSR_XTENSION_PLAN_RUNTIME_SCHEMA : composed ? XTENSION_PLAN_RUNTIME_SCHEMA : PLAN_RUNTIME_SCHEMA;
-  if (composed && (plan.schema !== (scoped ? 'xtend.maraca.build-plan.v7' : componentProfile ? 'xtend.maraca.build-plan.v6' : 'xtend.maraca.build-plan.v5') || !['xtend.maraca.xtension-composition-artifact.v2', 'xtend.maraca.xtension-composition-artifact.v3', 'xtend.maraca.xtension-composition-artifact.v4', 'xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6', 'xtend.maraca.xtension-composition-artifact.v7','xtend.maraca.xtension-composition-artifact.v8'].includes(plan.xtensionComposition?.schema) || !['xtend.maraca.xtension-composition-port.v1', 'xtend.maraca.xtension-composition-port.v2', 'xtend.maraca.xtension-composition-port.v3','xtend.maraca.xtension-composition-port.v4','xtend.maraca.xtension-composition-port.v5'].includes(compositionPort?.schema) || typeof compositionPort.bind !== 'function')) throw new TypeError('Integrated XTensions require a version-matched v5/v6/v7 plan, artifact and prepared composition port.');
-  if (composed && !(scoped ? ['xtend.maraca.xtension-composition-port.v4','xtend.maraca.xtension-composition-port.v5'] : componentProfile ? ['xtend.maraca.xtension-composition-port.v3'] : ['xtend.maraca.xtension-composition-port.v1','xtend.maraca.xtension-composition-port.v2']).includes(compositionPort?.schema)) throw new TypeError('The composition port must match its profile.');
+  const runtimeSchema = typedProfile ? RMTX_PLAN_RUNTIME_SCHEMA : scoped ? ssrSession ? COMPONENT_SSR_PLAN_RUNTIME_SCHEMA : SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA : componentProfile ? COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA : ssrSession ? SSR_XTENSION_PLAN_RUNTIME_SCHEMA : composed ? XTENSION_PLAN_RUNTIME_SCHEMA : PLAN_RUNTIME_SCHEMA;
+  if (composed && typedProfile && (!inlineProfile || compositionPort?.schema !== 'xtend.maraca.xtension-composition-port.v6' || typeof compositionPort.bind !== 'function')) throw new TypeError('Inline RMTX providers require the matching v9 composition and v6 port.');
+  if (composed && !typedProfile && (plan.schema !== (scoped ? 'xtend.maraca.build-plan.v7' : componentProfile ? 'xtend.maraca.build-plan.v6' : 'xtend.maraca.build-plan.v5') || !['xtend.maraca.xtension-composition-artifact.v2', 'xtend.maraca.xtension-composition-artifact.v3', 'xtend.maraca.xtension-composition-artifact.v4', 'xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6', 'xtend.maraca.xtension-composition-artifact.v7','xtend.maraca.xtension-composition-artifact.v8'].includes(plan.xtensionComposition?.schema) || !['xtend.maraca.xtension-composition-port.v1', 'xtend.maraca.xtension-composition-port.v2', 'xtend.maraca.xtension-composition-port.v3','xtend.maraca.xtension-composition-port.v4','xtend.maraca.xtension-composition-port.v5'].includes(compositionPort?.schema) || typeof compositionPort.bind !== 'function')) throw new TypeError('Integrated XTensions require a version-matched v5/v6/v7 plan, artifact and prepared composition port.');
+  if (composed && !typedProfile && !(scoped ? ['xtend.maraca.xtension-composition-port.v4','xtend.maraca.xtension-composition-port.v5'] : componentProfile ? ['xtend.maraca.xtension-composition-port.v3'] : ['xtend.maraca.xtension-composition-port.v1','xtend.maraca.xtension-composition-port.v2']).includes(compositionPort?.schema)) throw new TypeError('The composition port must match its profile.');
   if (composed && (options.createXTensionHost !== undefined || options.xtensionBindingsRuntime !== undefined || options.adoptExisting === true && !ssrSession) || !composed && compositionPort !== undefined) throw new TypeError('Automatic and manual XTension composition cannot be mixed.');
   let createXTensionHost = options.createXTensionHost;
   let xtensionRoot = null;
   const bindingRuntime = composed ? compositionPort.bindingsRuntime : options.xtensionBindingsRuntime;
   let bindingArtifact = null;
   if (hasOwn(asRecord(options.plan), 'xtensionBindings')) {
-    if (!bindingRuntime || typeof bindingRuntime.validateStateBindingArtifact !== 'function' || typeof bindingRuntime.materializeStateBindingArtifact !== 'function' || typeof bindingRuntime.createXTensionStateRegistry !== 'function') {
+    if (!bindingRuntime || typeof bindingRuntime.validateStateBindingArtifact !== 'function' || typeof bindingRuntime.materializeStateBindingArtifact !== 'function'
+        || typeof bindingRuntime[typedProfile ? 'createXTensionProjectionStateRegistry' : 'createXTensionStateRegistry'] !== 'function'
+        || typedProfile && bindingRuntime.XTENSION_PROJECTION_STATE_BINDING_API_VERSION !== '3.0.0') {
       throw new TypeError('XTension binding artifacts require the explicit state-binding runtime port.');
     }
     bindingArtifact = bindingRuntime.validateStateBindingArtifact(options.plan.xtensionBindings, artifact);
@@ -264,8 +276,8 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     }
   }
   const urlCodec = options.urlStateRuntime;
-  if (options.urlStatePolicy && (!bindingArtifact || urlCodec?.API_VERSION !== '1.0.0' || typeof urlCodec.createURLStateContract !== 'function')) {
-    throw new TypeError('URL state requires bindings and the explicit v1 URL-state runtime port.');
+  if (options.urlStatePolicy && (!bindingArtifact || urlCodec?.API_VERSION !== (typedProfile ? '2.0.0' : '1.0.0') || typeof urlCodec.createURLStateContract !== 'function')) {
+    throw new TypeError('URL state requires bindings and the profile-matched v1/v2 URL-state runtime port.');
   }
   const urlState = options.urlStatePolicy ? urlCodec.createURLStateContract(options.urlStatePolicy, { program: artifact, bindings: options.plan.xtensionBindings }) : null;
   let urlViewSnapshot = null, urlViewEpoch = -1;
@@ -358,6 +370,12 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   const strict = orchestration.strict === true || orchestration.mode === 'strict';
   const surfaces = asArray(artifact.surfaces).length ? asArray(artifact.surfaces) : asArray(plan.surfaces);
   const declaredActions = asArray(asRecord(artifact.actions).actions);
+  let actionInputValidationPort = null;
+  const validateActionInput = (actionId, payload) => {
+    if (!typedProfile || !declaredActions.some(action => action.id === actionId)) return payload;
+    if (actionInputValidationPort?.schema !== 'xtend.rmt.action-input-port.v1') throw new TypeError('The typed Action input port is not ready.');
+    return actionInputValidationPort.validate(actionId, payload);
+  };
   const declaredEvents = asArray(artifact.events);
   const declaredPortals = asArray(artifact.portals).length ? asArray(artifact.portals) : asArray(plan.portals);
   const declaredOverlays = asArray(artifact.overlays).length ? asArray(artifact.overlays) : asArray(plan.overlays);
@@ -582,7 +600,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   });
   function dispatchFastPass(actionId, payload = {}, options = {}) {
     if (phase !== 'ready') throw new Error('Maraca plan runtime is not booted.');
-    return fastPass.dispatch(actionId, payload, options);
+    return fastPass.dispatch(actionId, validateActionInput(actionId, payload), options);
   }
   const pendingScheduledWork = new Set();
   let resolveDisposed;
@@ -1335,7 +1353,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
           if (!field || typeof field.name !== 'string' || !field.name || ['__proto__', 'prototype', 'constructor'].includes(field.name) || hasOwn(emittedPayload, field.name)) throw new TypeError('A compiled event publication requires unique safe payload names.');
           emittedPayload[field.name] = clone(reducerValue(field.value, context.payload || declaredContext.payload || {},
             actionResult && hasOwn(actionResult, 'data') ? actionResult.data : actionResult,
-            runtimes.state, actionResult && actionResult.error, field.valueKind), null);
+            runtimes.state, actionResult && actionResult.error, field.valueKind, typedProfile), null);
         }
         if (typeof context.isCurrent === 'function' && !context.isCurrent()) break;
         const published = publish('emit', { event: eventName, payload: emittedPayload, action: context.action || '', correlationId: asRecord(context.metadata).correlationId || '' });
@@ -1351,7 +1369,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
           if (!['message', 'tone'].includes(name)) throw new TypeError('Unknown result overlay option.');
           effectOptions[name] = reducerValue(asRecord(spec).value, context.payload || declaredContext.payload || {},
             actionResult && hasOwn(actionResult, 'data') ? actionResult.data : actionResult, runtimes.state,
-            actionResult && actionResult.error, asRecord(spec).valueKind);
+            actionResult && actionResult.error, asRecord(spec).valueKind, typedProfile);
         }
         if (typeof effectOptions.tone !== 'undefined' && !['info', 'success', 'warning', 'error', 'neutral', 'primary', 'secondary', 'danger'].includes(effectOptions.tone)) throw new TypeError('Unknown RMT overlay tone.');
         const overlayDefinition = declaredOverlays.find(overlay => overlay && overlay.id === effect.target);
@@ -1534,7 +1552,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         ? isolatedModel() : planningRuntime;
       const value = reducerValue(reducer.value, payload,
         actionResult && hasOwn(actionResult, 'data') ? actionResult.data : actionResult,
-        referenceModel, actionResult && actionResult.error, reducer.valueKind);
+        referenceModel, actionResult && actionResult.error, reducer.valueKind, typedProfile);
       let next;
       if (reducer.recipe || reducer.mode === 'recipe') {
         if (typeof runtimes.applyReducerRecipe !== 'function') {
@@ -2127,7 +2145,10 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       .filter((entry) => entry && entry.action === commandId && entry.state);
     let presentationGuard = captureCommandPresentationGuard();
     let presentationValid = true;
-    const currentPresentation = () => presentationValid && shellEpoch === commandShellEpoch && (!lifetime || !lifetime.signal.aborted && lifetime.isCurrent()) && presentationGuard();
+    let modelCommitted = false;
+    const callerCurrent = () => !lifetime || !lifetime.signal.aborted && lifetime.isCurrent();
+    const currentPresentation = () => presentationValid && shellEpoch === commandShellEpoch
+      && (modelCommitted || callerCurrent()) && presentationGuard();
     const stateBuffer = { events: [] };
     activeStateBuffer = stateBuffer;
     let result;
@@ -2185,6 +2206,11 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         metadata,
         validationStage
       );
+      // Once the native controller accepts a Model transaction it owns the
+      // corresponding View/Props commit. Retiring the emitting foreign host
+      // must not suppress replacement hosts or leave committed state invisible.
+      // Deferred caller effects keep the original lease fence below.
+      modelCommitted = true;
       if (bindingArtifact?.bindings.some((entry) => entry.presence || entry.repeat)) {
         // Revoke at the Model commit, before an awaited exit transition can
         // leave a disappearing component with an apparently current callback.
@@ -2213,6 +2239,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       }
       return {
         presentationGuard: currentPresentation,
+        callerEffectsGuard: callerCurrent,
         commandId,
         commandShellEpoch,
         payload: clone(payload, {}),
@@ -2288,7 +2315,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       });
       const resultEffects = asArray(prepared.result && prepared.result.postCommitEffects);
       const hasErrorResultEffects = prepared.result && prepared.result.status === 'error' && resultEffects.some(entry => entry && entry.value && entry.value.effect && entry.value.effect.handlerPhase === 'error');
-      if ((prepared.actionSucceeded || hasErrorResultEffects) && currentPresentation()) {
+      if ((prepared.actionSucceeded || hasErrorResultEffects) && currentPresentation() && prepared.callerEffectsGuard?.() !== false) {
         const postCommitContext = {
           schema: 'xtend.maraca.post-commit-context.v1',
           isCurrent: currentPresentation,
@@ -2350,7 +2377,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       : String(commandRecord.command || commandRecord.id || commandRecord.action || '');
     if (!commandId) throw new TypeError('dispatchCommand() requires a command id.');
     const envelopeCall = Boolean(commandRecord && (commandRecord.schema === 'xtend.rmt.command.v1' || hasOwn(commandRecord, 'command')));
-    const commandPayload = envelopeCall && hasOwn(commandRecord, 'payload') ? commandRecord.payload : payload;
+    const commandPayload = validateActionInput(commandId, envelopeCall && hasOwn(commandRecord, 'payload') ? commandRecord.payload : payload);
     const commandMetadata = envelopeCall && !Object.keys(asRecord(metadata)).length
       ? { ...asRecord(commandRecord.metadata), ...asRecord(payload) }
       : { ...asRecord(commandRecord && commandRecord.metadata), ...asRecord(metadata) };
@@ -3012,6 +3039,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       }
       const actionModelReaderPort = createActionModelReaderPort(state);
       const action = actionFactory ? actionFactory({
+        ...(typedProfile ? { inputContract: artifact.actions.inputContract } : {}),
         historyLimit: options.actionHistoryLimit,
         diagnosticLimit: options.diagnosticLimit,
         resultDiagnostics: options.actionResultDiagnostics,
@@ -3038,6 +3066,11 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         planningOnly: true,
         domRenderer: renderer
       }) : null;
+      if (typedProfile) {
+        actionInputValidationPort = action?.inputValidationPort;
+        if (action?.schema !== 'xtend.epic18.rmt-action-effect-runtime.v2' || actionInputValidationPort?.schema !== 'xtend.rmt.action-input-port.v1'
+            || typeof actionInputValidationPort.validate !== 'function') throw new TypeError('RMTX 4 requires the validating Action runtime capability.');
+      }
       const animation = animationFactory && asRecord(plan.transitions).enabled ? animationFactory({
         animationPlan: asRecord(plan.transitions).artifact && (
           asRecord(plan.transitions).artifact.animationEngine || asRecord(plan.transitions).artifact
@@ -3147,6 +3180,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         runAction: (id, input, eventMetadata = {}) => dispatchCommand(id, input, eventMetadata)
       });
       const events = eventFactory ? eventFactory({
+        ...(typedProfile ? { inputContract: artifact.actions.inputContract, inputValidationPort: actionInputValidationPort } : {}),
         events: artifact.events || [],
         modelReader: state.modelReader || state.model,
         commandBus: eventActionFacade,
@@ -3157,6 +3191,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
           ? options.targetResolver
           : (binding, rootTarget) => viewProjectionPort.resolveBindingTarget(binding, rootTarget)
       }) : null;
+      if (typedProfile && requiresEventRouter && events?.schema !== 'xtend.epic18.rmt-event-routing-runtime.v3') throw new TypeError('RMTX 4 requires the validating native Event runtime capability.');
       const surfaceController = options.surfaceController || (surfaceControllerFactory ? surfaceControllerFactory({
         managerId: options.surfaceControllerId || 'xtend.maraca.surface-controller',
         stateProjection: strict ? null : options.surfaceStateProjection,
@@ -3426,8 +3461,9 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       if (bindingArtifact?.bindings.length) {
         if (composed) createXTensionHost = compositionPort.bind({ plan, fabric: options.fabric,
           kernelWork: { scheduler: kernel.scheduler, rootId: xtensionRoot.rootId },
-          resourceGraph: { kernel: xtensionRoot.kernel, surfaceGraph, surfaceController }, ...(scoped ? { resolveHostBinding(address) { const key=JSON.stringify([address.documentId,address.declarationId,address.keys]); return presentXTensionEntries(modelReader.snapshot()).find(entry=>JSON.stringify([entry.binding.address.documentId,entry.binding.address.declarationId,entry.binding.address.keys])===key); } } : {}) });
-        xtensionRegistry = (ssrSession ? compositionPort.resumeBindingsRuntime.createXTensionResumeStateRegistry : bindingRuntime.createXTensionStateRegistry)({ modelReader,
+          resourceGraph: { kernel: xtensionRoot.kernel, surfaceGraph, surfaceController }, ...(scoped || inlineProfile ? { resolveHostBinding(address) { const key=JSON.stringify([address.documentId,address.declarationId,address.keys]); return presentXTensionEntries(modelReader.snapshot()).find(entry=>JSON.stringify([entry.binding.address.documentId,entry.binding.address.declarationId,entry.binding.address.keys])===key); } } : {}) });
+        xtensionRegistry = (ssrSession ? compositionPort.resumeBindingsRuntime.createXTensionResumeStateRegistry
+          : typedProfile ? bindingRuntime.createXTensionProjectionStateRegistry : bindingRuntime.createXTensionStateRegistry)({ modelReader,
           commandDispatcher: { dispatch: (command, payload, metadata, lifetime) => dispatchCommand(command, payload, metadata, lifetime) },
           onDiagnostic: (diagnostic) => recordDiagnostic('xtend.maraca.xtension.binding', 'error', diagnostic.message, diagnostic) });
         await mountPresentXTensions();
@@ -3704,5 +3740,5 @@ export async function bootMaracaPlan(options = {}) {
   return runtime;
 }
 
-export { SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA, COMPONENT_SSR_PLAN_RUNTIME_SCHEMA, COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA, SSR_XTENSION_PLAN_RUNTIME_SCHEMA, PLAN_RUNTIME_SCHEMA, XTENSION_PLAN_RUNTIME_SCHEMA, LEGACY_PLAN_RUNTIME_SCHEMA };
-export default Object.freeze({ SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA, COMPONENT_SSR_PLAN_RUNTIME_SCHEMA, COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA, SSR_XTENSION_PLAN_RUNTIME_SCHEMA, PLAN_RUNTIME_SCHEMA, XTENSION_PLAN_RUNTIME_SCHEMA, LEGACY_PLAN_RUNTIME_SCHEMA, createMaracaPlanRuntime, bootMaracaPlan });
+export { RMTX_PLAN_RUNTIME_SCHEMA, SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA, COMPONENT_SSR_PLAN_RUNTIME_SCHEMA, COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA, SSR_XTENSION_PLAN_RUNTIME_SCHEMA, PLAN_RUNTIME_SCHEMA, XTENSION_PLAN_RUNTIME_SCHEMA, LEGACY_PLAN_RUNTIME_SCHEMA };
+export default Object.freeze({ RMTX_PLAN_RUNTIME_SCHEMA, SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA, COMPONENT_SSR_PLAN_RUNTIME_SCHEMA, COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA, SSR_XTENSION_PLAN_RUNTIME_SCHEMA, PLAN_RUNTIME_SCHEMA, XTENSION_PLAN_RUNTIME_SCHEMA, LEGACY_PLAN_RUNTIME_SCHEMA, createMaracaPlanRuntime, bootMaracaPlan });

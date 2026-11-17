@@ -1,6 +1,8 @@
 'use strict';
 
 const RMTX_SELECTOR_DEPENDENCIES_SCHEMA = 'xtend.rmtx.selector-dependencies.v1';
+const RMTX_SELECTOR_DEPENDENCIES_SCHEMA_V2 = 'xtend.rmtx.selector-dependencies.v2';
+const RMTX_SELECTOR_DEPENDENCIES_SCHEMA_V3 = 'xtend.rmtx.selector-dependencies.v3';
 const UNSAFE = new Set(['__proto__', 'prototype', 'constructor']);
 const OPERAND_FIELDS = Object.freeze({
   equals: ['left', 'right'], 'not-equals': ['left', 'right'],
@@ -46,9 +48,9 @@ function createRmtxSelectorDependencyReport(result) {
   const plan = result?.orchestrationArtifacts === null && Array.isArray(result?.coreDocument?.selectors)
     && result.coreDocument.selectors.length === 0 ? [] : compiledPlan;
   const references = result?.primitiveSemanticGraph?.references?.records;
-  if (result?.ok !== true || profile?.syntax !== 'rmtx' || profile.version !== '2.0.0'
+  if (result?.ok !== true || profile?.syntax !== 'rmtx' || !['2.0.0', '3.0.0', '4.0.0'].includes(profile.version)
       || result.coreDocument?.manifest?.sourceSyntax !== 'rmtx' || !Array.isArray(plan) || !Array.isArray(references)) {
-    invalid('A successful RMTX 2.0.0 compilation with semantic facts and a compiled selector plan is required.');
+    invalid('A successful RMTX 2.0.0 or 3.0.0 compilation with semantic facts and a compiled selector plan is required.');
   }
   // Resolve each selector's owner candidates once. Shared predicates commonly
   // have many paths into the same symbol; repeated graph scans would add an
@@ -128,10 +130,11 @@ function createRmtxSelectorDependencyReport(result) {
     entries.push(entry); complete.set(selector.id, entry);
   }
   return freeze({
-    schema: RMTX_SELECTOR_DEPENDENCIES_SCHEMA, sourceProfile: { syntax: 'rmtx', version: '2.0.0' },
+    schema: profile.version === '4.0.0' ? RMTX_SELECTOR_DEPENDENCIES_SCHEMA_V3 : profile.version === '3.0.0' ? RMTX_SELECTOR_DEPENDENCIES_SCHEMA_V2 : RMTX_SELECTOR_DEPENDENCIES_SCHEMA,
+    sourceProfile: { syntax: 'rmtx', version: profile.version },
     topologicalOrder: entries.map(entry => entry.id), selectors: entries,
     incrementalRecomputation: false, runtimeTracking: false, parametersForwardedToDependencies: false
   });
 }
 
-module.exports = { RMTX_SELECTOR_DEPENDENCIES_SCHEMA, createRmtxSelectorDependencyReport };
+module.exports = { RMTX_SELECTOR_DEPENDENCIES_SCHEMA, RMTX_SELECTOR_DEPENDENCIES_SCHEMA_V2, RMTX_SELECTOR_DEPENDENCIES_SCHEMA_V3, createRmtxSelectorDependencyReport };

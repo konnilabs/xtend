@@ -10,12 +10,17 @@ const root = path.resolve(__dirname, '../..');
 test('development checks validate Classic drift, observations, versions and scope without requiring implemented features', () => {
   assert.deepEqual(CHECKS, [
     ['scripts/generate_rmt_classic_contract.js', '--check'],
+  ['scripts/sync_rmt_compiler_contracts.cjs', '--check', '--json'],
     ['--test', 'tests/rmt-language/action-execution-lowering.test.cjs', 'tests/rmt-language/event-condition-guards.test.cjs', 'tests/rmt-language/action-backend-regressions.test.cjs', 'tests/rmt/renderer-structural-ownership.test.cjs'],
     ['--test', 'tests/rmt/surface-materialize-lifetime.test.cjs', 'tests/rmt/maraca-view-lifecycle.test.cjs', 'tests/maraca/native-surface-lifecycle.test.mjs'],
     ['--test', 'tests/rmt-language/backend-ast-result.test.cjs', 'tests/rmt-language/rmtx-frontend.test.cjs', 'tests/rmt-language/rmtx-maraca-integration.test.cjs'],
     ['development/rmtx-a06/frontend/inspect.cjs', '--check'],
     ['--test', 'tests/rmt-language/rmtx-operator-profiles.test.cjs', 'tests/rmt-language/rmtx-selector-dependencies.test.cjs', 'tests/rmt-language/rmtx-selectors.test.cjs'],
     ['development/rmtx-a06/selector-profile/inspect.cjs', '--check'],
+  ['--test', 'tests/rmt-language/rmtx-host-scopes.test.cjs', 'tests/rmt-language/rmtx-profile3-backend.test.cjs', 'tests/rmt-language/rmtx-maraca-host-scopes.test.cjs'],
+  ['development/rmtx-a06/keyed-profile/inspect.cjs', '--check'],
+  ['--test', 'tests/rmt-language/rmtx-extended-operators.test.cjs', 'tests/rmt-language/rmtx-orchestration.test.cjs', 'tests/rmt-language/rmtx-inline-components.test.cjs', 'tests/rmt-language/action-input-contract.test.cjs', 'tests/xtensions/projected-state-binding.test.cjs', 'tests/xtensions/projected-url-state.test.cjs', 'tests/xtensions/platform-projection-profile.test.cjs', 'tests/xtensions/projected-xrouter-url-state.test.cjs'],
+  ['development/rmtx-a06/orchestration-profile/inspect.cjs', '--check'],
     ['development/rmtx-a01/inspect.cjs', '--check'],
     ['development/rmtx-a02/inspect.cjs', '--check'],
     ['development/rmtx-a02/url-history/inspect.cjs', '--check'],

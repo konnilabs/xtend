@@ -82,6 +82,49 @@ function runXTensionsRuntimeGate({ rootDir, browser = false } = {}) {
       && selector.productiveRmtxFrontendUsed === true && selector.completeRmtxFrontendImplemented === false
       && selector.ssrAcceptancePerformed === false && selector.acceptedForRelease === false,
     'Opt-in RMTX v2 selectors must actually drive Actions, Model and React props while preserving Vue roots and owner staging');
+    const keyedArtifact = path.join(rootDir, '.xtend-test-results', `xtend-rmtx-keyed-runtime-${browser ? 'browser' : 'node'}-report.json`);
+    fs.rmSync(keyedArtifact, { force: true });
+    const keyedExecution = spawnSync(process.execPath, ['development/rmtx-a06/keyed-profile/runtime-test.cjs', ...(browser ? ['--browser'] : []), '--output', keyedArtifact], {
+      cwd: rootDir, env, encoding: 'utf8', timeout: 180000, maxBuffer: 16 * 1024 * 1024
+    });
+    context.assert(!keyedExecution.error && keyedExecution.status === 0, `Actual RMTX typed host-scope acceptance passes: ${keyedExecution.stderr || keyedExecution.stdout || keyedExecution.error || ''}`);
+    const keyed = JSON.parse(fs.readFileSync(keyedArtifact, 'utf8'));
+    context.assert(keyed.schema === 'xtend.rmtx.keyed-runtime-acceptance.v1' && keyed.passed && keyed.node === process.version && keyed.cases >= 9
+      && keyed.mode === (browser ? 'chromium-sealed-native-esm' : 'jsdom-native-esm')
+      && (!browser || Boolean(keyed.browserVersion) && keyed.pageErrors.length === 0)
+      && keyed.compiler?.schema === 'xtend.rmtx.compile-result.v3' && keyed.compiler.planCompilerSchema === keyed.compiler.schema
+      && keyed.compiler.sourceProfile?.syntax === 'rmtx' && keyed.compiler.sourceProfile.version === '3.0.0'
+      && keyed.compiler.hostScopesSchema === 'xtend.rmtx.host-scopes.v1'
+      && keyed.compileChecks?.passed === true && keyed.compileChecks.checks >= 7
+      && keyed.sourceHostScopesVerified === true && keyed.typedKeyScopes === true && keyed.trustedIntentKeysVerified === true
+      && keyed.booleanPresenceVerified === true && keyed.nativeRepeatSupported === false
+      && keyed.productiveRmtxFrontendUsed === true && keyed.completeRmtxFrontendImplemented === false
+      && keyed.ssrAcceptancePerformed === false && keyed.acceptedForRelease === false,
+    'Opt-in RMTX v3 source scopes must drive real typed React/Vue lifetimes, trusted intent keys, boolean presence and retained owner staging');
+    const orchestrationArtifact = path.join(rootDir, '.xtend-test-results', `xtend-rmtx-orchestration-runtime-${browser ? 'browser' : 'node'}-report.json`);
+    fs.rmSync(orchestrationArtifact, { force: true });
+    const orchestrationExecution = spawnSync(process.execPath, ['development/rmtx-a06/orchestration-profile/runtime-test.cjs', ...(browser ? ['--browser'] : []), '--output', orchestrationArtifact], {
+      cwd: rootDir, env, encoding: 'utf8', timeout: 180000, maxBuffer: 16 * 1024 * 1024
+    });
+    context.assert(!orchestrationExecution.error && orchestrationExecution.status === 0, `Actual RMTX inline orchestration acceptance passes: ${orchestrationExecution.stderr || orchestrationExecution.stdout || orchestrationExecution.error || ''}`);
+    const orchestration = JSON.parse(fs.readFileSync(orchestrationArtifact, 'utf8'));
+    context.assert(orchestration.schema === 'xtend.rmtx.orchestration-runtime-acceptance.v1' && orchestration.passed && orchestration.node === process.version && orchestration.cases >= 12
+      && orchestration.mode === (browser ? 'chromium-sealed-native-esm' : 'jsdom-native-esm')
+      && (!browser || Boolean(orchestration.browserVersion) && orchestration.pageErrors.length === 0)
+      && orchestration.compiler?.schema === 'xtend.rmtx.compile-result.v4' && orchestration.compiler.planCompilerSchema === orchestration.compiler.schema
+      && orchestration.compiler.sourceProfile?.syntax === 'rmtx' && orchestration.compiler.sourceProfile.version === '4.0.0'
+      && orchestration.compiler.hostScopesSchema === 'xtend.rmtx.host-scopes.v2'
+      && orchestration.compileChecks?.passed === true && orchestration.compileChecks.checks >= 10
+      && orchestration.sourceHostScopesVerified === true && orchestration.typedKeyScopes === true && orchestration.trustedIntentKeysVerified === true
+      && orchestration.booleanPresenceVerified === true && orchestration.nativeRepeatSupported === false
+      && orchestration.inlineBindingsVerified === true && orchestration.selectorProjectionVerified === true && orchestration.providerDefaultsVerified === true
+      && orchestration.nativeInputValidationVerified === true
+      && orchestration.projectionURLStateVerified === true
+      && orchestration.xrouterProjectionURLStateVerified === true
+      && orchestration.componentContract === 'xtend.maraca.xtension-composition-artifact.v9'
+      && orchestration.productiveRmtxFrontendUsed === true && orchestration.completeRmtxFrontendImplemented === false
+      && orchestration.ssrAcceptancePerformed === false && orchestration.acceptedForRelease === false,
+    'Opt-in RMTX v4 inline declarations must drive actual React/Vue hosts, projected Model and selector props, provider defaults and validated intent boundaries');
     if(browser){
       const componentSSRArtifact=path.join(rootDir,'.xtend-test-results','xtend-component-ssr-report.json');fs.rmSync(componentSSRArtifact,{force:true});
       const execution=spawnSync(process.execPath,['development/rmtx-a06/scoped-ssr-test.cjs','--output',componentSSRArtifact],{cwd:rootDir,env,encoding:'utf8',timeout:180000,maxBuffer:16*1024*1024});

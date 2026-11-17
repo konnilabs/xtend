@@ -1,0 +1,39 @@
+{
+  "exitCode": 0,
+  "node": "v24.22.2",
+  "command": [
+    "/home/konni/.local/share/xtend-local-llm/runtime/node_modules/node/bin/node",
+    "scripts/run_xtend_tests.js",
+    "xtensions-consumer-package",
+    "--json",
+    "--report",
+    "/tmp/xtend-rmtx-a0633/consumer-version-audit-U-report.json",
+    "--execution",
+    "/tmp/xtend-rmtx-a0633/consumer-version-audit-U-execution.json"
+  ],
+  "durationSeconds": 73.68837523460388,
+  "log": "/tmp/xtend-rmtx-a0633/consumer-version-audit-U.log",
+  "logSha256": "024df0f149c2d8044cc26bfaaef4a7152d9ac9293e868e0c6f6a95483657e9f1",
+  "preloadUsed": false,
+  "toolOnlyNodePath": "/tmp/xtend-rmtx-a0633/consumer-build-tools/node_modules",
+  "consumer-peers-view-provenance.json": {
+    "file": "/tmp/xtend-rmtx-a0633/consumer-peers-view-provenance.json",
+    "sha256": "4b026bfbb84643059dd6f46840c8ac38c41227d2c381252658e0cad7c74d444b"
+  },
+  "consumer-build-tools-provenance.json": {
+    "file": "/tmp/xtend-rmtx-a0633/consumer-build-tools-provenance.json",
+    "sha256": "f1b16964d7d8939b272e923bdb1bfc998f33baf18bafaa55aee0d45932f5ca7d"
+  },
+  "consumer-root-tools-creation.json": {
+    "file": "/tmp/xtend-rmtx-a0633/consumer-root-tools-creation.json",
+    "sha256": "a66f260fa46b8c9862a81a1ebf1d483f5e79aaf9c4665725049765b82aed637d"
+  },
+  "consumer-version-audit-U-report.json": {
+    "file": "/tmp/xtend-rmtx-a0633/consumer-version-audit-U-report.json",
+    "sha256": "024df0f149c2d8044cc26bfaaef4a7152d9ac9293e868e0c6f6a95483657e9f1"
+  },
+  "consumer-version-audit-U-execution.json": {
+    "file": "/tmp/xtend-rmtx-a0633/consumer-version-audit-U-execution.json",
+    "sha256": "0fe7b2e0bb235a25174452a916d758e46d3ef81548d531598b1944a3a0b495dc"
+  }
+}

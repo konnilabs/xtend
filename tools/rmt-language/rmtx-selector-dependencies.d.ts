@@ -1,4 +1,6 @@
 export declare const RMTX_SELECTOR_DEPENDENCIES_SCHEMA: 'xtend.rmtx.selector-dependencies.v1';
+export declare const RMTX_SELECTOR_DEPENDENCIES_SCHEMA_V2: 'xtend.rmtx.selector-dependencies.v2';
+export declare const RMTX_SELECTOR_DEPENDENCIES_SCHEMA_V3: 'xtend.rmtx.selector-dependencies.v3';
 export interface RmtxSelectorDependencyRead {
   readonly symbol: string;
   readonly path: readonly string[];
@@ -25,5 +27,21 @@ export interface RmtxSelectorDependencyReport {
   readonly runtimeTracking: false;
   readonly parametersForwardedToDependencies: false;
 }
+/** New source-profile metadata is separate from the unchanged v1 report. */
+export interface RmtxSelectorDependencyReportV2 extends Omit<RmtxSelectorDependencyReport, 'schema' | 'sourceProfile'> {
+  readonly schema: typeof RMTX_SELECTOR_DEPENDENCIES_SCHEMA_V2;
+  readonly sourceProfile: Readonly<{ syntax: 'rmtx'; version: '3.0.0' }>;
+}
 /** Pure summary of successful backend facts; does not grant runtime authority. */
+export declare function createRmtxSelectorDependencyReport(result: { sourceProfile: Readonly<{ syntax: 'rmtx'; version: '3.0.0' }>; [metadata: string]: unknown }): RmtxSelectorDependencyReportV2;
+export declare function createRmtxSelectorDependencyReport(result: { sourceProfile?: undefined; parserResult: { sourceProfile: Readonly<{ syntax: 'rmtx'; version: '3.0.0' }>; [metadata: string]: unknown }; [metadata: string]: unknown }): RmtxSelectorDependencyReportV2;
+export declare function createRmtxSelectorDependencyReport(result: { sourceProfile: Readonly<{ syntax: 'rmtx'; version: '2.0.0' }>; [metadata: string]: unknown }): RmtxSelectorDependencyReport;
+export declare function createRmtxSelectorDependencyReport(result: { sourceProfile?: undefined; parserResult: { sourceProfile: Readonly<{ syntax: 'rmtx'; version: '2.0.0' }>; [metadata: string]: unknown }; [metadata: string]: unknown }): RmtxSelectorDependencyReport;
+export declare function createRmtxSelectorDependencyReport(result: { sourceProfile: Readonly<{ syntax: 'rmtx'; version: '2.0.0' | '3.0.0' }>; [metadata: string]: unknown }): RmtxSelectorDependencyReport | RmtxSelectorDependencyReportV2;
+export declare function createRmtxSelectorDependencyReport(result: { sourceProfile?: undefined; parserResult: { sourceProfile: Readonly<{ syntax: 'rmtx'; version: '2.0.0' | '3.0.0' }>; [metadata: string]: unknown }; [metadata: string]: unknown }): RmtxSelectorDependencyReport | RmtxSelectorDependencyReportV2;
 export declare function createRmtxSelectorDependencyReport(result: unknown): RmtxSelectorDependencyReport;
+export interface RmtxSelectorDependencyReportV3 extends Omit<RmtxSelectorDependencyReport, 'schema' | 'sourceProfile'> {
+  readonly schema: typeof RMTX_SELECTOR_DEPENDENCIES_SCHEMA_V3;
+  readonly sourceProfile: Readonly<{ syntax: 'rmtx'; version: '4.0.0' }>;
+}
+export declare function createRmtxSelectorDependencyReport(result: { sourceProfile: Readonly<{ syntax: 'rmtx'; version: '4.0.0' }>; [metadata: string]: unknown }): RmtxSelectorDependencyReportV3;

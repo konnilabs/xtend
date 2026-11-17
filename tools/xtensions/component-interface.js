@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 'use strict';
+const projections = require('./state-binding-projection');
 // Provider-owned data contracts. Catalogs are supplied by the trusted host/build;
 // a hash written into arbitrary JSON is not execution or grant authority.
 const { data, fields, name, typed, clone, freeze, validateStateBinding, XTENSION_STATE_BINDING_SCHEMA } = require('./state-binding-contract');
-const COMPONENT_INTERFACE_API_VERSION = '1.0.0';
+const COMPONENT_INTERFACE_API_VERSION = '2.0.0';
 const COMPONENT_INTERFACE_SCHEMA = 'xtend.xtensions.component-interface.v1';
+const COMPONENT_INTERFACE_SCHEMA_V2 = 'xtend.xtensions.component-interface.v2';
 const normalizedInterfaces = new WeakSet();
 const digest = value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
 const version = value => typeof value === 'string' && /^\d+\.\d+\.\d+$/.test(value);
@@ -23,8 +25,9 @@ function valueRule(rule, depth = 0) {
 }
 function normalizeComponentInterface(input) {
   if (input && typeof input === 'object' && normalizedInterfaces.has(input)) return input;
-  data(input); fields(input, ['schema', 'providerId', 'version', 'componentVersion', 'framework', 'entry', 'peers', 'props', 'intents', 'ownership'], 'Component interface');
-  if (input.schema !== COMPONENT_INTERFACE_SCHEMA || !/^[a-z][a-z0-9-]{0,63}$/.test(input.providerId || '') || !version(input.version) || !version(input.componentVersion) || !['react', 'vue'].includes(input.framework)) throw new TypeError('A versioned React/Vue component interface v1 is required.');
+  data(input); const v2 = input.schema === COMPONENT_INTERFACE_SCHEMA_V2;
+  fields(input, ['schema', 'providerId', 'version', 'componentVersion', 'framework', 'entry', 'peers', 'props', 'intents', 'ownership', ...(v2 ? ['optionalProps', 'defaults'] : [])], 'Component interface');
+  if (![COMPONENT_INTERFACE_SCHEMA, COMPONENT_INTERFACE_SCHEMA_V2].includes(input.schema) || !/^[a-z][a-z0-9-]{0,63}$/.test(input.providerId || '') || !version(input.version) || !version(input.componentVersion) || !['react', 'vue'].includes(input.framework)) throw new TypeError('A versioned React/Vue component interface is required.');
   fields(input.entry, ['module', 'exportName', 'sha256'], 'Component entry');
   if (!/^\.\/(?:[a-zA-Z0-9_-]+\/)*[a-zA-Z0-9_.-]+\.(?:mjs|js)$/.test(input.entry.module || '') || !/^[a-zA-Z_$][\w$]*$/.test(input.entry.exportName || '') || !digest(input.entry.sha256)) throw new TypeError('A pinned local named component factory is required.');
   const peers = input.framework === 'react' ? ['react', 'react-dom'] : ['vue'];
@@ -36,6 +39,15 @@ function normalizeComponentInterface(input) {
   for (const [key, rule] of Object.entries(input.props)) {
     if (key === 'children' || key === 'slots') throw new TypeError('Native children and slots are not controlled props in interface v1.');
     valueRule(rule);
+  }
+  if (v2) {
+    const optional = Object.hasOwn(input, 'optionalProps') ? input.optionalProps : [], defaults = Object.hasOwn(input, 'defaults') ? input.defaults : {};
+    if (!Array.isArray(optional) || new Set(optional).size !== optional.length || optional.some(key => typeof key !== 'string' || !Object.hasOwn(input.props, key))) throw new TypeError('Optional props must name unique provider-declared props.');
+    names(defaults, 'Provider defaults');
+    for (const [key, value] of Object.entries(defaults)) {
+      if (!optional.includes(key)) throw new TypeError('Defaults may only belong to provider-declared optional props.');
+      typed(value, input.props[key], 'Provider default ' + key);
+    }
   }
   for (const spec of Object.values(input.intents)) {
     fields(spec, ['payloadSchema', 'fields'], 'Component intent'); name(spec.payloadSchema); names(spec.fields, 'Intent fields'); Object.values(spec.fields).forEach(rule => valueRule(rule));
@@ -75,6 +87,12 @@ function resolveComponentBinding(definition, request) {
 }
 function assertComponentProps(definition, props) {
   const iface = normalizeComponentInterface(definition);
+  if (iface.schema === COMPONENT_INTERFACE_SCHEMA_V2) {
+    data(props); names(props, 'Component props'); const optional = iface.optionalProps || [];
+    if (Object.keys(props).some(key => !Object.hasOwn(iface.props, key)) || Object.keys(iface.props).some(key => !optional.includes(key) && !Object.hasOwn(props, key))) throw new TypeError('Props do not match the provider required/optional declaration.');
+    for (const [key, value] of Object.entries(props)) typed(value, iface.props[key], 'Component prop ' + key);
+    return true;
+  }
   typed(props, { type: 'object', fields: iface.props }, 'Component props');
   return true;
 }
@@ -95,7 +113,7 @@ function createComponentInterfaceCatalog(captures) {
     if (!digest(capture.interfaceSha256) || capture.moduleSha256 !== definition.entry.sha256 || entries.has(definition.providerId)) throw new TypeError('Component capture identity or digest mismatch.');
     entries.set(definition.providerId, freeze({ ...clone(capture), definition }));
   }
-  return Object.freeze({ apiVersion: COMPONENT_INTERFACE_API_VERSION,
+  return Object.freeze({ apiVersion: '1.0.0',
     resolve(reference) {
       data(reference); fields(reference, ['providerId', 'interfaceVersion', 'interfaceSha256', 'componentVersion'], 'Component reference');
       const entry = entries.get(reference.providerId);
@@ -105,5 +123,55 @@ function createComponentInterfaceCatalog(captures) {
     entries: () => Object.freeze([...entries.values()])
   });
 }
-module.exports = { COMPONENT_INTERFACE_API_VERSION, COMPONENT_INTERFACE_SCHEMA, normalizeComponentInterface,
-  createComponentInterfaceCatalog, resolveComponentBinding, assertComponentProps, mapComponentIntent, canonical };
+function providerField(rule, path) {
+  const parts = Array.isArray(path) ? path : typeof path === 'string' ? path.split('.') : [];
+  if (!parts.length || parts.some(part => typeof part !== 'string' || !part || ['__proto__', 'prototype', 'constructor'].includes(part))) throw new TypeError('A safe provider payload path is required.');
+  let cursor = { type: 'object', fields: rule.fields };
+  for (const part of parts) {
+    if (cursor.type === 'object' && Object.hasOwn(cursor.fields, part)) cursor = cursor.fields[part];
+    else if (cursor.type === 'array' && /^(0|[1-9]\d*)$/.test(part) && Number.isSafeInteger(Number(part))) cursor = cursor.items;
+    else throw new TypeError('Provider payload projection path is not declared by the interface.');
+  }
+  return { path: parts, rule: cursor };
+}
+function resolveProjectedComponentBinding(definition, request) {
+  const iface = normalizeComponentInterface(definition);
+  data(request); fields(request, ['address', 'props', 'intents'], 'Projected component request'); names(request.props, 'Prop projections'); names(request.intents, 'Intent routes');
+  const optional = iface.optionalProps || [], defaults = iface.defaults || {};
+  if (Object.keys(request.props).some(key => !Object.hasOwn(iface.props, key)) || Object.keys(iface.props).some(key => !optional.includes(key) && !Object.hasOwn(request.props, key))) throw new TypeError('Source props must match the captured provider required/optional contract.');
+  const props = Object.fromEntries(Object.entries(iface.props).flatMap(([key, rule]) => {
+    const projection = Object.hasOwn(request.props, key) ? request.props[key] : Object.hasOwn(defaults, key) ? { kind: 'literal', value: defaults[key] } : null;
+    if (!projection) return [];
+    projections.visitProjection(projection, () => {});
+    return [[key, { ...rule, projection }]];
+  }));
+  const intents = {}, routes = {};
+  for (const [event, route] of Object.entries(request.intents)) {
+    const spec = Object.hasOwn(iface.intents, event) && iface.intents[event];
+    if (!spec) throw new TypeError('Source intent is absent from the captured provider interface.');
+    fields(route, ['command', 'payload', 'keyFields'], 'Projected intent route'); name(route.command);
+    const payload = Object.hasOwn(route, 'payload') ? route.payload : Object.fromEntries(Object.keys(spec.fields).map(key => [key, key]));
+    names(payload, 'Projected intent mapping');
+    const mappings = Object.fromEntries(Object.entries(payload).map(([key, path]) => [key, providerField(spec, path)]));
+    intents[event] = { command: route.command, payloadSchema: spec.payloadSchema, fields: Object.fromEntries(Object.entries(mappings).map(([key, value]) => [key, value.rule])),
+      ...(Object.hasOwn(route, 'keyFields') ? { keyFields: route.keyFields } : {}) };
+    routes[event] = { command: route.command, payloadSchema: spec.payloadSchema, payload: Object.fromEntries(Object.entries(mappings).map(([key, value]) => [key, value.path])),
+      ...(Object.hasOwn(route, 'keyFields') ? { keyFields: route.keyFields } : {}) };
+  }
+  return freeze({ binding: { schema: 'xtend.xtensions.state-binding.v3', address: request.address, props, intents }, routes });
+}
+function mapProjectedComponentIntent(definition, event, payload, mapping) {
+  const iface = normalizeComponentInterface(definition), spec = Object.hasOwn(iface.intents, event) && iface.intents[event];
+  if (!spec) throw new TypeError('Unknown provider intent.');
+  typed(payload, { type: 'object', fields: spec.fields }, 'Provider intent payload');
+  return freeze(Object.fromEntries(Object.entries(mapping).map(([target, path]) => {
+    name(target); const projected = providerField(spec, path); let value = payload;
+    for (const segment of projected.path) {
+      if (!value || typeof value !== 'object' || !Object.hasOwn(value, segment)) throw new TypeError('Provider payload path is absent.');
+      value = value[segment];
+    }
+    typed(value, projected.rule, 'Mapped provider payload'); return [target, clone(value)];
+  })));
+}
+module.exports = { COMPONENT_INTERFACE_API_VERSION, COMPONENT_INTERFACE_SCHEMA, COMPONENT_INTERFACE_SCHEMA_V2, normalizeComponentInterface,
+  createComponentInterfaceCatalog, resolveComponentBinding, resolveProjectedComponentBinding, assertComponentProps, mapComponentIntent, mapProjectedComponentIntent, canonical };

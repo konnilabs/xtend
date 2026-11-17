@@ -1,0 +1,40 @@
+{
+  "rows": [
+    {
+      "framework": "react",
+      "ok": true,
+      "frameworkBytes": 2053539,
+      "runtimeBytes": 214822,
+      "legacyCeiling": 240000,
+      "withinLegacyCeiling": true,
+      "sourceFiles": [
+        "compiler/xtensions/state-binding-projection-disabled.js",
+        "maraca/xtension-component-binding-disabled.mjs"
+      ]
+    },
+    {
+      "framework": "vue",
+      "ok": true,
+      "frameworkBytes": 2051564,
+      "runtimeBytes": 213189,
+      "legacyCeiling": 240000,
+      "withinLegacyCeiling": true,
+      "sourceFiles": [
+        "compiler/xtensions/state-binding-projection-disabled.js",
+        "maraca/xtension-component-binding-disabled.mjs"
+      ]
+    },
+    {
+      "framework": "mixed",
+      "ok": true,
+      "frameworkBytes": 2102199,
+      "runtimeBytes": 236918,
+      "legacyCeiling": 240000,
+      "withinLegacyCeiling": true,
+      "sourceFiles": [
+        "compiler/xtensions/state-binding-projection-disabled.js",
+        "maraca/xtension-component-binding-disabled.mjs"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,111 @@
+Error: internal-render-error
+    at Panel (/home/konni/Downloads/xtend-dev/xtend/tests/xtensions/runtime-adapter-acceptance.js:43:54)
+    at renderWithHooks (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:15486:18)
+    at updateFunctionComponent (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:19617:20)
+    at beginWork (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:21640:16)
+    at HTMLUnknownElement.callCallback (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (/tmp/xtend-rmtx-a0632/peers/node_modules/jsdom/lib/generated/idl/EventListener.js:26:30)
+    at innerInvokeEventListeners (/tmp/xtend-rmtx-a0632/peers/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:378:16)
+    at invokeEventListeners (/tmp/xtend-rmtx-a0632/peers/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:320:3)
+    at HTMLUnknownElementImpl._dispatch (/tmp/xtend-rmtx-a0632/peers/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:269:9)
+    at HTMLUnknownElementImpl.dispatchEvent (/tmp/xtend-rmtx-a0632/peers/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:137:17)
+Error: internal-render-error
+    at Panel (/home/konni/Downloads/xtend-dev/xtend/tests/xtensions/runtime-adapter-acceptance.js:43:54)
+    at renderWithHooks (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:15486:18)
+    at updateFunctionComponent (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:19617:20)
+    at beginWork (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:21640:16)
+    at HTMLUnknownElement.callCallback (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (/tmp/xtend-rmtx-a0632/peers/node_modules/jsdom/lib/generated/idl/EventListener.js:26:30)
+    at innerInvokeEventListeners (/tmp/xtend-rmtx-a0632/peers/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:378:16)
+    at invokeEventListeners (/tmp/xtend-rmtx-a0632/peers/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:320:3)
+    at HTMLUnknownElementImpl._dispatch (/tmp/xtend-rmtx-a0632/peers/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:269:9)
+    at HTMLUnknownElementImpl.dispatchEvent (/tmp/xtend-rmtx-a0632/peers/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:137:17)
+The above error occurred in the <Panel> component:
+
+    at Panel (/home/konni/Downloads/xtend-dev/xtend/tests/xtensions/runtime-adapter-acceptance.js:36:36)
+    at Suspense
+    at Commit (/home/konni/Downloads/xtend-dev/xtend/tools/xtensions/react-runtime-adapter.js:39:21)
+    at ErrorBoundary (/home/konni/Downloads/xtend-dev/xtend/tools/xtensions/react-runtime-adapter.js:34:26)
+
+React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.
+Error: render-explosion
+    at Panel (/home/konni/Downloads/xtend-dev/xtend/tests/xtensions/runtime-adapter-acceptance.js:42:28)
+    at renderWithHooks (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:20103:13)
+    at beginWork (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (/tmp/xtend-rmtx-a0632/peers/node_modules/jsdom/lib/generated/idl/EventListener.js:26:30)
+    at innerInvokeEventListeners (/tmp/xtend-rmtx-a0632/peers/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:378:16)
+    at invokeEventListeners (/tmp/xtend-rmtx-a0632/peers/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:320:3)
+    at HTMLUnknownElementImpl._dispatch (/tmp/xtend-rmtx-a0632/peers/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:269:9)
+    at HTMLUnknownElementImpl.dispatchEvent (/tmp/xtend-rmtx-a0632/peers/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:137:17)
+Error: render-explosion
+    at Panel (/home/konni/Downloads/xtend-dev/xtend/tests/xtensions/runtime-adapter-acceptance.js:42:28)
+    at renderWithHooks (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:20103:13)
+    at beginWork (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (/tmp/xtend-rmtx-a0632/peers/node_modules/jsdom/lib/generated/idl/EventListener.js:26:30)
+    at innerInvokeEventListeners (/tmp/xtend-rmtx-a0632/peers/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:378:16)
+    at invokeEventListeners (/tmp/xtend-rmtx-a0632/peers/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:320:3)
+    at HTMLUnknownElementImpl._dispatch (/tmp/xtend-rmtx-a0632/peers/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:269:9)
+    at HTMLUnknownElementImpl.dispatchEvent (/tmp/xtend-rmtx-a0632/peers/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:137:17)
+The above error occurred in the <Panel> component:
+
+    at Panel (/home/konni/Downloads/xtend-dev/xtend/tests/xtensions/runtime-adapter-acceptance.js:36:36)
+    at Suspense
+    at Commit (/home/konni/Downloads/xtend-dev/xtend/tools/xtensions/react-runtime-adapter.js:39:21)
+    at ErrorBoundary (/home/konni/Downloads/xtend-dev/xtend/tools/xtensions/react-runtime-adapter.js:34:26)
+
+React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.
+Error: render-explosion
+    at Panel (/home/konni/Downloads/xtend-dev/xtend/tests/xtensions/runtime-adapter-acceptance.js:42:28)
+    at renderWithHooks (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:15486:18)
+    at updateFunctionComponent (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:19617:20)
+    at beginWork (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:21640:16)
+    at HTMLUnknownElement.callCallback (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (/tmp/xtend-rmtx-a0632/peers/node_modules/jsdom/lib/generated/idl/EventListener.js:26:30)
+    at innerInvokeEventListeners (/tmp/xtend-rmtx-a0632/peers/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:378:16)
+    at invokeEventListeners (/tmp/xtend-rmtx-a0632/peers/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:320:3)
+    at HTMLUnknownElementImpl._dispatch (/tmp/xtend-rmtx-a0632/peers/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:269:9)
+    at HTMLUnknownElementImpl.dispatchEvent (/tmp/xtend-rmtx-a0632/peers/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:137:17)
+Error: render-explosion
+    at Panel (/home/konni/Downloads/xtend-dev/xtend/tests/xtensions/runtime-adapter-acceptance.js:42:28)
+    at renderWithHooks (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:15486:18)
+    at updateFunctionComponent (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:19617:20)
+    at beginWork (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:21640:16)
+    at HTMLUnknownElement.callCallback (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (/tmp/xtend-rmtx-a0632/peers/node_modules/jsdom/lib/generated/idl/EventListener.js:26:30)
+    at innerInvokeEventListeners (/tmp/xtend-rmtx-a0632/peers/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:378:16)
+    at invokeEventListeners (/tmp/xtend-rmtx-a0632/peers/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:320:3)
+    at HTMLUnknownElementImpl._dispatch (/tmp/xtend-rmtx-a0632/peers/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:269:9)
+    at HTMLUnknownElementImpl.dispatchEvent (/tmp/xtend-rmtx-a0632/peers/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:137:17)
+The above error occurred in the <Panel> component:
+
+    at Panel (/home/konni/Downloads/xtend-dev/xtend/tests/xtensions/runtime-adapter-acceptance.js:36:36)
+    at Suspense
+    at Commit (/home/konni/Downloads/xtend-dev/xtend/tools/xtensions/react-runtime-adapter.js:39:21)
+    at ErrorBoundary (/home/konni/Downloads/xtend-dev/xtend/tools/xtensions/react-runtime-adapter.js:34:26)
+
+React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.
+Error: component-cleanup
+    at /home/konni/Downloads/xtend-dev/xtend/tests/xtensions/runtime-adapter-acceptance.js:40:82
+    at safelyCallDestroy (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:22971:5)
+    at commitDeletionEffectsOnFiber (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:24142:23)
+    at recursivelyTraverseDeletionEffects (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:24028:5)
+    at commitDeletionEffectsOnFiber (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:24198:11)
+    at recursivelyTraverseDeletionEffects (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:24028:5)
+    at commitDeletionEffectsOnFiber (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:24209:9)
+    at recursivelyTraverseDeletionEffects (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:24028:5)
+    at commitDeletionEffectsOnFiber (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:24157:9)
+    at recursivelyTraverseDeletionEffects (/tmp/xtend-rmtx-a0632/peers/node_modules/react-dom/cjs/react-dom.development.js:24028:5)
+The above error occurred in the <Panel> component:
+
+    at Panel (/home/konni/Downloads/xtend-dev/xtend/tests/xtensions/runtime-adapter-acceptance.js:36:36)
+    at Suspense
+    at Commit (/home/konni/Downloads/xtend-dev/xtend/tools/xtensions/react-runtime-adapter.js:39:21)
+    at ErrorBoundary (/home/konni/Downloads/xtend-dev/xtend/tools/xtensions/react-runtime-adapter.js:34:26)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+jsdom v26.5.0: 341 passed, 0 failed; peers {"react":"18.3.1","reactDOM":"18.3.1","vue":"3.5.43"}

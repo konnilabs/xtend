@@ -1,0 +1,284 @@
+{
+  "date": "2026-11-17",
+  "node": "v24.22.2",
+  "actualWrites": 25,
+  "expectedWrites": 25,
+  "passed": true,
+  "results": [
+    {
+      "index": 1,
+      "command": [
+        "development/rmtx-a06/frontend/inspect.cjs",
+        "--write"
+      ],
+      "exitCode": 0,
+      "durationMs": 274,
+      "log": "/tmp/xtend-rmtx-a0633/regeneration/inspector-write-01-07-final.log",
+      "logSha256": "bb1c4746fa2e13091da7b1f53c7cea27671f5dcf376f0820b06294c90ab318d0"
+    },
+    {
+      "index": 2,
+      "command": [
+        "development/rmtx-a06/selector-profile/inspect.cjs",
+        "--write"
+      ],
+      "exitCode": 0,
+      "durationMs": 271,
+      "log": "/tmp/xtend-rmtx-a0633/regeneration/inspector-write-02-07-final.log",
+      "logSha256": "6dc82f190dabfe020fd5f9cd1a019d8363fa77392139401889f3cde9d418df35"
+    },
+    {
+      "index": 3,
+      "command": [
+        "development/rmtx-a06/keyed-profile/inspect.cjs",
+        "--write"
+      ],
+      "exitCode": 0,
+      "durationMs": 6062,
+      "log": "/tmp/xtend-rmtx-a0633/regeneration/inspector-write-03-07-final.log",
+      "logSha256": "37bd063e2bdc53414a0aa0e9505107921376ef2da284551c2b52a4c0579e29c3"
+    },
+    {
+      "index": 4,
+      "command": [
+        "development/rmtx-a06/orchestration-profile/inspect.cjs",
+        "--write"
+      ],
+      "exitCode": 0,
+      "durationMs": 6232,
+      "log": "/tmp/xtend-rmtx-a0633/regeneration/inspector-write-04-07-final.log",
+      "logSha256": "fbe363bd73208734e4850c2364be2fc05f10f3c244b3469f80483d8f7b9bc72c"
+    },
+    {
+      "index": 5,
+      "command": [
+        "development/rmtx-a01/inspect.cjs",
+        "--write"
+      ],
+      "exitCode": 0,
+      "durationMs": 999,
+      "log": "/tmp/xtend-rmtx-a0633/regeneration/inspector-write-05-07-final.log",
+      "logSha256": "46b36904f22bdf8b62b99687c96905ae39fb746b8a1712426658421485d725fc"
+    },
+    {
+      "index": 6,
+      "command": [
+        "development/rmtx-a02/inspect.cjs",
+        "--write"
+      ],
+      "exitCode": 0,
+      "durationMs": 1501,
+      "log": "/tmp/xtend-rmtx-a0633/regeneration/inspector-write-06-07-final.log",
+      "logSha256": "b7bbdd01c0137893bc791a3f01b8d92c90a8b065d26381b45f5253d5f70e9ff4"
+    },
+    {
+      "index": 7,
+      "command": [
+        "development/rmtx-a02/url-history/inspect.cjs",
+        "--write"
+      ],
+      "exitCode": 0,
+      "durationMs": 1549,
+      "log": "/tmp/xtend-rmtx-a0633/regeneration/inspector-write-07-07-final.log",
+      "logSha256": "fbb334a74c5fea2ebf0e149c303f288a19761669493769b56138d6a1b5fc3712"
+    },
+    {
+      "index": 8,
+      "command": [
+        "development/rmtx-a02/url-history/integration-inspect.cjs",
+        "--write"
+      ],
+      "exitCode": 0,
+      "durationMs": 52,
+      "log": "/tmp/xtend-rmtx-a0633/regeneration/inspector-write-08-07-final.log",
+      "logSha256": "b52d96fba101d072ff6ed96961688d34a59d4894079da50a2c3eddf32508ebfc"
+    },
+    {
+      "index": 9,
+      "command": [
+        "development/rmtx-a03/inspect.cjs",
+        "--write"
+      ],
+      "exitCode": 0,
+      "durationMs": 57,
+      "log": "/tmp/xtend-rmtx-a0633/regeneration/inspector-write-09-07-final.log",
+      "logSha256": "c568d2fcb06d4bde6d23eb3b37a864a8d938ae36258ef5b87db3ff9b71449024"
+    },
+    {
+      "index": 10,
+      "command": [
+        "development/rmtx-a03/graph-inspect.cjs",
+        "--write"
+      ],
+      "exitCode": 0,
+      "durationMs": 79,
+      "log": "/tmp/xtend-rmtx-a0633/regeneration/inspector-write-10-07-final.log",
+      "logSha256": "01202cbfb88d2ed5128a86510c5a6cf17b0e4fcc23dcde70ae3a52782f9d4a35"
+    },
+    {
+      "index": 11,
+      "command": [
+        "development/rmtx-a03/budget-inspect.cjs",
+        "--write"
+      ],
+      "exitCode": 0,
+      "durationMs": 55,
+      "log": "/tmp/xtend-rmtx-a0633/regeneration/inspector-write-11-07-final.log",
+      "logSha256": "055055813fdadb9ac6d74620fe48635296baac4cd1d59d0a92468de57ef4d484"
+    },
+    {
+      "index": 12,
+      "command": [
+        "development/rmtx-a03/capability-inspect.cjs",
+        "--write"
+      ],
+      "exitCode": 0,
+      "durationMs": 87,
+      "log": "/tmp/xtend-rmtx-a0633/regeneration/inspector-write-12-07-final.log",
+      "logSha256": "c67401f18b0a657e6e2c928d0b520557107d05e83b1bc478f6404615118f79b8"
+    },
+    {
+      "index": 13,
+      "command": [
+        "development/rmtx-a04/inspect.cjs",
+        "--write"
+      ],
+      "exitCode": 0,
+      "durationMs": 1450,
+      "log": "/tmp/xtend-rmtx-a0633/regeneration/inspector-write-13-07-final.log",
+      "logSha256": "e96367860a6f81acc5d890f3b79fb988f03f44e619b093c7c56cd2538a719b06"
+    },
+    {
+      "index": 14,
+      "command": [
+        "development/rmtx-a04/integration-inspect.cjs",
+        "--write"
+      ],
+      "exitCode": 0,
+      "durationMs": 23933,
+      "log": "/tmp/xtend-rmtx-a0633/regeneration/inspector-write-14-07-final.log",
+      "logSha256": "f7f65703e8f5404beb24c1b63cc2e0727c4a8d94c57fffb5f4d230016c275467"
+    },
+    {
+      "index": 15,
+      "command": [
+        "development/rmtx-a04/graph-inspect.cjs",
+        "--write"
+      ],
+      "exitCode": 0,
+      "durationMs": 14065,
+      "log": "/tmp/xtend-rmtx-a0633/regeneration/inspector-write-15-07-final.log",
+      "logSha256": "6c8647f8df336de8307d16b2a4fa35f40445d3f3e099147641eaa07a8506c109"
+    },
+    {
+      "index": 16,
+      "command": [
+        "development/rmtx-a04/loading-inspect.cjs",
+        "--write"
+      ],
+      "exitCode": 0,
+      "durationMs": 19564,
+      "log": "/tmp/xtend-rmtx-a0633/regeneration/inspector-write-16-07-final.log",
+      "logSha256": "185d30b4dd795b892bb72fb1d961686409674e4503cb0561d44d6d49b870acc2"
+    },
+    {
+      "index": 17,
+      "command": [
+        "development/rmtx-a04/peer-inspect.cjs",
+        "--write"
+      ],
+      "exitCode": 0,
+      "durationMs": 19583,
+      "log": "/tmp/xtend-rmtx-a0633/regeneration/inspector-write-17-07-final.log",
+      "logSha256": "3417d93288bbfc5c8fbcfb6dc167fe19b4b77080ba9cc029015e977c09f27e8f"
+    },
+    {
+      "index": 18,
+      "command": [
+        "development/rmtx-a04/delivery-inspect.cjs",
+        "--write"
+      ],
+      "exitCode": 0,
+      "durationMs": 19761,
+      "log": "/tmp/xtend-rmtx-a0633/regeneration/inspector-write-18-07-final.log",
+      "logSha256": "57208d387803e9887d08ae28428019d84ccce9d84779562376093fe02ffccc39"
+    },
+    {
+      "index": 19,
+      "command": [
+        "development/rmtx-a04/integrity-inspect.cjs",
+        "--write"
+      ],
+      "exitCode": 0,
+      "durationMs": 16489,
+      "log": "/tmp/xtend-rmtx-a0633/regeneration/inspector-write-19-07-final.log",
+      "logSha256": "1a25e5c2d4498f7be358a9bc61d77ff3a7edfe6f00e21344cc6fb7dcb3651b55"
+    },
+    {
+      "index": 20,
+      "command": [
+        "development/rmtx-a04/runtime-inspect.cjs",
+        "--write"
+      ],
+      "exitCode": 0,
+      "durationMs": 25465,
+      "log": "/tmp/xtend-rmtx-a0633/regeneration/inspector-write-20-07-final.log",
+      "logSha256": "99d8e28287f010b5348edcf0fb5bb68eb7ef6240b0ebfce9f2e5fb74ff4d7ff9"
+    },
+    {
+      "index": 21,
+      "command": [
+        "development/rmtx-a04/updates-inspect.cjs",
+        "--write"
+      ],
+      "exitCode": 0,
+      "durationMs": 26734,
+      "log": "/tmp/xtend-rmtx-a0633/regeneration/inspector-write-21-07-final.log",
+      "logSha256": "fafcf765ee7c1bc7b9b2f85bd3878562782cff2832903f597f3e180dcffac8e9"
+    },
+    {
+      "index": 22,
+      "command": [
+        "development/rmtx-a05/inspect.cjs",
+        "--write"
+      ],
+      "exitCode": 0,
+      "durationMs": 62,
+      "log": "/tmp/xtend-rmtx-a0633/regeneration/inspector-write-22-07-final.log",
+      "logSha256": "6a6fba010d5b18e347d0034d281b964d47f6d459ff9ac713e117a2fe17ace550"
+    },
+    {
+      "index": 23,
+      "command": [
+        "development/rmtx-a06/two-host-inspect.cjs",
+        "--write"
+      ],
+      "exitCode": 0,
+      "durationMs": 1955,
+      "log": "/tmp/xtend-rmtx-a0633/regeneration/inspector-write-23-07-final.log",
+      "logSha256": "98ed1943d44a867215be38555d9da418dbdd8bf368ce39573831ddce95dfb4ba"
+    },
+    {
+      "index": 24,
+      "command": [
+        "development/rmtx-a06/automatic-inspect.cjs",
+        "--write"
+      ],
+      "exitCode": 0,
+      "durationMs": 5775,
+      "log": "/tmp/xtend-rmtx-a0633/regeneration/inspector-write-24-07-final.log",
+      "logSha256": "9d243a0ba4b7ce31e03ed46dbb9b21a9dbea0aebd71ebe1248d1def1640a1cfb"
+    },
+    {
+      "index": 25,
+      "command": [
+        "development/rmtx-a06/scoped-inspect.cjs",
+        "--write"
+      ],
+      "exitCode": 0,
+      "durationMs": 5719,
+      "log": "/tmp/xtend-rmtx-a0633/regeneration/inspector-write-25-07-final.log",
+      "logSha256": "a20839ec9d774a019808689887a4c42fec1b7ca05786b6cdd7ed7ad163dd5560"
+    }
+  ]
+}

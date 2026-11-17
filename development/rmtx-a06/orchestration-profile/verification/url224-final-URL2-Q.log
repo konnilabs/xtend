@@ -1,0 +1,19 @@
+✔ projection URL profile is explicit and frozen while legacy module keeps API1 (6.137064ms)
+✔ four URL2 wire schemas preserve legacy shapes with explicit schema IDs and token prefix2 (1.501616ms)
+✔ canonical URL2 capture roundtrips typed keys and omits private fields and default values (5.74401ms)
+✔ URL2 writes both typed addresses atomically through the existing Model port and keeps provenance (4.277374ms)
+✔ URL2 deferred missing keys cause no partial writes and stable key lookup survives reordering (2.405875ms)
+✔ URL2 retains Model drift, navigation, abort, serialized-plan and lifetime fences (4.593558ms)
+✔ URL2 History requires settled restore and actual View/Props commit (2.84618ms)
+✔ URL2 grants reject computed, selector, literal, provider-default, omitted and nonscalar writers (2.257213ms)
+✔ URL2 key and alias writes remain rejected before atomic Model mutation (0.96479ms)
+✔ query helpers preserve unrelated router data and isolate token profiles (0.469715ms)
+✔ URL profile selection rejects getters on inputs, bindings and program without execution (0.300113ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 39.066419

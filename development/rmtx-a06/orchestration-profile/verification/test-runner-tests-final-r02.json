@@ -1,0 +1,27 @@
+{
+  "schema": "xtend.test.report.v1",
+  "status": "passed",
+  "startedAt": "2026-11-17T19:12:53.346Z",
+  "completedAt": "2026-11-17T19:13:00.762Z",
+  "durationMs": 7416,
+  "suiteCount": 1,
+  "passedCount": 1,
+  "failedCount": 0,
+  "skippedCount": 0,
+  "warningCount": 0,
+  "suites": [
+    {
+      "id": "test-runner",
+      "label": "Test runner execution and profile contracts",
+      "status": "passed",
+      "exitCode": 0,
+      "passCount": 45,
+      "failureCount": 0,
+      "skipCount": 0,
+      "warningCount": 0,
+      "failures": [],
+      "skips": [],
+      "warnings": []
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "schema": "xtend.test.report.v1",
+  "status": "passed",
+  "startedAt": "2026-11-17T19:25:22.626Z",
+  "completedAt": "2026-11-17T19:26:35.301Z",
+  "durationMs": 72675,
+  "suiteCount": 1,
+  "passedCount": 1,
+  "failedCount": 0,
+  "skippedCount": 0,
+  "warningCount": 0,
+  "suites": [
+    {
+      "id": "xtensions-consumer-package",
+      "label": "Packed XTensions Consumer Acceptance",
+      "status": "passed",
+      "exitCode": 0,
+      "passCount": 6,
+      "failureCount": 0,
+      "skipCount": 0,
+      "warningCount": 0,
+      "failures": [],
+      "skips": [],
+      "warnings": []
+    }
+  ]
+}

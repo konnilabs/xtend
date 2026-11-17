@@ -1,4 +1,4 @@
-import type { XtendCustomEventMap, XtendNavigationRoutingUxProfile, XtendPublicEventContract, XtendRouteMode } from './xtend-public-types';
+import type { XtendCustomEventMap, XtendNavigationRoutingUxProfile, XtendPublicEventContract, XtendRouteMode } from './xtend-public-types.js';
 
 export type XRouterNavigationPolicy = 'progressive' | 'spa' | 'document';
 export type XRouterAttributeName = 'mode' | 'routesrc' | 'reuse-component' | 'adopt-prerendered-route' | 'navigation-policy' | 'skeleton' | 'skeleton-profile' | 'skeleton-lines' | 'skeleton-min-height' | 'title-template' | 'document-title-template' | 'title-prefix' | 'title-suffix' | 'default-title';
@@ -268,7 +268,7 @@ export interface XRouterEventDetailMap {
 export type XRouterEventMap = XtendCustomEventMap<XRouterEventDetailMap>;
 export type XRouterPublicEventContract = XtendPublicEventContract<XRouterEventName, XRouterRouteChangeDetail | XRouterBeforeNavigateDetail | XRouterRouteAnnouncedDetail | XRouterRoutesRegisteredDetail | XRouterRouteReusedDetail | XRouterRouteAdoptedDetail | XRouterSkeletonDetail | XRouterRouteHydratedDetail | XRouterScrollBoundaryDetail | XRouterNavigationOverlaysClosedDetail | XRouterDocumentMetaDetail | XRouterNavigationErrorDetail>;
 
-export interface XRouteElement extends HTMLElement {
+export interface XRouteElement extends Omit<HTMLElement, 'title'> {
   readonly path: string;
   readonly component: string;
   readonly importUrl: string | null;
@@ -282,7 +282,8 @@ export interface XRouteElement extends HTMLElement {
 }
 
 export interface XRouterElement extends HTMLElement {
-  connectURLState(runtime: Pick<import('../xtend-maraca/plan-runtime').MaracaPlanRuntime,'restoreURLState' | 'publishURLState'>, codec: typeof import('../tools/xtensions/url-state')): import('./xrouter-url-state').XRouterURLStateHost;
+  connectURLState(runtime: Pick<import('@ccslabs/xtend/maraca/plan-runtime').RmtxPlanRuntime,'restoreURLState' | 'publishURLState'>, codec: import('@ccslabs/xtend/xtensions/url-state').ProjectionURLStateRuntime): import('./xrouter-url-state.js').XRouterProjectionURLStateHost;
+  connectURLState(runtime: Pick<import('@ccslabs/xtend/maraca/plan-runtime').MaracaPlanRuntime,'restoreURLState' | 'publishURLState'>, codec: typeof import('@ccslabs/xtend/xtensions/url-state')): import('./xrouter-url-state.js').XRouterURLStateHost;
   /** Connect before attachment; the started page client owns links and history. */
   pageClient?: { visit(url: string): Promise<unknown> } | null;
   registerRoutes(routes?: XRouterRmtRouteRecord[] | { routes: XRouterRmtRouteRecord[] }, options?: { replace?: boolean; adapterId?: string; source?: string; render?: boolean }): XRouterRoutesRegisteredDetail;
@@ -292,6 +293,7 @@ export interface XRouterElement extends HTMLElement {
   announceRoute(detail?: XRouterRouteChangeDetail | null): XRouterRouteAnnouncedDetail;
   snapshot(): XRouterSnapshot;
   addEventListener<K extends keyof XRouterEventMap>(type: K, listener: (event: XRouterEventMap[K]) => void, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: string, listener: EventListenerOrEventListenerObject | null, options?: boolean | AddEventListenerOptions): void;
 }
 
 export interface XRouterConstructor {

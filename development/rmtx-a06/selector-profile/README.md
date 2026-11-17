@@ -1,5 +1,7 @@
 # A06.3.1 – Operatorvertrag, Selektoren und statische Readsets
 
+> Aktueller Folgeabschnitt: [A06.3.2](../keyed-profile/README.md) ergänzt opt-in Syntax3. Parser-/Compiler-/Authoring-Capability ist jetzt 3.0.0; Syntax1/2-Daten bleiben erhalten. Die nachfolgenden Versions- und Ausführungsangaben dokumentieren den datierten A06.3.1-Stand. Der damalige Suchindexbefund wurde separat behoben.
+
 Stand: **16. November 2026**. Dieser erste Abschnitt von A06.3 ist implementiert: ein maschinenlesbarer Operator-/Attribut-/Kindvertrag sowie fünf zusätzliche Selektoroperatoren mit geschlossenem Prädikatprofil. **A06.3 als Ganzes bleibt in Arbeit.** Bedingungen an Surfaces/Events, Wiederholungen/Keys, weitere Actions/Policies und Inline-Providerdeklarationen sind Folgeabschnitte; natives JSX-UI und semantisches Editor-/Projekttooling bleiben A06.4/A06.5.
 
 ## Versionen und Kompatibilität

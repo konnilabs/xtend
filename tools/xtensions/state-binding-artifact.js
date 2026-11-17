@@ -3,6 +3,20 @@
 
 const { validateStateBinding, addressKey, propsFrom, data, record, fields, name, clone, freeze, segments, readBindingPath } = require('./state-binding-contract');
 const XTENSION_STATE_BINDING_ARTIFACT_SCHEMA = 'xtend.xtensions.state-binding-artifact.v3';
+const PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA = 'xtend.xtensions.state-binding-artifact.v4';
+const projections = require('./state-binding-projection');
+function usesSelectors(source) { let found = false; projections.visitProjection(source, node => { if (node.kind === 'path' && node.root === 'selector') found = true; }); return found; }
+function checkProps(snapshot, binding, initial = false) {
+  if (!initial || binding.schema !== 'xtend.xtensions.state-binding.v3') return propsFrom(snapshot, binding);
+  for (const [key, source] of Object.entries(binding.props)) if (!usesSelectors(source.projection)) propsFrom(snapshot, { ...binding, props: { [key]: source } });
+}
+function inputRuleAccepts(source, target) {
+  if (!source || !target) return false;
+  if (source.nullable === true && target.nullable !== true) return false;
+  if (target.type === 'json') return true;
+  if (source.type !== target.type) return false;
+  return source.type !== 'array' || inputRuleAccepts(source.items, target.items);
+}
 const CONDITIONAL_ARTIFACT_SCHEMA = 'xtend.xtensions.state-binding-artifact.v2';
 const validated = new WeakSet();
 const LEGACY_ARTIFACT_SCHEMA = 'xtend.xtensions.state-binding-artifact.v1';
@@ -18,10 +32,11 @@ function invalid(message, pointer = '') {
 function validateStateBindingArtifact(input, program) {
   try { data(input); fields(input, ['schema', 'documentId', 'bindings'], 'XTension binding artifact'); name(input.documentId); }
   catch (error) { invalid(error.message); }
-  if (![XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, CONDITIONAL_ARTIFACT_SCHEMA, LEGACY_ARTIFACT_SCHEMA].includes(input.schema)) invalid('Unsupported XTension binding artifact version.', '/schema');
+  if (![XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, CONDITIONAL_ARTIFACT_SCHEMA, LEGACY_ARTIFACT_SCHEMA, PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA].includes(input.schema)) invalid('Unsupported XTension binding artifact version.', '/schema');
+  const projected = input.schema === PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA;
   if (!Array.isArray(input.bindings)) invalid('Binding artifact requires a bindings array.', '/bindings');
   try { data(program, new Set(), true); } catch (error) { invalid(error.message); }
-  if (!program || program.schema !== 'xtend.rmt.app-orchestration.v1') invalid('XTension bindings require the supported compiled RMT orchestration artifact.');
+  if (!program || program.schema !== (projected ? 'xtend.rmt.app-orchestration.v2' : 'xtend.rmt.app-orchestration.v1')) invalid(projected ? 'XTension bindings require compiled RMT orchestration artifact v2.' : 'XTension bindings require the supported compiled RMT orchestration artifact.');
   function symbols(entries, label) {
     if (!Array.isArray(entries)) invalid(`Compiled ${label} must be an array.`);
     const result = new Map();
@@ -34,6 +49,9 @@ function validateStateBindingArtifact(input, program) {
   }
   const states = symbols(program.state?.states || [], 'state');
   const actions = symbols(program.actions?.actions || [], 'Action');
+  const inputContract = projected ? program.actions?.inputContract : null;
+  if (projected && (inputContract?.schema !== 'xtend.rmt.action-input-contract.v1' || !Array.isArray(inputContract.actions))) invalid('Projection bindings require the compiler-owned Action input contract.');
+  const selectors = projected ? symbols(program.state?.selectors || [], 'selector') : new Map();
   const surfaces = symbols(program.surfaces || [], 'surface');
   const addresses = new Set(), targets = new Set();
   const initial = { states: Object.fromEntries([...states].map(([id, state]) => [id, state.initial])) };
@@ -41,9 +59,9 @@ function validateStateBindingArtifact(input, program) {
     const pointer = `/bindings/${index}`;
     let binding;
     try {
-      fields(entry, ['surface', 'binding', ...(input.schema !== LEGACY_ARTIFACT_SCHEMA ? ['presence'] : []), ...(input.schema === XTENSION_STATE_BINDING_ARTIFACT_SCHEMA ? ['repeat'] : [])], 'XTension binding entry');
+      fields(entry, ['surface', 'binding', ...(input.schema !== LEGACY_ARTIFACT_SCHEMA ? ['presence'] : []), ...([XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA].includes(input.schema) ? ['repeat'] : [])], 'XTension binding entry');
       name(entry.surface); validateRepeat(entry.repeat);
-      if (input.schema !== XTENSION_STATE_BINDING_ARTIFACT_SCHEMA && entry.binding?.schema !== 'xtend.xtensions.state-binding.v1') throw new TypeError('Legacy artifacts require the unchanged v1 binding contract.');
+      if (projected ? entry.binding?.schema !== 'xtend.xtensions.state-binding.v3' : input.schema !== XTENSION_STATE_BINDING_ARTIFACT_SCHEMA && entry.binding?.schema !== 'xtend.xtensions.state-binding.v1') throw new TypeError('Binding schema does not match its versioned artifact.');
       const keys = (entry.repeat || []).map((_, i) => Object.values(entry.binding.intents || {}).some(intent => Object.values(intent.keyFields || {}).some(field => field.index === entry.binding.address.keys.length + i && field.type === 'number')) ? 0 : 'template-key');
       binding = concreteBinding(entry, keys);
     }
@@ -80,19 +98,25 @@ function validateStateBindingArtifact(input, program) {
     }
     if (entry.repeat && !states.has(entry.repeat[0].state)) invalid('Repeat source references an undeclared Model state.', `${pointer}/repeat`);
     for (const [prop, source] of Object.entries(binding.props)) {
+      if (projected) {
+        projections.visitProjection(source.projection, node => {
+          if (node.kind === 'path' && !(node.root === 'state' ? states : selectors).has(node.symbol)) invalid('Projection references an undeclared Model/selector symbol.', `${pointer}/binding/props/${prop}`);
+        });
+        continue;
+      }
       if (!states.has(source.state)) invalid('Controlled prop references an undeclared Model state.', `${pointer}/binding/props/${prop}/state`);
       if (entry.repeat && !entry.binding.props[prop].path.some(part => part && typeof part === 'object' && Object.hasOwn(part, 'repeat'))) {
         try { propsFrom(initial, { ...binding, props: { [prop]: source } }); }
         catch (error) { invalid(error.message, `${pointer}/binding/props/${prop}`); }
       }
     }
-    try { if (!entry.repeat) propsFrom(initial, binding); }
+    try { if (!entry.repeat) checkProps(initial, binding, projected); }
     catch (error) { invalid(error.message, `${pointer}/binding/props`); }
     if (Object.hasOwn(entry, 'presence')) {
       try {
         fields(entry.presence, ['state', 'path'], 'Host presence');
         if (!states.has(entry.presence.state)) throw new TypeError('Host presence references an undeclared Model state.');
-        const guard = validateStateBinding({ schema: binding.schema, address: binding.address,
+        const guard = validateStateBinding({ schema: projected ? 'xtend.xtensions.state-binding.v2' : binding.schema, address: binding.address,
           props: { present: { state: entry.presence.state, path: templatePath(entry.presence, entry, binding.address.keys.slice(entry.binding.address.keys.length)), type: 'boolean' } }, intents: {} });
         if (!entry.repeat || !entry.presence.path.some(part => part && typeof part === 'object' && Object.hasOwn(part, 'repeat'))) propsFrom(initial, guard);
       } catch (error) { invalid(error.message, `${pointer}/presence`); }
@@ -102,13 +126,22 @@ function validateStateBindingArtifact(input, program) {
       if (!action || action.execution === 'fastpass') invalid('Intent requires a declared business Action.', `${pointer}/binding/intents/${event}/command`);
       const inputs = action.inputs || [];
       const inputFields = { ...intent.fields, ...intent.keyFields };
+      if (projected) {
+        const target = inputContract.actions.find(row => row.id === intent.command);
+        if (!target || !target.fields || Object.keys(inputFields).some(key => !Object.hasOwn(target.fields, key)) ||
+            Object.entries(target.fields).some(([key, rule]) => !Object.hasOwn(inputFields, key) && rule.required) ||
+            Object.entries(inputFields).some(([key, rule]) => !inputRuleAccepts(rule, target.fields[key]))) {
+          invalid('Provider intent projections do not match the declared Action input contract.', `${pointer}/binding/intents/${event}/fields`);
+        }
+        continue;
+      }
       if (inputs.length !== Object.keys(inputFields).length || inputs.some((field) =>
         !Object.hasOwn(inputFields, field.name) || inputFields[field.name].type !== field.type)) {
         invalid('Intent fields must match the declared Action inputs.', `${pointer}/binding/intents/${event}/fields`);
       }
     }
   });
-  try { expand(input, initial); } catch (error) { invalid(error.message); }
+  try { expand(input, initial, projected); } catch (error) { invalid(error.message); }
   const result = freeze(clone(input)); validated.add(result); return result;
 }
 
@@ -137,11 +170,13 @@ function templatePath(source, entry, keys) {
 function concreteBinding(entry, keys) {
   // Preserve raw numeric values until validation (JSON cloning would erase -0).
   const binding = { ...entry.binding, address: { ...entry.binding.address, keys: [...entry.binding.address.keys, ...keys] },
-    props: Object.fromEntries(Object.entries(entry.binding.props).map(([prop, source]) => [prop, { ...source, path: templatePath(source, entry, keys) }])) };
-  if (entry.repeat && binding.schema !== 'xtend.xtensions.state-binding.v2') throw new TypeError('Repeated templates require state binding v2.');
+    props: Object.fromEntries(Object.entries(entry.binding.props).map(([prop, source]) => [prop, entry.binding.schema === 'xtend.xtensions.state-binding.v3'
+      ? { ...source, projection: projections.mapProjection(source.projection, node => ({ ...node, path: templatePath({ state: node.symbol, path: node.path }, entry, keys) })) }
+      : { ...source, path: templatePath(source, entry, keys) }])) };
+  if (entry.repeat && !['xtend.xtensions.state-binding.v2', 'xtend.xtensions.state-binding.v3'].includes(binding.schema)) throw new TypeError('Repeated templates require state binding v2.');
   return validateStateBinding(binding);
 }
-function expand(artifact, snapshot) {
+function expand(artifact, snapshot, initial = false) {
   const rows = [], addresses = new Set(), hosts = new Set();
   for (const entry of artifact.bindings) {
     const visit = (level, item, keys) => {
@@ -167,7 +202,7 @@ function expand(artifact, snapshot) {
         if (typeof present !== 'boolean') throw new TypeError('Host presence requires a boolean Model value.');
         if (!present) return;
       }
-      propsFrom(snapshot, binding);
+      checkProps(snapshot, binding, initial);
       rows.push({ surface: entry.surface, hostSurface, binding });
     };
     visit(0, null, []);
@@ -180,9 +215,13 @@ function materializeStateBindingArtifact(artifact, snapshot) {
   try {
     const source = Object.getOwnPropertyDescriptor(snapshot, 'states');
     if (!source || !('value' in source)) throw new TypeError('Materialization requires a plain Model states snapshot.');
-    record(source.value, 'Model states'); data(source.value); return expand(artifact, { states: source.value });
+    record(source.value, 'Model states'); data(source.value);
+    const selected = artifact.schema === PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA ? Object.getOwnPropertyDescriptor(snapshot, 'selectors') : null;
+    if (selected && !('value' in selected)) throw new TypeError('Selector snapshots cannot be accessors.');
+    if (selected) { record(selected.value, 'Model selector values'); data(selected.value); }
+    return expand(artifact, { states: source.value, ...(selected ? { selectors: selected.value } : {}) });
   }
   catch (error) { invalid(error.message); }
 }
 
-module.exports = { XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBindingArtifact, materializeStateBindingArtifact };
+module.exports = { XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBindingArtifact, materializeStateBindingArtifact };

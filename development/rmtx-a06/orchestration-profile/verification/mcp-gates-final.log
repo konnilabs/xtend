@@ -1,0 +1,67 @@
+{
+  "schema": "xtend.mcp.knowledge-build-result.v1",
+  "ok": true,
+  "mode": "check",
+  "docs": 356,
+  "locales": {
+    "de": 178,
+    "en": 178
+  },
+  "rmtReferences": 32,
+  "rmtRecipes": 6
+}
+✔ tool input budget counts all nested keys and array entries before schema validation or execution (228.462502ms)
+✔ the maximum repair selection reaches existing workspace safeguards within the input budget (17.985903ms)
+✔ MCP initialization publishes versioned resources, templates, six derived prompts, and read-only tools (26.544729ms)
+✔ MCP resources preserve Markdown and support cursor-addressed catalog pages (21.891141ms)
+✔ knowledge and source tools return the common structuredContent envelope and bounded schemas (1488.429263ms)
+✔ RMT app-shell authoring retrieves source syntax and compile-checks the exact three-primitive example (64.353017ms)
+✔ write-capable server registers the destructive apply tool only after explicit opt-in (14.980566ms)
+✔ LLM direct and stdio MCP modes are byte-equivalent for a fixed bilingual corpus (443.131805ms)
+✔ VS Code definition stays read-only by default and adds writes only after user opt-in (0.80531ms)
+✔ VS Code manifest and repository catfooding config expose the stable provider contract (0.483146ms)
+✔ unchanged knowledge drift check rejects a stale generated artifact (271.902721ms)
+✔ hash-checked generated knowledge stays LF-normalized on every Git checkout (0.230043ms)
+✔ deterministic bundle covers every canonical bilingual Markdown source byte-for-byte (126.876343ms)
+✔ docs catalogs are stable, cursor-addressable, and converge without duplicates (2.013515ms)
+✔ search and formatted contexts retain URI, locale, document type, path, and SHA-256 provenance (31.578012ms)
+✔ local deployment export binds canonical docs, kit and changed backend bytes without a GitHub-main claim (72.299546ms)
+✔ stale canonical documentation and AI-kit provenance cannot replace a previously valid local export (37.88762ms)
+✔ local deployment export refuses to overwrite the source checkout (15.531422ms)
+✔ path tools reject absolute paths, traversal, and symlink escapes (3.585744ms)
+✔ safe repairs require opt-in and hashes, support partial selection, preserve EOL/mode, and re-diagnose (142.397816ms)
+✔ repair application aborts unchanged when the source or plan drifts (67.177273ms)
+✔ atomic repairs preserve original modes under restrictive and ordinary umasks (538.593677ms)
+✔ Streamable HTTP stays on loopback and enforces Bearer, Host, and Origin checks (230.66ms)
+✔ HTTP enforces the 4 MiB wire-byte boundary for declared and chunked bodies (345.900558ms)
+✔ HTTP and stdio reject oversized tool arguments while preserving subsequent calls (394.260957ms)
+✔ VS Code receives a valid MCP definition with workspace and read-only defaults (3.152239ms)
+✔ disabled XTend MCP does not register a server definition (0.438835ms)
+ℹ tests 27
+ℹ suites 0
+ℹ pass 27
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2100.344219
+{
+  "schema": "xtend.mcp.gate-report.v1",
+  "ok": true,
+  "status": "passed",
+  "report": "../../../../../tmp/xtend-rmtx-a0633/mcp-gate-report-final.json",
+  "steps": [
+    {
+      "id": "node-runtime",
+      "status": "passed"
+    },
+    {
+      "id": "knowledge-drift",
+      "status": "passed"
+    },
+    {
+      "id": "mcp-contracts",
+      "status": "passed"
+    }
+  ]
+}

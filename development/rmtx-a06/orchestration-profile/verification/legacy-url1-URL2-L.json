@@ -1,0 +1,167 @@
+{
+  "ok": true,
+  "checks": 70,
+  "names": [
+    "explicit public policy, API and four wire schema versions",
+    "caller policy mutation cannot alter validated grants",
+    "policy rejects public exposure",
+    "policy rejects unknown field",
+    "policy rejects wrong document",
+    "policy rejects unknown surface",
+    "policy rejects unknown prop",
+    "policy rejects duplicate id",
+    "policy rejects duplicate source",
+    "policy rejects wrong default type",
+    "policy rejects invalid null default",
+    "policy rejects unknown grant member",
+    "policy rejects empty fields",
+    "policy rejects token budget",
+    "policy rejects instance budget",
+    "policy rejects relational budget",
+    "policy rejects policy version",
+    "policy rejects unsafe id",
+    "policy rejects object default",
+    "policies and Model snapshots reject getters without invoking them",
+    "canonical capture is independent of Model order and preserves typed ancestor keys",
+    "private Model fields, incarnations and DOM host ids never enter URL or plan data",
+    "UTF-8 scalar values, nullable fields and typed keys roundtrip",
+    "default fields and entries are omitted from canonical payloads",
+    "encoder rejects schema version",
+    "encoder rejects document",
+    "encoder rejects policy id",
+    "encoder rejects policy version",
+    "encoder rejects wire extra",
+    "encoder rejects entry extra",
+    "encoder rejects unknown declaration",
+    "encoder rejects wrong key arity",
+    "encoder rejects object key",
+    "encoder rejects negative zero key",
+    "encoder rejects negative key",
+    "encoder rejects unknown public field",
+    "encoder rejects scalar type",
+    "encoder rejects nested value",
+    "encoder rejects duplicate address",
+    "encoder rejects empty values",
+    "encoder rejects entry budget",
+    "encoder rejects value budget",
+    "decoder rejects noncanonical JSON, duplicate keys, default aliases and base64 padding",
+    "decoder rejects invalid UTF-8 and oversized input before parsing",
+    "token budget failure is explicit and never truncates values",
+    "capture applies public instance budget independently of wire entry count",
+    "one atomic restore updates only granted Model fields and preserves private data",
+    "URL absence restores versioned public defaults and omits no private fields",
+    "omitted known addresses and fields restore defaults rather than leaking previous navigation state",
+    "unmounted logical instances can be restored without creating hosts",
+    "unknown keys defer the entire restore and cannot create Model items",
+    "a fresh plan after data arrival resolves stable keys even after reorder",
+    "stale navigation, abort and user interaction invalidate write authority",
+    "Model changes invalidate full-root plans instead of overwriting unrelated commits",
+    "plans are one-shot, immutable and cannot acquire authority through JSON serialization",
+    "invalid URL data changes no Model values and blocks History publication",
+    "identity key sources cannot be granted writable URL fields",
+    "two public grants cannot alias or overlap the same Model target",
+    "History defaults to replace, explicit checkpoints push and no-op snapshots do not write",
+    "History refuses pending View commits, stale snapshots, copied proposals and repeated publication",
+    "new restore generations supersede proposals even if a host mistakenly reuses the id",
+    "a newer History proposal revokes older publication authority for the same Model state",
+    "query operations preserve unrelated raw query bytes and never handle route paths or hash fragments",
+    "zero-delta encoded snapshots normalize to parameter absence without adding History entries",
+    "dispose revokes pending plans and proposals without Model or History writes",
+    "asynchronous lifetime predicates cannot assert synchronous commit authority",
+    "v1 rejects opaque json and compound controlled props as public grants",
+    "selected address domains must stay unambiguous even before collections load",
+    "two static Model roots restore through one real transaction",
+    "only explicit reset clears malformed or duplicate state parameters after defaults commit"
+  ],
+  "samples": {
+    "policy": {
+      "schema": "xtend.xtensions.url-state-policy.v1",
+      "id": "repeated-filter-view",
+      "version": 1,
+      "documentId": "repeated-filter-example",
+      "exposure": "public-url",
+      "fields": [
+        {
+          "id": "query",
+          "surface": "filter",
+          "prop": "query",
+          "default": ""
+        },
+        {
+          "id": "activeId",
+          "surface": "filter",
+          "prop": "activeId",
+          "default": null
+        }
+      ],
+      "limits": {
+        "tokenBytes": 4096,
+        "entries": 32,
+        "valueBytes": 512,
+        "instances": 128
+      }
+    },
+    "state": {
+      "schema": "xtend.xtensions.url-state.v1",
+      "documentId": "repeated-filter-example",
+      "policyId": "repeated-filter-view",
+      "policyVersion": 1,
+      "entries": [
+        {
+          "declarationId": "filter-panel",
+          "keys": [
+            "a",
+            1
+          ],
+          "values": {
+            "activeId": "selected",
+            "query": "東京 🌻"
+          }
+        }
+      ]
+    },
+    "restore": {
+      "schema": "xtend.xtensions.url-state-restore-plan.v1",
+      "documentId": "repeated-filter-example",
+      "policyId": "repeated-filter-view",
+      "policyVersion": 1,
+      "navigationId": "n1",
+      "status": "ready",
+      "changes": [
+        {
+          "declarationId": "filter-panel",
+          "keys": [
+            "a",
+            1
+          ],
+          "field": "activeId",
+          "previous": null,
+          "value": "selected"
+        },
+        {
+          "declarationId": "filter-panel",
+          "keys": [
+            "a",
+            1
+          ],
+          "field": "query",
+          "previous": "",
+          "value": "東京 🌻"
+        }
+      ],
+      "missing": []
+    },
+    "history": {
+      "schema": "xtend.xtensions.url-history-proposal.v1",
+      "documentId": "repeated-filter-example",
+      "policyId": "repeated-filter-view",
+      "policyVersion": 1,
+      "navigationId": "n1",
+      "parameter": "xtend-state",
+      "mode": "push",
+      "cause": "checkpoint",
+      "token": "1.eyJkb2N1bWVudElkIjoicmVwZWF0ZWQtZmlsdGVyLWV4YW1wbGUiLCJlbnRyaWVzIjpbeyJkZWNsYXJhdGlvbklkIjoiZmlsdGVyLXBhbmVsIiwia2V5cyI6WyJhIiwxXSwidmFsdWVzIjp7ImFjdGl2ZUlkIjoic2VsZWN0ZWQiLCJxdWVyeSI6IuadseS6rCDwn4y7In19XSwicG9saWN5SWQiOiJyZXBlYXRlZC1maWx0ZXItdmlldyIsInBvbGljeVZlcnNpb24iOjEsInNjaGVtYSI6Inh0ZW5kLnh0ZW5zaW9ucy51cmwtc3RhdGUudjEifQ"
+    }
+  },
+  "token": "1.eyJkb2N1bWVudElkIjoicmVwZWF0ZWQtZmlsdGVyLWV4YW1wbGUiLCJlbnRyaWVzIjpbeyJkZWNsYXJhdGlvbklkIjoiZmlsdGVyLXBhbmVsIiwia2V5cyI6WyJhIiwxXSwidmFsdWVzIjp7ImFjdGl2ZUlkIjoic2VsZWN0ZWQiLCJxdWVyeSI6IuadseS6rCDwn4y7In19XSwicG9saWN5SWQiOiJyZXBlYXRlZC1maWx0ZXItdmlldyIsInBvbGljeVZlcnNpb24iOjEsInNjaGVtYSI6Inh0ZW5kLnh0ZW5zaW9ucy51cmwtc3RhdGUudjEifQ"
+}

@@ -1,0 +1,91 @@
+{
+  "schema": "xtend.test.execution-report.v1",
+  "executionId": "feb57244-3915-481b-b1a5-631b18651431",
+  "commit": "3bc25783e9a94dd70da3a3abe347ab49c38dd192",
+  "sourceFingerprint": "a13724cc7fc99a82e682c19e054b5e354ddcfffba0b719c4bc8e82e263c5e973",
+  "catalogFingerprint": "70472f47b328d59ee1e5b2e751a6ee388e931f46c6e334370d7420752f18abb3",
+  "run": "local:62406241-b192-42cb-8b65-31abed9d04cd",
+  "runtime": {
+    "node": "v24.22.2",
+    "platform": "linux",
+    "arch": "x64",
+    "nodeOptions": "",
+    "runnerImage": ":",
+    "toolchain": {
+      "php": [
+        {
+          "command": "php",
+          "available": true,
+          "value": "{\"version\":\"8.5.4\",\"binary\":\"\\/usr\\/bin\\/php8.5\",\"binaryHash\":\"65857ad1587bf7e743fb6c7e2099153367675e6bef0e06f887d43d3df75ff086\",\"extensions\":[\"Core\",\"FFI\",\"PDO\",\"Phar\",\"Reflection\",\"SPL\",\"Zend OPcache\",\"calendar\",\"ctype\",\"date\",\"exif\",\"fileinfo\",\"filter\",\"ftp\",\"gettext\",\"hash\",\"iconv\",\"json\",\"lexbor\",\"libxml\",\"mysqli\",\"mysqlnd\",\"openssl\",\"pcntl\",\"pcre\",\"pdo_mysql\",\"posix\",\"random\",\"readline\",\"session\",\"shmop\",\"sockets\",\"sodium\",\"standard\",\"sysvmsg\",\"sysvsem\",\"sysvshm\",\"tokenizer\",\"uri\",\"zlib\"],\"ini\":{\"\\/etc\\/php\\/8.5\\/cli\\/conf.d\\/10-mysqlnd.ini\":\"d4d13801f80a56f3169a19670688aceed7c9ffbdb65c9f3aaf6903682d04b77c\",\"\\/etc\\/php\\/8.5\\/cli\\/conf.d\\/10-pdo.ini\":\"b072d1e70a5173af7e968b4abf908e017f5f8675d30dda36ea7443dc410d2e5d\",\"\\/etc\\/php\\/8.5\\/cli\\/conf.d\\/20-calendar.ini\":\"0fbe835f25a303eb942760930f734275c2a5e60049835b0d9bd9f97c9b996d7d\",\"\\/etc\\/php\\/8.5\\/cli\\/conf.d\\/20-ctype.ini\":\"05e736f9509116eec00fe4fa1b4e0fea51a2fb311262cd46a35ea1f177eb9ff9\",\"\\/etc\\/php\\/8.5\\/cli\\/conf.d\\/20-exif.ini\":\"e7bbc905937019e082d5ad1dd6482b3bb9eaebc47c3939066e5099c1b7b5e9f5\",\"\\/etc\\/php\\/8.5\\/cli\\/conf.d\\/20-ffi.ini\":\"005d8a46015f79bc5e03e393e7c455eeb675e456515740537317235fa12458f9\",\"\\/etc\\/php\\/8.5\\/cli\\/conf.d\\/20-fileinfo.ini\":\"c8a2d1dd0161a50e0ddd031f0abc7a5acfe8559f5ec18423e567f519c456dfcc\",\"\\/etc\\/php\\/8.5\\/cli\\/conf.d\\/20-ftp.ini\":\"464d61d9d251d63efb02af8698c21125962a18992470080bf8929770292302f9\",\"\\/etc\\/php\\/8.5\\/cli\\/conf.d\\/20-gettext.ini\":\"f502d4781c78fff2b7db83e1f37db6c8bb4648ec0d2ce00decdc079a9b551738\",\"\\/etc\\/php\\/8.5\\/cli\\/conf.d\\/20-iconv.ini\":\"922d70e6a207418f4bf87c4dda8685cd19c278c50cf1332b0a11a33e7c32d893\",\"\\/etc\\/php\\/8.5\\/cli\\/conf.d\\/20-mysqli.ini\":\"04976eae2dd34c791ce55300ef5ff38f14354b51b1fe8b43cbcf97fa0b43c0a6\",\"\\/etc\\/php\\/8.5\\/cli\\/conf.d\\/20-pdo_mysql.ini\":\"994167f720c3d6ee7b13397cfd5b1b4a2f72ec0eaaa39947cbf4590f00abec58\",\"\\/etc\\/php\\/8.5\\/cli\\/conf.d\\/20-phar.ini\":\"fd62472e0bf8b260ed712068086a2a55b9dd71bf13b1f0e07897eeea3bf723e2\",\"\\/etc\\/php\\/8.5\\/cli\\/conf.d\\/20-posix.ini\":\"e1a5a7c827fc17ff94cf87beed916be62d6b025346b4a274adb8d835785109b0\",\"\\/etc\\/php\\/8.5\\/cli\\/conf.d\\/20-readline.ini\":\"fa6d93d1de1704dd7b40708204dec039308bd867d549c4cf4aef597d40d4394f\",\"\\/etc\\/php\\/8.5\\/cli\\/conf.d\\/20-shmop.ini\":\"134aafee92de1f650b7eb500cd6336bd33149bdd3fab4fba939894fc7ffc8193\",\"\\/etc\\/php\\/8.5\\/cli\\/conf.d\\/20-sockets.ini\":\"eb31eeb6aeb34f31c1c695dbac0c9a69f909874f01341679382da0646641318c\",\"\\/etc\\/php\\/8.5\\/cli\\/conf.d\\/20-sysvmsg.ini\":\"ab104d16fcb223c3fff2af1880490f879e940561732d66571f69a15d498321d8\",\"\\/etc\\/php\\/8.5\\/cli\\/conf.d\\/20-sysvsem.ini\":\"2f7f5db8fddca372e034f3c7bb34f5abd861621fa5282bd0808bd320e2867e85\",\"\\/etc\\/php\\/8.5\\/cli\\/conf.d\\/20-sysvshm.ini\":\"4218981bb40ed218b01846cbdc85b436133859b2b051f740f992db14a702b2fc\",\"\\/etc\\/php\\/8.5\\/cli\\/conf.d\\/20-tokenizer.ini\":\"5915e8a8256d4ba7b8b021ce1bcb9456ae86cd98e1100b6b57e098ccf169e6a9\",\"\\/etc\\/php\\/8.5\\/cli\\/php.ini\":\"0217f6cd449eff88b8db04e48dee4f341d059f00d8a904a706b4ef0a99fc413d\"},\"disabled\":\"\",\"iconv\":\"0061\"}"
+        }
+      ],
+      "browser": {
+        "endpoint": null,
+        "driver": {
+          "command": "/usr/bin/chromedriver",
+          "available": true,
+          "value": "ChromeDriver 155.0.8059.79 (a49e2e3d4addfd84e765b52afe230bedb81096db-refs/branch-heads/8059@{#1239})"
+        },
+        "binary": {
+          "command": "/snap/bin/chromium",
+          "available": true,
+          "value": "Chromium 155.0.8059.79 snap"
+        }
+      },
+      "configurationFingerprint": "718d27de1550ba3b3d71281b2713ba4cfb4aec12d0164577e77163432972ca41"
+    },
+    "environmentFingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "profile": null,
+  "startedAt": "2026-11-17T19:25:22.620Z",
+  "completedAt": "2026-11-17T19:26:35.327Z",
+  "complete": true,
+  "status": "passed",
+  "jobs": 1,
+  "expected": [
+    "xtensions-consumer-package"
+  ],
+  "results": [
+    {
+      "executionId": "xtensions-consumer-package",
+      "startedAt": "2026-11-17T19:25:22.626Z",
+      "completedAt": "2026-11-17T19:26:35.301Z",
+      "durationMs": 72675,
+      "logPath": ".xtend-test-results/test-runner/feb57244-3915-481b-b1a5-631b18651431/xtensions-consumer-package.log",
+      "abortCause": null,
+      "rssBytes": 188469248,
+      "maxRssBytes": 206995456,
+      "id": "xtensions-consumer-package",
+      "reused": false,
+      "result": {
+        "id": "xtensions-consumer-package",
+        "label": "Packed XTensions Consumer Acceptance",
+        "status": "passed",
+        "exitCode": 0,
+        "passCount": 6,
+        "failureCount": 0,
+        "skipCount": 0,
+        "warningCount": 0,
+        "failures": [],
+        "skips": [],
+        "warnings": []
+      }
+    }
+  ],
+  "executions": [
+    {
+      "executionId": "xtensions-consumer-package",
+      "startedAt": "2026-11-17T19:25:22.626Z",
+      "completedAt": "2026-11-17T19:26:35.301Z",
+      "durationMs": 72675,
+      "logPath": ".xtend-test-results/test-runner/feb57244-3915-481b-b1a5-631b18651431/xtensions-consumer-package.log",
+      "abortCause": null,
+      "rssBytes": 188469248,
+      "maxRssBytes": 206995456
+    }
+  ],
+  "workerCount": 1,
+  "peakWorkerRssBytes": 206995456,
+  "infrastructureErrors": [],
+  "durationMs": 72707
+}

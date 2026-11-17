@@ -1,5 +1,6 @@
-import type { XTensionStateBindingArtifact, XTensionBindingModelReader } from './state-binding';
+import type { XTensionStateBindingArtifact, XTensionProjectionStateBindingArtifact, XTensionBindingModelReader } from './state-binding';
 export const API_VERSION: '1.0.0';
+export const PROJECTION_URL_STATE_API_VERSION: '2.0.0';
 export const PARAMETER: 'xtend-state';
 export type Scalar = string | number | boolean | null;
 export interface Address { readonly declarationId: string; readonly keys: readonly (string | number)[] }
@@ -40,3 +41,31 @@ export function createURLStateContract(policy: Policy, inputs: { program: unknow
 export function readQuery(query: string): string | null;
 export function withToken(query: string, token: string | null): string;
 export function canonical(value: unknown): string;
+
+/** Explicit URL profile for direct scalar Model projections in binding artifact v4. */
+export interface PolicyV2 extends Omit<Policy, 'schema'> { readonly schema: 'xtend.xtensions.url-state-policy.v2' }
+export interface SnapshotV2 extends Omit<Snapshot, 'schema'> { readonly schema: 'xtend.xtensions.url-state.v2' }
+export interface RestorePlanV2 extends Omit<RestorePlan, 'schema'> { readonly schema: 'xtend.xtensions.url-state-restore-plan.v2' }
+export interface HistoryProposalV2 extends Omit<HistoryProposal, 'schema'> { readonly schema: 'xtend.xtensions.url-history-proposal.v2' }
+export interface ProjectionURLStateContract {
+  readonly apiVersion: typeof PROJECTION_URL_STATE_API_VERSION; readonly policy: PolicyV2;
+  dispose(): void;
+  capture(snapshot: ReturnType<XTensionBindingModelReader['snapshot']>): SnapshotV2;
+  encode(snapshot: SnapshotV2): string;
+  decode(token: string): SnapshotV2;
+  planRestore(token: string | null, snapshot: ReturnType<XTensionBindingModelReader['snapshot']>, context: { navigationId: string }): RestorePlanV2;
+  /** Reuses the atomic Model writer, typed keys, navigation fences and commit barrier. */
+  applyRestore(plan: RestorePlanV2, ports: Parameters<ReturnType<typeof createURLStateContract>['applyRestore']>[1], lifetime: Lifetime): boolean;
+  proposeHistory(snapshot: ReturnType<XTensionBindingModelReader['snapshot']>, context: { cause: HistoryProposalV2['cause']; currentToken: string | null; navigationId: string }): HistoryProposalV2;
+  checkHistory(proposal: HistoryProposalV2, snapshot: ReturnType<XTensionBindingModelReader['snapshot']>, lifetime: Lifetime): boolean;
+}
+export interface ProjectionURLStateRuntime {
+  readonly API_VERSION: typeof PROJECTION_URL_STATE_API_VERSION;
+  readonly PARAMETER: typeof PARAMETER;
+  createURLStateContract(policy: PolicyV2, inputs: { program: unknown; bindings: XTensionProjectionStateBindingArtifact }): ProjectionURLStateContract;
+  readQuery(query: string): string | null;
+  /** Accepts only the explicitly versioned 2. token envelope. */
+  withToken(query: string, token: string | null): string;
+  canonical(value: unknown): string;
+}
+export const PROJECTION_URL_STATE_RUNTIME: Readonly<ProjectionURLStateRuntime>;

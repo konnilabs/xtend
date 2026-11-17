@@ -1,0 +1,47 @@
+{
+  "ok": true,
+  "files": [
+    {
+      "name": "rmt-ai-kit.compact.md",
+      "exists": true,
+      "matches": true,
+      "expected": "ae165cf7ebc4968193c77aaa526cdedf2a771d8c3088e4afe4bad26bade2f993",
+      "actual": "ae165cf7ebc4968193c77aaa526cdedf2a771d8c3088e4afe4bad26bade2f993"
+    },
+    {
+      "name": "rmt-ai-kit.manifest.json",
+      "exists": true,
+      "matches": true,
+      "expected": "8ac604ece2815da5965f5c95c61a72a95e39e5058179d1797a9fcd90cc50772f",
+      "actual": "8ac604ece2815da5965f5c95c61a72a95e39e5058179d1797a9fcd90cc50772f"
+    },
+    {
+      "name": "rmt-ai-kit.reference.jsonl",
+      "exists": true,
+      "matches": true,
+      "expected": "9d05ba3f01a03925883c422f94850fd8e0a8aeca853ec6ad88e25daf8cabfbe4",
+      "actual": "9d05ba3f01a03925883c422f94850fd8e0a8aeca853ec6ad88e25daf8cabfbe4"
+    },
+    {
+      "name": "rmt-ai-kit.recipes.jsonl",
+      "exists": true,
+      "matches": true,
+      "expected": "647baeecf3777f0c733e1aa1a058bff3b34b545173c20c93268b9791fae6a7b7",
+      "actual": "647baeecf3777f0c733e1aa1a058bff3b34b545173c20c93268b9791fae6a7b7"
+    },
+    {
+      "name": "rmt-ai-kit.prompts.md",
+      "exists": true,
+      "matches": true,
+      "expected": "14f60458d667022de268c6129fd9fde2bd9f22c488ef754644d7828fbf7d7c9c",
+      "actual": "14f60458d667022de268c6129fd9fde2bd9f22c488ef754644d7828fbf7d7c9c"
+    },
+    {
+      "name": "rmt-ai-kit.guardrails.json",
+      "exists": true,
+      "matches": true,
+      "expected": "3be3d10f21e6806e09464165ed12cca4fccdc8b2e613ac7d599ccb06792f02cc",
+      "actual": "3be3d10f21e6806e09464165ed12cca4fccdc8b2e613ac7d599ccb06792f02cc"
+    }
+  ]
+}

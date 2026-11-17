@@ -1,0 +1,15 @@
+✔ route-owner factories keep legacy API1 closed and expose the explicit API2 host (83.313122ms)
+✔ projection history host delegates restore/publication and preserves route-owned URL bytes (21.488015ms)
+✔ projection hash host delegates restore/publication and preserves route-owned URL bytes (13.300349ms)
+✔ route departure, owner retirement and superseded navigation revoke pending URL2 authority (32.770373ms)
+✔ deferred URL2 navigation publishes nothing until explicit retry succeeds (9.669931ms)
+✔ disposing URL2 listeners revokes callbacks and preserves route-owner state (13.749544ms)
+✔ actual x-router connectURLState chooses the API2 route host and delegates query navigation (54.353169ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 232.821688

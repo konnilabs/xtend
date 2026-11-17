@@ -204,7 +204,7 @@ test('disposing during a datasource prevents late handlers, commits, and publica
 
 test('the direct Action executor executes result phases and uses only its explicit publication adapter', async () => {
   const { apis } = await modules;
-  assert.equal(apis.action.RMT_ACTION_EFFECT_API_VERSION, '2.0.0');
+  assert.equal(apis.action.RMT_ACTION_EFFECT_API_VERSION, '3.0.0');
   const compiled = require('../../tools/rmt-language/classic-compiler').compileRmtClassicSource(`state original type string initial "source"
     state copied type string initial ""
     action copy { reduce state.copied = state.original

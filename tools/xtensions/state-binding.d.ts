@@ -1,8 +1,8 @@
 import type { RuntimeHostController, KernelRuntimeHostController, GraphRuntimeHostController, BudgetRuntimeHostController, NegotiatedRuntimeHostController } from './runtime-host-controller';
 export type { RuntimeHostController, KernelRuntimeHostController, GraphRuntimeHostController, BudgetRuntimeHostController, NegotiatedRuntimeHostController } from './runtime-host-controller';
 import type { XTensionsSurfaceEvent } from './signal-bridge-contract';
-export { XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBindingArtifact, materializeStateBindingArtifact } from './state-binding-artifact';
-export type { XTensionStateBindingArtifact, XTensionHostPresence, XTensionBindingTemplate, XTensionRepeatScope, XTensionMaterializedBinding } from './state-binding-artifact';
+export { PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA, XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBindingArtifact, materializeStateBindingArtifact } from './state-binding-artifact';
+export type { XTensionProjectionStateBindingArtifact, XTensionStateBindingArtifact, XTensionHostPresence, XTensionBindingTemplate, XTensionRepeatScope, XTensionMaterializedBinding } from './state-binding-artifact';
 
 export const XTENSION_STATE_BINDING_SCHEMA: 'xtend.xtensions.state-binding.v2';
 export const XTENSION_STATE_BINDING_API_VERSION: '2.4.0';
@@ -93,6 +93,7 @@ export interface XTensionBoundInstance {
   whenIdle(): Promise<XTensionBindingSnapshot>;
   dispose(reason?: string): Promise<unknown>;
 }
+export function validateStateBinding(input: XTensionProjectionStateBinding): XTensionProjectionStateBinding;
 export function validateStateBinding(input: unknown): XTensionStateBinding;
 export function createXTensionStateRegistry(options: {
   modelReader: XTensionBindingModelReader;
@@ -116,4 +117,27 @@ export function createXTensionResumeStateRegistry(options: Parameters<typeof cre
   bind(definition: XTensionStateBinding, createHost: (context: XTensionBindingHostContext) => import('./runtime-host-controller').SSRRuntimeHostController): XTensionResumeBoundInstance;
   flush(): Promise<void>;
   dispose(): Promise<void>;
+};
+
+/** Explicit Source4 projection contract; legacy v1/v2 bindings remain unchanged. */
+export const PROJECTION_BINDING_SCHEMA: 'xtend.xtensions.state-binding.v3';
+export const XTENSION_PROJECTION_STATE_BINDING_API_VERSION: '3.0.0';
+export type XTensionProjectionPath = readonly (string | number | XTensionKeySelector | { readonly repeat: number })[];
+export type XTensionProjection =
+  | { readonly kind: 'literal'; readonly value: unknown }
+  | { readonly kind: 'path'; readonly root: 'state' | 'selector'; readonly symbol: string; readonly path: XTensionProjectionPath }
+  | { readonly kind: 'object'; readonly fields: Readonly<Record<string, XTensionProjection>> }
+  | { readonly kind: 'array'; readonly items: readonly XTensionProjection[] }
+  | { readonly kind: 'conditional'; readonly test: XTensionProjection; readonly then: XTensionProjection; readonly else: XTensionProjection }
+  | { readonly kind: 'unary'; readonly op: '!' | '-' | '+'; readonly value: XTensionProjection }
+  | { readonly kind: 'binary'; readonly op: '===' | '!==' | '<' | '<=' | '>' | '>=' | '&&' | '||' | '+' | '-' | '*' | '/' | '%'; readonly left: XTensionProjection; readonly right: XTensionProjection };
+export interface XTensionProjectionStateBinding {
+  readonly schema: typeof PROJECTION_BINDING_SCHEMA;
+  readonly address: XTensionInstanceAddress;
+  readonly props: Readonly<Record<string, XTensionValueRule & { readonly projection: XTensionProjection }>>;
+  readonly intents: XTensionKeyedStateBinding['intents'];
+}
+export function createXTensionProjectionStateRegistry(options: Parameters<typeof createXTensionStateRegistry>[0]): Omit<ReturnType<typeof createXTensionStateRegistry>, 'apiVersion' | 'bind'> & {
+  readonly apiVersion: '3.0.0';
+  bind(definition: XTensionProjectionStateBinding, factory: Parameters<ReturnType<typeof createXTensionStateRegistry>['bind']>[1]): XTensionBoundInstance;
 };

@@ -1,0 +1,46 @@
+import { RMT, model, input, item } from '@ccslabs/xtend/rmt-language/rmtx';
+
+// Explicit host scopes, not JSX callbacks or native DOM repeats.
+export default <RMT.Program id="keyed.products">
+  <RMT.State id="catalog" type="object" preserve initial={{ items: [
+    { id: 'g', products: [
+      { id: 1, slug: 'numeric', images: ['front', 'back'], selectedImageId: 'front', reviewsSort: 'recent', enabled: true },
+      { id: '1', slug: 'text', images: ['front', 'back'], selectedImageId: 'front', reviewsSort: 'recent', enabled: true }
+    ] },
+    { id: 'h', products: [
+      { id: 1, slug: 'other-parent', images: ['front', 'back'], selectedImageId: 'front', reviewsSort: 'recent', enabled: true }
+    ] }
+  ] }} />
+  <RMT.State id="intentCapture" type="object" initial={{ groupId: null, productId: null, value: '', kind: '' }} />
+  <RMT.Action id="image.select">
+    <RMT.Input name="groupId" type="json" /><RMT.Input name="productId" type="json" /><RMT.Input name="imageId" type="string" />
+    <RMT.Reduce state="intentCapture" path="groupId" value={input.groupId} />
+    <RMT.Reduce state="intentCapture" path="productId" value={input.productId} />
+    <RMT.Reduce state="intentCapture" path="value" value={input.imageId} />
+    <RMT.Reduce state="intentCapture" path="kind" value="image" />
+  </RMT.Action>
+  <RMT.Action id="reviews.sort">
+    <RMT.Input name="groupId" type="json" /><RMT.Input name="productId" type="json" /><RMT.Input name="sort" type="string" />
+    <RMT.Reduce state="intentCapture" path="groupId" value={input.groupId} />
+    <RMT.Reduce state="intentCapture" path="productId" value={input.productId} />
+    <RMT.Reduce state="intentCapture" path="value" value={input.sort} />
+    <RMT.Reduce state="intentCapture" path="kind" value="reviews" />
+  </RMT.Action>
+  <RMT.Action id="catalog.replace">
+    <RMT.Input name="catalog" type="object" /><RMT.Reduce state="catalog" value={input.catalog} />
+  </RMT.Action>
+  <RMT.Portal id="surface.root" root="#xtend-maraca-root" layer="surface" />
+  <RMT.Surface id="product-details" kind="region" component="section" portal="surface.root">
+    <RMT.Lane name="visible"><RMT.Mount target="product-header" /></RMT.Lane>
+  </RMT.Surface>
+  <RMT.Repeat from={model.catalog.items} keyBy={item.id}>
+    <RMT.Repeat from={item.products} keyBy={item.id}>
+      <RMT.Surface id="product-gallery-host" kind="region" component="div" portal="surface.root" present={item.enabled}>
+        <RMT.Lane name="visible"><RMT.Mount target="product-gallery" /></RMT.Lane>
+      </RMT.Surface>
+      <RMT.Surface id="product-reviews-host" kind="region" component="div" portal="surface.root" present={item.enabled}>
+        <RMT.Lane name="idle"><RMT.Mount target="product-reviews" /></RMT.Lane>
+      </RMT.Surface>
+    </RMT.Repeat>
+  </RMT.Repeat>
+</RMT.Program>;

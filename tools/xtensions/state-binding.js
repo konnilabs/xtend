@@ -1,16 +1,18 @@
 // SPDX-License-Identifier: Apache-2.0
 'use strict';
 
-const { XTENSION_STATE_BINDING_SCHEMA, validateStateBinding, addressKey, propsFrom, clone, freeze, data, record, typed } = require('./state-binding-contract');
-const { XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBindingArtifact, materializeStateBindingArtifact } = require('./state-binding-artifact');
+const { XTENSION_STATE_BINDING_SCHEMA, PROJECTION_BINDING_SCHEMA, validateStateBinding, addressKey, propsFrom, clone, freeze, data, record, typed } = require('./state-binding-contract');
+const { XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBindingArtifact, materializeStateBindingArtifact } = require('./state-binding-artifact');
 const { SSR_RUNTIME_HOST_CONTROLLER_SCHEMA, RUNTIME_HOST_CONTROLLER_SCHEMA, KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA, GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA, BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA, NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA } = require('./runtime-host-controller');
 const XTENSION_STATE_BINDING_API_VERSION = '2.4.0';
+const XTENSION_PROJECTION_STATE_BINDING_API_VERSION = '3.0.0';
 const XTENSION_RESUME_STATE_BINDING_API_VERSION = '3.0.0';
 function createXTensionStateRegistry(options) { return createStateRegistry(options, false); }
 function createXTensionResumeStateRegistry(options) { return createStateRegistry(options, true); }
+function createXTensionProjectionStateRegistry(options) { return createStateRegistry(options, false, true); }
 
 /** One registry per Model session. Factories and ports are trusted host capabilities. */
-function createStateRegistry({ modelReader, modelCommandPort, commandDispatcher, onDiagnostic } = {}, resumeEnabled) {
+function createStateRegistry({ modelReader, modelCommandPort, commandDispatcher, onDiagnostic } = {}, resumeEnabled, projectionEnabled = false) {
   if (!modelReader || typeof modelReader.snapshot !== 'function' || typeof modelReader.subscribe !== 'function' ||
     (!modelCommandPort || typeof modelCommandPort.apply !== 'function') && (!commandDispatcher || typeof commandDispatcher.dispatch !== 'function')) throw new TypeError('State bindings require Model reader and command ports.');
   if (commandDispatcher && modelCommandPort) throw new TypeError('A binding registry requires one command authority.');
@@ -32,6 +34,7 @@ function createStateRegistry({ modelReader, modelCommandPort, commandDispatcher,
     // A new conditional lifetime may be created between Model and public View notification.
     current = modelReader.snapshot();
     const definition = validateStateBinding(input), key = addressKey(definition.address);
+    if ((definition.schema === PROJECTION_BINDING_SCHEMA) !== projectionEnabled) throw new TypeError('Binding schema requires its explicitly versioned registry.');
     if (entries.has(key)) throw new Error('The XTension instance address is already bound.');
     const identity = freeze({ address: definition.address, key, incarnation: ++incarnation });
     const ids = freeze({ hostId: `state-binding:${key}`, surfaceId: definition.address.documentId, xtensionId: `${key}@${identity.incarnation}` });
@@ -189,7 +192,7 @@ function createStateRegistry({ modelReader, modelCommandPort, commandDispatcher,
         });
     }
   }
-  return Object.freeze({ apiVersion: resumeEnabled ? XTENSION_RESUME_STATE_BINDING_API_VERSION : XTENSION_STATE_BINDING_API_VERSION, bind, async flush() { await Promise.all([...entries.values()].map((entry) => entry.flush())); }, dispose() {
+  return Object.freeze({ apiVersion: projectionEnabled ? XTENSION_PROJECTION_STATE_BINDING_API_VERSION : resumeEnabled ? XTENSION_RESUME_STATE_BINDING_API_VERSION : XTENSION_STATE_BINDING_API_VERSION, bind, async flush() { await Promise.all([...entries.values()].map((entry) => entry.flush())); }, dispose() {
     if (closing) return closing;
     closed = true; unsubscribe();
     closing = Promise.all([...entries.values()].map((entry) => entry.dispose())).then(() => undefined);
@@ -197,4 +200,4 @@ function createStateRegistry({ modelReader, modelCommandPort, commandDispatcher,
   } });
 }
 
-module.exports = { XTENSION_RESUME_STATE_BINDING_API_VERSION, createXTensionResumeStateRegistry, XTENSION_STATE_BINDING_API_VERSION, XTENSION_STATE_BINDING_SCHEMA, XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBinding, validateStateBindingArtifact, materializeStateBindingArtifact, createXTensionStateRegistry };
+module.exports = { XTENSION_RESUME_STATE_BINDING_API_VERSION, createXTensionResumeStateRegistry, createXTensionProjectionStateRegistry, XTENSION_STATE_BINDING_API_VERSION, XTENSION_PROJECTION_STATE_BINDING_API_VERSION, XTENSION_STATE_BINDING_SCHEMA, PROJECTION_BINDING_SCHEMA, XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBinding, validateStateBindingArtifact, materializeStateBindingArtifact, createXTensionStateRegistry };

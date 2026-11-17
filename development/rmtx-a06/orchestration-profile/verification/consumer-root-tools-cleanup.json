@@ -1,0 +1,52 @@
+{
+  "createdAtUTC": "2026-11-17T19:34:30.332222+00:00",
+  "creationReceipt": "/tmp/xtend-rmtx-a0633/consumer-root-tools-creation.json",
+  "creationReceiptSha256": "a66f260fa46b8c9862a81a1ebf1d483f5e79aaf9c4665725049765b82aed637d",
+  "operation": "unlink-exact-owner-created-tool-symlinks-only",
+  "removedCount": 4,
+  "entries": [
+    {
+      "path": "/home/konni/Downloads/xtend-dev/xtend/node_modules/typescript",
+      "target": "/tmp/xtend-rmtx-a0632/peers/node_modules/typescript",
+      "version": "5.9.3",
+      "ownerUid": 1000,
+      "verifiedOwnerCreatedSymlink": true,
+      "removed": true,
+      "linkAbsentAfter": true,
+      "targetPreserved": true
+    },
+    {
+      "path": "/home/konni/Downloads/xtend-dev/xtend/node_modules/esbuild",
+      "target": "/tmp/xtend-rmtx-a0632/peers/node_modules/esbuild",
+      "version": "0.28.2",
+      "ownerUid": 1000,
+      "verifiedOwnerCreatedSymlink": true,
+      "removed": true,
+      "linkAbsentAfter": true,
+      "targetPreserved": true
+    },
+    {
+      "path": "/home/konni/Downloads/xtend-dev/xtend/node_modules/rollup",
+      "target": "/tmp/xtend-rmtx-a0632/peers/node_modules/rollup",
+      "version": "4.60.4",
+      "ownerUid": 1000,
+      "verifiedOwnerCreatedSymlink": true,
+      "removed": true,
+      "linkAbsentAfter": true,
+      "targetPreserved": true
+    },
+    {
+      "path": "/home/konni/Downloads/xtend-dev/xtend/node_modules/terser",
+      "target": "/tmp/xtend-rmtx-a0632/peers/node_modules/terser",
+      "version": "5.48.0",
+      "ownerUid": 1000,
+      "verifiedOwnerCreatedSymlink": true,
+      "removed": true,
+      "linkAbsentAfter": true,
+      "targetPreserved": true
+    }
+  ],
+  "rootNodeModulesDirectoryPreserved": true,
+  "sharedPeerPackageDirectoriesPreserved": true,
+  "repositoryCodeOrDocsEdited": false
+}

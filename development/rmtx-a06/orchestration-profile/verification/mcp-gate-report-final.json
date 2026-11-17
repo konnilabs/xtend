@@ -1,0 +1,68 @@
+{
+  "schema": "xtend.mcp.gate-report.v1",
+  "generatedAt": "2026-11-17T19:12:31.895Z",
+  "ok": true,
+  "status": "passed",
+  "package": {
+    "name": "@ccslabs/xtend-mcp",
+    "version": "0.1.0"
+  },
+  "runtime": {
+    "node": "24.22.2",
+    "platform": "linux",
+    "arch": "x64"
+  },
+  "github": {
+    "workflow": null,
+    "job": null,
+    "runId": null,
+    "runAttempt": null,
+    "sha": null
+  },
+  "knowledge": {
+    "schema": "xtend.mcp.knowledge-manifest.v1",
+    "docs": 356,
+    "docsArtifactSha256": "3f085b22dd3056c7094d69ce24634d3322ace9c19411c708f8c36e8a8a9ce9db",
+    "rmtKitVersion": "0.1.0"
+  },
+  "testFiles": [
+    "products/xtend-mcp/tests/contract.test.mjs",
+    "products/xtend-mcp/tests/integration.test.mjs",
+    "products/xtend-mcp/tests/knowledge.test.mjs",
+    "products/xtend-mcp/tests/local-bundle.test.mjs",
+    "products/xtend-mcp/tests/security.test.mjs",
+    "products/xtend-mcp/tests/vscode-provider.test.mjs"
+  ],
+  "steps": [
+    {
+      "id": "node-runtime",
+      "label": "Node.js runtime contract",
+      "ok": true,
+      "status": "passed",
+      "required": ">=24",
+      "observed": "24.22.2"
+    },
+    {
+      "id": "knowledge-drift",
+      "label": "Deterministic knowledge artifact drift check",
+      "ok": true,
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "startedAt": "2026-11-17T19:12:29.665Z",
+      "durationMs": 91
+    },
+    {
+      "id": "mcp-contracts",
+      "label": "MCP contract, security, parity and integration tests",
+      "ok": true,
+      "status": "passed",
+      "exitCode": 0,
+      "signal": null,
+      "error": null,
+      "startedAt": "2026-11-17T19:12:29.757Z",
+      "durationMs": 2137
+    }
+  ]
+}

@@ -1614,7 +1614,10 @@ function collectVNextPrimitiveReferences(graphState, ast) {
           node: node.actionNode || node
         });
 
-        if (listVNextEventPayloadMappings(node).length === 0) {
+        const inputFields = graphState.actionInputContract?.actions.find(action => action.id === actionId)?.fields;
+        const noInputAction = graphState.allowEmptyActionPayload === true && inputFields
+          && Object.values(inputFields).every(rule => rule.required === false);
+        if (listVNextEventPayloadMappings(node).length === 0 && !noInputAction) {
           graphState.diagnostics.push(createVNextPrimitiveDiagnostic(graphState.sourceModel, {
             code: RMT_VNEXT_PRIMITIVE_DIAGNOSTIC_CODES.payloadContractMissing,
             severity: 'error',
@@ -1734,7 +1737,10 @@ function buildRmtVNextPrimitiveSemanticGraph(input = {}, options = {}) {
     indexes,
     references: createVNextPrimitiveReferencesIndex(),
     diagnostics: Array.isArray(parserResult.diagnostics) ? parserResult.diagnostics.slice() : [],
-    ast: parserResult.ast
+    ast: parserResult.ast,
+    allowEmptyActionPayload: options.compilerSourceProfile?.syntax === 'rmtx' && options.compilerSourceProfile.version === '4.0.0',
+    allowActionTemplates: options.compilerSourceProfile?.syntax === 'rmtx' && options.compilerSourceProfile.version === '4.0.0',
+    actionInputContract: options.compilerActionInputContract || null
   };
 
   if (parserResult.ast && (parserResult.ok || options.includePartialDeclarations === true)) {

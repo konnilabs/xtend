@@ -7,6 +7,8 @@ const stateSchema = freeze(clone(require('./url-state-contracts/state.v1.schema.
 const planSchema = freeze(clone(require('./url-state-contracts/restore-plan.v1.schema.json')));
 const historySchema = freeze(clone(require('./url-state-contracts/history-proposal.v1.schema.json')));
 const API_VERSION = '1.0.0';
+const PROJECTION_URL_STATE_API_VERSION = '2.0.0';
+const projectionSchemas = freeze({ policySchema: clone(require('./url-state-contracts/policy.v2.schema.json')), stateSchema: clone(require('./url-state-contracts/state.v2.schema.json')), planSchema: clone(require('./url-state-contracts/restore-plan.v2.schema.json')), historySchema: clone(require('./url-state-contracts/history-proposal.v2.schema.json')) });
 const PARAMETER = 'xtend-state';
 const encoder = new TextEncoder();
 function fail(message, code = 'invalid') { throw Object.assign(new TypeError(message), { code: `xtend.xtensions.url-state.${code}` }); }
@@ -17,8 +19,8 @@ function closed(value, schema) {
 }
 function scalar(value) { demand(value === null || ['string','boolean'].includes(typeof value) || typeof value === 'number' && Number.isFinite(value), 'URL values must be finite JSON scalars.'); }
 function named(value, maximum = 128) { name(value); demand([...value].length <= maximum, 'URL identity exceeds its bound.'); }
-function address(value) {
-  closed(value, policySchema.definitions.address); named(value.declarationId); segments(value.keys);
+function address(value, schema = policySchema) {
+  closed(value, schema.definitions.address); named(value.declarationId); segments(value.keys);
   demand(value.keys.length <= 32, 'Too many address keys.');
   for (const key of value.keys) if (typeof key === 'string') named(key, 256);
 }
@@ -54,12 +56,22 @@ function templatePath(source, blueprint, keys) {
   return source.path.map(part => part && typeof part === 'object' && Object.hasOwn(part,'repeat')
     ? { key:{path:blueprint.repeat[part.repeat].key,value:keys[part.repeat]} } : part);
 }
-function createURLStateContract(input, { program, bindings }) {
+function createURLStateContract(input, inputs) { return createURLStateContractProfile(input, inputs, false); }
+function createProjectionURLStateContract(input, inputs) { return createURLStateContractProfile(input, inputs, true); }
+function createURLStateContractProfile(input, inputs, projected) {
+  data(inputs, new Set(), true);
+  const { program, bindings } = inputs;
+  const schemas = projected ? projectionSchemas : { policySchema, stateSchema, planSchema, historySchema };
+  const { policySchema: selectedPolicy, stateSchema: selectedState, planSchema: selectedPlan, historySchema: selectedHistory } = schemas;
+  return createURLStateEngine(input, { program, bindings }, { policySchema: selectedPolicy, stateSchema: selectedState, planSchema: selectedPlan, historySchema: selectedHistory, apiVersion: projected ? PROJECTION_URL_STATE_API_VERSION : API_VERSION, tokenPrefix: projected ? '2.' : '1.', projected });
+}
+function createURLStateEngine(input, { program, bindings }, { policySchema, stateSchema, planSchema, historySchema, apiVersion, tokenPrefix, projected }) {
   data(input); closed(input,policySchema);
   input=freeze(clone(input));
   demand(input.schema === policySchema.$id && input.exposure === 'public-url','Unsupported policy or missing explicit public URL grant.');
   named(input.id); named(input.documentId);
   demand(Number.isSafeInteger(input.version) && input.version > 0 && input.version <= 2147483647,'Invalid application policy version.');
+  demand(projected ? bindings?.schema === 'xtend.xtensions.state-binding-artifact.v4' && program?.schema === 'xtend.rmt.app-orchestration.v2' : ['xtend.xtensions.state-binding-artifact.v1','xtend.xtensions.state-binding-artifact.v2','xtend.xtensions.state-binding-artifact.v3'].includes(bindings?.schema) && program?.schema === 'xtend.rmt.app-orchestration.v1', 'URL contract requires its explicitly versioned Model/binding profile.');
   const artifact = bindingsApi.validateStateBindingArtifact(bindings,program);
   demand(input.documentId === artifact.documentId,'Policy document differs from bindings.');
   closed(input.limits,policySchema.properties.limits);
@@ -71,7 +83,12 @@ function createURLStateContract(input, { program, bindings }) {
   for (const field of input.fields) {
     closed(field,policySchema.properties.fields.items); named(field.surface); named(field.prop);
     demand(typeof field.id === 'string' && /^[A-Za-z][A-Za-z0-9._-]{0,63}$/.test(field.id),'Invalid public field id.'); name(field.id);
-    const blueprint = bySurface.get(field.surface), source = blueprint?.binding.props[field.prop];
+    const blueprint = bySurface.get(field.surface), bound = blueprint?.binding.props[field.prop];
+    let source = bound;
+    if (projected) {
+      demand(bound?.projection?.kind === 'path' && bound.projection.root === 'state', 'Projection URL writes require an explicit direct scalar Model path; omitted/default, literal, selector and computed props are not writers.');
+      source = { ...bound, state: bound.projection.symbol, path: bound.projection.path };
+    }
     demand(source && ['string','number','boolean'].includes(source.type),'URL grants require an existing, scalar controlled prop.');
     demand(!grants.has(field.id) && !sources.has(canonical([field.surface,field.prop])),'Duplicate public field grant.');
     scalar(field.default); typed(field.default,source,'URL default');
@@ -99,7 +116,7 @@ function createURLStateContract(input, { program, bindings }) {
     demand(Array.isArray(payload.entries) && payload.entries.length <= policy.limits.entries,'URL entry budget exceeded.','limit');
     const seen = new Set(), entries=[];
     for (const entry of payload.entries) {
-      closed(entry,stateSchema.properties.entries.items); address({declarationId:entry.declarationId,keys:entry.keys});
+      closed(entry,stateSchema.properties.entries.items); address({declarationId:entry.declarationId,keys:entry.keys},policySchema);
       const id=addressId(entry), blueprint=match(entry);
       demand(!seen.has(id),'Duplicate logical address in URL.'); seen.add(id); record(entry.values,'Public values');
       demand(Object.keys(entry.values).length > 0,'Empty URL entry.'); const values={};
@@ -116,12 +133,12 @@ function createURLStateContract(input, { program, bindings }) {
   function encode(payload) {
     const normalized=normalize(payload), raw=encoder.encode(canonical(normalized));
     let binary=''; for (const byte of raw) binary+=String.fromCharCode(byte);
-    const token='1.'+btoa(binary).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+    const token=tokenPrefix+btoa(binary).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
     demand(token.length <= policy.limits.tokenBytes,'URL token budget exceeded.','limit'); return token;
   }
   function decode(token) {
     demand(typeof token === 'string' && token.length <= policy.limits.tokenBytes,'URL token budget exceeded or invalid.','limit');
-    demand(/^1\.[A-Za-z0-9_-]+$/.test(token) && token.length%4 !== 3,'Unsupported or malformed URL token.');
+    demand(token.startsWith(tokenPrefix) && /^[A-Za-z0-9_-]+$/.test(token.slice(2)) && token.length%4 !== 3,'Unsupported or malformed URL token.');
     let payload, text;
     try {
       const body=token.slice(2), binary=atob(body.replace(/-/g,'+').replace(/_/g,'/')+'='.repeat((4-body.length%4)%4));
@@ -146,7 +163,7 @@ function createURLStateContract(input, { program, bindings }) {
         }
         const addr={declarationId:blueprint.binding.address.declarationId,keys:[...blueprint.binding.address.keys,...keys]}, id=addressId(addr);
         demand(!identities.has(id),'Ambiguous Model logical address.'); identities.add(id);
-        if (selected.has(blueprint)) { address(addr); rows.push({blueprint,address:addr,keys}); demand(rows.length<=policy.limits.instances,'Public instance budget exceeded.','limit'); }
+        if (selected.has(blueprint)) { address(addr,policySchema); rows.push({blueprint,address:addr,keys}); demand(rows.length<=policy.limits.instances,'Public instance budget exceeded.','limit'); }
       };
       visit(0,null,null,[],[]);
     }
@@ -231,7 +248,7 @@ function createURLStateContract(input, { program, bindings }) {
     current(proposal.navigationId,lifetime); proposals.delete(proposal); navigation.proposal=null; return proposal.mode!=='none';
   }
   const open=fn=>(...args)=>{demand(!disposed,'URL contract session is disposed.','stale');return fn(...args);};
-  return freeze({apiVersion:API_VERSION,policy,capture:open(capture),encode:open(encode),decode:open(decode),planRestore:open(planRestore),
+  return freeze({apiVersion,policy,capture:open(capture),encode:open(encode),decode:open(decode),planRestore:open(planRestore),
     applyRestore:open(applyRestore),proposeHistory:open(proposeHistory),checkHistory:open(checkHistory),
     dispose(){disposed=true;navigation=null;plans=new WeakMap();proposals=new WeakMap();}});
 }
@@ -247,13 +264,16 @@ function readQuery(query) {
   }
   return token;
 }
-function withToken(query,token) {
+function withToken(query,token) { return withTokenProfile(query,token,'1.'); }
+function withProjectionToken(query,token) { return withTokenProfile(query,token,'2.'); }
+function withTokenProfile(query,token,tokenPrefix) {
   demand(typeof query==='string' && !query.startsWith('?'),'Pass only the active router query area, without ?.');
   if (token!==null) readQuery(query);
-  demand(token===null||typeof token==='string'&&/^1\.[A-Za-z0-9_-]+$/.test(token)&&token.length<=8192,'Invalid query token.');
+  demand(token===null||typeof token==='string'&&token.startsWith(tokenPrefix)&&/^[A-Za-z0-9_-]+$/.test(token.slice(2))&&token.length<=8192,'Invalid query token.');
   const parts=(query?query.split('&'):[]).filter(part=>{
     try { return decodeURIComponent(part.split('=')[0].replace(/\+/g,' '))!==PARAMETER; } catch (_) { return true; }
   });
   if (token!==null) parts.push(`${PARAMETER}=${token}`); return parts.join('&');
 }
-module.exports={API_VERSION,PARAMETER,createURLStateContract,readQuery,withToken,canonical};
+const PROJECTION_URL_STATE_RUNTIME = Object.freeze({ API_VERSION: PROJECTION_URL_STATE_API_VERSION, PARAMETER, createURLStateContract: createProjectionURLStateContract, readQuery, withToken: withProjectionToken, canonical });
+module.exports={API_VERSION,PROJECTION_URL_STATE_API_VERSION,PROJECTION_URL_STATE_RUNTIME,PARAMETER,createURLStateContract,readQuery,withToken,canonical};

@@ -1,10 +1,13 @@
 function createRmtEventRoutingRuntimeModule() {
-  const RMT_EVENT_ROUTING_API_VERSION = '3.0.0';
+  const RMT_EVENT_ROUTING_API_VERSION = '4.0.0';
   const RMT_EVENT_ROUTING_RUNTIME_SCHEMA = 'xtend.epic18.rmt-event-routing-runtime.v2';
+  const RMT_EVENT_ROUTING_RUNTIME_SCHEMA_V3 = 'xtend.epic18.rmt-event-routing-runtime.v3';
+  const RMT_NATIVE_EVENT_BINDING_SCHEMA_V2 = 'xtend.rmt.native-event-binding.v2';
   const RMT_EVENT_ROUTING_DIAGNOSTIC_SCHEMA = 'xtend.epic18.rmt-event-routing-diagnostic.v1';
   const RMT_COMMAND_SCHEMA = 'xtend.rmt.command.v1';
   const DEFAULT_DIAGNOSTIC_CHANNEL = 'rmt.app_platform.event_routing';
   const UNSAFE_PATH_SEGMENTS = new Set(['__proto__', 'prototype', 'constructor']);
+  const hasOwn = (value, key) => Object.prototype.hasOwnProperty.call(value, key);
 
   function clampString(value, fallback = '') {
     const normalized = String(value == null ? '' : value).trim();
@@ -785,7 +788,7 @@ function createRmtEventRoutingRuntimeModule() {
 
   function createRouteResult(binding, status, payload, details = {}) {
     return {
-      schema: 'xtend.epic18.rmt-event-route-result.v1',
+      schema: binding.schema === RMT_NATIVE_EVENT_BINDING_SCHEMA_V2 ? 'xtend.epic18.rmt-event-route-result.v2' : 'xtend.epic18.rmt-event-route-result.v1',
       bindingId: binding.id,
       event: binding.event,
       component: binding.component,
@@ -797,9 +800,82 @@ function createRmtEventRoutingRuntimeModule() {
   }
 
   function createRmtEventRoutingRuntime(options = {}) {
+    function policyIdentity(value, seen = new Set(), depth = 0, budget = { nodes: 0 }) {
+      if (depth > 64 || ++budget.nodes > 50000) throw new TypeError('Native event input policy exceeds JSON limits.');
+      if (value === null || ['string', 'boolean'].includes(typeof value) || typeof value === 'number' && Number.isFinite(value))
+        return Object.is(value, -0) ? '-0' : JSON.stringify(value);
+      if (!value || typeof value !== 'object' || seen.has(value) || ![Object.prototype, null, Array.prototype].includes(Object.getPrototypeOf(value)))
+        throw new TypeError('Native event input policy requires plain JSON data.');
+      const array = Array.isArray(value), keys = Reflect.ownKeys(value).filter(key => !(array && key === 'length'));
+      if (array && keys.length !== value.length) throw new TypeError('Native event input policy requires dense JSON arrays.');
+      seen.add(value);
+      try {
+        const values = keys.map(key => {
+          const descriptor = Object.getOwnPropertyDescriptor(value, key);
+          if (typeof key !== 'string' || !descriptor.enumerable || !hasOwn(descriptor, 'value') || UNSAFE_PATH_SEGMENTS.has(key)
+            || array && (!/^(0|[1-9]\d*)$/u.test(key) || Number(key) >= value.length))
+            throw new TypeError('Native event input policy contains unsafe fields or accessors.');
+          return [key, policyIdentity(descriptor.value, seen, depth + 1, budget)];
+        });
+        return array ? '[' + values.map(([, child]) => child).join(',') + ']'
+          : '{' + values.sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0).map(([key, child]) => JSON.stringify(key) + ':' + child).join(',') + '}';
+      } finally { seen.delete(value); }
+    }
+    const inputValidationPort = options.inputValidationPort || null;
+    if (inputValidationPort && (inputValidationPort.schema !== 'xtend.rmt.action-input-port.v1'
+      || typeof inputValidationPort.validate !== 'function' || inputValidationPort.contract?.schema !== 'xtend.rmt.action-input-contract.v1'))
+      throw new TypeError('Native events require the explicit Action input validation port.');
+    if (options.inputContract !== undefined && (!inputValidationPort || policyIdentity(options.inputContract) !== policyIdentity(inputValidationPort.contract)))
+      throw new TypeError('Native event input policy differs from its Action validation port.');
+    const inputRules = new Map(toArray(inputValidationPort?.contract?.actions).map(action => [action.id, action.fields]));
+    function validateNativeBinding(binding) {
+      const native = binding.schema === RMT_NATIVE_EVENT_BINDING_SCHEMA_V2;
+      if (!native && !inputValidationPort) return;
+      const rules = inputRules.get(binding.action);
+      if (!native || !inputValidationPort || !rules || binding.inputContract !== binding.action || binding.actionMode !== 'run-action'
+        || binding.payloadAdapter || !binding.payload || typeof binding.payload !== 'object' || Array.isArray(binding.payload))
+        throw new TypeError('Native event bindings require their versioned declared Action input contract.');
+      for (const key of Reflect.ownKeys(binding.payload)) {
+        const descriptor = Object.getOwnPropertyDescriptor(binding.payload, key);
+        if (typeof key !== 'string' || !hasOwn(rules, key) || !descriptor?.enumerable || !hasOwn(descriptor, 'value')
+          || typeof descriptor.value !== 'string' || !/^\$(?:detail|target)(?:\.[A-Za-z_$][\w$-]*)+$/u.test(descriptor.value))
+          throw new TypeError('Native event payloads require closed safe detail/target mappings.');
+        assertSafePathSegments(descriptor.value.slice(1));
+      }
+      if (Object.entries(rules).some(([key, rule]) => rule.required && !hasOwn(binding.payload, key)))
+        throw new TypeError('Native event payload mapping omits a required Action input.');
+    }
+    function readNativeInput(value, parts, nativeTarget) {
+      for (const part of parts) {
+        if (value == null || typeof value === 'function') return MISSING_CONDITION_VALUE;
+        if (typeof value === 'object') {
+          const plain = Array.isArray(value) || [Object.prototype, null].includes(Object.getPrototypeOf(value));
+          if (plain) {
+            const descriptor = Object.getOwnPropertyDescriptor(value, part);
+            if (!descriptor) return MISSING_CONDITION_VALUE;
+            if (!hasOwn(descriptor, 'value')) throw new TypeError('Native event payload data cannot contain accessors.');
+            value = descriptor.value;
+          } else if (nativeTarget) value = value[part];
+          else throw new TypeError('Native event detail paths require plain JSON data.');
+        } else return MISSING_CONDITION_VALUE;
+      }
+      // Only an absent path is missing. Present undefined/functions must fail
+      // JSON validation instead of silently activating an optional/default rule.
+      return value;
+    }
+    function nativePayload(binding, event) {
+      const payload = {};
+      for (const [key, path] of Object.entries(binding.payload)) {
+        const parts = path.slice(1).split('.'), root = parts.shift();
+        const value = readNativeInput(root === 'detail' ? event?.detail : event?.target, parts, root === 'target');
+        if (value !== MISSING_CONDITION_VALUE) payload[key] = value;
+      }
+      return inputValidationPort.validate(binding.action, payload);
+    }
     const compiledBindings = normalizeBindings(options.bindings || options.events || options.eventBindings)
       .map((binding) => ({ ...binding, bindingSource: 'compiled' }));
     compiledBindings.forEach((binding) => {
+      validateNativeBinding(binding);
       [
         binding.payload,
         binding.payloadContract,
@@ -876,13 +952,27 @@ function createRmtEventRoutingRuntimeModule() {
         return skipped;
       }
 
+      let validatedPayload;
+      if (inputValidationPort) {
+        try { validatedPayload = nativePayload(binding, event); }
+        catch (error) {
+          const result = createRouteResult(binding, 'blocked', null, { reason: 'action-input',
+            contractErrors: [error.message], inputErrors: [{ code: 'rmt.event.input.invalid', path: error.details?.path || '/' }] });
+          diagnosticsRecorder.publish(createDiagnostic('rmt.event.input.invalid', 'Native event Action input validation rejected the payload.',
+            { bindingId: binding.id, action: binding.action, path: error.details?.path || '/' }, 'error'));
+          routeHistory.push(result); return result;
+        }
+      }
       const governanceResult = applyGovernance(binding, event);
-      const detail = objectRecord(event && event.detail);
+      // Native source mappings are the only ingress for event detail in this profile.
+      // Unmapped detail must not supply command metadata or execute property accessors.
+      const detail = inputValidationPort ? {} : objectRecord(event && event.detail);
       const commandFromEvent = isRmtCommandEnvelope(detail) ? detail : (isRmtCommandEnvelope(detail.command) ? detail.command : null);
-      const payload = commandFromEvent && binding.payload === '$detail'
+      const payload = inputValidationPort ? validatedPayload : commandFromEvent && binding.payload === '$detail'
         ? cloneValue(commandFromEvent.payload, {})
         : createPayload(binding, event, metadata);
-      const commandEnvelope = createCommandEnvelope(binding, payload, event, metadata);
+      const commandEnvelope = createCommandEnvelope(binding, payload, inputValidationPort
+        ? { type: event?.type, target: event?.target } : event, metadata);
       if (binding.event === 'click') {
         diagnosticsRecorder.publish(createDiagnostic('rmt.event.legacy_dom_event', `RMT Event ${binding.id} uses legacy DOM event click; prefer xtend-command.`, {
           bindingId: binding.id,
@@ -1080,6 +1170,7 @@ function createRmtEventRoutingRuntimeModule() {
       }
       const stagedIds = new Map();
       normalized.forEach((binding) => {
+        validateNativeBinding(binding);
         if (!binding.event || !binding.action || !binding.owner) {
           throw commitBindingError(
             'rmt.event.commit-binding.invalid',
@@ -1324,7 +1415,7 @@ function createRmtEventRoutingRuntimeModule() {
     }
 
     return Object.freeze({
-      schema: RMT_EVENT_ROUTING_RUNTIME_SCHEMA,
+      schema: inputValidationPort ? RMT_EVENT_ROUTING_RUNTIME_SCHEMA_V3 : RMT_EVENT_ROUTING_RUNTIME_SCHEMA,
       attach,
       reconcile,
       detachOwner,
@@ -1360,6 +1451,8 @@ function createRmtEventRoutingRuntimeModule() {
     RMT_EVENT_ROUTING_API_VERSION,
     RMT_EVENT_ROUTING_DIAGNOSTIC_SCHEMA,
     RMT_EVENT_ROUTING_RUNTIME_SCHEMA,
+    RMT_EVENT_ROUTING_RUNTIME_SCHEMA_V3,
+    RMT_NATIVE_EVENT_BINDING_SCHEMA_V2,
     RMT_COMMAND_SCHEMA,
     createRmtEventRoutingRuntime
   };
@@ -1372,6 +1465,8 @@ const __XTEND_RMT_EVENT_ROUTING_RUNTIME_API__ = createRmtEventRoutingRuntimeModu
 export const RMT_EVENT_ROUTING_API_VERSION = __XTEND_RMT_EVENT_ROUTING_RUNTIME_API__.RMT_EVENT_ROUTING_API_VERSION;
 export const RMT_EVENT_ROUTING_DIAGNOSTIC_SCHEMA = __XTEND_RMT_EVENT_ROUTING_RUNTIME_API__.RMT_EVENT_ROUTING_DIAGNOSTIC_SCHEMA;
 export const RMT_EVENT_ROUTING_RUNTIME_SCHEMA = __XTEND_RMT_EVENT_ROUTING_RUNTIME_API__.RMT_EVENT_ROUTING_RUNTIME_SCHEMA;
+export const RMT_EVENT_ROUTING_RUNTIME_SCHEMA_V3 = __XTEND_RMT_EVENT_ROUTING_RUNTIME_API__.RMT_EVENT_ROUTING_RUNTIME_SCHEMA_V3;
+export const RMT_NATIVE_EVENT_BINDING_SCHEMA_V2 = __XTEND_RMT_EVENT_ROUTING_RUNTIME_API__.RMT_NATIVE_EVENT_BINDING_SCHEMA_V2;
 export const RMT_COMMAND_SCHEMA = __XTEND_RMT_EVENT_ROUTING_RUNTIME_API__.RMT_COMMAND_SCHEMA;
 export const createRmtEventRoutingRuntime = __XTEND_RMT_EVENT_ROUTING_RUNTIME_API__.createRmtEventRoutingRuntime;
 

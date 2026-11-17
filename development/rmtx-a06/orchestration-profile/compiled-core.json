@@ -1,0 +1,1551 @@
+{
+  "schema": "xtend.rmt.core-format.vnext.v1",
+  "kind": "rmt_document",
+  "version": "2.0-vnext",
+  "manifest": {
+    "documentId": "inline.products",
+    "namespace": "inline",
+    "sourceSyntax": "rmtx",
+    "contracts": [
+      "xtend.rmt.vnext.grammar.v1",
+      "xtend.rmt.core-format.vnext.v1"
+    ]
+  },
+  "imports": [],
+  "templates": [
+    {
+      "id": "template:inline.products",
+      "name": "inline.products",
+      "mode": "orchestration",
+      "surfaceRefs": [
+        "surface:inline.products/product-details",
+        "surface:inline.products/product-gallery-host",
+        "surface:inline.products/product-reviews-host"
+      ],
+      "sourceRef": "src:template:inline.products"
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "surface:inline.products/product-details",
+      "name": "product-details",
+      "kind": "region",
+      "type": "region",
+      "laneRefs": [
+        "lane:inline.products/product-details/visible"
+      ],
+      "scope": {
+        "template": "template:inline.products"
+      },
+      "primitive": true,
+      "eventRefs": [
+        "event:inline.products/product-details/native-select/0"
+      ],
+      "component": "section",
+      "source": null,
+      "repeat": null,
+      "key": null,
+      "portal": {
+        "target": "surface.root",
+        "ref": "portal:surface.root"
+      },
+      "bounds": null,
+      "preserve": null,
+      "resourceRefs": [],
+      "sourceRef": "src:surface:inline.products/product-details"
+    },
+    {
+      "id": "surface:inline.products/product-gallery-host",
+      "name": "product-gallery-host",
+      "kind": "region",
+      "type": "region",
+      "laneRefs": [
+        "lane:inline.products/product-gallery-host/visible"
+      ],
+      "scope": {
+        "template": "template:inline.products"
+      },
+      "primitive": true,
+      "eventRefs": [],
+      "component": "div",
+      "source": null,
+      "repeat": null,
+      "key": null,
+      "portal": {
+        "target": "surface.root",
+        "ref": "portal:surface.root"
+      },
+      "bounds": null,
+      "preserve": null,
+      "resourceRefs": [],
+      "sourceRef": "src:surface:inline.products/product-gallery-host"
+    },
+    {
+      "id": "surface:inline.products/product-reviews-host",
+      "name": "product-reviews-host",
+      "kind": "region",
+      "type": "region",
+      "laneRefs": [
+        "lane:inline.products/product-reviews-host/idle"
+      ],
+      "scope": {
+        "template": "template:inline.products"
+      },
+      "primitive": true,
+      "eventRefs": [],
+      "component": "div",
+      "source": null,
+      "repeat": null,
+      "key": null,
+      "portal": {
+        "target": "surface.root",
+        "ref": "portal:surface.root"
+      },
+      "bounds": null,
+      "preserve": null,
+      "resourceRefs": [],
+      "sourceRef": "src:surface:inline.products/product-reviews-host"
+    }
+  ],
+  "remoteSurfaces": [],
+  "lanes": [
+    {
+      "id": "lane:inline.products/product-details/visible",
+      "name": "visible",
+      "scope": {
+        "surface": "surface:inline.products/product-details",
+        "template": "template:inline.products"
+      },
+      "operationRefs": [
+        "operation:inline.products/product-details/visible/0"
+      ],
+      "sourceRef": "src:lane:inline.products/product-details/visible"
+    },
+    {
+      "id": "lane:inline.products/product-gallery-host/visible",
+      "name": "visible",
+      "scope": {
+        "surface": "surface:inline.products/product-gallery-host",
+        "template": "template:inline.products"
+      },
+      "operationRefs": [
+        "operation:inline.products/product-gallery-host/visible/0"
+      ],
+      "sourceRef": "src:lane:inline.products/product-gallery-host/visible"
+    },
+    {
+      "id": "lane:inline.products/product-reviews-host/idle",
+      "name": "idle",
+      "scope": {
+        "surface": "surface:inline.products/product-reviews-host",
+        "template": "template:inline.products"
+      },
+      "operationRefs": [
+        "operation:inline.products/product-reviews-host/idle/0"
+      ],
+      "sourceRef": "src:lane:inline.products/product-reviews-host/idle"
+    }
+  ],
+  "operations": [
+    {
+      "id": "operation:inline.products/product-details/visible/0",
+      "kind": "lifecycle",
+      "op": "mount",
+      "target": {
+        "kind": "ref",
+        "ref": "product-header"
+      },
+      "scope": {
+        "surface": "surface:inline.products/product-details",
+        "lane": "lane:inline.products/product-details/visible",
+        "template": "template:inline.products"
+      },
+      "sourceRef": "src:operation:inline.products/product-details/visible/0"
+    },
+    {
+      "id": "operation:inline.products/product-gallery-host/visible/0",
+      "kind": "lifecycle",
+      "op": "mount",
+      "target": {
+        "kind": "ref",
+        "ref": "product-gallery-host"
+      },
+      "scope": {
+        "surface": "surface:inline.products/product-gallery-host",
+        "lane": "lane:inline.products/product-gallery-host/visible",
+        "template": "template:inline.products"
+      },
+      "sourceRef": "src:operation:inline.products/product-gallery-host/visible/0"
+    },
+    {
+      "id": "operation:inline.products/product-reviews-host/idle/0",
+      "kind": "lifecycle",
+      "op": "mount",
+      "target": {
+        "kind": "ref",
+        "ref": "product-reviews-host"
+      },
+      "scope": {
+        "surface": "surface:inline.products/product-reviews-host",
+        "lane": "lane:inline.products/product-reviews-host/idle",
+        "template": "template:inline.products"
+      },
+      "sourceRef": "src:operation:inline.products/product-reviews-host/idle/0"
+    }
+  ],
+  "slots": [],
+  "events": [
+    {
+      "id": "event:inline.products/product-details/native-select/0",
+      "primitive": true,
+      "event": "native-select",
+      "selector": "[data-rmt-surface=\"product-details\"]",
+      "target": null,
+      "action": "image.select",
+      "actionRef": "action:image.select",
+      "ownerOperation": null,
+      "scope": {
+        "surface": "surface:inline.products/product-details",
+        "template": "template:inline.products"
+      },
+      "condition": {
+        "kind": "condition",
+        "expression": {
+          "kind": "binary",
+          "op": "==",
+          "left": {
+            "kind": "path",
+            "path": [
+              "state",
+              "nativeFlags",
+              "allow"
+            ]
+          },
+          "right": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        "sourceRef": "src:condition:inline.products/product-details/event/native-select"
+      },
+      "payloadContract": {
+        "type": "object",
+        "required": [
+          "groupId",
+          "productId",
+          "imageId"
+        ],
+        "mappings": [
+          {
+            "name": "groupId",
+            "source": "detail.group"
+          },
+          {
+            "name": "productId",
+            "source": "detail.product"
+          },
+          {
+            "name": "imageId",
+            "source": "detail.image"
+          }
+        ]
+      },
+      "options": {
+        "preventDefault": true
+      },
+      "sourceRef": "src:event:inline.products/product-details/native-select/0"
+    }
+  ],
+  "dataSources": [],
+  "states": [
+    {
+      "id": "state:catalog",
+      "name": "catalog",
+      "primitive": true,
+      "type": "object",
+      "preserve": true,
+      "initial": {
+        "items": [
+          {
+            "id": "g",
+            "products": [
+              {
+                "id": 1,
+                "slug": "numeric",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent",
+                "enabled": true
+              },
+              {
+                "id": "1",
+                "slug": "text",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent",
+                "enabled": true
+              }
+            ]
+          },
+          {
+            "id": "h",
+            "products": [
+              {
+                "id": 1,
+                "slug": "other-parent",
+                "images": [
+                  "front",
+                  "back"
+                ],
+                "selectedImageId": "front",
+                "reviewsSort": "recent",
+                "enabled": true
+              }
+            ]
+          }
+        ]
+      },
+      "scope": {
+        "template": "template:inline.products"
+      },
+      "sourceRef": "src:state:catalog"
+    },
+    {
+      "id": "state:sharedimages",
+      "name": "sharedImages",
+      "primitive": true,
+      "type": "string[]",
+      "preserve": false,
+      "initial": [
+        "front",
+        "back"
+      ],
+      "scope": {
+        "template": "template:inline.products"
+      },
+      "sourceRef": "src:state:sharedimages"
+    },
+    {
+      "id": "state:intentcapture",
+      "name": "intentCapture",
+      "primitive": true,
+      "type": "object",
+      "preserve": false,
+      "initial": {
+        "groupId": null,
+        "productId": null,
+        "value": "",
+        "kind": ""
+      },
+      "scope": {
+        "template": "template:inline.products"
+      },
+      "sourceRef": "src:state:intentcapture"
+    },
+    {
+      "id": "state:nativeflags",
+      "name": "nativeFlags",
+      "primitive": true,
+      "type": "object",
+      "preserve": false,
+      "initial": {
+        "allow": false
+      },
+      "scope": {
+        "template": "template:inline.products"
+      },
+      "sourceRef": "src:state:nativeflags"
+    }
+  ],
+  "selectors": [
+    {
+      "id": "selector:galleryimages",
+      "name": "galleryImages",
+      "primitive": true,
+      "source": {
+        "kind": "state",
+        "target": "sharedImages",
+        "ref": "state:sharedimages"
+      },
+      "clauses": [
+        {
+          "kind": "where",
+          "text": "",
+          "expression": {
+            "op": "if",
+            "test": {
+              "op": "equals",
+              "left": "$item",
+              "right": {
+                "op": "literal",
+                "value": "front"
+              }
+            },
+            "then": {
+              "op": "literal",
+              "value": true
+            },
+            "else": {
+              "op": "equals",
+              "left": "$item",
+              "right": {
+                "op": "literal",
+                "value": "back"
+              }
+            }
+          }
+        }
+      ],
+      "output": null,
+      "scope": {
+        "template": "template:inline.products"
+      },
+      "sourceRef": "src:selector:galleryimages"
+    }
+  ],
+  "actions": [
+    {
+      "id": "action:native.enable",
+      "name": "native.enable",
+      "primitive": true,
+      "inputs": [
+        {
+          "name": "allow",
+          "type": "boolean"
+        }
+      ],
+      "status": null,
+      "reducers": [
+        {
+          "target": "state.nativeFlags",
+          "value": {
+            "kind": "object",
+            "fields": [
+              {
+                "key": "allow",
+                "value": {
+                  "kind": "path",
+                  "value": "input.allow"
+                }
+              }
+            ]
+          },
+          "valueKind": "template"
+        }
+      ],
+      "emits": [],
+      "handlers": [],
+      "effectRefs": [],
+      "scope": {
+        "template": "template:inline.products"
+      },
+      "sourceRef": "src:action:native.enable"
+    },
+    {
+      "id": "action:image.select",
+      "name": "image.select",
+      "primitive": true,
+      "inputs": [
+        {
+          "name": "groupId",
+          "type": "json"
+        },
+        {
+          "name": "productId",
+          "type": "json"
+        },
+        {
+          "name": "imageId",
+          "type": "string"
+        }
+      ],
+      "status": null,
+      "reducers": [
+        {
+          "target": "state.intentCapture.groupId",
+          "value": "input.groupId",
+          "valueKind": "reference"
+        },
+        {
+          "target": "state.intentCapture.productId",
+          "value": "input.productId",
+          "valueKind": "reference"
+        },
+        {
+          "target": "state.intentCapture.value",
+          "value": "input.imageId",
+          "valueKind": "reference"
+        },
+        {
+          "target": "state.intentCapture.kind",
+          "value": "image",
+          "valueKind": "literal"
+        }
+      ],
+      "emits": [],
+      "handlers": [],
+      "effectRefs": [],
+      "scope": {
+        "template": "template:inline.products"
+      },
+      "sourceRef": "src:action:image.select"
+    },
+    {
+      "id": "action:reviews.sort",
+      "name": "reviews.sort",
+      "primitive": true,
+      "inputs": [
+        {
+          "name": "groupId",
+          "type": "json"
+        },
+        {
+          "name": "productId",
+          "type": "json"
+        },
+        {
+          "name": "sort",
+          "type": "string"
+        }
+      ],
+      "status": null,
+      "reducers": [
+        {
+          "target": "state.intentCapture.groupId",
+          "value": "input.groupId",
+          "valueKind": "reference"
+        },
+        {
+          "target": "state.intentCapture.productId",
+          "value": "input.productId",
+          "valueKind": "reference"
+        },
+        {
+          "target": "state.intentCapture.value",
+          "value": "input.sort",
+          "valueKind": "reference"
+        },
+        {
+          "target": "state.intentCapture.kind",
+          "value": "reviews",
+          "valueKind": "literal"
+        }
+      ],
+      "emits": [],
+      "handlers": [],
+      "effectRefs": [],
+      "scope": {
+        "template": "template:inline.products"
+      },
+      "sourceRef": "src:action:reviews.sort"
+    },
+    {
+      "id": "action:catalog.replace",
+      "name": "catalog.replace",
+      "primitive": true,
+      "inputs": [
+        {
+          "name": "catalog",
+          "type": "object"
+        }
+      ],
+      "status": null,
+      "reducers": [
+        {
+          "target": "state.catalog",
+          "value": "input.catalog",
+          "valueKind": "reference"
+        }
+      ],
+      "emits": [],
+      "handlers": [],
+      "effectRefs": [],
+      "scope": {
+        "template": "template:inline.products"
+      },
+      "sourceRef": "src:action:catalog.replace"
+    }
+  ],
+  "effects": [],
+  "validations": [],
+  "animations": [],
+  "transitions": [],
+  "portals": [
+    {
+      "id": "portal:surface.root",
+      "name": "surface.root",
+      "primitive": true,
+      "root": "#xtend-maraca-root",
+      "layer": "surface",
+      "z": null,
+      "policies": [],
+      "scope": {
+        "template": "template:inline.products"
+      },
+      "sourceRef": "src:portal:surface.root"
+    }
+  ],
+  "overlays": [],
+  "resources": [],
+  "searchSources": [],
+  "securityPolicies": [],
+  "hydrationPolicies": [],
+  "sourceMap": [
+    {
+      "id": "src:template:inline.products",
+      "nodeType": "RmtTemplateDeclaration",
+      "corePointer": "/templates/0",
+      "astPointer": "/body/0",
+      "range": {
+        "start": {
+          "line": 3,
+          "character": 15
+        },
+        "end": {
+          "line": 58,
+          "character": 14
+        },
+        "startOffset": 188,
+        "endOffset": 4120
+      }
+    },
+    {
+      "id": "src:state:catalog",
+      "nodeType": "RmtStateDeclaration",
+      "corePointer": "/states/0",
+      "astPointer": "/body/0/body/0",
+      "range": {
+        "start": {
+          "line": 4,
+          "character": 2
+        },
+        "end": {
+          "line": 12,
+          "character": 9
+        },
+        "startOffset": 225,
+        "endOffset": 749
+      }
+    },
+    {
+      "id": "src:state:sharedimages",
+      "nodeType": "RmtStateDeclaration",
+      "corePointer": "/states/1",
+      "astPointer": "/body/0/body/1",
+      "range": {
+        "start": {
+          "line": 13,
+          "character": 2
+        },
+        "end": {
+          "line": 13,
+          "character": 77
+        },
+        "startOffset": 752,
+        "endOffset": 827
+      }
+    },
+    {
+      "id": "src:selector:galleryimages",
+      "nodeType": "RmtSelectorDeclaration",
+      "corePointer": "/selectors/0",
+      "astPointer": "/body/0/body/2",
+      "range": {
+        "start": {
+          "line": 14,
+          "character": 2
+        },
+        "end": {
+          "line": 14,
+          "character": 132
+        },
+        "startOffset": 830,
+        "endOffset": 960
+      }
+    },
+    {
+      "id": "src:state:intentcapture",
+      "nodeType": "RmtStateDeclaration",
+      "corePointer": "/states/2",
+      "astPointer": "/body/0/body/3",
+      "range": {
+        "start": {
+          "line": 15,
+          "character": 2
+        },
+        "end": {
+          "line": 15,
+          "character": 114
+        },
+        "startOffset": 963,
+        "endOffset": 1075
+      }
+    },
+    {
+      "id": "src:state:nativeflags",
+      "nodeType": "RmtStateDeclaration",
+      "corePointer": "/states/3",
+      "astPointer": "/body/0/body/4",
+      "range": {
+        "start": {
+          "line": 16,
+          "character": 2
+        },
+        "end": {
+          "line": 16,
+          "character": 70
+        },
+        "startOffset": 1078,
+        "endOffset": 1146
+      }
+    },
+    {
+      "id": "src:action:native.enable",
+      "nodeType": "RmtActionDeclaration",
+      "corePointer": "/actions/0",
+      "astPointer": "/body/0/body/5",
+      "range": {
+        "start": {
+          "line": 17,
+          "character": 2
+        },
+        "end": {
+          "line": 20,
+          "character": 15
+        },
+        "startOffset": 1149,
+        "endOffset": 1340
+      }
+    },
+    {
+      "id": "src:action:image.select",
+      "nodeType": "RmtActionDeclaration",
+      "corePointer": "/actions/1",
+      "astPointer": "/body/0/body/6",
+      "range": {
+        "start": {
+          "line": 21,
+          "character": 2
+        },
+        "end": {
+          "line": 27,
+          "character": 15
+        },
+        "startOffset": 1343,
+        "endOffset": 1821
+      }
+    },
+    {
+      "id": "src:action:reviews.sort",
+      "nodeType": "RmtActionDeclaration",
+      "corePointer": "/actions/2",
+      "astPointer": "/body/0/body/7",
+      "range": {
+        "start": {
+          "line": 28,
+          "character": 2
+        },
+        "end": {
+          "line": 34,
+          "character": 15
+        },
+        "startOffset": 1824,
+        "endOffset": 2298
+      }
+    },
+    {
+      "id": "src:action:catalog.replace",
+      "nodeType": "RmtActionDeclaration",
+      "corePointer": "/actions/3",
+      "astPointer": "/body/0/body/8",
+      "range": {
+        "start": {
+          "line": 35,
+          "character": 2
+        },
+        "end": {
+          "line": 37,
+          "character": 15
+        },
+        "startOffset": 2301,
+        "endOffset": 2449
+      }
+    },
+    {
+      "id": "src:portal:surface.root",
+      "nodeType": "RmtPortalDeclaration",
+      "corePointer": "/portals/0",
+      "astPointer": "/body/0/body/9",
+      "range": {
+        "start": {
+          "line": 38,
+          "character": 2
+        },
+        "end": {
+          "line": 38,
+          "character": 76
+        },
+        "startOffset": 2452,
+        "endOffset": 2526
+      }
+    },
+    {
+      "id": "src:surface:inline.products/product-details",
+      "nodeType": "RmtSurfaceDeclaration",
+      "corePointer": "/surfaces/0",
+      "astPointer": "/body/0/body/10",
+      "range": {
+        "start": {
+          "line": 39,
+          "character": 2
+        },
+        "end": {
+          "line": 43,
+          "character": 16
+        },
+        "startOffset": 2529,
+        "endOffset": 2926
+      }
+    },
+    {
+      "id": "src:lane:inline.products/product-details/visible",
+      "nodeType": "RmtLaneDeclaration",
+      "corePointer": "/lanes/0",
+      "astPointer": "/body/0/body/10/body/1",
+      "range": {
+        "start": {
+          "line": 40,
+          "character": 4
+        },
+        "end": {
+          "line": 40,
+          "character": 77
+        },
+        "startOffset": 2624,
+        "endOffset": 2697
+      }
+    },
+    {
+      "id": "src:operation:inline.products/product-details/visible/0",
+      "nodeType": "RmtLifecycleStatement",
+      "corePointer": "/operations/0",
+      "astPointer": "/body/0/body/10/body/1/body/0",
+      "range": {
+        "start": {
+          "line": 40,
+          "character": 29
+        },
+        "end": {
+          "line": 40,
+          "character": 66
+        },
+        "startOffset": 2649,
+        "endOffset": 2686
+      }
+    },
+    {
+      "id": "src:event:inline.products/product-details/native-select/0",
+      "nodeType": "RmtEventBinding",
+      "corePointer": "/events/0",
+      "astPointer": "/body/0/body/10/body/2",
+      "range": {
+        "start": {
+          "line": 41,
+          "character": 4
+        },
+        "end": {
+          "line": 42,
+          "character": 133
+        },
+        "startOffset": 2702,
+        "endOffset": 2909
+      }
+    },
+    {
+      "id": "src:surface:inline.products/product-gallery-host",
+      "nodeType": "RmtSurfaceDeclaration",
+      "corePointer": "/surfaces/1",
+      "astPointer": "/body/0/body/11",
+      "range": {
+        "start": {
+          "line": 46,
+          "character": 6
+        },
+        "end": {
+          "line": 50,
+          "character": 20
+        },
+        "startOffset": 3045,
+        "endOffset": 3622
+      }
+    },
+    {
+      "id": "src:lane:inline.products/product-gallery-host/visible",
+      "nodeType": "RmtLaneDeclaration",
+      "corePointer": "/lanes/1",
+      "astPointer": "/body/0/body/11/body/1",
+      "range": {
+        "start": {
+          "line": 46,
+          "character": 6
+        },
+        "end": {
+          "line": 50,
+          "character": 20
+        },
+        "startOffset": 3045,
+        "endOffset": 3622
+      }
+    },
+    {
+      "id": "src:operation:inline.products/product-gallery-host/visible/0",
+      "nodeType": "RmtLifecycleStatement",
+      "corePointer": "/operations/1",
+      "astPointer": "/body/0/body/11/body/1/body/0",
+      "range": {
+        "start": {
+          "line": 46,
+          "character": 6
+        },
+        "end": {
+          "line": 50,
+          "character": 20
+        },
+        "startOffset": 3045,
+        "endOffset": 3622
+      }
+    },
+    {
+      "id": "src:surface:inline.products/product-reviews-host",
+      "nodeType": "RmtSurfaceDeclaration",
+      "corePointer": "/surfaces/2",
+      "astPointer": "/body/0/body/12",
+      "range": {
+        "start": {
+          "line": 51,
+          "character": 6
+        },
+        "end": {
+          "line": 55,
+          "character": 20
+        },
+        "startOffset": 3629,
+        "endOffset": 4071
+      }
+    },
+    {
+      "id": "src:lane:inline.products/product-reviews-host/idle",
+      "nodeType": "RmtLaneDeclaration",
+      "corePointer": "/lanes/2",
+      "astPointer": "/body/0/body/12/body/1",
+      "range": {
+        "start": {
+          "line": 51,
+          "character": 6
+        },
+        "end": {
+          "line": 55,
+          "character": 20
+        },
+        "startOffset": 3629,
+        "endOffset": 4071
+      }
+    },
+    {
+      "id": "src:operation:inline.products/product-reviews-host/idle/0",
+      "nodeType": "RmtLifecycleStatement",
+      "corePointer": "/operations/2",
+      "astPointer": "/body/0/body/12/body/1/body/0",
+      "range": {
+        "start": {
+          "line": 51,
+          "character": 6
+        },
+        "end": {
+          "line": 55,
+          "character": 20
+        },
+        "startOffset": 3629,
+        "endOffset": 4071
+      }
+    }
+  ],
+  "appPlatform": {
+    "schema": "xtend.rmt.vnext.app-platform-records.v1",
+    "workpackage": "RMT-VNEXT-PRIM-04",
+    "sourceSyntax": "rmtx",
+    "state": [
+      {
+        "id": "catalog",
+        "type": "object",
+        "preserve": true,
+        "initial": {
+          "items": [
+            {
+              "id": "g",
+              "products": [
+                {
+                  "id": 1,
+                  "slug": "numeric",
+                  "images": [
+                    "front",
+                    "back"
+                  ],
+                  "selectedImageId": "front",
+                  "reviewsSort": "recent",
+                  "enabled": true
+                },
+                {
+                  "id": "1",
+                  "slug": "text",
+                  "images": [
+                    "front",
+                    "back"
+                  ],
+                  "selectedImageId": "front",
+                  "reviewsSort": "recent",
+                  "enabled": true
+                }
+              ]
+            },
+            {
+              "id": "h",
+              "products": [
+                {
+                  "id": 1,
+                  "slug": "other-parent",
+                  "images": [
+                    "front",
+                    "back"
+                  ],
+                  "selectedImageId": "front",
+                  "reviewsSort": "recent",
+                  "enabled": true
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "sharedImages",
+        "type": "string[]",
+        "preserve": false,
+        "initial": [
+          "front",
+          "back"
+        ]
+      },
+      {
+        "id": "intentCapture",
+        "type": "object",
+        "preserve": false,
+        "initial": {
+          "groupId": null,
+          "productId": null,
+          "value": "",
+          "kind": ""
+        }
+      },
+      {
+        "id": "nativeFlags",
+        "type": "object",
+        "preserve": false,
+        "initial": {
+          "allow": false
+        }
+      }
+    ],
+    "selectors": [
+      {
+        "id": "galleryImages",
+        "from": "sharedImages",
+        "clauses": [
+          {
+            "kind": "where",
+            "text": "",
+            "expression": {
+              "op": "if",
+              "test": {
+                "op": "equals",
+                "left": "$item",
+                "right": {
+                  "op": "literal",
+                  "value": "front"
+                }
+              },
+              "then": {
+                "op": "literal",
+                "value": true
+              },
+              "else": {
+                "op": "equals",
+                "left": "$item",
+                "right": {
+                  "op": "literal",
+                  "value": "back"
+                }
+              }
+            }
+          }
+        ],
+        "output": null
+      }
+    ],
+    "dataSources": [],
+    "actions": [
+      {
+        "id": "native.enable",
+        "inputs": [
+          {
+            "name": "allow",
+            "type": "boolean"
+          }
+        ],
+        "status": null,
+        "reducers": [
+          {
+            "target": "state.nativeFlags",
+            "value": {
+              "kind": "object",
+              "fields": [
+                {
+                  "key": "allow",
+                  "value": {
+                    "kind": "path",
+                    "value": "input.allow"
+                  }
+                }
+              ]
+            },
+            "valueKind": "template"
+          }
+        ],
+        "emits": [],
+        "effects": []
+      },
+      {
+        "id": "image.select",
+        "inputs": [
+          {
+            "name": "groupId",
+            "type": "json"
+          },
+          {
+            "name": "productId",
+            "type": "json"
+          },
+          {
+            "name": "imageId",
+            "type": "string"
+          }
+        ],
+        "status": null,
+        "reducers": [
+          {
+            "target": "state.intentCapture.groupId",
+            "value": "input.groupId",
+            "valueKind": "reference"
+          },
+          {
+            "target": "state.intentCapture.productId",
+            "value": "input.productId",
+            "valueKind": "reference"
+          },
+          {
+            "target": "state.intentCapture.value",
+            "value": "input.imageId",
+            "valueKind": "reference"
+          },
+          {
+            "target": "state.intentCapture.kind",
+            "value": "image",
+            "valueKind": "literal"
+          }
+        ],
+        "emits": [],
+        "effects": []
+      },
+      {
+        "id": "reviews.sort",
+        "inputs": [
+          {
+            "name": "groupId",
+            "type": "json"
+          },
+          {
+            "name": "productId",
+            "type": "json"
+          },
+          {
+            "name": "sort",
+            "type": "string"
+          }
+        ],
+        "status": null,
+        "reducers": [
+          {
+            "target": "state.intentCapture.groupId",
+            "value": "input.groupId",
+            "valueKind": "reference"
+          },
+          {
+            "target": "state.intentCapture.productId",
+            "value": "input.productId",
+            "valueKind": "reference"
+          },
+          {
+            "target": "state.intentCapture.value",
+            "value": "input.sort",
+            "valueKind": "reference"
+          },
+          {
+            "target": "state.intentCapture.kind",
+            "value": "reviews",
+            "valueKind": "literal"
+          }
+        ],
+        "emits": [],
+        "effects": []
+      },
+      {
+        "id": "catalog.replace",
+        "inputs": [
+          {
+            "name": "catalog",
+            "type": "object"
+          }
+        ],
+        "status": null,
+        "reducers": [
+          {
+            "target": "state.catalog",
+            "value": "input.catalog",
+            "valueKind": "reference"
+          }
+        ],
+        "emits": [],
+        "effects": []
+      }
+    ],
+    "portals": [
+      {
+        "id": "surface.root",
+        "root": "#xtend-maraca-root",
+        "layer": "surface",
+        "z": null,
+        "policies": []
+      }
+    ],
+    "overlays": [],
+    "surfaces": [
+      {
+        "id": "product-details",
+        "kind": "region",
+        "component": "section",
+        "source": null,
+        "repeat": null,
+        "key": null,
+        "portal": "surface.root",
+        "bounds": null,
+        "resources": [],
+        "laneRefs": [
+          "lane:inline.products/product-details/visible"
+        ],
+        "events": [
+          "event:inline.products/product-details/native-select/0"
+        ]
+      },
+      {
+        "id": "product-gallery-host",
+        "kind": "region",
+        "component": "div",
+        "source": null,
+        "repeat": null,
+        "key": null,
+        "portal": "surface.root",
+        "bounds": null,
+        "resources": [],
+        "laneRefs": [
+          "lane:inline.products/product-gallery-host/visible"
+        ],
+        "events": []
+      },
+      {
+        "id": "product-reviews-host",
+        "kind": "region",
+        "component": "div",
+        "source": null,
+        "repeat": null,
+        "key": null,
+        "portal": "surface.root",
+        "bounds": null,
+        "resources": [],
+        "laneRefs": [
+          "lane:inline.products/product-reviews-host/idle"
+        ],
+        "events": []
+      }
+    ],
+    "overlaysByPortal": {},
+    "resources": [],
+    "searchSources": [],
+    "validations": [],
+    "animations": [],
+    "transitions": [],
+    "events": [
+      {
+        "id": "event:inline.products/product-details/native-select/0",
+        "event": "native-select",
+        "selector": "[data-rmt-surface=\"product-details\"]",
+        "target": null,
+        "owner": "surface:inline.products/product-details",
+        "action": "image.select",
+        "condition": {
+          "kind": "condition",
+          "expression": {
+            "kind": "binary",
+            "op": "==",
+            "left": {
+              "kind": "path",
+              "path": [
+                "state",
+                "nativeFlags",
+                "allow"
+              ]
+            },
+            "right": {
+              "kind": "literal",
+              "value": true
+            }
+          },
+          "sourceRef": "src:condition:inline.products/product-details/event/native-select"
+        },
+        "payloadContract": {
+          "type": "object",
+          "required": [
+            "groupId",
+            "productId",
+            "imageId"
+          ],
+          "mappings": [
+            {
+              "name": "groupId",
+              "source": "detail.group"
+            },
+            {
+              "name": "productId",
+              "source": "detail.product"
+            },
+            {
+              "name": "imageId",
+              "source": "detail.image"
+            }
+          ]
+        },
+        "options": {
+          "preventDefault": true
+        }
+      }
+    ]
+  },
+  "kernelRecords": {
+    "schema": "xtend.rmt.vnext.kernel-records.v1",
+    "workpackage": "RMT-VNEXT-PRIM-04",
+    "boundary": "no-rmt-kernel-import-of-host-runtime-types",
+    "schedules": [
+      {
+        "id": "schedule:inline.products/product-details/visible",
+        "lane": "visible",
+        "scope": {
+          "surface": "surface:inline.products/product-details",
+          "template": "template:inline.products"
+        },
+        "operationRefs": [
+          "operation:inline.products/product-details/visible/0"
+        ]
+      },
+      {
+        "id": "schedule:inline.products/product-gallery-host/visible",
+        "lane": "visible",
+        "scope": {
+          "surface": "surface:inline.products/product-gallery-host",
+          "template": "template:inline.products"
+        },
+        "operationRefs": [
+          "operation:inline.products/product-gallery-host/visible/0"
+        ]
+      },
+      {
+        "id": "schedule:inline.products/product-reviews-host/idle",
+        "lane": "idle",
+        "scope": {
+          "surface": "surface:inline.products/product-reviews-host",
+          "template": "template:inline.products"
+        },
+        "operationRefs": [
+          "operation:inline.products/product-reviews-host/idle/0"
+        ]
+      }
+    ],
+    "fibers": [
+      {
+        "id": "fiber:inline.products/product-details/visible/0",
+        "lane": "lane:inline.products/product-details/visible",
+        "operation": "operation:inline.products/product-details/visible/0",
+        "kind": "lifecycle",
+        "op": "mount",
+        "target": {
+          "kind": "ref",
+          "ref": "product-header"
+        },
+        "source": null
+      },
+      {
+        "id": "fiber:inline.products/product-gallery-host/visible/0",
+        "lane": "lane:inline.products/product-gallery-host/visible",
+        "operation": "operation:inline.products/product-gallery-host/visible/0",
+        "kind": "lifecycle",
+        "op": "mount",
+        "target": {
+          "kind": "ref",
+          "ref": "product-gallery-host"
+        },
+        "source": null
+      },
+      {
+        "id": "fiber:inline.products/product-reviews-host/idle/0",
+        "lane": "lane:inline.products/product-reviews-host/idle",
+        "operation": "operation:inline.products/product-reviews-host/idle/0",
+        "kind": "lifecycle",
+        "op": "mount",
+        "target": {
+          "kind": "ref",
+          "ref": "product-reviews-host"
+        },
+        "source": null
+      }
+    ],
+    "lifecycleRecords": [
+      {
+        "id": "operation:inline.products/product-details/visible/0",
+        "kind": "lifecycle",
+        "op": "mount",
+        "scope": {
+          "surface": "surface:inline.products/product-details",
+          "lane": "lane:inline.products/product-details/visible",
+          "template": "template:inline.products"
+        },
+        "sourceRef": "src:operation:inline.products/product-details/visible/0"
+      },
+      {
+        "id": "operation:inline.products/product-gallery-host/visible/0",
+        "kind": "lifecycle",
+        "op": "mount",
+        "scope": {
+          "surface": "surface:inline.products/product-gallery-host",
+          "lane": "lane:inline.products/product-gallery-host/visible",
+          "template": "template:inline.products"
+        },
+        "sourceRef": "src:operation:inline.products/product-gallery-host/visible/0"
+      },
+      {
+        "id": "operation:inline.products/product-reviews-host/idle/0",
+        "kind": "lifecycle",
+        "op": "mount",
+        "scope": {
+          "surface": "surface:inline.products/product-reviews-host",
+          "lane": "lane:inline.products/product-reviews-host/idle",
+          "template": "template:inline.products"
+        },
+        "sourceRef": "src:operation:inline.products/product-reviews-host/idle/0"
+      }
+    ],
+    "stateRecords": [
+      {
+        "id": "state:catalog",
+        "name": "catalog",
+        "type": "object",
+        "preserve": true,
+        "sourceRef": "src:state:catalog"
+      },
+      {
+        "id": "state:sharedimages",
+        "name": "sharedImages",
+        "type": "string[]",
+        "preserve": false,
+        "sourceRef": "src:state:sharedimages"
+      },
+      {
+        "id": "state:intentcapture",
+        "name": "intentCapture",
+        "type": "object",
+        "preserve": false,
+        "sourceRef": "src:state:intentcapture"
+      },
+      {
+        "id": "state:nativeflags",
+        "name": "nativeFlags",
+        "type": "object",
+        "preserve": false,
+        "sourceRef": "src:state:nativeflags"
+      }
+    ],
+    "selectorRecords": [
+      {
+        "id": "selector:galleryimages",
+        "name": "galleryImages",
+        "source": {
+          "kind": "state",
+          "target": "sharedImages",
+          "ref": "state:sharedimages"
+        },
+        "output": null,
+        "sourceRef": "src:selector:galleryimages"
+      }
+    ],
+    "actionRecords": [
+      {
+        "id": "action:native.enable",
+        "name": "native.enable",
+        "inputCount": 1,
+        "effectRefs": [],
+        "sourceRef": "src:action:native.enable"
+      },
+      {
+        "id": "action:image.select",
+        "name": "image.select",
+        "inputCount": 3,
+        "effectRefs": [],
+        "sourceRef": "src:action:image.select"
+      },
+      {
+        "id": "action:reviews.sort",
+        "name": "reviews.sort",
+        "inputCount": 3,
+        "effectRefs": [],
+        "sourceRef": "src:action:reviews.sort"
+      },
+      {
+        "id": "action:catalog.replace",
+        "name": "catalog.replace",
+        "inputCount": 1,
+        "effectRefs": [],
+        "sourceRef": "src:action:catalog.replace"
+      }
+    ],
+    "validationRecords": [],
+    "animationRecords": [],
+    "transitionRecords": [],
+    "dataSourceRecords": [],
+    "resourceRecords": [],
+    "searchSourceRecords": [],
+    "hydrationPolicyRecords": []
+  }
+}

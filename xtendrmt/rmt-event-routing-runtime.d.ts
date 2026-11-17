@@ -1,6 +1,9 @@
-export const RMT_EVENT_ROUTING_API_VERSION: '3.0.0';
+export const RMT_EVENT_ROUTING_API_VERSION: '4.0.0';
 export const RMT_EVENT_ROUTING_DIAGNOSTIC_SCHEMA: 'xtend.epic18.rmt-event-routing-diagnostic.v1';
 export const RMT_EVENT_ROUTING_RUNTIME_SCHEMA: 'xtend.epic18.rmt-event-routing-runtime.v2';
+export const RMT_EVENT_ROUTING_RUNTIME_SCHEMA_V3: 'xtend.epic18.rmt-event-routing-runtime.v3';
+import type { RmtActionInputValidationPort } from './rmt-action-effect-runtime';
+import type { RmtActionInputContract } from '../tools/rmt-language/action-input-contract';
 export const RMT_COMMAND_SCHEMA: 'xtend.rmt.command.v1';
 
 export type RmtEventRoutingKind = 'dom' | 'custom' | 'keyboard' | 'form' | 'surface' | 'drop' | string;
@@ -264,4 +267,28 @@ export interface RmtEventRoutingRuntimeOptions {
   publishDiagnostic?: (diagnostic: RmtEventRouteDiagnostic) => void;
 }
 
+export interface RmtNativeEventBindingV2 extends Omit<RmtEventBindingDefinition, 'payload' | 'payloadContract'> {
+  schema: 'xtend.rmt.native-event-binding.v2';
+  action: string;
+  inputContract: string;
+  payload: Readonly<Record<string, string>>;
+  payloadContract?: unknown;
+}
+export interface RmtEventRouteResultV2 extends Omit<RmtEventRouteResult, 'schema'> { schema: 'xtend.epic18.rmt-event-route-result.v2' }
+export interface RmtEventRoutingRuntimeV3 extends Omit<RmtEventRoutingRuntime, 'schema' | 'routeEvent' | 'listRoutes' | 'listBindings'> {
+  schema: typeof RMT_EVENT_ROUTING_RUNTIME_SCHEMA_V3;
+  routeEvent(bindingId: string, event?: unknown, metadata?: Record<string, unknown>): Promise<RmtEventRouteResultV2>;
+  listRoutes(): RmtEventRouteResultV2[];
+  listBindings(): RmtNativeEventBindingV2[];
+}
+export interface RmtEventRoutingRuntimeOptionsV3 extends Omit<RmtEventRoutingRuntimeOptions, 'bindings' | 'events' | 'eventBindings'> {
+  bindings?: RmtNativeEventBindingV2[];
+  events?: RmtNativeEventBindingV2[];
+  eventBindings?: RmtNativeEventBindingV2[];
+  inputValidationPort: RmtActionInputValidationPort;
+  inputContract?: RmtActionInputContract;
+}
+
+export function createRmtEventRoutingRuntime(options: RmtEventRoutingRuntimeOptionsV3): RmtEventRoutingRuntimeV3;
 export function createRmtEventRoutingRuntime(options?: RmtEventRoutingRuntimeOptions): RmtEventRoutingRuntime;
+export function createRmtEventRoutingRuntime(options?: RmtEventRoutingRuntimeOptions | RmtEventRoutingRuntimeOptionsV3): RmtEventRoutingRuntime | RmtEventRoutingRuntimeV3;

@@ -1,6 +1,10 @@
-export const RMT_ACTION_EFFECT_API_VERSION: '2.0.0';
+export const RMT_ACTION_EFFECT_API_VERSION: '3.0.0';
 export const RMT_ACTION_EFFECT_DIAGNOSTIC_SCHEMA: 'xtend.epic18.rmt-action-effect-diagnostic.v1';
 export const RMT_ACTION_EFFECT_RUNTIME_SCHEMA: 'xtend.epic18.rmt-action-effect-runtime.v1';
+export const RMT_ACTION_EFFECT_RUNTIME_SCHEMA_V2: 'xtend.epic18.rmt-action-effect-runtime.v2';
+export const RMT_ACTION_INPUT_CONTRACT_SCHEMA: 'xtend.rmt.action-input-contract.v1';
+export const RMT_ACTION_INPUT_PORT_SCHEMA: 'xtend.rmt.action-input-port.v1';
+import type { RmtActionInputContract } from '../tools/rmt-language/action-input-contract';
 export const RMT_COMPONENT_COMMAND_SCHEMA: 'xtend.rmt.component-command.v1';
 
 export type RmtDataSourceKind = 'fixture' | 'rest' | 'ssr' | 'host' | 'host-service' | 'service' | string;
@@ -128,6 +132,7 @@ export interface RmtActionEffectRuntime {
   runAction(actionId: string, payload?: Record<string, unknown>, metadata?: Record<string, unknown>): Promise<RmtActionResult>;
   cancelAction(actionId: string, reason?: string): { schema: 'xtend.epic18.rmt-action-cancel.v1'; action: string; cancelled: number };
   dispose(reason?: string): { schema: 'xtend.epic18.rmt-action-runtime-dispose.v1'; cancelled: number; reason: string };
+  /** Trusted host effect invocation; does not dispatch or start an Action. */
   runEffect(effectId: string, context?: Record<string, unknown>): Promise<unknown>;
   resourceManager: RmtResourceManager;
   listActions(): RmtActionDefinition[];
@@ -178,6 +183,28 @@ export interface RmtActionEffectRuntimeOptions {
   diagnosticChannel?: string;
 }
 
+export interface RmtActionInputValidationPort {
+  readonly schema: typeof RMT_ACTION_INPUT_PORT_SCHEMA;
+  readonly contract: RmtActionInputContract;
+  validate(actionId: string, payload: unknown): Readonly<Record<string, unknown>>;
+}
+export interface RmtActionDefinitionV2 extends RmtActionDefinition { inputs: Array<{ name: string; type: string; inputPolicy?: unknown }> }
+export interface RmtActionResultV2 extends Omit<RmtActionResult, 'schema' | 'error'> {
+  schema: 'xtend.epic18.rmt-action-result.v2';
+  validatedInput?: Readonly<Record<string, unknown>>;
+  error?: { name: string; message?: string; code?: string; details?: Record<string, unknown> };
+}
+export interface RmtActionEffectRuntimeV2 extends Omit<RmtActionEffectRuntime, 'schema' | 'runAction' | 'listHistory'> {
+  schema: typeof RMT_ACTION_EFFECT_RUNTIME_SCHEMA_V2;
+  readonly inputValidationPort: RmtActionInputValidationPort;
+  runAction(actionId: string, payload?: unknown, metadata?: Record<string, unknown>): Promise<RmtActionResultV2>;
+  listHistory(): RmtActionResultV2[];
+}
+export interface RmtActionEffectRuntimeOptionsV2 extends Omit<RmtActionEffectRuntimeOptions, 'actions'> {
+  actions: RmtActionDefinitionV2[];
+  inputContract: RmtActionInputContract;
+}
+
 export interface RmtActionAbortSignal {
   readonly aborted: boolean;
   readonly reason?: unknown;
@@ -197,4 +224,7 @@ export interface RmtActionHostPort {
 }
 
 export function createRmtResourceManager(options?: RmtActionEffectRuntimeOptions): RmtResourceManager;
+export function createRmtActionEffectRuntime(options: RmtActionEffectRuntimeOptionsV2): RmtActionEffectRuntimeV2;
 export function createRmtActionEffectRuntime(options?: RmtActionEffectRuntimeOptions): RmtActionEffectRuntime;
+export function createRmtActionEffectRuntime(options?: RmtActionEffectRuntimeOptions | RmtActionEffectRuntimeOptionsV2): RmtActionEffectRuntime | RmtActionEffectRuntimeV2;
+export function createRmtActionInputValidationPort(contract: RmtActionInputContract, actions: RmtActionDefinitionV2[]): RmtActionInputValidationPort;

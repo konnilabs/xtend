@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { validateArtifact, canonical, freeze, copy, name, json } from './xtension-composition-contract.mjs';
 import { validateComponentBindings } from './xtension-component-binding.mjs';
-export const XTENSION_COMPOSITION_API_VERSION = '9.0.0';
+export const XTENSION_COMPOSITION_API_VERSION = '10.0.0';
 
 function capturePolicies(hosts, input) {
   const policies = new Map();
@@ -18,7 +18,7 @@ function capturePolicies(hosts, input) {
 }
 
 function capturePeerLoader(options, artifact) {
-  const shared = ['xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6', 'xtend.maraca.xtension-composition-artifact.v7','xtend.maraca.xtension-composition-artifact.v8'].includes(artifact.schema);
+  const shared = ['xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6', 'xtend.maraca.xtension-composition-artifact.v7','xtend.maraca.xtension-composition-artifact.v8','xtend.maraca.xtension-composition-artifact.v9'].includes(artifact.schema);
   const key = shared ? 'loadPeerGroup' : 'loadPeers', other = shared ? 'loadPeers' : 'loadPeerGroup';
   if (typeof options[key] !== 'function' || options[other] !== undefined) throw new TypeError('Exactly the peer loader port matching the artifact version is required.');
   return { [key]: options[key] };
@@ -71,8 +71,9 @@ function createSharedPeers(groups, providers, load) {
  * resulting port to its real controller/root and internally created Surfaces. */
 export function createMaracaXTensionCompositionPort(options) {
   const artifact = validateArtifact(options.companion?.artifact, options.plan, options.bindingsRuntime);
-  if (!['xtend.maraca.xtension-composition-artifact.v2', 'xtend.maraca.xtension-composition-artifact.v3', 'xtend.maraca.xtension-composition-artifact.v4', 'xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6', 'xtend.maraca.xtension-composition-artifact.v7','xtend.maraca.xtension-composition-artifact.v8'].includes(artifact.schema) || canonical(artifact) !== canonical(options.plan.xtensionComposition)) throw new TypeError('Integrated boot requires its exact versioned composition artifact.');
-  const scoped = artifact.schema === 'xtend.maraca.xtension-composition-artifact.v8', component = scoped || artifact.schema === 'xtend.maraca.xtension-composition-artifact.v7';
+  if (!['xtend.maraca.xtension-composition-artifact.v2', 'xtend.maraca.xtension-composition-artifact.v3', 'xtend.maraca.xtension-composition-artifact.v4', 'xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6', 'xtend.maraca.xtension-composition-artifact.v7','xtend.maraca.xtension-composition-artifact.v8','xtend.maraca.xtension-composition-artifact.v9'].includes(artifact.schema) || canonical(artifact) !== canonical(options.plan.xtensionComposition)) throw new TypeError('Integrated boot requires its exact versioned composition artifact.');
+  const projected = artifact.schema === 'xtend.maraca.xtension-composition-artifact.v9', scoped = projected || artifact.schema === 'xtend.maraca.xtension-composition-artifact.v8', component = scoped || artifact.schema === 'xtend.maraca.xtension-composition-artifact.v7';
+  if (projected && options.ssr !== undefined) throw new TypeError('Source4 has no SSR/adoption acceptance contract.');
   if (component && !scoped && options.ssr !== undefined) throw new TypeError('Component ownership v7 requires a separate A05 SSR handoff.');
   const componentInterfaceRuntime = component ? Object.freeze({ ...options.componentInterfaceRuntime }) : null;
   if (component) validateComponentBindings(artifact, componentInterfaceRuntime);
@@ -84,7 +85,7 @@ export function createMaracaXTensionCompositionPort(options) {
   const adapters = Object.freeze(Object.fromEntries(Object.entries(options.adapters || {}).map(([id, api]) => [id, Object.freeze({ ...api })])));
   const plan = freeze(copy(options.plan)), bindingsRuntime = options.bindingsRuntime;
   const ssrSession = options.ssr === undefined ? null : options.ssrRuntime.createMaracaXTensionSSRSession({ artifact, bindingsRuntime, resumeBindingsRuntime: options.resumeBindingsRuntime, options: options.ssr, ...(scoped ? { componentInterfaceRuntime } : {}) });
-  return Object.freeze({ schema: scoped ? ssrSession ? 'xtend.maraca.xtension-composition-port.v5' : 'xtend.maraca.xtension-composition-port.v4' : component ? 'xtend.maraca.xtension-composition-port.v3' : ssrSession ? 'xtend.maraca.xtension-composition-port.v2' : 'xtend.maraca.xtension-composition-port.v1', bindingsRuntime, ...(ssrSession ? { ssrSession, resumeBindingsRuntime: options.resumeBindingsRuntime } : {}),
+  return Object.freeze({ schema: projected ? 'xtend.maraca.xtension-composition-port.v6' : scoped ? ssrSession ? 'xtend.maraca.xtension-composition-port.v5' : 'xtend.maraca.xtension-composition-port.v4' : component ? 'xtend.maraca.xtension-composition-port.v3' : ssrSession ? 'xtend.maraca.xtension-composition-port.v2' : 'xtend.maraca.xtension-composition-port.v1', bindingsRuntime, ...(ssrSession ? { ssrSession, resumeBindingsRuntime: options.resumeBindingsRuntime } : {}),
     bind(ports) {
       validateArtifact(artifact, ports.plan, bindingsRuntime);
       return createHostFactory({ ...ports, plan, bindingsRuntime, adapters, ...(component ? { componentInterfaceRuntime } : {}), ...loaders, grants, ...(ssrSession ? { ssrSession } : {}),
@@ -108,9 +109,10 @@ function waitForProvider(promise, signal) {
  * This composer neither fetches executable code nor treats a JSON hash as proof. */
 export function createMaracaXTensionHostFactory(options) {
   const artifact = validateArtifact(options.artifact, options.plan, options.bindingsRuntime);
-  const shared = ['xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6', 'xtend.maraca.xtension-composition-artifact.v7','xtend.maraca.xtension-composition-artifact.v8'].includes(artifact.schema), deferred = shared || artifact.schema === 'xtend.maraca.xtension-composition-artifact.v4';
+  const shared = ['xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6', 'xtend.maraca.xtension-composition-artifact.v7','xtend.maraca.xtension-composition-artifact.v8','xtend.maraca.xtension-composition-artifact.v9'].includes(artifact.schema), deferred = shared || artifact.schema === 'xtend.maraca.xtension-composition-artifact.v4';
   if ((deferred && options.providers !== undefined) || (!deferred && options.loadProviders !== undefined)) throw new TypeError('Provider namespace/loader ports must match the artifact version.');
-  const scoped = artifact.schema === 'xtend.maraca.xtension-composition-artifact.v8', componentProfile = scoped || artifact.schema === 'xtend.maraca.xtension-composition-artifact.v7';
+  const projected = artifact.schema === 'xtend.maraca.xtension-composition-artifact.v9', scoped = projected || artifact.schema === 'xtend.maraca.xtension-composition-artifact.v8', componentProfile = scoped || artifact.schema === 'xtend.maraca.xtension-composition-artifact.v7';
+  if (projected && options.ssrSession) throw new TypeError('Source4 cannot use legacy SSR sessions.');
   if (componentProfile && !scoped && options.ssrSession) throw new TypeError('Component ownership v7 requires a separate A05 SSR handoff.');
   const componentInterfaceRuntime = componentProfile ? Object.freeze({ ...options.componentInterfaceRuntime }) : null;
   const components = componentProfile ? validateComponentBindings(artifact, componentInterfaceRuntime) : null;
@@ -151,7 +153,7 @@ export function createMaracaXTensionHostFactory(options) {
     const normalizeEvent = componentContract ? event => {
       const route = Object.hasOwn(componentContract.resolved.routes,event.event) && componentContract.resolved.routes[event.event];
       if (!route || event.payloadSchema !== route.payloadSchema) throw new TypeError('Unknown captured component intent.');
-      return { ...event, payload: componentInterfaceRuntime.mapComponentIntent(componentContract.definition, event.event, event.payload, route.payload) };
+      return { ...event, payload: (projected ? componentInterfaceRuntime.mapProjectedComponentIntent : componentInterfaceRuntime.mapComponentIntent)(componentContract.definition, event.event, event.payload, route.payload) };
     } : event => event;
     const onEvent = scoped && options.ssrSession ? options.ssrSession.gate(context,normalizeEvent)
       : options.ssrSession ? options.ssrSession.gate(context) : event => context.onEvent(normalizeEvent(event));

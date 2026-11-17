@@ -1,0 +1,17 @@
+✔ RMTX builds a real Maraca plan through the explicit compiler port and existing XTension sidecar (1317.717732ms)
+✔ Maraca preserves the injected frontend result schema when it revalidates a binding sidecar (17.858582ms)
+✔ bad RMTX syntax and invalid XTension bindings block the plan before runtime work (14.648418ms)
+✔ Classic defaults remain Classic and an extension does not silently select a different compiler (7.726225ms)
+✔ actual root and compiler tarballs expose typed RMTX entrypoints and declare their parser dependency (51646.553877ms)
+✔ packed frontend declarations accept the existing Maraca compiler port in both public packages (496.113825ms)
+✔ the compiler tarball alone carries the complete opt-in Source4 frontend and input contracts (64.335456ms)
+✔ the actual Maraca tarball builds Source4 Plan8 through the explicit packed compiler port (1253.124849ms)
+✔ packed Source4 and standalone Maraca declarations preserve legacy results and discriminate opt-in types (1094.473682ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 56261.835691

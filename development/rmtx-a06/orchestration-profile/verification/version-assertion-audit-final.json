@@ -1,0 +1,199 @@
+{
+  "stage": "A06.3-final-version-assertion-audit",
+  "createdAtUTC": "2026-11-17T19:30:32.625483+00:00",
+  "productionCodeEdited": false,
+  "legacyDataVersionAssertionsEdited": false,
+  "changedTestFiles": [
+    {
+      "file": "tests/rmt-language/rmtx-selectors.test.cjs",
+      "updates": [
+        "RMTX_COMPILER_API_VERSION3\u21924"
+      ],
+      "sha256": "878e84a7a5caf2bb72dc9e0150637751ec2dbcf6cffefce44f31855721aa0a14"
+    },
+    {
+      "file": "tests/xtensions/xtensions_consumer_package_suite.js",
+      "updates": [
+        "XTENSION_COMPOSITION_API_VERSION9\u219210",
+        "XTENSION_COMPOSITION_BUILD_API_VERSION12\u219213"
+      ],
+      "sha256": "4b46247a98c23b5eeb3d2f743359e215fcd4b5a65c79c88e948c249fa3bbb0cf"
+    },
+    {
+      "file": "tests/types/xtensions_component_composition.mts",
+      "updates": [
+        "XTENSION_COMPOSITION_BUILD_API_VERSION literal12\u219213"
+      ],
+      "sha256": "51043174a53141814c0658b13d4b65a664d2ed1f023634cc7ad0ac914cc1ca3c"
+    },
+    {
+      "file": "tests/types/xtensions_composition.mts",
+      "updates": [
+        "XTENSION_COMPOSITION_BUILD_API_VERSION literal12\u219213",
+        "XTENSION_COMPOSITION_API_VERSION literal9\u219210"
+      ],
+      "sha256": "4130657ec166f8bcc0df5d3690daa7f605adc63edbe328ff4f21861a437130b9"
+    }
+  ],
+  "literalUpdates": 6,
+  "auditedPreparationCommandCount": 38,
+  "additionalConfirmedStaleAssertions": [],
+  "selectors": {
+    "casesPerLane": 40,
+    "runs": [
+      {
+        "lane": "24",
+        "exitCode": 0,
+        "cases": 40,
+        "passed": 40,
+        "log": "/tmp/xtend-rmtx-a0633/selectors24-version-audit-S.log",
+        "sha256": "52ad0e133671601a59e29c7482795d5f326b2be919dc0d40a921861c402fe618"
+      },
+      {
+        "lane": "26",
+        "exitCode": 0,
+        "cases": 40,
+        "passed": 40,
+        "log": "/tmp/xtend-rmtx-a0633/selectors26-version-audit-S.log",
+        "sha256": "06eed49331a7eeb998f616ab4b0f11864a31f88c58e47fd2905c95b0b7309465"
+      }
+    ]
+  },
+  "compositionAndScoped": {
+    "casesPerLane": 25,
+    "componentCompositionCases": 16,
+    "scopedCases": 9,
+    "runs": [
+      {
+        "lane": "24",
+        "suite": "component-composition",
+        "file": "tests/xtensions/component-composition.test.cjs",
+        "expectedCases": 16,
+        "exitCode": 0,
+        "log": "/tmp/xtend-rmtx-a0633/component-composition24-version-audit-V.log",
+        "sha256": "7e798a777a045a36d3361e9de2aec2857c7f9aca362c8e29abbf11eca8f6a793",
+        "summary": "\u2139 tests 16\n\u2139 suites 0\n\u2139 pass 16\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 2320.899414\n"
+      },
+      {
+        "lane": "24",
+        "suite": "scoped",
+        "file": "tests/xtensions/scoped-components.test.cjs",
+        "expectedCases": 9,
+        "exitCode": 0,
+        "log": "/tmp/xtend-rmtx-a0633/scoped24-version-audit-V.log",
+        "sha256": "0d78739efb211e7a34699b74d4095a3ff43d73f21e5550a7b5de08464b54e0e0",
+        "summary": "\u2139 tests 9\n\u2139 suites 0\n\u2139 pass 9\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 2128.724516\n"
+      },
+      {
+        "lane": "24",
+        "suite": "strict-types",
+        "file": "/tmp/xtend-rmtx-a0633/version-audit-types-V.cjs",
+        "expectedCases": 0,
+        "exitCode": 0,
+        "log": "/tmp/xtend-rmtx-a0633/strict-types24-version-audit-V.log",
+        "sha256": "bd3832cf63ca747483e2985b0bc7b2ba5f5fabe8d5a744745325dc6e50c2c1d2",
+        "summary": "Node v24.22.2\nTypeScript 5.9.3\nentryFixtures 5\nskipLibCheck false\ndiagnostics 0\n"
+      },
+      {
+        "lane": "26",
+        "suite": "component-composition",
+        "file": "tests/xtensions/component-composition.test.cjs",
+        "expectedCases": 16,
+        "exitCode": 0,
+        "log": "/tmp/xtend-rmtx-a0633/component-composition26-version-audit-V.log",
+        "sha256": "a802e90d0c1ceda3ad99cb1ac8711052410040fa5fa05a0aeb961854121cb705",
+        "summary": "\u2139 tests 16\n\u2139 suites 0\n\u2139 pass 16\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 2312.670708\n"
+      },
+      {
+        "lane": "26",
+        "suite": "scoped",
+        "file": "tests/xtensions/scoped-components.test.cjs",
+        "expectedCases": 9,
+        "exitCode": 0,
+        "log": "/tmp/xtend-rmtx-a0633/scoped26-version-audit-V.log",
+        "sha256": "c4a392a8c0edcbf4599c52005e48f52365bb398b77f214e4a810a2723b19b0ac",
+        "summary": "\u2139 tests 9\n\u2139 suites 0\n\u2139 pass 9\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 2079.508483\n"
+      },
+      {
+        "lane": "26",
+        "suite": "strict-types",
+        "file": "/tmp/xtend-rmtx-a0633/version-audit-types-V.cjs",
+        "expectedCases": 0,
+        "exitCode": 0,
+        "log": "/tmp/xtend-rmtx-a0633/strict-types26-version-audit-V.log",
+        "sha256": "6d02c25f7c2e35d5bddd9007b8fff55caf8c55f134eee24bfd624b5b520fe6a6",
+        "summary": "Node v26.5.0\nTypeScript 5.9.3\nentryFixtures 5\nskipLibCheck false\ndiagnostics 0\n"
+      }
+    ]
+  },
+  "strictTypeFixtures": {
+    "entryCount": 5,
+    "typescript": "5.9.3",
+    "moduleResolution": "NodeNext",
+    "skipLibCheck": false,
+    "diagnosticsPerLane": 0,
+    "fixtures": [
+      "tests/types/xtensions_component_composition.mts",
+      "tests/types/xtensions_composition.mts",
+      "tests/types/xtensions_integrated_composition.mts",
+      "tests/types/xtensions_ssr.mts",
+      "tests/types/xtensions_scoped_components.mts"
+    ],
+    "packageResolution": "Actual package-export type targets through the prior declared workspace path map; no synthetic declarations."
+  },
+  "actualConsumer": {
+    "receipt": "/tmp/xtend-rmtx-a0633/consumer-version-audit-U-receipt.json",
+    "sha256": "5975126f9ce0d79de83d4d609d89eaa043c563ff059325c8a7cc16ca9eb337da",
+    "report": "/tmp/xtend-rmtx-a0633/consumer-version-audit-U-report.json",
+    "reportSha256": "024df0f149c2d8044cc26bfaaef4a7152d9ac9293e868e0c6f6a95483657e9f1",
+    "status": "passed",
+    "assertions": 6,
+    "failures": 0,
+    "skips": 0,
+    "node": "v24.22.2",
+    "preloadUsed": false,
+    "runtimeAndTypingTestsUnmodified": true,
+    "toolOnlyNodePath": "/tmp/xtend-rmtx-a0633/consumer-build-tools/node_modules"
+  },
+  "peerHarness": {
+    "receipt": "/tmp/xtend-rmtx-a0633/consumer-peers-view-provenance.json",
+    "sha256": "4b026bfbb84643059dd6f46840c8ac38c41227d2c381252658e0cad7c74d444b",
+    "fiveActualVersions": {
+      "jsdom": "30.1.2",
+      "playwright": "1.56.0",
+      "react": "18.3.1",
+      "react-dom": "18.3.1",
+      "vue": "3.5.43"
+    },
+    "committedManifestAndLockExact": true,
+    "nodeModulesSymlink": "/tmp/xtend-rmtx-a0632/peers/node_modules",
+    "sharedHarnessWrittenByThisAudit": false,
+    "installPerformed": false
+  },
+  "buildTools": {
+    "receipt": "/tmp/xtend-rmtx-a0633/consumer-build-tools-provenance.json",
+    "sha256": "f1b16964d7d8939b272e923bdb1bfc998f33baf18bafaa55aee0d45932f5ca7d",
+    "rootCreationReceipt": "/tmp/xtend-rmtx-a0633/consumer-root-tools-creation.json",
+    "rootCreationReceiptSha256": "a66f260fa46b8c9862a81a1ebf1d483f5e79aaf9c4665725049765b82aed637d",
+    "cleanup": "Four owner-created symlinks retained until parent signals that preparation finished; subsequent cleanup receives its own tmp receipt."
+  },
+  "previousFinalCriticalSources": {
+    "receipt": "/tmp/xtend-rmtx-a0633/component-scope-final.json",
+    "sha256": "30e29df7eefc957f8319aa89c18acac457d8915a040ef56dd2e57b445ab00702",
+    "count": 45,
+    "stillCurrent": true
+  },
+  "historicalHarnessAttempts": [
+    {
+      "attempt": "S",
+      "result": "failed",
+      "reason": "Global peer NODE_PATH incorrectly exposed frameworks to the explicit missing-peer assertion."
+    },
+    {
+      "attempt": "T",
+      "result": "failed",
+      "reason": "Absolute root/node_modules/typescript/bin/tsc was missing; actual runtime consumer checks had completed."
+    }
+  ],
+  "scope": "Version assertions only. The packed U consumer uses actual tarballs, actual dependencies and its unchanged isolation controls. No release acceptance is implied."
+}

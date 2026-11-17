@@ -1,6 +1,8 @@
 # A06.2 – Produktiver RMTX-Frontendeinstieg
 
-**Fortschreibung A06.3.1:** Die Parser-/Compiler-Module haben jetzt Capability-API **2.0.0**, der gemeinsame Backend-Eingang **4.3.0 / 1.4.0**. Die hier beschriebenen v1-Defaults und v1-Resultdaten bleiben erhalten. Das zusätzliche [Selektorprofil 2.0.0](../selector-profile/README.md) ist ausdrücklich wählbar; die folgenden API-1-/Backend-4.2-/1.3-Angaben beschreiben den ursprünglichen A06.2-Prüfstand.
+**Historische Fortschreibung A06.3.1:** Die Parser-/Compiler-Module hatten dort Capability-API **2.0.0**, der gemeinsame Backend-Eingang **4.3.0 / 1.4.0**. Die hier beschriebenen v1-Defaults und v1-Resultdaten bleiben erhalten. Das zusätzliche [Selektorprofil 2.0.0](../selector-profile/README.md) ist ausdrücklich wählbar; die folgenden API-1-/Backend-4.2-/1.3-Angaben beschreiben den ursprünglichen A06.2-Prüfstand.
+
+> Aktueller Folgeabschnitt: [A06.3.2](../keyed-profile/README.md), Capability3/Backend4.4 bzw.1.5. Die nachstehenden datierten Einstiegsversionen bleiben historische Kompatibilitätsnachweise.
 
 Stand: **16. November 2026**. Das erste geschlossene produktive Syntaxprofil **1.0.0** ist implementiert. Es parst `.rmtx` als TSX, senkt direkt in den validierten gemeinsamen Classic-AST ab und nutzt dieselbe semantische Prüfung und Artefaktgenerierung. Es erzeugt keinen Classic-Quelltext und führt weder Quellimporte noch Templateausdrücke als JavaScript aus.
 

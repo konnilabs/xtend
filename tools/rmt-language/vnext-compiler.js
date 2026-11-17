@@ -1,6 +1,7 @@
 const { validateRmtClassicAst } = require('./classic-ast-contract');
-const { validateFastPassAction } = require('../../xtend-maraca/fastpass-contract.js');
+const { validateFastPassAction } = require('./vendor/fastpass-contract.js');
 const { lowerActionExpression, lowerActionEmit, lowerActionResultHandler } = require('./action-execution-lowering');
+const { createRmtActionInputContract, RMT_ACTION_PLAN_SCHEMA_V2, RMT_NATIVE_EVENT_BINDING_SCHEMA_V2 } = require('./action-input-contract');
 const crypto = require('crypto');
 const {
   RMT_FILE_FALLBACK_CODE,
@@ -15,12 +16,13 @@ const {
 
 const RMT_VNEXT_CORE_SCHEMA = 'xtend.rmt.core-format.vnext.v1';
 const RMT_VNEXT_COMPILER_SCHEMA = 'xtend.rmt.vnext-compiler.v1';
-const RMT_VNEXT_COMPILER_API_VERSION = '1.4.0';
+const RMT_VNEXT_COMPILER_API_VERSION = '1.6.0';
 const RMT_VNEXT_COMPILER_REPORT_SCHEMA = 'xtend.rmt.vnext-compiler-report.v1';
 const RMT_VNEXT_COMPILER_WORKPACKAGE = 'WP-E15-05';
 const RMT_VNEXT_PRIMITIVE_LOWERING_SCHEMA = 'xtend.rmt.vnext.primitive-lowering.v1';
 const RMT_VNEXT_PRIMITIVE_LOWERING_WORKPACKAGE = 'RMT-VNEXT-PRIM-04';
 const RMT_APP_ORCHESTRATION_SCHEMA = 'xtend.rmt.app-orchestration.v1';
+const RMT_APP_ORCHESTRATION_SCHEMA_V2 = 'xtend.rmt.app-orchestration.v2';
 const RMT_APP_ORCHESTRATION_WORKPACKAGE = 'RMT-APP-ORCH-01';
 const RMT_APP_SERVICE_DEMANDS_SCHEMA = 'xtend.maraca.app-service-demands.v1';
 const RMT_APP_SERVICE_INPUT_POLICY_SCHEMA = 'xtend.maraca.app-service-input-policy.v1';
@@ -857,7 +859,7 @@ function selectorsInDependencyOrder(selectors) {
   return output;
 }
 
-function createAppPlatformRecords(core) {
+function createAppPlatformRecords(core, features = {}) {
   return {
     schema: RMT_APP_PLATFORM_RECORDS_SCHEMA,
     workpackage: RMT_VNEXT_PRIMITIVE_LOWERING_WORKPACKAGE,
@@ -893,7 +895,7 @@ function createAppPlatformRecords(core) {
       reducers: record.reducers,
       emits: record.emits,
       ...(record.handlers?.length ? { handlers: toArray(record.handlers).map(handler => {
-        const lowered = lowerActionResultHandler(handler);
+        const lowered = lowerActionResultHandler(handler, features);
         if (lowered.kind === 'reduce') lowered.reducer = { ...statePathForReducer(lowered.reducer.target, toArray(core.states).map(state => ({ id: state.name }))), ...lowered.reducer };
         return lowered;
       }) } : {}),
@@ -4111,13 +4113,16 @@ function createTelemetryPlan() {
   };
 }
 
-function createOrchestrationDiagnostics(appPlatform, eventBindings) {
+function createOrchestrationDiagnostics(appPlatform, eventBindings, inputContract = null) {
   const diagnostics = [];
   const portalIds = new Set(toArray(appPlatform && appPlatform.portals).map((portal) => portal.id));
   const surfaceIds = new Set(toArray(appPlatform && appPlatform.surfaces).map((surface) => surface.id));
 
   eventBindings.forEach((event) => {
-    if (!event.payloadContract || toArray(event.payloadContract.required).length === 0) {
+    const inputFields = inputContract?.actions.find(action => action.id === event.action)?.fields;
+    const closedNativePayload = event.schema === RMT_NATIVE_EVENT_BINDING_SCHEMA_V2 && inputFields
+      && Object.entries(inputFields).every(([key, rule]) => !rule.required || Object.hasOwn(event.payload, key));
+    if ((!event.payloadContract || toArray(event.payloadContract.required).length === 0) && !closedNativePayload) {
       diagnostics.push({
         code: 'rmt.app_orchestration.event_payload_contract_missing',
         severity: 'warning',
@@ -4212,12 +4217,23 @@ function withOrchestrationDiagnosticSource(core, diagnostic, plan) {
   };
 }
 
-function createRmtAppOrchestrationArtifacts(core) {
+function createRmtAppOrchestrationArtifacts(core, options = {}) {
   if (!core || !core.appPlatform) return null;
 
   const appPlatform = core.appPlatform;
+  const nativeInputs = options.sourceProfile?.syntax === 'rmtx' && options.sourceProfile.version === '4.0.0';
+  const inputContract = nativeInputs ? createRmtActionInputContract(core, options.rmtxActionInputRules) : null;
   const selectorSourceKinds = new Map(toArray(core.selectors).map(selector => [selector.name, selector.source && selector.source.kind]));
-  const eventBindings = createEventBindingRecords(appPlatform);
+  const eventBindings = createEventBindingRecords(appPlatform).map(event => {
+    if (!nativeInputs) return event;
+    const fields = inputContract.actions.find(action => action.id === event.action)?.fields;
+    const payload = toArray(event.payloadContract?.mappings).length === 0 ? {} : event.payload;
+    if (!fields || Object.keys(payload).some(key => !Object.hasOwn(fields, key))
+      || Object.entries(fields).some(([key, rule]) => rule.required && !Object.hasOwn(payload, key)))
+      throw Object.assign(new TypeError('Native event payload mapping differs from its Action input contract.'),
+        { code: 'rmt.action.input.contract.invalid', actionId: event.action });
+    return { ...event, payload, schema: RMT_NATIVE_EVENT_BINDING_SCHEMA_V2, inputContract: event.action };
+  });
   const reducers = createActionReducerRecords(appPlatform);
   const resources = createResourceRecords(appPlatform);
   const dataSources = createDataSourceRecords(appPlatform);
@@ -4255,7 +4271,7 @@ function createRmtAppOrchestrationArtifacts(core) {
   const patchPlan = createPatchPlan(appPlatform, reducers, renderDescriptors, validation, transitions);
   const telemetry = createTelemetryPlan();
   const diagnosticPlans = {
-    orchestration: { diagnostics: createOrchestrationDiagnostics(appPlatform, eventBindings) },
+    orchestration: { diagnostics: createOrchestrationDiagnostics(appPlatform, eventBindings, inputContract) },
     render: renderComposition, hydration, validation, transitions, animationEngine
   };
   for (const [name, plan] of Object.entries(diagnosticPlans)) {
@@ -4264,7 +4280,7 @@ function createRmtAppOrchestrationArtifacts(core) {
   const diagnostics = mergeDiagnostics(...Object.values(diagnosticPlans).map(plan => plan.diagnostics));
 
   return {
-    schema: RMT_APP_ORCHESTRATION_SCHEMA,
+    schema: nativeInputs ? RMT_APP_ORCHESTRATION_SCHEMA_V2 : RMT_APP_ORCHESTRATION_SCHEMA,
     workpackage: RMT_APP_ORCHESTRATION_WORKPACKAGE,
     sourceSyntax: core.manifest && core.manifest.sourceSyntax || 'rmt-vnext',
     runtimeOrder: ['kernel', 'state', 'resource', 'validation', 'animation', 'transition', 'action', 'event', 'surface', 'renderer'],
@@ -4275,6 +4291,7 @@ function createRmtAppOrchestrationArtifacts(core) {
       reducers
     },
     actions: {
+      ...(nativeInputs ? { schema: RMT_ACTION_PLAN_SCHEMA_V2, inputContract } : {}),
       actions: toArray(appPlatform.actions).map((action) => ({
         id: action.id,
         ...(action.execution ? { execution: action.execution } : {}),
@@ -4339,6 +4356,7 @@ function createRmtAppOrchestrationArtifacts(core) {
 class VNextCompiler {
   constructor(ast, options = {}, sourceProfile = null) {
     this.ast = ast;
+    this.allowActionTemplates = sourceProfile?.syntax === 'rmtx' && sourceProfile.version === '4.0.0';
     const documentId = options.documentId || findFirstNamedDeclaration(ast) || 'rmt.vnext.document';
     this.core = createCoreDocument({
       documentId,
@@ -4691,16 +4709,16 @@ class VNextCompiler {
       } else if (child.type === 'RmtReducerStatement') {
         record.reducers.push({
           target: child.target,
-          ...lowerActionExpression(child.expression || child.text || '')
+          ...lowerActionExpression(child.expression || child.text || '', { allowTemplates: this.allowActionTemplates })
         });
       } else if (child.type === 'RmtReducerRecipeStatement') {
         record.reducers.push({
           recipe: child.recipe ? primitiveValueToCore(child.recipe) : '',
           target: child.target,
-          ...(child.valueExpression ? lowerActionExpression(child.valueExpression) : { value: null, valueKind: 'literal' })
+          ...(child.valueExpression ? lowerActionExpression(child.valueExpression, { allowTemplates: this.allowActionTemplates }) : { value: null, valueKind: 'literal' })
         });
       } else if (child.type === 'RmtEmitStatement') {
-        record.emits.push(lowerActionEmit(child));
+        record.emits.push(lowerActionEmit(child, { allowTemplates: this.allowActionTemplates }));
       } else if (child.type === 'RmtEffectStatement') {
         const effect = this.compilePrimitiveEffect(child, record, index);
         if (effect) effectRefs.push(effect.id);
@@ -5010,7 +5028,7 @@ class VNextCompiler {
       return;
     }
 
-    this.core.appPlatform = createAppPlatformRecords(this.core);
+    this.core.appPlatform = createAppPlatformRecords(this.core, { allowTemplates: this.allowActionTemplates });
     this.core.kernelRecords = createKernelRecords(this.core);
   }
 
@@ -5490,7 +5508,7 @@ function validateFrontendSourceProfile(options) {
   const fields = plain && Object.getOwnPropertyDescriptors(profile);
   const valid = fields && Reflect.ownKeys(fields).length === 2
     && ['syntax', 'version'].every(key => fields[key] && fields[key].enumerable && 'value' in fields[key])
-    && fields.syntax.value === 'rmtx' && ['1.0.0', '2.0.0'].includes(fields.version.value);
+    && fields.syntax.value === 'rmtx' && ['1.0.0', '2.0.0', '3.0.0', '4.0.0'].includes(fields.version.value);
   if (!valid) throw Object.assign(new TypeError('Unsupported compiler frontend source profile.'), {
     code: 'rmt.compiler.source-profile.unsupported'
   });
@@ -5584,8 +5602,30 @@ function compileRmtVNextParserResult(parserResult, options = {}, sourceProfile =
       diagnostics: parserResult.diagnostics.concat(astDiagnostics), compilerDiagnostics: astDiagnostics
     };
   }
+  let compilerActionInputContract = null;
+  if (sourceProfile?.version === '4.0.0') {
+    try {
+      const actions = [];
+      const visit = node => {
+        if (!node || typeof node !== 'object') return;
+        if (node.type === 'RmtActionDeclaration') actions.push({ name: node.name,
+          inputs: toArray(node.body).filter(input => input.type === 'RmtActionInputClause').map(input => ({ name: input.name, type: input.dataType.value })) });
+        toArray(node.body).forEach(visit);
+      };
+      visit(parserResult.ast);
+      compilerActionInputContract = createRmtActionInputContract({ actions }, options.rmtxActionInputRules);
+    } catch (error) {
+      const diagnostic = createCompilerDiagnostic(error.code || 'rmt.action.input.contract.invalid', error.message, parserResult.ast);
+      return { schema: RMT_VNEXT_COMPILER_SCHEMA, workpackage: RMT_VNEXT_COMPILER_WORKPACKAGE, ok: false,
+        phase: 'action-inputs', status: 'invalid', parserResult, primitiveArtifacts: null, appServiceDemands: null,
+        orchestrationArtifacts: null, coreDocument: null, coreJson: null,
+        diagnostics: parserResult.diagnostics.concat(diagnostic), compilerDiagnostics: [diagnostic] };
+    }
+  }
   const primitiveSemanticGraph = buildRmtVNextPrimitiveSemanticGraph({}, {
     ...options,
+    compilerSourceProfile: sourceProfile,
+    compilerActionInputContract,
     parserResult
   });
   const primitiveInput = hasPrimitiveDeclarations(parserResult.ast);
@@ -5668,7 +5708,27 @@ function compileRmtVNextParserResult(parserResult, options = {}, sourceProfile =
       'RmtEventBinding'
     ].includes(entry.nodeType))
   } : null;
-  const orchestrationArtifacts = createRmtAppOrchestrationArtifacts(coreDocument);
+  let orchestrationArtifacts;
+  try { orchestrationArtifacts = createRmtAppOrchestrationArtifacts(coreDocument, { sourceProfile, rmtxActionInputRules: options.rmtxActionInputRules }); }
+  catch (error) {
+    if (sourceProfile?.version !== '4.0.0') throw error;
+    let owner = parserResult.ast;
+    const visit = node => {
+      if (!node || typeof node !== 'object') return;
+      if (Array.isArray(node)) { node.forEach(visit); return; }
+      if (node.type === 'RmtActionDeclaration' && node.name === error.actionId) {
+        owner = node;
+        if (error.inputName) owner = toArray(node.body).find(child => child.type === 'RmtActionInputClause' && child.name === error.inputName) || node;
+      }
+      toArray(node.body).forEach(visit);
+    };
+    visit(parserResult.ast);
+    const diagnostic = createCompilerDiagnostic(error.code || 'rmt.action.input.contract.invalid', error.message, owner);
+    return { schema: RMT_VNEXT_COMPILER_SCHEMA, workpackage: RMT_VNEXT_COMPILER_WORKPACKAGE,
+      ok: false, phase: 'action-inputs', status: 'invalid', parserResult, primitiveSemanticGraph,
+      primitiveArtifacts: null, appServiceDemands: null, orchestrationArtifacts: null, coreDocument: null, coreJson: null,
+      diagnostics: mergeDiagnostics(sourceDiagnostics, compilerDiagnostics, [diagnostic]), compilerDiagnostics: mergeDiagnostics(compilerDiagnostics, [diagnostic]) };
+  }
   compilerDiagnostics.push(...toArray(orchestrationArtifacts && orchestrationArtifacts.diagnostics));
   const diagnostics = mergeDiagnostics(sourceDiagnostics, compilerDiagnostics);
 
@@ -5729,6 +5789,7 @@ module.exports = {
   RMT_VNEXT_COMPILER_SUITE_PATH,
   RMT_VNEXT_COMPILER_WORKPACKAGE,
   RMT_APP_ORCHESTRATION_SCHEMA,
+  RMT_APP_ORCHESTRATION_SCHEMA_V2,
   RMT_APP_ORCHESTRATION_WORKPACKAGE,
   RMT_APP_SERVICE_DEMANDS_SCHEMA,
   RMT_APP_SERVICE_INPUT_POLICY_SCHEMA,

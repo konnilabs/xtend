@@ -1,8 +1,11 @@
 // Explicit URL/History owner for a single route and Model session.
 // x-router delegates its existing navigation notifications with listen:false.
 export const XROUTER_URL_STATE_API_VERSION = '1.0.0';
-export function createXRouterURLStateHost({ runtime, codec, windowTarget, mode = 'history', listen = false, isOwnerCurrent = () => true, onError = () => {} }) {
-  if (!['history','hash'].includes(mode) || !windowTarget?.history || typeof runtime?.restoreURLState !== 'function' || typeof runtime?.publishURLState !== 'function' || codec?.API_VERSION !== '1.0.0') throw new TypeError('URL-state host requires a route owner, v1 codec and Maraca restore/publish ports.');
+export const XROUTER_PROJECTION_URL_STATE_API_VERSION = '2.0.0';
+export function createXRouterURLStateHost(options) { return createURLStateHost(options, XROUTER_URL_STATE_API_VERSION, 'xtend.router.url-state-host.v1'); }
+export function createXRouterProjectionURLStateHost(options) { return createURLStateHost(options, XROUTER_PROJECTION_URL_STATE_API_VERSION, 'xtend.router.url-state-host.v2'); }
+function createURLStateHost({ runtime, codec, windowTarget, mode = 'history', listen = false, isOwnerCurrent = () => true, onError = () => {} }, apiVersion, schema) {
+  if (!['history','hash'].includes(mode) || !windowTarget?.history || typeof runtime?.restoreURLState !== 'function' || typeof runtime?.publishURLState !== 'function' || codec?.API_VERSION !== apiVersion) throw new TypeError(`URL-state host requires a route owner, v${apiVersion[0]} codec and Maraca restore/publish ports.`);
   let closed = false, sequence = 0, navigation = null, pending = Promise.resolve();
   function location() {
     const href = windowTarget.location.href, hashIndex = href.indexOf('#');
@@ -57,7 +60,7 @@ export function createXRouterURLStateHost({ runtime, codec, windowTarget, mode =
   const listener = () => { navigate('traverse').catch(() => {}); };
   const events = mode === 'hash' ? ['popstate','hashchange'] : ['popstate'];
   if (listen) events.forEach(name => windowTarget.addEventListener(name,listener));
-  return Object.freeze({ schema: 'xtend.router.url-state-host.v1', apiVersion: XROUTER_URL_STATE_API_VERSION,
+  return Object.freeze({ schema, apiVersion,
     navigate, publish: (cause = 'commit') => {
       if (!['commit','checkpoint'].includes(cause)) return Promise.reject(new TypeError('Explicit publication accepts commit or checkpoint.'));
       return publishFor(navigation,cause);

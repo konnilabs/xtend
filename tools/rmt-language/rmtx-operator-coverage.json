@@ -1,0 +1,1239 @@
+{
+  "format": 1,
+  "syntaxVersion": "4.0.0",
+  "classicAstNodes": 122,
+  "operatorTags": 110,
+  "counts": {
+    "helper-or-attribute": 21,
+    "source-operator": 99,
+    "deferred-native-ui": 2
+  },
+  "boundaries": {
+    "A064": [
+      "general-native-ui-children",
+      "native-dom-surface-repeat-and-key",
+      "lifecycle-when-evaluation"
+    ],
+    "A065": [
+      "source-module-resolution-and-module-graph",
+      "CLI-watch-cache-compilation-session",
+      "virtual-TypeScript-and-semantic-editor-project-discovery"
+    ],
+    "A066": [
+      "CSR-SSR-restore-replay-adoption-parity",
+      "release-readiness-acceptance"
+    ]
+  },
+  "nodes": [
+    {
+      "type": "RmtVNextDocument",
+      "family": "Dokument / Identität / Imports",
+      "classification": "helper-or-attribute",
+      "role": "document-envelope",
+      "representedBy": [
+        "Program"
+      ]
+    },
+    {
+      "type": "RmtIdentifier",
+      "family": "Dokument / Identität / Imports",
+      "classification": "helper-or-attribute",
+      "role": "identifier-helper",
+      "representedBy": []
+    },
+    {
+      "type": "RmtImportDeclaration",
+      "family": "Dokument / Identität / Imports",
+      "classification": "source-operator",
+      "operators": [
+        "Import"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtTemplateDeclaration",
+      "family": "Dokument / Identität / Imports",
+      "classification": "source-operator",
+      "operators": [
+        "Program"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtSurfaceDeclaration",
+      "family": "Surface / Layout / Repeat",
+      "classification": "source-operator",
+      "operators": [
+        "Surface"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtSurfaceHeaderClause",
+      "family": "Surface / Layout / Repeat",
+      "classification": "helper-or-attribute",
+      "role": "attribute-projection",
+      "representedBy": [
+        "Surface.kind",
+        "Surface.component"
+      ]
+    },
+    {
+      "type": "RmtStateDeclaration",
+      "family": "State / Selector",
+      "classification": "source-operator",
+      "operators": [
+        "State"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtTypeReference",
+      "family": "Dokument / Identität / Imports",
+      "classification": "helper-or-attribute",
+      "role": "type-attribute",
+      "representedBy": [
+        "State.type",
+        "Input.type",
+        "Output.type"
+      ]
+    },
+    {
+      "type": "RmtInitialBlock",
+      "family": "Werte / Initialisierung / Referenzhelfer",
+      "classification": "helper-or-attribute",
+      "role": "initial-value-helper",
+      "representedBy": [
+        "State.initial"
+      ]
+    },
+    {
+      "type": "RmtInitialValueEntry",
+      "family": "Werte / Initialisierung / Referenzhelfer",
+      "classification": "helper-or-attribute",
+      "role": "initial-value-helper",
+      "representedBy": [
+        "State.initial"
+      ]
+    },
+    {
+      "type": "RmtObjectValueKey",
+      "family": "Werte / Initialisierung / Referenzhelfer",
+      "classification": "helper-or-attribute",
+      "role": "literal-field-helper",
+      "representedBy": []
+    },
+    {
+      "type": "RmtObjectValueField",
+      "family": "Werte / Initialisierung / Referenzhelfer",
+      "classification": "helper-or-attribute",
+      "role": "literal-field-helper",
+      "representedBy": []
+    },
+    {
+      "type": "RmtPrimitiveValue",
+      "family": "Werte / Initialisierung / Referenzhelfer",
+      "classification": "helper-or-attribute",
+      "role": "closed-value-tree",
+      "representedBy": []
+    },
+    {
+      "type": "RmtSelectorDeclaration",
+      "family": "State / Selector",
+      "classification": "source-operator",
+      "operators": [
+        "Selector"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtSelectorWhereClause",
+      "family": "State / Selector",
+      "classification": "source-operator",
+      "operators": [
+        "Where"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtSelectorFindClause",
+      "family": "State / Selector",
+      "classification": "source-operator",
+      "operators": [
+        "Find"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtSelectorSortClause",
+      "family": "State / Selector",
+      "classification": "source-operator",
+      "operators": [
+        "Sort"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtSelectorOutputClause",
+      "family": "State / Selector",
+      "classification": "source-operator",
+      "operators": [
+        "Output"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtConditionExpression",
+      "family": "Lane / Lifecycle / Stream / Condition",
+      "classification": "helper-or-attribute",
+      "role": "closed-boolean-expression",
+      "representedBy": [
+        "On.when"
+      ]
+    },
+    {
+      "type": "RmtSelectorExpression",
+      "family": "State / Selector",
+      "classification": "helper-or-attribute",
+      "role": "closed-selector-expression",
+      "representedBy": [
+        "Where.test",
+        "Find.test"
+      ]
+    },
+    {
+      "type": "RmtPrimitiveSourceReference",
+      "family": "Werte / Initialisierung / Referenzhelfer",
+      "classification": "helper-or-attribute",
+      "role": "reference-helper",
+      "representedBy": [
+        "Selector.from",
+        "DataSource.sourceKind",
+        "DataSource.source",
+        "Repeat.from"
+      ]
+    },
+    {
+      "type": "RmtDataSourceDeclaration",
+      "family": "DataSource",
+      "classification": "source-operator",
+      "operators": [
+        "DataSource"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtDataSourceModeClause",
+      "family": "DataSource",
+      "classification": "source-operator",
+      "operators": [
+        "DataSourceMode"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtDataSourceMethodClause",
+      "family": "DataSource",
+      "classification": "source-operator",
+      "operators": [
+        "DataSourceMethod"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtDataSourceContractClause",
+      "family": "DataSource",
+      "classification": "source-operator",
+      "operators": [
+        "DataSourceContract"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtDataSourceResultClause",
+      "family": "DataSource",
+      "classification": "source-operator",
+      "operators": [
+        "DataSourceResult"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtResourceImportClause",
+      "family": "Ressourcen",
+      "classification": "source-operator",
+      "operators": [
+        "ResourceImport"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtEventOptionClause",
+      "family": "Event / Intent / Payload",
+      "classification": "helper-or-attribute",
+      "role": "attribute-projection",
+      "representedBy": [
+        "On.preventDefault"
+      ]
+    },
+    {
+      "type": "RmtAnimationDurationClause",
+      "family": "Animation",
+      "classification": "source-operator",
+      "operators": [
+        "AnimationDuration"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtAnimationEasingClause",
+      "family": "Animation",
+      "classification": "source-operator",
+      "operators": [
+        "AnimationEasing"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtAnimationAllowFilterClause",
+      "family": "Animation",
+      "classification": "source-operator",
+      "operators": [
+        "AnimationAllowFilter"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtDataSourceFallbackClause",
+      "family": "DataSource",
+      "classification": "source-operator",
+      "operators": [
+        "DataSourceFallback"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtActionDeclaration",
+      "family": "Action / Reducer / Effects",
+      "classification": "source-operator",
+      "operators": [
+        "Action"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtActionInputClause",
+      "family": "Action / Reducer / Effects",
+      "classification": "source-operator",
+      "operators": [
+        "Input"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtActionInputPolicy",
+      "family": "Action / Reducer / Effects",
+      "classification": "source-operator",
+      "operators": [
+        "InputPolicy"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtActionStatusClause",
+      "family": "Action / Reducer / Effects",
+      "classification": "source-operator",
+      "operators": [
+        "Status"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtActionExecutionClause",
+      "family": "Action / Reducer / Effects",
+      "classification": "source-operator",
+      "operators": [
+        "Execution"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtSurfaceKeyClause",
+      "family": "Surface / Layout / Repeat",
+      "classification": "deferred-native-ui",
+      "stage": "A06.4",
+      "reason": "Native Surface keying belongs to native DOM repetition; host scope typed keys use Repeat.keyBy."
+    },
+    {
+      "type": "RmtSurfacePortalClause",
+      "family": "Surface / Layout / Repeat",
+      "classification": "helper-or-attribute",
+      "role": "attribute-projection",
+      "representedBy": [
+        "Surface.portal"
+      ]
+    },
+    {
+      "type": "RmtEffectStatement",
+      "family": "Action / Reducer / Effects",
+      "classification": "source-operator",
+      "operators": [
+        "Effect"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtReducerStatement",
+      "family": "Action / Reducer / Effects",
+      "classification": "source-operator",
+      "operators": [
+        "Reduce"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtReducerRecipeStatement",
+      "family": "Action / Reducer / Effects",
+      "classification": "source-operator",
+      "operators": [
+        "Recipe"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtEmitStatement",
+      "family": "Action / Reducer / Effects",
+      "classification": "source-operator",
+      "operators": [
+        "Emit"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtActionResultHandler",
+      "family": "Action / Reducer / Effects",
+      "classification": "source-operator",
+      "operators": [
+        "ResultHandler"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtValidationDeclaration",
+      "family": "Validation",
+      "classification": "source-operator",
+      "operators": [
+        "Validation"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtValidationModeClause",
+      "family": "Validation",
+      "classification": "source-operator",
+      "operators": [
+        "ValidationMode"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtValidationTargetClause",
+      "family": "Validation",
+      "classification": "source-operator",
+      "operators": [
+        "ValidationTarget"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtValidationFieldClause",
+      "family": "Validation",
+      "classification": "source-operator",
+      "operators": [
+        "ValidationField"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtValidationRule",
+      "family": "Validation",
+      "classification": "source-operator",
+      "operators": [
+        "ValidationRule"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtValidationIncludeClause",
+      "family": "Validation",
+      "classification": "source-operator",
+      "operators": [
+        "ValidationInclude"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtAnimationDeclaration",
+      "family": "Animation",
+      "classification": "source-operator",
+      "operators": [
+        "Animation"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtAnimationPresetClause",
+      "family": "Animation",
+      "classification": "source-operator",
+      "operators": [
+        "AnimationPreset"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtAnimationEffectClause",
+      "family": "Animation",
+      "classification": "source-operator",
+      "operators": [
+        "AnimationEffect"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtAnimationReducedMotionClause",
+      "family": "Animation",
+      "classification": "source-operator",
+      "operators": [
+        "AnimationReducedMotion"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtAnimationSpringClause",
+      "family": "Animation",
+      "classification": "source-operator",
+      "operators": [
+        "AnimationSpring"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtAnimationSpringField",
+      "family": "Animation",
+      "classification": "helper-or-attribute",
+      "role": "attribute-projection",
+      "representedBy": [
+        "AnimationSpring.stiffness",
+        "AnimationSpring.damping",
+        "AnimationSpring.mass",
+        "AnimationSpring.velocity"
+      ]
+    },
+    {
+      "type": "RmtAnimationKeyframeClause",
+      "family": "Animation",
+      "classification": "source-operator",
+      "operators": [
+        "AnimationKeyframe"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtAnimationKeyframeField",
+      "family": "Animation",
+      "classification": "helper-or-attribute",
+      "role": "attribute-projection",
+      "representedBy": [
+        "AnimationKeyframe.opacity",
+        "AnimationKeyframe.transform",
+        "AnimationKeyframe.filter",
+        "AnimationKeyframe.offset"
+      ]
+    },
+    {
+      "type": "RmtTransitionDeclaration",
+      "family": "Transition",
+      "classification": "source-operator",
+      "operators": [
+        "Transition"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtTransitionTriggerClause",
+      "family": "Transition",
+      "classification": "source-operator",
+      "operators": [
+        "TransitionTrigger"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtTransitionFromClause",
+      "family": "Transition",
+      "classification": "source-operator",
+      "operators": [
+        "TransitionFrom"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtTransitionToClause",
+      "family": "Transition",
+      "classification": "source-operator",
+      "operators": [
+        "TransitionTo"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtTransitionDurationClause",
+      "family": "Transition",
+      "classification": "source-operator",
+      "operators": [
+        "TransitionDuration"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtTransitionEasingClause",
+      "family": "Transition",
+      "classification": "source-operator",
+      "operators": [
+        "TransitionEasing"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtTransitionLayoutKeyClause",
+      "family": "Transition",
+      "classification": "source-operator",
+      "operators": [
+        "TransitionLayoutKey"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtTransitionEffectClause",
+      "family": "Transition",
+      "classification": "source-operator",
+      "operators": [
+        "TransitionEffect"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtTransitionLaneClause",
+      "family": "Transition",
+      "classification": "source-operator",
+      "operators": [
+        "TransitionLane"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtTransitionUseAnimationClause",
+      "family": "Transition",
+      "classification": "source-operator",
+      "operators": [
+        "TransitionUseAnimation"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtTransitionInterruptClause",
+      "family": "Transition",
+      "classification": "source-operator",
+      "operators": [
+        "TransitionInterrupt"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtTransitionReducedMotionClause",
+      "family": "Transition",
+      "classification": "source-operator",
+      "operators": [
+        "TransitionReducedMotion"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtAnimationTimelineClause",
+      "family": "Animation",
+      "classification": "source-operator",
+      "operators": [
+        "AnimationTimeline"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtAnimationTimelineStep",
+      "family": "Animation",
+      "classification": "source-operator",
+      "operators": [
+        "AnimationTimelineStep"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtTransitionTimelineClause",
+      "family": "Transition",
+      "classification": "source-operator",
+      "operators": [
+        "TransitionTimeline"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtTransitionTimelineStep",
+      "family": "Transition",
+      "classification": "source-operator",
+      "operators": [
+        "TransitionTimelineStep"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtPrimitiveAttribute",
+      "family": "Werte / Initialisierung / Referenzhelfer",
+      "classification": "helper-or-attribute",
+      "role": "attribute-projection",
+      "representedBy": [
+        "Portal",
+        "Overlay",
+        "Resource"
+      ]
+    },
+    {
+      "type": "RmtPortalDeclaration",
+      "family": "Portal / Overlay",
+      "classification": "source-operator",
+      "operators": [
+        "Portal"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtOverlayDeclaration",
+      "family": "Portal / Overlay",
+      "classification": "source-operator",
+      "operators": [
+        "Overlay"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtResourceDeclaration",
+      "family": "Ressourcen",
+      "classification": "source-operator",
+      "operators": [
+        "Resource"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtResourceSourceClause",
+      "family": "Ressourcen",
+      "classification": "source-operator",
+      "operators": [
+        "ResourceSource"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtSurfaceSourceClause",
+      "family": "Surface / Layout / Repeat",
+      "classification": "source-operator",
+      "operators": [
+        "SurfaceSource"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtSearchQueryClause",
+      "family": "SearchSource",
+      "classification": "source-operator",
+      "operators": [
+        "SearchQuery"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtSearchResourceClause",
+      "family": "SearchSource",
+      "classification": "source-operator",
+      "operators": [
+        "SearchResource"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtSearchFallbackResourceClause",
+      "family": "SearchSource",
+      "classification": "source-operator",
+      "operators": [
+        "SearchFallbackResource"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtPortalPolicyClause",
+      "family": "Portal / Overlay",
+      "classification": "source-operator",
+      "operators": [
+        "PortalPolicy"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtOverlayPolicyClause",
+      "family": "Portal / Overlay",
+      "classification": "source-operator",
+      "operators": [
+        "OverlayPolicy"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtResourceDisposeClause",
+      "family": "Ressourcen",
+      "classification": "source-operator",
+      "operators": [
+        "ResourceDispose"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtSurfacePreserveClause",
+      "family": "Surface / Layout / Repeat",
+      "classification": "source-operator",
+      "operators": [
+        "SurfacePreserve"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtSurfaceDestroyClause",
+      "family": "Surface / Layout / Repeat",
+      "classification": "source-operator",
+      "operators": [
+        "SurfaceDestroy"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtSearchSourceDeclaration",
+      "family": "SearchSource",
+      "classification": "source-operator",
+      "operators": [
+        "SearchSource"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtSearchValueClause",
+      "family": "SearchSource",
+      "classification": "source-operator",
+      "operators": [
+        "SearchValue"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtSearchWeightClause",
+      "family": "SearchSource",
+      "classification": "source-operator",
+      "operators": [
+        "SearchWeight"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtSurfaceRepeatClause",
+      "family": "Surface / Layout / Repeat",
+      "classification": "deferred-native-ui",
+      "stage": "A06.4",
+      "reason": "Native DOM/view repetition requires general native UI lowering; Repeat in profiles3/4 is a keyed XTension-host source scope."
+    },
+    {
+      "type": "RmtSurfaceBoundsClause",
+      "family": "Surface / Layout / Repeat",
+      "classification": "source-operator",
+      "operators": [
+        "SurfaceBounds"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtLaneDeclaration",
+      "family": "Lane / Lifecycle / Stream / Condition",
+      "classification": "source-operator",
+      "operators": [
+        "Lane"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtSlotDeclaration",
+      "family": "Lane / Lifecycle / Stream / Condition",
+      "classification": "source-operator",
+      "operators": [
+        "Slot"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtLifecycleStatement",
+      "family": "Lane / Lifecycle / Stream / Condition",
+      "classification": "source-operator",
+      "operators": [
+        "Mount",
+        "Hydrate",
+        "Suspend",
+        "Resume",
+        "Invalidate",
+        "Dispose",
+        "Prewarm",
+        "Recycle",
+        "Detach",
+        "Reattach"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtStreamStatement",
+      "family": "Lane / Lifecycle / Stream / Condition",
+      "classification": "source-operator",
+      "operators": [
+        "Stream"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtSourceClause",
+      "family": "Lane / Lifecycle / Stream / Condition",
+      "classification": "source-operator",
+      "operators": [
+        "Source"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtConditionClause",
+      "family": "Lane / Lifecycle / Stream / Condition",
+      "classification": "helper-or-attribute",
+      "role": "condition-wrapper",
+      "representedBy": [
+        "On.when"
+      ]
+    },
+    {
+      "type": "RmtPolicyBlock",
+      "family": "Hydration / Resume / Security-Policy",
+      "classification": "source-operator",
+      "operators": [
+        "Policy"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtEventBinding",
+      "family": "Event / Intent / Payload",
+      "classification": "source-operator",
+      "operators": [
+        "On"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtEventSelector",
+      "family": "Event / Intent / Payload",
+      "classification": "helper-or-attribute",
+      "role": "event-owner-helper",
+      "representedBy": [
+        "On"
+      ]
+    },
+    {
+      "type": "RmtEventPayloadBlock",
+      "family": "Event / Intent / Payload",
+      "classification": "helper-or-attribute",
+      "role": "event-payload-helper",
+      "representedBy": [
+        "On.payload",
+        "On.preventDefault"
+      ]
+    },
+    {
+      "type": "RmtEventPayloadMapping",
+      "family": "Event / Intent / Payload",
+      "classification": "helper-or-attribute",
+      "role": "event-payload-helper",
+      "representedBy": [
+        "On.payload"
+      ]
+    },
+    {
+      "type": "RmtTrustBoundaryPolicy",
+      "family": "Hydration / Resume / Security-Policy",
+      "classification": "source-operator",
+      "operators": [
+        "TrustBoundary"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtSanitizePolicy",
+      "family": "Hydration / Resume / Security-Policy",
+      "classification": "source-operator",
+      "operators": [
+        "Sanitize"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtHydrationPolicy",
+      "family": "Hydration / Resume / Security-Policy",
+      "classification": "source-operator",
+      "operators": [
+        "Hydration"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtResumabilityPolicy",
+      "family": "Hydration / Resume / Security-Policy",
+      "classification": "source-operator",
+      "operators": [
+        "Resumability"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtIsolationPolicy",
+      "family": "Hydration / Resume / Security-Policy",
+      "classification": "source-operator",
+      "operators": [
+        "Isolation"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtRemoteSurfaceDeclaration",
+      "family": "Remote / Cross-Surface",
+      "classification": "source-operator",
+      "operators": [
+        "RemoteSurface"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtRemoteOwnerClause",
+      "family": "Remote / Cross-Surface",
+      "classification": "source-operator",
+      "operators": [
+        "RemoteOwner"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtRemoteVersionClause",
+      "family": "Remote / Cross-Surface",
+      "classification": "source-operator",
+      "operators": [
+        "RemoteVersion"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtRemoteOriginClause",
+      "family": "Remote / Cross-Surface",
+      "classification": "source-operator",
+      "operators": [
+        "RemoteOrigin"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtRemoteEventPayloadClause",
+      "family": "Remote / Cross-Surface",
+      "classification": "source-operator",
+      "operators": [
+        "RemoteEventPayload"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtRemoteIntegrityClause",
+      "family": "Remote / Cross-Surface",
+      "classification": "source-operator",
+      "operators": [
+        "RemoteIntegrity"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtRemoteTrustBoundaryClause",
+      "family": "Remote / Cross-Surface",
+      "classification": "source-operator",
+      "operators": [
+        "RemoteTrustBoundary"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtRemoteFallbackClause",
+      "family": "Remote / Cross-Surface",
+      "classification": "source-operator",
+      "operators": [
+        "RemoteFallback"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtRemoteExposeClause",
+      "family": "Remote / Cross-Surface",
+      "classification": "source-operator",
+      "operators": [
+        "RemoteExpose"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtRemoteEventClause",
+      "family": "Remote / Cross-Surface",
+      "classification": "source-operator",
+      "operators": [
+        "RemoteEvent"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtRemoteEventDirectionClause",
+      "family": "Remote / Cross-Surface",
+      "classification": "source-operator",
+      "operators": [
+        "RemoteEventDirection"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtRemoteEventLaneClause",
+      "family": "Remote / Cross-Surface",
+      "classification": "source-operator",
+      "operators": [
+        "RemoteEventLane"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    },
+    {
+      "type": "RmtRemoteEventFromClause",
+      "family": "Remote / Cross-Surface",
+      "classification": "source-operator",
+      "operators": [
+        "RemoteEventFrom"
+      ],
+      "sourceContract": "closed-qualified-tags-and-attributes",
+      "runtimeAcceptance": "existing-backend-contracts-only"
+    }
+  ]
+}

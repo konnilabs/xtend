@@ -1,0 +1,13 @@
+{
+  "schema": "xtend.maraca.rmtx-providers.v1",
+  "interfaces": [
+    {
+      "file": "./development/rmtx-a06/orchestration-profile/react.interface.v2.json",
+      "sha256": "65c45087e78ef676c76068060cb85b6fedbe6b97e3791a37d1485b91a72d58a7"
+    },
+    {
+      "file": "./development/rmtx-a06/providers/vue.interface.json",
+      "sha256": "30de14608052cdd250f1f56b06fa0b5c7df8dda73803d5d5daa96355e5a6f1e4"
+    }
+  ]
+}

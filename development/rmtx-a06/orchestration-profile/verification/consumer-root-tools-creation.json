@@ -1,0 +1,40 @@
+{
+  "createdAtUTC": "2026-11-17T19:25:04.077442+00:00",
+  "uid": 1000,
+  "entries": [
+    {
+      "path": "/home/konni/Downloads/xtend-dev/xtend/node_modules/typescript",
+      "target": "/tmp/xtend-rmtx-a0632/peers/node_modules/typescript",
+      "createdByThisTask": true,
+      "isSymlink": true,
+      "version": "5.9.3",
+      "packageJsonSha256": "822ef7ca6452205657b6288b066481ecf508bfbf43455d715cf7d3ec457561e6"
+    },
+    {
+      "path": "/home/konni/Downloads/xtend-dev/xtend/node_modules/esbuild",
+      "target": "/tmp/xtend-rmtx-a0632/peers/node_modules/esbuild",
+      "createdByThisTask": true,
+      "isSymlink": true,
+      "version": "0.28.2",
+      "packageJsonSha256": "9d0bc453f4e791553c4cc2298ba023b409241fd9801e494741666eb0f6051490"
+    },
+    {
+      "path": "/home/konni/Downloads/xtend-dev/xtend/node_modules/rollup",
+      "target": "/tmp/xtend-rmtx-a0632/peers/node_modules/rollup",
+      "createdByThisTask": true,
+      "isSymlink": true,
+      "version": "4.60.4",
+      "packageJsonSha256": "fe284883224d01bfafe3e701bf37a7bfbdaf16aae7ab7ef4a1a798b1a849702d"
+    },
+    {
+      "path": "/home/konni/Downloads/xtend-dev/xtend/node_modules/terser",
+      "target": "/tmp/xtend-rmtx-a0632/peers/node_modules/terser",
+      "createdByThisTask": true,
+      "isSymlink": true,
+      "version": "5.48.0",
+      "packageJsonSha256": "ef2e84996df8f929fd358a75fe2ad546852b6ee0b4a066911fa8d8d4ec46cab8"
+    }
+  ],
+  "cleanupAuthorizedOnlyAfterRootSignal": true,
+  "frameworkPackagesCreated": false
+}

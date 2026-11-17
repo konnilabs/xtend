@@ -1,15 +1,17 @@
 export * from './classic-ast-types';
-export declare const RMT_CLASSIC_COMPILER_API_VERSION: '4.3.0';
+export declare const RMT_CLASSIC_COMPILER_API_VERSION: '4.5.0';
 export declare const RMT_CLASSIC_COMPILE_RESULT_SCHEMA: 'xtend.rmt.classic.compile-result.v4';
 export { validateStateBindingArtifact } from '../xtensions/state-binding-artifact';
 import type { RmtClassicAst } from './classic-ast-types';
 import type { RmtJsonValue, RmtToolingDiagnostic, RmtCompileResult, RmtParseResult } from './rmt-tooling-public-types';
-import type { RmtVNextCoreDocument, RmtCompilerSourceProfile, RmtCompilerSourceProfileV2 } from './vnext-compiler';
+import type { RmtVNextCoreDocument, RmtCompilerSourceProfile, RmtCompilerSourceProfileV2, RmtCompilerSourceProfileV3, RmtCompilerSourceProfileV4 } from './vnext-compiler';
 import type { XTensionStateBindingArtifact } from '../xtensions/state-binding-artifact';
 export { serializeRmtVNextCore as serializeRmtClassicCore } from './vnext-compiler';
 export interface RmtClassicCompilerOptions extends Record<string, unknown> { contractVersion?: '1.0.0'; xtensionBindings?: XTensionStateBindingArtifact }
 export interface RmtClassicAstResultOptions extends RmtClassicCompilerOptions { sourceProfile?: RmtCompilerSourceProfile }
 export interface RmtClassicAstResultOptionsV2 extends RmtClassicCompilerOptions { sourceProfile: RmtCompilerSourceProfileV2 }
+export interface RmtClassicAstResultOptionsV3 extends RmtClassicCompilerOptions { sourceProfile: RmtCompilerSourceProfileV3 }
+export interface RmtClassicAstResultOptionsV4 extends RmtClassicCompilerOptions { sourceProfile: RmtCompilerSourceProfileV4; rmtxActionInputRules?: import('./action-input-contract').RmtxActionInputRules }
 export interface RmtClassicCompileResult extends RmtCompileResult<RmtVNextCoreDocument> {
   schema: typeof RMT_CLASSIC_COMPILE_RESULT_SCHEMA; phase: string; status: string;
   coreDocument: RmtVNextCoreDocument | null; coreJson: string | null;
@@ -24,7 +26,9 @@ export declare function compileRmtClassicAst(ast: RmtClassicAst, options?: RmtCl
 export declare function compileRmtClassicAstResult(ast: RmtClassicAst, options?: RmtClassicAstResultOptions): RmtClassicCompileResult;
 /** Additional source profile; the existing v1 option type remains unchanged. */
 export declare function compileRmtClassicAstResult(ast: RmtClassicAst, options: RmtClassicAstResultOptionsV2): RmtClassicCompileResult;
-export declare function compileRmtClassicAstResult(ast: RmtClassicAst, options?: RmtClassicAstResultOptions | RmtClassicAstResultOptionsV2): RmtClassicCompileResult;
+export declare function compileRmtClassicAstResult(ast: RmtClassicAst, options: RmtClassicAstResultOptionsV3): RmtClassicCompileResult;
+export declare function compileRmtClassicAstResult(ast: RmtClassicAst, options: RmtClassicAstResultOptionsV4): RmtClassicCompileResult;
+export declare function compileRmtClassicAstResult(ast: RmtClassicAst, options?: RmtClassicAstResultOptions | RmtClassicAstResultOptionsV2 | RmtClassicAstResultOptionsV3 | RmtClassicAstResultOptionsV4): RmtClassicCompileResult;
 export declare function compileRmtClassicAstWithBindings(ast: RmtClassicAst, bindings: XTensionStateBindingArtifact, options?: RmtClassicCompilerOptions): {
   coreDocument: RmtVNextCoreDocument; coreJson: string; orchestrationArtifacts: RmtJsonValue | null; xtensionBindings: XTensionStateBindingArtifact;
 };

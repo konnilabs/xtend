@@ -51,14 +51,14 @@
     "development/rmtx-a06/providers/catalog.json": "4f38fa3e2b73c374b0fab112b5ba1d6f12da2b95253e4148088389f7d087f801",
     "development/rmtx-a06/providers/react.interface.json": "45394fbe58a8f81445891526967d691786ef1ecf2fd6eb08e520e69322c76539",
     "development/rmtx-a06/providers/vue.interface.json": "30de14608052cdd250f1f56b06fa0b5c7df8dda73803d5d5daa96355e5a6f1e4",
-    "tools/xtensions/component-interface.js": "8d3b813dcc2b4bbb230d8e18720487c7f19e84bcf2bcbcea55cd251f0b6e7646",
-    "tools/xtensions/component-interface.d.ts": "53671d929255b91046bda33c7002cab84ebc785c5fb6e31a93cb014653e3232f",
+    "tools/xtensions/component-interface.js": "9c0b45fdea6f8dc98563144a9bc000c997800a2f0f57f433b9e352539cdbcae2",
+    "tools/xtensions/component-interface.d.ts": "4fb0bb4ab3163c856c0ef7d78d6a888b3a1d94b35c4dbaf0172aef6a8a61dc3c",
     "tools/xtensions/component-interface.v1.schema.json": "ee6e3c40c66f69e2b39ecf6b7031a9bd16afc576fc5e0884e286eade49399f36",
-    "tools/xtensions/component-interface-build.js": "7dade34c20e63b7f7f17fac03026cbb18ece5209d1ebbb712dafa86ca644d5f4",
-    "tests/xtensions/component-interface.test.cjs": "2061b086e09820c0e3a5406b89cfeeb2d5e9dde8a9558e90eae926e9ea225cf1",
+    "tools/xtensions/component-interface-build.js": "8a9fbbccf7b12b68f054f5a2a5a62b4aefe726eec2f598bf1b173d91ecd9af9a",
+    "tests/xtensions/component-interface.test.cjs": "fd8e92a0a4c6866352bfa0bcb684286ac81d0e1552bb52a1dd38b0b78769da2d",
     "tests/types/xtensions_component_interface.tsx": "24ffa5e0cf31bdf69194d2ca7267b3c2b3ec6113f1d64654fdea75e1fa03d9e1",
     "tests/types/xtensions_component_candidate.d.ts": "e6d5f4c3aca47c1e0b0910c6851890973618d22c6266878661fe3d870bc3c013",
-    "scripts/check_release_preparation.cjs": "dbbf014b43ac1ee92b2565078ef185d94f4f5ec55c272bc13c38692112d16d9f",
-    "tests/release/preparation-gates.test.cjs": "040e36a232f272882a1febab643a55c538741cfada6a9c715e507cfc76167aa8"
+    "scripts/check_release_preparation.cjs": "29e9f4e414f0cbe6fed20102c5b96d2bbc22a920bcdc649ac9d6ca2c2a0d2c72",
+    "tests/release/preparation-gates.test.cjs": "48395c10d4ef4720a372c8492bbadd972be389f0dad70db89befdca1408c2720"
   }
 }

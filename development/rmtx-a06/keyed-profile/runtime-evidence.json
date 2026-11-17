@@ -1,0 +1,286 @@
+{
+  "format": 1,
+  "version": "1.0.0",
+  "date": "2026-11-17",
+  "stage": "A06.3.2-source-host-scopes",
+  "passed": true,
+  "sourceProfile": {
+    "syntax": "rmtx",
+    "version": "3.0.0"
+  },
+  "casesPerRun": 9,
+  "compileChecksPerRun": 7,
+  "sourceStableAcrossRuns": true,
+  "runs": [
+    {
+      "schema": "xtend.rmtx.keyed-runtime-acceptance.v1",
+      "format": 1,
+      "version": "1.0.0",
+      "stage": "A06.3.2-keyed-runtime",
+      "mode": "jsdom-native-esm",
+      "node": "v24.22.2",
+      "browserVersion": null,
+      "pageErrors": [],
+      "compiler": {
+        "schema": "xtend.rmtx.compile-result.v3",
+        "apiVersion": "3.0.0",
+        "sourceProfile": {
+          "syntax": "rmtx",
+          "version": "3.0.0"
+        },
+        "source": "development/rmtx-a06/keyed-profile/source.rmtx",
+        "sourceHash": "bbf7900f713478a7dece1ae9e8360324ac3ca0dd4ce1e7116888e648e042a0ee",
+        "planCompilerSchema": "xtend.rmtx.compile-result.v3",
+        "hostScopesSchema": "xtend.rmtx.host-scopes.v1"
+      },
+      "compileChecks": {
+        "passed": true,
+        "checks": 7,
+        "names": [
+          "duplicate keys in one parent fail before any executable artifact escapes",
+          "boolean item keys are outside the existing typed key contract",
+          "missing item keys fail closed",
+          "presence requires an actual boolean Model value",
+          "empty root collections retain valid source scopes without hosts",
+          "empty nested collections retain valid source scopes without hosts",
+          "source host scopes cannot silently become unbound native repeats"
+        ]
+      },
+      "versions": {
+        "react": "18.3.1",
+        "vue": "3.5.43"
+      },
+      "sources": {
+        "development/rmtx-a06/keyed-profile/runtime-test.cjs": "383598f6a0b61e296378ba1256ebb837352c5ba2e2a6551ae61e31c9f85cd9b8",
+        "development/rmtx-a06/keyed-profile/runtime-acceptance.mjs": "384a5c861f0a080051d1003097bf5faa98f904e24d8379662d3e5104ac9cd081",
+        "development/rmtx-a06/keyed-profile/source.rmtx": "bbf7900f713478a7dece1ae9e8360324ac3ca0dd4ce1e7116888e648e042a0ee",
+        "development/rmtx-a06/keyed-profile/reference.cjs": "7b3eeb6553917557749cdf914ee7dd9aa52bb2a2bd9a27e21483461ba95c5001",
+        "development/rmtx-a06/scoped-fixture.mjs": "ba63c5a5b439908e91d37edc24822e3686130d22e27632b2d3b33ec2ade77396",
+        "development/rmtx-a06/scoped-model.cjs": "3427a835bb6d21a45eac29830ecd762296b836c0201c381ccdd2a92bf185a0d8",
+        "development/rmtx-a06/scoped-reference.cjs": "23a6501789126f50650f41bd67075a97391746b960097203874f00090365bf19",
+        "development/rmtx-a06/automatic-reference.cjs": "5d12d3ba201ce94ce8330058fc08e854f5018cec84536eacc73e5c4e040e302a",
+        "development/rmtx-a06/two-host-reference.cjs": "64084cf748ed44586bb0eecd3a8e15fcbc4b7e967ca0c4e1b96ad00b3c7fcc08",
+        "tools/rmt-language/rmtx-parser.js": "7926f142f3b555b5168348a86e1f70d83e5001ed9a057072d6135b18da96b23e",
+        "tools/rmt-language/rmtx-compiler.js": "b93976bebbe23a0263ef82b1aa9af94bdd8a2d678531aa53d8b6508ed10cc91a",
+        "tools/rmt-language/rmtx-host-scopes.js": "cb56b867e74e87bf6bb796b3ae1c36675b9030d9a45a550f97d3553a885c7d2f",
+        "tools/rmt-language/rmtx-operator-profiles.js": "84f34c78832a945141ca6e96c7ac1fe130dcc1574c56a2d1aa02cdd5aa17f19c",
+        "tools/rmt-language/rmtx.js": "fa4a0c52525f971a7262957636b725ce80c324b5e758406fa01299bdf10b23bb",
+        "tools/xtensions/state-binding-artifact.js": "e6565df9bec95916ad2d597734d0deb13c05d05f572040c0e500ab50615c86c4",
+        "tools/xtensions/state-binding-contract.js": "7ec3abb71980dd9ae0673014341723efd425c9ba70b122252cd804e7be1a67aa",
+        "xtend-maraca/index.js": "7983f052a14eafc1644b7a74106302a232dc1b68054a09e66f5a891731a39839",
+        "tools/rmt-language/classic-compiler.js": "b52572a64e4e7e76a9e5ee1f0b6f0c2392a786daba13287c5e63c52ea61c2093",
+        "tools/rmt-language/vnext-compiler.js": "3bbd9ff57524d2c1697650400d3a79ddcb8a07cf0d562c8c18780b64fa06e416"
+      },
+      "passed": true,
+      "cases": 9,
+      "names": [
+        "v3 source scopes produce six React/Vue roots with typed parent addresses and Kernel/Fabric admission",
+        "React and Vue provider intents reach actual Actions with trusted typed parent and child keys",
+        "nested source reorder preserves all concrete addresses and framework DOM nodes",
+        "removing a typed item revokes stale callbacks and retains sibling roots",
+        "source boolean presence retires and reincarnates both providers while revoking old callbacks",
+        "changing a source key creates a fresh lifetime without changing another parent with the same prior key",
+        "shared owner close and resume stage latest scoped Model props while preserving framework roots",
+        "empty outer and nested source collections retire roots and later repopulate safely",
+        "destroying the common native owner revokes all scoped leases and framework facades"
+      ],
+      "typedKeyScopes": true,
+      "sourceHostScopesVerified": true,
+      "booleanPresenceVerified": true,
+      "trustedIntentKeysVerified": true,
+      "nativeRepeatSupported": false,
+      "ssrAcceptancePerformed": false,
+      "acceptedForRelease": false,
+      "productiveRmtxFrontendUsed": true,
+      "completeA063Implemented": false,
+      "completeRmtxFrontendImplemented": false
+    },
+    {
+      "schema": "xtend.rmtx.keyed-runtime-acceptance.v1",
+      "format": 1,
+      "version": "1.0.0",
+      "stage": "A06.3.2-keyed-runtime",
+      "mode": "jsdom-native-esm",
+      "node": "v26.5.0",
+      "browserVersion": null,
+      "pageErrors": [],
+      "compiler": {
+        "schema": "xtend.rmtx.compile-result.v3",
+        "apiVersion": "3.0.0",
+        "sourceProfile": {
+          "syntax": "rmtx",
+          "version": "3.0.0"
+        },
+        "source": "development/rmtx-a06/keyed-profile/source.rmtx",
+        "sourceHash": "bbf7900f713478a7dece1ae9e8360324ac3ca0dd4ce1e7116888e648e042a0ee",
+        "planCompilerSchema": "xtend.rmtx.compile-result.v3",
+        "hostScopesSchema": "xtend.rmtx.host-scopes.v1"
+      },
+      "compileChecks": {
+        "passed": true,
+        "checks": 7,
+        "names": [
+          "duplicate keys in one parent fail before any executable artifact escapes",
+          "boolean item keys are outside the existing typed key contract",
+          "missing item keys fail closed",
+          "presence requires an actual boolean Model value",
+          "empty root collections retain valid source scopes without hosts",
+          "empty nested collections retain valid source scopes without hosts",
+          "source host scopes cannot silently become unbound native repeats"
+        ]
+      },
+      "versions": {
+        "react": "18.3.1",
+        "vue": "3.5.43"
+      },
+      "sources": {
+        "development/rmtx-a06/keyed-profile/runtime-test.cjs": "383598f6a0b61e296378ba1256ebb837352c5ba2e2a6551ae61e31c9f85cd9b8",
+        "development/rmtx-a06/keyed-profile/runtime-acceptance.mjs": "384a5c861f0a080051d1003097bf5faa98f904e24d8379662d3e5104ac9cd081",
+        "development/rmtx-a06/keyed-profile/source.rmtx": "bbf7900f713478a7dece1ae9e8360324ac3ca0dd4ce1e7116888e648e042a0ee",
+        "development/rmtx-a06/keyed-profile/reference.cjs": "7b3eeb6553917557749cdf914ee7dd9aa52bb2a2bd9a27e21483461ba95c5001",
+        "development/rmtx-a06/scoped-fixture.mjs": "ba63c5a5b439908e91d37edc24822e3686130d22e27632b2d3b33ec2ade77396",
+        "development/rmtx-a06/scoped-model.cjs": "3427a835bb6d21a45eac29830ecd762296b836c0201c381ccdd2a92bf185a0d8",
+        "development/rmtx-a06/scoped-reference.cjs": "23a6501789126f50650f41bd67075a97391746b960097203874f00090365bf19",
+        "development/rmtx-a06/automatic-reference.cjs": "5d12d3ba201ce94ce8330058fc08e854f5018cec84536eacc73e5c4e040e302a",
+        "development/rmtx-a06/two-host-reference.cjs": "64084cf748ed44586bb0eecd3a8e15fcbc4b7e967ca0c4e1b96ad00b3c7fcc08",
+        "tools/rmt-language/rmtx-parser.js": "7926f142f3b555b5168348a86e1f70d83e5001ed9a057072d6135b18da96b23e",
+        "tools/rmt-language/rmtx-compiler.js": "b93976bebbe23a0263ef82b1aa9af94bdd8a2d678531aa53d8b6508ed10cc91a",
+        "tools/rmt-language/rmtx-host-scopes.js": "cb56b867e74e87bf6bb796b3ae1c36675b9030d9a45a550f97d3553a885c7d2f",
+        "tools/rmt-language/rmtx-operator-profiles.js": "84f34c78832a945141ca6e96c7ac1fe130dcc1574c56a2d1aa02cdd5aa17f19c",
+        "tools/rmt-language/rmtx.js": "fa4a0c52525f971a7262957636b725ce80c324b5e758406fa01299bdf10b23bb",
+        "tools/xtensions/state-binding-artifact.js": "e6565df9bec95916ad2d597734d0deb13c05d05f572040c0e500ab50615c86c4",
+        "tools/xtensions/state-binding-contract.js": "7ec3abb71980dd9ae0673014341723efd425c9ba70b122252cd804e7be1a67aa",
+        "xtend-maraca/index.js": "7983f052a14eafc1644b7a74106302a232dc1b68054a09e66f5a891731a39839",
+        "tools/rmt-language/classic-compiler.js": "b52572a64e4e7e76a9e5ee1f0b6f0c2392a786daba13287c5e63c52ea61c2093",
+        "tools/rmt-language/vnext-compiler.js": "3bbd9ff57524d2c1697650400d3a79ddcb8a07cf0d562c8c18780b64fa06e416"
+      },
+      "passed": true,
+      "cases": 9,
+      "names": [
+        "v3 source scopes produce six React/Vue roots with typed parent addresses and Kernel/Fabric admission",
+        "React and Vue provider intents reach actual Actions with trusted typed parent and child keys",
+        "nested source reorder preserves all concrete addresses and framework DOM nodes",
+        "removing a typed item revokes stale callbacks and retains sibling roots",
+        "source boolean presence retires and reincarnates both providers while revoking old callbacks",
+        "changing a source key creates a fresh lifetime without changing another parent with the same prior key",
+        "shared owner close and resume stage latest scoped Model props while preserving framework roots",
+        "empty outer and nested source collections retire roots and later repopulate safely",
+        "destroying the common native owner revokes all scoped leases and framework facades"
+      ],
+      "typedKeyScopes": true,
+      "sourceHostScopesVerified": true,
+      "booleanPresenceVerified": true,
+      "trustedIntentKeysVerified": true,
+      "nativeRepeatSupported": false,
+      "ssrAcceptancePerformed": false,
+      "acceptedForRelease": false,
+      "productiveRmtxFrontendUsed": true,
+      "completeA063Implemented": false,
+      "completeRmtxFrontendImplemented": false
+    },
+    {
+      "schema": "xtend.rmtx.keyed-runtime-acceptance.v1",
+      "format": 1,
+      "version": "1.0.0",
+      "stage": "A06.3.2-keyed-runtime",
+      "mode": "chromium-sealed-native-esm",
+      "node": "v24.22.2",
+      "browserVersion": "156.0.8078.4",
+      "pageErrors": [],
+      "compiler": {
+        "schema": "xtend.rmtx.compile-result.v3",
+        "apiVersion": "3.0.0",
+        "sourceProfile": {
+          "syntax": "rmtx",
+          "version": "3.0.0"
+        },
+        "source": "development/rmtx-a06/keyed-profile/source.rmtx",
+        "sourceHash": "bbf7900f713478a7dece1ae9e8360324ac3ca0dd4ce1e7116888e648e042a0ee",
+        "planCompilerSchema": "xtend.rmtx.compile-result.v3",
+        "hostScopesSchema": "xtend.rmtx.host-scopes.v1"
+      },
+      "compileChecks": {
+        "passed": true,
+        "checks": 7,
+        "names": [
+          "duplicate keys in one parent fail before any executable artifact escapes",
+          "boolean item keys are outside the existing typed key contract",
+          "missing item keys fail closed",
+          "presence requires an actual boolean Model value",
+          "empty root collections retain valid source scopes without hosts",
+          "empty nested collections retain valid source scopes without hosts",
+          "source host scopes cannot silently become unbound native repeats"
+        ]
+      },
+      "versions": {
+        "react": "18.3.1",
+        "vue": "3.5.43"
+      },
+      "sources": {
+        "development/rmtx-a06/keyed-profile/runtime-test.cjs": "383598f6a0b61e296378ba1256ebb837352c5ba2e2a6551ae61e31c9f85cd9b8",
+        "development/rmtx-a06/keyed-profile/runtime-acceptance.mjs": "384a5c861f0a080051d1003097bf5faa98f904e24d8379662d3e5104ac9cd081",
+        "development/rmtx-a06/keyed-profile/source.rmtx": "bbf7900f713478a7dece1ae9e8360324ac3ca0dd4ce1e7116888e648e042a0ee",
+        "development/rmtx-a06/keyed-profile/reference.cjs": "7b3eeb6553917557749cdf914ee7dd9aa52bb2a2bd9a27e21483461ba95c5001",
+        "development/rmtx-a06/scoped-fixture.mjs": "ba63c5a5b439908e91d37edc24822e3686130d22e27632b2d3b33ec2ade77396",
+        "development/rmtx-a06/scoped-model.cjs": "3427a835bb6d21a45eac29830ecd762296b836c0201c381ccdd2a92bf185a0d8",
+        "development/rmtx-a06/scoped-reference.cjs": "23a6501789126f50650f41bd67075a97391746b960097203874f00090365bf19",
+        "development/rmtx-a06/automatic-reference.cjs": "5d12d3ba201ce94ce8330058fc08e854f5018cec84536eacc73e5c4e040e302a",
+        "development/rmtx-a06/two-host-reference.cjs": "64084cf748ed44586bb0eecd3a8e15fcbc4b7e967ca0c4e1b96ad00b3c7fcc08",
+        "tools/rmt-language/rmtx-parser.js": "7926f142f3b555b5168348a86e1f70d83e5001ed9a057072d6135b18da96b23e",
+        "tools/rmt-language/rmtx-compiler.js": "b93976bebbe23a0263ef82b1aa9af94bdd8a2d678531aa53d8b6508ed10cc91a",
+        "tools/rmt-language/rmtx-host-scopes.js": "cb56b867e74e87bf6bb796b3ae1c36675b9030d9a45a550f97d3553a885c7d2f",
+        "tools/rmt-language/rmtx-operator-profiles.js": "84f34c78832a945141ca6e96c7ac1fe130dcc1574c56a2d1aa02cdd5aa17f19c",
+        "tools/rmt-language/rmtx.js": "fa4a0c52525f971a7262957636b725ce80c324b5e758406fa01299bdf10b23bb",
+        "tools/xtensions/state-binding-artifact.js": "e6565df9bec95916ad2d597734d0deb13c05d05f572040c0e500ab50615c86c4",
+        "tools/xtensions/state-binding-contract.js": "7ec3abb71980dd9ae0673014341723efd425c9ba70b122252cd804e7be1a67aa",
+        "xtend-maraca/index.js": "7983f052a14eafc1644b7a74106302a232dc1b68054a09e66f5a891731a39839",
+        "tools/rmt-language/classic-compiler.js": "b52572a64e4e7e76a9e5ee1f0b6f0c2392a786daba13287c5e63c52ea61c2093",
+        "tools/rmt-language/vnext-compiler.js": "3bbd9ff57524d2c1697650400d3a79ddcb8a07cf0d562c8c18780b64fa06e416"
+      },
+      "passed": true,
+      "cases": 9,
+      "names": [
+        "v3 source scopes produce six React/Vue roots with typed parent addresses and Kernel/Fabric admission",
+        "React and Vue provider intents reach actual Actions with trusted typed parent and child keys",
+        "nested source reorder preserves all concrete addresses and framework DOM nodes",
+        "removing a typed item revokes stale callbacks and retains sibling roots",
+        "source boolean presence retires and reincarnates both providers while revoking old callbacks",
+        "changing a source key creates a fresh lifetime without changing another parent with the same prior key",
+        "shared owner close and resume stage latest scoped Model props while preserving framework roots",
+        "empty outer and nested source collections retire roots and later repopulate safely",
+        "destroying the common native owner revokes all scoped leases and framework facades"
+      ],
+      "typedKeyScopes": true,
+      "sourceHostScopesVerified": true,
+      "booleanPresenceVerified": true,
+      "trustedIntentKeysVerified": true,
+      "nativeRepeatSupported": false,
+      "ssrAcceptancePerformed": false,
+      "acceptedForRelease": false,
+      "productiveRmtxFrontendUsed": true,
+      "completeA063Implemented": false,
+      "completeRmtxFrontendImplemented": false
+    }
+  ],
+  "executionReceipts": [
+    {
+      "reportFileName": "keyed-runtime24-final-K.json",
+      "reportSha256": "970e7d33f8ffa30af87790a64f866fd7f85ff7306f2dc11e5c0384d2af588637",
+      "logSha256": "a21d29615163e7f1c9d54b189d0272561eb7cafde74c7f95b3b6033e62886035"
+    },
+    {
+      "reportFileName": "keyed-runtime26-final-K.json",
+      "reportSha256": "8dbfffe8ac78047c19eb4199de93f221fe2cf3924f841066cd694318139d3b5e",
+      "logSha256": "4e6ec2c2fa88d54bfff172b8487bee99a0bda7b4e1ebbfbdcb99b55ee24bdc0a"
+    },
+    {
+      "reportFileName": "keyed-runtimebrowser-final-K.json",
+      "reportSha256": "dcea2fea8bd7eaf3604018010767184d04f9717ada37647448fb0e9ccb174340",
+      "logSha256": "672d33bb6cde5bcaa66e8a752aeab1a1244fa6f796d5235a5bb2bd8b762a5816"
+    }
+  ],
+  "completeA063Implemented": false,
+  "nativeRepeatSupported": false,
+  "ssrAcceptancePerformed": false,
+  "acceptedForRelease": false
+}

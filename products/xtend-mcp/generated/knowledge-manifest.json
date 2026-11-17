@@ -21,7 +21,7 @@
     "menuEntries": 178,
     "menuSha256": "ae78a16612a0ae11dc25e6bfd9e19c906e665234164fffe37c40b6aab8b6a433",
     "artifact": "docs.jsonl",
-    "artifactSha256": "4c200b7e1141dadc3fa82002e0c9c6a37966727ec41c32ba1cc1e0732b9de7cc",
+    "artifactSha256": "3f085b22dd3056c7094d69ce24634d3322ace9c19411c708f8c36e8a8a9ce9db",
     "missingMenuDocs": []
   },
   "rmtKit": {
@@ -42,7 +42,7 @@
         "bytes": 1187
       },
       "rmt-ai-kit.manifest.json": {
-        "sha256": "7bcca39730bf1be013798e5698a230ab3784be6f709df177ef0bd8ea9fa9ab82",
+        "sha256": "8ac604ece2815da5965f5c95c61a72a95e39e5058179d1797a9fcd90cc50772f",
         "bytes": 9765
       },
       "rmt-ai-kit.prompts.md": {

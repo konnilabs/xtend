@@ -52,6 +52,11 @@ export function createMaracaBrowserCompositionRoot(configuration: Readonly<Recor
 
 export function createMaracaBrowserCompositionRoot(configuration:Readonly<Record<string,unknown>>&{schema:'xtend.maraca.browser-composition-root.v9';buildPlanSchema:'xtend.maraca.build-plan.v7';xtensionComposition:import('./xtension-composition-runtime').ScopedComponentArtifact},dependencies?:Readonly<Record<string,unknown>>):ScopedComponentBrowserRoot;
 
+export function createMaracaBrowserCompositionRoot(configuration: Readonly<Record<string, unknown>> & {
+  readonly schema: 'xtend.maraca.browser-composition-root.v10'; readonly buildPlanSchema: 'xtend.maraca.build-plan.v8';
+  readonly xtensionComposition: import('./xtension-composition-runtime').ProjectionComponentArtifact;
+}, dependencies?: Readonly<Record<string, unknown>>): BrowserProjectionComponentRoot;
+
 export function createMaracaBrowserCompositionRoot(
   configuration?: Readonly<Record<string, unknown>>,
   dependencies?: Readonly<{
@@ -62,7 +67,7 @@ export function createMaracaBrowserCompositionRoot(
   }>
 ): MaracaBrowserCompositionRoot;
 
-export const MARACA_XTENSION_BROWSER_API_VERSION: '9.0.0';
+export const MARACA_XTENSION_BROWSER_API_VERSION: '10.0.0';
 export interface MaracaXTensionBootOptions extends Record<string, unknown> {
   readonly fabric: import('./xtension-composition-runtime').XTensionHostCompositionOptions['fabric'];
   readonly xtensions: Pick<import('./xtension-composition-runtime').XTensionHostCompositionOptions, 'grants'> & import('./xtension-composition-runtime').XTensionPeerLoaderOptions;
@@ -110,3 +115,24 @@ export interface ComponentMaracaBrowserCompositionRoot extends Omit<ComposedMara
 export interface ScopedComponentBootOptions extends Omit<MaracaXTensionBootOptions,'xtensions'> {readonly xtensions:MaracaXTensionBootOptions['xtensions'] & {readonly ssr?:import('./xtension-ssr').ComponentSSRServerOptions|import('./xtension-ssr').ComponentSSRClientOptions}}
 export interface ScopedComponentBrowserFacade extends Omit<ComponentMaracaBrowserFacade,'apiVersion'|'orchestration'|'snapshot'|'subscribe'|'boot'> {readonly apiVersion:'9.0.0';readonly orchestration:ScopedComponentBrowserFacade;boot(options:ScopedComponentBootOptions):Promise<Readonly<Record<string,unknown>>>;snapshot():import('./plan-runtime').ScopedComponentSnapshot|import('./plan-runtime').ComponentSSRSnapshot;subscribe(listener:(snapshot:import('./plan-runtime').ScopedComponentSnapshot|import('./plan-runtime').ComponentSSRSnapshot)=>void):()=>void;captureXTensionSSR():Promise<import('./xtension-ssr').ComponentSSRResponse>}
 export interface ScopedComponentBrowserRoot extends Omit<ComponentMaracaBrowserCompositionRoot,'apiVersion'|'schema'|'facade'|'boot'> {readonly apiVersion:'9.0.0';readonly schema:'xtend.maraca.browser-composition-root.v9';readonly facade:ScopedComponentBrowserFacade;boot(options:ScopedComponentBootOptions):ReturnType<ScopedComponentBrowserFacade['boot']>}
+
+export interface ProjectionComponentBootOptions extends Record<string, unknown> {
+  readonly fabric: MaracaXTensionBootOptions['fabric'];
+  readonly xtensions: MaracaXTensionBootOptions['xtensions'] & { readonly ssr?: never };
+  readonly urlStatePolicy?: import('@ccslabs/xtend/xtensions/url-state').PolicyV2;
+  readonly urlStateRuntime?: import('@ccslabs/xtend/xtensions/url-state').ProjectionURLStateRuntime;
+  readonly createXTensionHost?: never; readonly xtensionBindingsRuntime?: never; readonly xtensionCompositionPort?: never; readonly adoptExisting?: false;
+}
+export interface ProjectionComponentBrowserFacade extends Omit<ComponentMaracaBrowserFacade, 'apiVersion' | 'snapshot' | 'subscribe' | 'orchestration' | 'boot' | 'restoreURLState' | 'publishURLState'> {
+  readonly apiVersion: '10.0.0'; readonly orchestration: ProjectionComponentBrowserFacade;
+  snapshot(): import('./plan-runtime').RmtxPlanSnapshot;
+  subscribe(listener: (snapshot: import('./plan-runtime').RmtxPlanSnapshot) => void): () => void;
+  boot(options: ProjectionComponentBootOptions): Promise<Readonly<Record<string, unknown>>>;
+  restoreURLState: import('./plan-runtime').RmtxPlanRuntime['restoreURLState'];
+  publishURLState: import('./plan-runtime').RmtxPlanRuntime['publishURLState'];
+}
+export interface BrowserProjectionComponentRoot extends Omit<ScopedComponentBrowserRoot, 'schema' | 'apiVersion' | 'facade' | 'boot'> {
+  readonly schema: 'xtend.maraca.browser-composition-root.v10'; readonly apiVersion: '10.0.0';
+  readonly facade: ProjectionComponentBrowserFacade;
+  boot(options: ProjectionComponentBootOptions): ReturnType<ProjectionComponentBrowserFacade['boot']>;
+}

@@ -36,8 +36,8 @@ selector product.id from state rows { find item.id == 2; output object }
 
 test('the new source profile is additive and retains both existing factory forms', () => {
   const parsed = parseRmtClassicSource({ text: 'state value type number initial 0' });
-  assert.equal(classic.RMT_CLASSIC_COMPILER_API_VERSION,'4.3.0');
-  assert.equal(backend.RMT_VNEXT_COMPILER_API_VERSION,'1.4.0');
+  assert.equal(classic.RMT_CLASSIC_COMPILER_API_VERSION,'4.5.0');
+  assert.equal(backend.RMT_VNEXT_COMPILER_API_VERSION,'1.6.0');
   for (const compileResult of [classic.compileRmtClassicAstResult, backend.compileRmtVNextAstResult]) {
     const current = compileResult(parsed.ast,{sourceProfile:profile});
     const legacy = compileResult(parsed.ast,{sourceProfile:legacyProfile});
@@ -54,11 +54,11 @@ test('the new source profile is additive and retains both existing factory forms
   assert.equal(classic.compileRmtClassicSource('state value type number initial 0',{sourceProfile:profile}).coreDocument.manifest.sourceSyntax,'rmt-vnext');
 });
 
-test('only the two explicit source versions are accepted without executing profile accessors', () => {
+test('only explicit source versions are accepted without executing profile accessors', () => {
   const ast = parseRmtClassicSource({text:'state value type number initial 0'}).ast;
   let accessed = false;
   const accessor = Object.defineProperty({syntax:'rmtx'},'version',{enumerable:true,get(){accessed=true;return '2.0.0';}});
-  for (const sourceProfile of [null,{},[],{syntax:'tsx',version:'2.0.0'},{syntax:'rmtx',version:'3.0.0'},{...profile,extra:true},accessor]) {
+  for (const sourceProfile of [null,{},[],{syntax:'tsx',version:'2.0.0'},{syntax:'rmtx',version:'5.0.0'},{...profile,extra:true},accessor]) {
     assert.throws(()=>classic.compileRmtClassicAstResult(ast,{sourceProfile}),{code:'rmt.compiler.source-profile.unsupported'});
   }
   assert.equal(accessed,false);
@@ -166,7 +166,7 @@ compileRmtClassicAstResult(ast,Math.random()?left:right);
 compileRmtVNextAstResult(ast,oldBackend);compileRmtVNextAstResult(ast,newBackend);
 compileRmtVNextAstResult(ast,Math.random()?oldBackend:newBackend);
 // @ts-expect-error unknown profiles stay rejected
-compileRmtClassicAstResult(ast,{sourceProfile:{syntax:'rmtx',version:'3.0.0'}});
+compileRmtClassicAstResult(ast,{sourceProfile:{syntax:'rmtx',version:'5.0.0'}});
 const report=createRmtxSelectorDependencyReport({});
 const tracking:false=report.runtimeTracking;
 // @ts-expect-error report is readonly
@@ -186,8 +186,8 @@ test('RMTX public types retain default v1 results and discriminate explicit v2 r
     const root=path.resolve(__dirname,'../..').replaceAll('\\','/'), file=path.join(temporary,'consumer.ts');
     fs.writeFileSync(file,`import { parseRmtxSource, getRmtxOperatorProfile, RMTX_PARSER_API_VERSION, RMTX_PARSER_SCHEMA, RMTX_PARSER_SCHEMA_V2, RMTX_SOURCE_PROFILE, RMTX_SELECTOR_SOURCE_PROFILE, type RmtxParserOptions, type RmtxParserOptionsV2, type RmtxParseResult, type RmtxParseResultV2 } from '${root}/tools/rmt-language/rmtx-parser';
 import { compileRmtxSource, createRmtxCompiler, RMTX_COMPILER_API_VERSION, RMTX_COMPILE_RESULT_SCHEMA, RMTX_COMPILE_RESULT_SCHEMA_V2, type RmtxCompilerOptions, type RmtxCompilerOptionsV2, type RmtxCompileResult, type RmtxCompileResultV2, type RmtxCompiler, type RmtxCompilerV2 } from '${root}/tools/rmt-language/rmtx-compiler';
-const moduleParser:'2.0.0'=RMTX_PARSER_API_VERSION;
-const moduleCompiler:'2.0.0'=RMTX_COMPILER_API_VERSION;
+const moduleParser:'4.0.0'=RMTX_PARSER_API_VERSION;
+const moduleCompiler:'4.0.0'=RMTX_COMPILER_API_VERSION;
 const legacy: RmtxParserOptions={syntaxVersion:'1.0.0'};
 const selected:RmtxParserOptionsV2={syntaxVersion:'2.0.0'};
 // @ts-expect-error the existing option type stays v1

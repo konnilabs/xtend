@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 'use strict';
+const projections = require('./state-binding-projection');
 
 const XTENSION_STATE_BINDING_SCHEMA = 'xtend.xtensions.state-binding.v2';
+const PROJECTION_BINDING_SCHEMA = 'xtend.xtensions.state-binding.v3';
 const LEGACY_BINDING_SCHEMA = 'xtend.xtensions.state-binding.v1';
 const unsafe = new Set(['__proto__', 'prototype', 'constructor']);
 const reservedProps = new Set(['xtension', 'key', 'ref', 'dangerouslySetInnerHTML', 'innerHTML', 'outerHTML', 'srcdoc']);
@@ -108,15 +110,16 @@ function addressKey(address) {
 function validateStateBinding(input) {
   data(input);
   fields(input, ['schema', 'address', 'props', 'intents'], 'State binding');
-  if (![XTENSION_STATE_BINDING_SCHEMA, LEGACY_BINDING_SCHEMA].includes(input.schema)) throw new TypeError('Unsupported state binding schema.');
+  if (![XTENSION_STATE_BINDING_SCHEMA, LEGACY_BINDING_SCHEMA, PROJECTION_BINDING_SCHEMA].includes(input.schema)) throw new TypeError('Unsupported state binding schema.');
   addressKey(input.address);
   record(input.props, 'Props'); record(input.intents, 'Intents');
   for (const [prop, spec] of Object.entries(input.props)) {
     name(prop); if (reservedProps.has(prop)) throw new TypeError('A controlled prop cannot grant runtime authority.');
-    rule(spec, ['state', 'path']); name(spec.state); bindingPath(spec.path, input.schema === XTENSION_STATE_BINDING_SCHEMA);
+    if (input.schema === PROJECTION_BINDING_SCHEMA) { rule(spec, ['projection']); projections.validateProjection(spec.projection); }
+    else { rule(spec, ['state', 'path']); name(spec.state); bindingPath(spec.path, input.schema === XTENSION_STATE_BINDING_SCHEMA); }
   }
   for (const [event, spec] of Object.entries(input.intents)) {
-    name(event); fields(spec, ['command', 'payloadSchema', 'fields', ...(input.schema === XTENSION_STATE_BINDING_SCHEMA ? ['keyFields'] : [])], 'Intent');
+    name(event); fields(spec, ['command', 'payloadSchema', 'fields', ...([XTENSION_STATE_BINDING_SCHEMA, PROJECTION_BINDING_SCHEMA].includes(input.schema) ? ['keyFields'] : [])], 'Intent');
     name(spec.command); name(spec.payloadSchema); record(spec.fields, 'Intent fields');
     for (const [key, field] of Object.entries(spec.fields)) { name(key); rule(field); }
     if (Object.hasOwn(spec, 'keyFields')) {
@@ -134,11 +137,13 @@ function validateStateBinding(input) {
 function propsFrom(snapshot, definition) {
   const props = {};
   for (const [prop, spec] of Object.entries(definition.props)) {
-    const value = readBindingPath(snapshot.states, [spec.state, ...spec.path]);
+    const value = definition.schema === PROJECTION_BINDING_SCHEMA
+      ? projections.evaluateProjection(spec.projection, snapshot) : readBindingPath(snapshot.states, [spec.state, ...spec.path]);
     typed(value, spec, `Controlled prop ${prop}`);
     props[prop] = value;
   }
   return freeze(clone(props));
 }
 
-module.exports = { XTENSION_STATE_BINDING_SCHEMA, validateStateBinding, addressKey, propsFrom, clone, freeze, data, record, fields, name, typed, segments, bindingPath, readBindingPath };
+projections.configureProjectionContracts({ data, record, fields, name, bindingPath, readBindingPath });
+module.exports = { XTENSION_STATE_BINDING_SCHEMA, PROJECTION_BINDING_SCHEMA, validateStateBinding, addressKey, propsFrom, clone, freeze, data, record, fields, name, typed, segments, bindingPath, readBindingPath };

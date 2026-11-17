@@ -1,0 +1,10 @@
+{
+  "version": "1.0.0",
+  "copies": [
+    {
+      "canonical": "xtend-maraca/fastpass-contract.js",
+      "vendored": "tools/rmt-language/vendor/fastpass-contract.js",
+      "sha256": "af8e26104243deea58ccf3a334d67ecb3286617146257074a29eeb7866a3b1a3"
+    }
+  ]
+}

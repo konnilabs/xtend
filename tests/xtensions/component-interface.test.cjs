@@ -8,7 +8,7 @@ const prepared = reference.prepareCase();
 const request = (host, documentId) => ({ address: { documentId, declarationId: host.declarationId, keys: [] }, props: host.props, intents: host.intents });
 test('provider interfaces produce immutable versioned catalog entries independent of call-site data', async () => {
   const { capture, lowered } = await prepared;
-  assert.equal(api.COMPONENT_INTERFACE_API_VERSION, '1.0.0'); assert.equal(lowered.contractVersion, '2.0.0');
+  assert.equal(api.COMPONENT_INTERFACE_API_VERSION, '2.0.0'); assert.equal(lowered.contractVersion, '2.0.0');
   assert.equal(capture.records.length, 2); assert(capture.records.every(record => Object.isFrozen(record.definition.props)));
   for (const host of lowered.hosts) assert.equal(capture.catalog.resolve(hostReference(host)).definition.componentVersion, '2.0.0');
 });
