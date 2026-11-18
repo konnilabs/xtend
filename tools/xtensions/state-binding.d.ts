@@ -1,8 +1,8 @@
 import type { RuntimeHostController, KernelRuntimeHostController, GraphRuntimeHostController, BudgetRuntimeHostController, NegotiatedRuntimeHostController } from './runtime-host-controller';
 export type { RuntimeHostController, KernelRuntimeHostController, GraphRuntimeHostController, BudgetRuntimeHostController, NegotiatedRuntimeHostController } from './runtime-host-controller';
 import type { XTensionsSurfaceEvent } from './signal-bridge-contract';
-export { PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA, XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBindingArtifact, materializeStateBindingArtifact } from './state-binding-artifact';
-export type { XTensionProjectionStateBindingArtifact, XTensionStateBindingArtifact, XTensionHostPresence, XTensionBindingTemplate, XTensionRepeatScope, XTensionMaterializedBinding } from './state-binding-artifact';
+export { PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA, NATIVE_STATE_BINDING_ARTIFACT_SCHEMA, XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBindingArtifact, materializeStateBindingArtifact } from './state-binding-artifact';
+export type { XTensionNativeStateBindingArtifact, XTensionProjectionStateBindingArtifact, XTensionStateBindingArtifact, XTensionHostPresence, XTensionBindingTemplate, XTensionRepeatScope, XTensionMaterializedBinding } from './state-binding-artifact';
 
 export const XTENSION_STATE_BINDING_SCHEMA: 'xtend.xtensions.state-binding.v2';
 export const XTENSION_STATE_BINDING_API_VERSION: '2.4.0';
@@ -140,4 +140,10 @@ export interface XTensionProjectionStateBinding {
 export function createXTensionProjectionStateRegistry(options: Parameters<typeof createXTensionStateRegistry>[0]): Omit<ReturnType<typeof createXTensionStateRegistry>, 'apiVersion' | 'bind'> & {
   readonly apiVersion: '3.0.0';
   bind(definition: XTensionProjectionStateBinding, factory: Parameters<ReturnType<typeof createXTensionStateRegistry>['bind']>[1]): XTensionBoundInstance;
+};
+
+/** Explicit Source5 Native View capability; Binding3 itself remains unchanged. */
+export const XTENSION_NATIVE_STATE_BINDING_API_VERSION: '4.0.0';
+export function createXTensionNativeStateRegistry(options: Parameters<typeof createXTensionStateRegistry>[0]): Omit<ReturnType<typeof createXTensionProjectionStateRegistry>, 'apiVersion'> & {
+  readonly apiVersion: '4.0.0';
 };

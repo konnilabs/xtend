@@ -125,6 +125,27 @@ function runXTensionsRuntimeGate({ rootDir, browser = false } = {}) {
       && orchestration.productiveRmtxFrontendUsed === true && orchestration.completeRmtxFrontendImplemented === false
       && orchestration.ssrAcceptancePerformed === false && orchestration.acceptedForRelease === false,
     'Opt-in RMTX v4 inline declarations must drive actual React/Vue hosts, projected Model and selector props, provider defaults and validated intent boundaries');
+    const nativeArtifact = path.join(rootDir, '.xtend-test-results', `xtend-rmtx-native-view-runtime-${browser ? 'browser' : 'node'}-report.json`);
+    fs.rmSync(nativeArtifact, { force: true });
+    const nativeExecution = spawnSync(process.execPath, ['development/rmtx-a06/native-view-profile/runtime-test.cjs', ...(browser ? ['--browser'] : []), '--output', nativeArtifact], {
+      cwd: rootDir, env, encoding: 'utf8', timeout: 180000, maxBuffer: 16 * 1024 * 1024
+    });
+    context.assert(!nativeExecution.error && nativeExecution.status === 0, `Actual RMTX native HTML View acceptance passes: ${nativeExecution.stderr || nativeExecution.stdout || nativeExecution.error || ''}`);
+    const native = JSON.parse(fs.readFileSync(nativeArtifact, 'utf8'));
+    context.assert(native.schema === 'xtend.rmtx.native-view-runtime-acceptance.v1' && native.passed && native.node === process.version && native.cases >= 20
+      && native.mode === (browser ? 'chromium-sealed-native-esm' : 'jsdom-native-esm')
+      && (!browser || Boolean(native.browserVersion) && native.pageErrors.length === 0)
+      && native.compiler?.schema === 'xtend.rmtx.compile-result.v5' && native.compiler.planCompilerSchema === native.compiler.schema
+      && native.compiler.sourceProfile?.syntax === 'rmtx' && native.compiler.sourceProfile.version === '5.0.0'
+      && native.compiler.hostScopesSchema === 'xtend.rmtx.host-scopes.v3'
+      && native.compileChecks?.passed === true && native.compileChecks.checks >= 12
+      && native.productiveNativeViewVerified === true && native.nativeDOMIdentityVerified === true && native.nativePreflightVerified === true
+      && native.nativeOnlyKernelFabricVerified === true && native.nativeURLStateVerified === true && native.xrouterNativeURLStateVerified === true
+      && native.nativeRepeatSupported === true && native.nativeHtmlViewImplemented === true
+      && native.componentContract === 'xtend.maraca.xtension-composition-artifact.v10'
+      && native.productiveRmtxFrontendUsed === true && native.completeA064Implemented === false && native.completeRmtxFrontendImplemented === false
+      && native.ssrAcceptancePerformed === false && native.acceptedForRelease === false,
+    'Opt-in Source5 must execute native typed DOM loops, prospective validation, real Kernel/Fabric and Native URL/Router paths alongside React/Vue without claiming lifecycle or SSR completion');
     if(browser){
       const componentSSRArtifact=path.join(rootDir,'.xtend-test-results','xtend-component-ssr-report.json');fs.rmSync(componentSSRArtifact,{force:true});
       const execution=spawnSync(process.execPath,['development/rmtx-a06/scoped-ssr-test.cjs','--output',componentSSRArtifact],{cwd:rootDir,env,encoding:'utf8',timeout:180000,maxBuffer:16*1024*1024});

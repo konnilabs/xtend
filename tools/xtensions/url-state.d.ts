@@ -1,6 +1,7 @@
-import type { XTensionStateBindingArtifact, XTensionProjectionStateBindingArtifact, XTensionBindingModelReader } from './state-binding';
+import type { XTensionStateBindingArtifact, XTensionProjectionStateBindingArtifact, XTensionNativeStateBindingArtifact, XTensionBindingModelReader } from './state-binding';
 export const API_VERSION: '1.0.0';
 export const PROJECTION_URL_STATE_API_VERSION: '2.0.0';
+export const NATIVE_URL_STATE_API_VERSION: '3.0.0';
 export const PARAMETER: 'xtend-state';
 export type Scalar = string | number | boolean | null;
 export interface Address { readonly declarationId: string; readonly keys: readonly (string | number)[] }
@@ -69,3 +70,13 @@ export interface ProjectionURLStateRuntime {
   canonical(value: unknown): string;
 }
 export const PROJECTION_URL_STATE_RUNTIME: Readonly<ProjectionURLStateRuntime>;
+
+/** Native program3/artifact5 retain the same URL2 wire data and scalar write rules. */
+export interface NativeURLStateContract extends Omit<ProjectionURLStateContract, 'apiVersion'> {
+  readonly apiVersion: typeof NATIVE_URL_STATE_API_VERSION;
+}
+export interface NativeURLStateRuntime extends Omit<ProjectionURLStateRuntime, 'API_VERSION' | 'createURLStateContract'> {
+  readonly API_VERSION: typeof NATIVE_URL_STATE_API_VERSION;
+  createURLStateContract(policy: PolicyV2, inputs: { program: unknown; bindings: XTensionNativeStateBindingArtifact }): NativeURLStateContract;
+}
+export const NATIVE_URL_STATE_RUNTIME: Readonly<NativeURLStateRuntime>;

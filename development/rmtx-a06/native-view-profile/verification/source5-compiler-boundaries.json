@@ -1,0 +1,44 @@
+{
+  "stage": "A06.4.1-independent-native-integration-review",
+  "revision": "r05",
+  "date": "2026-11-18",
+  "passed": true,
+  "finalSourceFreeze": false,
+  "acceptedForRelease": false,
+  "casesPerLane": 74,
+  "sourceCompilerCasesPerLane": 68,
+  "actualBuildAndModelBoundaryCasesPerLane": 3,
+  "preparationGateCasesPerLane": 3,
+  "legacyCompleteComparisonsPerLane": 40,
+  "reviewFindingsPatched": [
+    "Native-only synchronous size budget covers its full real delivered file set",
+    "Raw Action results are validated before managed Result reducers can erase negative zero",
+    "Source property DOM IDs canonicalize to attributes.id before Portal composition; dual source identity sinks are rejected",
+    "Native plan schema accessors are rejected without invoking the getter; normalization cannot switch a legacy plan into the native profile"
+  ],
+  "source5Actions": "explicit unchanged Action4 subprofile; input contract v1 const4 preserved",
+  "verificationFilePinsAtCompletion": {
+    "tools/rmt-language/rmtx-native-view.js": "b357a6c025d0370b9f73e8d40965168b2a87a54cd64a77da19019bbbcadc8850",
+    "tests/rmt-language/rmtx-native-view.test.cjs": "bfbad590d8e9964a63aefefac1bbd504c6cefad64f4f02b353f64c684364d62a",
+    "tests/maraca/rmtx-native-boundaries.test.mjs": "4d0504d1a94109a96cf1abdcf08ee21ff2d5674ac5fa2fd8d1078f48f32914cc",
+    "scripts/check_release_preparation.cjs": "06dc57bf4b7c97b6ff12442b88a571a994cc7a398fd07ba58889562a06cf39a4",
+    "tests/release/preparation-gates.test.cjs": "26165d88a42945027c3b6d48c069f5a1716c37e6b898c8362eb087d2c283fb9b"
+  },
+  "runs": [
+    {
+      "log": "/tmp/xtend-a064-syntax/native-boundaries24-r05.log",
+      "sha256": "5c16d8af79fda2c63ae40de3505357935b4829c984a6bb755c985318a4b73b8f",
+      "nodeMajor": 24,
+      "exitCode": 0
+    },
+    {
+      "log": "/tmp/xtend-a064-syntax/native-boundaries26-r05.log",
+      "sha256": "430157e480c74c0f594411b648b8ea465be94b687446f19a4fbaf961dff66782",
+      "nodeMajor": 26,
+      "exitCode": 0
+    }
+  ],
+  "remainingReviewObservation": "The actual raw build-plan performance report contains cross-realm plain objects; whole-plan canonical guard rejects direct builder-to-runtime input until the parent resolves its normalization contract. Generated JSON DTO path and all four earlier review findings are verified.",
+  "legacyReceipt": "independent-native-review-r04.json",
+  "getterTestInput": "Actual builder-produced plan serialized to the same JSON DTO boundary as generated browser configuration; getter and toJSON variants are introduced after that legitimate serialization."
+}

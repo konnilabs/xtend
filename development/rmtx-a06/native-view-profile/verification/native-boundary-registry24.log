@@ -1,0 +1,31 @@
+✔ native-only synchronous builds budget every actual delivered file, including the native projector (3131.590097ms)
+ℹ {"nativeAsset":"runtime/xtend-maraca-native-view.mjs","bytes":96144,"sha256":"cca4dc0dd388d52621a2590f060b94876ea7c9809622247527ac043622c9826c"}
+✔ native Action result data is validated before managed result reducers can clone negative zero (1493.5711ms)
+✔ the native profile discriminator rejects schema accessors and normalization profile changes (1099.975563ms)
+✔ Native BindingArtifact5 requires Program3 while Source4 artifact4 remains strictly Program2 (11.038277ms)
+✔ native header provenance and Binding3 remain closed without importing Native View IR into legacy bindings (1.434656ms)
+✔ native bindings share exact typed-key materialization and stable props with the existing projection profile (7.156133ms)
+✔ shared scope extraction preserves depth-first legacy error ordering (2.640021ms)
+✔ native binding presence, malformed collections and duplicated typed keys reject through the existing validator (5.816506ms)
+✔ serialized artifacts require real revalidation and Model getters cannot cross the boundary (2.071555ms)
+✔ Native Registry advertises API4 and leaves the existing factories and Binding3 data unchanged (5.267481ms)
+✔ Native Registry validates raw Model snapshots before projection cloning without changing the legacy reader contract (0.559646ms)
+✔ closed projections evaluate objects, arrays, typed arithmetic and boolean branches without JS coercion (4.275079ms)
+✔ static traversal sees all branches while evaluation retains boolean short circuit (0.355044ms)
+✔ projection inputs reject executable, unsafe and unbounded declarations without evaluating accessors (1.289195ms)
+✔ provider-owned optional/default props apply only to omitted source fields (3.125247ms)
+✔ legacy interface data remains exact and does not admit optional/default fields (1.290854ms)
+✔ provider payloads are fully typed before safe nested projection and renaming (4.192219ms)
+✔ the existing materializer resolves typed keys inside projection paths and enforces orchestration versions (4.743244ms)
+✔ selector value validation uses the actual runtime snapshot rather than an invented compile-time evaluator (1.471517ms)
+✔ projection bindings require their explicit registry while legacy registries retain their data version (1.582778ms)
+✔ provider intent rules respect required, optional/default and nested typed-array Action inputs (4.28682ms)
+✔ formal provider interface v2 advertises optional/default data while v1 remains closed (3.195957ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6492.02167

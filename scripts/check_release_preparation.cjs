@@ -17,6 +17,8 @@ const CHECKS = Object.freeze([
   ['development/rmtx-a06/keyed-profile/inspect.cjs', '--check'],
   ['--test', 'tests/rmt-language/rmtx-extended-operators.test.cjs', 'tests/rmt-language/rmtx-orchestration.test.cjs', 'tests/rmt-language/rmtx-inline-components.test.cjs', 'tests/rmt-language/action-input-contract.test.cjs', 'tests/xtensions/projected-state-binding.test.cjs', 'tests/xtensions/projected-url-state.test.cjs', 'tests/xtensions/platform-projection-profile.test.cjs', 'tests/xtensions/projected-xrouter-url-state.test.cjs'],
   ['development/rmtx-a06/orchestration-profile/inspect.cjs', '--check'],
+  ['--test', 'tests/rmt-language/rmtx-native-view.test.cjs', 'tests/xtensions/native-view-projection.test.cjs', 'tests/xtensions/native-state-binding.test.cjs', 'tests/xtensions/native-url-state.test.cjs', 'tests/xtensions/native-composition-profile.test.cjs', 'tests/rmt/renderer-preflight.test.cjs', 'tests/maraca/rmtx-native-boundaries.test.mjs'],
+  ['development/rmtx-a06/native-view-profile/inspect.cjs', '--check'],
   ['development/rmtx-a01/inspect.cjs', '--check'],
   ['development/rmtx-a02/inspect.cjs', '--check'],
   ['development/rmtx-a02/url-history/inspect.cjs', '--check'],

@@ -1,0 +1,13 @@
+✔ unchanged knowledge drift check rejects a stale generated artifact (267.339297ms)
+✔ hash-checked generated knowledge stays LF-normalized on every Git checkout (0.370883ms)
+✔ deterministic bundle covers every canonical bilingual Markdown source byte-for-byte (177.277137ms)
+✔ docs catalogs are stable, cursor-addressable, and converge without duplicates (2.466471ms)
+✔ search and formatted contexts retain URI, locale, document type, path, and SHA-256 provenance (32.403227ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 569.756826

@@ -1,0 +1,23 @@
+{
+  "format": 1,
+  "passed": true,
+  "scope": "Remove only the three workspace aliases created by this task; preserve all unrelated entries",
+  "date": "2026-11-18T22:45:04.802498+00:00",
+  "actions": [
+    {
+      "path": "/home/konni/Downloads/xtend-dev/xtend/node_modules/@ccslabs/xtend",
+      "target": "/home/konni/Downloads/xtend-dev/xtend",
+      "removed": true
+    },
+    {
+      "path": "/home/konni/Downloads/xtend-dev/xtend/node_modules/@ccslabs/xtend-compiler",
+      "target": "/home/konni/Downloads/xtend-dev/xtend/tools",
+      "removed": true
+    },
+    {
+      "path": "/home/konni/Downloads/xtend-dev/xtend/node_modules/@ccslabs/xtend-maraca",
+      "target": "/home/konni/Downloads/xtend-dev/xtend/xtend-maraca",
+      "removed": true
+    }
+  ]
+}

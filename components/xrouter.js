@@ -1,4 +1,4 @@
-import { createXRouterURLStateHost, createXRouterProjectionURLStateHost } from './xrouter-url-state.js';
+import { createXRouterURLStateHost, createXRouterProjectionURLStateHost, createXRouterNativeURLStateHost } from './xrouter-url-state.js';
 
 import { xtendState } from './xtend-state.js';
 
@@ -821,7 +821,8 @@ class XRouter extends HTMLElement {
     this._urlStatePath = this._getCurrentPath().split('?')[0];
     this._urlStateUnrelatedQuery = codec.withToken(this._getCurrentPath().split('?').slice(1).join('?'), null);
     this._urlStateCodec = codec;
-    const createHost = codec?.API_VERSION === '2.0.0' ? createXRouterProjectionURLStateHost : createXRouterURLStateHost;
+    const createHost = codec?.API_VERSION === '3.0.0' ? createXRouterNativeURLStateHost
+      : codec?.API_VERSION === '2.0.0' ? createXRouterProjectionURLStateHost : createXRouterURLStateHost;
     const host = createHost({ runtime, codec, windowTarget: window, mode: this._mode,
       isOwnerCurrent: () => this.isConnected && this._urlStateHost === host,
       onError: error => this.dispatchEvent(new CustomEvent('navigation-error', { detail: { error } })) });

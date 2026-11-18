@@ -128,6 +128,7 @@ Methoden:
 - `announceRoute(detail?: XRouterRouteChangeDetail | null)`
 - `canNavigate(href: string, context?: XRouterNavigationContext)`
 - `snapshot()`
+- `connectURLState(runtime, codec)`
 
 Slots:
 - Keine benannten Slots; nutze den Standardinhalt, wenn die Komponente Kinder rendert.
@@ -166,6 +167,8 @@ CSS Custom Properties:
 RMT Hosts sollten die Komponente als Custom-Element-Grenze behandeln: Attribute werden als Component Props gesetzt, DOM-Events werden an Commands gebunden, und Scheduling-Metadaten bleiben außerhalb der Komponente. Reine HTML-Hosts verwenden dieselben Attribute und Events ohne RMT Compiler.
 
 Theming sollte zuerst über XTend Design Tokens laufen. CSS Parts sind für gezieltes Skinning freigegebener Controls gedacht, während CSS Custom Properties breitere Anpassungen an Farbe, Abstand, Radius und Bewegung abdecken. Accessibility-Hooks wie Labels, Live-Regionen und Fokusverhalten sollten beim Komponieren erhalten bleiben.
+
+`connectURLState(runtime, codec)` verbindet den Router als alleinigen History-Writer mit einer passenden Maraca-Runtime. Verwende den Legacy-Codec1 für bisherige Bindings, den Projection-Codec2 für Source4 oder `NATIVE_URL_STATE_RUNTIME`3 für Source5. Der zurückgegebene Host bietet Navigation, Publish, Reset, Idle und Dispose; Wireformen und Tokens bleiben im Nativeprofil auf Version2. Ein Profilwechsel benötigt den passenden expliziten Port.
 
 ## Fehlerbehebung
 

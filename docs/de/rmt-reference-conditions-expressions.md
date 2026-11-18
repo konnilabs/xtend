@@ -56,6 +56,8 @@ Model- und Selectorpfade werden aus einem injizierten **read-only `modelReader.s
 
 Fehlende oder mehrdeutige Pfade, unbekannte Ausdrucksformen, unsichere Prototypepfade und ein fehlgeschlagener Modelport geben keine Freigabe. Der Guard begrenzt Ausdrücke auf 64 Verschachtelungsebenen, 1.024 Knoten und 128 Pfadsegmente. Logische Kurzschlussauswertung liest keine unbenötigten Eventwerte; auch ein nicht gewählter Zweig muss jedoch strukturell gültig sein. Diese konkrete Eventauswertung ist kein pauschaler Ausführungsnachweis für jeden Lifecycle- oder Streamadapter.
 
+Integers (Ganzzahlen) und Dezimalzahlen sind numerische Literale; `weight` verlangt weiterhin eine nichtnegative Ganzzahl.
+
 ## Examples
 
 ```rmt

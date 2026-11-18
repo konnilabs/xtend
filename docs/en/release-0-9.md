@@ -14,7 +14,7 @@
 
 [A06.2](../../development/rmtx-a06/frontend/README.md) provides separate parser/compiler APIs 1.0.0 through the explicit Maraca compiler port. The actual `.rmtx` two-host reference runs through the regular build/boot with React and Vue. This limited productive CSR acceptance is not complete RMTX or 0.9 release acceptance.
 
-[A06.3.1](../../development/rmtx-a06/selector-profile/README.md) adds selectors and static readsets. [A06.3.2](../../development/rmtx-a06/keyed-profile/README.md) connects nested RMTX repeats, boolean presence and stable typed keys to the existing React/Vue bindings; native event guards use explicit payload mapping. [A06.3](../../development/rmtx-a06/orchestration-profile/README.md) now adds explicit syntax profile4 with 110 tags, validated Action inputs, closed props projections and pinned inline React/Vue hosts. Module APIs4 retain default1 and unchanged profiles1/2/3. The closed A06.3 contract is implemented.
+[A06.3.1](../../development/rmtx-a06/selector-profile/README.md) adds selectors and static readsets. [A06.3.2](../../development/rmtx-a06/keyed-profile/README.md) connects nested RMTX repeats, boolean presence and stable typed keys to the existing React/Vue bindings; native event guards use explicit payload mapping. [A06.3](../../development/rmtx-a06/orchestration-profile/README.md) now adds explicit syntax profile4 with 110 tags, validated Action inputs, closed props projections and pinned inline React/Vue hosts. Module APIs5 retain default1 and complete profiles1–4. The closed A06.3 contract is implemented.
 
 ## Release checks
 
@@ -28,4 +28,4 @@ npm run release:features:check
 
 ## Next steps
 
-The [inventory](../../development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md) and [Classic contract](./rmt-classic-contract.md) describe scope and the shared compiler foundation. After A06.3, native UI including typed DOM loops and lifecycle conditions, semantic tooling and joint target/release acceptance follow in A06.4–A06.6. Source4 SSR/adoption is explicitly blocked until its own acceptance. Additional framework and ownership profiles require explicit decisions and evidence.
+The [inventory](../../development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md) and [Classic contract](./rmt-classic-contract.md) describe scope and the shared compiler foundation. [A06.4.1](../../development/rmtx-a06/native-view-profile/README.md) now adds opt-in syntax5 with native HTML Views, boolean View conditions and stable typed DOM loops through the actual Kernel/Fabric path. Next are lifecycle conditions, native Surface instances and slots in A06.4.2, semantic tooling in A06.5 and joint target/release acceptance in A06.6. Source4/5 SSR/adoption remains blocked until its own acceptance. Further framework and ownership profiles require separate decisions and evidence.

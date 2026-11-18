@@ -1,8 +1,8 @@
 import type { RmtClassicAst } from './classic-ast-types';
 import type { RmtTextDocument, RmtRange, RmtToolingDiagnostic } from './rmt-tooling-public-types';
-export { getRmtxOperatorProfile, RMTX_OPERATOR_PROFILE_SCHEMA, RMTX_OPERATOR_PROFILE_SCHEMA_V2, RMTX_OPERATOR_PROFILE_SCHEMA_V3 } from './rmtx-operator-profiles';
+export { getRmtxOperatorProfile, RMTX_OPERATOR_PROFILE_SCHEMA, RMTX_OPERATOR_PROFILE_SCHEMA_V2, RMTX_OPERATOR_PROFILE_SCHEMA_V3, RMTX_OPERATOR_PROFILE_SCHEMA_V4 } from './rmtx-operator-profiles';
 /** Module capability API; individual profiles retain their own result version. */
-export declare const RMTX_PARSER_API_VERSION: '4.0.0';
+export declare const RMTX_PARSER_API_VERSION: '5.0.0';
 export declare const RMTX_PARSER_SCHEMA: 'xtend.rmtx.parser-result.v1';
 export declare const RMTX_PARSER_SCHEMA_V2: 'xtend.rmtx.parser-result.v2';
 export declare const RMTX_PARSER_SCHEMA_V3: 'xtend.rmtx.parser-result.v3';
@@ -76,3 +76,23 @@ export interface RmtxParseResultV4 extends Omit<RmtxParseResultV3, 'schema' | 'a
 }
 export declare function parseRmtxSource(input: Partial<RmtTextDocument> | string | undefined, options: RmtxParserOptionsV4): RmtxParseResultV4;
 export declare function parseRmtxSource(input: Partial<RmtTextDocument> | string | undefined, options: RmtxParserOptions | RmtxParserOptionsV2 | RmtxParserOptionsV3 | RmtxParserOptionsV4): RmtxParseResult | RmtxParseResultV2 | RmtxParseResultV3 | RmtxParseResultV4;
+
+export declare const RMTX_PARSER_SCHEMA_V5: 'xtend.rmtx.parser-result.v5';
+export declare const RMTX_HOST_SCOPES_SCHEMA_V3: 'xtend.rmtx.host-scopes.v3';
+export declare const RMTX_COMPONENTS_SCHEMA_V2: 'xtend.rmtx.components.v2';
+export declare const RMTX_NATIVE_SOURCE_PROFILE: Readonly<{ syntax: 'rmtx'; version: '5.0.0' }>;
+export interface RmtxParserOptionsV5 extends Record<string, unknown> { syntaxVersion: '5.0.0' }
+export interface RmtxHostScopeSourceContractV3 extends Omit<RmtxHostScopeSourceContract, 'schema' | 'sourceProfile'> {
+  readonly schema: typeof RMTX_HOST_SCOPES_SCHEMA_V3;
+  readonly sourceProfile: typeof RMTX_NATIVE_SOURCE_PROFILE;
+}
+/** Native source5 intentionally delegates its unchanged Action grammar to profile4. */
+export interface RmtxParseResultV5 extends Omit<RmtxParseResultV4, 'schema' | 'apiVersion' | 'sourceProfile' | 'hostScopes' | 'components'> {
+  schema: typeof RMTX_PARSER_SCHEMA_V5; apiVersion: '5.0.0'; sourceProfile: typeof RMTX_NATIVE_SOURCE_PROFILE;
+  hostScopes: RmtxHostScopeSourceContractV3 | null;
+  components: import('./rmtx-component-bindings').RmtxComponentSourceContractV2 | null;
+  nativeView: import('./rmtx-native-view').RmtxNativeViewSourceContract | null;
+  actionProfile: typeof RMTX_ORCHESTRATION_SOURCE_PROFILE;
+}
+export declare function parseRmtxSource(input: Partial<RmtTextDocument> | string | undefined, options: RmtxParserOptionsV5): RmtxParseResultV5;
+export declare function parseRmtxSource(input: Partial<RmtTextDocument> | string | undefined, options: RmtxParserOptions | RmtxParserOptionsV2 | RmtxParserOptionsV3 | RmtxParserOptionsV4 | RmtxParserOptionsV5): RmtxParseResult | RmtxParseResultV2 | RmtxParseResultV3 | RmtxParseResultV4 | RmtxParseResultV5;

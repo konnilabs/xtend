@@ -1,0 +1,5118 @@
+{
+  "schema": "xtend.rmt.app-orchestration.v3",
+  "workpackage": "RMT-APP-ORCH-01",
+  "sourceSyntax": "rmtx",
+  "runtimeOrder": [
+    "kernel",
+    "state",
+    "resource",
+    "validation",
+    "animation",
+    "transition",
+    "action",
+    "event",
+    "surface",
+    "renderer"
+  ],
+  "kernel": {
+    "schema": "xtend.rmt.kernel-orchestration.v1",
+    "records": {
+      "schema": "xtend.rmt.vnext.kernel-records.v1",
+      "workpackage": "RMT-VNEXT-PRIM-04",
+      "boundary": "no-rmt-kernel-import-of-host-runtime-types",
+      "schedules": [
+        {
+          "id": "schedule:inline.products/product-details/visible",
+          "lane": "visible",
+          "scope": {
+            "surface": "surface:inline.products/product-details",
+            "template": "template:inline.products"
+          },
+          "operationRefs": [
+            "operation:inline.products/product-details/visible/0"
+          ]
+        },
+        {
+          "id": "schedule:inline.products/product-gallery-host/visible",
+          "lane": "visible",
+          "scope": {
+            "surface": "surface:inline.products/product-gallery-host",
+            "template": "template:inline.products"
+          },
+          "operationRefs": [
+            "operation:inline.products/product-gallery-host/visible/0"
+          ]
+        },
+        {
+          "id": "schedule:inline.products/product-reviews-host/idle",
+          "lane": "idle",
+          "scope": {
+            "surface": "surface:inline.products/product-reviews-host",
+            "template": "template:inline.products"
+          },
+          "operationRefs": [
+            "operation:inline.products/product-reviews-host/idle/0"
+          ]
+        }
+      ],
+      "fibers": [
+        {
+          "id": "fiber:inline.products/product-details/visible/0",
+          "lane": "lane:inline.products/product-details/visible",
+          "operation": "operation:inline.products/product-details/visible/0",
+          "kind": "lifecycle",
+          "op": "mount",
+          "target": {
+            "kind": "ref",
+            "ref": "product-header"
+          },
+          "source": null
+        },
+        {
+          "id": "fiber:inline.products/product-gallery-host/visible/0",
+          "lane": "lane:inline.products/product-gallery-host/visible",
+          "operation": "operation:inline.products/product-gallery-host/visible/0",
+          "kind": "lifecycle",
+          "op": "mount",
+          "target": {
+            "kind": "ref",
+            "ref": "product-gallery-host"
+          },
+          "source": null
+        },
+        {
+          "id": "fiber:inline.products/product-reviews-host/idle/0",
+          "lane": "lane:inline.products/product-reviews-host/idle",
+          "operation": "operation:inline.products/product-reviews-host/idle/0",
+          "kind": "lifecycle",
+          "op": "mount",
+          "target": {
+            "kind": "ref",
+            "ref": "product-reviews-host"
+          },
+          "source": null
+        }
+      ],
+      "lifecycleRecords": [
+        {
+          "id": "operation:inline.products/product-details/visible/0",
+          "kind": "lifecycle",
+          "op": "mount",
+          "scope": {
+            "surface": "surface:inline.products/product-details",
+            "lane": "lane:inline.products/product-details/visible",
+            "template": "template:inline.products"
+          },
+          "sourceRef": "src:operation:inline.products/product-details/visible/0"
+        },
+        {
+          "id": "operation:inline.products/product-gallery-host/visible/0",
+          "kind": "lifecycle",
+          "op": "mount",
+          "scope": {
+            "surface": "surface:inline.products/product-gallery-host",
+            "lane": "lane:inline.products/product-gallery-host/visible",
+            "template": "template:inline.products"
+          },
+          "sourceRef": "src:operation:inline.products/product-gallery-host/visible/0"
+        },
+        {
+          "id": "operation:inline.products/product-reviews-host/idle/0",
+          "kind": "lifecycle",
+          "op": "mount",
+          "scope": {
+            "surface": "surface:inline.products/product-reviews-host",
+            "lane": "lane:inline.products/product-reviews-host/idle",
+            "template": "template:inline.products"
+          },
+          "sourceRef": "src:operation:inline.products/product-reviews-host/idle/0"
+        }
+      ],
+      "stateRecords": [
+        {
+          "id": "state:catalog",
+          "name": "catalog",
+          "type": "object",
+          "preserve": true,
+          "sourceRef": "src:state:catalog"
+        },
+        {
+          "id": "state:sharedimages",
+          "name": "sharedImages",
+          "type": "string[]",
+          "preserve": false,
+          "sourceRef": "src:state:sharedimages"
+        },
+        {
+          "id": "state:intentcapture",
+          "name": "intentCapture",
+          "type": "object",
+          "preserve": false,
+          "sourceRef": "src:state:intentcapture"
+        },
+        {
+          "id": "state:nativeview",
+          "name": "nativeView",
+          "type": "object",
+          "preserve": false,
+          "sourceRef": "src:state:nativeview"
+        },
+        {
+          "id": "state:nativeflags",
+          "name": "nativeFlags",
+          "type": "object",
+          "preserve": false,
+          "sourceRef": "src:state:nativeflags"
+        }
+      ],
+      "selectorRecords": [
+        {
+          "id": "selector:galleryimages",
+          "name": "galleryImages",
+          "source": {
+            "kind": "state",
+            "target": "sharedImages",
+            "ref": "state:sharedimages"
+          },
+          "output": null,
+          "sourceRef": "src:selector:galleryimages"
+        }
+      ],
+      "actionRecords": [
+        {
+          "id": "action:native.title",
+          "name": "native.title",
+          "inputCount": 1,
+          "effectRefs": [],
+          "sourceRef": "src:action:native.title"
+        },
+        {
+          "id": "action:native.show",
+          "name": "native.show",
+          "inputCount": 1,
+          "effectRefs": [],
+          "sourceRef": "src:action:native.show"
+        },
+        {
+          "id": "action:native.replace",
+          "name": "native.replace",
+          "inputCount": 1,
+          "effectRefs": [],
+          "sourceRef": "src:action:native.replace"
+        },
+        {
+          "id": "action:images.replace",
+          "name": "images.replace",
+          "inputCount": 1,
+          "effectRefs": [],
+          "sourceRef": "src:action:images.replace"
+        },
+        {
+          "id": "action:native.enable",
+          "name": "native.enable",
+          "inputCount": 1,
+          "effectRefs": [],
+          "sourceRef": "src:action:native.enable"
+        },
+        {
+          "id": "action:image.select",
+          "name": "image.select",
+          "inputCount": 3,
+          "effectRefs": [],
+          "sourceRef": "src:action:image.select"
+        },
+        {
+          "id": "action:reviews.sort",
+          "name": "reviews.sort",
+          "inputCount": 3,
+          "effectRefs": [],
+          "sourceRef": "src:action:reviews.sort"
+        },
+        {
+          "id": "action:catalog.replace",
+          "name": "catalog.replace",
+          "inputCount": 1,
+          "effectRefs": [],
+          "sourceRef": "src:action:catalog.replace"
+        }
+      ],
+      "validationRecords": [],
+      "animationRecords": [],
+      "transitionRecords": [],
+      "dataSourceRecords": [],
+      "resourceRecords": [],
+      "searchSourceRecords": [],
+      "hydrationPolicyRecords": []
+    },
+    "scheduler": {
+      "schema": "xtend.rmt.kernel-scheduler-plan.v1",
+      "schedules": [
+        {
+          "id": "schedule:inline.products/product-details/visible",
+          "lane": "visible",
+          "endpointName": "xtend.maraca.kernel.visible.inline.products-product-details",
+          "scope": "surface:inline.products/product-details",
+          "scopeRecord": {
+            "surface": "surface:inline.products/product-details",
+            "template": "template:inline.products"
+          },
+          "operationRefs": [
+            "operation:inline.products/product-details/visible/0"
+          ],
+          "sourceRefs": [
+            "src:operation:inline.products/product-details/visible/0"
+          ],
+          "policy": {
+            "lane": "visible",
+            "budgetClass": "interactive",
+            "fallback": "animation-frame"
+          }
+        },
+        {
+          "id": "schedule:inline.products/product-gallery-host/visible",
+          "lane": "visible",
+          "endpointName": "xtend.maraca.kernel.visible.inline.products-product-gallery-host",
+          "scope": "surface:inline.products/product-gallery-host",
+          "scopeRecord": {
+            "surface": "surface:inline.products/product-gallery-host",
+            "template": "template:inline.products"
+          },
+          "operationRefs": [
+            "operation:inline.products/product-gallery-host/visible/0"
+          ],
+          "sourceRefs": [
+            "src:operation:inline.products/product-gallery-host/visible/0"
+          ],
+          "policy": {
+            "lane": "visible",
+            "budgetClass": "interactive",
+            "fallback": "animation-frame"
+          }
+        },
+        {
+          "id": "schedule:inline.products/product-reviews-host/idle",
+          "lane": "idle",
+          "endpointName": "xtend.maraca.kernel.idle.inline.products-product-reviews-host",
+          "scope": "surface:inline.products/product-reviews-host",
+          "scopeRecord": {
+            "surface": "surface:inline.products/product-reviews-host",
+            "template": "template:inline.products"
+          },
+          "operationRefs": [
+            "operation:inline.products/product-reviews-host/idle/0"
+          ],
+          "sourceRefs": [
+            "src:operation:inline.products/product-reviews-host/idle/0"
+          ],
+          "policy": {
+            "lane": "idle",
+            "budgetClass": "background",
+            "fallback": "idle-timeout"
+          }
+        },
+        {
+          "id": "schedule:inline.products/orchestration/render",
+          "lane": "visible",
+          "endpointName": "xtend.maraca.kernel.orchestration.render",
+          "scope": "orchestration:inline.products",
+          "scopeRecord": {
+            "orchestration": "render",
+            "template": "template:inline.products"
+          },
+          "operationRefs": [
+            "operation:xtend.maraca/orchestration/render"
+          ],
+          "sourceRefs": [],
+          "policy": {
+            "lane": "visible",
+            "budgetClass": "interactive",
+            "fallback": "animation-frame"
+          }
+        },
+        {
+          "id": "schedule:inline.products/orchestration/action",
+          "lane": "user-blocking",
+          "endpointName": "xtend.maraca.kernel.orchestration.action",
+          "scope": "orchestration:inline.products",
+          "scopeRecord": {
+            "orchestration": "action",
+            "template": "template:inline.products"
+          },
+          "operationRefs": [
+            "operation:xtend.maraca/orchestration/action"
+          ],
+          "sourceRefs": [],
+          "policy": {
+            "lane": "user-blocking",
+            "budgetClass": "interactive",
+            "fallback": "microtask"
+          }
+        },
+        {
+          "id": "schedule:inline.products/orchestration/event",
+          "lane": "user-blocking",
+          "endpointName": "xtend.maraca.kernel.orchestration.event",
+          "scope": "orchestration:inline.products",
+          "scopeRecord": {
+            "orchestration": "event",
+            "template": "template:inline.products"
+          },
+          "operationRefs": [
+            "operation:xtend.maraca/orchestration/event"
+          ],
+          "sourceRefs": [],
+          "policy": {
+            "lane": "user-blocking",
+            "budgetClass": "interactive",
+            "fallback": "microtask"
+          }
+        },
+        {
+          "id": "schedule:inline.products/orchestration/state-change",
+          "lane": "visible",
+          "endpointName": "xtend.maraca.kernel.orchestration.state-change",
+          "scope": "orchestration:inline.products",
+          "scopeRecord": {
+            "orchestration": "state-change",
+            "template": "template:inline.products"
+          },
+          "operationRefs": [
+            "operation:xtend.maraca/orchestration/state-change"
+          ],
+          "sourceRefs": [],
+          "policy": {
+            "lane": "visible",
+            "budgetClass": "interactive",
+            "fallback": "microtask"
+          }
+        },
+        {
+          "id": "schedule:inline.products/action/native.title",
+          "lane": "user-blocking",
+          "endpointName": "xtend.rmt.kernel.action.native.title",
+          "scope": "orchestration:inline.products",
+          "scopeRecord": {
+            "orchestration": "action",
+            "ref": "native.title",
+            "template": "template:inline.products"
+          },
+          "operationRefs": [
+            "operation:xtend.rmt/action/native.title"
+          ],
+          "sourceRefs": [
+            "src:action:native.title"
+          ],
+          "policy": {
+            "lane": "user-blocking",
+            "budgetClass": "interactive",
+            "fallback": "microtask"
+          }
+        },
+        {
+          "id": "schedule:inline.products/action/native.show",
+          "lane": "user-blocking",
+          "endpointName": "xtend.rmt.kernel.action.native.show",
+          "scope": "orchestration:inline.products",
+          "scopeRecord": {
+            "orchestration": "action",
+            "ref": "native.show",
+            "template": "template:inline.products"
+          },
+          "operationRefs": [
+            "operation:xtend.rmt/action/native.show"
+          ],
+          "sourceRefs": [
+            "src:action:native.show"
+          ],
+          "policy": {
+            "lane": "user-blocking",
+            "budgetClass": "interactive",
+            "fallback": "microtask"
+          }
+        },
+        {
+          "id": "schedule:inline.products/action/native.replace",
+          "lane": "user-blocking",
+          "endpointName": "xtend.rmt.kernel.action.native.replace",
+          "scope": "orchestration:inline.products",
+          "scopeRecord": {
+            "orchestration": "action",
+            "ref": "native.replace",
+            "template": "template:inline.products"
+          },
+          "operationRefs": [
+            "operation:xtend.rmt/action/native.replace"
+          ],
+          "sourceRefs": [
+            "src:action:native.replace"
+          ],
+          "policy": {
+            "lane": "user-blocking",
+            "budgetClass": "interactive",
+            "fallback": "microtask"
+          }
+        },
+        {
+          "id": "schedule:inline.products/action/images.replace",
+          "lane": "user-blocking",
+          "endpointName": "xtend.rmt.kernel.action.images.replace",
+          "scope": "orchestration:inline.products",
+          "scopeRecord": {
+            "orchestration": "action",
+            "ref": "images.replace",
+            "template": "template:inline.products"
+          },
+          "operationRefs": [
+            "operation:xtend.rmt/action/images.replace"
+          ],
+          "sourceRefs": [
+            "src:action:images.replace"
+          ],
+          "policy": {
+            "lane": "user-blocking",
+            "budgetClass": "interactive",
+            "fallback": "microtask"
+          }
+        },
+        {
+          "id": "schedule:inline.products/action/native.enable",
+          "lane": "user-blocking",
+          "endpointName": "xtend.rmt.kernel.action.native.enable",
+          "scope": "orchestration:inline.products",
+          "scopeRecord": {
+            "orchestration": "action",
+            "ref": "native.enable",
+            "template": "template:inline.products"
+          },
+          "operationRefs": [
+            "operation:xtend.rmt/action/native.enable"
+          ],
+          "sourceRefs": [
+            "src:action:native.enable"
+          ],
+          "policy": {
+            "lane": "user-blocking",
+            "budgetClass": "interactive",
+            "fallback": "microtask"
+          }
+        },
+        {
+          "id": "schedule:inline.products/action/image.select",
+          "lane": "user-blocking",
+          "endpointName": "xtend.rmt.kernel.action.image.select",
+          "scope": "orchestration:inline.products",
+          "scopeRecord": {
+            "orchestration": "action",
+            "ref": "image.select",
+            "template": "template:inline.products"
+          },
+          "operationRefs": [
+            "operation:xtend.rmt/action/image.select"
+          ],
+          "sourceRefs": [
+            "src:action:image.select"
+          ],
+          "policy": {
+            "lane": "user-blocking",
+            "budgetClass": "interactive",
+            "fallback": "microtask"
+          }
+        },
+        {
+          "id": "schedule:inline.products/action/reviews.sort",
+          "lane": "user-blocking",
+          "endpointName": "xtend.rmt.kernel.action.reviews.sort",
+          "scope": "orchestration:inline.products",
+          "scopeRecord": {
+            "orchestration": "action",
+            "ref": "reviews.sort",
+            "template": "template:inline.products"
+          },
+          "operationRefs": [
+            "operation:xtend.rmt/action/reviews.sort"
+          ],
+          "sourceRefs": [
+            "src:action:reviews.sort"
+          ],
+          "policy": {
+            "lane": "user-blocking",
+            "budgetClass": "interactive",
+            "fallback": "microtask"
+          }
+        },
+        {
+          "id": "schedule:inline.products/action/catalog.replace",
+          "lane": "user-blocking",
+          "endpointName": "xtend.rmt.kernel.action.catalog.replace",
+          "scope": "orchestration:inline.products",
+          "scopeRecord": {
+            "orchestration": "action",
+            "ref": "catalog.replace",
+            "template": "template:inline.products"
+          },
+          "operationRefs": [
+            "operation:xtend.rmt/action/catalog.replace"
+          ],
+          "sourceRefs": [
+            "src:action:catalog.replace"
+          ],
+          "policy": {
+            "lane": "user-blocking",
+            "budgetClass": "interactive",
+            "fallback": "microtask"
+          }
+        },
+        {
+          "id": "schedule:inline.products/event/event-inline.products-product-details-native-select-0",
+          "lane": "user-blocking",
+          "endpointName": "xtend.rmt.kernel.event.event-inline.products-product-details-native-select-0",
+          "scope": "orchestration:inline.products",
+          "scopeRecord": {
+            "orchestration": "event",
+            "ref": "event:inline.products/product-details/native-select/0",
+            "template": "template:inline.products"
+          },
+          "operationRefs": [
+            "operation:xtend.rmt/event/event:inline.products/product-details/native-select/0"
+          ],
+          "sourceRefs": [
+            "src:event:inline.products/product-details/native-select/0"
+          ],
+          "policy": {
+            "lane": "user-blocking",
+            "budgetClass": "interactive",
+            "fallback": "microtask"
+          }
+        },
+        {
+          "id": "schedule:inline.products/surface-lifecycle/product-header.mount",
+          "lane": "visible",
+          "endpointName": "xtend.rmt.kernel.surface-lifecycle.product-header.mount",
+          "scope": "surface:inline.products/product-details",
+          "scopeRecord": {
+            "orchestration": "surface-lifecycle",
+            "ref": "product-header.mount",
+            "template": "template:inline.products"
+          },
+          "operationRefs": [
+            "operation:inline.products/product-details/visible/0"
+          ],
+          "sourceRefs": [
+            "src:operation:inline.products/product-details/visible/0"
+          ],
+          "policy": {
+            "lane": "visible",
+            "budgetClass": "interactive",
+            "fallback": "microtask"
+          }
+        },
+        {
+          "id": "schedule:inline.products/surface-lifecycle/product-gallery-host.mount",
+          "lane": "visible",
+          "endpointName": "xtend.rmt.kernel.surface-lifecycle.product-gallery-host.mount",
+          "scope": "surface:inline.products/product-gallery-host",
+          "scopeRecord": {
+            "orchestration": "surface-lifecycle",
+            "ref": "product-gallery-host.mount",
+            "template": "template:inline.products"
+          },
+          "operationRefs": [
+            "operation:inline.products/product-gallery-host/visible/0"
+          ],
+          "sourceRefs": [
+            "src:operation:inline.products/product-gallery-host/visible/0"
+          ],
+          "policy": {
+            "lane": "visible",
+            "budgetClass": "interactive",
+            "fallback": "microtask"
+          }
+        },
+        {
+          "id": "schedule:inline.products/surface-lifecycle/product-reviews-host.mount",
+          "lane": "idle",
+          "endpointName": "xtend.rmt.kernel.surface-lifecycle.product-reviews-host.mount",
+          "scope": "surface:inline.products/product-reviews-host",
+          "scopeRecord": {
+            "orchestration": "surface-lifecycle",
+            "ref": "product-reviews-host.mount",
+            "template": "template:inline.products"
+          },
+          "operationRefs": [
+            "operation:inline.products/product-reviews-host/idle/0"
+          ],
+          "sourceRefs": [
+            "src:operation:inline.products/product-reviews-host/idle/0"
+          ],
+          "policy": {
+            "lane": "idle",
+            "budgetClass": "background",
+            "fallback": "idle-timeout"
+          }
+        },
+        {
+          "id": "schedule:inline.products/hydration/document",
+          "lane": "visible",
+          "endpointName": "xtend.rmt.kernel.hydration.document",
+          "scope": "orchestration:inline.products",
+          "scopeRecord": {
+            "orchestration": "hydration",
+            "ref": "document",
+            "template": "template:inline.products"
+          },
+          "operationRefs": [
+            "operation:xtend.rmt/hydration/document"
+          ],
+          "sourceRefs": [],
+          "policy": {
+            "lane": "visible",
+            "budgetClass": "interactive",
+            "fallback": "microtask"
+          }
+        },
+        {
+          "id": "schedule:inline.products/render-patch/document",
+          "lane": "visible",
+          "endpointName": "xtend.rmt.kernel.render-patch.document",
+          "scope": "orchestration:inline.products",
+          "scopeRecord": {
+            "orchestration": "render-patch",
+            "ref": "document",
+            "template": "template:inline.products"
+          },
+          "operationRefs": [
+            "operation:xtend.rmt/render-patch/document"
+          ],
+          "sourceRefs": [],
+          "policy": {
+            "lane": "visible",
+            "budgetClass": "interactive",
+            "fallback": "microtask"
+          }
+        },
+        {
+          "id": "schedule:inline.products/state-patch/document",
+          "lane": "visible",
+          "endpointName": "xtend.rmt.kernel.state-patch.document",
+          "scope": "orchestration:inline.products",
+          "scopeRecord": {
+            "orchestration": "state-patch",
+            "ref": "document",
+            "template": "template:inline.products"
+          },
+          "operationRefs": [
+            "operation:xtend.rmt/state-patch/document"
+          ],
+          "sourceRefs": [],
+          "policy": {
+            "lane": "visible",
+            "budgetClass": "interactive",
+            "fallback": "microtask"
+          }
+        },
+        {
+          "id": "schedule:inline.products/telemetry/document",
+          "lane": "diagnostics",
+          "endpointName": "xtend.rmt.kernel.telemetry.document",
+          "scope": "orchestration:inline.products",
+          "scopeRecord": {
+            "orchestration": "telemetry",
+            "ref": "document",
+            "template": "template:inline.products"
+          },
+          "operationRefs": [
+            "operation:xtend.rmt/telemetry/document"
+          ],
+          "sourceRefs": [],
+          "policy": {
+            "lane": "diagnostics",
+            "budgetClass": "background",
+            "fallback": "idle-timeout"
+          }
+        }
+      ],
+      "fibers": [
+        {
+          "id": "fiber:inline.products/product-details/visible/0",
+          "kind": "lifecycle",
+          "op": "mount",
+          "lane": "lane:inline.products/product-details/visible",
+          "operation": "operation:inline.products/product-details/visible/0",
+          "endpointName": "xtend.rmt.kernel.surface-lifecycle.product-header.mount",
+          "target": {
+            "kind": "ref",
+            "ref": "product-header"
+          },
+          "source": null,
+          "sourceRef": "src:operation:inline.products/product-details/visible/0"
+        },
+        {
+          "id": "fiber:inline.products/product-gallery-host/visible/0",
+          "kind": "lifecycle",
+          "op": "mount",
+          "lane": "lane:inline.products/product-gallery-host/visible",
+          "operation": "operation:inline.products/product-gallery-host/visible/0",
+          "endpointName": "xtend.rmt.kernel.surface-lifecycle.product-gallery-host.mount",
+          "target": {
+            "kind": "ref",
+            "ref": "product-gallery-host"
+          },
+          "source": null,
+          "sourceRef": "src:operation:inline.products/product-gallery-host/visible/0"
+        },
+        {
+          "id": "fiber:inline.products/product-reviews-host/idle/0",
+          "kind": "lifecycle",
+          "op": "mount",
+          "lane": "lane:inline.products/product-reviews-host/idle",
+          "operation": "operation:inline.products/product-reviews-host/idle/0",
+          "endpointName": "xtend.rmt.kernel.surface-lifecycle.product-reviews-host.mount",
+          "target": {
+            "kind": "ref",
+            "ref": "product-reviews-host"
+          },
+          "source": null,
+          "sourceRef": "src:operation:inline.products/product-reviews-host/idle/0"
+        },
+        {
+          "id": "fiber:inline.products/orchestration/render",
+          "kind": "orchestration",
+          "op": "render",
+          "lane": "visible",
+          "operation": "operation:xtend.maraca/orchestration/render",
+          "endpointName": "xtend.maraca.kernel.orchestration.render",
+          "target": {
+            "kind": "orchestration",
+            "ref": "render"
+          },
+          "source": {
+            "kind": "runtime",
+            "ref": "xtend.maraca.renderer"
+          },
+          "sourceRef": null
+        },
+        {
+          "id": "fiber:inline.products/orchestration/action",
+          "kind": "orchestration",
+          "op": "action",
+          "lane": "user-blocking",
+          "operation": "operation:xtend.maraca/orchestration/action",
+          "endpointName": "xtend.maraca.kernel.orchestration.action",
+          "target": {
+            "kind": "orchestration",
+            "ref": "action"
+          },
+          "source": {
+            "kind": "runtime",
+            "ref": "xtend.maraca.action-runtime"
+          },
+          "sourceRef": null
+        },
+        {
+          "id": "fiber:inline.products/orchestration/event",
+          "kind": "orchestration",
+          "op": "event",
+          "lane": "user-blocking",
+          "operation": "operation:xtend.maraca/orchestration/event",
+          "endpointName": "xtend.maraca.kernel.orchestration.event",
+          "target": {
+            "kind": "orchestration",
+            "ref": "event"
+          },
+          "source": {
+            "kind": "runtime",
+            "ref": "xtend.maraca.event-runtime"
+          },
+          "sourceRef": null
+        },
+        {
+          "id": "fiber:inline.products/orchestration/state-change",
+          "kind": "orchestration",
+          "op": "state-change",
+          "lane": "visible",
+          "operation": "operation:xtend.maraca/orchestration/state-change",
+          "endpointName": "xtend.maraca.kernel.orchestration.state-change",
+          "target": {
+            "kind": "orchestration",
+            "ref": "state-change"
+          },
+          "source": {
+            "kind": "runtime",
+            "ref": "xtend.maraca.state-runtime"
+          },
+          "sourceRef": null
+        },
+        {
+          "id": "fiber:inline.products/action/native.title",
+          "kind": "action",
+          "op": "action",
+          "lane": "user-blocking",
+          "operation": "operation:xtend.rmt/action/native.title",
+          "endpointName": "xtend.rmt.kernel.action.native.title",
+          "target": {
+            "kind": "action",
+            "ref": "native.title"
+          },
+          "source": {
+            "kind": "action",
+            "ref": "native.title"
+          },
+          "sourceRef": "src:action:native.title"
+        },
+        {
+          "id": "fiber:inline.products/action/native.show",
+          "kind": "action",
+          "op": "action",
+          "lane": "user-blocking",
+          "operation": "operation:xtend.rmt/action/native.show",
+          "endpointName": "xtend.rmt.kernel.action.native.show",
+          "target": {
+            "kind": "action",
+            "ref": "native.show"
+          },
+          "source": {
+            "kind": "action",
+            "ref": "native.show"
+          },
+          "sourceRef": "src:action:native.show"
+        },
+        {
+          "id": "fiber:inline.products/action/native.replace",
+          "kind": "action",
+          "op": "action",
+          "lane": "user-blocking",
+          "operation": "operation:xtend.rmt/action/native.replace",
+          "endpointName": "xtend.rmt.kernel.action.native.replace",
+          "target": {
+            "kind": "action",
+            "ref": "native.replace"
+          },
+          "source": {
+            "kind": "action",
+            "ref": "native.replace"
+          },
+          "sourceRef": "src:action:native.replace"
+        },
+        {
+          "id": "fiber:inline.products/action/images.replace",
+          "kind": "action",
+          "op": "action",
+          "lane": "user-blocking",
+          "operation": "operation:xtend.rmt/action/images.replace",
+          "endpointName": "xtend.rmt.kernel.action.images.replace",
+          "target": {
+            "kind": "action",
+            "ref": "images.replace"
+          },
+          "source": {
+            "kind": "action",
+            "ref": "images.replace"
+          },
+          "sourceRef": "src:action:images.replace"
+        },
+        {
+          "id": "fiber:inline.products/action/native.enable",
+          "kind": "action",
+          "op": "action",
+          "lane": "user-blocking",
+          "operation": "operation:xtend.rmt/action/native.enable",
+          "endpointName": "xtend.rmt.kernel.action.native.enable",
+          "target": {
+            "kind": "action",
+            "ref": "native.enable"
+          },
+          "source": {
+            "kind": "action",
+            "ref": "native.enable"
+          },
+          "sourceRef": "src:action:native.enable"
+        },
+        {
+          "id": "fiber:inline.products/action/image.select",
+          "kind": "action",
+          "op": "action",
+          "lane": "user-blocking",
+          "operation": "operation:xtend.rmt/action/image.select",
+          "endpointName": "xtend.rmt.kernel.action.image.select",
+          "target": {
+            "kind": "action",
+            "ref": "image.select"
+          },
+          "source": {
+            "kind": "action",
+            "ref": "image.select"
+          },
+          "sourceRef": "src:action:image.select"
+        },
+        {
+          "id": "fiber:inline.products/action/reviews.sort",
+          "kind": "action",
+          "op": "action",
+          "lane": "user-blocking",
+          "operation": "operation:xtend.rmt/action/reviews.sort",
+          "endpointName": "xtend.rmt.kernel.action.reviews.sort",
+          "target": {
+            "kind": "action",
+            "ref": "reviews.sort"
+          },
+          "source": {
+            "kind": "action",
+            "ref": "reviews.sort"
+          },
+          "sourceRef": "src:action:reviews.sort"
+        },
+        {
+          "id": "fiber:inline.products/action/catalog.replace",
+          "kind": "action",
+          "op": "action",
+          "lane": "user-blocking",
+          "operation": "operation:xtend.rmt/action/catalog.replace",
+          "endpointName": "xtend.rmt.kernel.action.catalog.replace",
+          "target": {
+            "kind": "action",
+            "ref": "catalog.replace"
+          },
+          "source": {
+            "kind": "action",
+            "ref": "catalog.replace"
+          },
+          "sourceRef": "src:action:catalog.replace"
+        },
+        {
+          "id": "fiber:inline.products/event/event-inline.products-product-details-native-select-0",
+          "kind": "event",
+          "op": "event",
+          "lane": "user-blocking",
+          "operation": "operation:xtend.rmt/event/event:inline.products/product-details/native-select/0",
+          "endpointName": "xtend.rmt.kernel.event.event-inline.products-product-details-native-select-0",
+          "target": {
+            "kind": "event",
+            "ref": "event:inline.products/product-details/native-select/0"
+          },
+          "source": {
+            "kind": "event",
+            "ref": "event:inline.products/product-details/native-select/0"
+          },
+          "sourceRef": "src:event:inline.products/product-details/native-select/0"
+        },
+        {
+          "id": "fiber:inline.products/surface-lifecycle/product-header.mount",
+          "kind": "surface-lifecycle",
+          "op": "surface-lifecycle",
+          "lane": "visible",
+          "operation": "operation:inline.products/product-details/visible/0",
+          "endpointName": "xtend.rmt.kernel.surface-lifecycle.product-header.mount",
+          "target": {
+            "kind": "surface-lifecycle",
+            "ref": "product-header.mount"
+          },
+          "source": {
+            "kind": "lifecycle",
+            "ref": "operation:inline.products/product-details/visible/0"
+          },
+          "sourceRef": "src:operation:inline.products/product-details/visible/0"
+        },
+        {
+          "id": "fiber:inline.products/surface-lifecycle/product-gallery-host.mount",
+          "kind": "surface-lifecycle",
+          "op": "surface-lifecycle",
+          "lane": "visible",
+          "operation": "operation:inline.products/product-gallery-host/visible/0",
+          "endpointName": "xtend.rmt.kernel.surface-lifecycle.product-gallery-host.mount",
+          "target": {
+            "kind": "surface-lifecycle",
+            "ref": "product-gallery-host.mount"
+          },
+          "source": {
+            "kind": "lifecycle",
+            "ref": "operation:inline.products/product-gallery-host/visible/0"
+          },
+          "sourceRef": "src:operation:inline.products/product-gallery-host/visible/0"
+        },
+        {
+          "id": "fiber:inline.products/surface-lifecycle/product-reviews-host.mount",
+          "kind": "surface-lifecycle",
+          "op": "surface-lifecycle",
+          "lane": "idle",
+          "operation": "operation:inline.products/product-reviews-host/idle/0",
+          "endpointName": "xtend.rmt.kernel.surface-lifecycle.product-reviews-host.mount",
+          "target": {
+            "kind": "surface-lifecycle",
+            "ref": "product-reviews-host.mount"
+          },
+          "source": {
+            "kind": "lifecycle",
+            "ref": "operation:inline.products/product-reviews-host/idle/0"
+          },
+          "sourceRef": "src:operation:inline.products/product-reviews-host/idle/0"
+        },
+        {
+          "id": "fiber:inline.products/hydration/document",
+          "kind": "hydration",
+          "op": "hydration",
+          "lane": "visible",
+          "operation": "operation:xtend.rmt/hydration/document",
+          "endpointName": "xtend.rmt.kernel.hydration.document",
+          "target": {
+            "kind": "hydration",
+            "ref": "document"
+          },
+          "source": {
+            "kind": "runtime",
+            "ref": "xtend.hydration"
+          },
+          "sourceRef": null
+        },
+        {
+          "id": "fiber:inline.products/render-patch/document",
+          "kind": "render-patch",
+          "op": "render-patch",
+          "lane": "visible",
+          "operation": "operation:xtend.rmt/render-patch/document",
+          "endpointName": "xtend.rmt.kernel.render-patch.document",
+          "target": {
+            "kind": "render-patch",
+            "ref": "document"
+          },
+          "source": {
+            "kind": "runtime",
+            "ref": "xtend.render-patch"
+          },
+          "sourceRef": null
+        },
+        {
+          "id": "fiber:inline.products/state-patch/document",
+          "kind": "state-patch",
+          "op": "state-patch",
+          "lane": "visible",
+          "operation": "operation:xtend.rmt/state-patch/document",
+          "endpointName": "xtend.rmt.kernel.state-patch.document",
+          "target": {
+            "kind": "state-patch",
+            "ref": "document"
+          },
+          "source": {
+            "kind": "runtime",
+            "ref": "xtend.state-patch"
+          },
+          "sourceRef": null
+        },
+        {
+          "id": "fiber:inline.products/telemetry/document",
+          "kind": "telemetry",
+          "op": "telemetry",
+          "lane": "diagnostics",
+          "operation": "operation:xtend.rmt/telemetry/document",
+          "endpointName": "xtend.rmt.kernel.telemetry.document",
+          "target": {
+            "kind": "telemetry",
+            "ref": "document"
+          },
+          "source": {
+            "kind": "runtime",
+            "ref": "xtend.telemetry"
+          },
+          "sourceRef": null
+        }
+      ],
+      "lanePolicies": [
+        {
+          "lane": "diagnostics",
+          "queue": "idle",
+          "fallback": "timeout"
+        },
+        {
+          "lane": "idle",
+          "queue": "idle",
+          "fallback": "timeout"
+        },
+        {
+          "lane": "user-blocking",
+          "queue": "frame",
+          "fallback": "microtask"
+        },
+        {
+          "lane": "visible",
+          "queue": "frame",
+          "fallback": "microtask"
+        }
+      ]
+    },
+    "diagnostics": [],
+    "sourceMap": [
+      {
+        "id": "src:template:inline.products",
+        "nodeType": "RmtTemplateDeclaration",
+        "corePointer": "/templates/0",
+        "astPointer": "/body/0",
+        "range": {
+          "start": {
+            "line": 3,
+            "character": 15
+          },
+          "end": {
+            "line": 93,
+            "character": 14
+          },
+          "startOffset": 198,
+          "endOffset": 6931
+        }
+      },
+      {
+        "id": "src:state:catalog",
+        "nodeType": "RmtStateDeclaration",
+        "corePointer": "/states/0",
+        "astPointer": "/body/0/body/0",
+        "range": {
+          "start": {
+            "line": 4,
+            "character": 2
+          },
+          "end": {
+            "line": 12,
+            "character": 9
+          },
+          "startOffset": 235,
+          "endOffset": 759
+        }
+      },
+      {
+        "id": "src:state:sharedimages",
+        "nodeType": "RmtStateDeclaration",
+        "corePointer": "/states/1",
+        "astPointer": "/body/0/body/1",
+        "range": {
+          "start": {
+            "line": 13,
+            "character": 2
+          },
+          "end": {
+            "line": 13,
+            "character": 77
+          },
+          "startOffset": 762,
+          "endOffset": 837
+        }
+      },
+      {
+        "id": "src:selector:galleryimages",
+        "nodeType": "RmtSelectorDeclaration",
+        "corePointer": "/selectors/0",
+        "astPointer": "/body/0/body/2",
+        "range": {
+          "start": {
+            "line": 14,
+            "character": 2
+          },
+          "end": {
+            "line": 14,
+            "character": 132
+          },
+          "startOffset": 840,
+          "endOffset": 970
+        }
+      },
+      {
+        "id": "src:state:intentcapture",
+        "nodeType": "RmtStateDeclaration",
+        "corePointer": "/states/2",
+        "astPointer": "/body/0/body/3",
+        "range": {
+          "start": {
+            "line": 15,
+            "character": 2
+          },
+          "end": {
+            "line": 15,
+            "character": 114
+          },
+          "startOffset": 973,
+          "endOffset": 1085
+        }
+      },
+      {
+        "id": "src:state:nativeview",
+        "nodeType": "RmtStateDeclaration",
+        "corePointer": "/states/3",
+        "astPointer": "/body/0/body/4",
+        "range": {
+          "start": {
+            "line": 16,
+            "character": 2
+          },
+          "end": {
+            "line": 16,
+            "character": 128
+          },
+          "startOffset": 1088,
+          "endOffset": 1214
+        }
+      },
+      {
+        "id": "src:action:native.title",
+        "nodeType": "RmtActionDeclaration",
+        "corePointer": "/actions/0",
+        "astPointer": "/body/0/body/5",
+        "range": {
+          "start": {
+            "line": 17,
+            "character": 2
+          },
+          "end": {
+            "line": 17,
+            "character": 149
+          },
+          "startOffset": 1217,
+          "endOffset": 1364
+        }
+      },
+      {
+        "id": "src:action:native.show",
+        "nodeType": "RmtActionDeclaration",
+        "corePointer": "/actions/1",
+        "astPointer": "/body/0/body/6",
+        "range": {
+          "start": {
+            "line": 18,
+            "character": 2
+          },
+          "end": {
+            "line": 18,
+            "character": 146
+          },
+          "startOffset": 1367,
+          "endOffset": 1511
+        }
+      },
+      {
+        "id": "src:action:native.replace",
+        "nodeType": "RmtActionDeclaration",
+        "corePointer": "/actions/2",
+        "astPointer": "/body/0/body/7",
+        "range": {
+          "start": {
+            "line": 19,
+            "character": 2
+          },
+          "end": {
+            "line": 19,
+            "character": 136
+          },
+          "startOffset": 1514,
+          "endOffset": 1648
+        }
+      },
+      {
+        "id": "src:action:images.replace",
+        "nodeType": "RmtActionDeclaration",
+        "corePointer": "/actions/3",
+        "astPointer": "/body/0/body/8",
+        "range": {
+          "start": {
+            "line": 20,
+            "character": 2
+          },
+          "end": {
+            "line": 20,
+            "character": 144
+          },
+          "startOffset": 1651,
+          "endOffset": 1793
+        }
+      },
+      {
+        "id": "src:state:nativeflags",
+        "nodeType": "RmtStateDeclaration",
+        "corePointer": "/states/4",
+        "astPointer": "/body/0/body/9",
+        "range": {
+          "start": {
+            "line": 21,
+            "character": 2
+          },
+          "end": {
+            "line": 21,
+            "character": 70
+          },
+          "startOffset": 1796,
+          "endOffset": 1864
+        }
+      },
+      {
+        "id": "src:action:native.enable",
+        "nodeType": "RmtActionDeclaration",
+        "corePointer": "/actions/4",
+        "astPointer": "/body/0/body/10",
+        "range": {
+          "start": {
+            "line": 22,
+            "character": 2
+          },
+          "end": {
+            "line": 25,
+            "character": 15
+          },
+          "startOffset": 1867,
+          "endOffset": 2058
+        }
+      },
+      {
+        "id": "src:action:image.select",
+        "nodeType": "RmtActionDeclaration",
+        "corePointer": "/actions/5",
+        "astPointer": "/body/0/body/11",
+        "range": {
+          "start": {
+            "line": 26,
+            "character": 2
+          },
+          "end": {
+            "line": 32,
+            "character": 15
+          },
+          "startOffset": 2061,
+          "endOffset": 2539
+        }
+      },
+      {
+        "id": "src:action:reviews.sort",
+        "nodeType": "RmtActionDeclaration",
+        "corePointer": "/actions/6",
+        "astPointer": "/body/0/body/12",
+        "range": {
+          "start": {
+            "line": 33,
+            "character": 2
+          },
+          "end": {
+            "line": 39,
+            "character": 15
+          },
+          "startOffset": 2542,
+          "endOffset": 3016
+        }
+      },
+      {
+        "id": "src:action:catalog.replace",
+        "nodeType": "RmtActionDeclaration",
+        "corePointer": "/actions/7",
+        "astPointer": "/body/0/body/13",
+        "range": {
+          "start": {
+            "line": 40,
+            "character": 2
+          },
+          "end": {
+            "line": 42,
+            "character": 15
+          },
+          "startOffset": 3019,
+          "endOffset": 3167
+        }
+      },
+      {
+        "id": "src:surface:inline.products/product-details",
+        "nodeType": "RmtSurfaceDeclaration",
+        "corePointer": "/surfaces/0",
+        "astPointer": "/body/0/body/17",
+        "range": {
+          "start": {
+            "line": 46,
+            "character": 2
+          },
+          "end": {
+            "line": 78,
+            "character": 16
+          },
+          "startOffset": 3397,
+          "endOffset": 5763
+        }
+      },
+      {
+        "id": "src:lane:inline.products/product-details/visible",
+        "nodeType": "RmtLaneDeclaration",
+        "corePointer": "/lanes/0",
+        "astPointer": "/body/0/body/17/body/1",
+        "range": {
+          "start": {
+            "line": 75,
+            "character": 4
+          },
+          "end": {
+            "line": 75,
+            "character": 77
+          },
+          "startOffset": 5461,
+          "endOffset": 5534
+        }
+      },
+      {
+        "id": "src:operation:inline.products/product-details/visible/0",
+        "nodeType": "RmtLifecycleStatement",
+        "corePointer": "/operations/0",
+        "astPointer": "/body/0/body/17/body/1/body/0",
+        "range": {
+          "start": {
+            "line": 75,
+            "character": 29
+          },
+          "end": {
+            "line": 75,
+            "character": 66
+          },
+          "startOffset": 5486,
+          "endOffset": 5523
+        }
+      },
+      {
+        "id": "src:event:inline.products/product-details/native-select/0",
+        "nodeType": "RmtEventBinding",
+        "corePointer": "/events/0",
+        "astPointer": "/body/0/body/17/body/2",
+        "range": {
+          "start": {
+            "line": 76,
+            "character": 4
+          },
+          "end": {
+            "line": 77,
+            "character": 133
+          },
+          "startOffset": 5539,
+          "endOffset": 5746
+        }
+      },
+      {
+        "id": "src:surface:inline.products/product-gallery-host",
+        "nodeType": "RmtSurfaceDeclaration",
+        "corePointer": "/surfaces/1",
+        "astPointer": "/body/0/body/18",
+        "range": {
+          "start": {
+            "line": 81,
+            "character": 6
+          },
+          "end": {
+            "line": 85,
+            "character": 20
+          },
+          "startOffset": 5882,
+          "endOffset": 6446
+        }
+      },
+      {
+        "id": "src:lane:inline.products/product-gallery-host/visible",
+        "nodeType": "RmtLaneDeclaration",
+        "corePointer": "/lanes/1",
+        "astPointer": "/body/0/body/18/body/1",
+        "range": {
+          "start": {
+            "line": 81,
+            "character": 6
+          },
+          "end": {
+            "line": 85,
+            "character": 20
+          },
+          "startOffset": 5882,
+          "endOffset": 6446
+        }
+      },
+      {
+        "id": "src:operation:inline.products/product-gallery-host/visible/0",
+        "nodeType": "RmtLifecycleStatement",
+        "corePointer": "/operations/1",
+        "astPointer": "/body/0/body/18/body/1/body/0",
+        "range": {
+          "start": {
+            "line": 81,
+            "character": 6
+          },
+          "end": {
+            "line": 85,
+            "character": 20
+          },
+          "startOffset": 5882,
+          "endOffset": 6446
+        }
+      },
+      {
+        "id": "src:surface:inline.products/product-reviews-host",
+        "nodeType": "RmtSurfaceDeclaration",
+        "corePointer": "/surfaces/2",
+        "astPointer": "/body/0/body/19",
+        "range": {
+          "start": {
+            "line": 86,
+            "character": 6
+          },
+          "end": {
+            "line": 90,
+            "character": 20
+          },
+          "startOffset": 6453,
+          "endOffset": 6882
+        }
+      },
+      {
+        "id": "src:lane:inline.products/product-reviews-host/idle",
+        "nodeType": "RmtLaneDeclaration",
+        "corePointer": "/lanes/2",
+        "astPointer": "/body/0/body/19/body/1",
+        "range": {
+          "start": {
+            "line": 86,
+            "character": 6
+          },
+          "end": {
+            "line": 90,
+            "character": 20
+          },
+          "startOffset": 6453,
+          "endOffset": 6882
+        }
+      },
+      {
+        "id": "src:operation:inline.products/product-reviews-host/idle/0",
+        "nodeType": "RmtLifecycleStatement",
+        "corePointer": "/operations/2",
+        "astPointer": "/body/0/body/19/body/1/body/0",
+        "range": {
+          "start": {
+            "line": 86,
+            "character": 6
+          },
+          "end": {
+            "line": 90,
+            "character": 20
+          },
+          "startOffset": 6453,
+          "endOffset": 6882
+        }
+      }
+    ]
+  },
+  "state": {
+    "states": [
+      {
+        "id": "catalog",
+        "type": "object",
+        "preserve": true,
+        "initial": {
+          "items": [
+            {
+              "id": "g",
+              "products": [
+                {
+                  "id": 1,
+                  "slug": "numeric",
+                  "images": [
+                    "front",
+                    "back"
+                  ],
+                  "selectedImageId": "front",
+                  "reviewsSort": "recent",
+                  "enabled": true
+                },
+                {
+                  "id": "1",
+                  "slug": "text",
+                  "images": [
+                    "front",
+                    "back"
+                  ],
+                  "selectedImageId": "front",
+                  "reviewsSort": "recent",
+                  "enabled": true
+                }
+              ]
+            },
+            {
+              "id": "h",
+              "products": [
+                {
+                  "id": 1,
+                  "slug": "other-parent",
+                  "images": [
+                    "front",
+                    "back"
+                  ],
+                  "selectedImageId": "front",
+                  "reviewsSort": "recent",
+                  "enabled": true
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "sharedImages",
+        "type": "string[]",
+        "preserve": false,
+        "initial": [
+          "front",
+          "back"
+        ]
+      },
+      {
+        "id": "intentCapture",
+        "type": "object",
+        "preserve": false,
+        "initial": {
+          "groupId": null,
+          "productId": null,
+          "value": "",
+          "kind": ""
+        }
+      },
+      {
+        "id": "nativeView",
+        "type": "object",
+        "preserve": false,
+        "initial": {
+          "title": "Product details",
+          "show": true,
+          "href": "https://example.test/products"
+        }
+      },
+      {
+        "id": "nativeFlags",
+        "type": "object",
+        "preserve": false,
+        "initial": {
+          "allow": false
+        }
+      }
+    ],
+    "selectors": [
+      {
+        "id": "galleryImages",
+        "from": "state.sharedImages",
+        "clauses": [
+          {
+            "kind": "where",
+            "text": "",
+            "expression": {
+              "op": "if",
+              "test": {
+                "op": "equals",
+                "left": "$item",
+                "right": {
+                  "op": "literal",
+                  "value": "front"
+                }
+              },
+              "then": {
+                "op": "literal",
+                "value": true
+              },
+              "else": {
+                "op": "equals",
+                "left": "$item",
+                "right": {
+                  "op": "literal",
+                  "value": "back"
+                }
+              }
+            }
+          }
+        ],
+        "output": null,
+        "where": [
+          {
+            "op": "truthy",
+            "left": {
+              "op": "if",
+              "test": {
+                "op": "equals",
+                "left": "$item",
+                "right": {
+                  "op": "literal",
+                  "value": "front"
+                }
+              },
+              "then": {
+                "op": "literal",
+                "value": true
+              },
+              "else": {
+                "op": "equals",
+                "left": "$item",
+                "right": {
+                  "op": "literal",
+                  "value": "back"
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "reducers": [
+      {
+        "id": "reducer:native.title/0",
+        "action": "native.title",
+        "target": "state.nativeView.title",
+        "state": "nativeView",
+        "path": "title",
+        "recipe": null,
+        "value": "input.title",
+        "valueKind": "reference",
+        "mode": "patch-path"
+      },
+      {
+        "id": "reducer:native.show/0",
+        "action": "native.show",
+        "target": "state.nativeView.show",
+        "state": "nativeView",
+        "path": "show",
+        "recipe": null,
+        "value": "input.show",
+        "valueKind": "reference",
+        "mode": "patch-path"
+      },
+      {
+        "id": "reducer:native.replace/0",
+        "action": "native.replace",
+        "target": "state.nativeView",
+        "state": "nativeView",
+        "path": "",
+        "recipe": null,
+        "value": "input.view",
+        "valueKind": "reference",
+        "mode": "set-state"
+      },
+      {
+        "id": "reducer:images.replace/0",
+        "action": "images.replace",
+        "target": "state.sharedImages",
+        "state": "sharedImages",
+        "path": "",
+        "recipe": null,
+        "value": "input.images",
+        "valueKind": "reference",
+        "mode": "set-state"
+      },
+      {
+        "id": "reducer:native.enable/0",
+        "action": "native.enable",
+        "target": "state.nativeFlags",
+        "state": "nativeFlags",
+        "path": "",
+        "recipe": null,
+        "value": {
+          "kind": "object",
+          "fields": [
+            {
+              "key": "allow",
+              "value": {
+                "kind": "path",
+                "value": "input.allow"
+              }
+            }
+          ]
+        },
+        "valueKind": "template",
+        "mode": "set-state"
+      },
+      {
+        "id": "reducer:image.select/0",
+        "action": "image.select",
+        "target": "state.intentCapture.groupId",
+        "state": "intentCapture",
+        "path": "groupId",
+        "recipe": null,
+        "value": "input.groupId",
+        "valueKind": "reference",
+        "mode": "patch-path"
+      },
+      {
+        "id": "reducer:image.select/1",
+        "action": "image.select",
+        "target": "state.intentCapture.productId",
+        "state": "intentCapture",
+        "path": "productId",
+        "recipe": null,
+        "value": "input.productId",
+        "valueKind": "reference",
+        "mode": "patch-path"
+      },
+      {
+        "id": "reducer:image.select/2",
+        "action": "image.select",
+        "target": "state.intentCapture.value",
+        "state": "intentCapture",
+        "path": "value",
+        "recipe": null,
+        "value": "input.imageId",
+        "valueKind": "reference",
+        "mode": "patch-path"
+      },
+      {
+        "id": "reducer:image.select/3",
+        "action": "image.select",
+        "target": "state.intentCapture.kind",
+        "state": "intentCapture",
+        "path": "kind",
+        "recipe": null,
+        "value": "image",
+        "valueKind": "literal",
+        "mode": "patch-path"
+      },
+      {
+        "id": "reducer:reviews.sort/0",
+        "action": "reviews.sort",
+        "target": "state.intentCapture.groupId",
+        "state": "intentCapture",
+        "path": "groupId",
+        "recipe": null,
+        "value": "input.groupId",
+        "valueKind": "reference",
+        "mode": "patch-path"
+      },
+      {
+        "id": "reducer:reviews.sort/1",
+        "action": "reviews.sort",
+        "target": "state.intentCapture.productId",
+        "state": "intentCapture",
+        "path": "productId",
+        "recipe": null,
+        "value": "input.productId",
+        "valueKind": "reference",
+        "mode": "patch-path"
+      },
+      {
+        "id": "reducer:reviews.sort/2",
+        "action": "reviews.sort",
+        "target": "state.intentCapture.value",
+        "state": "intentCapture",
+        "path": "value",
+        "recipe": null,
+        "value": "input.sort",
+        "valueKind": "reference",
+        "mode": "patch-path"
+      },
+      {
+        "id": "reducer:reviews.sort/3",
+        "action": "reviews.sort",
+        "target": "state.intentCapture.kind",
+        "state": "intentCapture",
+        "path": "kind",
+        "recipe": null,
+        "value": "reviews",
+        "valueKind": "literal",
+        "mode": "patch-path"
+      },
+      {
+        "id": "reducer:catalog.replace/0",
+        "action": "catalog.replace",
+        "target": "state.catalog",
+        "state": "catalog",
+        "path": "",
+        "recipe": null,
+        "value": "input.catalog",
+        "valueKind": "reference",
+        "mode": "set-state"
+      }
+    ]
+  },
+  "actions": {
+    "schema": "xtend.rmt.action-plan.v2",
+    "inputContract": {
+      "schema": "xtend.rmt.action-input-contract.v1",
+      "apiVersion": "1.0.0",
+      "sourceProfile": {
+        "syntax": "rmtx",
+        "version": "4.0.0"
+      },
+      "actions": [
+        {
+          "id": "native.title",
+          "fields": {
+            "title": {
+              "type": "string",
+              "nullable": false,
+              "required": true
+            }
+          }
+        },
+        {
+          "id": "native.show",
+          "fields": {
+            "show": {
+              "type": "boolean",
+              "nullable": false,
+              "required": true
+            }
+          }
+        },
+        {
+          "id": "native.replace",
+          "fields": {
+            "view": {
+              "type": "object",
+              "nullable": false,
+              "required": true
+            }
+          }
+        },
+        {
+          "id": "images.replace",
+          "fields": {
+            "images": {
+              "type": "array",
+              "nullable": false,
+              "items": {
+                "type": "string",
+                "nullable": false
+              },
+              "required": true
+            }
+          }
+        },
+        {
+          "id": "native.enable",
+          "fields": {
+            "allow": {
+              "type": "boolean",
+              "nullable": false,
+              "required": false,
+              "default": true
+            }
+          }
+        },
+        {
+          "id": "image.select",
+          "fields": {
+            "groupId": {
+              "type": "json",
+              "nullable": true,
+              "required": true
+            },
+            "productId": {
+              "type": "json",
+              "nullable": true,
+              "required": true
+            },
+            "imageId": {
+              "type": "string",
+              "nullable": false,
+              "required": true
+            }
+          }
+        },
+        {
+          "id": "reviews.sort",
+          "fields": {
+            "groupId": {
+              "type": "json",
+              "nullable": true,
+              "required": true
+            },
+            "productId": {
+              "type": "json",
+              "nullable": true,
+              "required": true
+            },
+            "sort": {
+              "type": "string",
+              "nullable": false,
+              "required": true
+            }
+          }
+        },
+        {
+          "id": "catalog.replace",
+          "fields": {
+            "catalog": {
+              "type": "object",
+              "nullable": false,
+              "required": true
+            }
+          }
+        }
+      ]
+    },
+    "actions": [
+      {
+        "id": "native.title",
+        "inputs": [
+          {
+            "name": "title",
+            "type": "string"
+          }
+        ],
+        "statusState": "",
+        "datasource": "",
+        "reducers": [
+          {
+            "target": "state.nativeView.title",
+            "value": "input.title",
+            "valueKind": "reference"
+          }
+        ],
+        "emits": [],
+        "effects": []
+      },
+      {
+        "id": "native.show",
+        "inputs": [
+          {
+            "name": "show",
+            "type": "boolean"
+          }
+        ],
+        "statusState": "",
+        "datasource": "",
+        "reducers": [
+          {
+            "target": "state.nativeView.show",
+            "value": "input.show",
+            "valueKind": "reference"
+          }
+        ],
+        "emits": [],
+        "effects": []
+      },
+      {
+        "id": "native.replace",
+        "inputs": [
+          {
+            "name": "view",
+            "type": "object"
+          }
+        ],
+        "statusState": "",
+        "datasource": "",
+        "reducers": [
+          {
+            "target": "state.nativeView",
+            "value": "input.view",
+            "valueKind": "reference"
+          }
+        ],
+        "emits": [],
+        "effects": []
+      },
+      {
+        "id": "images.replace",
+        "inputs": [
+          {
+            "name": "images",
+            "type": "string[]"
+          }
+        ],
+        "statusState": "",
+        "datasource": "",
+        "reducers": [
+          {
+            "target": "state.sharedImages",
+            "value": "input.images",
+            "valueKind": "reference"
+          }
+        ],
+        "emits": [],
+        "effects": []
+      },
+      {
+        "id": "native.enable",
+        "inputs": [
+          {
+            "name": "allow",
+            "type": "boolean"
+          }
+        ],
+        "statusState": "",
+        "datasource": "",
+        "reducers": [
+          {
+            "target": "state.nativeFlags",
+            "value": {
+              "kind": "object",
+              "fields": [
+                {
+                  "key": "allow",
+                  "value": {
+                    "kind": "path",
+                    "value": "input.allow"
+                  }
+                }
+              ]
+            },
+            "valueKind": "template"
+          }
+        ],
+        "emits": [],
+        "effects": []
+      },
+      {
+        "id": "image.select",
+        "inputs": [
+          {
+            "name": "groupId",
+            "type": "json"
+          },
+          {
+            "name": "productId",
+            "type": "json"
+          },
+          {
+            "name": "imageId",
+            "type": "string"
+          }
+        ],
+        "statusState": "",
+        "datasource": "",
+        "reducers": [
+          {
+            "target": "state.intentCapture.groupId",
+            "value": "input.groupId",
+            "valueKind": "reference"
+          },
+          {
+            "target": "state.intentCapture.productId",
+            "value": "input.productId",
+            "valueKind": "reference"
+          },
+          {
+            "target": "state.intentCapture.value",
+            "value": "input.imageId",
+            "valueKind": "reference"
+          },
+          {
+            "target": "state.intentCapture.kind",
+            "value": "image",
+            "valueKind": "literal"
+          }
+        ],
+        "emits": [],
+        "effects": []
+      },
+      {
+        "id": "reviews.sort",
+        "inputs": [
+          {
+            "name": "groupId",
+            "type": "json"
+          },
+          {
+            "name": "productId",
+            "type": "json"
+          },
+          {
+            "name": "sort",
+            "type": "string"
+          }
+        ],
+        "statusState": "",
+        "datasource": "",
+        "reducers": [
+          {
+            "target": "state.intentCapture.groupId",
+            "value": "input.groupId",
+            "valueKind": "reference"
+          },
+          {
+            "target": "state.intentCapture.productId",
+            "value": "input.productId",
+            "valueKind": "reference"
+          },
+          {
+            "target": "state.intentCapture.value",
+            "value": "input.sort",
+            "valueKind": "reference"
+          },
+          {
+            "target": "state.intentCapture.kind",
+            "value": "reviews",
+            "valueKind": "literal"
+          }
+        ],
+        "emits": [],
+        "effects": []
+      },
+      {
+        "id": "catalog.replace",
+        "inputs": [
+          {
+            "name": "catalog",
+            "type": "object"
+          }
+        ],
+        "statusState": "",
+        "datasource": "",
+        "reducers": [
+          {
+            "target": "state.catalog",
+            "value": "input.catalog",
+            "valueKind": "reference"
+          }
+        ],
+        "emits": [],
+        "effects": []
+      }
+    ],
+    "dataSources": [],
+    "effects": [],
+    "resources": []
+  },
+  "resources": [],
+  "search": {
+    "schema": "xtend.rmt.search-runtime.v1",
+    "sources": []
+  },
+  "events": [
+    {
+      "id": "event:inline.products/product-details/native-select/0",
+      "kind": "dom",
+      "event": "native-select",
+      "target": "[data-rmt-surface=\"product-details\"]",
+      "closest": null,
+      "component": "section",
+      "surface": "product-details",
+      "owner": "surface:inline.products/product-details",
+      "action": "image.select",
+      "condition": {
+        "kind": "condition",
+        "expression": {
+          "kind": "binary",
+          "op": "==",
+          "left": {
+            "kind": "path",
+            "path": [
+              "state",
+              "nativeFlags",
+              "allow"
+            ]
+          },
+          "right": {
+            "kind": "literal",
+            "value": true
+          }
+        },
+        "sourceRef": "src:condition:inline.products/product-details/event/native-select"
+      },
+      "payload": {
+        "groupId": "$detail.group",
+        "productId": "$detail.product",
+        "imageId": "$detail.image"
+      },
+      "payloadContract": {
+        "type": "object",
+        "required": [
+          "groupId",
+          "productId",
+          "imageId"
+        ],
+        "mappings": [
+          {
+            "name": "groupId",
+            "source": "detail.group"
+          },
+          {
+            "name": "productId",
+            "source": "detail.product"
+          },
+          {
+            "name": "imageId",
+            "source": "detail.image"
+          }
+        ]
+      },
+      "governance": {
+        "capture": false,
+        "passive": false,
+        "once": false,
+        "preventDefault": true,
+        "stopPropagation": false,
+        "retarget": "target"
+      },
+      "schema": "xtend.rmt.native-event-binding.v2",
+      "inputContract": "image.select"
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "product-details",
+      "kind": "region",
+      "component": "section",
+      "source": null,
+      "repeat": null,
+      "key": null,
+      "portal": "surface.root",
+      "bounds": null,
+      "resources": [],
+      "laneRefs": [
+        "lane:inline.products/product-details/visible"
+      ],
+      "events": [
+        "event:inline.products/product-details/native-select/0"
+      ]
+    },
+    {
+      "id": "product-gallery-host",
+      "kind": "region",
+      "component": "div",
+      "source": null,
+      "repeat": null,
+      "key": null,
+      "portal": "gallery.mount",
+      "bounds": null,
+      "resources": [],
+      "laneRefs": [
+        "lane:inline.products/product-gallery-host/visible"
+      ],
+      "events": []
+    },
+    {
+      "id": "product-reviews-host",
+      "kind": "region",
+      "component": "div",
+      "source": null,
+      "repeat": null,
+      "key": null,
+      "portal": "reviews.mount",
+      "bounds": null,
+      "resources": [],
+      "laneRefs": [
+        "lane:inline.products/product-reviews-host/idle"
+      ],
+      "events": []
+    }
+  ],
+  "portals": [
+    {
+      "id": "surface.root",
+      "root": "#xtend-maraca-root",
+      "layer": "surface",
+      "z": null,
+      "policies": []
+    },
+    {
+      "id": "gallery.mount",
+      "root": "#gallery-target",
+      "layer": "surface",
+      "z": null,
+      "policies": []
+    },
+    {
+      "id": "reviews.mount",
+      "root": "#reviews-target",
+      "layer": "surface",
+      "z": null,
+      "policies": []
+    }
+  ],
+  "overlays": [],
+  "render": {
+    "nativeView": {
+      "schema": "xtend.rmt.native-view.v1",
+      "documentId": "inline.products",
+      "surfaces": [
+        "product-details"
+      ]
+    },
+    "mode": "dom-descriptor",
+    "descriptors": [
+      {
+        "type": "component",
+        "id": "surface:product-details",
+        "surface": "product-details",
+        "component": "section",
+        "tag": "section",
+        "key": "product-details",
+        "attributes": {
+          "data-maraca-surface": {
+            "op": "literal",
+            "value": "product-details"
+          },
+          "data-rmt-surface": {
+            "op": "literal",
+            "value": "product-details"
+          },
+          "data-rmt-primitive-id": {
+            "op": "literal",
+            "value": "product-details"
+          },
+          "data-rmt-component": {
+            "op": "literal",
+            "value": "section"
+          },
+          "data-maraca-kind": {
+            "op": "literal",
+            "value": "region"
+          },
+          "data-action": "select",
+          "data-label": "select"
+        },
+        "parts": [
+          "surface",
+          "region"
+        ],
+        "styleTokens": {
+          "portal": {
+            "op": "literal",
+            "value": "surface.root"
+          }
+        },
+        "bindings": [
+          "event:inline.products/product-details/native-select/0"
+        ],
+        "children": [
+          {
+            "type": "element",
+            "tag": "header",
+            "nativeDeclarationId": "native:product-details:0",
+            "attributes": {
+              "id": {
+                "op": "literal",
+                "value": "product-header"
+              }
+            },
+            "children": [
+              {
+                "type": "element",
+                "tag": "h1",
+                "nativeDeclarationId": "native:product-details:0.0",
+                "attributes": {
+                  "data-native-heading": {
+                    "op": "literal",
+                    "value": "title"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "text",
+                    "nativeDeclarationId": "native:product-details:0.0.0",
+                    "value": {
+                      "op": "native-projection",
+                      "projection": {
+                        "kind": "path",
+                        "root": "state",
+                        "symbol": "nativeView",
+                        "path": [
+                          "title"
+                        ]
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "element",
+                "tag": "p",
+                "nativeDeclarationId": "native:product-details:0.1",
+                "attributes": {
+                  "data-native-literal": {
+                    "op": "literal",
+                    "value": "literal"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "text",
+                    "nativeDeclarationId": "native:product-details:0.1.0",
+                    "value": {
+                      "op": "literal",
+                      "value": "$model.literal-stays-data"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "element",
+                "tag": "a",
+                "nativeDeclarationId": "native:product-details:0.2",
+                "attributes": {
+                  "href": {
+                    "op": "native-projection",
+                    "projection": {
+                      "kind": "path",
+                      "root": "state",
+                      "symbol": "nativeView",
+                      "path": [
+                        "href"
+                      ]
+                    }
+                  },
+                  "data-native-link": {
+                    "op": "literal",
+                    "value": "details"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "text",
+                    "nativeDeclarationId": "native:product-details:0.2.0",
+                    "value": {
+                      "op": "literal",
+                      "value": "Details"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "native-when",
+                "nativeDeclarationId": "native:product-details:0.3",
+                "test": {
+                  "kind": "path",
+                  "root": "state",
+                  "symbol": "nativeView",
+                  "path": [
+                    "show"
+                  ]
+                },
+                "children": [
+                  {
+                    "type": "element",
+                    "tag": "strong",
+                    "nativeDeclarationId": "native:product-details:0.3.0",
+                    "attributes": {
+                      "data-native-count": {
+                        "op": "literal",
+                        "value": "images"
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "text",
+                        "nativeDeclarationId": "native:product-details:0.3.0.0",
+                        "value": {
+                          "op": "native-projection",
+                          "projection": {
+                            "kind": "path",
+                            "root": "selector",
+                            "symbol": "galleryImages",
+                            "path": [
+                              "length"
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "element",
+                "tag": "output",
+                "nativeDeclarationId": "native:product-details:0.4",
+                "attributes": {
+                  "data-native-intent": {
+                    "op": "literal",
+                    "value": "value"
+                  }
+                },
+                "children": [
+                  {
+                    "type": "text",
+                    "nativeDeclarationId": "native:product-details:0.4.0",
+                    "value": {
+                      "op": "native-projection",
+                      "projection": {
+                        "kind": "path",
+                        "root": "state",
+                        "symbol": "intentCapture",
+                        "path": [
+                          "value"
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "element",
+            "tag": "div",
+            "nativeDeclarationId": "native:product-details:1",
+            "attributes": {
+              "id": {
+                "op": "literal",
+                "value": "gallery-target"
+              }
+            },
+            "children": []
+          },
+          {
+            "type": "element",
+            "tag": "div",
+            "nativeDeclarationId": "native:product-details:2",
+            "attributes": {
+              "id": {
+                "op": "literal",
+                "value": "reviews-target"
+              }
+            },
+            "children": []
+          },
+          {
+            "type": "element",
+            "tag": "section",
+            "nativeDeclarationId": "native:product-details:3",
+            "attributes": {
+              "data-native-catalog": {
+                "op": "literal",
+                "value": "products"
+              }
+            },
+            "children": [
+              {
+                "type": "native-repeat",
+                "nativeDeclarationId": "native:product-details:3.0",
+                "repeat": [
+                  {
+                    "state": "catalog",
+                    "path": [
+                      "items"
+                    ],
+                    "key": [
+                      "id"
+                    ]
+                  }
+                ],
+                "children": [
+                  {
+                    "type": "element",
+                    "tag": "article",
+                    "nativeDeclarationId": "native:product-details:3.0.0",
+                    "attributes": {
+                      "data-native-group": {
+                        "op": "native-projection",
+                        "projection": {
+                          "kind": "path",
+                          "root": "state",
+                          "symbol": "catalog",
+                          "path": [
+                            "items",
+                            {
+                              "repeat": 0
+                            },
+                            "id"
+                          ]
+                        }
+                      }
+                    },
+                    "children": [
+                      {
+                        "type": "native-repeat",
+                        "nativeDeclarationId": "native:product-details:3.0.0.0",
+                        "repeat": [
+                          {
+                            "state": "catalog",
+                            "path": [
+                              "items"
+                            ],
+                            "key": [
+                              "id"
+                            ]
+                          },
+                          {
+                            "path": [
+                              "products"
+                            ],
+                            "key": [
+                              "id"
+                            ]
+                          }
+                        ],
+                        "children": [
+                          {
+                            "type": "element",
+                            "tag": "div",
+                            "nativeDeclarationId": "native:product-details:3.0.0.0.0",
+                            "attributes": {
+                              "data-native-slug": {
+                                "op": "native-projection",
+                                "projection": {
+                                  "kind": "path",
+                                  "root": "state",
+                                  "symbol": "catalog",
+                                  "path": [
+                                    "items",
+                                    {
+                                      "repeat": 0
+                                    },
+                                    "products",
+                                    {
+                                      "repeat": 1
+                                    },
+                                    "slug"
+                                  ]
+                                }
+                              }
+                            },
+                            "children": [
+                              {
+                                "type": "element",
+                                "tag": "input",
+                                "nativeDeclarationId": "native:product-details:3.0.0.0.0.0",
+                                "attributes": {
+                                  "type": {
+                                    "op": "literal",
+                                    "value": "text"
+                                  },
+                                  "aria-label": {
+                                    "op": "native-projection",
+                                    "projection": {
+                                      "kind": "path",
+                                      "root": "state",
+                                      "symbol": "catalog",
+                                      "path": [
+                                        "items",
+                                        {
+                                          "repeat": 0
+                                        },
+                                        "products",
+                                        {
+                                          "repeat": 1
+                                        },
+                                        "slug"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "properties": {
+                                  "value": {
+                                    "op": "native-projection",
+                                    "projection": {
+                                      "kind": "path",
+                                      "root": "state",
+                                      "symbol": "catalog",
+                                      "path": [
+                                        "items",
+                                        {
+                                          "repeat": 0
+                                        },
+                                        "products",
+                                        {
+                                          "repeat": 1
+                                        },
+                                        "slug"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "children": []
+                              },
+                              {
+                                "type": "native-when",
+                                "nativeDeclarationId": "native:product-details:3.0.0.0.0.1",
+                                "test": {
+                                  "kind": "path",
+                                  "root": "state",
+                                  "symbol": "catalog",
+                                  "path": [
+                                    "items",
+                                    {
+                                      "repeat": 0
+                                    },
+                                    "products",
+                                    {
+                                      "repeat": 1
+                                    },
+                                    "enabled"
+                                  ]
+                                },
+                                "children": [
+                                  {
+                                    "type": "element",
+                                    "tag": "span",
+                                    "nativeDeclarationId": "native:product-details:3.0.0.0.0.1.0",
+                                    "attributes": {
+                                      "data-native-value": {
+                                        "op": "literal",
+                                        "value": "image"
+                                      }
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "text",
+                                        "nativeDeclarationId": "native:product-details:3.0.0.0.0.1.0.0",
+                                        "value": {
+                                          "op": "native-projection",
+                                          "projection": {
+                                            "kind": "path",
+                                            "root": "state",
+                                            "symbol": "catalog",
+                                            "path": [
+                                              "items",
+                                              {
+                                                "repeat": 0
+                                              },
+                                              "products",
+                                              {
+                                                "repeat": 1
+                                              },
+                                              "selectedImageId"
+                                            ]
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "element",
+                                    "tag": "span",
+                                    "nativeDeclarationId": "native:product-details:3.0.0.0.0.1.1",
+                                    "attributes": {
+                                      "data-native-sort": {
+                                        "op": "literal",
+                                        "value": "reviews"
+                                      }
+                                    },
+                                    "children": [
+                                      {
+                                        "type": "text",
+                                        "nativeDeclarationId": "native:product-details:3.0.0.0.0.1.1.0",
+                                        "value": {
+                                          "op": "native-projection",
+                                          "projection": {
+                                            "kind": "path",
+                                            "root": "state",
+                                            "symbol": "catalog",
+                                            "path": [
+                                              "items",
+                                              {
+                                                "repeat": 0
+                                              },
+                                              "products",
+                                              {
+                                                "repeat": 1
+                                              },
+                                              "reviewsSort"
+                                            ]
+                                          }
+                                        }
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "component",
+        "id": "surface:product-gallery-host",
+        "surface": "product-gallery-host",
+        "component": "div",
+        "tag": "div",
+        "key": "product-gallery-host",
+        "attributes": {
+          "data-maraca-surface": {
+            "op": "literal",
+            "value": "product-gallery-host"
+          },
+          "data-rmt-surface": {
+            "op": "literal",
+            "value": "product-gallery-host"
+          },
+          "data-rmt-primitive-id": {
+            "op": "literal",
+            "value": "product-gallery-host"
+          },
+          "data-rmt-component": {
+            "op": "literal",
+            "value": "div"
+          },
+          "data-maraca-kind": {
+            "op": "literal",
+            "value": "region"
+          }
+        },
+        "parts": [
+          "surface",
+          "region"
+        ],
+        "styleTokens": {
+          "portal": {
+            "op": "literal",
+            "value": "gallery.mount"
+          }
+        },
+        "bindings": []
+      },
+      {
+        "type": "component",
+        "id": "surface:product-reviews-host",
+        "surface": "product-reviews-host",
+        "component": "div",
+        "tag": "div",
+        "key": "product-reviews-host",
+        "attributes": {
+          "data-maraca-surface": {
+            "op": "literal",
+            "value": "product-reviews-host"
+          },
+          "data-rmt-surface": {
+            "op": "literal",
+            "value": "product-reviews-host"
+          },
+          "data-rmt-primitive-id": {
+            "op": "literal",
+            "value": "product-reviews-host"
+          },
+          "data-rmt-component": {
+            "op": "literal",
+            "value": "div"
+          },
+          "data-maraca-kind": {
+            "op": "literal",
+            "value": "region"
+          }
+        },
+        "parts": [
+          "surface",
+          "region"
+        ],
+        "styleTokens": {
+          "portal": {
+            "op": "literal",
+            "value": "reviews.mount"
+          }
+        },
+        "bindings": []
+      }
+    ],
+    "root": {
+      "type": "fragment",
+      "children": [
+        {
+          "type": "component",
+          "id": "surface:product-details",
+          "surface": "product-details",
+          "component": "section",
+          "tag": "section",
+          "key": "product-details",
+          "attributes": {
+            "data-maraca-surface": {
+              "op": "literal",
+              "value": "product-details"
+            },
+            "data-rmt-surface": {
+              "op": "literal",
+              "value": "product-details"
+            },
+            "data-rmt-primitive-id": {
+              "op": "literal",
+              "value": "product-details"
+            },
+            "data-rmt-component": {
+              "op": "literal",
+              "value": "section"
+            },
+            "data-maraca-kind": {
+              "op": "literal",
+              "value": "region"
+            },
+            "data-action": "select",
+            "data-label": "select"
+          },
+          "parts": [
+            "surface",
+            "region"
+          ],
+          "styleTokens": {
+            "portal": {
+              "op": "literal",
+              "value": "surface.root"
+            }
+          },
+          "bindings": [
+            "event:inline.products/product-details/native-select/0"
+          ],
+          "children": [
+            {
+              "type": "element",
+              "tag": "header",
+              "nativeDeclarationId": "native:product-details:0",
+              "attributes": {
+                "id": {
+                  "op": "literal",
+                  "value": "product-header"
+                }
+              },
+              "children": [
+                {
+                  "type": "element",
+                  "tag": "h1",
+                  "nativeDeclarationId": "native:product-details:0.0",
+                  "attributes": {
+                    "data-native-heading": {
+                      "op": "literal",
+                      "value": "title"
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "text",
+                      "nativeDeclarationId": "native:product-details:0.0.0",
+                      "value": {
+                        "op": "native-projection",
+                        "projection": {
+                          "kind": "path",
+                          "root": "state",
+                          "symbol": "nativeView",
+                          "path": [
+                            "title"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "element",
+                  "tag": "p",
+                  "nativeDeclarationId": "native:product-details:0.1",
+                  "attributes": {
+                    "data-native-literal": {
+                      "op": "literal",
+                      "value": "literal"
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "text",
+                      "nativeDeclarationId": "native:product-details:0.1.0",
+                      "value": {
+                        "op": "literal",
+                        "value": "$model.literal-stays-data"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "element",
+                  "tag": "a",
+                  "nativeDeclarationId": "native:product-details:0.2",
+                  "attributes": {
+                    "href": {
+                      "op": "native-projection",
+                      "projection": {
+                        "kind": "path",
+                        "root": "state",
+                        "symbol": "nativeView",
+                        "path": [
+                          "href"
+                        ]
+                      }
+                    },
+                    "data-native-link": {
+                      "op": "literal",
+                      "value": "details"
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "text",
+                      "nativeDeclarationId": "native:product-details:0.2.0",
+                      "value": {
+                        "op": "literal",
+                        "value": "Details"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "native-when",
+                  "nativeDeclarationId": "native:product-details:0.3",
+                  "test": {
+                    "kind": "path",
+                    "root": "state",
+                    "symbol": "nativeView",
+                    "path": [
+                      "show"
+                    ]
+                  },
+                  "children": [
+                    {
+                      "type": "element",
+                      "tag": "strong",
+                      "nativeDeclarationId": "native:product-details:0.3.0",
+                      "attributes": {
+                        "data-native-count": {
+                          "op": "literal",
+                          "value": "images"
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "text",
+                          "nativeDeclarationId": "native:product-details:0.3.0.0",
+                          "value": {
+                            "op": "native-projection",
+                            "projection": {
+                              "kind": "path",
+                              "root": "selector",
+                              "symbol": "galleryImages",
+                              "path": [
+                                "length"
+                              ]
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "element",
+                  "tag": "output",
+                  "nativeDeclarationId": "native:product-details:0.4",
+                  "attributes": {
+                    "data-native-intent": {
+                      "op": "literal",
+                      "value": "value"
+                    }
+                  },
+                  "children": [
+                    {
+                      "type": "text",
+                      "nativeDeclarationId": "native:product-details:0.4.0",
+                      "value": {
+                        "op": "native-projection",
+                        "projection": {
+                          "kind": "path",
+                          "root": "state",
+                          "symbol": "intentCapture",
+                          "path": [
+                            "value"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "tag": "div",
+              "nativeDeclarationId": "native:product-details:1",
+              "attributes": {
+                "id": {
+                  "op": "literal",
+                  "value": "gallery-target"
+                }
+              },
+              "children": [
+                {
+                  "type": "component",
+                  "id": "surface:product-gallery-host",
+                  "surface": "product-gallery-host",
+                  "component": "div",
+                  "tag": "div",
+                  "key": "product-gallery-host",
+                  "attributes": {
+                    "data-maraca-surface": {
+                      "op": "literal",
+                      "value": "product-gallery-host"
+                    },
+                    "data-rmt-surface": {
+                      "op": "literal",
+                      "value": "product-gallery-host"
+                    },
+                    "data-rmt-primitive-id": {
+                      "op": "literal",
+                      "value": "product-gallery-host"
+                    },
+                    "data-rmt-component": {
+                      "op": "literal",
+                      "value": "div"
+                    },
+                    "data-maraca-kind": {
+                      "op": "literal",
+                      "value": "region"
+                    }
+                  },
+                  "parts": [
+                    "surface",
+                    "region"
+                  ],
+                  "styleTokens": {
+                    "portal": {
+                      "op": "literal",
+                      "value": "gallery.mount"
+                    }
+                  },
+                  "bindings": []
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "tag": "div",
+              "nativeDeclarationId": "native:product-details:2",
+              "attributes": {
+                "id": {
+                  "op": "literal",
+                  "value": "reviews-target"
+                }
+              },
+              "children": [
+                {
+                  "type": "component",
+                  "id": "surface:product-reviews-host",
+                  "surface": "product-reviews-host",
+                  "component": "div",
+                  "tag": "div",
+                  "key": "product-reviews-host",
+                  "attributes": {
+                    "data-maraca-surface": {
+                      "op": "literal",
+                      "value": "product-reviews-host"
+                    },
+                    "data-rmt-surface": {
+                      "op": "literal",
+                      "value": "product-reviews-host"
+                    },
+                    "data-rmt-primitive-id": {
+                      "op": "literal",
+                      "value": "product-reviews-host"
+                    },
+                    "data-rmt-component": {
+                      "op": "literal",
+                      "value": "div"
+                    },
+                    "data-maraca-kind": {
+                      "op": "literal",
+                      "value": "region"
+                    }
+                  },
+                  "parts": [
+                    "surface",
+                    "region"
+                  ],
+                  "styleTokens": {
+                    "portal": {
+                      "op": "literal",
+                      "value": "reviews.mount"
+                    }
+                  },
+                  "bindings": []
+                }
+              ]
+            },
+            {
+              "type": "element",
+              "tag": "section",
+              "nativeDeclarationId": "native:product-details:3",
+              "attributes": {
+                "data-native-catalog": {
+                  "op": "literal",
+                  "value": "products"
+                }
+              },
+              "children": [
+                {
+                  "type": "native-repeat",
+                  "nativeDeclarationId": "native:product-details:3.0",
+                  "repeat": [
+                    {
+                      "state": "catalog",
+                      "path": [
+                        "items"
+                      ],
+                      "key": [
+                        "id"
+                      ]
+                    }
+                  ],
+                  "children": [
+                    {
+                      "type": "element",
+                      "tag": "article",
+                      "nativeDeclarationId": "native:product-details:3.0.0",
+                      "attributes": {
+                        "data-native-group": {
+                          "op": "native-projection",
+                          "projection": {
+                            "kind": "path",
+                            "root": "state",
+                            "symbol": "catalog",
+                            "path": [
+                              "items",
+                              {
+                                "repeat": 0
+                              },
+                              "id"
+                            ]
+                          }
+                        }
+                      },
+                      "children": [
+                        {
+                          "type": "native-repeat",
+                          "nativeDeclarationId": "native:product-details:3.0.0.0",
+                          "repeat": [
+                            {
+                              "state": "catalog",
+                              "path": [
+                                "items"
+                              ],
+                              "key": [
+                                "id"
+                              ]
+                            },
+                            {
+                              "path": [
+                                "products"
+                              ],
+                              "key": [
+                                "id"
+                              ]
+                            }
+                          ],
+                          "children": [
+                            {
+                              "type": "element",
+                              "tag": "div",
+                              "nativeDeclarationId": "native:product-details:3.0.0.0.0",
+                              "attributes": {
+                                "data-native-slug": {
+                                  "op": "native-projection",
+                                  "projection": {
+                                    "kind": "path",
+                                    "root": "state",
+                                    "symbol": "catalog",
+                                    "path": [
+                                      "items",
+                                      {
+                                        "repeat": 0
+                                      },
+                                      "products",
+                                      {
+                                        "repeat": 1
+                                      },
+                                      "slug"
+                                    ]
+                                  }
+                                }
+                              },
+                              "children": [
+                                {
+                                  "type": "element",
+                                  "tag": "input",
+                                  "nativeDeclarationId": "native:product-details:3.0.0.0.0.0",
+                                  "attributes": {
+                                    "type": {
+                                      "op": "literal",
+                                      "value": "text"
+                                    },
+                                    "aria-label": {
+                                      "op": "native-projection",
+                                      "projection": {
+                                        "kind": "path",
+                                        "root": "state",
+                                        "symbol": "catalog",
+                                        "path": [
+                                          "items",
+                                          {
+                                            "repeat": 0
+                                          },
+                                          "products",
+                                          {
+                                            "repeat": 1
+                                          },
+                                          "slug"
+                                        ]
+                                      }
+                                    }
+                                  },
+                                  "properties": {
+                                    "value": {
+                                      "op": "native-projection",
+                                      "projection": {
+                                        "kind": "path",
+                                        "root": "state",
+                                        "symbol": "catalog",
+                                        "path": [
+                                          "items",
+                                          {
+                                            "repeat": 0
+                                          },
+                                          "products",
+                                          {
+                                            "repeat": 1
+                                          },
+                                          "slug"
+                                        ]
+                                      }
+                                    }
+                                  },
+                                  "children": []
+                                },
+                                {
+                                  "type": "native-when",
+                                  "nativeDeclarationId": "native:product-details:3.0.0.0.0.1",
+                                  "test": {
+                                    "kind": "path",
+                                    "root": "state",
+                                    "symbol": "catalog",
+                                    "path": [
+                                      "items",
+                                      {
+                                        "repeat": 0
+                                      },
+                                      "products",
+                                      {
+                                        "repeat": 1
+                                      },
+                                      "enabled"
+                                    ]
+                                  },
+                                  "children": [
+                                    {
+                                      "type": "element",
+                                      "tag": "span",
+                                      "nativeDeclarationId": "native:product-details:3.0.0.0.0.1.0",
+                                      "attributes": {
+                                        "data-native-value": {
+                                          "op": "literal",
+                                          "value": "image"
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "nativeDeclarationId": "native:product-details:3.0.0.0.0.1.0.0",
+                                          "value": {
+                                            "op": "native-projection",
+                                            "projection": {
+                                              "kind": "path",
+                                              "root": "state",
+                                              "symbol": "catalog",
+                                              "path": [
+                                                "items",
+                                                {
+                                                  "repeat": 0
+                                                },
+                                                "products",
+                                                {
+                                                  "repeat": 1
+                                                },
+                                                "selectedImageId"
+                                              ]
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "element",
+                                      "tag": "span",
+                                      "nativeDeclarationId": "native:product-details:3.0.0.0.0.1.1",
+                                      "attributes": {
+                                        "data-native-sort": {
+                                          "op": "literal",
+                                          "value": "reviews"
+                                        }
+                                      },
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "nativeDeclarationId": "native:product-details:3.0.0.0.0.1.1.0",
+                                          "value": {
+                                            "op": "native-projection",
+                                            "projection": {
+                                              "kind": "path",
+                                              "root": "state",
+                                              "symbol": "catalog",
+                                              "path": [
+                                                "items",
+                                                {
+                                                  "repeat": 0
+                                                },
+                                                "products",
+                                                {
+                                                  "repeat": 1
+                                                },
+                                                "reviewsSort"
+                                              ]
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "diagnostics": []
+  },
+  "hydration": {
+    "schema": "xtend.rmt.app-hydration-plan.v1",
+    "supportedModes": [
+      "runtime_render",
+      "hydrate_prerendered",
+      "server_prerender_hydrate",
+      "server_prerender_resume",
+      "worker_prerender_hydrate",
+      "warm",
+      "prewarm",
+      "visible",
+      "idle",
+      "lazy",
+      "eager",
+      "open",
+      "route",
+      "managed_subtree",
+      "observe_only",
+      "manual",
+      "none",
+      "insular"
+    ],
+    "defaultMode": "runtime_render",
+    "records": [
+      {
+        "id": "hydration:product-details/mount",
+        "surface": "product-details",
+        "component": "section",
+        "operation": "operation:inline.products/product-details/visible/0",
+        "op": "mount",
+        "lane": "visible",
+        "policy": "visible",
+        "mode": "runtime_render",
+        "scheduleRef": "operation:inline.products/product-details/visible/0",
+        "fabricSchedule": null,
+        "endpointName": "xtend.rmt.kernel.surface-lifecycle.product-header.mount",
+        "target": {
+          "kind": "ref",
+          "ref": "product-header"
+        },
+        "source": null,
+        "clientDetermined": true,
+        "uiCoprocessorEligible": false,
+        "explicitPolicy": false,
+        "resumability": null,
+        "insularHydration": false,
+        "workerPrerender": {
+          "schema": "xtend.rmt.app-hydration-worker-prerender.v1",
+          "requested": false,
+          "supported": true,
+          "degraded": false,
+          "status": "not_requested",
+          "mode": "worker_prerender_hydrate",
+          "runtimeHook": "hydrateResponse",
+          "trustedDomCommit": "main-thread",
+          "staleResponses": "discard-by-generation",
+          "hostServices": "blocked-in-worker-path",
+          "fabric": null
+        },
+        "uiCoprocessor": {
+          "schema": "xtend.rmt.app-hydration-ui-coprocessor.v1",
+          "eligible": false,
+          "supported": true,
+          "status": "not_eligible",
+          "mode": "ui_compute",
+          "runtimeHook": "requestUiCompute",
+          "trustedDomCommit": "main-thread",
+          "stateOwnership": "main-thread",
+          "staleResponses": "discard-by-generation",
+          "ssrRoundtripCount": 0,
+          "clientDetermined": true,
+          "fabric": null,
+          "pwaAttachment": {
+            "manifestRef": null,
+            "cacheMode": "attachment-point-only",
+            "serviceWorkerControlled": false,
+            "offlineEligible": false
+          }
+        },
+        "isolation": {
+          "boundary": "public-contract-only",
+          "mode": "public-contract-only",
+          "channels": [
+            "attributes",
+            "properties",
+            "events",
+            "slots",
+            "css-parts",
+            "css-tokens"
+          ],
+          "shadowRootAccess": false
+        },
+        "sourceRefs": [
+          "src:operation:inline.products/product-details/visible/0"
+        ]
+      },
+      {
+        "id": "hydration:product-gallery-host/mount",
+        "surface": "product-gallery-host",
+        "component": "div",
+        "operation": "operation:inline.products/product-gallery-host/visible/0",
+        "op": "mount",
+        "lane": "visible",
+        "policy": "visible",
+        "mode": "runtime_render",
+        "scheduleRef": "operation:inline.products/product-gallery-host/visible/0",
+        "fabricSchedule": null,
+        "endpointName": "xtend.rmt.kernel.surface-lifecycle.product-gallery-host.mount",
+        "target": {
+          "kind": "ref",
+          "ref": "product-gallery-host"
+        },
+        "source": null,
+        "clientDetermined": true,
+        "uiCoprocessorEligible": false,
+        "explicitPolicy": false,
+        "resumability": null,
+        "insularHydration": false,
+        "workerPrerender": {
+          "schema": "xtend.rmt.app-hydration-worker-prerender.v1",
+          "requested": false,
+          "supported": true,
+          "degraded": false,
+          "status": "not_requested",
+          "mode": "worker_prerender_hydrate",
+          "runtimeHook": "hydrateResponse",
+          "trustedDomCommit": "main-thread",
+          "staleResponses": "discard-by-generation",
+          "hostServices": "blocked-in-worker-path",
+          "fabric": null
+        },
+        "uiCoprocessor": {
+          "schema": "xtend.rmt.app-hydration-ui-coprocessor.v1",
+          "eligible": false,
+          "supported": true,
+          "status": "not_eligible",
+          "mode": "ui_compute",
+          "runtimeHook": "requestUiCompute",
+          "trustedDomCommit": "main-thread",
+          "stateOwnership": "main-thread",
+          "staleResponses": "discard-by-generation",
+          "ssrRoundtripCount": 0,
+          "clientDetermined": true,
+          "fabric": null,
+          "pwaAttachment": {
+            "manifestRef": null,
+            "cacheMode": "attachment-point-only",
+            "serviceWorkerControlled": false,
+            "offlineEligible": false
+          }
+        },
+        "isolation": {
+          "boundary": "public-contract-only",
+          "mode": "public-contract-only",
+          "channels": [
+            "attributes",
+            "properties",
+            "events",
+            "slots",
+            "css-parts",
+            "css-tokens"
+          ],
+          "shadowRootAccess": false
+        },
+        "sourceRefs": [
+          "src:operation:inline.products/product-gallery-host/visible/0"
+        ]
+      },
+      {
+        "id": "hydration:product-reviews-host/mount",
+        "surface": "product-reviews-host",
+        "component": "div",
+        "operation": "operation:inline.products/product-reviews-host/idle/0",
+        "op": "mount",
+        "lane": "idle",
+        "policy": "idle",
+        "mode": "runtime_render",
+        "scheduleRef": "operation:inline.products/product-reviews-host/idle/0",
+        "fabricSchedule": {
+          "lane": "idle",
+          "fiberKind": "component.prewarm",
+          "scheduleRef": "component.warm.reentry",
+          "endpointName": "xtendrmt.component.prewarm",
+          "metadata": {
+            "uiCoprocessor": true,
+            "hydrationKey": "operation:operation:inline.products/product-reviews-host/idle/0",
+            "generation": "operation:operation:inline.products/product-reviews-host/idle/0:client",
+            "clientDetermined": true
+          }
+        },
+        "endpointName": "xtend.rmt.kernel.surface-lifecycle.product-reviews-host.mount",
+        "target": {
+          "kind": "ref",
+          "ref": "product-reviews-host"
+        },
+        "source": null,
+        "clientDetermined": true,
+        "uiCoprocessorEligible": true,
+        "explicitPolicy": false,
+        "resumability": null,
+        "insularHydration": false,
+        "workerPrerender": {
+          "schema": "xtend.rmt.app-hydration-worker-prerender.v1",
+          "requested": false,
+          "supported": true,
+          "degraded": false,
+          "status": "not_requested",
+          "mode": "worker_prerender_hydrate",
+          "runtimeHook": "hydrateResponse",
+          "trustedDomCommit": "main-thread",
+          "staleResponses": "discard-by-generation",
+          "hostServices": "blocked-in-worker-path",
+          "fabric": {
+            "lane": "idle",
+            "fiberKind": "component.prewarm",
+            "scheduleRef": "component.warm.reentry",
+            "endpointName": "xtendrmt.component.prewarm",
+            "metadata": {
+              "uiCoprocessor": true,
+              "hydrationKey": "operation:operation:inline.products/product-reviews-host/idle/0",
+              "generation": "operation:operation:inline.products/product-reviews-host/idle/0:client",
+              "clientDetermined": true
+            }
+          }
+        },
+        "uiCoprocessor": {
+          "schema": "xtend.rmt.app-hydration-ui-coprocessor.v1",
+          "eligible": true,
+          "supported": true,
+          "status": "eligible",
+          "mode": "ui_compute",
+          "runtimeHook": "requestUiCompute",
+          "trustedDomCommit": "main-thread",
+          "stateOwnership": "main-thread",
+          "staleResponses": "discard-by-generation",
+          "ssrRoundtripCount": 0,
+          "clientDetermined": true,
+          "fabric": {
+            "lane": "idle",
+            "fiberKind": "component.prewarm",
+            "scheduleRef": "component.warm.reentry",
+            "endpointName": "xtendrmt.component.prewarm",
+            "metadata": {
+              "uiCoprocessor": true,
+              "hydrationKey": "operation:operation:inline.products/product-reviews-host/idle/0",
+              "generation": "operation:operation:inline.products/product-reviews-host/idle/0:client",
+              "clientDetermined": true
+            }
+          },
+          "pwaAttachment": {
+            "manifestRef": null,
+            "cacheMode": "attachment-point-only",
+            "serviceWorkerControlled": false,
+            "offlineEligible": false
+          }
+        },
+        "isolation": {
+          "boundary": "public-contract-only",
+          "mode": "public-contract-only",
+          "channels": [
+            "attributes",
+            "properties",
+            "events",
+            "slots",
+            "css-parts",
+            "css-tokens"
+          ],
+          "shadowRootAccess": false
+        },
+        "sourceRefs": [
+          "src:operation:inline.products/product-reviews-host/idle/0"
+        ]
+      }
+    ],
+    "capabilities": [
+      {
+        "schema": "xtend.rmt.app-hydration-capability.v1",
+        "id": "workerPrerender",
+        "mode": "worker_prerender_hydrate",
+        "supported": true,
+        "degraded": false,
+        "status": "available",
+        "requested": false,
+        "recordCount": 0,
+        "runtimeHooks": [
+          "createRmtWorkerPrerenderRuntime",
+          "hydrateResponse",
+          "commitTrustedHtml"
+        ],
+        "fabric": {
+          "lane": "background",
+          "fiberKind": "component.worker_prerender_hydrate",
+          "scheduleRef": "component.worker_prerender_hydrate",
+          "endpointName": "xtendrmt.component.worker_prerender_hydrate"
+        },
+        "validation": {
+          "generationRequired": true,
+          "staleResponses": "discard",
+          "hostServices": "blocked-in-worker-path",
+          "trustedDomCommit": "main-thread"
+        }
+      },
+      {
+        "schema": "xtend.rmt.app-hydration-capability.v1",
+        "id": "uiCoprocessor",
+        "mode": "ui_compute",
+        "supported": true,
+        "degraded": false,
+        "status": "available",
+        "requested": true,
+        "recordCount": 1,
+        "runtimeHooks": [
+          "requestUiCompute",
+          "dispatchUiComputeEnvelope",
+          "hydrateResponse"
+        ],
+        "fabric": {
+          "lanes": [
+            "background",
+            "idle"
+          ],
+          "scheduleRefs": [
+            "component.worker_prerender_hydrate",
+            "component.prewarm.prepare",
+            "component.warm.reentry",
+            "diagnostics.snapshot"
+          ]
+        },
+        "validation": {
+          "generationRequired": true,
+          "staleResponses": "discard",
+          "hostServices": "blocked-in-worker-path",
+          "trustedDomCommit": "main-thread",
+          "stateOwnership": "main-thread",
+          "ssrRoundtripCount": 0
+        }
+      },
+      {
+        "schema": "xtend.rmt.app-resumability-capability.v1",
+        "id": "serverResumability",
+        "mode": "server_prerender_resume",
+        "envelopeSchema": "xtend.rmt.ssr-resume-envelope.v1",
+        "supported": true,
+        "degraded": false,
+        "status": "available",
+        "requested": false,
+        "recordCount": 0,
+        "fallbackMode": "server_prerender_hydrate",
+        "runtimeHooks": [
+          "resumeTemplate",
+          "resumeResponse",
+          "hydrateResponse"
+        ],
+        "requirements": {
+          "snapshot": "surface_state",
+          "eventReplay": "intent_queue",
+          "integrity": "signed_manifest",
+          "verificationBeforeMutation": true,
+          "replayExactlyOnce": true
+        }
+      }
+    ],
+    "workerPrerender": {
+      "schema": "xtend.rmt.app-hydration-capability.v1",
+      "id": "workerPrerender",
+      "mode": "worker_prerender_hydrate",
+      "supported": true,
+      "degraded": false,
+      "status": "available",
+      "requested": false,
+      "recordCount": 0,
+      "runtimeHooks": [
+        "createRmtWorkerPrerenderRuntime",
+        "hydrateResponse",
+        "commitTrustedHtml"
+      ],
+      "fabric": {
+        "lane": "background",
+        "fiberKind": "component.worker_prerender_hydrate",
+        "scheduleRef": "component.worker_prerender_hydrate",
+        "endpointName": "xtendrmt.component.worker_prerender_hydrate"
+      },
+      "validation": {
+        "generationRequired": true,
+        "staleResponses": "discard",
+        "hostServices": "blocked-in-worker-path",
+        "trustedDomCommit": "main-thread"
+      }
+    },
+    "uiCoprocessor": {
+      "schema": "xtend.rmt.app-hydration-capability.v1",
+      "id": "uiCoprocessor",
+      "mode": "ui_compute",
+      "supported": true,
+      "degraded": false,
+      "status": "available",
+      "requested": true,
+      "recordCount": 1,
+      "runtimeHooks": [
+        "requestUiCompute",
+        "dispatchUiComputeEnvelope",
+        "hydrateResponse"
+      ],
+      "fabric": {
+        "lanes": [
+          "background",
+          "idle"
+        ],
+        "scheduleRefs": [
+          "component.worker_prerender_hydrate",
+          "component.prewarm.prepare",
+          "component.warm.reentry",
+          "diagnostics.snapshot"
+        ]
+      },
+      "validation": {
+        "generationRequired": true,
+        "staleResponses": "discard",
+        "hostServices": "blocked-in-worker-path",
+        "trustedDomCommit": "main-thread",
+        "stateOwnership": "main-thread",
+        "ssrRoundtripCount": 0
+      }
+    },
+    "serverResumability": {
+      "schema": "xtend.rmt.app-resumability-capability.v1",
+      "id": "serverResumability",
+      "mode": "server_prerender_resume",
+      "envelopeSchema": "xtend.rmt.ssr-resume-envelope.v1",
+      "supported": true,
+      "degraded": false,
+      "status": "available",
+      "requested": false,
+      "recordCount": 0,
+      "fallbackMode": "server_prerender_hydrate",
+      "runtimeHooks": [
+        "resumeTemplate",
+        "resumeResponse",
+        "hydrateResponse"
+      ],
+      "requirements": {
+        "snapshot": "surface_state",
+        "eventReplay": "intent_queue",
+        "integrity": "signed_manifest",
+        "verificationBeforeMutation": true,
+        "replayExactlyOnce": true
+      }
+    },
+    "insularIslands": [],
+    "diagnostics": [],
+    "security": {
+      "componentIsolation": "public-contract-only",
+      "shadowRootAccess": false,
+      "trustedDomBoundaryRequired": true
+    }
+  },
+  "validation": {
+    "schema": "xtend.rmt.form-validation.v1",
+    "defaultMode": "blocking",
+    "supportedRules": [
+      "required",
+      "email",
+      "minLength",
+      "maxLength",
+      "pattern"
+    ],
+    "groups": [],
+    "fields": [],
+    "actionGates": [],
+    "statePatches": [],
+    "schedulerTargets": [],
+    "diagnostics": [],
+    "telemetry": {
+      "trace": "dom-event -> validation-action-gate -> action",
+      "customEvents": [
+        "xtend-maraca:validation-boot",
+        "xtend-maraca:validation-change",
+        "xtend-maraca:validation-blocked",
+        "xtend-maraca:validation-error"
+      ]
+    },
+    "security": {
+      "componentIsolation": "public-contract-only",
+      "shadowRootAccess": false,
+      "htmlSinks": "forbidden"
+    },
+    "sourceMap": []
+  },
+  "transitions": {
+    "schema": "xtend.rmt.surface-transitions.v1",
+    "supportedEffects": [
+      "fade",
+      "crossfade",
+      "slide-left",
+      "slide-right",
+      "slide-up",
+      "slide-down",
+      "scale",
+      "pop",
+      "zoom",
+      "flip",
+      "rotate",
+      "expand",
+      "collapse",
+      "fade-blur",
+      "shared-element",
+      "layout-flip",
+      "none"
+    ],
+    "defaultEffect": "fade",
+    "transitions": [],
+    "effectCounts": {},
+    "durationRange": {
+      "min": 0,
+      "max": 0
+    },
+    "schedulerTargets": [],
+    "telemetry": {
+      "trace": "action -> reducer -> state-patch -> surface-transition -> render-patch",
+      "customEvents": [
+        "xtend-maraca:surface-transition-start",
+        "xtend-maraca:surface-transition-complete",
+        "xtend-maraca:surface-transition-cancel",
+        "xtend-maraca:surface-transition-fallback",
+        "xtend-maraca:surface-transition-error"
+      ]
+    },
+    "security": {
+      "componentIsolation": "public-contract-only",
+      "shadowRootAccess": false,
+      "htmlSinks": "forbidden"
+    },
+    "diagnostics": [],
+    "sourceMap": [],
+    "animationEngine": {
+      "schema": "xtend.rmt.animation-engine.v1",
+      "supportedEffects": [
+        "fade",
+        "crossfade",
+        "slide-left",
+        "slide-right",
+        "slide-up",
+        "slide-down",
+        "scale",
+        "pop",
+        "zoom",
+        "flip",
+        "rotate",
+        "expand",
+        "collapse",
+        "fade-blur",
+        "shared-element",
+        "layout-flip",
+        "none"
+      ],
+      "safeKeyframeProperties": [
+        "opacity",
+        "transform"
+      ],
+      "optInKeyframeProperties": [
+        "filter"
+      ],
+      "supportedInterruptPolicies": [
+        "cancel",
+        "finish",
+        "replace"
+      ],
+      "supportedReducedMotionPolicies": [
+        "instant",
+        "fade",
+        "none"
+      ],
+      "defaultEffect": "fade",
+      "defaultReducedMotion": "fade",
+      "animations": [],
+      "transitions": [],
+      "timelines": [],
+      "schedulerTargets": [],
+      "reducedMotionPolicies": [],
+      "telemetry": {
+        "trace": "action -> reducer -> state-patch -> animation-engine -> surface-transition-facade",
+        "customEvents": [
+          "xtend-rmt:animation-start",
+          "xtend-rmt:animation-phase",
+          "xtend-rmt:animation-interrupt",
+          "xtend-rmt:animation-fallback",
+          "xtend-rmt:animation-budget",
+          "xtend-rmt:animation-complete"
+        ]
+      },
+      "security": {
+        "componentIsolation": "public-contract-only",
+        "shadowRootAccess": false,
+        "htmlSinks": "forbidden",
+        "keyframeProperties": "allowlist"
+      },
+      "diagnostics": [],
+      "sourceMap": []
+    }
+  },
+  "animationEngine": {
+    "schema": "xtend.rmt.animation-engine.v1",
+    "supportedEffects": [
+      "fade",
+      "crossfade",
+      "slide-left",
+      "slide-right",
+      "slide-up",
+      "slide-down",
+      "scale",
+      "pop",
+      "zoom",
+      "flip",
+      "rotate",
+      "expand",
+      "collapse",
+      "fade-blur",
+      "shared-element",
+      "layout-flip",
+      "none"
+    ],
+    "safeKeyframeProperties": [
+      "opacity",
+      "transform"
+    ],
+    "optInKeyframeProperties": [
+      "filter"
+    ],
+    "supportedInterruptPolicies": [
+      "cancel",
+      "finish",
+      "replace"
+    ],
+    "supportedReducedMotionPolicies": [
+      "instant",
+      "fade",
+      "none"
+    ],
+    "defaultEffect": "fade",
+    "defaultReducedMotion": "fade",
+    "animations": [],
+    "transitions": [],
+    "timelines": [],
+    "schedulerTargets": [],
+    "reducedMotionPolicies": [],
+    "telemetry": {
+      "trace": "action -> reducer -> state-patch -> animation-engine -> surface-transition-facade",
+      "customEvents": [
+        "xtend-rmt:animation-start",
+        "xtend-rmt:animation-phase",
+        "xtend-rmt:animation-interrupt",
+        "xtend-rmt:animation-fallback",
+        "xtend-rmt:animation-budget",
+        "xtend-rmt:animation-complete"
+      ]
+    },
+    "security": {
+      "componentIsolation": "public-contract-only",
+      "shadowRootAccess": false,
+      "htmlSinks": "forbidden",
+      "keyframeProperties": "allowlist"
+    },
+    "diagnostics": [],
+    "sourceMap": []
+  },
+  "runtimeGraph": {
+    "schema": "xtend.rmt.app-runtime-graph.v1",
+    "nodeCount": 18,
+    "edgeCount": 3,
+    "nodes": [
+      {
+        "id": "state:catalog",
+        "kind": "state",
+        "ref": "catalog"
+      },
+      {
+        "id": "state:sharedImages",
+        "kind": "state",
+        "ref": "sharedImages"
+      },
+      {
+        "id": "state:intentCapture",
+        "kind": "state",
+        "ref": "intentCapture"
+      },
+      {
+        "id": "state:nativeView",
+        "kind": "state",
+        "ref": "nativeView"
+      },
+      {
+        "id": "state:nativeFlags",
+        "kind": "state",
+        "ref": "nativeFlags"
+      },
+      {
+        "id": "selector:galleryImages",
+        "kind": "selector",
+        "ref": "galleryImages"
+      },
+      {
+        "id": "surface:product-details",
+        "kind": "surface",
+        "ref": "product-details",
+        "component": "section"
+      },
+      {
+        "id": "surface:product-gallery-host",
+        "kind": "surface",
+        "ref": "product-gallery-host",
+        "component": "div"
+      },
+      {
+        "id": "surface:product-reviews-host",
+        "kind": "surface",
+        "ref": "product-reviews-host",
+        "component": "div"
+      },
+      {
+        "id": "action:native.title",
+        "kind": "action",
+        "ref": "native.title"
+      },
+      {
+        "id": "action:native.show",
+        "kind": "action",
+        "ref": "native.show"
+      },
+      {
+        "id": "action:native.replace",
+        "kind": "action",
+        "ref": "native.replace"
+      },
+      {
+        "id": "action:images.replace",
+        "kind": "action",
+        "ref": "images.replace"
+      },
+      {
+        "id": "action:native.enable",
+        "kind": "action",
+        "ref": "native.enable"
+      },
+      {
+        "id": "action:image.select",
+        "kind": "action",
+        "ref": "image.select"
+      },
+      {
+        "id": "action:reviews.sort",
+        "kind": "action",
+        "ref": "reviews.sort"
+      },
+      {
+        "id": "action:catalog.replace",
+        "kind": "action",
+        "ref": "catalog.replace"
+      },
+      {
+        "id": "event:event:inline.products/product-details/native-select/0",
+        "kind": "event",
+        "ref": "event:inline.products/product-details/native-select/0",
+        "target": "[data-rmt-surface=\"product-details\"]"
+      }
+    ],
+    "edges": [
+      {
+        "from": "state:sharedImages",
+        "to": "selector:galleryImages",
+        "kind": "state-selector"
+      },
+      {
+        "from": "event:event:inline.products/product-details/native-select/0",
+        "to": "action:image.select",
+        "kind": "event-action"
+      },
+      {
+        "from": "surface:product-details",
+        "to": "event:event:inline.products/product-details/native-select/0",
+        "kind": "surface-event"
+      }
+    ]
+  },
+  "hostContracts": {
+    "schema": "xtend.rmt.app-host-contracts.v1",
+    "requiredCapabilities": [
+      "scheduler.scheduleEndpoint",
+      "dom.resolveTarget",
+      "component.ensure",
+      "formValidation.evaluate",
+      "component.checkValidity",
+      "component.reportValidity",
+      "surfaceTransition.run",
+      "animationEngine.run",
+      "state.write",
+      "uiEffects.resolve",
+      "telemetry.publish",
+      "diagnostics.redact"
+    ],
+    "adapters": {
+      "browser": "xtend.maraca.browser-host-adapter.v2",
+      "server": "xtend.rmt.server-host-adapter.v1",
+      "worker": "xtend.rmt.worker-host-adapter.v1",
+      "mfe": "xtend.rmt.mfe-host-adapter.v1"
+    },
+    "security": {
+      "componentIsolation": "public-contract-only",
+      "privateInternals": false,
+      "shadowRootAccess": false
+    }
+  },
+  "patchPlan": {
+    "schema": "xtend.rmt.app-patch-plan.v1",
+    "defaultStrategy": "attribute-sync",
+    "strategies": [
+      "attribute-sync",
+      "property-sync",
+      "slot-patch",
+      "css-token-sync",
+      "surface-transition",
+      "structured-rerender"
+    ],
+    "bindings": [
+      {
+        "surface": "product-details",
+        "sources": [
+          "catalog",
+          "galleryImages",
+          "intentCapture",
+          "nativeView"
+        ]
+      },
+      {
+        "surface": "product-gallery-host",
+        "sources": []
+      },
+      {
+        "surface": "product-reviews-host",
+        "sources": []
+      }
+    ],
+    "reducers": [
+      {
+        "reducer": "reducer:native.title/0",
+        "action": "native.title",
+        "state": "nativeView",
+        "path": "title",
+        "surface": null,
+        "component": null,
+        "descriptor": null,
+        "strategy": "structured-rerender",
+        "transition": null,
+        "isolation": "public-contract-only"
+      },
+      {
+        "reducer": "reducer:native.show/0",
+        "action": "native.show",
+        "state": "nativeView",
+        "path": "show",
+        "surface": null,
+        "component": null,
+        "descriptor": null,
+        "strategy": "structured-rerender",
+        "transition": null,
+        "isolation": "public-contract-only"
+      },
+      {
+        "reducer": "reducer:native.replace/0",
+        "action": "native.replace",
+        "state": "nativeView",
+        "path": "",
+        "surface": null,
+        "component": null,
+        "descriptor": null,
+        "strategy": "structured-rerender",
+        "transition": null,
+        "isolation": "public-contract-only"
+      },
+      {
+        "reducer": "reducer:images.replace/0",
+        "action": "images.replace",
+        "state": "sharedImages",
+        "path": "",
+        "surface": null,
+        "component": null,
+        "descriptor": null,
+        "strategy": "structured-rerender",
+        "transition": null,
+        "isolation": "public-contract-only"
+      },
+      {
+        "reducer": "reducer:native.enable/0",
+        "action": "native.enable",
+        "state": "nativeFlags",
+        "path": "",
+        "surface": null,
+        "component": null,
+        "descriptor": null,
+        "strategy": "structured-rerender",
+        "transition": null,
+        "isolation": "public-contract-only"
+      },
+      {
+        "reducer": "reducer:image.select/0",
+        "action": "image.select",
+        "state": "intentCapture",
+        "path": "groupId",
+        "surface": null,
+        "component": null,
+        "descriptor": null,
+        "strategy": "structured-rerender",
+        "transition": null,
+        "isolation": "public-contract-only"
+      },
+      {
+        "reducer": "reducer:image.select/1",
+        "action": "image.select",
+        "state": "intentCapture",
+        "path": "productId",
+        "surface": null,
+        "component": null,
+        "descriptor": null,
+        "strategy": "structured-rerender",
+        "transition": null,
+        "isolation": "public-contract-only"
+      },
+      {
+        "reducer": "reducer:image.select/2",
+        "action": "image.select",
+        "state": "intentCapture",
+        "path": "value",
+        "surface": null,
+        "component": null,
+        "descriptor": null,
+        "strategy": "structured-rerender",
+        "transition": null,
+        "isolation": "public-contract-only"
+      },
+      {
+        "reducer": "reducer:image.select/3",
+        "action": "image.select",
+        "state": "intentCapture",
+        "path": "kind",
+        "surface": null,
+        "component": null,
+        "descriptor": null,
+        "strategy": "structured-rerender",
+        "transition": null,
+        "isolation": "public-contract-only"
+      },
+      {
+        "reducer": "reducer:reviews.sort/0",
+        "action": "reviews.sort",
+        "state": "intentCapture",
+        "path": "groupId",
+        "surface": null,
+        "component": null,
+        "descriptor": null,
+        "strategy": "structured-rerender",
+        "transition": null,
+        "isolation": "public-contract-only"
+      },
+      {
+        "reducer": "reducer:reviews.sort/1",
+        "action": "reviews.sort",
+        "state": "intentCapture",
+        "path": "productId",
+        "surface": null,
+        "component": null,
+        "descriptor": null,
+        "strategy": "structured-rerender",
+        "transition": null,
+        "isolation": "public-contract-only"
+      },
+      {
+        "reducer": "reducer:reviews.sort/2",
+        "action": "reviews.sort",
+        "state": "intentCapture",
+        "path": "value",
+        "surface": null,
+        "component": null,
+        "descriptor": null,
+        "strategy": "structured-rerender",
+        "transition": null,
+        "isolation": "public-contract-only"
+      },
+      {
+        "reducer": "reducer:reviews.sort/3",
+        "action": "reviews.sort",
+        "state": "intentCapture",
+        "path": "kind",
+        "surface": null,
+        "component": null,
+        "descriptor": null,
+        "strategy": "structured-rerender",
+        "transition": null,
+        "isolation": "public-contract-only"
+      },
+      {
+        "reducer": "reducer:catalog.replace/0",
+        "action": "catalog.replace",
+        "state": "catalog",
+        "path": "",
+        "surface": null,
+        "component": null,
+        "descriptor": null,
+        "strategy": "structured-rerender",
+        "transition": null,
+        "isolation": "public-contract-only"
+      }
+    ],
+    "validation": [],
+    "transitions": []
+  },
+  "css": {
+    "mode": "layout-tokens",
+    "tokenPrefix": "--xtend",
+    "themeGeneration": false,
+    "surfaces": [
+      {
+        "id": "product-details",
+        "component": "section",
+        "portal": "surface.root",
+        "bounds": null,
+        "tokens": {
+          "surface": "product-details",
+          "kind": "region"
+        }
+      },
+      {
+        "id": "product-gallery-host",
+        "component": "div",
+        "portal": "gallery.mount",
+        "bounds": null,
+        "tokens": {
+          "surface": "product-gallery-host",
+          "kind": "region"
+        }
+      },
+      {
+        "id": "product-reviews-host",
+        "component": "div",
+        "portal": "reviews.mount",
+        "bounds": null,
+        "tokens": {
+          "surface": "product-reviews-host",
+          "kind": "region"
+        }
+      }
+    ]
+  },
+  "security": {
+    "htmlSinks": "forbidden",
+    "trustedDomBoundaryRequired": true,
+    "componentIsolation": "public-contract-only",
+    "isolationChannels": [
+      "attributes",
+      "properties",
+      "events",
+      "slots",
+      "css-parts",
+      "css-tokens"
+    ],
+    "shadowRootAccess": false
+  },
+  "observability": {
+    "schema": "xtend.rmt.app-telemetry-plan.v1",
+    "correlation": {
+      "idFormat": "xtend-trace:<document>:<flow>:<counter>",
+      "propagatesThrough": [
+        "event",
+        "action",
+        "resource",
+        "reducer",
+        "state-patch",
+        "render-patch",
+        "hydration",
+        "surface-transition"
+      ]
+    },
+    "customEvents": [
+      "xtend-maraca:kernel-boot",
+      "xtend-maraca:kernel-schedule",
+      "xtend-maraca:kernel-fiber",
+      "xtend-maraca:kernel-error",
+      "xtend-maraca:hydration-start",
+      "xtend-maraca:hydration-complete",
+      "xtend-maraca:hydration-error",
+      "xtend-maraca:insular-hydration",
+      "xtend-maraca:render-patch",
+      "xtend-maraca:state-change",
+      "xtend-maraca:validation-boot",
+      "xtend-maraca:validation-change",
+      "xtend-maraca:validation-blocked",
+      "xtend-maraca:validation-error",
+      "xtend-maraca:surface-transition-start",
+      "xtend-maraca:surface-transition-complete",
+      "xtend-maraca:surface-transition-cancel",
+      "xtend-maraca:surface-transition-fallback",
+      "xtend-maraca:surface-transition-error",
+      "xtend-maraca:telemetry"
+    ],
+    "diagnostics": {
+      "redaction": "payload-html-secret-token-password-stack",
+      "rawHtml": false,
+      "secrets": false
+    }
+  },
+  "telemetry": {
+    "schema": "xtend.rmt.app-telemetry-plan.v1",
+    "correlation": {
+      "idFormat": "xtend-trace:<document>:<flow>:<counter>",
+      "propagatesThrough": [
+        "event",
+        "action",
+        "resource",
+        "reducer",
+        "state-patch",
+        "render-patch",
+        "hydration",
+        "surface-transition"
+      ]
+    },
+    "customEvents": [
+      "xtend-maraca:kernel-boot",
+      "xtend-maraca:kernel-schedule",
+      "xtend-maraca:kernel-fiber",
+      "xtend-maraca:kernel-error",
+      "xtend-maraca:hydration-start",
+      "xtend-maraca:hydration-complete",
+      "xtend-maraca:hydration-error",
+      "xtend-maraca:insular-hydration",
+      "xtend-maraca:render-patch",
+      "xtend-maraca:state-change",
+      "xtend-maraca:validation-boot",
+      "xtend-maraca:validation-change",
+      "xtend-maraca:validation-blocked",
+      "xtend-maraca:validation-error",
+      "xtend-maraca:surface-transition-start",
+      "xtend-maraca:surface-transition-complete",
+      "xtend-maraca:surface-transition-cancel",
+      "xtend-maraca:surface-transition-fallback",
+      "xtend-maraca:surface-transition-error",
+      "xtend-maraca:telemetry"
+    ],
+    "diagnostics": {
+      "redaction": "payload-html-secret-token-password-stack",
+      "rawHtml": false,
+      "secrets": false
+    }
+  },
+  "diagnostics": [],
+  "sourceMap": [
+    {
+      "id": "src:template:inline.products",
+      "nodeType": "RmtTemplateDeclaration",
+      "corePointer": "/templates/0",
+      "astPointer": "/body/0",
+      "range": {
+        "start": {
+          "line": 3,
+          "character": 15
+        },
+        "end": {
+          "line": 93,
+          "character": 14
+        },
+        "startOffset": 198,
+        "endOffset": 6931
+      }
+    },
+    {
+      "id": "src:state:catalog",
+      "nodeType": "RmtStateDeclaration",
+      "corePointer": "/states/0",
+      "astPointer": "/body/0/body/0",
+      "range": {
+        "start": {
+          "line": 4,
+          "character": 2
+        },
+        "end": {
+          "line": 12,
+          "character": 9
+        },
+        "startOffset": 235,
+        "endOffset": 759
+      }
+    },
+    {
+      "id": "src:state:sharedimages",
+      "nodeType": "RmtStateDeclaration",
+      "corePointer": "/states/1",
+      "astPointer": "/body/0/body/1",
+      "range": {
+        "start": {
+          "line": 13,
+          "character": 2
+        },
+        "end": {
+          "line": 13,
+          "character": 77
+        },
+        "startOffset": 762,
+        "endOffset": 837
+      }
+    },
+    {
+      "id": "src:selector:galleryimages",
+      "nodeType": "RmtSelectorDeclaration",
+      "corePointer": "/selectors/0",
+      "astPointer": "/body/0/body/2",
+      "range": {
+        "start": {
+          "line": 14,
+          "character": 2
+        },
+        "end": {
+          "line": 14,
+          "character": 132
+        },
+        "startOffset": 840,
+        "endOffset": 970
+      }
+    },
+    {
+      "id": "src:state:intentcapture",
+      "nodeType": "RmtStateDeclaration",
+      "corePointer": "/states/2",
+      "astPointer": "/body/0/body/3",
+      "range": {
+        "start": {
+          "line": 15,
+          "character": 2
+        },
+        "end": {
+          "line": 15,
+          "character": 114
+        },
+        "startOffset": 973,
+        "endOffset": 1085
+      }
+    },
+    {
+      "id": "src:state:nativeview",
+      "nodeType": "RmtStateDeclaration",
+      "corePointer": "/states/3",
+      "astPointer": "/body/0/body/4",
+      "range": {
+        "start": {
+          "line": 16,
+          "character": 2
+        },
+        "end": {
+          "line": 16,
+          "character": 128
+        },
+        "startOffset": 1088,
+        "endOffset": 1214
+      }
+    },
+    {
+      "id": "src:action:native.title",
+      "nodeType": "RmtActionDeclaration",
+      "corePointer": "/actions/0",
+      "astPointer": "/body/0/body/5",
+      "range": {
+        "start": {
+          "line": 17,
+          "character": 2
+        },
+        "end": {
+          "line": 17,
+          "character": 149
+        },
+        "startOffset": 1217,
+        "endOffset": 1364
+      }
+    },
+    {
+      "id": "src:action:native.show",
+      "nodeType": "RmtActionDeclaration",
+      "corePointer": "/actions/1",
+      "astPointer": "/body/0/body/6",
+      "range": {
+        "start": {
+          "line": 18,
+          "character": 2
+        },
+        "end": {
+          "line": 18,
+          "character": 146
+        },
+        "startOffset": 1367,
+        "endOffset": 1511
+      }
+    },
+    {
+      "id": "src:action:native.replace",
+      "nodeType": "RmtActionDeclaration",
+      "corePointer": "/actions/2",
+      "astPointer": "/body/0/body/7",
+      "range": {
+        "start": {
+          "line": 19,
+          "character": 2
+        },
+        "end": {
+          "line": 19,
+          "character": 136
+        },
+        "startOffset": 1514,
+        "endOffset": 1648
+      }
+    },
+    {
+      "id": "src:action:images.replace",
+      "nodeType": "RmtActionDeclaration",
+      "corePointer": "/actions/3",
+      "astPointer": "/body/0/body/8",
+      "range": {
+        "start": {
+          "line": 20,
+          "character": 2
+        },
+        "end": {
+          "line": 20,
+          "character": 144
+        },
+        "startOffset": 1651,
+        "endOffset": 1793
+      }
+    },
+    {
+      "id": "src:state:nativeflags",
+      "nodeType": "RmtStateDeclaration",
+      "corePointer": "/states/4",
+      "astPointer": "/body/0/body/9",
+      "range": {
+        "start": {
+          "line": 21,
+          "character": 2
+        },
+        "end": {
+          "line": 21,
+          "character": 70
+        },
+        "startOffset": 1796,
+        "endOffset": 1864
+      }
+    },
+    {
+      "id": "src:action:native.enable",
+      "nodeType": "RmtActionDeclaration",
+      "corePointer": "/actions/4",
+      "astPointer": "/body/0/body/10",
+      "range": {
+        "start": {
+          "line": 22,
+          "character": 2
+        },
+        "end": {
+          "line": 25,
+          "character": 15
+        },
+        "startOffset": 1867,
+        "endOffset": 2058
+      }
+    },
+    {
+      "id": "src:action:image.select",
+      "nodeType": "RmtActionDeclaration",
+      "corePointer": "/actions/5",
+      "astPointer": "/body/0/body/11",
+      "range": {
+        "start": {
+          "line": 26,
+          "character": 2
+        },
+        "end": {
+          "line": 32,
+          "character": 15
+        },
+        "startOffset": 2061,
+        "endOffset": 2539
+      }
+    },
+    {
+      "id": "src:action:reviews.sort",
+      "nodeType": "RmtActionDeclaration",
+      "corePointer": "/actions/6",
+      "astPointer": "/body/0/body/12",
+      "range": {
+        "start": {
+          "line": 33,
+          "character": 2
+        },
+        "end": {
+          "line": 39,
+          "character": 15
+        },
+        "startOffset": 2542,
+        "endOffset": 3016
+      }
+    },
+    {
+      "id": "src:action:catalog.replace",
+      "nodeType": "RmtActionDeclaration",
+      "corePointer": "/actions/7",
+      "astPointer": "/body/0/body/13",
+      "range": {
+        "start": {
+          "line": 40,
+          "character": 2
+        },
+        "end": {
+          "line": 42,
+          "character": 15
+        },
+        "startOffset": 3019,
+        "endOffset": 3167
+      }
+    },
+    {
+      "id": "src:portal:surface.root",
+      "nodeType": "RmtPortalDeclaration",
+      "corePointer": "/portals/0",
+      "astPointer": "/body/0/body/14",
+      "range": {
+        "start": {
+          "line": 43,
+          "character": 2
+        },
+        "end": {
+          "line": 43,
+          "character": 76
+        },
+        "startOffset": 3170,
+        "endOffset": 3244
+      }
+    },
+    {
+      "id": "src:portal:gallery.mount",
+      "nodeType": "RmtPortalDeclaration",
+      "corePointer": "/portals/1",
+      "astPointer": "/body/0/body/15",
+      "range": {
+        "start": {
+          "line": 44,
+          "character": 2
+        },
+        "end": {
+          "line": 44,
+          "character": 74
+        },
+        "startOffset": 3247,
+        "endOffset": 3319
+      }
+    },
+    {
+      "id": "src:portal:reviews.mount",
+      "nodeType": "RmtPortalDeclaration",
+      "corePointer": "/portals/2",
+      "astPointer": "/body/0/body/16",
+      "range": {
+        "start": {
+          "line": 45,
+          "character": 2
+        },
+        "end": {
+          "line": 45,
+          "character": 74
+        },
+        "startOffset": 3322,
+        "endOffset": 3394
+      }
+    },
+    {
+      "id": "src:surface:inline.products/product-details",
+      "nodeType": "RmtSurfaceDeclaration",
+      "corePointer": "/surfaces/0",
+      "astPointer": "/body/0/body/17",
+      "range": {
+        "start": {
+          "line": 46,
+          "character": 2
+        },
+        "end": {
+          "line": 78,
+          "character": 16
+        },
+        "startOffset": 3397,
+        "endOffset": 5763
+      }
+    },
+    {
+      "id": "src:event:inline.products/product-details/native-select/0",
+      "nodeType": "RmtEventBinding",
+      "corePointer": "/events/0",
+      "astPointer": "/body/0/body/17/body/2",
+      "range": {
+        "start": {
+          "line": 76,
+          "character": 4
+        },
+        "end": {
+          "line": 77,
+          "character": 133
+        },
+        "startOffset": 5539,
+        "endOffset": 5746
+      }
+    },
+    {
+      "id": "src:surface:inline.products/product-gallery-host",
+      "nodeType": "RmtSurfaceDeclaration",
+      "corePointer": "/surfaces/1",
+      "astPointer": "/body/0/body/18",
+      "range": {
+        "start": {
+          "line": 81,
+          "character": 6
+        },
+        "end": {
+          "line": 85,
+          "character": 20
+        },
+        "startOffset": 5882,
+        "endOffset": 6446
+      }
+    },
+    {
+      "id": "src:surface:inline.products/product-reviews-host",
+      "nodeType": "RmtSurfaceDeclaration",
+      "corePointer": "/surfaces/2",
+      "astPointer": "/body/0/body/19",
+      "range": {
+        "start": {
+          "line": 86,
+          "character": 6
+        },
+        "end": {
+          "line": 90,
+          "character": 20
+        },
+        "startOffset": 6453,
+        "endOffset": 6882
+      }
+    }
+  ]
+}

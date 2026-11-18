@@ -1,0 +1,13 @@
+# A06.4.2: Arbeitsvertrag für den Lifecycleanschluss
+
+Stand:18. November2026. **Planungsbefund, noch nicht implementiert und keine Schemafreigabe.** A06.4.1 projiziert Bedingungen und Wiederholungen innerhalb bereits existierender Surfaces. Die Viewbedingung erzeugt keine Surface-Lifetime.
+
+Der unveränderte Classic-AST1 besitzt bereits `RmtLifecycleStatement.condition`; Classic bewahrt ihn in Core-Operationen auf. Kernel-Records und Schedulerplan führen diese Bedingung jedoch nicht aus. Source4 senkt ausdrücklich `condition:null` ab. Die vorhandenen Lifecycleoperatoren heißen Mount, Hydrate, Suspend, Resume, Invalidate, Dispose, Prewarm, Recycle, Detach und Reattach; ein Unmount-AST-Operator existiert nicht.
+
+Vor einer Implementierung muss eine versionierte Matrix festlegen, welche Operation auf welchem Target zu welchem Zeitpunkt ausführbar ist. Die Bedingungen allein am Fiber zu hinterlegen genügt nicht: Boot und Modelcommits materialisieren Views unabhängig davon. Ein pauschales Mount→Open-Mapping wäre falsch, weil Mount auch sourcebezogene UI-Arbeit bezeichnet und der Surfacecontroller keine generische Hydrate-/Prewarm-/Detach-Portform besitzt.
+
+Die Ausführung verwendet den tatsächlichen unveränderlichen Model-/Selector-Snapshot und den bestehenden geschlossenen Projektionsevaluator mit strikt booleschem Ergebnis. Alle Guards einer atomaren Gruppe werden vor Mutationen geprüft. Guard, Generation und Abbruch werden innerhalb des tatsächlich aufgenommenen Kernel→Fabric-Jobs erneut geprüft. Die bestehenden Surface-/Presentation-Boundaries, `shellEpoch` und autoritativen Surfacegenerationen bleiben maßgeblich. Ein wahrer Guard darf einen geschlossenen oder zerstörten Owner nicht eigenmächtig wieder öffnen. Recreate bleibt ausdrückliche vertrauenswürdige Controllerautorität.
+
+Die Abnahme muss Initialfalse ohne Seiteneffekte, definierte false→true-/Wiederholungssemantik, fehlende oder nichtboolesche Werte sowie Getterablehnung vor Mutation abdecken. Dazu kommen Änderungen zwischen Enqueue und Ausführung, Close/Resume/Minimize/Collapse mit erhaltener Identität, Destroy/Tombstone-Kompaktion/Recreate mit dauerhaft toten alten Tokens, Parentretirement, unabhängige typisierte Keyscopes und Cancellation vor tatsächlichen Controller-/View-/Providerwrites.
+
+Native Surface-Wiederholungen sowie öffentliche Custom-Component-/Slotverträge sind weitere getrennte Unterverträge dieses Anschlusses. Die zwei weiterhin zurückgestellten Classic-AST-Knotentypen für native Surface-Repeats/Keys werden nicht durch A06.4.1-Elementwiederholungen als erfüllt gezählt.

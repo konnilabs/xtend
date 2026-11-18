@@ -1,5 +1,6 @@
 export const COMPONENT_COMMAND_SCHEMA: 'xtend.rmt.component-command.v1';
 export const COMPONENT_COMMAND_RESULT_SCHEMA: 'xtend.maraca.component-command-result.v1';
+export const MARACA_BROWSER_HOST_API_VERSION: '3.0.0';
 
 export interface MaracaBrowserHostAdapter {
   readonly schema: 'xtend.maraca.browser-host-adapter.v2';
@@ -19,6 +20,15 @@ export interface MaracaBrowserHostAdapter {
   dispose(): number;
 }
 
+export interface MaracaNativeBrowserHostAdapter extends Omit<MaracaBrowserHostAdapter, 'schema'> {
+  readonly schema: 'xtend.maraca.browser-host-adapter.v3';
+  /** Read-only inspection; does not adopt or mutate SSR metadata. */
+  inspectServerShell(root: ParentNode | null, suppliedPayload?: unknown): Readonly<{ active: boolean; hasPayload: boolean }>;
+}
+export function createMaracaBrowserHostAdapter(
+  configuration: Readonly<Record<string, unknown>> & { readonly schema: 'xtend.maraca.browser-composition-root.v11' },
+  dependencies?: Readonly<Record<string, unknown>>
+): MaracaNativeBrowserHostAdapter;
 export function createMaracaBrowserHostAdapter(
   configuration?: Readonly<Record<string, unknown>>,
   dependencies?: Readonly<Record<string, unknown>>

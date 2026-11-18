@@ -4,6 +4,8 @@
 const { validateStateBinding, addressKey, propsFrom, data, record, fields, name, clone, freeze, segments, readBindingPath } = require('./state-binding-contract');
 const XTENSION_STATE_BINDING_ARTIFACT_SCHEMA = 'xtend.xtensions.state-binding-artifact.v3';
 const PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA = 'xtend.xtensions.state-binding-artifact.v4';
+const NATIVE_STATE_BINDING_ARTIFACT_SCHEMA = 'xtend.xtensions.state-binding-artifact.v5';
+const { validateRepeat, templatePath, expandRepeatScopes } = require('./repeat-scopes');
 const projections = require('./state-binding-projection');
 function usesSelectors(source) { let found = false; projections.visitProjection(source, node => { if (node.kind === 'path' && node.root === 'selector') found = true; }); return found; }
 function checkProps(snapshot, binding, initial = false) {
@@ -32,11 +34,21 @@ function invalid(message, pointer = '') {
 function validateStateBindingArtifact(input, program) {
   try { data(input); fields(input, ['schema', 'documentId', 'bindings'], 'XTension binding artifact'); name(input.documentId); }
   catch (error) { invalid(error.message); }
-  if (![XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, CONDITIONAL_ARTIFACT_SCHEMA, LEGACY_ARTIFACT_SCHEMA, PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA].includes(input.schema)) invalid('Unsupported XTension binding artifact version.', '/schema');
-  const projected = input.schema === PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA;
+  if (![XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, CONDITIONAL_ARTIFACT_SCHEMA, LEGACY_ARTIFACT_SCHEMA, PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA, NATIVE_STATE_BINDING_ARTIFACT_SCHEMA].includes(input.schema)) invalid('Unsupported XTension binding artifact version.', '/schema');
+  const native = input.schema === NATIVE_STATE_BINDING_ARTIFACT_SCHEMA;
+  const projected = native || input.schema === PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA;
   if (!Array.isArray(input.bindings)) invalid('Binding artifact requires a bindings array.', '/bindings');
   try { data(program, new Set(), true); } catch (error) { invalid(error.message); }
-  if (!program || program.schema !== (projected ? 'xtend.rmt.app-orchestration.v2' : 'xtend.rmt.app-orchestration.v1')) invalid(projected ? 'XTension bindings require compiled RMT orchestration artifact v2.' : 'XTension bindings require the supported compiled RMT orchestration artifact.');
+  if (!program || program.schema !== (native ? 'xtend.rmt.app-orchestration.v3' : projected ? 'xtend.rmt.app-orchestration.v2' : 'xtend.rmt.app-orchestration.v1')) invalid(native ? 'Native XTension bindings require compiled RMT orchestration artifact v3.' : projected ? 'XTension bindings require compiled RMT orchestration artifact v2.' : 'XTension bindings require the supported compiled RMT orchestration artifact.');
+  if (native) {
+    try {
+      const header = program.render?.nativeView;
+      fields(header, ['schema', 'documentId', 'surfaces'], 'Native View header'); name(header.documentId);
+      if (header.schema !== 'xtend.rmt.native-view.v1' || header.documentId !== input.documentId || !Array.isArray(header.surfaces)
+          || new Set(header.surfaces).size !== header.surfaces.length) throw new TypeError('Native bindings require their matching compiled Native View header.');
+      header.surfaces.forEach(name);
+    } catch (error) { invalid(error.message); }
+  }
   function symbols(entries, label) {
     if (!Array.isArray(entries)) invalid(`Compiled ${label} must be an array.`);
     const result = new Map();
@@ -53,13 +65,14 @@ function validateStateBindingArtifact(input, program) {
   if (projected && (inputContract?.schema !== 'xtend.rmt.action-input-contract.v1' || !Array.isArray(inputContract.actions))) invalid('Projection bindings require the compiler-owned Action input contract.');
   const selectors = projected ? symbols(program.state?.selectors || [], 'selector') : new Map();
   const surfaces = symbols(program.surfaces || [], 'surface');
+  if (native && program.render.nativeView.surfaces.some(id => !surfaces.has(id))) invalid('Native View header references an undeclared Surface.');
   const addresses = new Set(), targets = new Set();
   const initial = { states: Object.fromEntries([...states].map(([id, state]) => [id, state.initial])) };
   input.bindings.forEach((entry, index) => {
     const pointer = `/bindings/${index}`;
     let binding;
     try {
-      fields(entry, ['surface', 'binding', ...(input.schema !== LEGACY_ARTIFACT_SCHEMA ? ['presence'] : []), ...([XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA].includes(input.schema) ? ['repeat'] : [])], 'XTension binding entry');
+      fields(entry, ['surface', 'binding', ...(input.schema !== LEGACY_ARTIFACT_SCHEMA ? ['presence'] : []), ...([XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA, NATIVE_STATE_BINDING_ARTIFACT_SCHEMA].includes(input.schema) ? ['repeat'] : [])], 'XTension binding entry');
       name(entry.surface); validateRepeat(entry.repeat);
       if (projected ? entry.binding?.schema !== 'xtend.xtensions.state-binding.v3' : input.schema !== XTENSION_STATE_BINDING_ARTIFACT_SCHEMA && entry.binding?.schema !== 'xtend.xtensions.state-binding.v1') throw new TypeError('Binding schema does not match its versioned artifact.');
       const keys = (entry.repeat || []).map((_, i) => Object.values(entry.binding.intents || {}).some(intent => Object.values(intent.keyFields || {}).some(field => field.index === entry.binding.address.keys.length + i && field.type === 'number')) ? 0 : 'template-key');
@@ -145,28 +158,6 @@ function validateStateBindingArtifact(input, program) {
   const result = freeze(clone(input)); validated.add(result); return result;
 }
 
-function validateRepeat(repeat) {
-  if (repeat === undefined) return;
-  if (!Array.isArray(repeat) || !repeat.length) throw new TypeError('Repeat requires a nonempty scope chain.');
-  repeat.forEach((scope, index) => {
-    fields(scope, index === 0 ? ['state', 'path', 'key'] : ['path', 'key'], 'Repeat scope');
-    if (index === 0) name(scope.state);
-    segments(scope.path); segments(scope.key);
-    if (!scope.key.length) throw new TypeError('Repeat requires an explicit nonempty item key path.');
-  });
-}
-function templatePath(source, entry, keys) {
-  if (!Array.isArray(source.path)) throw new TypeError('Binding paths must be segment arrays.');
-  return source.path.map((part, position) => {
-    if (!part || typeof part !== 'object' || !Object.hasOwn(part, 'repeat')) return part;
-    fields(part, ['repeat'], 'Repeat path reference');
-    const level = part.repeat;
-    if (!entry.repeat || !Number.isSafeInteger(level) || level < 0 || Object.is(level, -0) || level >= entry.repeat.length) throw new TypeError('Unknown repeat path scope.');
-    const prefix = entry.repeat.slice(0, level + 1).flatMap((scope, i) => [...scope.path, { repeat: i }]);
-    if (source.state !== entry.repeat[0].state || JSON.stringify(source.path.slice(0, position + 1)) !== JSON.stringify(prefix)) throw new TypeError('Repeat paths must follow the declared Model scope chain.');
-    return { key: { path: entry.repeat[level].key, value: keys[level] } };
-  });
-}
 function concreteBinding(entry, keys) {
   // Preserve raw numeric values until validation (JSON cloning would erase -0).
   const binding = { ...entry.binding, address: { ...entry.binding.address, keys: [...entry.binding.address.keys, ...keys] },
@@ -179,20 +170,7 @@ function concreteBinding(entry, keys) {
 function expand(artifact, snapshot, initial = false) {
   const rows = [], addresses = new Set(), hosts = new Set();
   for (const entry of artifact.bindings) {
-    const visit = (level, item, keys) => {
-      if (entry.repeat && level < entry.repeat.length) {
-        const scope = entry.repeat[level];
-        const collection = readBindingPath(level === 0 ? snapshot.states[scope.state] : item, scope.path);
-        if (!Array.isArray(collection)) throw new TypeError('Repeat sources must be Model arrays.');
-        const seen = new Set();
-        for (const child of collection) {
-          const key = readBindingPath(child, scope.key); segments([key]);
-          const token = JSON.stringify(key);
-          if (seen.has(token)) throw new TypeError('Repeat item keys must be unique within each parent scope.');
-          seen.add(token); visit(level + 1, child, [...keys, key]);
-        }
-        return;
-      }
+    expandRepeatScopes(entry.repeat, snapshot, keys => {
       const binding = concreteBinding(entry, keys), key = addressKey(binding.address);
       const hostSurface = entry.repeat ? `xtension:${key}` : entry.surface;
       if (addresses.has(key) || hosts.has(hostSurface)) throw new TypeError('Materialized XTension addresses and hosts must be unique.');
@@ -204,8 +182,7 @@ function expand(artifact, snapshot, initial = false) {
       }
       checkProps(snapshot, binding, initial);
       rows.push({ surface: entry.surface, hostSurface, binding });
-    };
-    visit(0, null, []);
+    });
   }
   return freeze(rows);
 }
@@ -216,7 +193,7 @@ function materializeStateBindingArtifact(artifact, snapshot) {
     const source = Object.getOwnPropertyDescriptor(snapshot, 'states');
     if (!source || !('value' in source)) throw new TypeError('Materialization requires a plain Model states snapshot.');
     record(source.value, 'Model states'); data(source.value);
-    const selected = artifact.schema === PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA ? Object.getOwnPropertyDescriptor(snapshot, 'selectors') : null;
+    const selected = [PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA, NATIVE_STATE_BINDING_ARTIFACT_SCHEMA].includes(artifact.schema) ? Object.getOwnPropertyDescriptor(snapshot, 'selectors') : null;
     if (selected && !('value' in selected)) throw new TypeError('Selector snapshots cannot be accessors.');
     if (selected) { record(selected.value, 'Model selector values'); data(selected.value); }
     return expand(artifact, { states: source.value, ...(selected ? { selectors: selected.value } : {}) });
@@ -224,4 +201,4 @@ function materializeStateBindingArtifact(artifact, snapshot) {
   catch (error) { invalid(error.message); }
 }
 
-module.exports = { XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBindingArtifact, materializeStateBindingArtifact };
+module.exports = { XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA, NATIVE_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBindingArtifact, materializeStateBindingArtifact };

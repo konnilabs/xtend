@@ -13,9 +13,19 @@ function runExportChecks() {
   const runtime = {}, all = {};
   const bindingName = '@ccslabs/xtend/xtensions/state-binding';
   const binding = require(bindingName);
-  assert.deepEqual(Object.keys(binding).sort(), ['PROJECTION_BINDING_SCHEMA', 'PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA', 'XTENSION_PROJECTION_STATE_BINDING_API_VERSION', 'XTENSION_RESUME_STATE_BINDING_API_VERSION', 'XTENSION_STATE_BINDING_API_VERSION', 'XTENSION_STATE_BINDING_ARTIFACT_SCHEMA', 'XTENSION_STATE_BINDING_SCHEMA', 'createXTensionProjectionStateRegistry', 'createXTensionResumeStateRegistry', 'createXTensionStateRegistry', 'materializeStateBindingArtifact', 'validateStateBinding', 'validateStateBindingArtifact']);
+  assert.deepEqual(Object.keys(binding).sort(), ['NATIVE_STATE_BINDING_ARTIFACT_SCHEMA', 'PROJECTION_BINDING_SCHEMA', 'PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA', 'XTENSION_NATIVE_STATE_BINDING_API_VERSION', 'XTENSION_PROJECTION_STATE_BINDING_API_VERSION', 'XTENSION_RESUME_STATE_BINDING_API_VERSION', 'XTENSION_STATE_BINDING_API_VERSION', 'XTENSION_STATE_BINDING_ARTIFACT_SCHEMA', 'XTENSION_STATE_BINDING_SCHEMA', 'createXTensionNativeStateRegistry', 'createXTensionProjectionStateRegistry', 'createXTensionResumeStateRegistry', 'createXTensionStateRegistry', 'materializeStateBindingArtifact', 'validateStateBinding', 'validateStateBindingArtifact']);
   assert.equal(require('@ccslabs/xtend-compiler/xtensions/state-binding').createXTensionStateRegistry, binding.createXTensionStateRegistry);
   all[bindingName] = Object.entries(binding).map(([key, value]) => [key, typeof value]).sort();
+  assert.equal(binding.XTENSION_NATIVE_STATE_BINDING_API_VERSION, '4.0.0');
+  assert.equal(binding.XTENSION_PROJECTION_STATE_BINDING_API_VERSION, '3.0.0');
+  assert.equal(require('@ccslabs/xtend-compiler/xtensions/state-binding').createXTensionNativeStateRegistry, binding.createXTensionNativeStateRegistry);
+  const nativeName = '@ccslabs/xtend/xtensions/native-view-projection', native = require(nativeName);
+  assert.equal(native.NATIVE_VIEW_PROJECTION_API_VERSION, '1.0.0');
+  for (const key of ['assertNativeCanonicalData', 'validateNativeViewProgram', 'materializeNativeView']) {
+    assert.equal(typeof native[key], 'function');
+    assert.equal(require('@ccslabs/xtend-compiler/xtensions/native-view-projection')[key], native[key]);
+  }
+  all[nativeName] = Object.entries(native).map(([key, value]) => [key, typeof value]).sort();
   const url = require('@ccslabs/xtend/xtensions/url-state');
   assert.equal(url.API_VERSION, '1.0.0');
   assert.equal(require('@ccslabs/xtend-compiler/xtensions/url-state').createURLStateContract, url.createURLStateContract);

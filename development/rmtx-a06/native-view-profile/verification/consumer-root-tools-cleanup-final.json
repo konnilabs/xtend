@@ -1,0 +1,133 @@
+{
+  "scope": "Identity-checked cleanup of four ignored workspace tool symlinks created by this agent only",
+  "node": "v24.22.2",
+  "creationReceipt": "/tmp/xtend-rmtx-a064/consumer-view-creation.json",
+  "creationReceiptSha256": "41acfe032225e97cd6287a6b78677461b460a929b017c534b63a7d00486ae1ee",
+  "passed": true,
+  "removedCount": 4,
+  "results": [
+    {
+      "name": "typescript",
+      "file": "/home/konni/Downloads/xtend-dev/xtend/node_modules/typescript",
+      "target": "/tmp/xtend-rmtx-a064/toolchain/node_modules/typescript",
+      "created": true,
+      "uid": 1000,
+      "ino": 10363199,
+      "packageSha256": "822ef7ca6452205657b6288b066481ecf508bfbf43455d715cf7d3ec457561e6",
+      "version": "5.9.3",
+      "verifiedIdentity": {
+        "symlink": true,
+        "ino": 10363199,
+        "uid": 1000,
+        "target": "/tmp/xtend-rmtx-a064/toolchain/node_modules/typescript",
+        "rawTarget": "/tmp/xtend-rmtx-a064/toolchain/node_modules/typescript",
+        "packageSha256": "822ef7ca6452205657b6288b066481ecf508bfbf43455d715cf7d3ec457561e6"
+      },
+      "removed": true,
+      "actualTargetPreserved": true
+    },
+    {
+      "name": "rollup",
+      "file": "/home/konni/Downloads/xtend-dev/xtend/node_modules/rollup",
+      "target": "/tmp/xtend-rmtx-a064/toolchain/node_modules/rollup",
+      "created": true,
+      "uid": 1000,
+      "ino": 10363200,
+      "packageSha256": "e2e7d877cee8c8b240be441cad9355bf86dc87de86f7ee7c72e6207817377e39",
+      "version": "4.53.3",
+      "verifiedIdentity": {
+        "symlink": true,
+        "ino": 10363200,
+        "uid": 1000,
+        "target": "/tmp/xtend-rmtx-a064/toolchain/node_modules/rollup",
+        "rawTarget": "/tmp/xtend-rmtx-a064/toolchain/node_modules/rollup",
+        "packageSha256": "e2e7d877cee8c8b240be441cad9355bf86dc87de86f7ee7c72e6207817377e39"
+      },
+      "removed": true,
+      "actualTargetPreserved": true
+    },
+    {
+      "name": "esbuild",
+      "file": "/home/konni/Downloads/xtend-dev/xtend/node_modules/esbuild",
+      "target": "/tmp/xtend-rmtx-a064/toolchain/node_modules/esbuild",
+      "created": true,
+      "uid": 1000,
+      "ino": 10363201,
+      "packageSha256": "cb7d5b1fe478f8cbaae566a86031b6fdf5f7d444354f35d1cb3cba9adf6d2935",
+      "version": "0.25.12",
+      "verifiedIdentity": {
+        "symlink": true,
+        "ino": 10363201,
+        "uid": 1000,
+        "target": "/tmp/xtend-rmtx-a064/toolchain/node_modules/esbuild",
+        "rawTarget": "/tmp/xtend-rmtx-a064/toolchain/node_modules/esbuild",
+        "packageSha256": "cb7d5b1fe478f8cbaae566a86031b6fdf5f7d444354f35d1cb3cba9adf6d2935"
+      },
+      "removed": true,
+      "actualTargetPreserved": true
+    },
+    {
+      "name": "terser",
+      "file": "/home/konni/Downloads/xtend-dev/xtend/node_modules/terser",
+      "target": "/tmp/xtend-rmtx-a064/toolchain/node_modules/terser",
+      "created": true,
+      "uid": 1000,
+      "ino": 10363202,
+      "packageSha256": "bf0935740aa56dfa2b113671f2fbf2162f517630b1b493d8940435d732a7c2a5",
+      "version": "5.44.1",
+      "verifiedIdentity": {
+        "symlink": true,
+        "ino": 10363202,
+        "uid": 1000,
+        "target": "/tmp/xtend-rmtx-a064/toolchain/node_modules/terser",
+        "rawTarget": "/tmp/xtend-rmtx-a064/toolchain/node_modules/terser",
+        "packageSha256": "bf0935740aa56dfa2b113671f2fbf2162f517630b1b493d8940435d732a7c2a5"
+      },
+      "removed": true,
+      "actualTargetPreserved": true
+    }
+  ],
+  "foreignEntriesUnchanged": true,
+  "foreignEntriesBefore": {
+    "@ccslabs": {
+      "ino": 10365888,
+      "uid": 1000,
+      "symlink": false,
+      "target": null
+    },
+    "@modelcontextprotocol": {
+      "ino": 10367271,
+      "uid": 1000,
+      "symlink": true,
+      "target": "/home/konni/.local/share/xtend-mcp/workspace-runtime/node_modules/@modelcontextprotocol"
+    },
+    "zod": {
+      "ino": 10367272,
+      "uid": 1000,
+      "symlink": true,
+      "target": "/home/konni/.local/share/xtend-mcp/workspace-runtime/node_modules/zod"
+    }
+  },
+  "foreignEntriesAfter": {
+    "@ccslabs": {
+      "ino": 10365888,
+      "uid": 1000,
+      "symlink": false,
+      "target": null
+    },
+    "@modelcontextprotocol": {
+      "ino": 10367271,
+      "uid": 1000,
+      "symlink": true,
+      "target": "/home/konni/.local/share/xtend-mcp/workspace-runtime/node_modules/@modelcontextprotocol"
+    },
+    "zod": {
+      "ino": 10367272,
+      "uid": 1000,
+      "symlink": true,
+      "target": "/home/konni/.local/share/xtend-mcp/workspace-runtime/node_modules/zod"
+    }
+  },
+  "sourceEdits": false,
+  "physicalToolPackagesDeleted": false
+}

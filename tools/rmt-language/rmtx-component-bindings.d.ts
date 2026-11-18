@@ -2,7 +2,7 @@ import type { ComponentInterface, ComponentInterfaceV2 } from '../xtensions/comp
 import type { XTensionProjection, XTensionProjectionPath } from '../xtensions/state-binding';
 import type { XTensionProjectionStateBindingArtifact, XTensionRepeatScope } from '../xtensions/state-binding-artifact';
 import type { RmtRange } from './rmt-tooling-public-types';
-export const RMTX_COMPONENT_BINDINGS_API_VERSION: '1.0.0';
+export const RMTX_COMPONENT_BINDINGS_API_VERSION: '2.0.0';
 export const RMTX_COMPONENT_DEPENDENCIES_SCHEMA: 'xtend.rmtx.component-dependencies.v1';
 export interface RmtxComponentSourceContract {
   readonly schema: 'xtend.rmtx.components.v1';
@@ -34,4 +34,19 @@ export function projectRmtxComponents(input: { readonly contract: RmtxComponentS
   readonly xtensionBindings: XTensionProjectionStateBindingArtifact;
   readonly xtensionComposition: Readonly<Record<string, unknown>> & { readonly schema: 'xtend.maraca.xtension-composition-manifest.v8' };
   readonly dependencies: RmtxComponentDependencyReport;
+};
+
+export const RMTX_COMPONENT_DEPENDENCIES_SCHEMA_V2: 'xtend.rmtx.component-dependencies.v2';
+export interface RmtxComponentSourceContractV2 extends Omit<RmtxComponentSourceContract, 'schema' | 'sourceProfile'> {
+  readonly schema: 'xtend.rmtx.components.v2';
+  readonly sourceProfile: { readonly syntax: 'rmtx'; readonly version: '5.0.0' };
+}
+export interface RmtxComponentDependencyReportV2 extends Omit<RmtxComponentDependencyReport, 'schema' | 'sourceProfile'> {
+  readonly schema: typeof RMTX_COMPONENT_DEPENDENCIES_SCHEMA_V2;
+  readonly sourceProfile: RmtxComponentSourceContractV2['sourceProfile'];
+}
+export function projectRmtxComponents(input: { readonly contract: RmtxComponentSourceContractV2; readonly catalog: RmtxComponentCatalog; readonly program: unknown }): {
+  readonly xtensionBindings: import('../xtensions/state-binding-artifact').XTensionNativeStateBindingArtifact;
+  readonly xtensionComposition: Readonly<Record<string, unknown>> & { readonly schema: 'xtend.maraca.xtension-composition-manifest.v9' };
+  readonly dependencies: RmtxComponentDependencyReportV2;
 };

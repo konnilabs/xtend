@@ -1,5 +1,5 @@
 (function attachRmtDomDescriptorRenderer(globalTarget) {
-  const RMT_DOM_DESCRIPTOR_RENDERER_API_VERSION = '2.2.0';
+  const RMT_DOM_DESCRIPTOR_RENDERER_API_VERSION = '2.3.0';
   const RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA = 'xtend.epic18.rmt-dom-descriptor-renderer.v2';
   const RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA = 'xtend.epic18.rmt-dom-descriptor-renderer.v1';
   const RMT_DOM_DESCRIPTOR_RENDERER_DIAGNOSTIC_SCHEMA = 'xtend.epic18.rmt-dom-renderer-diagnostic.v2';
@@ -3528,6 +3528,57 @@
       };
     }
 
+    // Both public preflight and commit use the same pure validation path.
+    // Preparing a descriptor never creates nodes or changes ownership.
+    function prepareDescriptor(request, operation) {
+      const tracker = {
+        changed: false,
+        structural: false
+      };
+      const contextOptions = {
+        ...defaultContextOptions,
+        ...objectRecord(request.context),
+        commitTracker: tracker,
+        reconcileMode: operation === 'reconcile-children' || operation === 'reconcile-element'
+      };
+      const context = createRenderContext(documentTarget, contextOptions, diagnosticsRecorder, rendererState);
+      // Only the trusted commit envelope supplies structural ownership.
+      // Descriptor fields, attributes and request.context confer none.
+      context.structuralOwner = clampString(request.ownership && request.ownership.owner, 'descriptor-renderer');
+      const descriptorInput = operation === 'reconcile-children' ? request.descriptors : request.descriptor;
+      context.blockedDomains = resolveOwnership(request.ownership, descriptorInput, context, operation);
+      validateDescriptor(descriptorInput, context);
+      context.trustedDomPreflight.collecting = true;
+      try {
+        validateDescriptor(descriptorInput, context);
+      } finally {
+        context.trustedDomPreflight.collecting = false;
+      }
+      if (operation === 'reconcile-children') {
+        const seenKeys = new Set();
+        expandChildEntries(request.descriptors, context).forEach((entry) => {
+          const key = entry.key;
+          if (!key) return;
+          if (seenKeys.has(key)) {
+            throw createRendererError('rmt.dom.key.duplicate', `Doppelter DOM-Reconcile-Key ${key}`, entry.descriptor, entry.context);
+          }
+          seenKeys.add(key);
+        });
+      }
+      if (
+        operation === 'reconcile-element'
+        && !sameNodeKind(request.target, request.descriptor, context)
+      ) {
+        throw createRendererError(
+          'rmt.dom.commit.target-kind-mismatch',
+          'reconcile-element kann Tag oder Namespace des Zielknotens nicht austauschen.',
+          request.descriptor,
+          context
+        );
+      }
+      return { context, tracker };
+    }
+
     function commit(request, internalOptions = {}) {
       return runWithDiagnostics(() => {
         const trackedBefore = new Set(rendererState.trackedNodes);
@@ -3536,52 +3587,7 @@
           ? []
           : collectApplicationBindings(request.target ? [request.target] : []);
         const diagnosticsStart = diagnosticsRecorder.diagnostics.length;
-        const tracker = {
-          changed: false,
-          structural: false
-        };
-        const contextOptions = {
-          ...defaultContextOptions,
-          ...objectRecord(request.context),
-          commitTracker: tracker,
-          reconcileMode: operation === 'reconcile-children' || operation === 'reconcile-element'
-        };
-        const context = createRenderContext(documentTarget, contextOptions, diagnosticsRecorder, rendererState);
-        // Only the trusted commit envelope supplies structural ownership.
-        // Descriptor fields, attributes and request.context confer none.
-        context.structuralOwner = clampString(request.ownership && request.ownership.owner, 'descriptor-renderer');
-        const descriptorInput = operation === 'reconcile-children' ? request.descriptors : request.descriptor;
-        context.blockedDomains = resolveOwnership(request.ownership, descriptorInput, context, operation);
-        validateDescriptor(descriptorInput, context);
-        context.trustedDomPreflight.collecting = true;
-        try {
-          validateDescriptor(descriptorInput, context);
-        } finally {
-          context.trustedDomPreflight.collecting = false;
-        }
-        if (operation === 'reconcile-children') {
-          const seenKeys = new Set();
-          expandChildEntries(request.descriptors, context).forEach((entry) => {
-            const key = entry.key;
-            if (!key) return;
-            if (seenKeys.has(key)) {
-              throw createRendererError('rmt.dom.key.duplicate', `Doppelter DOM-Reconcile-Key ${key}`, entry.descriptor, entry.context);
-            }
-            seenKeys.add(key);
-          });
-        }
-        if (
-          operation === 'reconcile-element'
-          && !sameNodeKind(request.target, request.descriptor, context)
-        ) {
-          throw createRendererError(
-            'rmt.dom.commit.target-kind-mismatch',
-            'reconcile-element kann Tag oder Namespace des Zielknotens nicht austauschen.',
-            request.descriptor,
-            context
-          );
-        }
-
+        const { context, tracker } = prepareDescriptor(request, operation);
         let nodes = [];
         try {
           const operationOwnsStructure = (
@@ -3776,6 +3782,12 @@
           descriptor,
           context: options
         }).target;
+      },
+      preflight(request) {
+        return runWithDiagnostics(() => {
+          prepareDescriptor(request, validateCommitRequest(request));
+          return true;
+        });
       },
       resolveValue(value, options = {}) {
         return runWithDiagnostics(() => {

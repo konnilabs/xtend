@@ -1,7 +1,7 @@
 import type { MaracaBuildPlan } from './index';
 import type { XTensionCompositionManifest, XTensionCompositionArtifact, XTensionCompositionBindingRuntime } from './xtension-composition-runtime';
 export type { XTensionCompositionManifest, XTensionCompositionArtifact, XTensionCompositionProvider } from './xtension-composition-runtime';
-export const XTENSION_COMPOSITION_BUILD_API_VERSION: '13.0.0';
+export const XTENSION_COMPOSITION_BUILD_API_VERSION: '14.0.0';
 export interface XTensionCompositionBuildReport {
   readonly schema: 'xtend.maraca.xtension-composition-build-report.v1';
   readonly apiVersion: '1.0.0'; readonly ok: true;
@@ -202,3 +202,14 @@ export function buildMaracaXTensionComposition(options: {
   readonly bindingsRuntime: import('./xtension-composition-runtime').ProjectionComponentBindingRuntime;
   readonly rootDir: string; readonly outputDir: string;
 }): Promise<ProjectionComponentBuildReport>;
+
+export interface NativeComponentBuildReport extends Omit<ProjectionComponentBuildReport, 'schema' | 'apiVersion' | 'artifact'> {
+  readonly schema: 'xtend.maraca.xtension-composition-build-report.v10'; readonly apiVersion: '10.0.0';
+  readonly artifact: import('./xtension-composition-runtime').NativeComponentArtifact;
+}
+export function buildMaracaXTensionComposition(options: {
+  readonly plan: import('./index').NativeRmtxBuildPlan;
+  readonly manifest: import('./xtension-composition-runtime').NativeComponentManifest;
+  readonly bindingsRuntime: import('./xtension-composition-runtime').NativeComponentBindingRuntime;
+  readonly rootDir: string; readonly outputDir: string;
+}): Promise<NativeComponentBuildReport>;

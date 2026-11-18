@@ -1,5 +1,6 @@
 const COMPONENT_COMMAND_SCHEMA = 'xtend.rmt.component-command.v1';
 const COMPONENT_COMMAND_RESULT_SCHEMA = 'xtend.maraca.component-command-result.v1';
+export const MARACA_BROWSER_HOST_API_VERSION = '3.0.0';
 
 function clone(value) {
   if (value === undefined) return undefined;
@@ -27,6 +28,7 @@ function diagnostic(code, error) {
 
 export function createMaracaBrowserHostAdapter(configuration = {}, dependencies = {}) {
   const config = freeze(clone(configuration) || {});
+  const native = config.schema === 'xtend.maraca.browser-composition-root.v11';
   const globalTarget = dependencies.platformTarget || dependencies.globalTarget || globalThis;
   const windowTarget = dependencies.windowTarget || globalTarget.window || globalTarget;
   const documentTarget = dependencies.documentTarget || globalTarget.document || null;
@@ -193,6 +195,13 @@ export function createMaracaBrowserHostAdapter(configuration = {}, dependencies 
     });
   }
 
+  function inspectServerShell(root, suppliedPayload) {
+    const shell = root && typeof root.querySelector === 'function' && (root.getAttribute?.('data-rmt-resume-root') === 'true'
+      ? root : root.querySelector('[data-rmt-resume-root="true"], [data-maraca-ssr-shell]'));
+    const payload = suppliedPayload === undefined ? readResumePayload() : suppliedPayload;
+    return freeze({ active: Boolean(shell), hasPayload: payload !== null && payload !== undefined });
+  }
+
   function resolveSurface(root, surfaceId) {
     const matches = (node) => Boolean(node && typeof node.getAttribute === 'function' && node.getAttribute('data-maraca-surface') === surfaceId);
     if (matches(root)) return root;
@@ -286,7 +295,7 @@ export function createMaracaBrowserHostAdapter(configuration = {}, dependencies 
     }
     const controller = api.createRmtKernelOrchestrationController({
       kernelApi: dependencies.kernelRuntimeModule || null,
-      ...(config.xtensionComposition ? { kernelScheduler: options.kernelScheduler, fabric: options.fabric } : {}),
+      ...(config.xtensionComposition || native ? { kernelScheduler: options.kernelScheduler, fabric: options.fabric } : {}),
       artifact: plan.artifact || null,
       plan,
       strict: Boolean(plan.strict),
@@ -381,7 +390,7 @@ export function createMaracaBrowserHostAdapter(configuration = {}, dependencies 
   }
 
   return freeze({
-    schema: 'xtend.maraca.browser-host-adapter.v2', config, publish, runtimeApi, readModelSnapshot, snapshotHandle: readOnlySnapshotHandle, installPublicFacades, clearPublicFacades,
+    schema: native ? 'xtend.maraca.browser-host-adapter.v3' : 'xtend.maraca.browser-host-adapter.v2', ...(native ? { inspectServerShell } : {}), config, publish, runtimeApi, readModelSnapshot, snapshotHandle: readOnlySnapshotHandle, installPublicFacades, clearPublicFacades,
     attachCss, resolveRoot, elementById, createRenderer,
     commitRootMetadata, renderCompatibility, readResumePayload, adoptServerShell, ensureComponent, ensureComponents,
     invokeComponentCommand, focusSurface, createHydrationPort, createKernelController, registerTemplateArtifacts, registerPwa, createTelemetryPort,

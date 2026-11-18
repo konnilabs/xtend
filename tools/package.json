@@ -57,7 +57,10 @@
     "tooling-bridge-cli.js",
     "tooling-bridge-client.php",
     "package.json",
-    "xtensions/component-interface*.*"
+    "xtensions/component-interface*.*",
+    "xtensions/native-view-projection.*",
+    "xtensions/native-data.js",
+    "xtensions/repeat-scopes.js"
   ],
   "exports": {
     ".": {
@@ -174,6 +177,10 @@
     "./xtensions/component-interface": {
       "types": "./xtensions/component-interface.d.ts",
       "default": "./xtensions/component-interface.js"
+    },
+    "./xtensions/native-view-projection": {
+      "types": "./xtensions/native-view-projection.d.ts",
+      "default": "./xtensions/native-view-projection.js"
     }
   },
   "publishConfig": {

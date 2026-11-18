@@ -1,0 +1,12 @@
+{
+  "schema": "xtend.mcp.knowledge-build-result.v1",
+  "ok": true,
+  "mode": "check",
+  "docs": 356,
+  "locales": {
+    "de": 178,
+    "en": 178
+  },
+  "rmtReferences": 32,
+  "rmtRecipes": 6
+}

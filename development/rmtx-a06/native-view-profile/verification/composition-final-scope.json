@@ -1,0 +1,84 @@
+{
+  "scope": "A06.4.1 URL/composition/browser owner: final production-code validation and static record regeneration",
+  "node": "v24.22.2 + v26.5.0",
+  "passed": true,
+  "finalSourcesUnchangedSinceInspectorRun": true,
+  "currentSourceDrift": [],
+  "finalCompositionRegression": {
+    "node24": {
+      "tests": 62,
+      "pass": 62,
+      "fail": 0,
+      "skip": 0
+    },
+    "node26": {
+      "tests": 62,
+      "pass": 62,
+      "fail": 0,
+      "skip": 0
+    }
+  },
+  "actualUnchangedBudgets": {
+    "source3": {
+      "node24": 2182366,
+      "node26": 2182366,
+      "frameworkCap": 2200000,
+      "runtimeBytes": 271451,
+      "runtimeCap": 280000,
+      "originalInspectorPrefix": true
+    },
+    "deliveryMixed": {
+      "frameworkBytes": 2093263,
+      "runtimeBytes": 236819,
+      "frameworkCap": 2200000,
+      "runtimeCap": 240000
+    },
+    "updatesMixed": {
+      "frameworkBytes": 2186989,
+      "runtimeBytes": 236819,
+      "frameworkCeiling": 2200000,
+      "runtimeCeiling": 240000,
+      "withinCaps": true,
+      "originalInspectorPrefix": true
+    }
+  },
+  "staticRegeneration": {
+    "processes": 25,
+    "passed": true,
+    "sourceDrift": [],
+    "archives": 12,
+    "archiveByteExact": true,
+    "historicalRuntimeRecords": 8,
+    "historicalRuntimeRecordsUnchanged": true
+  },
+  "sdkEvidenceScope": {
+    "full12": {
+      "node24": "sdk-packed24-02-receipt.json",
+      "node26": "sdk-packed26-02-receipt.json",
+      "note": "Actual 12/12 per lane before later equivalent private guard/printer changes; retain as intermediate scope."
+    },
+    "nativeRegistryClosureAndTypes": {
+      "node24": "sdk-packed24-03-closure-receipt.json",
+      "node26": "sdk-packed26-03-closure-receipt.json",
+      "note": "Actual 2/2 per lane after native guard factoring; sole package.json drift was the separately verified governance count/fingerprint update; later printer changes are covered by root final preparation."
+    },
+    "finalFullPackedGate": "Owned and executed by root final complete preparation against current frozen sources."
+  },
+  "printerExperimentIsNotGateEvidence": true,
+  "boundFilesSha256": {
+    "static-inspectors-04-receipt.json": "75a4a71e237d880aa54327d79981c250996a742a81c5fdd33600012e6a48475f",
+    "static-inspectors-04.log": "f2a0bd6caf3a9f9047f67cc347be2843601aadaf236a28d276d1c4270731f4b0",
+    "legacy-delivery24-final06-receipt.json": "206b8c6376fb714286ce4a9fd41afa19f327403d3f0c297ab3791ec8e9234191",
+    "legacy-delivery24-final06.log": "532ebbba3e9ee08a5f231f4d468a95710147ca6ea09cac224d02f733e9279a0a",
+    "updates-budget24-02-receipt.json": "161a2040c1404c8152cb384fdac3f3c9d147b8092f3d8b2bceef11cb50a43b89",
+    "updates-budget24-02.log": "d8620411004870fb19b21f0e54eee27612e8da90400389f1c9b7ced18130d1f9",
+    "keyed-budget24-07-receipt.json": "bbeb0cc198f1a1b0ea1f8dd9b3c14aea2de9074fe81dcd3ebd53342b13e9cfd6",
+    "keyed-budget24-07.log": "562d22b0874c907c44a26e81169f18034ce741fbb3b0f55fe4f3ece28091d016",
+    "keyed-budget26-07-receipt.json": "e3c3bbb6bbd3c55610070952517f216e70cea8c6f881cec724f4e122e751af6a",
+    "keyed-budget26-07.log": "4827e31ac285c6528b18e233ae837c4b6246b317213968441111e146ef8eee86",
+    "browser-runtime-map-pooling.json": "1df4bc8850994666f95cc896ca36a18a74126f8bb93c663cb328b42bae70e207",
+    "native-composition24-05.log": "df105f354455679c67c7c6df3f97bfc4ceb0450665e9f87a4ebd14e6245114a8",
+    "native-composition26-05.log": "e4824d02a97d6b082a621d6a9dacb2a948b69987c7b51e1950bc47062dc45f01"
+  },
+  "cleanup": "Four owned ignored workspace build-tool links retained until root final cleanup signal; identities/provenance in consumer-view-creation.json"
+}

@@ -1738,8 +1738,8 @@ function buildRmtVNextPrimitiveSemanticGraph(input = {}, options = {}) {
     references: createVNextPrimitiveReferencesIndex(),
     diagnostics: Array.isArray(parserResult.diagnostics) ? parserResult.diagnostics.slice() : [],
     ast: parserResult.ast,
-    allowEmptyActionPayload: options.compilerSourceProfile?.syntax === 'rmtx' && options.compilerSourceProfile.version === '4.0.0',
-    allowActionTemplates: options.compilerSourceProfile?.syntax === 'rmtx' && options.compilerSourceProfile.version === '4.0.0',
+    allowEmptyActionPayload: options.compilerSourceProfile?.syntax === 'rmtx' && ['4.0.0', '5.0.0'].includes(options.compilerSourceProfile.version),
+    allowActionTemplates: options.compilerSourceProfile?.syntax === 'rmtx' && ['4.0.0', '5.0.0'].includes(options.compilerSourceProfile.version),
     actionInputContract: options.compilerActionInputContract || null
   };
 

@@ -1,0 +1,342 @@
+{
+  "format": 1,
+  "scope": "A06.4.1 actual process artifacts; temporary producer paths map to retained repository copies",
+  "files": [
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/runtime-node24.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/native-e2e24-final.json",
+      "bytes": 25123,
+      "sha256": "a13b4e16b8d990f665245c1ee6d6a374fb0477cccc5ffcc203634758ddb9930a"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/runtime-node26.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/native-e2e26-final.json",
+      "bytes": 25122,
+      "sha256": "9beb6dec147235bc001a741ff7041ed24865c340f510dfe172e035c21ba547a8"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/runtime-chromium.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/native-e2e-browser-final.json",
+      "bytes": 25143,
+      "sha256": "69219a000c1bf892c70aa7cbe96cda2de7724ee83194faf3607f10d284186e43"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/native-boundary-registry-final.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/native-budget-boundary-registry-final-receipt.json",
+      "bytes": 42639,
+      "sha256": "5fd9323f511a12dc2316394ec79d3c24742226a320c005e2f770bc1f59cee7d6"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/native-boundary-registry24.log",
+      "originalPath": "/tmp/xtend-rmtx-a064/native-budget-boundary-registry-final-node24.log",
+      "bytes": 2726,
+      "sha256": "031e5ad467678381b4d91e4fbabe62d1fb9b1d2986ea231f568f087f882e66a6"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/native-boundary-registry26.log",
+      "originalPath": "/tmp/xtend-rmtx-a064/native-budget-boundary-registry-final-node26.log",
+      "bytes": 2729,
+      "sha256": "9e21aa65fb186583db3bbbc8a73c0f4b3bbd69f3d4e01373b75d479f5f69f6e3"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/native-algorithm-scope.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/native-runtime-final-receipt.json",
+      "bytes": 44104,
+      "sha256": "fdc3843edc76f6e79c16923ff3133415a15fafad78210c6e81c2a7cd44ed4557"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/native-algorithm24.log",
+      "originalPath": "/tmp/xtend-rmtx-a064/native-runtime-final-unit24.log",
+      "bytes": 8227,
+      "sha256": "580b1821cefc0d57f42f67e0581acc4e85c5c2a682a405155b1983d97bf23069"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/native-algorithm26.log",
+      "originalPath": "/tmp/xtend-rmtx-a064/native-runtime-final-unit26.log",
+      "bytes": 8228,
+      "sha256": "2cad06dd9519df0121fad2bbad0f47d4f6b9e9d967b0f9905268b72732631560"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/native-types24.log",
+      "originalPath": "/tmp/xtend-rmtx-a064/native-runtime-final-declaration24.log",
+      "bytes": 78,
+      "sha256": "8f7fa303b0d79e3961ac79df686ec82f53a8deb7bfa07fe070f3aec664fe7049"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/native-types26.log",
+      "originalPath": "/tmp/xtend-rmtx-a064/native-runtime-final-declaration26.log",
+      "bytes": 77,
+      "sha256": "d91103ac6359753697c01b000816c023ba1b34db6552735cf59a16e96bac8bc7"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/native-inspect.log",
+      "originalPath": "/tmp/xtend-rmtx-a064/native-inspect-final.log",
+      "bytes": 77,
+      "sha256": "8839184b45dfdc0c33302cd5f1be3f0cc70a268dfad2b0bb4450e1295d6e0a04"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/source5-compiler-boundaries.json",
+      "originalPath": "/tmp/xtend-a064-syntax/independent-native-review-r05.json",
+      "bytes": 2586,
+      "sha256": "db3280e0a44b8d5a05959ace7765529dc2c870f2eec8b976d7d97bf01b95ff98"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/source5-compiler-boundaries24.log",
+      "originalPath": "/tmp/xtend-a064-syntax/native-boundaries24-r05.log",
+      "bytes": 7063,
+      "sha256": "5c16d8af79fda2c63ae40de3505357935b4829c984a6bb755c985318a4b73b8f"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/source5-compiler-boundaries26.log",
+      "originalPath": "/tmp/xtend-a064-syntax/native-boundaries26-r05.log",
+      "bytes": 7064,
+      "sha256": "430157e480c74c0f594411b648b8ea465be94b687446f19a4fbaf961dff66782"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/retained-profile-comparison.json",
+      "originalPath": "/tmp/xtend-a064-syntax/syntax-scope-r02.json",
+      "bytes": 9130,
+      "sha256": "2086e6cf3a9ca0326ef55234d2a03be64ce676bb76d5559ea0c1ffcd01831358"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/native-public-types.json",
+      "originalPath": "/tmp/xtend-a064-syntax/native-port-types-r03.json",
+      "bytes": 1347,
+      "sha256": "96e4efeb87976b404459d630469c0905935622f32ceead5aa096ac5ea5348e4e"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/kernel-artifact-generation.json",
+      "originalPath": "/tmp/xtend-a064-syntax/kernel-artifact-final.json",
+      "bytes": 2306,
+      "sha256": "0c5df260ac2184b843c5d246af4fe9ca6c07b5f3c3654a1db4a04b9e21849b18"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/retained-runtime24.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/legacy-runtime24-final.json",
+      "bytes": 29122,
+      "sha256": "c190d954efb9a2929f03b8d3d0e051b8875db91bb5db8012fbcbfa57b526ce2e"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/retained-runtime26.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/legacy-runtime26-final.json",
+      "bytes": 29121,
+      "sha256": "0c108e0f40903d02f154e33a1c6fbf0b8f0eb8f60dc238395cccad32cf29d593"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/docs-kit-gates24.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/docs-kit-gates24-final.json",
+      "bytes": 194860,
+      "sha256": "54729a748e254ed574d9a9c94d39ec7d5f05bbfad2cf5cfb7b0ebaf2ea061510"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/export-types24.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/export-types24-final.json",
+      "bytes": 5523,
+      "sha256": "9e8ef0af0ae69ec73832c76329e70027ee0a014909c85a1a283e2b8bd150833b"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/mcp-knowledge24.log",
+      "originalPath": "/tmp/xtend-rmtx-a064/mcp-knowledge24.log",
+      "bytes": 603,
+      "sha256": "f282f70f23202bd46b50451eff4a95b5b43efa044fb70260e94486093d29f52d"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/mcp-knowledge26.log",
+      "originalPath": "/tmp/xtend-rmtx-a064/mcp-knowledge26.log",
+      "bytes": 603,
+      "sha256": "65cbf3f4844ff0fcec36169fa7f763382122fb418b382e8d517a2206a42818ed"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/sdk-packed24-scope.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/sdk-packed24-02-receipt.json",
+      "bytes": 72173,
+      "sha256": "86218c092b4c5a853150d68f4c934bd81a74c073a9d76f50274541d85f266332"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/sdk-packed26-scope.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/sdk-packed26-02-receipt.json",
+      "bytes": 72172,
+      "sha256": "40c4b6dba7575361877bee5212629c84046d2525f8a7a62cd4ac3be471afd848"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/sdk-packed24-native-closure.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/sdk-packed24-03-closure-receipt.json",
+      "bytes": 72343,
+      "sha256": "204037c602923b83a183e0e0011552964ea6cb9d1ff1a68176bf76e2fd75d60d"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/sdk-packed26-native-closure.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/sdk-packed26-03-closure-receipt.json",
+      "bytes": 72342,
+      "sha256": "f55f7f5ad87ef72311c99fc0564d11084ddd1273de94bebed2373498b0a578bb"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/source4-runtime-node24.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/source4-e2e24-regression-final.json",
+      "bytes": 19167,
+      "sha256": "b75df1c06347df8415665f0782e7e25a4112c11094a570506e970090729798b2"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/source4-runtime-chromium.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/source4-e2e-browser-regression-final.json",
+      "bytes": 19187,
+      "sha256": "3c97ae9fd0b832e0654272715618c9cc779cf806c4661bf949a69c71e6597a3e"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/retained-runtime24-final.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/legacy-runtime24-post-printer.json",
+      "bytes": 29122,
+      "sha256": "c190d954efb9a2929f03b8d3d0e051b8875db91bb5db8012fbcbfa57b526ce2e"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/retained-runtime26-final.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/legacy-runtime26-post-printer.json",
+      "bytes": 29121,
+      "sha256": "0c108e0f40903d02f154e33a1c6fbf0b8f0eb8f60dc238395cccad32cf29d593"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/retained-runtime24-final.receipt.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/legacy-runtime24-post-printer.receipt.json",
+      "bytes": 41664,
+      "sha256": "00a7e6648a50582aa80c7c6b086e4c5d812a8a0be64f5cfe6cf0738d68ddb400"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/retained-runtime26-final.receipt.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/legacy-runtime26-post-printer.receipt.json",
+      "bytes": 41663,
+      "sha256": "4ffaa7c9cd0268537acfe5179ebe645bde7ed35d306c1694c6fc98475864ef81"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/retained-ssr84.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/native-printer-ssr84-final-report.json",
+      "bytes": 7691,
+      "sha256": "23d2e954beb10deb3eaa720c8e56f32b83babf37f8cc092c123e8b51425da578"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/retained-ssr84.receipt.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/native-printer-ssr84-final-receipt.json",
+      "bytes": 42614,
+      "sha256": "8cf3dc4ce65d851aa97815ae180ed5aa8cd9274816f2a976ee18af45ecd99023"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/preparation-final24.log",
+      "originalPath": "/tmp/xtend-rmtx-a064/preparation-final24.log",
+      "bytes": 64496,
+      "sha256": "21b78fb2034532c09a3ecb815845b95cf4aa4751f615f7d9b4aa7bda38fa7ad4"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/preparation-final24.receipt.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/preparation-final24.receipt.json",
+      "bytes": 41478,
+      "sha256": "e9ab004041fd1144f32fbfec8e387c79902cd20c9172aa5a9894f5d3576d92b7"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/composition-final-scope.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/a0641-final-owner-scope.json",
+      "bytes": 3653,
+      "sha256": "b84d0ab2bbd26b4a353d595023dc3687de2afa3e81dc24ad441130d4f6e95096"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/static-inspectors-final.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/static-inspectors-04-receipt.json",
+      "bytes": 92812,
+      "sha256": "75a4a71e237d880aa54327d79981c250996a742a81c5fdd33600012e6a48475f"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/static-inspectors-final.log",
+      "originalPath": "/tmp/xtend-rmtx-a064/static-inspectors-04.log",
+      "bytes": 2492,
+      "sha256": "f2a0bd6caf3a9f9047f67cc347be2843601aadaf236a28d276d1c4270731f4b0"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/delivery-final.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/legacy-delivery24-final06-receipt.json",
+      "bytes": 7417,
+      "sha256": "206b8c6376fb714286ce4a9fd41afa19f327403d3f0c297ab3791ec8e9234191"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/delivery-final.log",
+      "originalPath": "/tmp/xtend-rmtx-a064/legacy-delivery24-final06.log",
+      "bytes": 727,
+      "sha256": "532ebbba3e9ee08a5f231f4d468a95710147ca6ea09cac224d02f733e9279a0a"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/updates-final.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/updates-budget24-02-receipt.json",
+      "bytes": 3225,
+      "sha256": "161a2040c1404c8152cb384fdac3f3c9d147b8092f3d8b2bceef11cb50a43b89"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/updates-final.log",
+      "originalPath": "/tmp/xtend-rmtx-a064/updates-budget24-02.log",
+      "bytes": 412,
+      "sha256": "d8620411004870fb19b21f0e54eee27612e8da90400389f1c9b7ced18130d1f9"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/source3-budget24-final.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/keyed-budget24-07-receipt.json",
+      "bytes": 2872,
+      "sha256": "bbeb0cc198f1a1b0ea1f8dd9b3c14aea2de9074fe81dcd3ebd53342b13e9cfd6"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/source3-budget26-final.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/keyed-budget26-07-receipt.json",
+      "bytes": 2871,
+      "sha256": "e3c3bbb6bbd3c55610070952517f216e70cea8c6f881cec724f4e122e751af6a"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/browser-runtime-map-pooling.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/browser-runtime-map-pooling.json",
+      "bytes": 3415,
+      "sha256": "1df4bc8850994666f95cc896ca36a18a74126f8bb93c663cb328b42bae70e207"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/composition24-final.log",
+      "originalPath": "/tmp/xtend-rmtx-a064/native-composition24-05.log",
+      "bytes": 5394,
+      "sha256": "df105f354455679c67c7c6df3f97bfc4ceb0450665e9f87a4ebd14e6245114a8"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/composition26-final.log",
+      "originalPath": "/tmp/xtend-rmtx-a064/native-composition26-05.log",
+      "bytes": 5390,
+      "sha256": "e4824d02a97d6b082a621d6a9dacb2a948b69987c7b51e1950bc47062dc45f01"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/workspace-aliases-created.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/workspace-aliases-created.json",
+      "bytes": 533,
+      "sha256": "c7fc2d62e2ba7a769fe15f6ff1b24a8b89ec82b6a1629a1ca33f31061e13acc6"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/workspace-aliases-cleanup-final.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/workspace-aliases-cleanup-final.json",
+      "bytes": 768,
+      "sha256": "c1c122ba69b1f34a3e9d4f70753927fe3248539a07730143c8f1a37222770b3f"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/consumer-root-tools-cleanup-final.json",
+      "originalPath": "/tmp/xtend-rmtx-a064/consumer-root-tools-cleanup-final.json",
+      "bytes": 4616,
+      "sha256": "3a8430b363636349cc4608d230844769a2d8f5326b4c2853af6a92df5c04db28"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/knowledge-freshness-final.log",
+      "originalPath": "/tmp/xtend-rmtx-a064/knowledge-freshness-final.log",
+      "bytes": 193,
+      "sha256": "fef4872a226226b5067829d4c5e5e179f67a364ed0f49642f67c1369aae3b367"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/search-freshness24-final.log",
+      "originalPath": "/tmp/xtend-rmtx-a064/search-freshness24-final.log",
+      "bytes": 250,
+      "sha256": "9bab1e7619b484c423fac385143f9062f9b4429b5d64c9bc51b3cd0632517b11"
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/verification/search-freshness26-final.log",
+      "originalPath": "/tmp/xtend-rmtx-a064/search-freshness26-final.log",
+      "bytes": 250,
+      "sha256": "9bab1e7619b484c423fac385143f9062f9b4429b5d64c9bc51b3cd0632517b11"
+    }
+  ]
+}

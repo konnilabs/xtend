@@ -16,13 +16,14 @@ const {
 
 const RMT_VNEXT_CORE_SCHEMA = 'xtend.rmt.core-format.vnext.v1';
 const RMT_VNEXT_COMPILER_SCHEMA = 'xtend.rmt.vnext-compiler.v1';
-const RMT_VNEXT_COMPILER_API_VERSION = '1.6.0';
+const RMT_VNEXT_COMPILER_API_VERSION = '1.7.0';
 const RMT_VNEXT_COMPILER_REPORT_SCHEMA = 'xtend.rmt.vnext-compiler-report.v1';
 const RMT_VNEXT_COMPILER_WORKPACKAGE = 'WP-E15-05';
 const RMT_VNEXT_PRIMITIVE_LOWERING_SCHEMA = 'xtend.rmt.vnext.primitive-lowering.v1';
 const RMT_VNEXT_PRIMITIVE_LOWERING_WORKPACKAGE = 'RMT-VNEXT-PRIM-04';
 const RMT_APP_ORCHESTRATION_SCHEMA = 'xtend.rmt.app-orchestration.v1';
 const RMT_APP_ORCHESTRATION_SCHEMA_V2 = 'xtend.rmt.app-orchestration.v2';
+const RMT_APP_ORCHESTRATION_SCHEMA_V3 = 'xtend.rmt.app-orchestration.v3';
 const RMT_APP_ORCHESTRATION_WORKPACKAGE = 'RMT-APP-ORCH-01';
 const RMT_APP_SERVICE_DEMANDS_SCHEMA = 'xtend.maraca.app-service-demands.v1';
 const RMT_APP_SERVICE_INPUT_POLICY_SCHEMA = 'xtend.maraca.app-service-input-policy.v1';
@@ -4221,7 +4222,9 @@ function createRmtAppOrchestrationArtifacts(core, options = {}) {
   if (!core || !core.appPlatform) return null;
 
   const appPlatform = core.appPlatform;
-  const nativeInputs = options.sourceProfile?.syntax === 'rmtx' && options.sourceProfile.version === '4.0.0';
+  const nativeViewProfile = options.sourceProfile?.syntax === 'rmtx' && options.sourceProfile.version === '5.0.0';
+  // Source5 composes the unchanged, explicitly declared Action4 subprofile.
+  const nativeInputs = nativeViewProfile || options.sourceProfile?.syntax === 'rmtx' && options.sourceProfile.version === '4.0.0';
   const inputContract = nativeInputs ? createRmtActionInputContract(core, options.rmtxActionInputRules) : null;
   const selectorSourceKinds = new Map(toArray(core.selectors).map(selector => [selector.name, selector.source && selector.source.kind]));
   const eventBindings = createEventBindingRecords(appPlatform).map(event => {
@@ -4260,15 +4263,52 @@ function createRmtAppOrchestrationArtifacts(core, options = {}) {
   for (const selector of toArray(appPlatform.selectors)) {
     if (!initialStates.has(selector.id) && initialStates.has(selector.from) && toArray(selector.clauses).every(clause => clause.kind === 'output')) initialStates.set(selector.id, initialStates.get(selector.from));
   }
-  const renderDescriptors = toArray(appPlatform.surfaces).map((surface) => createRenderDescriptor(surface, eventBindings, initialStates));
+  if (nativeViewProfile) {
+    const tags = require('../xtensions/native-view-projection').NATIVE_VIEW_TAG_NAMES;
+    if (toArray(appPlatform.surfaces).some(surface => !tags.includes(surface.component)))
+      throw Object.assign(new TypeError('Native View v1 Surface wrappers require the closed safe HTML tag set.'), { code: 'rmt.native-view.invalid' });
+  }
+  const nativeViews = nativeViewProfile
+    ? require('./rmtx-native-view').lowerRmtxNativeViews(options.rmtxNativeView, appPlatform) : null;
+  const renderDescriptors = toArray(appPlatform.surfaces).map((surface) => {
+    if (!nativeViewProfile) return createRenderDescriptor(surface, eventBindings, initialStates);
+    // Source5 view structure is compiler-owned. Mutable Model data named
+    // view/viewTemplate/template cannot become executable render descriptors.
+    const descriptor = createRenderDescriptor({ ...surface, source: null }, eventBindings, new Map());
+    const children = nativeViews.surfaces.get(surface.id);
+    if (children) descriptor.children = children;
+    return descriptor;
+  });
   const renderComposition = createRenderRoot(appPlatform, renderDescriptors);
   const hydration = createHydrationPlan(core, appPlatform);
+  if (nativeViewProfile) hydration.diagnostics = hydration.diagnostics.map(diagnostic => diagnostic.code === 'rmt.app_orchestration.hydration_policy_missing'
+    ? { ...diagnostic, code: 'rmt.native-view.csr_owner', severity: 'info',
+      message: `Surface ${diagnostic.surface} uses the explicit native CSR projection; no lifecycle hydration operation is inferred.` }
+    : diagnostic);
   const validation = createValidationPlan(core, appPlatform);
   const transitions = createSurfaceTransitionPlan(core, appPlatform);
   const animationEngine = createAnimationEnginePlan(core, appPlatform, transitions);
   transitions.animationEngine = animationEngine;
   const runtimeGraph = createRuntimeGraph(core, appPlatform, eventBindings, resources, validation, transitions);
   const patchPlan = createPatchPlan(appPlatform, reducers, renderDescriptors, validation, transitions);
+  if (nativeViewProfile) {
+    const reads = node => {
+      const symbols = new Set();
+      const visit = value => {
+        if (!value || typeof value !== 'object') return;
+        if (value.kind === 'path' && ['state', 'selector'].includes(value.root)) symbols.add(value.symbol);
+        if (value.type === 'native-repeat' && value.repeat?.[0]?.state) symbols.add(value.repeat[0].state);
+        Object.values(value).forEach(visitValue => {
+          if (Array.isArray(visitValue)) visitValue.forEach(visit); else visit(visitValue);
+        });
+      };
+      visit(node); return [...symbols].sort();
+    };
+    patchPlan.bindings.forEach(binding => {
+      const descriptor = renderDescriptors.find(node => node.surface === binding.surface);
+      binding.sources = [...new Set([...binding.sources, ...reads(descriptor)])].sort();
+    });
+  }
   const telemetry = createTelemetryPlan();
   const diagnosticPlans = {
     orchestration: { diagnostics: createOrchestrationDiagnostics(appPlatform, eventBindings, inputContract) },
@@ -4279,8 +4319,8 @@ function createRmtAppOrchestrationArtifacts(core, options = {}) {
   }
   const diagnostics = mergeDiagnostics(...Object.values(diagnosticPlans).map(plan => plan.diagnostics));
 
-  return {
-    schema: nativeInputs ? RMT_APP_ORCHESTRATION_SCHEMA_V2 : RMT_APP_ORCHESTRATION_SCHEMA,
+  const program = {
+    schema: nativeViewProfile ? RMT_APP_ORCHESTRATION_SCHEMA_V3 : nativeInputs ? RMT_APP_ORCHESTRATION_SCHEMA_V2 : RMT_APP_ORCHESTRATION_SCHEMA,
     workpackage: RMT_APP_ORCHESTRATION_WORKPACKAGE,
     sourceSyntax: core.manifest && core.manifest.sourceSyntax || 'rmt-vnext',
     runtimeOrder: ['kernel', 'state', 'resource', 'validation', 'animation', 'transition', 'action', 'event', 'surface', 'renderer'],
@@ -4326,6 +4366,7 @@ function createRmtAppOrchestrationArtifacts(core, options = {}) {
     portals: toArray(appPlatform.portals),
     overlays: toArray(appPlatform.overlays),
     render: {
+      ...(nativeViewProfile ? { nativeView: nativeViews.contract } : {}),
       mode: 'dom-descriptor',
       descriptors: renderDescriptors,
       root: renderComposition.root,
@@ -4351,12 +4392,14 @@ function createRmtAppOrchestrationArtifacts(core, options = {}) {
     diagnostics,
     sourceMap: sourceMapForOrchestration(core)
   };
+  if (nativeViewProfile) require('../xtensions/native-view-projection').validateNativeViewProgram(program);
+  return program;
 }
 
 class VNextCompiler {
   constructor(ast, options = {}, sourceProfile = null) {
     this.ast = ast;
-    this.allowActionTemplates = sourceProfile?.syntax === 'rmtx' && sourceProfile.version === '4.0.0';
+    this.allowActionTemplates = sourceProfile?.syntax === 'rmtx' && ['4.0.0', '5.0.0'].includes(sourceProfile.version);
     const documentId = options.documentId || findFirstNamedDeclaration(ast) || 'rmt.vnext.document';
     this.core = createCoreDocument({
       documentId,
@@ -5508,7 +5551,7 @@ function validateFrontendSourceProfile(options) {
   const fields = plain && Object.getOwnPropertyDescriptors(profile);
   const valid = fields && Reflect.ownKeys(fields).length === 2
     && ['syntax', 'version'].every(key => fields[key] && fields[key].enumerable && 'value' in fields[key])
-    && fields.syntax.value === 'rmtx' && ['1.0.0', '2.0.0', '3.0.0', '4.0.0'].includes(fields.version.value);
+    && fields.syntax.value === 'rmtx' && ['1.0.0', '2.0.0', '3.0.0', '4.0.0', '5.0.0'].includes(fields.version.value);
   if (!valid) throw Object.assign(new TypeError('Unsupported compiler frontend source profile.'), {
     code: 'rmt.compiler.source-profile.unsupported'
   });
@@ -5603,7 +5646,7 @@ function compileRmtVNextParserResult(parserResult, options = {}, sourceProfile =
     };
   }
   let compilerActionInputContract = null;
-  if (sourceProfile?.version === '4.0.0') {
+  if (['4.0.0', '5.0.0'].includes(sourceProfile?.version)) {
     try {
       const actions = [];
       const visit = node => {
@@ -5709,9 +5752,9 @@ function compileRmtVNextParserResult(parserResult, options = {}, sourceProfile =
     ].includes(entry.nodeType))
   } : null;
   let orchestrationArtifacts;
-  try { orchestrationArtifacts = createRmtAppOrchestrationArtifacts(coreDocument, { sourceProfile, rmtxActionInputRules: options.rmtxActionInputRules }); }
+  try { orchestrationArtifacts = createRmtAppOrchestrationArtifacts(coreDocument, { sourceProfile, rmtxActionInputRules: options.rmtxActionInputRules, rmtxNativeView: options.rmtxNativeView }); }
   catch (error) {
-    if (sourceProfile?.version !== '4.0.0') throw error;
+    if (!['4.0.0', '5.0.0'].includes(sourceProfile?.version)) throw error;
     let owner = parserResult.ast;
     const visit = node => {
       if (!node || typeof node !== 'object') return;
@@ -5790,6 +5833,7 @@ module.exports = {
   RMT_VNEXT_COMPILER_WORKPACKAGE,
   RMT_APP_ORCHESTRATION_SCHEMA,
   RMT_APP_ORCHESTRATION_SCHEMA_V2,
+  RMT_APP_ORCHESTRATION_SCHEMA_V3,
   RMT_APP_ORCHESTRATION_WORKPACKAGE,
   RMT_APP_SERVICE_DEMANDS_SCHEMA,
   RMT_APP_SERVICE_INPUT_POLICY_SCHEMA,

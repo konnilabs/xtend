@@ -1,4 +1,4 @@
-export const RMT_DOM_DESCRIPTOR_RENDERER_API_VERSION: '2.2.0';
+export const RMT_DOM_DESCRIPTOR_RENDERER_API_VERSION: '2.3.0';
 export const RMT_DOM_DESCRIPTOR_RENDERER_DIAGNOSTIC_SCHEMA: 'xtend.epic18.rmt-dom-renderer-diagnostic.v2';
 export const RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA: 'xtend.epic18.rmt-dom-descriptor-renderer.v2';
 export const RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA: 'xtend.epic18.rmt-dom-descriptor-renderer.v1';
@@ -288,6 +288,8 @@ export interface RmtDomDescriptorRenderer {
   schema: typeof RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA;
   trustedDomBoundary: typeof TRUSTED_DOM_BOUNDARY;
   commit(request: RmtDomCommitRequest): RmtDomCommitResult;
+  /** Pure shared validation; optional for pre-2.3 injected renderer ports. */
+  preflight?(request: RmtDomCommitRequest): true;
   dispose(target?: Node, options?: { clearOwnedDom?: boolean }): void;
   render(root: Element, descriptor: unknown, options?: RmtDomDescriptorRenderOptions): {
     schema: 'xtend.epic18.rmt-dom-render-result.v1';

@@ -1167,6 +1167,55 @@ export interface MaracaInlineComponentBuildPlan extends MaracaRmtxBuildPlan {
 export interface MaracaRmtxBuildConfig extends Omit<MaracaBuildConfig, 'schema' | 'options'> {
   schema: typeof MARACA_RMTX_BUILD_CONFIG_SCHEMA; options: MaracaRmtxBuildInput;
 }
+/** Explicit native source5 frontend. Older v8 inputs never infer this contract. */
+export const MARACA_RMTX_NATIVE_API_VERSION: '1.0.0';
+export const MARACA_RMTX_NATIVE_BUILD_PLAN_SCHEMA: 'xtend.maraca.build-plan.v9';
+export const MARACA_RMTX_NATIVE_BUILD_CONFIG_SCHEMA: 'xtend.maraca.build-config.v9';
+export interface NativeRmtxBuildInput extends MaracaRmtxBuildInput { rmtxSyntaxVersion: '5.0.0' }
+export interface NativeRmtxOnlyBuildInput extends Omit<NativeRmtxBuildInput, 'rmtxProviders' | 'config' | 'configPath' | 'build-config'> {
+  rmtxProviders?: never; config?: never; configPath?: never; 'build-config'?: never;
+}
+export interface NativeRmtxInlineBuildInput extends NativeRmtxBuildInput { rmtxProviders: MaracaRmtxProviderPins }
+export interface NativeRmtxRunOptions extends Omit<MaracaRunOptions, 'compileSource'> {
+  compileSource?: import('@ccslabs/xtend/rmt-language/rmtx-compiler').RmtxCompilerV5['compileSource'];
+}
+export interface NativeRmtxBuildPlan9 extends Omit<MaracaBuildPlan, 'schema' | 'xtensionBindings' | 'orchestration'> {
+  schema: typeof MARACA_RMTX_NATIVE_BUILD_PLAN_SCHEMA;
+  xtensionBindings?: import('@ccslabs/xtend/xtensions/state-binding').XTensionNativeStateBindingArtifact;
+  xtensionComposition?: import('./xtension-composition-runtime').NativeComponentManifest;
+  orchestration?: Omit<NonNullable<MaracaBuildPlan['orchestration']>, 'artifact'> & {
+    artifact?: import('@ccslabs/xtend/xtensions/native-view-projection').NativeViewProgram;
+  };
+}
+export type NativeRmtxBuildPlan = NativeRmtxBuildPlan9;
+export interface NativeRmtxOnlyBuildPlan9 extends Omit<NativeRmtxBuildPlan9, 'xtensionBindings' | 'xtensionComposition'> {
+  xtensionBindings?: never; xtensionComposition?: never;
+}
+export interface NativeRmtxInlineBuildPlan9 extends NativeRmtxBuildPlan9 {
+  xtensionBindings: import('@ccslabs/xtend/xtensions/state-binding').XTensionNativeStateBindingArtifact;
+  xtensionComposition: import('./xtension-composition-runtime').NativeComponentManifest;
+}
+export interface NativeRmtxBuildConfig9 extends Omit<MaracaBuildConfig, 'schema' | 'options'> {
+  schema: typeof MARACA_RMTX_NATIVE_BUILD_CONFIG_SCHEMA; options: NativeRmtxBuildInput;
+}
+export function createMaracaBuildPlan(input: NativeRmtxInlineBuildInput, options?: NativeRmtxRunOptions): NativeRmtxInlineBuildPlan9;
+export function createMaracaBuildPlan(input: NativeRmtxOnlyBuildInput, options?: NativeRmtxRunOptions): NativeRmtxOnlyBuildPlan9;
+export function createMaracaBuildPlan(input: NativeRmtxBuildInput, options?: NativeRmtxRunOptions): NativeRmtxBuildPlan9;
+export function createMaracaBuildPlan(input: MaracaRmtxBuildInput, options: NativeRmtxRunOptions & { compileSource: import('@ccslabs/xtend/rmt-language/rmtx-compiler').RmtxCompilerV5['compileSource'] }): NativeRmtxBuildPlan9;
+export function buildMaracaBundleAsync(input: NativeRmtxInlineBuildInput, options?: NativeRmtxRunOptions): Promise<{
+  schema: typeof MARACA_BUNDLE_REPORT_SCHEMA; ok: boolean; status: string; plan: NativeRmtxInlineBuildPlan9;
+  bundleReport: MaracaBundleReport | null; sizeBudgetReport: MaracaXTensionSizeBudgetReport | null;
+}>;
+export function buildMaracaBundleAsync(input: NativeRmtxOnlyBuildInput, options?: NativeRmtxRunOptions): Promise<{
+  schema: typeof MARACA_BUNDLE_REPORT_SCHEMA; ok: boolean; status: string; plan: NativeRmtxOnlyBuildPlan9;
+  bundleReport: MaracaBundleReport | null; sizeBudgetReport: MaracaSizeBudgetReport | null;
+}>;
+export function buildMaracaBundleAsync(input: NativeRmtxBuildInput, options?: NativeRmtxRunOptions): Promise<{
+  schema: typeof MARACA_BUNDLE_REPORT_SCHEMA; ok: boolean; status: string; plan: NativeRmtxBuildPlan9;
+  bundleReport: MaracaBundleReport | null; sizeBudgetReport: MaracaSizeBudgetReport | MaracaXTensionSizeBudgetReport | null;
+}>;
+export function createMaracaTuneConfig(input: Record<string, unknown> & { options: NativeRmtxBuildInput }): NativeRmtxBuildConfig9;
+
 export function createMaracaBuildPlan(input: MaracaInlineComponentBuildInput, options?: MaracaRunOptions): MaracaInlineComponentBuildPlan;
 export function createMaracaBuildPlan(input: MaracaRmtxBuildInput, options: MaracaRmtxRunOptions): MaracaRmtxBuildPlan;
 export function buildMaracaBundleAsync(input: MaracaInlineComponentBuildInput, options?: MaracaRunOptions): Promise<{

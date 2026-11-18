@@ -1048,6 +1048,10 @@
     "./maraca/xtension-composition-runtime": {
       "types": "./xtend-maraca/xtension-composition-runtime.d.ts",
       "default": "./xtend-maraca/xtension-composition-runtime.mjs"
+    },
+    "./xtensions/native-view-projection": {
+      "types": "./tools/xtensions/native-view-projection.d.ts",
+      "default": "./tools/xtensions/native-view-projection.js"
     }
   },
   "publishConfig": {
@@ -15656,7 +15660,7 @@
       "packageDryRunArtifact": ".xtend-test-results/xtend-pack-dry-run.json",
       "packageExportSurfaceArtifact": ".xtend-test-results/xtend-package-export-surface-lock.json",
       "packageExportLockReportArtifact": ".xtend-test-results/xtend-package-export-lock-report.json",
-      "expectedExportCount": 217,
+      "expectedExportCount": 218,
       "localGateRequiresNpmPackExecution": false,
       "artifactRequiredForRc1": true,
       "nextWorkpackage": "WP-E13-13",
@@ -15681,8 +15685,8 @@
       "localGate": "node scripts/run_xtend_tests.js type-exports --json",
       "packageScript": "npm run test:type-exports",
       "reportArtifact": ".xtend-test-results/xtend-type-exports-report.json",
-      "expectedExportCount": 217,
-      "lockedExportFingerprint": "953bb6cb388411430ce1e8cf805b791fdb1b12d1fd695ec7f6c70b006567e088",
+      "expectedExportCount": 218,
+      "lockedExportFingerprint": "6e59bcee5aed6581399276cb75f85f08766ec72361bc843c50819e4b9e7f6db5",
       "p0Exports": [
         ".",
         "./loader",

@@ -3,9 +3,9 @@ import type { RmtVNextCoreDocument } from './vnext-compiler';
 import type { XTensionStateBindingArtifact } from '../xtensions/state-binding-artifact';
 import type { RmtxParseResult, RmtxParseResultV2, RmtxParseResultV3, RmtxParserOptions, RmtxParserOptionsV2, RmtxParserOptionsV3, RMTX_SOURCE_PROFILE, RMTX_SELECTOR_SOURCE_PROFILE, RMTX_KEYED_SOURCE_PROFILE } from './rmtx-parser';
 import type { RmtxSelectorDependencyReport, RmtxSelectorDependencyReportV2 } from './rmtx-selector-dependencies';
-import type { RmtxParserOptionsV4 } from './rmtx-parser';
+import type { RmtxParserOptionsV4, RmtxParserOptionsV5 } from './rmtx-parser';
 /** Module capability API; individual profiles retain their own result version. */
-export declare const RMTX_COMPILER_API_VERSION: '4.0.0';
+export declare const RMTX_COMPILER_API_VERSION: '5.0.0';
 export declare const RMTX_COMPILE_RESULT_SCHEMA: 'xtend.rmtx.compile-result.v1';
 export declare const RMTX_COMPILE_RESULT_SCHEMA_V2: 'xtend.rmtx.compile-result.v2';
 export declare const RMTX_COMPILE_RESULT_SCHEMA_V3: 'xtend.rmtx.compile-result.v3';
@@ -101,3 +101,38 @@ export interface RmtxCompilerV4 {
 }
 export declare function createRmtxCompiler(defaultOptions: RmtxCompilerOptionsV4): Readonly<RmtxCompilerV4>;
 export declare function createRmtxCompiler(defaultOptions: RmtxCompilerOptions | RmtxCompilerOptionsV2 | RmtxCompilerOptionsV3 | RmtxCompilerOptionsV4): Readonly<RmtxCompiler | RmtxCompilerV2 | RmtxCompilerV3 | RmtxCompilerV4>;
+
+export declare const RMTX_COMPILE_RESULT_SCHEMA_V5: 'xtend.rmtx.compile-result.v5';
+export interface RmtxCompilerOptionsV5 extends RmtxParserOptionsV5 {
+  componentInterfaceCatalog?: import('./rmtx-component-bindings').RmtxComponentCatalog;
+  xtensionBindings?: never;
+  contractVersion?: '1.0.0';
+}
+export interface RmtxCompileResultV5 extends Omit<RmtxCompileResultV4, 'schema' | 'apiVersion' | 'sourceProfile' | 'parserResult' | 'selectorDependencies' | 'xtensionBindings' | 'xtensionComposition' | 'componentDependencies'> {
+  schema: typeof RMTX_COMPILE_RESULT_SCHEMA_V5; apiVersion: '5.0.0';
+  sourceProfile: typeof import('./rmtx-parser').RMTX_NATIVE_SOURCE_PROFILE;
+  parserResult: import('./rmtx-parser').RmtxParseResultV5;
+  selectorDependencies: import('./rmtx-selector-dependencies').RmtxSelectorDependencyReportV4 | null;
+  nativeDependencies: import('./rmtx-native-view').RmtxNativeViewDependencyReport | null;
+  xtensionBindings?: import('../xtensions/state-binding-artifact').XTensionNativeStateBindingArtifact | null;
+  xtensionComposition?: Readonly<Record<string, unknown>> & { readonly schema: 'xtend.maraca.xtension-composition-manifest.v9' } | null;
+  componentDependencies?: import('./rmtx-component-bindings').RmtxComponentDependencyReportV2 | null;
+}
+export declare function compileRmtxSource(input: unknown, options: RmtxCompilerOptionsV5): RmtxCompileResultV5;
+export declare function compileRmtxSource(input: unknown, options: RmtxCompilerOptions | RmtxCompilerOptionsV2 | RmtxCompilerOptionsV3 | RmtxCompilerOptionsV4 | RmtxCompilerOptionsV5): RmtxCompileResult | RmtxCompileResultV2 | RmtxCompileResultV3 | RmtxCompileResultV4 | RmtxCompileResultV5;
+export interface RmtxCompilerV5 {
+  name: 'RMTX'; apiVersion: '5.0.0'; schema: typeof RMTX_COMPILE_RESULT_SCHEMA_V5;
+  sourceProfile: typeof import('./rmtx-parser').RMTX_NATIVE_SOURCE_PROFILE;
+  compileSource(input?: unknown): RmtxCompileResultV5;
+  compileSource(input: unknown, options: Omit<RmtxCompilerOptionsV5, 'syntaxVersion'> & { syntaxVersion?: '5.0.0' }): RmtxCompileResultV5;
+  compileSource(input: unknown, options: RmtxCompilerOptionsV5): RmtxCompileResultV5;
+  compileSource(input: unknown, options: RmtxCompilerOptionsV4): RmtxCompileResultV4;
+  compileSource(input: unknown, options: RmtxCompilerOptionsV3): RmtxCompileResultV3;
+  compileSource(input: unknown, options: RmtxCompilerOptionsV2): RmtxCompileResultV2;
+  compileSource(input: unknown, options: RmtxCompilerOptions & { syntaxVersion: '1.0.0' }): RmtxCompileResult;
+  compileSource(input: unknown, options?: RmtxCompilerOptions | RmtxCompilerOptionsV2 | RmtxCompilerOptionsV3 | RmtxCompilerOptionsV4 | RmtxCompilerOptionsV5): RmtxCompileResult | RmtxCompileResultV2 | RmtxCompileResultV3 | RmtxCompileResultV4 | RmtxCompileResultV5;
+}
+export declare function createRmtxCompiler(defaultOptions: RmtxCompilerOptionsV5): Readonly<RmtxCompilerV5>;
+export declare function createRmtxCompiler(defaultOptions: RmtxCompilerOptions | RmtxCompilerOptionsV2 | RmtxCompilerOptionsV3 | RmtxCompilerOptionsV4 | RmtxCompilerOptionsV5): Readonly<RmtxCompiler | RmtxCompilerV2 | RmtxCompilerV3 | RmtxCompilerV4 | RmtxCompilerV5>;
+
+export type { RmtxNativeViewSourceContract, RmtxNativeViewDependencyReport, RmtxNativeProjection, RmtxNativeSourceNode } from './rmtx-native-view';

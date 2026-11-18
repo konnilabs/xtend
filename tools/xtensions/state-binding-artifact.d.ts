@@ -28,6 +28,7 @@ export interface XTensionMaterializedBinding {
   readonly surface: string; readonly hostSurface: string; readonly binding: XTensionStateBinding;
 }
 export function validateStateBindingArtifact(input: XTensionProjectionStateBindingArtifact, program: unknown): XTensionProjectionStateBindingArtifact;
+export function validateStateBindingArtifact(input: XTensionNativeStateBindingArtifact, program: unknown): XTensionNativeStateBindingArtifact;
 export function validateStateBindingArtifact(input: unknown, program: unknown): XTensionStateBindingArtifact;
 /** Requires an artifact returned by this runtime's validator. Revalidate after serialization. */
 export function materializeStateBindingArtifact(artifact: XTensionStateBindingArtifact, snapshot: { readonly states: Readonly<Record<string, unknown>> }): readonly XTensionMaterializedBinding[];
@@ -44,5 +45,14 @@ export interface XTensionProjectionStateBindingArtifact {
   }[];
 }
 export function materializeStateBindingArtifact(artifact: XTensionProjectionStateBindingArtifact, snapshot: { readonly states: Readonly<Record<string, unknown>>; readonly selectors?: Readonly<Record<string, unknown>> }): readonly {
+  readonly surface: string; readonly hostSurface: string; readonly binding: import('./state-binding').XTensionProjectionStateBinding;
+}[];
+
+/** Source5 is paired only with app-orchestration.v3; Source4 remains paired with v4/Program2. */
+export const NATIVE_STATE_BINDING_ARTIFACT_SCHEMA: 'xtend.xtensions.state-binding-artifact.v5';
+export interface XTensionNativeStateBindingArtifact extends Omit<XTensionProjectionStateBindingArtifact, 'schema'> {
+  readonly schema: typeof NATIVE_STATE_BINDING_ARTIFACT_SCHEMA;
+}
+export function materializeStateBindingArtifact(artifact: XTensionNativeStateBindingArtifact, snapshot: { readonly states: Readonly<Record<string, unknown>>; readonly selectors?: Readonly<Record<string, unknown>> }): readonly {
   readonly surface: string; readonly hostSurface: string; readonly binding: import('./state-binding').XTensionProjectionStateBinding;
 }[];

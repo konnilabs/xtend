@@ -1,0 +1,17 @@
+[
+  {
+    "path": "/home/konni/Downloads/xtend-dev/xtend/node_modules/@ccslabs/xtend",
+    "created": true,
+    "target": "/home/konni/Downloads/xtend-dev/xtend"
+  },
+  {
+    "path": "/home/konni/Downloads/xtend-dev/xtend/node_modules/@ccslabs/xtend-compiler",
+    "created": true,
+    "target": "/home/konni/Downloads/xtend-dev/xtend/tools"
+  },
+  {
+    "path": "/home/konni/Downloads/xtend-dev/xtend/node_modules/@ccslabs/xtend-maraca",
+    "created": true,
+    "target": "/home/konni/Downloads/xtend-dev/xtend/xtend-maraca"
+  }
+]

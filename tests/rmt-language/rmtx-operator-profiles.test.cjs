@@ -54,7 +54,7 @@ test('v2 declares selector admission, field rules and strict boolean semantics i
 });
 
 test('new profile capability preserves exact v1 and v2 wire contracts', () => {
-  assert.equal(profiles.RMTX_OPERATOR_PROFILE_API_VERSION,'3.0.0');
+  assert.equal(profiles.RMTX_OPERATOR_PROFILE_API_VERSION,'4.0.0');
   const expected={
     '1.0.0':'d40079c970f88ee4c66e547f81d1d35052643a86c3d79712b79d4e8cc4aff4ec',
     '2.0.0':'27f9d25ba4e730b0db9812a451af631d14bb1fa11cd16abd9ef35d19002f55c1'
@@ -109,7 +109,7 @@ test('v3 closes host repeat, boolean presence and event conditions without enabl
 });
 
 test('profile records are immutable plain data and mutable clones cannot alter compiler contracts', () => {
-  for (const version of ['1.0.0','2.0.0','3.0.0','4.0.0']) {
+  for (const version of ['1.0.0','2.0.0','3.0.0','4.0.0','5.0.0']) {
     const profile = profiles.getRmtxOperatorProfile(version);frozenData(profile);
     assert.deepEqual(JSON.parse(JSON.stringify(profile)),profile);
     assert.throws(()=>{profile.operators.Program.children.push('Anything');},TypeError);
@@ -129,7 +129,7 @@ test('unsupported versions fail without coercing or executing supplied metadata'
 });
 
 test('catalog references remain coherent and do not claim dynamic tracking or runtime source execution', () => {
-  for(const version of ['1.0.0','2.0.0','3.0.0','4.0.0']) {
+  for(const version of ['1.0.0','2.0.0','3.0.0','4.0.0','5.0.0']) {
     const profile=profiles.getRmtxOperatorProfile(version);
     for(const contract of Object.values(profile.operators)) {
       for(const child of contract.children) assert(Object.hasOwn(profile.operators,child),child);
@@ -145,9 +145,9 @@ test('catalog references remain coherent and do not claim dynamic tracking or ru
   }
 });
 
-test('authoring names follow the v4 catalog and all operator/helper calls require compilation', () => {
-  assert.equal(authoring.RMTX_AUTHORING_API_VERSION,'4.0.0');
-  assert.deepEqual(Object.keys(authoring.RMT),Object.keys(profiles.getRmtxOperatorProfile('4.0.0').operators));
+test('authoring names follow the v5 catalog and all operator/helper calls require compilation', () => {
+  assert.equal(authoring.RMTX_AUTHORING_API_VERSION,'5.0.0');
+  assert.deepEqual(Object.keys(authoring.RMT),Object.keys(profiles.getRmtxOperatorProfile('5.0.0').operators));
   assert(Object.isFrozen(authoring));assert(Object.isFrozen(authoring.RMT));
   let touched=false;
   const attrs=Object.defineProperty({},'id',{get(){touched=true;return 'forged';}});

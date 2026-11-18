@@ -56,6 +56,8 @@ Model and selector paths use an injected **read-only `modelReader.snapshot()` po
 
 Missing or ambiguous paths, unknown expression forms, unsafe prototype paths and a failing Model port grant no permission. Guards are bounded to 64 nesting levels, 1,024 nodes and 128 path segments. Logical short-circuiting does not read unused event values, but an unselected branch must still be structurally valid. This concrete event evaluator does not establish execution support for every lifecycle or stream adapter.
 
+Integers and decimals are numeric literals; `weight` still requires a nonnegative integer.
+
 ## Examples
 
 ```rmt

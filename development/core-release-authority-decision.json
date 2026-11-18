@@ -4,8 +4,8 @@
   "repository": "konnilabs/xtend",
   "status": "reviewed-core-owned-projection",
   "inventoryFile": "tests/schemas/core-release-inventory.json",
-  "inventorySha256": "a0182017593fe54b060be855b23ade5a709b6b0054093bd8da09b1626854741f",
-  "sourceMembershipSha256": "13211eaac9782542b28e01c870d410127e78c89f00eb0de2527ca4074de3cc43",
+  "inventorySha256": "f062aedab94e09cc248318a713f327030589d0581a9ab601882cf9c9a3bec13f",
+  "sourceMembershipSha256": "cf81f66ebcd7b538bb6107d0610397d85a07a26af00f82462344d768bc54eaf2",
   "reviewProposal": "development/core-projection-review.json.gz",
   "profileRegistry": {
     "format": 1,
@@ -530,18 +530,32 @@
     "released": false,
     "publicationGuardRetired": false,
     "registration": {
-      "schemaId": "xtend.rmt.vnext.ast.v1",
-      "familyId": "xtend.rmt.vnext.ast",
-      "version": 1,
-      "status": "reviewed-current-source",
+      "acceptedFingerprints": [
+        "sha256:03c80a608f4ba37515a2ebef034b757c7afd071257a0f54ee5fde41dd95d7913",
+        "sha256:3cec282031d7d406d0b97fc367838c9e24d3f7acd7b08ca9387fbf584f6ef982",
+        "sha256:4f346f0bf7f896c8da451702772f3ebcd61a9137f288896a95c3b967df948e3e",
+        "sha256:a0e96705b9170bbd30198025f9539dadc12a51d2bee1656db647b466bb071716"
+      ],
+      "authoritativeFingerprints": [
+        "sha256:4f346f0bf7f896c8da451702772f3ebcd61a9137f288896a95c3b967df948e3e"
+      ],
       "canonicalDefinition": {
-        "path": "tools/rmt-language/contracts/classic-ast.v1.schema.json",
-        "symbol": null,
         "definitionType": "json-schema",
+        "path": "tools/rmt-language/contracts/classic-ast.v1.schema.json",
         "role": "definition",
+        "symbol": null,
         "visibility": "internal"
       },
+      "familyId": "xtend.rmt.vnext.ast",
       "historicalInventorySha256": "0c1ca03e989f4c1cfa5e07b2296e163ddda0090fd138677bc410feafce9661f3",
+      "observedFingerprints": [
+        "sha256:03c80a608f4ba37515a2ebef034b757c7afd071257a0f54ee5fde41dd95d7913",
+        "sha256:3cec282031d7d406d0b97fc367838c9e24d3f7acd7b08ca9387fbf584f6ef982",
+        "sha256:4f346f0bf7f896c8da451702772f3ebcd61a9137f288896a95c3b967df948e3e",
+        "sha256:a0e96705b9170bbd30198025f9539dadc12a51d2bee1656db647b466bb071716"
+      ],
+      "releasedFingerprintSetHash": null,
+      "schemaId": "xtend.rmt.vnext.ast.v1",
       "sources": [
         {
           "path": "development/WP-E15-04-Lexer-Parser-MVP-fuer-Templates-Surfaces-Lanes-und-Lifecycle-Ops-bauen.md",
@@ -560,8 +574,12 @@
           "sha256": "0bcb15de762abfd400585af3324b667138176b59306643ff612fffd8b328599d"
         },
         {
-          "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
+          "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.before-a0641.md",
           "sha256": "ababf0efec88a57f0ccba1a512a92f0bb816a93f97e9f9bd776c06cbba2c1771"
+        },
+        {
+          "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
+          "sha256": "7252464c9344e32e2f268f100d69a2ef0efda51ef705d68b69c2b67ac7776986"
         },
         {
           "path": "development/rmtx-a01/README.md",
@@ -573,7 +591,7 @@
         },
         {
           "path": "development/rmtx-a01/inventory.json",
-          "sha256": "97bab36a9ca1d4be9ee78e015eba852a2624065e4033959cc21a594d9aba7069"
+          "sha256": "4fd1d37be234e0a1fb6a912f8f3cd9d3de19754d26b229d641103e841c9b555b"
         },
         {
           "path": "docs/de/rmt-vnext-authoring.md",
@@ -585,7 +603,7 @@
         },
         {
           "path": "package.json",
-          "sha256": "773eaecc423d6ba9d358949b906aba0a7b52712b15a8a06df730cbec2c9bf989"
+          "sha256": "2468a7480d26cc2410c6e398ef0bc37c0f49c656d4ba6f7e2d7fbb986d395f2a"
         },
         {
           "path": "scripts/generate_rmt_classic_contract.js",
@@ -593,11 +611,11 @@
         },
         {
           "path": "tests/rmt-language/action-execution-lowering.test.cjs",
-          "sha256": "0f48dc062f97ac7992c0e1d18f9ff0d25f83b94b438cff85967262b721fd7469"
+          "sha256": "f2223f2f639b3cd2c0480ea030c2dc6724c959434702a91178552836137a2c1b"
         },
         {
           "path": "tests/rmt-language/backend-ast-result.test.cjs",
-          "sha256": "e5534fc56b1b7d334ec82a6c2e8446a3518cbd25d0a319176860273098bab5f6"
+          "sha256": "67b80acc732068fbb4e5a46f18e4ad2266c5d0a55338a5ccce4e8bfcd32bbc28"
         },
         {
           "path": "tests/rmt-language/fixtures/classic-contract-consumer.ts",
@@ -606,6 +624,10 @@
         {
           "path": "tests/rmt-language/rmt_classic_contract_checks.js",
           "sha256": "9f77acee56aa8c9a1330cd60c870c90aadf637c7abba66acaf88d737c11620ee"
+        },
+        {
+          "path": "tests/rmt-language/rmtx-native-view.test.cjs",
+          "sha256": "bfbad590d8e9964a63aefefac1bbd504c6cefad64f4f02b353f64c684364d62a"
         },
         {
           "path": "tools/rmt-language/classic-ast-contract.js",
@@ -621,11 +643,11 @@
         },
         {
           "path": "tools/rmt-language/classic-compiler.d.ts",
-          "sha256": "fec9ee4e43fa0713346928adfc49da84c422ac9e0ead36582d9d4398c084c966"
+          "sha256": "3643f120af87e27644716f87e997846237d95c30c2cea73edfb14cb014f8f96b"
         },
         {
           "path": "tools/rmt-language/classic-compiler.js",
-          "sha256": "51b0a119706689b193ba01cc289e914a63be02d1757f7cef105c921e7ea8c572"
+          "sha256": "0fce500de51a9214e45e33fc739450c26b4dcce2a750730c7472f05947f4dd25"
         },
         {
           "path": "tools/rmt-language/classic-parser.d.ts",
@@ -645,15 +667,15 @@
         },
         {
           "path": "tools/rmt-language/rmtx-parser.js",
-          "sha256": "de11824a2ec993cbf82f77d92a94e07d2e7a78af07c07384d10e096e6bdf1ad1"
+          "sha256": "0e9003f18c16d3ff5eded3e4e68049868bb90de45dc02f0b86d45238492a02c0"
         },
         {
           "path": "tools/rmt-language/semantic-graph.js",
-          "sha256": "5ef6c052b44a4e94d05f08e0327517e5dc073d706bf023a4fef2f47a45d08e43"
+          "sha256": "38af11000b4cee776725b2789c2f20ca50a44ac14adcafd84de1bad01088c1af"
         },
         {
           "path": "tools/rmt-language/vnext-compiler.js",
-          "sha256": "c3dce058c55a93a2d8520469285f21360141681679ca3869c55d5edfe5eb9888"
+          "sha256": "ef4e26b966f6661e42e6519315e51fae05bc9fe9890635082555dae0a7e12aa0"
         },
         {
           "path": "tools/rmt-language/vnext-parser.js",
@@ -664,22 +686,8 @@
           "sha256": "413b83a7f6522a785d68fd5c860f9a627ca6dea91303f63be6437974ab6877e4"
         }
       ],
-      "observedFingerprints": [
-        "sha256:03c80a608f4ba37515a2ebef034b757c7afd071257a0f54ee5fde41dd95d7913",
-        "sha256:3cec282031d7d406d0b97fc367838c9e24d3f7acd7b08ca9387fbf584f6ef982",
-        "sha256:4f346f0bf7f896c8da451702772f3ebcd61a9137f288896a95c3b967df948e3e",
-        "sha256:a0e96705b9170bbd30198025f9539dadc12a51d2bee1656db647b466bb071716"
-      ],
-      "acceptedFingerprints": [
-        "sha256:03c80a608f4ba37515a2ebef034b757c7afd071257a0f54ee5fde41dd95d7913",
-        "sha256:3cec282031d7d406d0b97fc367838c9e24d3f7acd7b08ca9387fbf584f6ef982",
-        "sha256:4f346f0bf7f896c8da451702772f3ebcd61a9137f288896a95c3b967df948e3e",
-        "sha256:a0e96705b9170bbd30198025f9539dadc12a51d2bee1656db647b466bb071716"
-      ],
-      "authoritativeFingerprints": [
-        "sha256:4f346f0bf7f896c8da451702772f3ebcd61a9137f288896a95c3b967df948e3e"
-      ],
-      "releasedFingerprintSetHash": null
+      "status": "reviewed-current-source",
+      "version": 1
     }
   },
   "release09PreparationReview": {
@@ -15041,7 +15049,7 @@
       "sha256": "a4d70efbb9bfc6db65ce06d533ef922bc9401acae620d5de273d289e1c261b9b"
     },
     "workingDocument": {
-      "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
+      "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.before-a0641.md",
       "sha256": "ababf0efec88a57f0ccba1a512a92f0bb816a93f97e9f9bd776c06cbba2c1771"
     },
     "evidence": {
@@ -15380,5 +15388,2047 @@
     },
     "existingConsolidationsChanged": false,
     "rationale": "A06.3 is implemented through explicit syntax4, closed AST-backed declarative operators, typed native Action boundaries, projected component props/intents, URL2 and XRouter2 through the existing Model, Kernel and mandatory Fabric orchestration. The previous dirty A06.3.2 source stage is preserved as baseline. Actual current-source runtime, packaged consumers, complete legacy data, strict typing and full preparation pass; all133 productive pins remain stable. Source4 does not implement generic native UI/DOM loops, lifecycle when, project semantic tooling or SSR adoption, which remain A064/A065/A066. Seven genuine initial complete productive contract authorities receive normal immutable fingerprint locks while rollout remains planned and feature/package release admission remains false. Every prior authority/released set, consolidation, historical duplicate review and unrelated family lifecycle is preserved."
+  },
+  "a0641NativeViewSourceProfileReview": {
+    "date": "2026-11-18",
+    "stage": "A06.4.1-native-html-view-and-typed-dom-repeats",
+    "sourceBaseSha": "0cbbc51550267b3537078dbf9a9c9f9f16d41265",
+    "status": "implemented-native-html-view-explicit-source5-csr-profile",
+    "passed": true,
+    "acceptedForRelease": false,
+    "bothFeaturesReleaseStatus": "preparing",
+    "newContractsReleased": false,
+    "newContractRollout": "planned",
+    "completeA064Implemented": false,
+    "completeRmtxFrontendImplemented": false,
+    "nativeHtmlViewImplemented": true,
+    "nativeElementRepeatImplemented": true,
+    "lifecycleWhenSupported": false,
+    "nativeSurfaceRepeatSupported": false,
+    "semanticProjectToolingImplemented": false,
+    "source5SsrAdoptionAccepted": false,
+    "nextWorkPackage": "A06.4.2",
+    "defaultSourceProfile": {
+      "syntax": "rmtx",
+      "version": "1.0.0"
+    },
+    "additionalSourceProfile": {
+      "syntax": "rmtx",
+      "version": "5.0.0"
+    },
+    "retainedSourceProfiles": [
+      "1.0.0",
+      "2.0.0",
+      "3.0.0",
+      "4.0.0"
+    ],
+    "actionSubprofile": {
+      "syntax": "rmtx",
+      "version": "4.0.0"
+    },
+    "actionInputContract": {
+      "schema": "xtend.rmt.action-input-contract.v1",
+      "sourceProfileConst": "4.0.0",
+      "formalDeclarationUnchanged": true
+    },
+    "newSchemaIds": [
+      "xtend.maraca.browser-composition-root.v11",
+      "xtend.maraca.browser-host-adapter.v3",
+      "xtend.maraca.build-config.v9",
+      "xtend.maraca.build-plan.v9",
+      "xtend.maraca.plan-runtime.v14",
+      "xtend.maraca.xtension-composition-artifact.v10",
+      "xtend.maraca.xtension-composition-build-report.v10",
+      "xtend.maraca.xtension-composition-manifest.v9",
+      "xtend.maraca.xtension-composition-port.v7",
+      "xtend.rmt.app-orchestration.v3",
+      "xtend.rmt.native-view.v1",
+      "xtend.rmtx.compile-result.v5",
+      "xtend.rmtx.component-dependencies.v2",
+      "xtend.rmtx.components.v2",
+      "xtend.rmtx.host-scopes.v3",
+      "xtend.rmtx.native-view-dependencies.v1",
+      "xtend.rmtx.native-view-runtime-acceptance.v1",
+      "xtend.rmtx.native-view.v1",
+      "xtend.rmtx.operator-profile.v4",
+      "xtend.rmtx.parser-result.v5",
+      "xtend.rmtx.selector-dependencies.v4",
+      "xtend.router.url-state-host.v3",
+      "xtend.xtensions.state-binding-artifact.v5"
+    ],
+    "newSchemaCount": 23,
+    "newFamilyCount": 4,
+    "existingFamiliesAdvanced": [
+      {
+        "familyId": "xtend.maraca.browser-composition-root",
+        "previousCurrentVersion": 10,
+        "currentVersion": 11,
+        "activeSchemaId": "xtend.maraca.browser-composition-root.v11",
+        "retainedSupportedSchemaIds": [
+          "xtend.maraca.browser-composition-root.v1",
+          "xtend.maraca.browser-composition-root.v2",
+          "xtend.maraca.browser-composition-root.v3",
+          "xtend.maraca.browser-composition-root.v4",
+          "xtend.maraca.browser-composition-root.v5",
+          "xtend.maraca.browser-composition-root.v6",
+          "xtend.maraca.browser-composition-root.v7",
+          "xtend.maraca.browser-composition-root.v8",
+          "xtend.maraca.browser-composition-root.v9",
+          "xtend.maraca.browser-composition-root.v10"
+        ]
+      },
+      {
+        "familyId": "xtend.maraca.browser-host-adapter",
+        "previousCurrentVersion": 2,
+        "currentVersion": 3,
+        "activeSchemaId": "xtend.maraca.browser-host-adapter.v3",
+        "retainedSupportedSchemaIds": [
+          "xtend.maraca.browser-host-adapter.v2"
+        ]
+      },
+      {
+        "familyId": "xtend.maraca.build-config",
+        "previousCurrentVersion": 8,
+        "currentVersion": 9,
+        "activeSchemaId": "xtend.maraca.build-config.v9",
+        "retainedSupportedSchemaIds": [
+          "xtend.maraca.build-config.v1",
+          "xtend.maraca.build-config.v2",
+          "xtend.maraca.build-config.v3",
+          "xtend.maraca.build-config.v4",
+          "xtend.maraca.build-config.v5",
+          "xtend.maraca.build-config.v6",
+          "xtend.maraca.build-config.v7",
+          "xtend.maraca.build-config.v8"
+        ]
+      },
+      {
+        "familyId": "xtend.maraca.build-plan",
+        "previousCurrentVersion": 8,
+        "currentVersion": 9,
+        "activeSchemaId": "xtend.maraca.build-plan.v9",
+        "retainedSupportedSchemaIds": [
+          "xtend.maraca.build-plan.v1",
+          "xtend.maraca.build-plan.v2",
+          "xtend.maraca.build-plan.v3",
+          "xtend.maraca.build-plan.v4",
+          "xtend.maraca.build-plan.v5",
+          "xtend.maraca.build-plan.v6",
+          "xtend.maraca.build-plan.v7",
+          "xtend.maraca.build-plan.v8"
+        ]
+      },
+      {
+        "familyId": "xtend.maraca.plan-runtime",
+        "previousCurrentVersion": 13,
+        "currentVersion": 14,
+        "activeSchemaId": "xtend.maraca.plan-runtime.v14",
+        "retainedSupportedSchemaIds": [
+          "xtend.maraca.plan-runtime.v3",
+          "xtend.maraca.plan-runtime.v4",
+          "xtend.maraca.plan-runtime.v5",
+          "xtend.maraca.plan-runtime.v6",
+          "xtend.maraca.plan-runtime.v7",
+          "xtend.maraca.plan-runtime.v8",
+          "xtend.maraca.plan-runtime.v9",
+          "xtend.maraca.plan-runtime.v10",
+          "xtend.maraca.plan-runtime.v11",
+          "xtend.maraca.plan-runtime.v12",
+          "xtend.maraca.plan-runtime.v13"
+        ]
+      },
+      {
+        "familyId": "xtend.maraca.xtension-composition-artifact",
+        "previousCurrentVersion": 9,
+        "currentVersion": 10,
+        "activeSchemaId": "xtend.maraca.xtension-composition-artifact.v10",
+        "retainedSupportedSchemaIds": [
+          "xtend.maraca.xtension-composition-artifact.v1",
+          "xtend.maraca.xtension-composition-artifact.v2",
+          "xtend.maraca.xtension-composition-artifact.v3",
+          "xtend.maraca.xtension-composition-artifact.v4",
+          "xtend.maraca.xtension-composition-artifact.v5",
+          "xtend.maraca.xtension-composition-artifact.v6",
+          "xtend.maraca.xtension-composition-artifact.v7",
+          "xtend.maraca.xtension-composition-artifact.v8",
+          "xtend.maraca.xtension-composition-artifact.v9"
+        ]
+      },
+      {
+        "familyId": "xtend.maraca.xtension-composition-build-report",
+        "previousCurrentVersion": 9,
+        "currentVersion": 10,
+        "activeSchemaId": "xtend.maraca.xtension-composition-build-report.v10",
+        "retainedSupportedSchemaIds": [
+          "xtend.maraca.xtension-composition-build-report.v1",
+          "xtend.maraca.xtension-composition-build-report.v2",
+          "xtend.maraca.xtension-composition-build-report.v3",
+          "xtend.maraca.xtension-composition-build-report.v4",
+          "xtend.maraca.xtension-composition-build-report.v5",
+          "xtend.maraca.xtension-composition-build-report.v6",
+          "xtend.maraca.xtension-composition-build-report.v7",
+          "xtend.maraca.xtension-composition-build-report.v8",
+          "xtend.maraca.xtension-composition-build-report.v9"
+        ]
+      },
+      {
+        "familyId": "xtend.maraca.xtension-composition-manifest",
+        "previousCurrentVersion": 8,
+        "currentVersion": 9,
+        "activeSchemaId": "xtend.maraca.xtension-composition-manifest.v9",
+        "retainedSupportedSchemaIds": [
+          "xtend.maraca.xtension-composition-manifest.v1",
+          "xtend.maraca.xtension-composition-manifest.v2",
+          "xtend.maraca.xtension-composition-manifest.v3",
+          "xtend.maraca.xtension-composition-manifest.v4",
+          "xtend.maraca.xtension-composition-manifest.v5",
+          "xtend.maraca.xtension-composition-manifest.v6",
+          "xtend.maraca.xtension-composition-manifest.v7",
+          "xtend.maraca.xtension-composition-manifest.v8"
+        ]
+      },
+      {
+        "familyId": "xtend.maraca.xtension-composition-port",
+        "previousCurrentVersion": 6,
+        "currentVersion": 7,
+        "activeSchemaId": "xtend.maraca.xtension-composition-port.v7",
+        "retainedSupportedSchemaIds": [
+          "xtend.maraca.xtension-composition-port.v1",
+          "xtend.maraca.xtension-composition-port.v2",
+          "xtend.maraca.xtension-composition-port.v3",
+          "xtend.maraca.xtension-composition-port.v4",
+          "xtend.maraca.xtension-composition-port.v5",
+          "xtend.maraca.xtension-composition-port.v6"
+        ]
+      },
+      {
+        "familyId": "xtend.rmt.app-orchestration",
+        "previousCurrentVersion": 2,
+        "currentVersion": 3,
+        "activeSchemaId": "xtend.rmt.app-orchestration.v3",
+        "retainedSupportedSchemaIds": [
+          "xtend.rmt.app-orchestration.v1",
+          "xtend.rmt.app-orchestration.v2"
+        ]
+      },
+      {
+        "familyId": "xtend.rmtx.compile-result",
+        "previousCurrentVersion": 4,
+        "currentVersion": 5,
+        "activeSchemaId": "xtend.rmtx.compile-result.v5",
+        "retainedSupportedSchemaIds": [
+          "xtend.rmtx.compile-result.v1",
+          "xtend.rmtx.compile-result.v2",
+          "xtend.rmtx.compile-result.v3",
+          "xtend.rmtx.compile-result.v4"
+        ]
+      },
+      {
+        "familyId": "xtend.rmtx.component-dependencies",
+        "previousCurrentVersion": 1,
+        "currentVersion": 2,
+        "activeSchemaId": "xtend.rmtx.component-dependencies.v2",
+        "retainedSupportedSchemaIds": [
+          "xtend.rmtx.component-dependencies.v1"
+        ]
+      },
+      {
+        "familyId": "xtend.rmtx.components",
+        "previousCurrentVersion": 1,
+        "currentVersion": 2,
+        "activeSchemaId": "xtend.rmtx.components.v2",
+        "retainedSupportedSchemaIds": [
+          "xtend.rmtx.components.v1"
+        ]
+      },
+      {
+        "familyId": "xtend.rmtx.host-scopes",
+        "previousCurrentVersion": 2,
+        "currentVersion": 3,
+        "activeSchemaId": "xtend.rmtx.host-scopes.v3",
+        "retainedSupportedSchemaIds": [
+          "xtend.rmtx.host-scopes.v1",
+          "xtend.rmtx.host-scopes.v2"
+        ]
+      },
+      {
+        "familyId": "xtend.rmtx.operator-profile",
+        "previousCurrentVersion": 3,
+        "currentVersion": 4,
+        "activeSchemaId": "xtend.rmtx.operator-profile.v4",
+        "retainedSupportedSchemaIds": [
+          "xtend.rmtx.operator-profile.v1",
+          "xtend.rmtx.operator-profile.v2",
+          "xtend.rmtx.operator-profile.v3"
+        ]
+      },
+      {
+        "familyId": "xtend.rmtx.parser-result",
+        "previousCurrentVersion": 4,
+        "currentVersion": 5,
+        "activeSchemaId": "xtend.rmtx.parser-result.v5",
+        "retainedSupportedSchemaIds": [
+          "xtend.rmtx.parser-result.v1",
+          "xtend.rmtx.parser-result.v2",
+          "xtend.rmtx.parser-result.v3",
+          "xtend.rmtx.parser-result.v4"
+        ]
+      },
+      {
+        "familyId": "xtend.rmtx.selector-dependencies",
+        "previousCurrentVersion": 3,
+        "currentVersion": 4,
+        "activeSchemaId": "xtend.rmtx.selector-dependencies.v4",
+        "retainedSupportedSchemaIds": [
+          "xtend.rmtx.selector-dependencies.v1",
+          "xtend.rmtx.selector-dependencies.v2",
+          "xtend.rmtx.selector-dependencies.v3"
+        ]
+      },
+      {
+        "familyId": "xtend.router.url-state-host",
+        "previousCurrentVersion": 2,
+        "currentVersion": 3,
+        "activeSchemaId": "xtend.router.url-state-host.v3",
+        "retainedSupportedSchemaIds": [
+          "xtend.router.url-state-host.v1",
+          "xtend.router.url-state-host.v2"
+        ]
+      },
+      {
+        "familyId": "xtend.xtensions.state-binding-artifact",
+        "previousCurrentVersion": 4,
+        "currentVersion": 5,
+        "activeSchemaId": "xtend.xtensions.state-binding-artifact.v5",
+        "retainedSupportedSchemaIds": [
+          "xtend.xtensions.state-binding-artifact.v1",
+          "xtend.xtensions.state-binding-artifact.v2",
+          "xtend.xtensions.state-binding-artifact.v3",
+          "xtend.xtensions.state-binding-artifact.v4"
+        ]
+      }
+    ],
+    "newContractObservations": [
+      {
+        "schemaId": "xtend.maraca.browser-composition-root.v11",
+        "canonicalDefinition": {
+          "definitionType": "identifier-reference",
+          "path": "xtend-maraca/index.js",
+          "role": "definition",
+          "symbol": null,
+          "visibility": "public"
+        },
+        "observedFingerprints": [
+          "sha256:b68df0d1127c069e479f1f5e1097a12f1678a6e2e2150d923d820129dd585d8b",
+          "sha256:c70c179c175a0fbd25eeb581d6362c6c52ffd69eb0989cd86db0806458e7e8d0",
+          "sha256:da973674efcce6ff38c6e90e15f9f820df564175e985d8e02dd7d797a6b78a2e"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rollout": "planned"
+      },
+      {
+        "schemaId": "xtend.maraca.browser-host-adapter.v3",
+        "canonicalDefinition": {
+          "definitionType": "typescript-declaration",
+          "path": "xtend-maraca/browser-host-adapter.d.ts",
+          "role": "definition",
+          "symbol": "MaracaNativeBrowserHostAdapter",
+          "visibility": "public"
+        },
+        "observedFingerprints": [
+          "sha256:433fa845e130b18821c372c3922dba2afe0ef706658a176a4ec38da05ee9b02e"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rollout": "planned"
+      },
+      {
+        "schemaId": "xtend.maraca.build-config.v9",
+        "canonicalDefinition": {
+          "definitionType": "constant",
+          "path": "xtend-maraca/index.js",
+          "role": "definition",
+          "symbol": "MARACA_RMTX_NATIVE_BUILD_CONFIG_SCHEMA",
+          "visibility": "public"
+        },
+        "observedFingerprints": [
+          "sha256:5613ce0e17ac0e5ea7bf9a85c6c509600e8d60254467c4e5bb3acb071c6c02e0"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rollout": "planned"
+      },
+      {
+        "schemaId": "xtend.maraca.build-plan.v9",
+        "canonicalDefinition": {
+          "definitionType": "constant",
+          "path": "xtend-maraca/index.js",
+          "role": "definition",
+          "symbol": "MARACA_RMTX_NATIVE_BUILD_PLAN_SCHEMA",
+          "visibility": "public"
+        },
+        "observedFingerprints": [
+          "sha256:b9198cc2239772550388936586632818b73c53a18fc9865f33fe3d8445f3d457",
+          "sha256:d4621d379a276e73c93871912f6adf9cfaf5462c1671aaf9a3f3cee8a422028e"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rollout": "planned"
+      },
+      {
+        "schemaId": "xtend.maraca.plan-runtime.v14",
+        "canonicalDefinition": {
+          "definitionType": "constant",
+          "path": "xtend-maraca/plan-runtime.mjs",
+          "role": "definition",
+          "symbol": "NATIVE_RMTX_PLAN_RUNTIME_SCHEMA",
+          "visibility": "public"
+        },
+        "observedFingerprints": [
+          "sha256:b362c06ba9452420e6c31675b53b70483b866b8f37585b7df97ecd7c845aefa4"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rollout": "planned"
+      },
+      {
+        "schemaId": "xtend.maraca.xtension-composition-artifact.v10",
+        "canonicalDefinition": {
+          "definitionType": "constant",
+          "path": "xtend-maraca/xtension-composition-contract.mjs",
+          "role": "definition",
+          "symbol": "NATIVE_COMPONENT_ARTIFACT_SCHEMA",
+          "visibility": "public"
+        },
+        "observedFingerprints": [
+          "sha256:b9b425a398310cd8a05fc1e6ff3406790d85a3a901c8b167c9351cb5e826ec06"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rollout": "planned"
+      },
+      {
+        "schemaId": "xtend.maraca.xtension-composition-build-report.v10",
+        "canonicalDefinition": {
+          "definitionType": "typescript-declaration",
+          "path": "xtend-maraca/xtension-composition.d.ts",
+          "role": "definition",
+          "symbol": "NativeComponentBuildReport",
+          "visibility": "public"
+        },
+        "observedFingerprints": [
+          "sha256:88727559e9290b850d57d44d1182205ef916684079ac940059511463412c4084"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rollout": "planned"
+      },
+      {
+        "schemaId": "xtend.maraca.xtension-composition-manifest.v9",
+        "canonicalDefinition": {
+          "definitionType": "constant",
+          "path": "xtend-maraca/xtension-composition-contract.mjs",
+          "role": "definition",
+          "symbol": "NATIVE_COMPONENT_MANIFEST_SCHEMA",
+          "visibility": "public"
+        },
+        "observedFingerprints": [],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rollout": "planned"
+      },
+      {
+        "schemaId": "xtend.maraca.xtension-composition-port.v7",
+        "canonicalDefinition": {
+          "definitionType": "typescript-declaration",
+          "path": "xtend-maraca/xtension-composition-runtime.d.ts",
+          "role": "definition",
+          "symbol": "NativeComponentPort",
+          "visibility": "public"
+        },
+        "observedFingerprints": [
+          "sha256:ed7e7508b595beaeda2686c8bf53391e9b31f2343362f7351bd448040d03c826"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rollout": "planned"
+      },
+      {
+        "schemaId": "xtend.rmt.app-orchestration.v3",
+        "canonicalDefinition": {
+          "definitionType": "identifier-reference",
+          "path": "xtend-maraca/browser-composition-runtime.mjs",
+          "role": "reference",
+          "symbol": null,
+          "visibility": "public"
+        },
+        "observedFingerprints": [
+          "sha256:2373e83cda8752a7ff2c486b4d3885fbeb92f21984754c1a7bfd9b11ef634fbb",
+          "sha256:b9f9d1b461482ab7b084c114f706457da1f9c0555b1ac0c3acfb92a4bb4132ac",
+          "sha256:db19e97ff6476ec3caf98cdc5a3953c7812e0a0cb03647e1487eadba8d73adc0",
+          "sha256:eb97e5cbec2ea9c681e3e485a0f9cc7b322b025c5f83f218befec9326b6bd642"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rollout": "planned"
+      },
+      {
+        "schemaId": "xtend.rmt.native-view.v1",
+        "canonicalDefinition": {
+          "definitionType": "constant",
+          "path": "tools/rmt-language/rmtx-native-view.js",
+          "role": "definition",
+          "symbol": "RMT_NATIVE_VIEW_SCHEMA",
+          "visibility": "internal"
+        },
+        "observedFingerprints": [
+          "sha256:070d0f0641132d15003389d06293497d9a8f25c06325059d1229b85286df1972",
+          "sha256:3cb9d8cbc4c51c837d409f3b53531ecdda005b8cb25e3b95a127c0a419942183",
+          "sha256:3d667d9a116fae8be838ca05776fff45ea2b4d2d424895d870c407d412ed7860",
+          "sha256:6112440b53be0dffee1ffc9553c48123e43103410ffb17987a1a34b884c084c6"
+        ],
+        "authoritativeFingerprints": [
+          "sha256:3cb9d8cbc4c51c837d409f3b53531ecdda005b8cb25e3b95a127c0a419942183"
+        ],
+        "releasedFingerprintSetHash": "sha256:26a904842456336bf98dd1be9f0deea480c704e7b1012da7d29c104f57fbb11a",
+        "rollout": "planned"
+      },
+      {
+        "schemaId": "xtend.rmtx.compile-result.v5",
+        "canonicalDefinition": {
+          "definitionType": "identifier-reference",
+          "path": "xtend-maraca/index.js",
+          "role": "reference",
+          "symbol": null,
+          "visibility": "public"
+        },
+        "observedFingerprints": [
+          "sha256:8c28b83176b13be650f0b63f0db0d496748aa6bcd470b45cc7e141afa6f5d383",
+          "sha256:e3a1064c41365b083ac4b0149876340f2e3da8f1968daa1ed01a869c6a78d825",
+          "sha256:ede581ee5241b5f76b03f8d6e50820363e39b3a7d9807fbe58181b8b71d0addf"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rollout": "planned"
+      },
+      {
+        "schemaId": "xtend.rmtx.component-dependencies.v2",
+        "canonicalDefinition": {
+          "definitionType": "constant",
+          "path": "tools/rmt-language/rmtx-component-bindings.js",
+          "role": "definition",
+          "symbol": "RMTX_COMPONENT_DEPENDENCIES_SCHEMA_V2",
+          "visibility": "internal"
+        },
+        "observedFingerprints": [
+          "sha256:9dd6cff2f50fa8f58b607b212e90da817e83005f9b808c72171ef6e88e682430"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rollout": "planned"
+      },
+      {
+        "schemaId": "xtend.rmtx.components.v2",
+        "canonicalDefinition": {
+          "definitionType": "constant",
+          "path": "tools/rmt-language/rmtx-parser.js",
+          "role": "definition",
+          "symbol": "RMTX_COMPONENTS_SCHEMA_V2",
+          "visibility": "internal"
+        },
+        "observedFingerprints": [
+          "sha256:05508c301135357f8f4f6c227a6fbd0e8d866d7553c4c0eab11087ea64c7d38a"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rollout": "planned"
+      },
+      {
+        "schemaId": "xtend.rmtx.host-scopes.v3",
+        "canonicalDefinition": {
+          "definitionType": "constant",
+          "path": "tools/rmt-language/rmtx-parser.js",
+          "role": "definition",
+          "symbol": "RMTX_HOST_SCOPES_SCHEMA_V3",
+          "visibility": "internal"
+        },
+        "observedFingerprints": [
+          "sha256:767711533d3244e2ce0531e9373505f281c617817f834e8faa0b568e1a5e1127"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rollout": "planned"
+      },
+      {
+        "schemaId": "xtend.rmtx.native-view-dependencies.v1",
+        "canonicalDefinition": {
+          "definitionType": "constant",
+          "path": "tools/rmt-language/rmtx-native-view.js",
+          "role": "definition",
+          "symbol": "RMTX_NATIVE_VIEW_DEPENDENCIES_SCHEMA",
+          "visibility": "internal"
+        },
+        "observedFingerprints": [
+          "sha256:ba543796adb5cd8cb2694edbfd2ed3098e75228f8e22ccf3959da8889d982756",
+          "sha256:c3dfdf5cc59a155ffe3c3f2cc0ee52e55959734eb73b34c08a79e05adcbe63c8"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rollout": "planned"
+      },
+      {
+        "schemaId": "xtend.rmtx.native-view-runtime-acceptance.v1",
+        "canonicalDefinition": {
+          "definitionType": "identifier-reference",
+          "path": "scripts/test-runner/catalog.json",
+          "role": "reference",
+          "symbol": null,
+          "visibility": "internal"
+        },
+        "observedFingerprints": [
+          "sha256:3775266ff579c93648254b38b1e144eb91950e532f31c0e94555bb5c429203c3",
+          "sha256:60c70245cd9a21b7a13c56e8b6ef45943a38a2de4036a2c7cb140c35336002bc",
+          "sha256:965ce2b7b2a638e94b5d0e8851c1d2572398ef3c7092542cf0b7a887044ccb15"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rollout": "planned"
+      },
+      {
+        "schemaId": "xtend.rmtx.native-view.v1",
+        "canonicalDefinition": {
+          "definitionType": "constant",
+          "path": "tools/rmt-language/rmtx-native-view.js",
+          "role": "definition",
+          "symbol": "RMTX_NATIVE_VIEW_SCHEMA",
+          "visibility": "internal"
+        },
+        "observedFingerprints": [
+          "sha256:70e854290355cd1df6930b30d9619a7ce0b7e7e57b706afd748b35ddb06bfdf6",
+          "sha256:8f6f09f8bddb94905c0f19882d67fe3b0f8a9ad0d6ac5afd7d7824df6c5f24c1"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rollout": "planned"
+      },
+      {
+        "schemaId": "xtend.rmtx.operator-profile.v4",
+        "canonicalDefinition": {
+          "definitionType": "constant",
+          "path": "tools/rmt-language/rmtx-operator-profiles.js",
+          "role": "definition",
+          "symbol": "RMTX_OPERATOR_PROFILE_SCHEMA_V4",
+          "visibility": "internal"
+        },
+        "observedFingerprints": [],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rollout": "planned"
+      },
+      {
+        "schemaId": "xtend.rmtx.parser-result.v5",
+        "canonicalDefinition": {
+          "definitionType": "constant",
+          "path": "tools/rmt-language/rmtx-parser.js",
+          "role": "definition",
+          "symbol": "RMTX_PARSER_SCHEMA_V5",
+          "visibility": "internal"
+        },
+        "observedFingerprints": [
+          "sha256:d0018aa27e35aa009630058010e71dd64d4ae11a614a225186eca6c3579c1cea"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rollout": "planned"
+      },
+      {
+        "schemaId": "xtend.rmtx.selector-dependencies.v4",
+        "canonicalDefinition": {
+          "definitionType": "constant",
+          "path": "tools/rmt-language/rmtx-selector-dependencies.js",
+          "role": "definition",
+          "symbol": "RMTX_SELECTOR_DEPENDENCIES_SCHEMA_V4",
+          "visibility": "internal"
+        },
+        "observedFingerprints": [
+          "sha256:1ccf87dbf190dd6bfe2b3974f999b2634712b98ef7d92c8447a7c46ec2551f0c"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rollout": "planned"
+      },
+      {
+        "schemaId": "xtend.router.url-state-host.v3",
+        "canonicalDefinition": {
+          "definitionType": "typescript-declaration",
+          "path": "components/xrouter-url-state.d.ts",
+          "role": "definition",
+          "symbol": "XRouterNativeURLStateHost",
+          "visibility": "public"
+        },
+        "observedFingerprints": [
+          "sha256:a9f538573334dcdd94102f8fb39c749d8e28b2474d9a7cc9981ec7b846d51b4d"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rollout": "planned"
+      },
+      {
+        "schemaId": "xtend.xtensions.state-binding-artifact.v5",
+        "canonicalDefinition": {
+          "definitionType": "identifier-reference",
+          "path": "xtend-maraca/xtension-composition-contract.mjs",
+          "role": "reference",
+          "symbol": null,
+          "visibility": "public"
+        },
+        "observedFingerprints": [
+          "sha256:2bf541ab33c6c35dc68cad6df44fb2db3ab1f8ed7e5513f7dc6704102d4ce94f"
+        ],
+        "authoritativeFingerprints": [],
+        "releasedFingerprintSetHash": null,
+        "rollout": "planned"
+      }
+    ],
+    "initialFormalAuthoritySets": [
+      {
+        "schemaId": "xtend.rmt.native-view.v1",
+        "authoritativeFingerprints": [
+          "sha256:3cb9d8cbc4c51c837d409f3b53531ecdda005b8cb25e3b95a127c0a419942183"
+        ],
+        "releasedFingerprintSetHash": "sha256:26a904842456336bf98dd1be9f0deea480c704e7b1012da7d29c104f57fbb11a",
+        "evidence": [
+          {
+            "authoritative": true,
+            "completeness": "complete",
+            "path": "tools/rmt-language/rmtx-native-view.d.ts",
+            "symbol": "RmtNativeViewContract",
+            "type": "declared-type"
+          },
+          {
+            "authoritative": true,
+            "completeness": "complete",
+            "path": "tools/xtensions/native-view-projection.d.ts",
+            "symbol": "NativeViewHeader",
+            "type": "declared-type"
+          }
+        ],
+        "rollout": "planned"
+      }
+    ],
+    "initialFormalAuthoritySetCount": 1,
+    "initialFingerprintLocksAreContractBaselines": true,
+    "initialFingerprintLocksAuthorizePackageOrFeatureRelease": false,
+    "existingAuthoritativeFingerprintSetsChanged": false,
+    "existingReleasedFingerprintSetsChanged": false,
+    "unrelatedFamilyLifecyclesChanged": false,
+    "existingDuplicateReviewsChanged": false,
+    "existingConsolidationsChanged": false,
+    "profileRegistryChanged": false,
+    "policyWaiversAdded": false,
+    "scannerOrProducerImplementationChanged": false,
+    "nonAuthoritativeObservationUpdates": [
+      {
+        "schemaId": "xtend.docs.content-depth-report.v1",
+        "previousObservedFingerprints": [
+          "sha256:7ea3baa00cc4384d758e2f39670fb895d8d237d8d1648e8efa8c6d81f5c33549"
+        ],
+        "currentObservedFingerprints": [
+          "sha256:7ea3baa00cc4384d758e2f39670fb895d8d237d8d1648e8efa8c6d81f5c33549",
+          "sha256:b420117d2f97d3a58f71389909e6f4af1edc6e69e51fdc05b84860e83105160f"
+        ],
+        "authoritativeFingerprintsChanged": false
+      },
+      {
+        "schemaId": "xtend.docs.guide-article-metrics.v1",
+        "previousObservedFingerprints": [
+          "sha256:f0c23669ae14d06c026f51e3882611184ac1d10d970eebaacee0b7252cedd99a"
+        ],
+        "currentObservedFingerprints": [
+          "sha256:01c6c9ad34cba1919d3cfe8c22ad6fb7def9df24d85b3d8b8851d1d9455b180c",
+          "sha256:40781929333063ffe4314d41261c1502a59e167f4541aa72fa4a8b90e6c918a3",
+          "sha256:63d540dd11bc5f220caaa0b28c710f050448bc6d199c062d2428a52a03a72ed1",
+          "sha256:f0c23669ae14d06c026f51e3882611184ac1d10d970eebaacee0b7252cedd99a"
+        ],
+        "authoritativeFingerprintsChanged": false
+      },
+      {
+        "schemaId": "xtend.docs.maraca-orchestration-report.v1",
+        "previousObservedFingerprints": [
+          "sha256:2edd1defa713c996a92e09a06c977593139d934f806efd2547286fc8c56f44f2"
+        ],
+        "currentObservedFingerprints": [
+          "sha256:2edd1defa713c996a92e09a06c977593139d934f806efd2547286fc8c56f44f2",
+          "sha256:64c97aaadf046cae7bf7cb21bebefb6fe9f1618c5f671da9b30f69dfbb02622a"
+        ],
+        "authoritativeFingerprintsChanged": false
+      },
+      {
+        "schemaId": "xtend.docs.public-quality.report.v1",
+        "previousObservedFingerprints": [
+          "sha256:e49c615bf230e26f85e3ca1f91f56d261bf9d8785825d23ae7f046647e58b63a"
+        ],
+        "currentObservedFingerprints": [
+          "sha256:24bece4490b6ca2948fc6bec6a8a0475ee562bc660111ebbcbd2c1d435f86fdd",
+          "sha256:e49c615bf230e26f85e3ca1f91f56d261bf9d8785825d23ae7f046647e58b63a"
+        ],
+        "authoritativeFingerprintsChanged": false
+      },
+      {
+        "schemaId": "xtend.docs.rmt-reference-docs-report.v1",
+        "previousObservedFingerprints": [
+          "sha256:70840e1f3c77c771aff9db7170c605d0caf0061b6bb4b040a36b0bbc225026f4"
+        ],
+        "currentObservedFingerprints": [
+          "sha256:1d5985dbef25a0f219cf3f12c1b610c8d07172fe8ded287314042860531af952",
+          "sha256:70840e1f3c77c771aff9db7170c605d0caf0061b6bb4b040a36b0bbc225026f4"
+        ],
+        "authoritativeFingerprintsChanged": false
+      },
+      {
+        "schemaId": "xtend.epic13.package-export-lock-report.v1",
+        "previousObservedFingerprints": [
+          "sha256:57718d2d9f24f55e7bde64f4350fed23c562603c10871cb118ba3d9d1aeb5ff8",
+          "sha256:844c6046c6809061e9931fadda31b93039fb2e12cb4f76bde836f9968e216386",
+          "sha256:f290cfb8ddbceaebce692ea20d98fcb301f8d0685808cef5c9e5a8cd59cb3edc"
+        ],
+        "currentObservedFingerprints": [
+          "sha256:57718d2d9f24f55e7bde64f4350fed23c562603c10871cb118ba3d9d1aeb5ff8",
+          "sha256:794fb182e03ec48ad2c3bad091b0a29a2a29b3bd18a0a71d81dfe9ad8cbab3a7",
+          "sha256:844c6046c6809061e9931fadda31b93039fb2e12cb4f76bde836f9968e216386",
+          "sha256:f290cfb8ddbceaebce692ea20d98fcb301f8d0685808cef5c9e5a8cd59cb3edc"
+        ],
+        "authoritativeFingerprintsChanged": false
+      },
+      {
+        "schemaId": "xtend.epic18.rmt-dom-descriptor-renderer.v2",
+        "previousObservedFingerprints": [
+          "sha256:20977e9213b9af4a50c913aa3885811e61bc8aa29ad6a0fb680b5f2d75119dcf",
+          "sha256:45829c26b934d14ca6046052af348d47ba04f910d2523e4b235c781b1f941899",
+          "sha256:5a84d14eb0dcbdffbe10a7b97102f436824070b9035e9bf09bf9320c76471417",
+          "sha256:5d00b5cfe064c4b5065b8f7ad537754cde06e3daf12dbb06abaa64559fb85e48",
+          "sha256:60daec6e18ec6f48ff989b1afcde5726c7b465bc44651b2a6844eb2190083d6b",
+          "sha256:732996b7f06d05f967d94d44c2b814dea8145eacf73a0219848f5f5b00d47744",
+          "sha256:7a08d22cc33a6905f9e342f0d4b2ae4211c8b551f257357543a31715ecc0f201",
+          "sha256:85564371b48831d214024ca692878e51ae92d6e71f15a7c28ac166851783786e",
+          "sha256:86acd22e4088a61faa3bc5db1606ac206455137d720f1d17cf56d9fd3c893185",
+          "sha256:9b23ab4af623d0875f2383623b69a4c4a284ab7b7e553b6b0694aafc1eeb4564",
+          "sha256:ab2d575d65f5aa5edd49f5f2acf88666e58f01828ab4a9c7978a839276924ed1",
+          "sha256:bcd06fa3f8833c40f6aad01168c0a31aab5c52e97780aa9a9a2442d94d785aa8",
+          "sha256:d0b4e9901641d1e04660acb0f193d901160e86653eb585d277fa457b8975cf8c",
+          "sha256:d8432951a7d4802434b532fbecea3ab847d36a8be12a79e2e560b9eb8910dc2d",
+          "sha256:f08671c5d4bc68a2ec9e4c432759d6088d1e5839d3b5efb722181bfd252255be",
+          "sha256:f66c8114a425772e32f1a66059d7c4cd08edd8e67f38c218e15098edfe981003",
+          "sha256:f8158077fc5b90564ab758cfe89b1cb682c4c28211c6db3ab4efc43b0be40806"
+        ],
+        "currentObservedFingerprints": [
+          "sha256:08820d198d95c02df8aa7659ab4b4a4deb2276692494a3bdd1c14cf31a73dbae",
+          "sha256:20977e9213b9af4a50c913aa3885811e61bc8aa29ad6a0fb680b5f2d75119dcf",
+          "sha256:5a84d14eb0dcbdffbe10a7b97102f436824070b9035e9bf09bf9320c76471417",
+          "sha256:5d00b5cfe064c4b5065b8f7ad537754cde06e3daf12dbb06abaa64559fb85e48",
+          "sha256:60daec6e18ec6f48ff989b1afcde5726c7b465bc44651b2a6844eb2190083d6b",
+          "sha256:732996b7f06d05f967d94d44c2b814dea8145eacf73a0219848f5f5b00d47744",
+          "sha256:7a08d22cc33a6905f9e342f0d4b2ae4211c8b551f257357543a31715ecc0f201",
+          "sha256:85564371b48831d214024ca692878e51ae92d6e71f15a7c28ac166851783786e",
+          "sha256:86acd22e4088a61faa3bc5db1606ac206455137d720f1d17cf56d9fd3c893185",
+          "sha256:9b23ab4af623d0875f2383623b69a4c4a284ab7b7e553b6b0694aafc1eeb4564",
+          "sha256:ab2d575d65f5aa5edd49f5f2acf88666e58f01828ab4a9c7978a839276924ed1",
+          "sha256:bcd06fa3f8833c40f6aad01168c0a31aab5c52e97780aa9a9a2442d94d785aa8",
+          "sha256:d0b4e9901641d1e04660acb0f193d901160e86653eb585d277fa457b8975cf8c",
+          "sha256:d8432951a7d4802434b532fbecea3ab847d36a8be12a79e2e560b9eb8910dc2d",
+          "sha256:f08671c5d4bc68a2ec9e4c432759d6088d1e5839d3b5efb722181bfd252255be",
+          "sha256:f66c8114a425772e32f1a66059d7c4cd08edd8e67f38c218e15098edfe981003",
+          "sha256:f8158077fc5b90564ab758cfe89b1cb682c4c28211c6db3ab4efc43b0be40806"
+        ],
+        "authoritativeFingerprintsChanged": false
+      },
+      {
+        "schemaId": "xtend.maraca.build-plan.v8",
+        "previousObservedFingerprints": [
+          "sha256:bef2fac793166bc08fe4d3af17207a5097a3582fc7aa7834230b1c464208aab5"
+        ],
+        "currentObservedFingerprints": [
+          "sha256:10199f19b73f1fd1b56ac5806da0dac13032d5d3cc3de400a4f7245dff805057",
+          "sha256:bef2fac793166bc08fe4d3af17207a5097a3582fc7aa7834230b1c464208aab5"
+        ],
+        "authoritativeFingerprintsChanged": false
+      },
+      {
+        "schemaId": "xtend.maraca.xtension-composition-manifest.v8",
+        "previousObservedFingerprints": [
+          "sha256:43b6b64296f2671a414cab6b227c87375953aa9e0a7c19d83f4b12cf67392b7f",
+          "sha256:e51935660c331bc0feb15d0cc566a1c4aa985e23799c1812d97e9182e02bf3ae"
+        ],
+        "currentObservedFingerprints": [
+          "sha256:43b6b64296f2671a414cab6b227c87375953aa9e0a7c19d83f4b12cf67392b7f"
+        ],
+        "authoritativeFingerprintsChanged": false
+      },
+      {
+        "schemaId": "xtend.maraca.xtension-deployment-config.v1",
+        "previousObservedFingerprints": [
+          "sha256:07d75ddd0d3e8e759b2a320b744c5c4d8b208ff40272b1ab18eb34fce61a6068",
+          "sha256:30f03e823d2f0294246d735ddf2438badbea2f9ed16e1579b313fe2593eaea55",
+          "sha256:59e5ec3b73998eeeb0d2a47c91922a6e54c1435d525642d881262f263fed49d5",
+          "sha256:94cf3309b7dfe42332b60fb5550e7c3a15c785c19d88cbfae5fbf74bd4088fe3",
+          "sha256:bc93b87a399ed172b3c7126884e7cea552eb1cff49b4ac0ada6fb65373df256f",
+          "sha256:dc9a61b2acfa8d4fd1feb50e2d2740e065541230571c3cc54f98c10227ae9abe",
+          "sha256:e66b30e0ee5655d0eda3cb4a661197131458b0242d290830a464041b7ec1da78",
+          "sha256:e9d10ae18f49f080a505ce9396683b9173869ac0996cfb94eaab68c45928ef5c"
+        ],
+        "currentObservedFingerprints": [
+          "sha256:07d75ddd0d3e8e759b2a320b744c5c4d8b208ff40272b1ab18eb34fce61a6068",
+          "sha256:30f03e823d2f0294246d735ddf2438badbea2f9ed16e1579b313fe2593eaea55",
+          "sha256:59e5ec3b73998eeeb0d2a47c91922a6e54c1435d525642d881262f263fed49d5",
+          "sha256:94cf3309b7dfe42332b60fb5550e7c3a15c785c19d88cbfae5fbf74bd4088fe3",
+          "sha256:bc93b87a399ed172b3c7126884e7cea552eb1cff49b4ac0ada6fb65373df256f",
+          "sha256:dc9a61b2acfa8d4fd1feb50e2d2740e065541230571c3cc54f98c10227ae9abe",
+          "sha256:e66b30e0ee5655d0eda3cb4a661197131458b0242d290830a464041b7ec1da78",
+          "sha256:e9d10ae18f49f080a505ce9396683b9173869ac0996cfb94eaab68c45928ef5c",
+          "sha256:f38051339f98fc96dd6843aba2d5d83d74b7f3940f6cf93d8d24a82001921810"
+        ],
+        "authoritativeFingerprintsChanged": false
+      },
+      {
+        "schemaId": "xtend.rmt.action-input-contract.v1",
+        "previousObservedFingerprints": [
+          "sha256:2fc6a9366e69832a32409eea1dfca6046e364f3d98fa24c13d46c73038a949f5",
+          "sha256:3d7853d943aff25828e9b711be9fd67e8c2cd4b7b2d3cf71b032ae72fa8f1966",
+          "sha256:7d9044bec96cfeb10357d7a20f3874bd6987fca0a29a8f5e7bc377317fec2235",
+          "sha256:8aaca08e5a105a9b0abe2022e74d54cd4bd9f41ec786e75fa288ac348904cbe3",
+          "sha256:c23044951cac06d2c4d40cbeabc986b769e4a1bc2bcc049522c46cb7536c47fc"
+        ],
+        "currentObservedFingerprints": [
+          "sha256:2fc6a9366e69832a32409eea1dfca6046e364f3d98fa24c13d46c73038a949f5",
+          "sha256:3d7853d943aff25828e9b711be9fd67e8c2cd4b7b2d3cf71b032ae72fa8f1966",
+          "sha256:5d350fe41862b2bb82bf70ae4fe2ca1c9fa7b07c2c334bd683f0fa697e3aff2f",
+          "sha256:7d9044bec96cfeb10357d7a20f3874bd6987fca0a29a8f5e7bc377317fec2235",
+          "sha256:8aaca08e5a105a9b0abe2022e74d54cd4bd9f41ec786e75fa288ac348904cbe3",
+          "sha256:c23044951cac06d2c4d40cbeabc986b769e4a1bc2bcc049522c46cb7536c47fc"
+        ],
+        "authoritativeFingerprintsChanged": false
+      },
+      {
+        "schemaId": "xtend.rmt.action-plan.v2",
+        "previousObservedFingerprints": [
+          "sha256:f454ce679f1da32dc90fe8115fe298b95bd78a1799962d0dbf64d3f5d7ef9432"
+        ],
+        "currentObservedFingerprints": [
+          "sha256:2038c8de2cd1f8bc55515190c13cb91330a1d5e53cce86d289fe37d7072aea4a",
+          "sha256:f454ce679f1da32dc90fe8115fe298b95bd78a1799962d0dbf64d3f5d7ef9432"
+        ],
+        "authoritativeFingerprintsChanged": false
+      },
+      {
+        "schemaId": "xtend.rmt.app-patch-plan.v1",
+        "previousObservedFingerprints": [
+          "sha256:27483270b8f2d1b9182ead538aa7c0a407eac02c5746347363b48f90b6628c11",
+          "sha256:4a4cda64d06b5f8f723e06c7f0801147343c4c96f66c9973d96227fc36abce48",
+          "sha256:f307f08d5bb255153a2499aea67b80377732ce426b072d38b74ffd6738cf0808"
+        ],
+        "currentObservedFingerprints": [
+          "sha256:27483270b8f2d1b9182ead538aa7c0a407eac02c5746347363b48f90b6628c11",
+          "sha256:419281e73bf487712be0428f902125c5921b03f4a00041a249d4ad4f826203b2",
+          "sha256:4a4cda64d06b5f8f723e06c7f0801147343c4c96f66c9973d96227fc36abce48",
+          "sha256:f307f08d5bb255153a2499aea67b80377732ce426b072d38b74ffd6738cf0808"
+        ],
+        "authoritativeFingerprintsChanged": false
+      },
+      {
+        "schemaId": "xtend.rmt.core-format.vnext.v1",
+        "previousObservedFingerprints": [
+          "sha256:0a57f67eac053f841186a30ebf93712fdaad5aebf8f668a7b5247708bcfe312f",
+          "sha256:231a7a03183d53cae764c844038691e944fb64c6ae81860134c98a586f198d82",
+          "sha256:2dfb59c7835c10a1c1bbb25b858469c6a1f87daaaef323580bc096a61f0c5893",
+          "sha256:3e7c7c5628182fbe8fcecddc1085975649c55c89f249d53f82600f7ab10085f2",
+          "sha256:528645fa8bdffc4fb6db992e5a997f706e57eac4cda365f50309079f3fbbacf1",
+          "sha256:69e7972ea633585ebc5257570905ca47b4df54c99846b3c7813bb0b20579eed1",
+          "sha256:78a509a9ad8831d3de13f11cf648c48644638944103f3b7fab2b959bb723b447",
+          "sha256:7ebb1f7fe75222713c77e47c75a6604f4e0d788d0556e58ba90b11b9749e2349",
+          "sha256:7fee59eaf01b8eb704c54b60de29c17cdb46fc7f836ed88e637a5ac2194e0509",
+          "sha256:b60b2e5b88fe67451fa69e440e76b2f85062e957d112aca9766b8bdb1da82bc3",
+          "sha256:c1650645c394590233d796a4f5b54ed2da6dc65b27f36092e01e2e5579a13798",
+          "sha256:e289a8c2bd55eb8f4250a738aae93ce001a2709517618e6cdbf5a84723d559f3",
+          "sha256:e4c73329bd22b1aad6caea3958303cb89bc5f3d02ae45ff6ddf5123b1e899f09",
+          "sha256:f929633f6b55048d199c1d025fa936e84d43b0a84848ca09ee8a2bbf683a939e"
+        ],
+        "currentObservedFingerprints": [
+          "sha256:0a57f67eac053f841186a30ebf93712fdaad5aebf8f668a7b5247708bcfe312f",
+          "sha256:231a7a03183d53cae764c844038691e944fb64c6ae81860134c98a586f198d82",
+          "sha256:2dfb59c7835c10a1c1bbb25b858469c6a1f87daaaef323580bc096a61f0c5893",
+          "sha256:3e7c7c5628182fbe8fcecddc1085975649c55c89f249d53f82600f7ab10085f2",
+          "sha256:528645fa8bdffc4fb6db992e5a997f706e57eac4cda365f50309079f3fbbacf1",
+          "sha256:69e7972ea633585ebc5257570905ca47b4df54c99846b3c7813bb0b20579eed1",
+          "sha256:78a509a9ad8831d3de13f11cf648c48644638944103f3b7fab2b959bb723b447",
+          "sha256:7ebb1f7fe75222713c77e47c75a6604f4e0d788d0556e58ba90b11b9749e2349",
+          "sha256:7fee59eaf01b8eb704c54b60de29c17cdb46fc7f836ed88e637a5ac2194e0509",
+          "sha256:b60b2e5b88fe67451fa69e440e76b2f85062e957d112aca9766b8bdb1da82bc3",
+          "sha256:be5ca3e37c3eb543f2a1ae32c023a5b3f0f2e64899654b9ab14ed6805f646df9",
+          "sha256:c1650645c394590233d796a4f5b54ed2da6dc65b27f36092e01e2e5579a13798",
+          "sha256:e289a8c2bd55eb8f4250a738aae93ce001a2709517618e6cdbf5a84723d559f3",
+          "sha256:e4c73329bd22b1aad6caea3958303cb89bc5f3d02ae45ff6ddf5123b1e899f09",
+          "sha256:f929633f6b55048d199c1d025fa936e84d43b0a84848ca09ee8a2bbf683a939e"
+        ],
+        "authoritativeFingerprintsChanged": false
+      },
+      {
+        "schemaId": "xtend.rmt.tooling-docs-report.v1",
+        "previousObservedFingerprints": [
+          "sha256:36db58114a68e5089f54fc822c8863b7c9a2aa230be35244371b9e7eab05d9cd"
+        ],
+        "currentObservedFingerprints": [
+          "sha256:36db58114a68e5089f54fc822c8863b7c9a2aa230be35244371b9e7eab05d9cd",
+          "sha256:82becdc0ef5109110614cd0c9c69867864f1782660a2c6f0a0ada4c4004eb843"
+        ],
+        "authoritativeFingerprintsChanged": false
+      },
+      {
+        "schemaId": "xtend.rmt.vnext.app-platform-records.v1",
+        "previousObservedFingerprints": [
+          "sha256:0ca11efa721a8766277be07b35982e05005bb9eb50a1ff3c68fa51239bf9b388",
+          "sha256:a419a5c5bc8faa71245b821ee52ab2596ce727dc77f6d40717ace537fb0c562d",
+          "sha256:bd6d9c0926803c9585b9c9ea987f6cbec72014e859bc1aa0ddfbc0d089f49789",
+          "sha256:bf9e6161d5d9129f91cb1851034264f394a4a40fde7eb7cc906f1579762bb07c",
+          "sha256:ed742c312fabdc9ee9a8e36de0b54be03459bd67670b284e725aacc57445aa8a",
+          "sha256:f1ab074f5e363816ffa28085e3c1295aa1c05141c6d2fb0ab2ff7cbe790fa5bb",
+          "sha256:f914b18415973d171b25fb4907d757c0c76e4c6d265ba68cfa23db5678bca1d0"
+        ],
+        "currentObservedFingerprints": [
+          "sha256:0ca11efa721a8766277be07b35982e05005bb9eb50a1ff3c68fa51239bf9b388",
+          "sha256:7fef82e7bdf458db7585ef6dcf3908f496af840b348ab14cd2aaaf14fa7d212f",
+          "sha256:a419a5c5bc8faa71245b821ee52ab2596ce727dc77f6d40717ace537fb0c562d",
+          "sha256:bd6d9c0926803c9585b9c9ea987f6cbec72014e859bc1aa0ddfbc0d089f49789",
+          "sha256:bf9e6161d5d9129f91cb1851034264f394a4a40fde7eb7cc906f1579762bb07c",
+          "sha256:ed742c312fabdc9ee9a8e36de0b54be03459bd67670b284e725aacc57445aa8a",
+          "sha256:f1ab074f5e363816ffa28085e3c1295aa1c05141c6d2fb0ab2ff7cbe790fa5bb",
+          "sha256:f914b18415973d171b25fb4907d757c0c76e4c6d265ba68cfa23db5678bca1d0"
+        ],
+        "authoritativeFingerprintsChanged": false
+      },
+      {
+        "schemaId": "xtend.rmtx.action-input-rules.v1",
+        "previousObservedFingerprints": [
+          "sha256:224dc0ad54dbabd334f7f98fe228e3c5437b64a0005bc0d6e917bd88db08dd67",
+          "sha256:360e0cd629a47db6c20d9b08e095c610055979096a63fe9e990d8f91433d390f",
+          "sha256:7f0e0b1eeae1e29c2150259e66148066949a1dfcb7fe1784062e72f4bc2869fd"
+        ],
+        "currentObservedFingerprints": [
+          "sha256:224dc0ad54dbabd334f7f98fe228e3c5437b64a0005bc0d6e917bd88db08dd67",
+          "sha256:27b8399397b4c0d2d56179ea89eb6254de58f112a8a40f0079fea7ac973a1cb9",
+          "sha256:7f0e0b1eeae1e29c2150259e66148066949a1dfcb7fe1784062e72f4bc2869fd"
+        ],
+        "authoritativeFingerprintsChanged": false
+      },
+      {
+        "schemaId": "xtend.rmtx.component-dependencies.v1",
+        "previousObservedFingerprints": [
+          "sha256:170211721d9ddf8e05ab99a6af9f55801bc87e1057edbfb99ac1389746affeb1",
+          "sha256:6680416e68f10e435fe6c1802580422a504442f162487e6fd8fa87f19ee88099"
+        ],
+        "currentObservedFingerprints": [
+          "sha256:170211721d9ddf8e05ab99a6af9f55801bc87e1057edbfb99ac1389746affeb1"
+        ],
+        "authoritativeFingerprintsChanged": false
+      },
+      {
+        "schemaId": "xtend.rmtx.components.v1",
+        "previousObservedFingerprints": [
+          "sha256:a67249f535a221f6fe5165d9145b923a73b084d86e7e13920daad03cb5acd3a3",
+          "sha256:afb9651228e1216df07540c08435be96509555b0b00c7dbb2b99777a519fe6e4"
+        ],
+        "currentObservedFingerprints": [
+          "sha256:a67249f535a221f6fe5165d9145b923a73b084d86e7e13920daad03cb5acd3a3"
+        ],
+        "authoritativeFingerprintsChanged": false
+      },
+      {
+        "schemaId": "xtend.test.report.v1",
+        "previousObservedFingerprints": [
+          "sha256:3168665df422074a9c69bd9c5f5a39936ad11611445d26bdd2f83e81da94a5fd",
+          "sha256:408956741d923dbef98b1bb174306a7b404e9f79365503ec3c10634f01c5918d",
+          "sha256:e6cc2061a5b042d478c0866f846030084444dddfb2c6f3c99a4fad0923b7c9ef"
+        ],
+        "currentObservedFingerprints": [
+          "sha256:3168665df422074a9c69bd9c5f5a39936ad11611445d26bdd2f83e81da94a5fd",
+          "sha256:382e023e84ddbd647dfe624e9a350427a3957b00d386593840d085ba3d5439fc",
+          "sha256:408956741d923dbef98b1bb174306a7b404e9f79365503ec3c10634f01c5918d",
+          "sha256:8b4cf678dc5dbf5fd87768a76d98507ac6ecac0982e76ccd39c3be448c610c06",
+          "sha256:e6cc2061a5b042d478c0866f846030084444dddfb2c6f3c99a4fad0923b7c9ef"
+        ],
+        "authoritativeFingerprintsChanged": false
+      },
+      {
+        "schemaId": "xtend.type-exports.drift-report.v1",
+        "previousObservedFingerprints": [
+          "sha256:485e4b474b3f2cac0ae830b32e6bb087df43a2a4b1f45040b4b8d73a96d1d719"
+        ],
+        "currentObservedFingerprints": [
+          "sha256:485e4b474b3f2cac0ae830b32e6bb087df43a2a4b1f45040b4b8d73a96d1d719",
+          "sha256:55f62394e6670687afe889dcd7e47f32ab8190111501c039896d1fd2a729ef0f"
+        ],
+        "authoritativeFingerprintsChanged": false
+      },
+      {
+        "schemaId": "xtend.type-exports.report.v1",
+        "previousObservedFingerprints": [
+          "sha256:7489d11af054a7d4e09c926b814c7d1c9f4fb8928a08f39c8123dd065a8ee2c6",
+          "sha256:f290cfb8ddbceaebce692ea20d98fcb301f8d0685808cef5c9e5a8cd59cb3edc"
+        ],
+        "currentObservedFingerprints": [
+          "sha256:3d23d5cd9f210b48fed149f1a260f74049dcaf43055f8c297b6ec0de18564855",
+          "sha256:7489d11af054a7d4e09c926b814c7d1c9f4fb8928a08f39c8123dd065a8ee2c6",
+          "sha256:f290cfb8ddbceaebce692ea20d98fcb301f8d0685808cef5c9e5a8cd59cb3edc"
+        ],
+        "authoritativeFingerprintsChanged": false
+      },
+      {
+        "schemaId": "xtend.type-exports.rmt-declarations-report.v1",
+        "previousObservedFingerprints": [
+          "sha256:553a05ab1482ee96a3c3d4f0a9c6f9931bf32e697de0d4218fd42e2c60f964bd",
+          "sha256:f290cfb8ddbceaebce692ea20d98fcb301f8d0685808cef5c9e5a8cd59cb3edc"
+        ],
+        "currentObservedFingerprints": [
+          "sha256:553a05ab1482ee96a3c3d4f0a9c6f9931bf32e697de0d4218fd42e2c60f964bd",
+          "sha256:f290cfb8ddbceaebce692ea20d98fcb301f8d0685808cef5c9e5a8cd59cb3edc",
+          "sha256:f538908d409653b8443f8d1d8147a434db455328981d2166087e15d95174934c"
+        ],
+        "authoritativeFingerprintsChanged": false
+      },
+      {
+        "schemaId": "xtend.xtensions.ssr-acceptance-report.v1",
+        "previousObservedFingerprints": [
+          "sha256:4e326e5eab81b4284999068519acb4162c546e660a1caefaf2ca589cb5e6b297"
+        ],
+        "currentObservedFingerprints": [
+          "sha256:4e326e5eab81b4284999068519acb4162c546e660a1caefaf2ca589cb5e6b297",
+          "sha256:849f74748893d8bdc9f117a3ff20d683ecc335ecd022d1350641df6b3e9bcf02"
+        ],
+        "authoritativeFingerprintsChanged": false
+      },
+      {
+        "schemaId": "xtend.xtensions.state-binding-artifact.v4",
+        "previousObservedFingerprints": [
+          "sha256:09eb2abbed74e2096ca8a1a14615f1836cf43555ab2deed19715488cccaead60",
+          "sha256:0f1eb987b08d07481c099b6d5b971dc85f3751a58681fbcc26cc8816a8fb9cf6",
+          "sha256:2bf541ab33c6c35dc68cad6df44fb2db3ab1f8ed7e5513f7dc6704102d4ce94f",
+          "sha256:820b0814f580971615bbc864669e129b07b827137352c5d013fc34b3a7c0af91"
+        ],
+        "currentObservedFingerprints": [
+          "sha256:0f1eb987b08d07481c099b6d5b971dc85f3751a58681fbcc26cc8816a8fb9cf6",
+          "sha256:2bf541ab33c6c35dc68cad6df44fb2db3ab1f8ed7e5513f7dc6704102d4ce94f",
+          "sha256:820b0814f580971615bbc864669e129b07b827137352c5d013fc34b3a7c0af91"
+        ],
+        "authoritativeFingerprintsChanged": false
+      },
+      {
+        "schemaId": "xtend.xtensions.state-binding.v1",
+        "previousObservedFingerprints": [
+          "sha256:11a183fa3d6d292841ae21aa3131545c3aeee6eb929a8cfb3750ae0e98e0e66d",
+          "sha256:2f797e7042558e04d2ad14d06ee74814fb0b17ff432c08cef32964e0cd9fcb8a",
+          "sha256:3896fb5ffef342b82f39de1a975d8a075629a42fce19ed4c8d05c1846fedcfa7",
+          "sha256:676e7b1abbc11c7f566baf12d85f0ca4bff09e1c0dbf47f095c895e8501aa995",
+          "sha256:ea407c4085a709bc7a3a1868822926f8bc6653149fc0fce5f34ddf8993c337f0"
+        ],
+        "currentObservedFingerprints": [
+          "sha256:11a183fa3d6d292841ae21aa3131545c3aeee6eb929a8cfb3750ae0e98e0e66d",
+          "sha256:2f797e7042558e04d2ad14d06ee74814fb0b17ff432c08cef32964e0cd9fcb8a",
+          "sha256:3896fb5ffef342b82f39de1a975d8a075629a42fce19ed4c8d05c1846fedcfa7",
+          "sha256:676e7b1abbc11c7f566baf12d85f0ca4bff09e1c0dbf47f095c895e8501aa995",
+          "sha256:e5a2787e02c76e567b098f794fc483505c2b28dcad5f6f3050273a18fb4fc55e",
+          "sha256:ea407c4085a709bc7a3a1868822926f8bc6653149fc0fce5f34ddf8993c337f0"
+        ],
+        "authoritativeFingerprintsChanged": false
+      },
+      {
+        "schemaId": "xtend.xtensions.state-binding.v3",
+        "previousObservedFingerprints": [
+          "sha256:5eee8c244e623a4815ca583fed0ad2c4a4250e5919b1212ffe5a7e8ca5a09b8b",
+          "sha256:a8c7dae5e93808dedecd3e103c90a399e31a4d19eb1c1026773989dca639e0d3",
+          "sha256:b56bfbc459e635ad4275a38f52db3a45eb0be1b5abbeac778f936382173e3e4f",
+          "sha256:d6b41a0b43d617308fe1b6b10ca8260fb2d66f4c349fd1a75c1e609e74693ba3",
+          "sha256:e5a2787e02c76e567b098f794fc483505c2b28dcad5f6f3050273a18fb4fc55e"
+        ],
+        "currentObservedFingerprints": [
+          "sha256:5eee8c244e623a4815ca583fed0ad2c4a4250e5919b1212ffe5a7e8ca5a09b8b",
+          "sha256:a8c7dae5e93808dedecd3e103c90a399e31a4d19eb1c1026773989dca639e0d3",
+          "sha256:b56bfbc459e635ad4275a38f52db3a45eb0be1b5abbeac778f936382173e3e4f",
+          "sha256:b69224f25785e8c680f69d7a86df3d6a6e933dcfb6722e85ea37c6b64b49e447",
+          "sha256:d6b41a0b43d617308fe1b6b10ca8260fb2d66f4c349fd1a75c1e609e74693ba3",
+          "sha256:e5a2787e02c76e567b098f794fc483505c2b28dcad5f6f3050273a18fb4fc55e"
+        ],
+        "authoritativeFingerprintsChanged": false
+      }
+    ],
+    "canonicalSourcePrecedenceUpdates": [
+      {
+        "schemaId": "xtend.maraca.browser-composition-root.v10",
+        "previousCanonicalDefinition": {
+          "path": "xtend-maraca/index.js",
+          "symbol": null,
+          "definitionType": "identifier-reference",
+          "role": "definition",
+          "visibility": "public"
+        },
+        "currentCanonicalDefinition": {
+          "definitionType": "typescript-declaration",
+          "path": "xtend-maraca/browser-composition-runtime.d.ts",
+          "role": "definition",
+          "symbol": "BrowserProjectionComponentRoot",
+          "visibility": "public"
+        },
+        "authoritativeFingerprintsChanged": false,
+        "rationale": "The unchanged scanner source-precedence algorithm resolves current retained runtime/type/test/document observations. This changes observational provenance only, with the exact older authority and released fingerprint sets retained."
+      },
+      {
+        "schemaId": "xtend.maraca.browser-host-adapter.v2",
+        "previousCanonicalDefinition": {
+          "path": "xtend-maraca/browser-host-adapter.mjs",
+          "symbol": null,
+          "definitionType": "object-shape",
+          "role": "producer",
+          "visibility": "public"
+        },
+        "currentCanonicalDefinition": {
+          "definitionType": "typescript-declaration",
+          "path": "xtend-maraca/browser-host-adapter.d.ts",
+          "role": "definition",
+          "symbol": "MaracaBrowserHostAdapter",
+          "visibility": "public"
+        },
+        "authoritativeFingerprintsChanged": false,
+        "rationale": "The unchanged scanner source-precedence algorithm resolves current retained runtime/type/test/document observations. This changes observational provenance only, with the exact older authority and released fingerprint sets retained."
+      },
+      {
+        "schemaId": "xtend.maraca.xtension-composition-manifest.v8",
+        "previousCanonicalDefinition": {
+          "path": "xtend-maraca/index.js",
+          "symbol": null,
+          "definitionType": "identifier-reference",
+          "role": "definition",
+          "visibility": "public"
+        },
+        "currentCanonicalDefinition": {
+          "definitionType": "constant",
+          "path": "xtend-maraca/xtension-composition-contract.mjs",
+          "role": "definition",
+          "symbol": "PROJECTION_COMPONENT_MANIFEST_SCHEMA",
+          "visibility": "public"
+        },
+        "authoritativeFingerprintsChanged": false,
+        "rationale": "The unchanged scanner source-precedence algorithm resolves current retained runtime/type/test/document observations. This changes observational provenance only, with the exact older authority and released fingerprint sets retained."
+      }
+    ],
+    "usageUpdates": [
+      "xtend.docs.component-inventory.v1",
+      "xtend.docs.content-depth-report.v1",
+      "xtend.docs.guide-article-metrics.v1",
+      "xtend.docs.guide-inventory.v1",
+      "xtend.docs.maraca-orchestration-report.v1",
+      "xtend.docs.public-quality.report.v1",
+      "xtend.docs.quality-negative-fixtures-report.v1",
+      "xtend.docs.rmt-reference-docs-report.v1",
+      "xtend.docs.rmt-reference-docs.v1",
+      "xtend.epic13.package-export-lock-report.v1",
+      "xtend.epic18.rmt-action-effect-runtime.v1",
+      "xtend.epic18.rmt-action-result.v1",
+      "xtend.epic18.rmt-event-route-result.v1",
+      "xtend.epic18.rmt-event-routing-runtime.v2",
+      "xtend.maraca.app-service-demands.v1",
+      "xtend.maraca.browser-composition-root.v10",
+      "xtend.maraca.browser-composition-root.v5",
+      "xtend.maraca.browser-composition-root.v9",
+      "xtend.maraca.browser-host-adapter.v2",
+      "xtend.maraca.build-plan.v4",
+      "xtend.maraca.build-plan.v7",
+      "xtend.maraca.build-plan.v8",
+      "xtend.maraca.rmtx-providers.v1",
+      "xtend.maraca.size-budget-report.v2",
+      "xtend.maraca.xtension-composition-artifact.v2",
+      "xtend.maraca.xtension-composition-artifact.v3",
+      "xtend.maraca.xtension-composition-artifact.v4",
+      "xtend.maraca.xtension-composition-artifact.v5",
+      "xtend.maraca.xtension-composition-artifact.v6",
+      "xtend.maraca.xtension-composition-artifact.v7",
+      "xtend.maraca.xtension-composition-artifact.v8",
+      "xtend.maraca.xtension-composition-artifact.v9",
+      "xtend.maraca.xtension-composition-build-report.v8",
+      "xtend.maraca.xtension-composition-manifest.v7",
+      "xtend.maraca.xtension-composition-manifest.v8",
+      "xtend.maraca.xtension-deployment-config.v1",
+      "xtend.maraca.xtension-load-plan.v2",
+      "xtend.mcp.gate-report.v1",
+      "xtend.mcp.knowledge-build-result.v1",
+      "xtend.mcp.knowledge-manifest.v1",
+      "xtend.performance.measurement.v1",
+      "xtend.release.feature-readiness.v1",
+      "xtend.rmt.action-input-contract.v1",
+      "xtend.rmt.action-plan.v2",
+      "xtend.rmt.animation-engine.v1",
+      "xtend.rmt.app-host-contracts.v1",
+      "xtend.rmt.app-hydration-capability.v1",
+      "xtend.rmt.app-hydration-plan.v1",
+      "xtend.rmt.app-hydration-ui-coprocessor.v1",
+      "xtend.rmt.app-hydration-worker-prerender.v1",
+      "xtend.rmt.app-orchestration.v1",
+      "xtend.rmt.app-orchestration.v2",
+      "xtend.rmt.app-patch-plan.v1",
+      "xtend.rmt.app-resumability-capability.v1",
+      "xtend.rmt.app-runtime-graph.v1",
+      "xtend.rmt.app-telemetry-plan.v1",
+      "xtend.rmt.classic.compile-result.v4",
+      "xtend.rmt.core-format.vnext.v1",
+      "xtend.rmt.form-validation.v1",
+      "xtend.rmt.kernel-orchestration.v1",
+      "xtend.rmt.kernel-scheduler-plan.v1",
+      "xtend.rmt.mfe-host-adapter.v1",
+      "xtend.rmt.model-command-port.v1",
+      "xtend.rmt.native-event-binding.v2",
+      "xtend.rmt.portable-render.v2",
+      "xtend.rmt.search-runtime.v1",
+      "xtend.rmt.server-host-adapter.v1",
+      "xtend.rmt.ssr-resume-envelope.v1",
+      "xtend.rmt.surface-transitions.v1",
+      "xtend.rmt.tooling-docs-report.v1",
+      "xtend.rmt.vnext.app-platform-records.v1",
+      "xtend.rmt.vnext.ast.v1",
+      "xtend.rmt.vnext.grammar.v1",
+      "xtend.rmt.vnext.kernel-records.v1",
+      "xtend.rmt.worker-host-adapter.v1",
+      "xtend.rmtx.compile-result.v1",
+      "xtend.rmtx.compile-result.v2",
+      "xtend.rmtx.compile-result.v3",
+      "xtend.rmtx.compile-result.v4",
+      "xtend.rmtx.component-dependencies.v1",
+      "xtend.rmtx.components.v1",
+      "xtend.rmtx.host-scopes.v1",
+      "xtend.rmtx.host-scopes.v2",
+      "xtend.rmtx.operator-profile.v1",
+      "xtend.rmtx.operator-profile.v3",
+      "xtend.rmtx.orchestration-runtime-acceptance.v1",
+      "xtend.rmtx.parser-result.v1",
+      "xtend.rmtx.parser-result.v4",
+      "xtend.rmtx.selector-dependencies.v1",
+      "xtend.router.url-state-host.v1",
+      "xtend.test.execution-report.v1",
+      "xtend.test.report.v1",
+      "xtend.type-exports.drift-report.v1",
+      "xtend.type-exports.report.v1",
+      "xtend.type-exports.rmt-declarations-report.v1",
+      "xtend.xtensions.component-interface.v1",
+      "xtend.xtensions.host-capability-requirements.v1",
+      "xtend.xtensions.runtime-acceptance-report.v1",
+      "xtend.xtensions.runtime-acceptance-report.v2",
+      "xtend.xtensions.runtime-host-controller.v2",
+      "xtend.xtensions.ssr-acceptance-report.v1",
+      "xtend.xtensions.state-binding-artifact.v2",
+      "xtend.xtensions.state-binding-artifact.v3",
+      "xtend.xtensions.state-binding-artifact.v4",
+      "xtend.xtensions.state-binding.v1",
+      "xtend.xtensions.state-binding.v2",
+      "xtend.xtensions.state-binding.v3",
+      "xtend.xtensions.url-history-proposal.v2",
+      "xtend.xtensions.url-state-policy.v1",
+      "xtend.xtensions.url-state-policy.v2",
+      "xtend.xtensions.url-state-restore-plan.v2",
+      "xtend.xtensions.url-state.v2"
+    ],
+    "newDuplicateReviews": [
+      {
+        "baseline": "a0641-native-view-source-profile-review",
+        "baselineAccepted": true,
+        "confidence": "medium",
+        "origin": "scanner",
+        "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+        "recommendation": "Confirm that the variants are intentional before adding another shape.",
+        "resolution": {
+          "kind": "accepted-polymorphic",
+          "rationale": "Static implementation/type/fixture/report variants are accepted only as exact inventory observations. Incomplete evidence cannot establish semantic equivalence, migration, shared runtime admission, formal authority or release permission."
+        },
+        "reviewId": "polymorphic-04ff072d641d",
+        "schemaIds": [
+          "xtend.rmt.tooling-docs-report.v1"
+        ],
+        "status": "accepted-polymorphic-for-inventory",
+        "type": "same-id-multiple-shapes"
+      },
+      {
+        "baseline": "a0641-native-view-source-profile-review",
+        "baselineAccepted": true,
+        "confidence": "medium",
+        "origin": "scanner",
+        "rationale": "Static analysis observes 4 normalized shapes for this identifier.",
+        "recommendation": "Confirm that the variants are intentional before adding another shape.",
+        "resolution": {
+          "kind": "accepted-polymorphic",
+          "rationale": "Static implementation/type/fixture/report variants are accepted only as exact inventory observations. Incomplete evidence cannot establish semantic equivalence, migration, shared runtime admission, formal authority or release permission."
+        },
+        "reviewId": "polymorphic-1235253b0c61",
+        "schemaIds": [
+          "xtend.rmt.native-view.v1"
+        ],
+        "status": "accepted-polymorphic-for-inventory",
+        "type": "same-id-multiple-shapes"
+      },
+      {
+        "baseline": "a0641-native-view-source-profile-review",
+        "baselineAccepted": true,
+        "confidence": "medium",
+        "origin": "scanner",
+        "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+        "recommendation": "Confirm that the variants are intentional before adding another shape.",
+        "resolution": {
+          "kind": "accepted-polymorphic",
+          "rationale": "Static implementation/type/fixture/report variants are accepted only as exact inventory observations. Incomplete evidence cannot establish semantic equivalence, migration, shared runtime admission, formal authority or release permission."
+        },
+        "reviewId": "polymorphic-2453828cc2a3",
+        "schemaIds": [
+          "xtend.docs.public-quality.report.v1"
+        ],
+        "status": "accepted-polymorphic-for-inventory",
+        "type": "same-id-multiple-shapes"
+      },
+      {
+        "baseline": "a0641-native-view-source-profile-review",
+        "baselineAccepted": true,
+        "confidence": "medium",
+        "origin": "scanner",
+        "rationale": "Static analysis observes 3 normalized shapes for this identifier.",
+        "recommendation": "Confirm that the variants are intentional before adding another shape.",
+        "resolution": {
+          "kind": "accepted-polymorphic",
+          "rationale": "Static implementation/type/fixture/report variants are accepted only as exact inventory observations. Incomplete evidence cannot establish semantic equivalence, migration, shared runtime admission, formal authority or release permission."
+        },
+        "reviewId": "polymorphic-271e294311e5",
+        "schemaIds": [
+          "xtend.rmtx.compile-result.v5"
+        ],
+        "status": "accepted-polymorphic-for-inventory",
+        "type": "same-id-multiple-shapes"
+      },
+      {
+        "baseline": "a0641-native-view-source-profile-review",
+        "baselineAccepted": true,
+        "confidence": "medium",
+        "origin": "scanner",
+        "rationale": "Static analysis observes 3 normalized shapes for this identifier.",
+        "recommendation": "Confirm that the variants are intentional before adding another shape.",
+        "resolution": {
+          "kind": "accepted-polymorphic",
+          "rationale": "Static implementation/type/fixture/report variants are accepted only as exact inventory observations. Incomplete evidence cannot establish semantic equivalence, migration, shared runtime admission, formal authority or release permission."
+        },
+        "reviewId": "polymorphic-2866c9bd36de",
+        "schemaIds": [
+          "xtend.maraca.browser-composition-root.v11"
+        ],
+        "status": "accepted-polymorphic-for-inventory",
+        "type": "same-id-multiple-shapes"
+      },
+      {
+        "baseline": "a0641-native-view-source-profile-review",
+        "baselineAccepted": true,
+        "confidence": "medium",
+        "origin": "scanner",
+        "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+        "recommendation": "Confirm that the variants are intentional before adding another shape.",
+        "resolution": {
+          "kind": "accepted-polymorphic",
+          "rationale": "Static implementation/type/fixture/report variants are accepted only as exact inventory observations. Incomplete evidence cannot establish semantic equivalence, migration, shared runtime admission, formal authority or release permission."
+        },
+        "reviewId": "polymorphic-4ae0ee06a18f",
+        "schemaIds": [
+          "xtend.xtensions.ssr-acceptance-report.v1"
+        ],
+        "status": "accepted-polymorphic-for-inventory",
+        "type": "same-id-multiple-shapes"
+      },
+      {
+        "baseline": "a0641-native-view-source-profile-review",
+        "baselineAccepted": true,
+        "confidence": "medium",
+        "origin": "scanner",
+        "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+        "recommendation": "Confirm that the variants are intentional before adding another shape.",
+        "resolution": {
+          "kind": "accepted-polymorphic",
+          "rationale": "Static implementation/type/fixture/report variants are accepted only as exact inventory observations. Incomplete evidence cannot establish semantic equivalence, migration, shared runtime admission, formal authority or release permission."
+        },
+        "reviewId": "polymorphic-521682962231",
+        "schemaIds": [
+          "xtend.maraca.build-plan.v9"
+        ],
+        "status": "accepted-polymorphic-for-inventory",
+        "type": "same-id-multiple-shapes"
+      },
+      {
+        "baseline": "a0641-native-view-source-profile-review",
+        "baselineAccepted": true,
+        "confidence": "medium",
+        "origin": "scanner",
+        "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+        "recommendation": "Confirm that the variants are intentional before adding another shape.",
+        "resolution": {
+          "kind": "accepted-polymorphic",
+          "rationale": "Static implementation/type/fixture/report variants are accepted only as exact inventory observations. Incomplete evidence cannot establish semantic equivalence, migration, shared runtime admission, formal authority or release permission."
+        },
+        "reviewId": "polymorphic-634decbf556c",
+        "schemaIds": [
+          "xtend.docs.rmt-reference-docs-report.v1"
+        ],
+        "status": "accepted-polymorphic-for-inventory",
+        "type": "same-id-multiple-shapes"
+      },
+      {
+        "baseline": "a0641-native-view-source-profile-review",
+        "baselineAccepted": true,
+        "confidence": "medium",
+        "origin": "scanner",
+        "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+        "recommendation": "Confirm that the variants are intentional before adding another shape.",
+        "resolution": {
+          "kind": "accepted-polymorphic",
+          "rationale": "Static implementation/type/fixture/report variants are accepted only as exact inventory observations. Incomplete evidence cannot establish semantic equivalence, migration, shared runtime admission, formal authority or release permission."
+        },
+        "reviewId": "polymorphic-65daf2ece519",
+        "schemaIds": [
+          "xtend.maraca.build-plan.v8"
+        ],
+        "status": "accepted-polymorphic-for-inventory",
+        "type": "same-id-multiple-shapes"
+      },
+      {
+        "baseline": "a0641-native-view-source-profile-review",
+        "baselineAccepted": true,
+        "confidence": "medium",
+        "origin": "scanner",
+        "rationale": "Static analysis observes 4 normalized shapes for this identifier.",
+        "recommendation": "Confirm that the variants are intentional before adding another shape.",
+        "resolution": {
+          "kind": "accepted-polymorphic",
+          "rationale": "Static implementation/type/fixture/report variants are accepted only as exact inventory observations. Incomplete evidence cannot establish semantic equivalence, migration, shared runtime admission, formal authority or release permission."
+        },
+        "reviewId": "polymorphic-74adce8fd156",
+        "schemaIds": [
+          "xtend.rmt.app-orchestration.v3"
+        ],
+        "status": "accepted-polymorphic-for-inventory",
+        "type": "same-id-multiple-shapes"
+      },
+      {
+        "baseline": "a0641-native-view-source-profile-review",
+        "baselineAccepted": true,
+        "confidence": "medium",
+        "origin": "scanner",
+        "rationale": "Static analysis observes 4 normalized shapes for this identifier.",
+        "recommendation": "Confirm that the variants are intentional before adding another shape.",
+        "resolution": {
+          "kind": "accepted-polymorphic",
+          "rationale": "Static implementation/type/fixture/report variants are accepted only as exact inventory observations. Incomplete evidence cannot establish semantic equivalence, migration, shared runtime admission, formal authority or release permission."
+        },
+        "reviewId": "polymorphic-76d95b94c6ce",
+        "schemaIds": [
+          "xtend.docs.guide-article-metrics.v1"
+        ],
+        "status": "accepted-polymorphic-for-inventory",
+        "type": "same-id-multiple-shapes"
+      },
+      {
+        "baseline": "a0641-native-view-source-profile-review",
+        "baselineAccepted": true,
+        "confidence": "medium",
+        "origin": "scanner",
+        "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+        "recommendation": "Confirm that the variants are intentional before adding another shape.",
+        "resolution": {
+          "kind": "accepted-polymorphic",
+          "rationale": "Static implementation/type/fixture/report variants are accepted only as exact inventory observations. Incomplete evidence cannot establish semantic equivalence, migration, shared runtime admission, formal authority or release permission."
+        },
+        "reviewId": "polymorphic-7cc1f8154b97",
+        "schemaIds": [
+          "xtend.type-exports.drift-report.v1"
+        ],
+        "status": "accepted-polymorphic-for-inventory",
+        "type": "same-id-multiple-shapes"
+      },
+      {
+        "baseline": "a0641-native-view-source-profile-review",
+        "baselineAccepted": true,
+        "confidence": "medium",
+        "origin": "scanner",
+        "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+        "recommendation": "Confirm that the variants are intentional before adding another shape.",
+        "resolution": {
+          "kind": "accepted-polymorphic",
+          "rationale": "Static implementation/type/fixture/report variants are accepted only as exact inventory observations. Incomplete evidence cannot establish semantic equivalence, migration, shared runtime admission, formal authority or release permission."
+        },
+        "reviewId": "polymorphic-8122efebc9b8",
+        "schemaIds": [
+          "xtend.rmtx.native-view-dependencies.v1"
+        ],
+        "status": "accepted-polymorphic-for-inventory",
+        "type": "same-id-multiple-shapes"
+      },
+      {
+        "baseline": "a0641-native-view-source-profile-review",
+        "baselineAccepted": true,
+        "confidence": "medium",
+        "origin": "scanner",
+        "rationale": "Static analysis observes 3 normalized shapes for this identifier.",
+        "recommendation": "Confirm that the variants are intentional before adding another shape.",
+        "resolution": {
+          "kind": "accepted-polymorphic",
+          "rationale": "Static implementation/type/fixture/report variants are accepted only as exact inventory observations. Incomplete evidence cannot establish semantic equivalence, migration, shared runtime admission, formal authority or release permission."
+        },
+        "reviewId": "polymorphic-97deadbee632",
+        "schemaIds": [
+          "xtend.rmtx.native-view-runtime-acceptance.v1"
+        ],
+        "status": "accepted-polymorphic-for-inventory",
+        "type": "same-id-multiple-shapes"
+      },
+      {
+        "baseline": "a0641-native-view-source-profile-review",
+        "baselineAccepted": true,
+        "confidence": "medium",
+        "origin": "scanner",
+        "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+        "recommendation": "Confirm that the variants are intentional before adding another shape.",
+        "resolution": {
+          "kind": "accepted-polymorphic",
+          "rationale": "Static implementation/type/fixture/report variants are accepted only as exact inventory observations. Incomplete evidence cannot establish semantic equivalence, migration, shared runtime admission, formal authority or release permission."
+        },
+        "reviewId": "polymorphic-ca8fdc3fe743",
+        "schemaIds": [
+          "xtend.rmtx.native-view.v1"
+        ],
+        "status": "accepted-polymorphic-for-inventory",
+        "type": "same-id-multiple-shapes"
+      },
+      {
+        "baseline": "a0641-native-view-source-profile-review",
+        "baselineAccepted": true,
+        "confidence": "medium",
+        "origin": "scanner",
+        "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+        "recommendation": "Confirm that the variants are intentional before adding another shape.",
+        "resolution": {
+          "kind": "accepted-polymorphic",
+          "rationale": "Static implementation/type/fixture/report variants are accepted only as exact inventory observations. Incomplete evidence cannot establish semantic equivalence, migration, shared runtime admission, formal authority or release permission."
+        },
+        "reviewId": "polymorphic-dfb9561fc3a2",
+        "schemaIds": [
+          "xtend.rmt.action-plan.v2"
+        ],
+        "status": "accepted-polymorphic-for-inventory",
+        "type": "same-id-multiple-shapes"
+      },
+      {
+        "baseline": "a0641-native-view-source-profile-review",
+        "baselineAccepted": true,
+        "confidence": "medium",
+        "origin": "scanner",
+        "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+        "recommendation": "Confirm that the variants are intentional before adding another shape.",
+        "resolution": {
+          "kind": "accepted-polymorphic",
+          "rationale": "Static implementation/type/fixture/report variants are accepted only as exact inventory observations. Incomplete evidence cannot establish semantic equivalence, migration, shared runtime admission, formal authority or release permission."
+        },
+        "reviewId": "polymorphic-e27cee634274",
+        "schemaIds": [
+          "xtend.docs.content-depth-report.v1"
+        ],
+        "status": "accepted-polymorphic-for-inventory",
+        "type": "same-id-multiple-shapes"
+      },
+      {
+        "baseline": "a0641-native-view-source-profile-review",
+        "baselineAccepted": true,
+        "confidence": "medium",
+        "origin": "scanner",
+        "rationale": "Static analysis observes 2 normalized shapes for this identifier.",
+        "recommendation": "Confirm that the variants are intentional before adding another shape.",
+        "resolution": {
+          "kind": "accepted-polymorphic",
+          "rationale": "Static implementation/type/fixture/report variants are accepted only as exact inventory observations. Incomplete evidence cannot establish semantic equivalence, migration, shared runtime admission, formal authority or release permission."
+        },
+        "reviewId": "polymorphic-eef9c7e0f2fc",
+        "schemaIds": [
+          "xtend.docs.maraca-orchestration-report.v1"
+        ],
+        "status": "accepted-polymorphic-for-inventory",
+        "type": "same-id-multiple-shapes"
+      },
+      {
+        "baseline": "a0641-native-view-source-profile-review",
+        "baselineAccepted": true,
+        "confidence": "medium",
+        "fingerprint": "sha256:e5a2787e02c76e567b098f794fc483505c2b28dcad5f6f3050273a18fb4fc55e",
+        "origin": "scanner",
+        "rationale": "Static analysis found the same normalized field shape under different identifiers.",
+        "recommendation": "Review semantic ownership and record aliasOf or a distinct-contract rationale before adding another matching identifier.",
+        "resolution": {
+          "kind": "review-case",
+          "rationale": "Static implementation/type/fixture/report variants are accepted only as exact inventory observations. Incomplete evidence cannot establish semantic equivalence, migration, shared runtime admission, formal authority or release permission."
+        },
+        "reviewId": "shape-collision-e5a2787e02c7",
+        "schemaIds": [
+          "xtend.xtensions.state-binding.v1",
+          "xtend.xtensions.state-binding.v3"
+        ],
+        "status": "open",
+        "type": "different-id-same-shape"
+      },
+      {
+        "baseline": "a0641-native-view-source-profile-review",
+        "baselineAccepted": true,
+        "confidence": "medium",
+        "fingerprint": "sha256:ede581ee5241b5f76b03f8d6e50820363e39b3a7d9807fbe58181b8b71d0addf",
+        "origin": "scanner",
+        "rationale": "Static analysis found the same normalized field shape under different identifiers.",
+        "recommendation": "Review semantic ownership and record aliasOf or a distinct-contract rationale before adding another matching identifier.",
+        "resolution": {
+          "kind": "review-case",
+          "rationale": "Static implementation/type/fixture/report variants are accepted only as exact inventory observations. Incomplete evidence cannot establish semantic equivalence, migration, shared runtime admission, formal authority or release permission."
+        },
+        "reviewId": "shape-collision-ede581ee5241-a0641",
+        "schemaIds": [
+          "xtend.rmtx.compile-result.v3",
+          "xtend.rmtx.compile-result.v4",
+          "xtend.rmtx.compile-result.v5"
+        ],
+        "status": "open",
+        "type": "different-id-same-shape"
+      }
+    ],
+    "currentClassicSourceBindingReview": {
+      "status": "refreshed-current-source-only",
+      "sources": 32,
+      "formalAstDeclarationUnchanged": true,
+      "formalAstNodes": 122,
+      "authorityAndReleasedSetsChanged": false
+    },
+    "currentCoreUnreleasedSourceBindingsRefreshed": true,
+    "historicalWorkingDocument": {
+      "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.before-a0641.md",
+      "sha256": "ababf0efec88a57f0ccba1a512a92f0bb816a93f97e9f9bd776c06cbba2c1771"
+    },
+    "historicalWorkingDocumentRetargetChangesBytes": false,
+    "workingDocument": {
+      "path": "development/XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md",
+      "sha256": "7252464c9344e32e2f268f100d69a2ef0efda51ef705d68b69c2b67ac7776986"
+    },
+    "contract": {
+      "path": "development/rmtx-a06/native-view-profile/README.md",
+      "sha256": "49dfe303a1b6530470a98ec68118374fe8f091f5289c5978571bc0e2d2f4d429"
+    },
+    "nextLifecycleContract": {
+      "path": "development/rmtx-a06/native-view-profile/lifecycle-next.md",
+      "sha256": "424fc1466340d8c0394eb843e299d709f85e052e8d94ba168ffb4ef4e3e44f46"
+    },
+    "staticEvidence": {
+      "path": "development/rmtx-a06/native-view-profile/evidence.json",
+      "sha256": "f77ed8d804e416f0dc82cc9e6c43b931064baaa401a1d99275a6f1af8295887a"
+    },
+    "executionEvidence": {
+      "path": "development/rmtx-a06/native-view-profile/execution-evidence.json",
+      "sha256": "829858564c221a1712cc268e362b171143cea46d6f9e9803a3b329b641efd776"
+    },
+    "artifactMap": {
+      "path": "development/rmtx-a06/native-view-profile/verification/artifact-map.json",
+      "sha256": "f3614abe4e892f1accabf9ad5da20560eefa7f0443ea0a4abeef460882e7b17a"
+    },
+    "retainedArtifactCopies": 56,
+    "currentProductAndGatePins": {
+      ".github/workflows/xtend-default-gates.yml": "f632f70fe368a31f18312511abb3cb6b7f4883fa01efa6eda1e65b4f5ffd164f",
+      ".github/workflows/xtend-migration-completion.yml": "a22f6d8261244d3173e02ecd1c8f73830af825211ac396b98b4a8efd1ae44006",
+      ".github/workflows/xtend-nightly-build.yml": "273a5b13771ddfa30a7257e6f449780ba2f35207c75f3430cf219b06cfbb855a",
+      "components/xrouter-url-state.d.ts": "07e5d5c0baf1f38b519796b66bb006158f8fb6b340c9712283c242c03b9362c0",
+      "components/xrouter-url-state.js": "f547727e99c98166b39e2a804485194195145ff7d175f42a7a84b2fee24af97b",
+      "components/xrouter.d.ts": "ef8514748befd036b31ae580659d433978d74c65c378d78547e5c1d793246107",
+      "components/xrouter.js": "8ebb4d411471e46620a9ba4a84af8668f8d38b535702b075a216ec139e780f53",
+      "components/xsurfacemanager-controller.js": "a747e5a4bd9d4c1205dc464d046eb5bc65531acc74d083d78e10d5c614afa7a5",
+      "development/rmtx-a06/automatic-reference.cjs": "5d12d3ba201ce94ce8330058fc08e854f5018cec84536eacc73e5c4e040e302a",
+      "development/rmtx-a06/keyed-profile/runtime-acceptance.mjs": "384a5c861f0a080051d1003097bf5faa98f904e24d8379662d3e5104ac9cd081",
+      "development/rmtx-a06/native-view-profile/inspect.cjs": "e0de8216dfea91b8b7440472293b9d3e77a825810f74ab5e5e4c32a32b00b735",
+      "development/rmtx-a06/native-view-profile/native-only.rmtx": "5d69d3ad510ecbcf172a324fc675bb191e538f8948d08f360972c08bd767f2fd",
+      "development/rmtx-a06/native-view-profile/reference.cjs": "210fa46a015303fbc1b47aa176736efa705d6277d3407d34246fa56ecdd74b88",
+      "development/rmtx-a06/native-view-profile/runtime-acceptance.mjs": "1f0023fdead36c3b4f78b8e6d3c1ff19763e66fdb473875905c697bb1f39666f",
+      "development/rmtx-a06/native-view-profile/runtime-test.cjs": "c2925c36eaa463685166c866bb9f11bb5a950269fb0860eda0c2c1b9ad8aa66d",
+      "development/rmtx-a06/native-view-profile/source.rmtx": "771aedd82258310a1c0d769e01a38dbd604bc5f4494586cd10b69c90b1f00e33",
+      "development/rmtx-a06/orchestration-profile/inspect.cjs": "125c3f1c58efc9308923c9177d8ee885cfccb9b54bd499fd7cfefa4c5923f587",
+      "development/rmtx-a06/orchestration-profile/providers.json": "9b627f3f6acf823912da5311fb15b61889f2a6e6084ddfcb540382cbc01c8408",
+      "development/rmtx-a06/orchestration-profile/react.interface.v2.json": "65c45087e78ef676c76068060cb85b6fedbe6b97e3791a37d1485b91a72d58a7",
+      "development/rmtx-a06/orchestration-profile/reference.cjs": "ea8e4fa32a63f279cc31041f879c48a5a14a10ebd861e351ca3c3bfdf929367a",
+      "development/rmtx-a06/orchestration-profile/runtime-acceptance.mjs": "39e860284e097e0a0a9167f2fad1a947f9407792340a0fda4032d73841f79082",
+      "development/rmtx-a06/orchestration-profile/runtime-test.cjs": "31b96655074dbbdb9948b4e6d500d72aa4f796cae78f29b98725703b0e2a6765",
+      "development/rmtx-a06/orchestration-profile/source.rmtx": "0e7099ef1954239748bd3a0d3c867a1731fa2555a99ab5f13272ceae783e2b16",
+      "development/rmtx-a06/providers/vue.interface.json": "30de14608052cdd250f1f56b06fa0b5c7df8dda73803d5d5daa96355e5a6f1e4",
+      "development/rmtx-a06/scoped-fixture.mjs": "ba63c5a5b439908e91d37edc24822e3686130d22e27632b2d3b33ec2ade77396",
+      "development/rmtx-a06/scoped-model.cjs": "3427a835bb6d21a45eac29830ecd762296b836c0201c381ccdd2a92bf185a0d8",
+      "development/rmtx-a06/scoped-reference.cjs": "23a6501789126f50650f41bd67075a97391746b960097203874f00090365bf19",
+      "development/rmtx-a06/two-host-reference.cjs": "64084cf748ed44586bb0eecd3a8e15fcbc4b7e967ca0c4e1b96ad00b3c7fcc08",
+      "fabric/xtend-fabric.js": "ea7fa64431048e724a336ecd3117c90c6bb8a0ab2871e1ba618d8381ed3f822d",
+      "package.json": "2468a7480d26cc2410c6e398ef0bc37c0f49c656d4ba6f7e2d7fbb986d395f2a",
+      "scripts/check_release_preparation.cjs": "06dc57bf4b7c97b6ff12442b88a571a994cc7a398fd07ba58889562a06cf39a4",
+      "scripts/sync_rmt_compiler_contracts.cjs": "1764f0adb1e20edde7979fae5dce6784bd01b08772df48c3acd1c309033412cc",
+      "scripts/test-runner/catalog.json": "143b44ee5cc345ada095edce283ff5a1ca1d6754cd7af40398599ad0584079a4",
+      "tests/maraca/rmtx-native-boundaries.test.mjs": "4d0504d1a94109a96cf1abdcf08ee21ff2d5674ac5fa2fd8d1078f48f32914cc",
+      "tests/release/preparation-gates.test.cjs": "26165d88a42945027c3b6d48c069f5a1716c37e6b898c8362eb087d2c283fb9b",
+      "tests/rmt-language/action-input-contract.test.cjs": "b3a2bf518adb2bf03836224d5537872e1a316d9f8a41f71922706cfd4f7cc27d",
+      "tests/rmt-language/fixtures/rmtx-host-scopes-consumer.ts": "e6baa9ecd6005848764d20b35fba324606ee30583f44a928d8d7cc4d31994a56",
+      "tests/rmt-language/rmtx-extended-operators.test.cjs": "143b0fe26b615eb6becedb51f73e77652808e00bb582abb8284a30a04d9957ef",
+      "tests/rmt-language/rmtx-inline-components.test.cjs": "d66011cef63bba174d902817e3e237462f28b784c1a73762ded7885368a4f743",
+      "tests/rmt-language/rmtx-maraca-integration.test.cjs": "df3ebf48624e4f44f896866a72c64f95626470a65fc7c74596cfa3637e6753aa",
+      "tests/rmt-language/rmtx-native-view.test.cjs": "bfbad590d8e9964a63aefefac1bbd504c6cefad64f4f02b353f64c684364d62a",
+      "tests/rmt-language/rmtx-operator-profiles.test.cjs": "362a95b6e9c6c13bd4f34f3438fb20032b05100a858f689a9dafb778d6dacf09",
+      "tests/rmt-language/rmtx-orchestration.test.cjs": "b95d92df75056d67cfa915acb068192048353c3863cfa141d74512712ce5b1b3",
+      "tests/rmt/renderer-preflight.test.cjs": "ce9fff768d662f090dc53d6cfeef05b7dc926fedd01b7e7884095b60e4993f0f",
+      "tests/xtensions/compiled-state-binding-compiler.cjs": "3add5236bd18a0c106ef31cfe65dde830dc266129b362f126274681d1415b2a3",
+      "tests/xtensions/native-composition-profile.test.cjs": "61292c6d6f3a995d12ae65bce7b7025067bae6ccee66b5449a89fdbf67eaf7a1",
+      "tests/xtensions/native-state-binding.test.cjs": "5c8bcdf3c44c7a8848c8bd9b344d59b87d824a04634f087657e8e520e353150e",
+      "tests/xtensions/native-url-state.test.cjs": "bff593eec0133463842ad749087bbabbbc5eda51fea929a7912890a392974927",
+      "tests/xtensions/native-view-projection.test.cjs": "3aa687d7f821d031fb3bfd53d4000e3752a020cb92e83f0a0f55ddcf042eb92f",
+      "tests/xtensions/platform-projection-profile.test.cjs": "35bb70dadfc74c6b1ffabb25d1a96672e4c50a3d13b7798ac85938d839514af1",
+      "tests/xtensions/projected-state-binding.test.cjs": "7b054b947bf7cd92c5bcfc83f4beb744c3395d95f10c55fa7c2db853d036d9f1",
+      "tests/xtensions/projected-url-state.test.cjs": "981faaecd02a2e5157a3cb958ff65b222834491f0701f94e38bcbecf4eaa2e9c",
+      "tests/xtensions/projected-xrouter-url-state.test.cjs": "ebbc9abd0453ca5c32cbbb326fe5e191438cb7d0d2aed682023d1afb21e1748c",
+      "tests/xtensions/runtime-adapter-exports.cjs": "895e14460c6e0bca76a0d2ef477ea634b412d415d8b8073b22029011911f097c",
+      "tests/xtensions/xtensions_runtime_gate_suite.js": "4e439d3a038f2ca6becd726df45b5e294e239325021e2f53878cc7bd23a50d17",
+      "tools/package.json": "cf5210bf940f6c724894c04387e08d89e6f2f2a0401835d45b91848714938628",
+      "tools/rmt-language/action-execution-lowering.js": "661647a20aaadf2c1f2bdcfacbfbb2a5de992cc6069b56002e187f2b0e91948e",
+      "tools/rmt-language/action-input-contract.d.ts": "a5b4c57524be6c4aa2f777afdc4ea5db4855793e90c0c65a0a03bcc3bef05242",
+      "tools/rmt-language/action-input-contract.js": "a2587bf7f380b3759747d7752a407e8cbdcd4f40ff7a854f8a23ab9bc3b408f5",
+      "tools/rmt-language/classic-compiler.d.ts": "3643f120af87e27644716f87e997846237d95c30c2cea73edfb14cb014f8f96b",
+      "tools/rmt-language/classic-compiler.js": "0fce500de51a9214e45e33fc739450c26b4dcce2a750730c7472f05947f4dd25",
+      "tools/rmt-language/classic-semantic-rules.js": "09e7a8706201958104fbebee8eea749d3f7b78de4b491eed0d0d79c2f4451549",
+      "tools/rmt-language/contracts/action-input-contract.v1.schema.json": "269ae86ff73fa9b4baaa18fe3273b3a090eb50a51b5c130923530521ef26e7cf",
+      "tools/rmt-language/contracts/classic-ast.v1.schema.json": "2f0b45c8c05dbc38adb7355fcc3ae36bbf8eb2f3b26c4ec024b71ed04fb2b457",
+      "tools/rmt-language/rmtx-compiler.d.ts": "823ead6fa57780359b787710e4b19aeb89f9f8920f8bc4278cf2da58ffdab8bd",
+      "tools/rmt-language/rmtx-compiler.js": "ebecb0bb4f4a5b47140a9b2d0c9c24d6f08fc99231c6cca3f3b6bbdd20f139fd",
+      "tools/rmt-language/rmtx-component-bindings.d.ts": "b9d3eae573890d9845a41d791a9dc82da4966c6ae8f2121f6ac585da01755a81",
+      "tools/rmt-language/rmtx-component-bindings.js": "ec36383575b1f3fbe49b4890faf7c711c70e321ccaa3a98fe6b44de8073f769d",
+      "tools/rmt-language/rmtx-extended-operators.js": "a27401ee8dde2d89db66c64ca9fdf087219154a148a2c47d198de325763f4f2e",
+      "tools/rmt-language/rmtx-host-scopes.js": "cb56b867e74e87bf6bb796b3ae1c36675b9030d9a45a550f97d3553a885c7d2f",
+      "tools/rmt-language/rmtx-native-view.d.ts": "7837d53cac448b30824e7491ec2db705da9a0e10d6305fa9c6e57108f46bacac",
+      "tools/rmt-language/rmtx-native-view.js": "b357a6c025d0370b9f73e8d40965168b2a87a54cd64a77da19019bbbcadc8850",
+      "tools/rmt-language/rmtx-operator-coverage.js": "c4742d000786d1679dbfa375b223499567dc93ef55649b6cd7589a033cf05f94",
+      "tools/rmt-language/rmtx-operator-coverage.json": "38a39759c35f6bcd1e85eb46d4e24680761da48779f3766520f43bed675ca17c",
+      "tools/rmt-language/rmtx-operator-profiles.d.ts": "0e4ed8e06b55d8893683e533de2eebd72f66a4ecf42bf0a366e4c7b82bf50199",
+      "tools/rmt-language/rmtx-operator-profiles.js": "48d4295474a73237c8a8b323fde2923b3f10016726ec4d5b79b72a9c04c42afd",
+      "tools/rmt-language/rmtx-parser.d.ts": "8f7c6628861280438a34a3d2d44ba1563f7a4f9e9249f6ebedaa58b616030a4b",
+      "tools/rmt-language/rmtx-parser.js": "0e9003f18c16d3ff5eded3e4e68049868bb90de45dc02f0b86d45238492a02c0",
+      "tools/rmt-language/rmtx-selector-dependencies.d.ts": "4e89b835b32c331354922af6c15d9938eb869a5d532ff16804c88e5433dd9c7f",
+      "tools/rmt-language/rmtx-selector-dependencies.js": "e44e81f1391642e82d573468c957bce657ef21b5c638d86a1b4f03ddcfbb1087",
+      "tools/rmt-language/rmtx.d.ts": "e8e9b138a1d70dd918239ae1c4868212828ba2f48cbf9580702a69f8bc5587d8",
+      "tools/rmt-language/rmtx.js": "d11d03bfba080820ed50a9e76a3f37c8194c8d16ed28fb9a9019a4f5705f6e0b",
+      "tools/rmt-language/scheduler-lanes.js": "a0d76615b3cfbe2639a96af01179f987407554040acce54aa9b4dd99516f9b76",
+      "tools/rmt-language/semantic-graph.js": "38af11000b4cee776725b2789c2f20ca50a44ac14adcafd84de1bad01088c1af",
+      "tools/rmt-language/vendor/fastpass-contract.js": "af8e26104243deea58ccf3a334d67ecb3286617146257074a29eeb7866a3b1a3",
+      "tools/rmt-language/vendor/manifest.json": "588c8d474ac376cb59b6787cbd4e5460e746c61a9d5e5b211ae92ab631d58218",
+      "tools/rmt-language/vnext-compiler.d.ts": "cb719c90afc5fc176625d8fa75f5aa0d0c1507611acc9a9b6a8033664f2cbb94",
+      "tools/rmt-language/vnext-compiler.js": "ef4e26b966f6661e42e6519315e51fae05bc9fe9890635082555dae0a7e12aa0",
+      "tools/xtensions/component-interface-build.js": "8a9fbbccf7b12b68f054f5a2a5a62b4aefe726eec2f598bf1b173d91ecd9af9a",
+      "tools/xtensions/component-interface.d.ts": "4fb0bb4ab3163c856c0ef7d78d6a888b3a1d94b35c4dbaf0172aef6a8a61dc3c",
+      "tools/xtensions/component-interface.js": "9c0b45fdea6f8dc98563144a9bc000c997800a2f0f57f433b9e352539cdbcae2",
+      "tools/xtensions/component-interface.v1.schema.json": "ee6e3c40c66f69e2b39ecf6b7031a9bd16afc576fc5e0884e286eade49399f36",
+      "tools/xtensions/component-interface.v2.schema.json": "db772ecb0e874e73ba21406eadbcf6577302648d0eea13a5f41a1c992b6542e1",
+      "tools/xtensions/cooperative-resource-scope.js": "ba8f05d9f5ce605512c95d45b3b563c6184e88a2dab5874ffdcee2c1836174ab",
+      "tools/xtensions/framework-ssr.js": "6b4c457f2ac54762afcfda78314e788ea9e119e939e93ed9d63355991e31a700",
+      "tools/xtensions/host-capability-negotiation.js": "762751a35c6e99eccb66cbad3b0d885098dbd949ed4b5a774a3671a5bac02373",
+      "tools/xtensions/host-controller-contract.d.ts": "5137df09aa1173e3eb7172da2073c659c3a7d5ab9324b60866c1d8418f644989",
+      "tools/xtensions/host-controller-contract.js": "fc168ff8cec8a95375942f9ef2871ed3cdbf74cede192c708dd374efc14278b7",
+      "tools/xtensions/host-resource-cleanup-record.js": "631ba35928b8e8a990dd05b245cd61333984197b866f4c46e0821221404a4a6e",
+      "tools/xtensions/kernel-work-scope.js": "2bc544e13567898f8c4eefd973c66e62c29f616477c103e21b28a0f39a716dc8",
+      "tools/xtensions/native-data.js": "3fbd1e9f29e1b133f3042106a46eaaede2107f38fc71851c566a998f0b397684",
+      "tools/xtensions/native-view-projection.d.ts": "435217defde83e282bff7b60127409fc1cd82f3a3a4beb6361e8903f53f6148e",
+      "tools/xtensions/native-view-projection.js": "9451c0c676c8cc16ae89f2c841d8f0cf387c485c9b2f7f004db668dbdd9ca572",
+      "tools/xtensions/react-payload-boundary.js": "a63f4bdc1d39813d81f07623316e5e1814ff44e5cc29f93a17145683385ddb5c",
+      "tools/xtensions/react-runtime-adapter.d.ts": "10700c9d08f2e94a79168e89a57d0a77eba223c89491aaf6d50ebb1bc33074c0",
+      "tools/xtensions/react-runtime-adapter.js": "e780ccdfcc00ca7d75bec3b2bdebb383e3caa2fc40d3bfdaf4bfe85995a0308a",
+      "tools/xtensions/react-runtime-boundary.js": "647575e8da3f01a63df9ee6cefe1d0dfd61f056633972fbe46e9ceed5d617596",
+      "tools/xtensions/repeat-scopes.js": "52a2860132aacc6da0ed95cac68128193180ebaeff91794d77a1a8b8764599d4",
+      "tools/xtensions/resource-graph-binding.js": "0488d4da2eed0c8689d4ec7c49860665873cfcbc433bf52f458575384edf67e2",
+      "tools/xtensions/runtime-host-controller.d.ts": "b88df57206eae655721549bd699e8054e48189eea46e40c39f7bfc615a993e9b",
+      "tools/xtensions/runtime-host-controller.js": "9627d38ad20200c2c846a7eb057dec28f93cc012f63b76fa0c5a86de785a4574",
+      "tools/xtensions/signal-bridge-contract.js": "63d56f44011907554c7b7e6b336daf115bee90f29847debf6e088a5a03f60e1e",
+      "tools/xtensions/state-binding-artifact.d.ts": "ddc653a91fca620aad29a4af5df03fecff8c8796b688df6539d7de9e3ab1c108",
+      "tools/xtensions/state-binding-artifact.js": "8a66aa4646485469ee36a2141041f6190832c5b39fe9f24b83f5907a6a68cbfd",
+      "tools/xtensions/state-binding-contract.js": "857867ed26115ea9aa966b7c3e74099675c890f5bb3bbc4c890dfa5d581af2b6",
+      "tools/xtensions/state-binding-projection-disabled.js": "c0bfee6ef6138a4a14d9f95526d1cf97ff04d57a77dd10c6769f9fb60d4137b5",
+      "tools/xtensions/state-binding-projection.js": "62d116bb6a8fcdeccdd0426d5c6a21537d3e01c952393b4cc82f1f88b0aea739",
+      "tools/xtensions/state-binding.d.ts": "f773975198e5064d809d5a63a3e4429537d1fd929f989371a0d5946a5ca3dae0",
+      "tools/xtensions/state-binding.js": "732c9c17411216883c703561be076a75e94cd1009c85891d611747091f3b9e83",
+      "tools/xtensions/url-state-contracts/history-proposal.v1.schema.json": "63aadd491141cd781ebcacaf4a903421e079cdedae89689531efd41c65d8f1b0",
+      "tools/xtensions/url-state-contracts/history-proposal.v2.schema.json": "2b63c3eedfcf9220a609ea04b67d9b588fa8e034db78b7aef46ecacaf78cba0b",
+      "tools/xtensions/url-state-contracts/policy.v1.schema.json": "bcc9335779f6cb9f2752800dc9054184a1121bcf8b08af923c0218d7f292067d",
+      "tools/xtensions/url-state-contracts/policy.v2.schema.json": "9ec44bb834471bdf94b55f43c01f76e0922a0eb68861263fd2d8a40bc0f29c6a",
+      "tools/xtensions/url-state-contracts/restore-plan.v1.schema.json": "57d5ea6e30f2378a66f418e5d601e201ac2bc552b719be1bd8d94d03877aeab0",
+      "tools/xtensions/url-state-contracts/restore-plan.v2.schema.json": "3f952e46330a5379fa9a323132e9969608f6ff01f30612df149f12e336ba0ddf",
+      "tools/xtensions/url-state-contracts/state.v1.schema.json": "8a569847a037c463aa26b8cfa46f660a20b3a0afc7ede5de1dbd57bfa32a57d8",
+      "tools/xtensions/url-state-contracts/state.v2.schema.json": "d9a2f1b973f43bc5adc7b2a49c0e84a473af0968cda3e6a1d720f0cff02fd442",
+      "tools/xtensions/url-state.d.ts": "1070200e06a3b71c791fad4f48ec23e50cba7df5111fcd9496d3727349f7b1b3",
+      "tools/xtensions/url-state.js": "4d03edde1f3152913913156cd22046fb9c6e2d76d1aa32d2f23370d058bf2790",
+      "tools/xtensions/vue-payload-boundary.js": "e5b7b619251e63bf1937b42ffe346d33b742843e24ef267c680f264dac54e80c",
+      "tools/xtensions/vue-runtime-adapter.d.ts": "f441bed2550894206df776eec5d3cbfece18adb92c1432060494b38bc80d699f",
+      "tools/xtensions/vue-runtime-adapter.js": "d68a72b9782be8c3d705d10af40ca4a6576c3cc0e3a9884c8db02073c8b9745c",
+      "tools/xtensions/vue-runtime-boundary.js": "f1b28462c543f0e8b0d8a8ee59e48b15e1c213cf8381e100677b02e59f03aeed",
+      "tools/xtensions/work-budget-policy.js": "e3223e4e46ee792259b321a6fe6c82086c420c239316a04fd8bf77bdbc896779",
+      "xtend-maraca/browser-composition-runtime.d.ts": "77bc8ad167fab4e916388eaf6df06465017ff3c4e8b0ecde08845fde173e400e",
+      "xtend-maraca/browser-composition-runtime.mjs": "1bccb5146baa556ce67892e12bf27c1079807b9c1625569c1c8408a4159e7a0d",
+      "xtend-maraca/browser-host-adapter.mjs": "5991203b7d82a38ec75b7331bac1465d04e64417cf4f030aa7e96afc2cf23133",
+      "xtend-maraca/fastpass-contract.js": "af8e26104243deea58ccf3a334d67ecb3286617146257074a29eeb7866a3b1a3",
+      "xtend-maraca/index.d.ts": "cb90763f5d28cd9cca63e2bb39eef68bc326f26426e843dd6248f55090e48a29",
+      "xtend-maraca/index.js": "98e2c412eab3364c555b0d9b3abeb014304c6d13937d919e846626e1c92f4347",
+      "xtend-maraca/package.json": "e80eca21789d6709667b981fbfe6e1e2f740ff0d9b2606554d73051d5b363cd3",
+      "xtend-maraca/plan-runtime.d.ts": "e45e099f4fd00a0bec08efae38b1cfaa19639a5be7eed5dd85b32a47069bcc91",
+      "xtend-maraca/plan-runtime.mjs": "307e18790bfad4ac13bfed1fa75f27e9fe2c03e3d669f71834cc9f8c63b212ab",
+      "xtend-maraca/xtension-component-binding-disabled.mjs": "58a1ba6f8560ab5b94bcab77985f6d172cc6796f6e4c0e3bc62a90faf48dd191",
+      "xtend-maraca/xtension-component-binding.mjs": "7a643309709fc7e9fe5c6ce9ae5ac5899052085a096a3aaf0a5bd33ea4621f96",
+      "xtend-maraca/xtension-composition-contract.mjs": "4d9e0355e4494199afc5b28f204a29b65717a8a73f24f0d6d0ffed4af0e0cda6",
+      "xtend-maraca/xtension-composition-runtime.d.ts": "ea7e1128e7d25342a491c9f35d4b21614ef853d39938643453edc8c136d69ee7",
+      "xtend-maraca/xtension-composition-runtime.mjs": "45dbd10d55a80b94ce4cf063d20f265bcf6a70140820aef7581be321d8d7fb67",
+      "xtend-maraca/xtension-composition.d.ts": "4e20c62c724307982898bdea25b04e33eb4736007fa7ec93fb975c87a2e0bef0",
+      "xtend-maraca/xtension-composition.js": "eb893db5bb7f9d1b7cf8096ef7242bc9042cfa360a6023fcfb68534bb5eaa30d",
+      "xtend-maraca/xtension-deployment.js": "9376e89a69d7b12a6540bd16223c9abf24ab675e9b4682bc4ee9414e13b17a55",
+      "xtend-maraca/xtension-platform-build.js": "701f5a24ec81f5319670ca0820fdcf66c4ca3fae6ef07b747a351ca2d57b90be",
+      "xtend-maraca/xtension-platform-esm.js": "880d5b42b762d39af50bc7b54d790328a3fefd4964f5256016927f18682bbbbe",
+      "xtend-maraca/xtension-provider-graph.js": "0b51d0e9c6568fa41a21dcb9fae2efb2f5ec9abd1d7079b40151c8579649ad96",
+      "xtend-maraca/xtension-size-budget.js": "0037d8cd13a33745f883e59061dabf94350c01ff8d61a7e218ec9ca456357436",
+      "xtend-maraca/xtension-ssr-runtime.mjs": "d664adbba38f003040335926e2dbb07a9993d03f80a40cb8935de936bfd09a36",
+      "xtendrmt/rmt-action-effect-runtime.js": "455995d274cf2d12e92be4d1567b154769fc5369b4fb3f7b7886075b2839a4d9",
+      "xtendrmt/rmt-core.d.ts": "50a36e6ddaffafebd1e503e55e4a64b9e47d64f23928b30c7b6a5bfa02f36a24",
+      "xtendrmt/rmt-core.esm.js": "eadb09bdec2aa40ed47ccae0231e2f67d4d4047f3fd1f377f7822dbaafafb510",
+      "xtendrmt/rmt-dom-descriptor-renderer.d.ts": "a92a802595da11bd8737e0f8874eb82ee40c4d89d5ff13690bba5ab8bcd3b518",
+      "xtendrmt/rmt-dom-descriptor-renderer.js": "c4a368798a6d2d182f816b61357331072ab17af55a37d3739a16025a3372cebd",
+      "xtendrmt/rmt-event-routing-runtime.js": "7da9757eb83fcd4a74e2c54d09520f513aff9e8c76fbf14c55fca3ca61c79d1d",
+      "xtendrmt/rmt-kernel-module-manifest.json": "a0eeee6e62c01b89e6c32e033e7d187588fb8775ccbfcf114c42eb0c1e1cacbe",
+      "xtendrmt/rmt-kernel-orchestration-controller.js": "b4ce03f075831a483f388cec00e4b1ff458b84dc640645a04e44fb904954af10",
+      "xtendrmt/rmt-kernel-scheduler.js": "cb6968fa9b5a784f93e6c941e4a634bdd527525247a1f4653f9c7b204829e766",
+      "xtendrmt/rmt-maraca-view-projection-adapter.d.ts": "6b59fb671624728cd9b3bcb9b4b846aa7cc784d4385d7649529036828851c887",
+      "xtendrmt/rmt-maraca-view-projection-adapter.js": "ee09855bee0e3973cfd8ec521c6b661256c3f1be7e4e8b6e782dd323ffb313be",
+      "xtendrmt/rmt-runtime.browser.js": "cd3cb7cd7ce03c5bd6fd5cad2d1ac424dd47ec767d4846154a0ec7a7d15a06ef",
+      "xtendrmt/rmt-runtime.esm.js": "29ecf6d24a4d2079fcbfdbf3378f6a1f986993aa4bc65452a2d161c4039bd994",
+      "xtendrmt/rmt-state-selector-runtime.d.ts": "62922d37860e756f5c3ba931a8701bb55f6aabe4faa103ac1bbf2a8e4f232756",
+      "xtendrmt/rmt-state-selector-runtime.js": "150f5ae1a279cf7457be54fc7a466afeb1a2a026a911ab1cb1d16ae5da2a669d",
+      "xtendrmt/rmt-surface-resource-graph-runtime.d.ts": "774dbe5de8411937b84ec0f0d64eaca9deab5123bd4152ae6bfd8949c63fb589",
+      "xtendrmt/rmt-surface-resource-graph-runtime.js": "9344b64339e1e08d4bd64933fabe5c14a12fadd24cd546b787cf727de469f446"
+    },
+    "runtimeAcceptance": [
+      {
+        "file": "verification/runtime-node24.json",
+        "node": "v24.22.2",
+        "mode": "jsdom-native-esm",
+        "cases": 20,
+        "compileChecks": 12,
+        "sourcePins": 173,
+        "currentSourceDrift": []
+      },
+      {
+        "file": "verification/runtime-node26.json",
+        "node": "v26.5.0",
+        "mode": "jsdom-native-esm",
+        "cases": 20,
+        "compileChecks": 12,
+        "sourcePins": 173,
+        "currentSourceDrift": []
+      },
+      {
+        "file": "verification/runtime-chromium.json",
+        "node": "v24.22.2",
+        "mode": "chromium-sealed-native-esm",
+        "cases": 20,
+        "compileChecks": 12,
+        "sourcePins": 173,
+        "currentSourceDrift": []
+      }
+    ],
+    "currentPreparation": {
+      "file": "verification/preparation-final24.receipt.json",
+      "commands": 40,
+      "node": "v24.22.2",
+      "sourcePins": 173,
+      "exitCode": 0,
+      "changedSources": []
+    },
+    "currentRetainedRuntime": {
+      "files": [
+        "verification/retained-runtime24-final.receipt.json",
+        "verification/retained-runtime26-final.receipt.json"
+      ],
+      "runtimeCasesPerLane": 341,
+      "compilerChecksPerLane": 88,
+      "sourcePins": 173,
+      "changedSources": []
+    },
+    "currentRetainedSsr": {
+      "file": "verification/retained-ssr84.receipt.json",
+      "checks": 84,
+      "profile": "existing React/Vue SSR and adoption; does not admit Source4/5 SSR"
+    },
+    "currentStaticPreparation": {
+      "retainedInspectorProcesses": 25,
+      "nativeInspectorChecks": 11,
+      "sourceDrift": [],
+      "historicalA06ArchivesByteExact": 12,
+      "historicalRuntimeRecordsUnchanged": 8
+    },
+    "actualUnchangedBudgets": {
+      "source3": {
+        "node24": 2182366,
+        "node26": 2182366,
+        "frameworkCap": 2200000,
+        "runtimeBytes": 271451,
+        "runtimeCap": 280000,
+        "originalInspectorPrefix": true
+      },
+      "deliveryMixed": {
+        "frameworkBytes": 2093263,
+        "runtimeBytes": 236819,
+        "frameworkCap": 2200000,
+        "runtimeCap": 240000
+      },
+      "updatesMixed": {
+        "frameworkBytes": 2186989,
+        "runtimeBytes": 236819,
+        "frameworkCeiling": 2200000,
+        "runtimeCeiling": 240000,
+        "withinCaps": true,
+        "originalInspectorPrefix": true
+      }
+    },
+    "printerOptimization": {
+      "tool": "Terser5.44.1",
+      "scope": "copied production runtime assets",
+      "compress": {
+        "defaults": false,
+        "join_vars": true
+      },
+      "mangle": false,
+      "otherCompressionTransformsEnabled": false,
+      "publicNamesPreserved": true,
+      "capsOrBaselinesRaised": false
+    },
+    "earlierScopedVerification": {
+      "nativeAlgorithmCasesPerLane": 86,
+      "nativeAlgorithmReport": "verification/native-algorithm-scope.json",
+      "source5CompilerCasesPerLane": 68,
+      "compilerBoundaryAndGateCasesPerLane": 6,
+      "retainedCompleteProfileComparisonsPerLane": 40,
+      "packedSdkCasesPerLane": 12,
+      "focusedNativeClosureRecheckCasesPerLane": 2,
+      "note": "Earlier scope receipts retain their original measured source hashes. The final complete Node24 preparation includes a fresh full packed SDK run; current runtime reports cover the final production printer."
+    },
+    "preRegistrationAuthenticatedSource": {
+      "sourceSha": "1f299d5a593e72308adbce267910a28c41b6066b",
+      "originalHead": "0cbbc51550267b3537078dbf9a9c9f9f16d41265",
+      "sourceCount": 4114,
+      "sourceMembershipSha256": "cf81f66ebcd7b538bb6107d0610397d85a07a26af00f82462344d768bc54eaf2",
+      "archiveSha256": "68e5e33a0be405c344d360890ec2ff96e11bb99a6f565b411812cc1f8235222b",
+      "manifestSha256": "e6d44214b3da13aeb2ac76e49362f91db072a5375ef098f9401ae807b7c0abf7",
+      "producerMode": "committed-temporary-local-snapshot",
+      "originalRepositoryCommitted": false,
+      "finalPostRegistrationCaptureRequired": true
+    },
+    "rationale": "The explicit Source5 CSR profile lowers closed native View/Element/Text/Repeat/When declarations to Program3 and the existing shared renderer, retaining the named unchanged Action4 sublanguage, legacy source profiles, externally pinned XTensions, actual Kernel/Fabric/Surface authority and unchanged production size limits. Current-source Node24/26/Chromium, actual packed consumers, retained runtime/SSR and complete preparation evidence are byte-bound separately. A single genuine complete productive NativeView header declaration receives the normal immutable initial authority lock while rollout remains planned. Historical authority/release sets, duplicate-review records, consolidations and unrelated families remain unchanged. Lifecycle conditions, native Surface instancing, slots/custom components, project semantics and Source5 SSR/adoption remain explicit follow-up work; this registration grants no package or feature release."
   }
 }

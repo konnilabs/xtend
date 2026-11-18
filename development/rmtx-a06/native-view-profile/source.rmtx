@@ -1,0 +1,94 @@
+import { RMT, model, input, item, selectors } from '@ccslabs/xtend/rmt-language/rmtx';
+
+// Closed Source5 Native View and provider orchestration. Interfaces remain externally pinned.
+export default <RMT.Program id="inline.products">
+  <RMT.State id="catalog" type="object" preserve initial={{ items: [
+    { id: 'g', products: [
+      { id: 1, slug: 'numeric', images: ['front', 'back'], selectedImageId: 'front', reviewsSort: 'recent', enabled: true },
+      { id: '1', slug: 'text', images: ['front', 'back'], selectedImageId: 'front', reviewsSort: 'recent', enabled: true }
+    ] },
+    { id: 'h', products: [
+      { id: 1, slug: 'other-parent', images: ['front', 'back'], selectedImageId: 'front', reviewsSort: 'recent', enabled: true }
+    ] }
+  ] }} />
+  <RMT.State id="sharedImages" type="string[]" initial={["front", "back"]} />
+  <RMT.Selector id="galleryImages" from={model.sharedImages}><RMT.Where test={item === "front" || item === "back"} /></RMT.Selector>
+  <RMT.State id="intentCapture" type="object" initial={{ groupId: null, productId: null, value: '', kind: '' }} />
+  <RMT.State id="nativeView" type="object" initial={{title:'Product details',show:true,href:'https://example.test/products'}} />
+  <RMT.Action id="native.title"><RMT.Input name="title" type="string"/><RMT.Reduce state="nativeView" path="title" value={input.title}/></RMT.Action>
+  <RMT.Action id="native.show"><RMT.Input name="show" type="boolean"/><RMT.Reduce state="nativeView" path="show" value={input.show}/></RMT.Action>
+  <RMT.Action id="native.replace"><RMT.Input name="view" type="object"/><RMT.Reduce state="nativeView" value={input.view}/></RMT.Action>
+  <RMT.Action id="images.replace"><RMT.Input name="images" type="string[]"/><RMT.Reduce state="sharedImages" value={input.images}/></RMT.Action>
+  <RMT.State id="nativeFlags" type="object" initial={{allow:false}} />
+  <RMT.Action id="native.enable">
+    <RMT.Input name="allow" type="boolean" optional={true} default={true} />
+    <RMT.Reduce state="nativeFlags" value={{allow:input.allow}} />
+  </RMT.Action>
+  <RMT.Action id="image.select">
+    <RMT.Input name="groupId" type="json" /><RMT.Input name="productId" type="json" /><RMT.Input name="imageId" type="string" />
+    <RMT.Reduce state="intentCapture" path="groupId" value={input.groupId} />
+    <RMT.Reduce state="intentCapture" path="productId" value={input.productId} />
+    <RMT.Reduce state="intentCapture" path="value" value={input.imageId} />
+    <RMT.Reduce state="intentCapture" path="kind" value="image" />
+  </RMT.Action>
+  <RMT.Action id="reviews.sort">
+    <RMT.Input name="groupId" type="json" /><RMT.Input name="productId" type="json" /><RMT.Input name="sort" type="string" />
+    <RMT.Reduce state="intentCapture" path="groupId" value={input.groupId} />
+    <RMT.Reduce state="intentCapture" path="productId" value={input.productId} />
+    <RMT.Reduce state="intentCapture" path="value" value={input.sort} />
+    <RMT.Reduce state="intentCapture" path="kind" value="reviews" />
+  </RMT.Action>
+  <RMT.Action id="catalog.replace">
+    <RMT.Input name="catalog" type="object" /><RMT.Reduce state="catalog" value={input.catalog} />
+  </RMT.Action>
+  <RMT.Portal id="surface.root" root="#xtend-maraca-root" layer="surface" />
+  <RMT.Portal id="gallery.mount" root="#gallery-target" layer="surface" />
+  <RMT.Portal id="reviews.mount" root="#reviews-target" layer="surface" />
+  <RMT.Surface id="product-details" component="section" portal="surface.root">
+    <RMT.View>
+      <RMT.Element tag="header" attributes={{id:'product-header'}}>
+        <RMT.Element tag="h1" attributes={{'data-native-heading':'title'}}><RMT.Text value={model.nativeView.title}/></RMT.Element>
+        <RMT.Element tag="p" attributes={{'data-native-literal':'literal'}}><RMT.Text value="$model.literal-stays-data"/></RMT.Element>
+        <RMT.Element tag="a" attributes={{href:model.nativeView.href,'data-native-link':'details'}}><RMT.Text value="Details"/></RMT.Element>
+        <RMT.When test={model.nativeView.show}>
+          <RMT.Element tag="strong" attributes={{'data-native-count':'images'}}><RMT.Text value={selectors.galleryImages.length}/></RMT.Element>
+        </RMT.When>
+        <RMT.Element tag="output" attributes={{'data-native-intent':'value'}}><RMT.Text value={model.intentCapture.value}/></RMT.Element>
+      </RMT.Element>
+      <RMT.Element tag="div" attributes={{id:'gallery-target'}}/>
+      <RMT.Element tag="div" properties={{id:'reviews-target'}}/>
+      <RMT.Element tag="section" attributes={{'data-native-catalog':'products'}}>
+        <RMT.Repeat from={model.catalog.items} keyBy={item.id}>
+          <RMT.Element tag="article" attributes={{'data-native-group':item.id}}>
+            <RMT.Repeat from={item.products} keyBy={item.id}>
+              <RMT.Element tag="div" attributes={{'data-native-slug':item.slug}}>
+                <RMT.Element tag="input" attributes={{type:'text','aria-label':item.slug}} properties={{value:item.slug}}/>
+                <RMT.When test={item.enabled}>
+                  <RMT.Element tag="span" attributes={{'data-native-value':'image'}}><RMT.Text value={item.selectedImageId}/></RMT.Element>
+                  <RMT.Element tag="span" attributes={{'data-native-sort':'reviews'}}><RMT.Text value={item.reviewsSort}/></RMT.Element>
+                </RMT.When>
+              </RMT.Element>
+            </RMT.Repeat>
+          </RMT.Element>
+        </RMT.Repeat>
+      </RMT.Element>
+    </RMT.View>
+    <RMT.Lane name="visible"><RMT.Mount target="product-header" /></RMT.Lane>
+    <RMT.On event="native-select" action="image.select" preventDefault={true}
+      payload={{groupId:'detail.group',productId:'detail.product',imageId:'detail.image'}} when={model.nativeFlags.allow === true} />
+  </RMT.Surface>
+  <RMT.Repeat from={model.catalog.items} keyBy={item.id}>
+    <RMT.Repeat from={item.products} keyBy={item.id}>
+      <RMT.Surface id="product-gallery-host" component="div" portal="gallery.mount" present={item.enabled}>
+        <RMT.XTension id="product-gallery" provider="react-product-gallery" owner="product-details" lane="visible"
+          props={{ images: selectors.galleryImages, selectedImageId: item.enabled === true ? item.selectedImageId : 'front', context: { displayId: item.slug, flags: [item.enabled, true] } }}
+          intents={{ selectImage: { action: 'image.select', payload: { imageId: 'imageId' }, keys: { groupId: 0, productId: 1 } } }} />
+      </RMT.Surface>
+      <RMT.Surface id="product-reviews-host" component="div" portal="reviews.mount" present={item.enabled}>
+        <RMT.XTension id="product-reviews" provider="vue-product-reviews" owner="product-details" lane="idle"
+          props={{ productId: item.slug, sort: item.reviewsSort }}
+          intents={{ changeSort: { action: 'reviews.sort', payload: { sort: 'order' }, keys: { groupId: 0, productId: 1 } } }} />
+      </RMT.Surface>
+    </RMT.Repeat>
+  </RMT.Repeat>
+</RMT.Program>;

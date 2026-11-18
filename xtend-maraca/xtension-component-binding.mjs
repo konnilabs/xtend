@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
-import { canonical } from './xtension-composition-contract.mjs';
+import { canonical, SCOPED_COMPONENT_ARTIFACT_SCHEMA, PROJECTION_COMPONENT_ARTIFACT_SCHEMA, NATIVE_COMPONENT_ARTIFACT_SCHEMA } from './xtension-composition-contract.mjs';
 /** Re-derive controlled data from the independently captured provider contract.
  * Compiled/captured artifacts are trusted host inputs, not arbitrary JSON grants. */
 export function validateComponentBindings(artifact, api) {
-  const projected = artifact.schema === 'xtend.maraca.xtension-composition-artifact.v9';
+  const projected = [PROJECTION_COMPONENT_ARTIFACT_SCHEMA,NATIVE_COMPONENT_ARTIFACT_SCHEMA].includes(artifact.schema);
   if (projected ? api?.COMPONENT_INTERFACE_API_VERSION !== '2.0.0' : !['1.0.0','2.0.0'].includes(api?.COMPONENT_INTERFACE_API_VERSION)) throw new TypeError('A matching component interface runtime API is required.');
   const catalog = api.createComponentInterfaceCatalog(artifact.componentInterfaces.map(({ definition, interfaceSha256, moduleSha256 }) => ({ definition, interfaceSha256, moduleSha256 })));
   const bindings = new Map();
@@ -23,7 +23,7 @@ export function validateComponentBindings(artifact, api) {
       if (canonical(resolved.routes) !== canonical(host.intents)) throw new TypeError('Projected routes differ from their provider-owned interface.');
       bindings.set(host.declarationId, Object.freeze({ definition, resolved })); continue;
     }
-    const scoped = artifact.schema === 'xtend.maraca.xtension-composition-artifact.v8';
+    const scoped = artifact.schema === SCOPED_COMPONENT_ARTIFACT_SCHEMA;
     const props = Object.fromEntries(Object.entries(entry.binding.props).map(([key, value]) => [key, { state: value.state, path: scoped ? [] : value.path }]));
     const resolved = api.resolveComponentBinding(definition, { address: entry.binding.address, props, intents: scoped ? Object.fromEntries(Object.entries(host.intents).map(([name, {keyFields, ...route}])=>[name,route])) : host.intents });
     const expected = scoped ? { ...resolved.binding, props: Object.fromEntries(Object.entries(resolved.binding.props).map(([key,value])=>[key,{...value,path:entry.binding.props[key].path}])), intents: Object.fromEntries(Object.entries(resolved.binding.intents).map(([name,value])=>[name,{...value,...(Object.hasOwn(host.intents[name],'keyFields')?{keyFields:host.intents[name].keyFields}:{})}])) } : resolved.binding;

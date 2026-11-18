@@ -389,6 +389,8 @@ export interface MaracaPlanRuntimeOptions {
 
 export declare const PLAN_RUNTIME_SCHEMA: 'xtend.maraca.plan-runtime.v7';
 export declare const LEGACY_PLAN_RUNTIME_SCHEMA: 'xtend.maraca.plan-runtime.v3';
+export function createMaracaPlanRuntime(options: NativeRmtxRuntimeOptions14): NativeRmtxPlanRuntime14;
+export function bootMaracaPlan(options: NativeRmtxRuntimeOptions14): Promise<NativeRmtxPlanRuntime14>;
 export function createMaracaPlanRuntime(options: RmtxPlanRuntimeOptions | ProjectionComponentRuntimeOptions): RmtxPlanRuntime;
 export function bootMaracaPlan(options: RmtxPlanRuntimeOptions | ProjectionComponentRuntimeOptions): Promise<RmtxPlanRuntime>;
 
@@ -399,7 +401,7 @@ export declare function bootMaracaPlan(options: SSRComposedMaracaPlanRuntimeOpti
 export declare function bootMaracaPlan(options: ComposedMaracaPlanRuntimeOptions): Promise<ComposedMaracaPlanRuntime>;
 export declare function bootMaracaPlan(options: MaracaPlanRuntimeOptions): Promise<MaracaPlanRuntime>;
 
-declare const api: Readonly<{ RMTX_PLAN_RUNTIME_SCHEMA:typeof RMTX_PLAN_RUNTIME_SCHEMA;SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA:typeof SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA;COMPONENT_SSR_PLAN_RUNTIME_SCHEMA:typeof COMPONENT_SSR_PLAN_RUNTIME_SCHEMA;COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA: typeof COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA; SSR_XTENSION_PLAN_RUNTIME_SCHEMA: typeof SSR_XTENSION_PLAN_RUNTIME_SCHEMA; PLAN_RUNTIME_SCHEMA: typeof PLAN_RUNTIME_SCHEMA; XTENSION_PLAN_RUNTIME_SCHEMA: typeof XTENSION_PLAN_RUNTIME_SCHEMA; LEGACY_PLAN_RUNTIME_SCHEMA: typeof LEGACY_PLAN_RUNTIME_SCHEMA; createMaracaPlanRuntime: typeof createMaracaPlanRuntime; bootMaracaPlan: typeof bootMaracaPlan }>;
+declare const api: Readonly<{ NATIVE_RMTX_PLAN_RUNTIME_SCHEMA:typeof NATIVE_RMTX_PLAN_RUNTIME_SCHEMA;RMTX_PLAN_RUNTIME_SCHEMA:typeof RMTX_PLAN_RUNTIME_SCHEMA;SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA:typeof SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA;COMPONENT_SSR_PLAN_RUNTIME_SCHEMA:typeof COMPONENT_SSR_PLAN_RUNTIME_SCHEMA;COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA: typeof COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA; SSR_XTENSION_PLAN_RUNTIME_SCHEMA: typeof SSR_XTENSION_PLAN_RUNTIME_SCHEMA; PLAN_RUNTIME_SCHEMA: typeof PLAN_RUNTIME_SCHEMA; XTENSION_PLAN_RUNTIME_SCHEMA: typeof XTENSION_PLAN_RUNTIME_SCHEMA; LEGACY_PLAN_RUNTIME_SCHEMA: typeof LEGACY_PLAN_RUNTIME_SCHEMA; createMaracaPlanRuntime: typeof createMaracaPlanRuntime; bootMaracaPlan: typeof bootMaracaPlan }>;
 export default api;
 
 /** Separate opt-in v8 contract; manual v7 options, runtime and snapshots remain intact. */
@@ -486,3 +488,35 @@ export interface ProjectionComponentRuntimeOptions extends Omit<RmtxPlanRuntimeO
   plan: Omit<import('./index').MaracaInlineComponentBuildPlan, 'xtensionComposition'> & { xtensionComposition: import('./xtension-composition-runtime').ProjectionComponentArtifact };
   xtensionCompositionPort: import('./xtension-composition-runtime').ProjectionComponentPort;
 }
+
+/** Source5 is CSR-only and uses the explicit native projector before View writes. */
+export const NATIVE_RMTX_PLAN_RUNTIME_SCHEMA: 'xtend.maraca.plan-runtime.v14';
+export interface NativeRmtxPlanSnapshot14 extends Omit<RmtxPlanSnapshot, 'schema'> {
+  readonly schema: typeof NATIVE_RMTX_PLAN_RUNTIME_SCHEMA;
+}
+export interface NativeRmtxPlanRuntime14 extends Omit<RmtxPlanRuntime, 'schema' | 'boot' | 'snapshot' | 'subscribe'> {
+  readonly schema: typeof NATIVE_RMTX_PLAN_RUNTIME_SCHEMA;
+  boot(): Promise<NativeRmtxPlanSnapshot14>;
+  snapshot(): NativeRmtxPlanSnapshot14;
+  subscribe(listener: (snapshot: NativeRmtxPlanSnapshot14) => void): () => void;
+}
+export type NativeRmtxPlanRuntime = NativeRmtxPlanRuntime14;
+export type NativeRmtxPlanSnapshot = NativeRmtxPlanSnapshot14;
+export type NativeViewRuntimePort = Pick<typeof import('@ccslabs/xtend/xtensions/native-view-projection'),
+  'NATIVE_VIEW_PROJECTION_API_VERSION' | 'validateNativeViewProgram' | 'materializeNativeView' | 'assertNativeCanonicalData'>;
+export interface NativeRmtxRuntimeBaseOptions14 extends Omit<RmtxPlanRuntimeOptions,
+  'plan' | 'urlStatePolicy' | 'urlStateRuntime' | 'fabric'> {
+  nativeViewRuntimePort: NativeViewRuntimePort;
+  fabric: import('./xtension-composition-runtime').XTensionHostCompositionOptions['fabric'] & Pick<import('@ccslabs/xtend/fabric').XtendFabricApi, 'runFiber'>;
+  ssr?: never; ssrResponse?: never;
+}
+export type NativeRmtxURLStateOptions14 =
+  | { urlStatePolicy?: undefined; urlStateRuntime?: URLState.NativeURLStateRuntime }
+  | { urlStatePolicy: URLState.PolicyV2; urlStateRuntime: URLState.NativeURLStateRuntime };
+export type NativeRmtxRuntimeOptions14 = NativeRmtxRuntimeBaseOptions14 & NativeRmtxURLStateOptions14 & (
+  | { plan: import('./index').NativeRmtxOnlyBuildPlan9; xtensionCompositionPort?: never }
+  | { plan: Omit<import('./index').NativeRmtxBuildPlan9, 'xtensionComposition'> & {
+      xtensionComposition: import('./xtension-composition-runtime').NativeComponentArtifact;
+    }; xtensionCompositionPort: import('./xtension-composition-runtime').NativeComponentPort }
+);
+export type NativeRmtxPlanRuntimeOptions = NativeRmtxRuntimeOptions14;

@@ -1,0 +1,3 @@
+{"framework":"react","frameworkBytes":2134521,"runtimeBytes":214871,"frameworkCeiling":2200000,"runtimeCeiling":240000,"withinCaps":true}
+{"framework":"vue","frameworkBytes":2132525,"runtimeBytes":213267,"frameworkCeiling":2200000,"runtimeCeiling":240000,"withinCaps":true}
+{"framework":"mixed","frameworkBytes":2186989,"runtimeBytes":236819,"frameworkCeiling":2200000,"runtimeCeiling":240000,"withinCaps":true}

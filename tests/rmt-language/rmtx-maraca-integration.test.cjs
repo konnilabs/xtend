@@ -181,7 +181,7 @@ test('the compiler tarball alone carries the complete opt-in Source4 frontend an
     assert(entry.report.files.some(item => item.path === file), file);
   const parser = require(path.join(isolated, 'rmt-language/rmtx-parser.js'));
   const compiler = require(path.join(isolated, 'rmt-language/rmtx-compiler.js'));
-  assert.equal(parser.RMTX_PARSER_API_VERSION, '4.0.0');
+  assert.equal(parser.RMTX_PARSER_API_VERSION, '5.0.0');
   assert.equal(Object.keys(parser.getRmtxOperatorProfile('4.0.0').operators).length, 110);
   const selected = compiler.createRmtxCompiler({ syntaxVersion: '4.0.0' });
   const parsed = parser.parseRmtxSource({ text: source4, filePath: 'packed.rmtx' }, { syntaxVersion: '4.0.0' });
@@ -313,4 +313,127 @@ void[rootOptions,newSchema,oldSchema,rulesSchema,plan,badLegacy,legacyURLVersion
   assert.equal(diagnostics.length, 0, ts.formatDiagnosticsWithColorAndContext(diagnostics, {
     getCurrentDirectory: () => temporary, getCanonicalFileName: file => file, getNewLine: () => '\n'
   }));
+});
+
+const source5 = `import {RMT,model,item} from '@ccslabs/xtend/rmt-language/rmtx';
+export default <RMT.Program id="packed5">
+  <RMT.State id="app" type="object" initial={{title:'Header',ready:true,rows:[{id:1,title:'Number'},{id:'1',title:'String'}]}}/>
+  <RMT.Surface id="panel"><RMT.View>
+    <RMT.Element tag="h1"><RMT.Text value={model.app.title}/></RMT.Element>
+    <RMT.Repeat from={model.app.rows} keyBy={item.id}><RMT.Element tag="p"><RMT.Text value={item.title}/></RMT.Element></RMT.Repeat>
+    <RMT.When test={model.app.ready}><RMT.Element tag="span"><RMT.Text value="Ready"/></RMT.Element></RMT.When>
+  </RMT.View></RMT.Surface>
+</RMT.Program>`;
+
+test('the compiler tarball alone includes Source5 native lowering, the projector and shared typed-key engine', async t => {
+  const { temporary, packages } = packedPackages(), entry = packages.find(value => value.manifest.name === '@ccslabs/xtend-compiler');
+  const standalone = fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-native-compiler-only-'));
+  t.after(() => fs.rmSync(standalone, { recursive: true, force: true }));
+  const isolated = path.join(standalone, 'node_modules', '@ccslabs', 'xtend-compiler'); fs.mkdirSync(isolated, { recursive: true });
+  execFileSync('tar', ['-xzf', path.join(temporary, entry.report.filename), '--strip-components=1', '-C', isolated]);
+  assert.equal(fs.existsSync(path.join(isolated, '..', 'xtend')), false); assert.equal(fs.existsSync(path.join(isolated, '..', 'xtend-maraca')), false);
+  for (const file of ['rmt-language/rmtx-native-view.js', 'rmt-language/rmtx-native-view.d.ts', 'xtensions/native-view-projection.js', 'xtensions/native-view-projection.d.ts', 'xtensions/native-data.js', 'xtensions/repeat-scopes.js']) assert(entry.report.files.some(value => value.path === file), file);
+  const compiler = require(path.join(isolated, 'rmt-language/rmtx-compiler.js')).createRmtxCompiler({ syntaxVersion: '5.0.0' });
+  const compiled = compiler.compileSource({ text: source5, filePath: 'packed5.rmtx' });
+  assert.equal(compiled.ok, true, JSON.stringify(compiled.diagnostics)); assert.equal(compiled.schema, 'xtend.rmtx.compile-result.v5'); assert.equal(compiled.parserResult.schema, 'xtend.rmtx.parser-result.v5');
+  assert.equal(compiled.orchestrationArtifacts.schema, 'xtend.rmt.app-orchestration.v3'); assert.equal(compiled.orchestrationArtifacts.surfaces.find(surface => surface.id === 'panel').kind, 'region');
+  assert.equal(compiled.orchestrationArtifacts.render.nativeView.schema, 'xtend.rmt.native-view.v1');
+  const projector = require(path.join(isolated, 'xtensions/native-view-projection.js'));
+  const state = { states: Object.fromEntries(compiled.orchestrationArtifacts.state.states.map(value => [value.id, structuredClone(value.initial)])), selectors: {} };
+  const first = projector.materializeNativeView(compiled.orchestrationArtifacts, state);
+  const rowKeys = descriptor => {
+    const keys = []; function visit(value) { if (!value || typeof value !== 'object') return; if (value.tag === 'p') keys.push(value.key); Object.values(value).forEach(child => { if (Array.isArray(child)) child.forEach(visit); else visit(child); }); } visit(descriptor); return keys;
+  };
+  const keys = rowKeys(first); assert.equal(keys.length, 2); assert.notEqual(keys[0], keys[1]);
+  assert(JSON.stringify(first).includes('Number')); assert(JSON.stringify(first).includes('String')); assert(!JSON.stringify(first).includes('native-repeat'));
+  state.states.app.rows.reverse(); assert.deepEqual(rowKeys(projector.materializeNativeView(compiled.orchestrationArtifacts, state)), keys.slice().reverse());
+  const registryAPI = require(path.join(isolated, 'xtensions/state-binding.js'));
+  assert.equal(registryAPI.XTENSION_NATIVE_STATE_BINDING_API_VERSION, '4.0.0');
+  const createRegistry = snapshot => registryAPI.createXTensionNativeStateRegistry({
+    modelReader: { snapshot: () => snapshot, subscribe() { return () => {}; } }, modelCommandPort: { apply() {} }
+  });
+  const crossRealm = require('node:vm').runInNewContext('({states:{app:{rows:[{id:1},{id:"1"}]}},selectors:{}})');
+  const registry = createRegistry(crossRealm); assert.equal(registry.apiVersion, '4.0.0'); await registry.dispose();
+  assert.throws(() => createRegistry({ states: { app: { id: -0 } }, selectors: {} }), /negative zero/);
+  let accessorCalls = 0; const unsafe = { states: {} };
+  Object.defineProperty(unsafe, 'selectors', { enumerable: true, get() { accessorCalls++; return {}; } });
+  assert.throws(() => createRegistry(unsafe), /accessor/); assert.equal(accessorCalls, 0);
+});
+
+test('actual standalone Maraca and compiler tarballs compile Source5 native-only plan9 without sidecars', () => {
+  const { temporary, packages } = packedPackages(), maracaEntry = packages.find(value => value.manifest.name === '@ccslabs/xtend-maraca'), compilerEntry = packages.find(value => value.manifest.name === '@ccslabs/xtend-compiler');
+  const api = require(path.join(maracaEntry.directory, 'index.js')), compiler = require(path.join(compilerEntry.directory, 'rmt-language/rmtx-compiler.js')).createRmtxCompiler({ syntaxVersion: '5.0.0' });
+  const input = { sourceText: source5, virtualSourcePath: 'packed5.rmtx', rmtxSyntaxVersion: '5.0.0', orchestration: 'strict', kernel: 'strict', hydration: 'off', validation: 'off', transitions: 'off', pwa: false, services: false };
+  const options = { rootDir: temporary, inspectToolchain: false, compileSource: compiler.compileSource };
+  const plan = api.createMaracaBuildPlan(input, options);
+  assert.equal(plan.ok, true, JSON.stringify(plan.diagnostics)); assert.equal(plan.schema, 'xtend.maraca.build-plan.v9'); assert.equal(plan.orchestration.artifact.schema, 'xtend.rmt.app-orchestration.v3');
+  assert.equal(plan.rmt.compilerSchema, 'xtend.rmtx.compile-result.v5'); assert.equal(plan.orchestration.artifact.render.nativeView.schema, 'xtend.rmt.native-view.v1');
+  assert.equal(Object.hasOwn(plan, 'xtensionComposition'), false);
+  assert.equal(api.createMaracaTuneConfig({ options: input }).schema, 'xtend.maraca.build-config.v9');
+  const invalid = api.createMaracaBuildPlan({ ...input, sourceText: source5.replace('tag="h1"', 'tag="script"') }, options);
+  assert.equal(invalid.ok, false); assert(invalid.diagnostics.some(value => value.severity === 'error'));
+});
+
+test('packed Source5 native URL/browser/composition types are strict and preserve the Source4 namespace', () => {
+  const { temporary } = packedPackages(), fixture = path.join(temporary, 'native-source5-consumer.mts');
+  fs.writeFileSync(fixture, `import {createRmtxCompiler,type RmtxCompileResultV5} from '@ccslabs/xtend-compiler/rmt-language/rmtx-compiler';
+import {RMT,type RmtxAuthoringNamespaceV4} from '@ccslabs/xtend/rmt-language/rmtx';
+import {createMaracaBuildPlan,type NativeRmtxBuildPlan9} from '@ccslabs/xtend-maraca';
+import {createMaracaPlanRuntime,type NativeRmtxPlanRuntime,type NativeRmtxPlanRuntimeOptions} from '@ccslabs/xtend-maraca/plan-runtime';
+import {NATIVE_URL_STATE_RUNTIME,PROJECTION_URL_STATE_RUNTIME,type PolicyV2} from '@ccslabs/xtend-compiler/xtensions/url-state';
+import type {XTensionNativeStateBindingArtifact,XTensionProjectionStateBindingArtifact} from '@ccslabs/xtend-compiler/xtensions/state-binding';
+import * as nativeViewRuntimePort from '@ccslabs/xtend-compiler/xtensions/native-view-projection';
+import {createMaracaBrowserCompositionRoot,type NativeComponentBootOptions} from '@ccslabs/xtend-maraca/browser-composition-runtime';
+import {createXRouterNativeURLStateHost,createXRouterProjectionURLStateHost} from '@ccslabs/xtend/components/xrouter-url-state.js';
+import type {XRouterElement} from '@ccslabs/xtend/components/xrouter.js';
+import type {NativeComponentArtifact} from '@ccslabs/xtend-maraca/xtension-composition-runtime';
+const compiler=createRmtxCompiler({syntaxVersion:'5.0.0'});
+const compiled:RmtxCompileResultV5=compiler.compileSource('source',{syntaxVersion:undefined});
+const schema5:'xtend.rmtx.compile-result.v5'=compiled.schema;
+const legacy=compiler.compileSource('source',{syntaxVersion:'4.0.0'});const schema4:'xtend.rmtx.compile-result.v4'=legacy.schema;
+// @ts-expect-error Source5 results do not become Source4 results
+const wrong4:'xtend.rmtx.compile-result.v4'=compiled.schema;
+declare const namespace4:RmtxAuthoringNamespaceV4;namespace4.Surface({id:'legacy',component:'x-old-component',kind:'named_surface'});
+// @ts-expect-error Source5 native wrappers have a closed tag contract
+RMT.Surface({id:'native',component:'x-unregistered'});
+RMT.Element({tag:'input',properties:{value:1,disabled:false}});
+// @ts-expect-error executable HTML is not a native tag
+RMT.Element({tag:'script'});
+// @ts-expect-error native properties are not an HTML execution escape
+RMT.Element({tag:'input',properties:{innerHTML:'unsafe'}});
+const plan:NativeRmtxBuildPlan9=createMaracaBuildPlan({source:'native.rmtx',rmtxSyntaxVersion:'5.0.0'});const plan9:'xtend.maraca.build-plan.v9'=plan.schema;
+declare const runtime:NativeRmtxPlanRuntime,options:NativeRmtxPlanRuntimeOptions,policy:PolicyV2,bindings:XTensionNativeStateBindingArtifact,oldBindings:XTensionProjectionStateBindingArtifact;
+createMaracaPlanRuntime({...options,nativeViewRuntimePort});
+const {assertNativeCanonicalData:canonicalDataGuard,...incompleteNativePort}=nativeViewRuntimePort;
+// @ts-expect-error Native ingress requires its raw canonical-data guard before cloning
+createMaracaPlanRuntime({...options,nativeViewRuntimePort:incompleteNativePort});
+void canonicalDataGuard;
+const contract=NATIVE_URL_STATE_RUNTIME.createURLStateContract(policy,{program:{},bindings});const api3:'3.0.0'=contract.apiVersion;
+// @ts-expect-error Native URL capability requires artifact5
+NATIVE_URL_STATE_RUNTIME.createURLStateContract(policy,{program:{},bindings:oldBindings});
+// @ts-expect-error projection URL capability cannot consume artifact5
+PROJECTION_URL_STATE_RUNTIME.createURLStateContract(policy,{program:{},bindings});
+const host=createXRouterNativeURLStateHost({runtime,codec:NATIVE_URL_STATE_RUNTIME,windowTarget:window});const host3:'xtend.router.url-state-host.v3'=host.schema;
+// @ts-expect-error native router requires API3
+createXRouterNativeURLStateHost({runtime,codec:PROJECTION_URL_STATE_RUNTIME,windowTarget:window});
+// @ts-expect-error old router does not silently consume native codec3
+createXRouterProjectionURLStateHost({runtime,codec:NATIVE_URL_STATE_RUNTIME,windowTarget:window});
+declare const router:XRouterElement;const connected3:'3.0.0'=router.connectURLState(runtime,NATIVE_URL_STATE_RUNTIME).apiVersion;
+const browser=createMaracaBrowserCompositionRoot({schema:'xtend.maraca.browser-composition-root.v11',buildPlanSchema:'xtend.maraca.build-plan.v9'},{nativeViewRuntimePort});
+const browser11:'11.0.0'=browser.apiVersion;const snapshot14:'xtend.maraca.plan-runtime.v14'=browser.facade.snapshot().schema;
+declare const bootOptions:NativeComponentBootOptions;browser.boot(bootOptions);
+// @ts-expect-error native boot requires explicit Fabric authority
+browser.boot({});
+// @ts-expect-error Source5 is not an SSR/adoption acceptance profile
+browser.boot({...bootOptions,adoptExisting:true});
+// @ts-expect-error Source5 cannot receive old URL capability2
+browser.boot({...bootOptions,urlStateRuntime:PROJECTION_URL_STATE_RUNTIME});
+// @ts-expect-error native runtime does not expose SSR capture
+runtime.captureXTensionSSR();
+declare const artifact:NativeComponentArtifact;const artifact10:'xtend.maraca.xtension-composition-artifact.v10'=artifact.schema;
+void[schema5,schema4,wrong4,plan9,options,api3,host3,connected3,browser11,snapshot14,artifact10];`);
+  const ts = require('typescript'), program = ts.createProgram([fixture], { noEmit: true, strict: true, skipLibCheck: false, types: [],
+    module: ts.ModuleKind.NodeNext, moduleResolution: ts.ModuleResolutionKind.NodeNext, target: ts.ScriptTarget.ES2022 });
+  const diagnostics = ts.getPreEmitDiagnostics(program);
+  assert.equal(diagnostics.length, 0, ts.formatDiagnosticsWithColorAndContext(diagnostics, { getCurrentDirectory: () => temporary, getCanonicalFileName: file => file, getNewLine: () => '\n' }));
 });

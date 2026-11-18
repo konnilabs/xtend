@@ -8,6 +8,7 @@ const SSR_XTENSION_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v9';
 const SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v11';
 const COMPONENT_SSR_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v12';
 const RMTX_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v13';
+const NATIVE_RMTX_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v14';
 const COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v10';
 const XTENSION_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v8';
 let xtensionRootSequence = 0;
@@ -233,7 +234,23 @@ function descriptorForOwners(descriptor, reservations = {}) {
 
 export function createMaracaPlanRuntime(inputOptions = {}) {
   const options = Object.freeze({ ...asRecord(inputOptions) });
-  const plan = immutableClone(asRecord(options.plan), {});
+  // The native data profile preserves typed keys. Check the raw boundary before
+  // a JSON clone could normalize negative zero or execute a data accessor.
+  const nativePort = options.nativeViewRuntimePort;
+  const checkNativeData = (value, allowUndefined) => nativePort.assertNativeCanonicalData(value, allowUndefined);
+  const rawPlan = asRecord(options.plan);
+  const schemaDescriptor = Object.getOwnPropertyDescriptor(rawPlan, 'schema');
+  if (schemaDescriptor && !hasOwn(schemaDescriptor, 'value')) throw new TypeError('A Maraca plan schema must be an own data field.');
+  const nativeInput = schemaDescriptor?.value === 'xtend.maraca.build-plan.v9';
+  if (nativeInput) {
+    if (nativePort?.NATIVE_VIEW_PROJECTION_API_VERSION !== '1.0.0'
+        || ['assertNativeCanonicalData', 'validateNativeViewProgram', 'materializeNativeView'].some(method => typeof nativePort[method] !== 'function'))
+      throw new TypeError('Native RMTX requires its complete Native View projection port v1.');
+    checkNativeData(options.plan, true);
+    if (options.initialState !== undefined) checkNativeData(options.initialState);
+  }
+  const plan = immutableClone(rawPlan, {});
+  if (plan.schema === 'xtend.maraca.build-plan.v9' && !nativeInput) throw new TypeError('Native plans require an explicit own schema field before normalization.');
   const normalizedInitialState = immutableClone(asRecord(options.initialState || plan.state), {});
   const normalizedStreamLifecycleActions = immutableClone(asRecord(options.streamLifecycleActions), {});
   const root = options.root;
@@ -247,15 +264,16 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   const ssrSession = ['xtend.maraca.xtension-composition-port.v2','xtend.maraca.xtension-composition-port.v5'].includes(compositionPort?.schema) ? compositionPort.ssrSession : null;
   if (compositionPort?.schema === 'xtend.maraca.xtension-composition-port.v5' && !ssrSession) throw new TypeError('The component SSR port requires its v2 session.');
   if (ssrSession && (ssrSession.schema !== (compositionPort.schema === 'xtend.maraca.xtension-composition-port.v5' ? 'xtend.maraca.xtension-ssr-session.v2' : 'xtend.maraca.xtension-ssr-session.v1') || compositionPort.resumeBindingsRuntime?.XTENSION_RESUME_STATE_BINDING_API_VERSION !== '3.0.0')) throw new TypeError('SSR requires the prepared v1 session and resume binding API 3.');
-  const typedProfile = plan.schema === 'xtend.maraca.build-plan.v8';
-  const inlineProfile = plan.xtensionComposition?.schema === 'xtend.maraca.xtension-composition-artifact.v9';
-  if (typedProfile && (artifact.schema !== 'xtend.rmt.app-orchestration.v2' || artifact.actions?.schema !== 'xtend.rmt.action-plan.v2'
-      || artifact.actions?.inputContract?.schema !== 'xtend.rmt.action-input-contract.v1') || !typedProfile && artifact.schema === 'xtend.rmt.app-orchestration.v2')
+  const isNative = plan.schema === 'xtend.maraca.build-plan.v9';
+  const typedProfile = isNative || plan.schema === 'xtend.maraca.build-plan.v8';
+  const inlineProfile = plan.xtensionComposition?.schema === (isNative ? 'xtend.maraca.xtension-composition-artifact.v10' : 'xtend.maraca.xtension-composition-artifact.v9');
+  if (typedProfile && (artifact.schema !== (isNative ? 'xtend.rmt.app-orchestration.v3' : 'xtend.rmt.app-orchestration.v2') || artifact.actions?.schema !== 'xtend.rmt.action-plan.v2'
+      || artifact.actions?.inputContract?.schema !== 'xtend.rmt.action-input-contract.v1') || !typedProfile && ['xtend.rmt.app-orchestration.v2','xtend.rmt.app-orchestration.v3'].includes(artifact.schema))
     throw new TypeError('Typed RMTX orchestration requires its matching v8 plan and input contract.');
   if (typedProfile && (ssrSession || options.adoptExisting === true)) throw new TypeError('RMTX orchestration profile4 currently requires the CSR runtime; SSR adoption is an A06.6 target.');
   const scoped = plan.xtensionComposition?.schema === 'xtend.maraca.xtension-composition-artifact.v8', componentProfile = scoped || plan.xtensionComposition?.schema === 'xtend.maraca.xtension-composition-artifact.v7';
-  const runtimeSchema = typedProfile ? RMTX_PLAN_RUNTIME_SCHEMA : scoped ? ssrSession ? COMPONENT_SSR_PLAN_RUNTIME_SCHEMA : SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA : componentProfile ? COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA : ssrSession ? SSR_XTENSION_PLAN_RUNTIME_SCHEMA : composed ? XTENSION_PLAN_RUNTIME_SCHEMA : PLAN_RUNTIME_SCHEMA;
-  if (composed && typedProfile && (!inlineProfile || compositionPort?.schema !== 'xtend.maraca.xtension-composition-port.v6' || typeof compositionPort.bind !== 'function')) throw new TypeError('Inline RMTX providers require the matching v9 composition and v6 port.');
+  const runtimeSchema = isNative ? NATIVE_RMTX_PLAN_RUNTIME_SCHEMA : typedProfile ? RMTX_PLAN_RUNTIME_SCHEMA : scoped ? ssrSession ? COMPONENT_SSR_PLAN_RUNTIME_SCHEMA : SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA : componentProfile ? COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA : ssrSession ? SSR_XTENSION_PLAN_RUNTIME_SCHEMA : composed ? XTENSION_PLAN_RUNTIME_SCHEMA : PLAN_RUNTIME_SCHEMA;
+  if (composed && typedProfile && (!inlineProfile || compositionPort?.schema !== (isNative ? 'xtend.maraca.xtension-composition-port.v7' : 'xtend.maraca.xtension-composition-port.v6') || typeof compositionPort.bind !== 'function')) throw new TypeError('Inline RMTX providers require the matching v9 composition and v6 port.');
   if (composed && !typedProfile && (plan.schema !== (scoped ? 'xtend.maraca.build-plan.v7' : componentProfile ? 'xtend.maraca.build-plan.v6' : 'xtend.maraca.build-plan.v5') || !['xtend.maraca.xtension-composition-artifact.v2', 'xtend.maraca.xtension-composition-artifact.v3', 'xtend.maraca.xtension-composition-artifact.v4', 'xtend.maraca.xtension-composition-artifact.v5', 'xtend.maraca.xtension-composition-artifact.v6', 'xtend.maraca.xtension-composition-artifact.v7','xtend.maraca.xtension-composition-artifact.v8'].includes(plan.xtensionComposition?.schema) || !['xtend.maraca.xtension-composition-port.v1', 'xtend.maraca.xtension-composition-port.v2', 'xtend.maraca.xtension-composition-port.v3','xtend.maraca.xtension-composition-port.v4','xtend.maraca.xtension-composition-port.v5'].includes(compositionPort?.schema) || typeof compositionPort.bind !== 'function')) throw new TypeError('Integrated XTensions require a version-matched v5/v6/v7 plan, artifact and prepared composition port.');
   if (composed && !typedProfile && !(scoped ? ['xtend.maraca.xtension-composition-port.v4','xtend.maraca.xtension-composition-port.v5'] : componentProfile ? ['xtend.maraca.xtension-composition-port.v3'] : ['xtend.maraca.xtension-composition-port.v1','xtend.maraca.xtension-composition-port.v2']).includes(compositionPort?.schema)) throw new TypeError('The composition port must match its profile.');
   if (composed && (options.createXTensionHost !== undefined || options.xtensionBindingsRuntime !== undefined || options.adoptExisting === true && !ssrSession) || !composed && compositionPort !== undefined) throw new TypeError('Automatic and manual XTension composition cannot be mixed.');
@@ -265,8 +283,8 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   let bindingArtifact = null;
   if (hasOwn(asRecord(options.plan), 'xtensionBindings')) {
     if (!bindingRuntime || typeof bindingRuntime.validateStateBindingArtifact !== 'function' || typeof bindingRuntime.materializeStateBindingArtifact !== 'function'
-        || typeof bindingRuntime[typedProfile ? 'createXTensionProjectionStateRegistry' : 'createXTensionStateRegistry'] !== 'function'
-        || typedProfile && bindingRuntime.XTENSION_PROJECTION_STATE_BINDING_API_VERSION !== '3.0.0') {
+        || typeof bindingRuntime[isNative ? 'createXTensionNativeStateRegistry' : typedProfile ? 'createXTensionProjectionStateRegistry' : 'createXTensionStateRegistry'] !== 'function'
+        || (isNative ? bindingRuntime.XTENSION_NATIVE_STATE_BINDING_API_VERSION !== '4.0.0' : typedProfile && bindingRuntime.XTENSION_PROJECTION_STATE_BINDING_API_VERSION !== '3.0.0')) {
       throw new TypeError('XTension binding artifacts require the explicit state-binding runtime port.');
     }
     bindingArtifact = bindingRuntime.validateStateBindingArtifact(options.plan.xtensionBindings, artifact);
@@ -275,8 +293,10 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       throw new TypeError('Conditional XTension hosts require client rendering; adoption requires the separate restore contract.');
     }
   }
+  if (isNative && typeof options.fabric?.runFiber !== 'function') throw new TypeError('Native RMTX requires the actual Fabric runFiber port.');
+  const nativeProgram = isNative ? nativePort.validateNativeViewProgram(artifact) : null;
   const urlCodec = options.urlStateRuntime;
-  if (options.urlStatePolicy && (!bindingArtifact || urlCodec?.API_VERSION !== (typedProfile ? '2.0.0' : '1.0.0') || typeof urlCodec.createURLStateContract !== 'function')) {
+  if (options.urlStatePolicy && (!bindingArtifact || urlCodec?.API_VERSION !== (isNative ? '3.0.0' : typedProfile ? '2.0.0' : '1.0.0') || typeof urlCodec.createURLStateContract !== 'function')) {
     throw new TypeError('URL state requires bindings and the profile-matched v1/v2 URL-state runtime port.');
   }
   const urlState = options.urlStatePolicy ? urlCodec.createURLStateContract(options.urlStatePolicy, { program: artifact, bindings: options.plan.xtensionBindings }) : null;
@@ -372,6 +392,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   const declaredActions = asArray(asRecord(artifact.actions).actions);
   let actionInputValidationPort = null;
   const validateActionInput = (actionId, payload) => {
+    if (isNative) checkNativeData(payload);
     if (!typedProfile || !declaredActions.some(action => action.id === actionId)) return payload;
     if (actionInputValidationPort?.schema !== 'xtend.rmt.action-input-port.v1') throw new TypeError('The typed Action input port is not ready.');
     return actionInputValidationPort.validate(actionId, payload);
@@ -627,8 +648,21 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     })
   });
 
-  function projectDescriptor(descriptor) {
-    const present = presentXTensionEntries(runtimes?.state?.snapshot() || { states: {} });
+  function materializeNativeDescriptor(stateSnapshot, descriptor = artifact.render.root) {
+    const projected = nativePort.materializeNativeView(nativeProgram, stateSnapshot, descriptor);
+    // Includes the renderer's actual URL, property, depth and node guards.
+    // No parallel sink validator and no live DOM mutation precede Model commit.
+    if (typeof runtimes?.renderer?.preflight !== 'function') throw new TypeError('Native RMTX requires the renderer preflight capability.');
+    runtimes.renderer.preflight({ operation: 'reconcile-children', target: root,
+      descriptors: Array.isArray(projected) ? projected : [projected],
+      context: createRenderContext({}, stateSnapshot), ownership });
+    return projected;
+  }
+
+  function projectDescriptor(descriptor, stateSnapshot = null) {
+    const selectedSnapshot = isNative && stateSnapshot || runtimes?.state?.snapshot() || { states: {} };
+    if (isNative) descriptor = materializeNativeDescriptor(selectedSnapshot, descriptor);
+    const present = presentXTensionEntries(selectedSnapshot);
     const projected = typeof options.projectDescriptor === 'function'
       ? options.projectDescriptor(descriptor, {
           ownership,
@@ -1220,13 +1254,14 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   function fullRender(metadata = {}, stateSnapshot = null, validationStage = null) {
     const descriptor = descriptorForCommit(
       asRecord(artifact.render).root || { type: 'fragment', children: [] },
-      validationStage
+      validationStage,
+      stateSnapshot
     );
     const report = rendererCommit({
-      operation: bindingArtifact?.bindings.length ? 'reconcile-children' : 'replace-children',
+      operation: isNative || bindingArtifact?.bindings.length ? 'reconcile-children' : 'replace-children',
       target: root,
       descriptor,
-      ...(bindingArtifact?.bindings.length ? { descriptors: [descriptor] } : {}),
+      ...(isNative || bindingArtifact?.bindings.length ? { descriptors: [descriptor] } : {}),
       context: createRenderContext(metadata, stateSnapshot),
       ownership: ownershipForCommit(validationStage)
     }, metadata);
@@ -1490,6 +1525,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   }
 
   function transactionState(reducers, commandId, payload, actionResult, metadata, validationStage = null) {
+    if (isNative && reducers.length) checkNativeData(actionResult, true);
     const modelCommandPort = runtimes.state && runtimes.state.modelCommandPort;
     if (!modelCommandPort || typeof modelCommandPort.apply !== 'function') {
       const error = new Error('Managed commands require the RMT Model command port.');
@@ -1506,6 +1542,8 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     const previousSnapshot = runtimes.state.modelReader && typeof runtimes.state.modelReader.snapshot === 'function'
       ? runtimes.state.modelReader.snapshot()
       : runtimes.state.snapshot();
+    if (isNative && actionResult?.modelOperations !== undefined)
+      checkNativeData(actionResult.modelOperations);
     const plannedModelOperations = asArray(actionResult && actionResult.modelOperations).map((operation) => clone(operation, operation));
     const modelOperations = plannedModelOperations.slice();
     let workingStates = clone(asRecord(previousSnapshot.states), {});
@@ -1553,6 +1591,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       const value = reducerValue(reducer.value, payload,
         actionResult && hasOwn(actionResult, 'data') ? actionResult.data : actionResult,
         referenceModel, actionResult && actionResult.error, reducer.valueKind, typedProfile);
+      if (isNative) checkNativeData(value);
       let next;
       if (reducer.recipe || reducer.mode === 'recipe') {
         if (typeof runtimes.applyReducerRecipe !== 'function') {
@@ -1571,6 +1610,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
           ? writePath(clone(workingStates[reducer.state], {}), reducer.path, value)
           : clone(value, value);
       }
+      if (isNative) checkNativeData(next);
       modelOperations.push({
         operation: 'set',
         state: reducer.state,
@@ -1631,6 +1671,19 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       }
     }
 
+    // Native View constraints are checked against a prospective immutable Model
+    // using the existing isolated Model factory, before the real Model writer.
+    if (isNative) {
+      const preview = runtimes.modelPlanningFactory({
+        states: runtimes.state.stateDefinitions || [], selectors: runtimes.state.selectorDefinitions || [],
+        derive: runtimes.state.derivedDefinitions || [], reducers: runtimes.state.reducers || [],
+        initialState: previousSnapshot.states, stateProjectionPort: null, strict: false
+      });
+      try {
+        preview.modelCommandPort.apply(modelOperations, { operation: 'maraca.native-view.preflight' });
+        materializeNativeDescriptor(preview.modelReader.snapshot());
+      } finally { preview.dispose?.(); }
+    }
     const event = modelCommandPort.apply(modelOperations, {
       ...transactionMetadata,
       actionOperationCount: plannedModelOperations.length,
@@ -1755,8 +1808,8 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     return decorate(descriptor);
   }
 
-  function descriptorForCommit(descriptor, validationStage = null) {
-    return decorateValidationDescriptor(projectDescriptor(descriptor), validationStage);
+  function descriptorForCommit(descriptor, validationStage = null, stateSnapshot = null) {
+    return decorateValidationDescriptor(projectDescriptor(descriptor, stateSnapshot), validationStage);
   }
 
   function ownershipForCommit(validationStage = null) {
@@ -2041,7 +2094,8 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     context.previousContext = { model: clone(transaction.previous.model, {}), selectorValues: clone(transaction.previous.selectors, {}), derivedValues: clone(transaction.previous.derived, {}) };
     const projectedRoot = descriptorForCommit(
       asRecord(artifact.render).root || { type: 'fragment', children: [] },
-      validationStage
+      validationStage,
+      transaction.next
     );
     const report = rendererCommit({
       operation: 'reconcile-children',
@@ -2515,6 +2569,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       error.code = 'xtend.maraca.stream-patch.unavailable';
       throw error;
     }
+    if (isNative) checkNativeData(patchInput);
     const patch = immutableClone(asRecord(patchInput), {});
     const streamMetadata = {
       operation: 'operation:xtend.maraca/stream-patch',
@@ -2974,6 +3029,13 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
           true
         );
       }
+      if (isNative) {
+        const initialPreview = stateFactory({ states: artifact.state.states, selectors: artifact.state.selectors,
+          derive: artifact.state.derive || artifact.state.derived || [], reducers: artifact.state.reducers,
+          initialState: normalizedInitialState, stateProjectionPort: null, strict: false });
+        try { materializeNativeDescriptor(initialPreview.modelReader.snapshot()); }
+        finally { initialPreview.dispose?.(); }
+      }
       const state = stateFactory({
         stateProjectionWriteHistoryLimit: options.stateProjectionWriteHistoryLimit,
         stateProjectionReadHistoryLimit: options.stateProjectionReadHistoryLimit,
@@ -3005,7 +3067,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       }
       const kernel = createKernel(api.kernel, api.kernelRuntime || api.kernelApi);
       runtimes = { ...runtimes, state, kernel };
-      if (composed) {
+      if (composed || isNative) {
         const native = kernel?.core?.rmt, scheduler = kernel?.scheduler;
         if (!native || native.getScheduler?.() !== scheduler || scheduler?.schema !== 'xtend.rmt.kernel-scheduler.v1' || typeof native.mountRoot !== 'function' || typeof native.disposeRoot !== 'function' || typeof native.listRoots !== 'function') throw new TypeError('Automatic XTensions require the actual orchestration controller Core and native scheduler.');
         let rootId; do { rootId = 'maraca.xtensions.' + (++xtensionRootSequence); } while (native.listRoots().some(entry => entry.id === rootId));
@@ -3070,6 +3132,15 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         actionInputValidationPort = action?.inputValidationPort;
         if (action?.schema !== 'xtend.epic18.rmt-action-effect-runtime.v2' || actionInputValidationPort?.schema !== 'xtend.rmt.action-input-port.v1'
             || typeof actionInputValidationPort.validate !== 'function') throw new TypeError('RMTX 4 requires the validating Action runtime capability.');
+        if (isNative) {
+          const actionPort = actionInputValidationPort;
+          actionInputValidationPort = Object.freeze({ ...actionPort,
+            validate(actionId, payload) {
+              checkNativeData(payload);
+              return actionPort.validate(actionId, payload);
+            }
+          });
+        }
       }
       const animation = animationFactory && asRecord(plan.transitions).enabled ? animationFactory({
         animationPlan: asRecord(plan.transitions).artifact && (
@@ -3414,11 +3485,12 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       }
       const initialStateSnapshot = state.snapshot();
       ssrSession?.confirmRestored(initialStateSnapshot);
-      materializeSurfaces(initialStateSnapshot, {
+      const materializeInitialSurfaces = () => materializeSurfaces(initialStateSnapshot, {
         operation: options.adoptExisting === true
           ? 'maraca.boot.adopt-existing.surface-materialize'
           : 'maraca.boot.surface-materialize'
       });
+      if (!isNative) materializeInitialSurfaces();
       let initialCommit;
       if (options.adoptExisting === true) {
         reindexSurfaces();
@@ -3435,7 +3507,11 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
           metadata: { operation: 'maraca.boot.adopt-existing' }
         };
       } else {
-        initialCommit = fullRender({ operation: 'maraca.boot' }, initialStateSnapshot);
+        initialCommit = isNative ? await scheduleWork('render', () => {
+          assertCurrentBoot(); materializeInitialSurfaces();
+          return fullRender({ operation: 'maraca.boot' }, initialStateSnapshot);
+        }, { operation: 'maraca.native-view.boot', lane: 'visible' })
+          : fullRender({ operation: 'maraca.boot' }, initialStateSnapshot);
         recordDomCommit(initialCommit, { stateCommit: false, operation: 'maraca.boot' });
       }
       lastCommitReport = initialCommit;
@@ -3463,7 +3539,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
           kernelWork: { scheduler: kernel.scheduler, rootId: xtensionRoot.rootId },
           resourceGraph: { kernel: xtensionRoot.kernel, surfaceGraph, surfaceController }, ...(scoped || inlineProfile ? { resolveHostBinding(address) { const key=JSON.stringify([address.documentId,address.declarationId,address.keys]); return presentXTensionEntries(modelReader.snapshot()).find(entry=>JSON.stringify([entry.binding.address.documentId,entry.binding.address.declarationId,entry.binding.address.keys])===key); } } : {}) });
         xtensionRegistry = (ssrSession ? compositionPort.resumeBindingsRuntime.createXTensionResumeStateRegistry
-          : typedProfile ? bindingRuntime.createXTensionProjectionStateRegistry : bindingRuntime.createXTensionStateRegistry)({ modelReader,
+          : isNative ? bindingRuntime.createXTensionNativeStateRegistry : typedProfile ? bindingRuntime.createXTensionProjectionStateRegistry : bindingRuntime.createXTensionStateRegistry)({ modelReader,
           commandDispatcher: { dispatch: (command, payload, metadata, lifetime) => dispatchCommand(command, payload, metadata, lifetime) },
           onDiagnostic: (diagnostic) => recordDiagnostic('xtend.maraca.xtension.binding', 'error', diagnostic.message, diagnostic) });
         await mountPresentXTensions();
@@ -3740,5 +3816,5 @@ export async function bootMaracaPlan(options = {}) {
   return runtime;
 }
 
-export { RMTX_PLAN_RUNTIME_SCHEMA, SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA, COMPONENT_SSR_PLAN_RUNTIME_SCHEMA, COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA, SSR_XTENSION_PLAN_RUNTIME_SCHEMA, PLAN_RUNTIME_SCHEMA, XTENSION_PLAN_RUNTIME_SCHEMA, LEGACY_PLAN_RUNTIME_SCHEMA };
-export default Object.freeze({ RMTX_PLAN_RUNTIME_SCHEMA, SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA, COMPONENT_SSR_PLAN_RUNTIME_SCHEMA, COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA, SSR_XTENSION_PLAN_RUNTIME_SCHEMA, PLAN_RUNTIME_SCHEMA, XTENSION_PLAN_RUNTIME_SCHEMA, LEGACY_PLAN_RUNTIME_SCHEMA, createMaracaPlanRuntime, bootMaracaPlan });
+export { NATIVE_RMTX_PLAN_RUNTIME_SCHEMA, RMTX_PLAN_RUNTIME_SCHEMA, SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA, COMPONENT_SSR_PLAN_RUNTIME_SCHEMA, COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA, SSR_XTENSION_PLAN_RUNTIME_SCHEMA, PLAN_RUNTIME_SCHEMA, XTENSION_PLAN_RUNTIME_SCHEMA, LEGACY_PLAN_RUNTIME_SCHEMA };
+export default Object.freeze({ NATIVE_RMTX_PLAN_RUNTIME_SCHEMA, RMTX_PLAN_RUNTIME_SCHEMA, SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA, COMPONENT_SSR_PLAN_RUNTIME_SCHEMA, COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA, SSR_XTENSION_PLAN_RUNTIME_SCHEMA, PLAN_RUNTIME_SCHEMA, XTENSION_PLAN_RUNTIME_SCHEMA, LEGACY_PLAN_RUNTIME_SCHEMA, createMaracaPlanRuntime, bootMaracaPlan });

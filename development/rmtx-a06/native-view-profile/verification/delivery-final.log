@@ -1,0 +1,4 @@
+{"framework":"react","frameworkBytes":2044751,"xtensionRuntimeBytes":214871,"frameworkCeiling":2200000,"runtimeCeiling":240000,"artifact":"xtend.maraca.xtension-composition-artifact.v6","withinBudget":true,"status":"within_budget"}
+{"framework":"vue","frameworkBytes":2042805,"xtensionRuntimeBytes":213267,"frameworkCeiling":2200000,"runtimeCeiling":240000,"artifact":"xtend.maraca.xtension-composition-artifact.v6","withinBudget":true,"status":"within_budget"}
+{"framework":"mixed","frameworkBytes":2093263,"xtensionRuntimeBytes":236819,"frameworkCeiling":2200000,"runtimeCeiling":240000,"artifact":"xtend.maraca.xtension-composition-artifact.v6","withinBudget":true,"status":"within_budget"}
+{"passed":true,"sourceDrift":[]}

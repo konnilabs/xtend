@@ -1,0 +1,153 @@
+{
+  "stage": "A06.4.1-native-source-compiler-and-public-types",
+  "date": "2026-11-18",
+  "passed": true,
+  "sourceProfile": {
+    "syntax": "rmtx",
+    "version": "5.0.0"
+  },
+  "actionSubprofile": {
+    "syntax": "rmtx",
+    "version": "4.0.0"
+  },
+  "sourcePinCount": 26,
+  "sourcesBefore": {
+    "tools/rmt-language/rmtx-parser.js": "0e9003f18c16d3ff5eded3e4e68049868bb90de45dc02f0b86d45238492a02c0",
+    "tools/rmt-language/rmtx-parser.d.ts": "8f7c6628861280438a34a3d2d44ba1563f7a4f9e9249f6ebedaa58b616030a4b",
+    "tools/rmt-language/rmtx-compiler.js": "ebecb0bb4f4a5b47140a9b2d0c9c24d6f08fc99231c6cca3f3b6bbdd20f139fd",
+    "tools/rmt-language/rmtx-compiler.d.ts": "823ead6fa57780359b787710e4b19aeb89f9f8920f8bc4278cf2da58ffdab8bd",
+    "tools/rmt-language/rmtx-operator-profiles.js": "48d4295474a73237c8a8b323fde2923b3f10016726ec4d5b79b72a9c04c42afd",
+    "tools/rmt-language/rmtx-operator-profiles.d.ts": "0e4ed8e06b55d8893683e533de2eebd72f66a4ecf42bf0a366e4c7b82bf50199",
+    "tools/rmt-language/rmtx-native-view.js": "4adb65410e3e3369b695281dde9067cf0ef4ea177c89f70876df023bc20754dc",
+    "tools/rmt-language/rmtx-native-view.d.ts": "7837d53cac448b30824e7491ec2db705da9a0e10d6305fa9c6e57108f46bacac",
+    "tools/rmt-language/rmtx-component-bindings.js": "ec36383575b1f3fbe49b4890faf7c711c70e321ccaa3a98fe6b44de8073f769d",
+    "tools/rmt-language/rmtx-component-bindings.d.ts": "b9d3eae573890d9845a41d791a9dc82da4966c6ae8f2121f6ac585da01755a81",
+    "tools/rmt-language/rmtx-selector-dependencies.js": "e44e81f1391642e82d573468c957bce657ef21b5c638d86a1b4f03ddcfbb1087",
+    "tools/rmt-language/rmtx-selector-dependencies.d.ts": "4e89b835b32c331354922af6c15d9938eb869a5d532ff16804c88e5433dd9c7f",
+    "tools/rmt-language/rmtx.js": "d11d03bfba080820ed50a9e76a3f37c8194c8d16ed28fb9a9019a4f5705f6e0b",
+    "tools/rmt-language/rmtx.d.ts": "e8e9b138a1d70dd918239ae1c4868212828ba2f48cbf9580702a69f8bc5587d8",
+    "xtend-maraca/index.d.ts": "cb90763f5d28cd9cca63e2bb39eef68bc326f26426e843dd6248f55090e48a29",
+    "xtend-maraca/plan-runtime.d.ts": "705e44c9710fea9061dce90a9b0d865c43cabc5a2c011aa66567d0bc3b735171",
+    "tools/rmt-language/classic-compiler.js": "0fce500de51a9214e45e33fc739450c26b4dcce2a750730c7472f05947f4dd25",
+    "tools/rmt-language/classic-compiler.d.ts": "3643f120af87e27644716f87e997846237d95c30c2cea73edfb14cb014f8f96b",
+    "tools/rmt-language/vnext-compiler.js": "ef4e26b966f6661e42e6519315e51fae05bc9fe9890635082555dae0a7e12aa0",
+    "tools/rmt-language/vnext-compiler.d.ts": "cb719c90afc5fc176625d8fa75f5aa0d0c1507611acc9a9b6a8033664f2cbb94",
+    "tools/rmt-language/semantic-graph.js": "38af11000b4cee776725b2789c2f20ca50a44ac14adcafd84de1bad01088c1af",
+    "tools/xtensions/native-view-projection.js": "67a8cc5f2fdc19131f4b0a63e269da939b41a54d33f38e42ca179fa4e6793b8b",
+    "tools/xtensions/native-view-projection.d.ts": "0613b01f4bc860b4d1bbc1d32a0eee49ad32a91ee5f5186e04d3fe880bac568c",
+    "tools/xtensions/state-binding-artifact.js": "8a66aa4646485469ee36a2141041f6190832c5b39fe9f24b83f5907a6a68cbfd",
+    "tools/xtensions/state-binding-artifact.d.ts": "ddc653a91fca620aad29a4af5df03fecff8c8796b688df6539d7de9e3ab1c108",
+    "tests/rmt-language/rmtx-native-view.test.cjs": "3e1c853f0f809211c413f783ddc50d88e06c11672fef8b4e93a1ff402bc95f20"
+  },
+  "sourcesAfter": {
+    "tools/rmt-language/rmtx-parser.js": "0e9003f18c16d3ff5eded3e4e68049868bb90de45dc02f0b86d45238492a02c0",
+    "tools/rmt-language/rmtx-parser.d.ts": "8f7c6628861280438a34a3d2d44ba1563f7a4f9e9249f6ebedaa58b616030a4b",
+    "tools/rmt-language/rmtx-compiler.js": "ebecb0bb4f4a5b47140a9b2d0c9c24d6f08fc99231c6cca3f3b6bbdd20f139fd",
+    "tools/rmt-language/rmtx-compiler.d.ts": "823ead6fa57780359b787710e4b19aeb89f9f8920f8bc4278cf2da58ffdab8bd",
+    "tools/rmt-language/rmtx-operator-profiles.js": "48d4295474a73237c8a8b323fde2923b3f10016726ec4d5b79b72a9c04c42afd",
+    "tools/rmt-language/rmtx-operator-profiles.d.ts": "0e4ed8e06b55d8893683e533de2eebd72f66a4ecf42bf0a366e4c7b82bf50199",
+    "tools/rmt-language/rmtx-native-view.js": "4adb65410e3e3369b695281dde9067cf0ef4ea177c89f70876df023bc20754dc",
+    "tools/rmt-language/rmtx-native-view.d.ts": "7837d53cac448b30824e7491ec2db705da9a0e10d6305fa9c6e57108f46bacac",
+    "tools/rmt-language/rmtx-component-bindings.js": "ec36383575b1f3fbe49b4890faf7c711c70e321ccaa3a98fe6b44de8073f769d",
+    "tools/rmt-language/rmtx-component-bindings.d.ts": "b9d3eae573890d9845a41d791a9dc82da4966c6ae8f2121f6ac585da01755a81",
+    "tools/rmt-language/rmtx-selector-dependencies.js": "e44e81f1391642e82d573468c957bce657ef21b5c638d86a1b4f03ddcfbb1087",
+    "tools/rmt-language/rmtx-selector-dependencies.d.ts": "4e89b835b32c331354922af6c15d9938eb869a5d532ff16804c88e5433dd9c7f",
+    "tools/rmt-language/rmtx.js": "d11d03bfba080820ed50a9e76a3f37c8194c8d16ed28fb9a9019a4f5705f6e0b",
+    "tools/rmt-language/rmtx.d.ts": "e8e9b138a1d70dd918239ae1c4868212828ba2f48cbf9580702a69f8bc5587d8",
+    "xtend-maraca/index.d.ts": "cb90763f5d28cd9cca63e2bb39eef68bc326f26426e843dd6248f55090e48a29",
+    "xtend-maraca/plan-runtime.d.ts": "705e44c9710fea9061dce90a9b0d865c43cabc5a2c011aa66567d0bc3b735171",
+    "tools/rmt-language/classic-compiler.js": "0fce500de51a9214e45e33fc739450c26b4dcce2a750730c7472f05947f4dd25",
+    "tools/rmt-language/classic-compiler.d.ts": "3643f120af87e27644716f87e997846237d95c30c2cea73edfb14cb014f8f96b",
+    "tools/rmt-language/vnext-compiler.js": "ef4e26b966f6661e42e6519315e51fae05bc9fe9890635082555dae0a7e12aa0",
+    "tools/rmt-language/vnext-compiler.d.ts": "cb719c90afc5fc176625d8fa75f5aa0d0c1507611acc9a9b6a8033664f2cbb94",
+    "tools/rmt-language/semantic-graph.js": "38af11000b4cee776725b2789c2f20ca50a44ac14adcafd84de1bad01088c1af",
+    "tools/xtensions/native-view-projection.js": "67a8cc5f2fdc19131f4b0a63e269da939b41a54d33f38e42ca179fa4e6793b8b",
+    "tools/xtensions/native-view-projection.d.ts": "0613b01f4bc860b4d1bbc1d32a0eee49ad32a91ee5f5186e04d3fe880bac568c",
+    "tools/xtensions/state-binding-artifact.js": "8a66aa4646485469ee36a2141041f6190832c5b39fe9f24b83f5907a6a68cbfd",
+    "tools/xtensions/state-binding-artifact.d.ts": "ddc653a91fca620aad29a4af5df03fecff8c8796b688df6539d7de9e3ab1c108",
+    "tests/rmt-language/rmtx-native-view.test.cjs": "3e1c853f0f809211c413f783ddc50d88e06c11672fef8b4e93a1ff402bc95f20"
+  },
+  "sourceDrift": [],
+  "compileBoundaryCasesPerLane": 61,
+  "legacyCompleteRecordsPerLane": 40,
+  "legacyProfiles": [
+    "1.0.0",
+    "2.0.0",
+    "3.0.0",
+    "4.0.0"
+  ],
+  "strictTypes": "unchanged public declarations; see prior syntax-scope-final.json type receipts",
+  "strictTypeEntryCount": 8,
+  "revision": "r02-negative-zero-literals",
+  "priorReceipt": "/tmp/xtend-a064-syntax/syntax-scope-final.json",
+  "runs": [
+    {
+      "label": "native-boundary",
+      "lane": "24",
+      "node": "v24.22.2",
+      "exitCode": 0,
+      "durationMs": 419,
+      "log": "/tmp/xtend-a064-syntax/native-boundary24-r02.log",
+      "sha256": "9d1fd58f6622835ac2893947a7141a02fed6f9e21f012e881e2d25ee05c71ce0"
+    },
+    {
+      "label": "legacy40",
+      "lane": "24",
+      "node": "v24.22.2",
+      "exitCode": 0,
+      "durationMs": 393,
+      "log": "/tmp/xtend-a064-syntax/legacy4024-r02.log",
+      "sha256": "3cb99633cc7c0684adb6e1569f20838304a29367e49f90ea7c636844ffc315f9"
+    },
+    {
+      "label": "negative-zero-legacy",
+      "lane": "24",
+      "node": "v24.22.2",
+      "exitCode": 0,
+      "durationMs": 234,
+      "log": "/tmp/xtend-a064-syntax/negative-zero-legacy24-r02.log",
+      "sha256": "0f87037814a11a6c55e3548e381a2087e18743f1443c9317e4cedc9e0b541c00"
+    },
+    {
+      "label": "native-boundary",
+      "lane": "26",
+      "node": "v26.5.0",
+      "exitCode": 0,
+      "durationMs": 416,
+      "log": "/tmp/xtend-a064-syntax/native-boundary26-r02.log",
+      "sha256": "e4134163a720c3c3bc0618504b6367e6282a4c24789e4d9d677b59b8018c083b"
+    },
+    {
+      "label": "legacy40",
+      "lane": "26",
+      "node": "v26.5.0",
+      "exitCode": 0,
+      "durationMs": 380,
+      "log": "/tmp/xtend-a064-syntax/legacy4026-r02.log",
+      "sha256": "3cb99633cc7c0684adb6e1569f20838304a29367e49f90ea7c636844ffc315f9"
+    },
+    {
+      "label": "negative-zero-legacy",
+      "lane": "26",
+      "node": "v26.5.0",
+      "exitCode": 0,
+      "durationMs": 237,
+      "log": "/tmp/xtend-a064-syntax/negative-zero-legacy26-r02.log",
+      "sha256": "0f87037814a11a6c55e3548e381a2087e18743f1443c9317e4cedc9e0b541c00"
+    }
+  ],
+  "acceptance": {
+    "nativeClosedView": true,
+    "nativeTypedDomLoops": true,
+    "lifecycleWhen": false,
+    "customComponentsAndSlots": false,
+    "ssrAndAdoption": false,
+    "release": false
+  },
+  "boundaries": [
+    "Source contracts and compile/type behavior only; actual browser/Model/Fabric execution requires the separate parent acceptance.",
+    "Source5 explicitly delegates unchanged Actions to the named profile4 sublanguage.",
+    "Legacy checks compare all serialized parse+compile pairs, catalogs and factories against clean HEAD0cbbc515 sources.",
+    "Type checks use actual workspace package-export targets, no synthetic declarations; real tarballs are covered separately."
+  ]
+}

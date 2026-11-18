@@ -1,6 +1,6 @@
 import type { RmtJsonValue } from './rmt-tooling-public-types';
 /** Static markers. Model/item fields are compiler-checked; no model type SDK is implied. */
-export declare const RMTX_AUTHORING_API_VERSION: '4.0.0';
+export declare const RMTX_AUTHORING_API_VERSION: '5.0.0';
 export type RmtxLegacyOperator = 'Program' | 'State' | 'Action' | 'Input' | 'Reduce' | 'Portal' | 'Surface' | 'Lane' | 'Mount';
 /** Complete original v1 authoring namespace type, retained for compatibility consumers. */
 export type RmtxLegacyAuthoringNamespace = Readonly<Record<RmtxLegacyOperator, (attributes: Readonly<Record<string, unknown>>) => null>>;
@@ -248,8 +248,31 @@ export interface RmtxAuthoringNamespace extends Omit<RmtxAuthoringNamespaceV3, '
   readonly RemoteEventFrom: (attributes: RmtxRemoteEventFromAttributes) => null;
   readonly Import: (attributes: RmtxImportAttributes) => null;
 }
-/** Module API v4 exposes known names; syntax selection remains the compiler's responsibility. */
-export declare const RMT: Readonly<RmtxAuthoringNamespace>;
+/** Previous complete source4 namespace remains separately available. */
+export interface RmtxAuthoringNamespaceV4 extends RmtxAuthoringNamespace {}
+export interface RmtxViewAttributes { children?: unknown }
+export interface RmtxElementAttributes {
+  tag: import('../xtensions/native-view-projection').NativeViewTagName;
+  attributes?: Readonly<Record<string, unknown>>;
+  properties?: Readonly<Partial<Record<import('../xtensions/native-view-projection').NativeViewPropertyName, unknown>>>;
+  children?: unknown;
+}
+export interface RmtxTextAttributes { value: unknown; children?: never }
+export interface RmtxWhenAttributes { test: unknown; children?: unknown }
+export type RmtxNativeSurfaceKind = 'root' | 'workspace' | 'page' | 'card' | 'list' | 'region' | 'overlay-host' | 'panel' | 'side-panel' | 'sidepanel' | 'window' | 'modal' | 'dialog' | 'drawer' | 'popover' | 'tooltip' | 'toast' | 'lightbox' | 'menu';
+export interface RmtxSurfaceAttributesV5 extends Omit<RmtxSurfaceAttributesV3, 'component' | 'kind'> {
+  component?: import('../xtensions/native-view-projection').NativeViewTagName;
+  kind?: RmtxNativeSurfaceKind;
+}
+export interface RmtxAuthoringNamespaceV5 extends Omit<RmtxAuthoringNamespace, 'Surface'> {
+  readonly Surface: (attributes: RmtxSurfaceAttributesV5) => null;
+  readonly View: (attributes: RmtxViewAttributes) => null;
+  readonly Element: (attributes: RmtxElementAttributes) => null;
+  readonly Text: (attributes: RmtxTextAttributes) => null;
+  readonly When: (attributes: RmtxWhenAttributes) => null;
+}
+/** Module API5 exposes known names; syntax selection remains the compiler's responsibility. */
+export declare const RMT: Readonly<RmtxAuthoringNamespaceV5>;
 export declare const model: RmtxLegacyReferenceNamespace;
 export declare const input: RmtxLegacyReferenceNamespace;
 export declare const selectors: Readonly<Record<string, unknown>>;

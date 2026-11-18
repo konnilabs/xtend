@@ -63,7 +63,7 @@ async function inspect({ write = false, check = false } = {}) {
       assert.deepEqual(coverage.counts, { 'helper-or-attribute': 21, 'source-operator': 99, 'deferred-native-ui': 2 });
       assert.equal(profile.semantics.operators.rawAstEscapeHatch, false); assert.equal(profile.semantics.operators.classicSourceStringEscapeHatch, false);
       assert.equal(profile.operators.Mount.attributes.when, undefined); assert.equal(profile.semantics.nativeUIChildren, false);
-      assert.equal(require('../../../tools/rmt-language/rmtx').RMTX_AUTHORING_API_VERSION, '4.0.0');
+      assert.equal(require('../../../tools/rmt-language/rmtx').RMTX_AUTHORING_API_VERSION, '5.0.0');
     });
     await verify('legacy source defaults and catalogue records1, 2 and 3 remain exactly available', () => {
       assert.equal(require('../../../tools/rmt-language/rmtx-compiler').createRmtxCompiler().apiVersion, '1.0.0');

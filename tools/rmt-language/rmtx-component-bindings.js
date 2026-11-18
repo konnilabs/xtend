@@ -3,15 +3,17 @@ const { data, fields, name, clone, freeze } = require('../xtensions/state-bindin
 const { normalizeComponentInterface, resolveProjectedComponentBinding } = require('../xtensions/component-interface');
 const { visitProjection } = require('../xtensions/state-binding-projection');
 const { validateStateBindingArtifact } = require('../xtensions/state-binding-artifact');
-const RMTX_COMPONENT_BINDINGS_API_VERSION = '1.0.0';
+const RMTX_COMPONENT_BINDINGS_API_VERSION = '2.0.0';
 const RMTX_COMPONENT_DEPENDENCIES_SCHEMA = 'xtend.rmtx.component-dependencies.v1';
+const RMTX_COMPONENT_DEPENDENCIES_SCHEMA_V2 = 'xtend.rmtx.component-dependencies.v2';
 function projectRmtxComponents({ contract, catalog, program }) {
   data(contract); data(catalog); data(program, new Set(), true);
   fields(contract, ['schema', 'sourceProfile', 'documentId', 'hosts'], 'Component source contract');
   fields(catalog, ['schema', 'apiVersion', 'records', 'providers', 'interfaces'], 'Captured component catalog');
-  if (contract?.schema !== 'xtend.rmtx.components.v1' || contract.sourceProfile?.version !== '4.0.0' || contract.sourceProfile.syntax !== 'rmtx' ||
+  const native = contract?.schema === 'xtend.rmtx.components.v2' && contract.sourceProfile?.version === '5.0.0';
+  if ((!native && (contract?.schema !== 'xtend.rmtx.components.v1' || contract.sourceProfile?.version !== '4.0.0')) || contract.sourceProfile.syntax !== 'rmtx' ||
       !Array.isArray(contract.hosts) || !contract.hosts.length || contract.hosts.length > 256 || catalog?.schema !== 'xtend.xtensions.component-interface-catalog.v1' ||
-      catalog.apiVersion !== '1.0.0' || !Array.isArray(catalog.records) || program?.schema !== 'xtend.rmt.app-orchestration.v2') throw new TypeError('Inline components require explicit source4, captured interfaces and orchestration2.');
+      catalog.apiVersion !== '1.0.0' || !Array.isArray(catalog.records) || program?.schema !== (native ? 'xtend.rmt.app-orchestration.v3' : 'xtend.rmt.app-orchestration.v2')) throw new TypeError('Inline components require explicit source4, captured interfaces and orchestration2.');
   name(contract.documentId);
   const records = new Map(), actions = new Map((program.actions?.actions || []).map(action => [action.id, action]));
   const surfaces = new Set((program.surfaces || []).map(surface => surface.id)), declarations = new Set(), targets = new Set(), used = new Set(), dependencies = [];
@@ -60,10 +62,10 @@ function projectRmtxComponents({ contract, catalog, program }) {
     }
     dependencies.push({ declarationId: host.declarationId, reads, allSyntacticBranches: true });
   }
-  const xtensionBindings = validateStateBindingArtifact({ schema: 'xtend.xtensions.state-binding-artifact.v4', documentId: contract.documentId, bindings }, program);
+  const xtensionBindings = validateStateBindingArtifact({ schema: native ? 'xtend.xtensions.state-binding-artifact.v5' : 'xtend.xtensions.state-binding-artifact.v4', documentId: contract.documentId, bindings }, program);
   const selected = [...used].sort().map(id => records.get(id));
   const xtensionComposition = {
-    schema: 'xtend.maraca.xtension-composition-manifest.v8',
+    schema: native ? 'xtend.maraca.xtension-composition-manifest.v9' : 'xtend.maraca.xtension-composition-manifest.v8',
     providers: selected.map(({ definition: value }) => ({ id: value.providerId, framework: value.framework, version: value.componentVersion,
       entry: { module: value.entry.module, exportName: value.entry.exportName }, integrity: { sha256: value.entry.sha256 }, peers: value.peers })),
     modules: selected.map(({ definition }) => ({ module: definition.entry.module, sha256: definition.entry.sha256 })),
@@ -72,9 +74,9 @@ function projectRmtxComponents({ contract, catalog, program }) {
     delivery: { schema: 'xtend.maraca.xtension-delivery-policy.v1', mode: 'same-origin-external-esm' }, hosts
   };
   return freeze({ xtensionBindings, xtensionComposition, dependencies: {
-    schema: RMTX_COMPONENT_DEPENDENCIES_SCHEMA, sourceProfile: contract.sourceProfile, declarations: dependencies,
+    schema: native ? RMTX_COMPONENT_DEPENDENCIES_SCHEMA_V2 : RMTX_COMPONENT_DEPENDENCIES_SCHEMA, sourceProfile: contract.sourceProfile, declarations: dependencies,
     runtimeTracking: false, runtimeSubscriptionsChanged: false,
     selectorValueValidation: 'existing-runtime-props-boundary', missingModelPathFallback: false
   } });
 }
-module.exports = { RMTX_COMPONENT_BINDINGS_API_VERSION, RMTX_COMPONENT_DEPENDENCIES_SCHEMA, projectRmtxComponents };
+module.exports = { RMTX_COMPONENT_BINDINGS_API_VERSION, RMTX_COMPONENT_DEPENDENCIES_SCHEMA, RMTX_COMPONENT_DEPENDENCIES_SCHEMA_V2, projectRmtxComponents };

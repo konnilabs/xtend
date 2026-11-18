@@ -259,7 +259,8 @@ const EXPECTED_EXPORT_KEYS = Object.freeze([
   "./candidate-integrity",
   "./rmt/page-resource-cache",
   "./maraca/xtension-composition",
-  "./maraca/xtension-composition-runtime"
+  "./maraca/xtension-composition-runtime",
+  "./xtensions/native-view-projection"
 ]);
 
 const REQUIRED_PACK_ROOTS = Object.freeze([
@@ -470,6 +471,7 @@ const SURFACE_GROUPS = Object.freeze([
       './xtensions/runtime-capability-registry',
       './xtensions/react-runtime-adapter',
       './xtensions/state-binding',
+      './xtensions/native-view-projection',
       './xtensions/url-state',
   './xtensions/vue-runtime-adapter',
       './xtensions/react-host-controller-poc',

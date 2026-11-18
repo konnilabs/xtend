@@ -57,6 +57,11 @@ export function createMaracaBrowserCompositionRoot(configuration: Readonly<Recor
   readonly xtensionComposition: import('./xtension-composition-runtime').ProjectionComponentArtifact;
 }, dependencies?: Readonly<Record<string, unknown>>): BrowserProjectionComponentRoot;
 
+export function createMaracaBrowserCompositionRoot(configuration: Readonly<Record<string, unknown>> & {
+  readonly schema: 'xtend.maraca.browser-composition-root.v11'; readonly buildPlanSchema: 'xtend.maraca.build-plan.v9';
+  readonly xtensionComposition?: import('./xtension-composition-runtime').NativeComponentArtifact;
+}, dependencies?: Readonly<Record<string, unknown>> & { readonly nativeViewRuntimePort?: typeof import('@ccslabs/xtend-compiler/xtensions/native-view-projection') }): BrowserNativeComponentRoot;
+
 export function createMaracaBrowserCompositionRoot(
   configuration?: Readonly<Record<string, unknown>>,
   dependencies?: Readonly<{
@@ -67,7 +72,7 @@ export function createMaracaBrowserCompositionRoot(
   }>
 ): MaracaBrowserCompositionRoot;
 
-export const MARACA_XTENSION_BROWSER_API_VERSION: '10.0.0';
+export const MARACA_XTENSION_BROWSER_API_VERSION: '11.0.0';
 export interface MaracaXTensionBootOptions extends Record<string, unknown> {
   readonly fabric: import('./xtension-composition-runtime').XTensionHostCompositionOptions['fabric'];
   readonly xtensions: Pick<import('./xtension-composition-runtime').XTensionHostCompositionOptions, 'grants'> & import('./xtension-composition-runtime').XTensionPeerLoaderOptions;
@@ -135,4 +140,28 @@ export interface BrowserProjectionComponentRoot extends Omit<ScopedComponentBrow
   readonly schema: 'xtend.maraca.browser-composition-root.v10'; readonly apiVersion: '10.0.0';
   readonly facade: ProjectionComponentBrowserFacade;
   boot(options: ProjectionComponentBootOptions): ReturnType<ProjectionComponentBrowserFacade['boot']>;
+}
+
+/** Native-only apps and composed native apps share browser11; SSR stays closed. */
+export interface NativeComponentBootOptions extends Record<string, unknown> {
+  readonly fabric: NonNullable<MaracaXTensionBootOptions['fabric']> & Pick<import('@ccslabs/xtend/fabric').XtendFabricApi, 'runFiber'>;
+  readonly xtensions?: ProjectionComponentBootOptions['xtensions'];
+  readonly urlStatePolicy?: import('@ccslabs/xtend/xtensions/url-state').PolicyV2;
+  readonly urlStateRuntime?: import('@ccslabs/xtend/xtensions/url-state').NativeURLStateRuntime;
+  readonly nativeViewRuntimePort?: typeof import('@ccslabs/xtend-compiler/xtensions/native-view-projection');
+  readonly createXTensionHost?: never; readonly xtensionBindingsRuntime?: never; readonly xtensionCompositionPort?: never; readonly adoptExisting?: false;
+  readonly ssr?: never; readonly ssrResponse?: never;
+}
+export interface NativeComponentBrowserFacade extends Omit<ProjectionComponentBrowserFacade, 'apiVersion' | 'orchestration' | 'snapshot' | 'subscribe' | 'boot' | 'restoreURLState' | 'publishURLState'> {
+  readonly apiVersion: '11.0.0'; readonly orchestration: NativeComponentBrowserFacade;
+  snapshot(): ReturnType<import('./plan-runtime').NativeRmtxPlanRuntime['snapshot']>;
+  subscribe(listener: (snapshot: ReturnType<import('./plan-runtime').NativeRmtxPlanRuntime['snapshot']>) => void): () => void;
+  boot(options: NativeComponentBootOptions): Promise<Readonly<Record<string, unknown>>>;
+  restoreURLState: import('./plan-runtime').NativeRmtxPlanRuntime['restoreURLState'];
+  publishURLState: import('./plan-runtime').NativeRmtxPlanRuntime['publishURLState'];
+}
+export interface BrowserNativeComponentRoot extends Omit<BrowserProjectionComponentRoot, 'schema' | 'apiVersion' | 'facade' | 'boot'> {
+  readonly schema: 'xtend.maraca.browser-composition-root.v11'; readonly apiVersion: '11.0.0';
+  readonly facade: NativeComponentBrowserFacade;
+  boot(options: NativeComponentBootOptions): ReturnType<NativeComponentBrowserFacade['boot']>;
 }

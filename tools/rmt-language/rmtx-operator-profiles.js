@@ -3,10 +3,11 @@
 // Declarative authoring contracts. The compiler interprets these records; they
 // never contain callbacks or execute template expressions.
 const { RMTX_EXTENDED_OPERATOR_RULES, RMTX_EXTENDED_PROGRAM_CHILDREN } = require('./rmtx-operator-coverage');
-const RMTX_OPERATOR_PROFILE_API_VERSION = '3.0.0';
+const RMTX_OPERATOR_PROFILE_API_VERSION = '4.0.0';
 const RMTX_OPERATOR_PROFILE_SCHEMA = 'xtend.rmtx.operator-profile.v1';
 const RMTX_OPERATOR_PROFILE_SCHEMA_V2 = 'xtend.rmtx.operator-profile.v2';
 const RMTX_OPERATOR_PROFILE_SCHEMA_V3 = 'xtend.rmtx.operator-profile.v3';
+const RMTX_OPERATOR_PROFILE_SCHEMA_V4 = 'xtend.rmtx.operator-profile.v4';
 const attribute = (kind, required = false, extra = {}) => ({ kind, required, ...extra });
 const operator = (astType, attributes, children = []) => ({ astType, attributes, children });
 const baseOperators = {
@@ -52,8 +53,8 @@ function freeze(value) {
 }
 function profile(version, imports, operators, expressionContexts, semantics = {}) {
   return freeze({
-    schema: version === '4.0.0' ? RMTX_OPERATOR_PROFILE_SCHEMA_V3 : version === '3.0.0' ? RMTX_OPERATOR_PROFILE_SCHEMA_V2 : RMTX_OPERATOR_PROFILE_SCHEMA,
-    apiVersion: version === '4.0.0' ? RMTX_OPERATOR_PROFILE_API_VERSION : version === '3.0.0' ? '2.0.0' : '1.0.0',
+    schema: version === '5.0.0' ? RMTX_OPERATOR_PROFILE_SCHEMA_V4 : version === '4.0.0' ? RMTX_OPERATOR_PROFILE_SCHEMA_V3 : version === '3.0.0' ? RMTX_OPERATOR_PROFILE_SCHEMA_V2 : RMTX_OPERATOR_PROFILE_SCHEMA,
+    apiVersion: version === '5.0.0' ? RMTX_OPERATOR_PROFILE_API_VERSION : version === '4.0.0' ? '3.0.0' : version === '3.0.0' ? '2.0.0' : '1.0.0',
     syntaxVersion: version, sourceProfile: { syntax: 'rmtx', version }, imports, operators,
     expressionContexts, limits: { ...limits }, semantics: { ...baseSemantics, ...semantics },
     reads: {
@@ -222,7 +223,35 @@ const v4 = profile('4.0.0', [...v3.imports, 'result', 'error', 'payload'], {
     runtimeAuthority: 'validated-provider-interface-through-fabric-kernel' },
   acceptance: { release: 'preparing', nativeUi: false, projectTooling: false, ssrParity: false }
 });
-const profiles = freeze({ '1.0.0': v1, '2.0.0': v2, '3.0.0': v3, '4.0.0': v4 });
+const nativeChildren = ['Element', 'Text', 'Repeat', 'When'];
+const nativeSurfaceKinds = ['root', 'workspace', 'page', 'card', 'list', 'region', 'overlay-host', 'panel', 'side-panel', 'sidepanel', 'window', 'modal', 'dialog', 'drawer', 'popover', 'tooltip', 'toast', 'lightbox', 'menu'];
+const v5 = profile('5.0.0', [...v4.imports], {
+  ...v4.operators,
+  Surface: { ...v4.operators.Surface, attributes: { ...v4.operators.Surface.attributes, kind: attribute('enum', false, { values: nativeSurfaceKinds, default: 'region' }) }, children: [...v4.operators.Surface.children, 'View'] },
+  Repeat: { ...v4.operators.Repeat, children: ['Repeat', 'Surface', 'Element', 'Text', 'When'],
+    lowering: 'contextual-host-or-native-repeat', contexts: { host: ['Repeat', 'Surface'], native: nativeChildren } },
+  View: { ...operator('RmtxNativeView', {}, nativeChildren), lowering: 'validated-native-view-source-contract' },
+  Element: { ...operator('RmtxNativeElement', { tag: attribute('string', true),
+    attributes: attribute('native-scalar-map', false, { expressionContext: 'native-value' }),
+    properties: attribute('native-scalar-map', false, { expressionContext: 'native-value' }) }, nativeChildren), lowering: 'native-view-element' },
+  Text: { ...operator('RmtxNativeText', { value: attribute('native-scalar-projection', true, { expressionContext: 'native-value' }) }), lowering: 'native-view-text' },
+  When: { ...operator('RmtxNativeWhen', { test: attribute('native-boolean-projection', true, { expressionContext: 'native-condition' }) }, nativeChildren), lowering: 'native-view-strict-condition' }
+}, {
+  ...v4.expressionContexts,
+  'native-value': { ...v4.expressionContexts.props, result: 'json-scalar', projections: ['conditional', 'unary', 'binary'], objectAndArraySinks: false },
+  'native-condition': { ...v4.expressionContexts.props, result: 'strict-boolean', projections: ['conditional', 'unary', 'binary'], objectAndArraySinks: false }
+}, {
+  ...v4.semantics, nativeUIChildren: true,
+  hostScopes: { ...v4.semantics.hostScopes, sourceContract: 'xtend.rmtx.host-scopes.v3', bindingArtifact: 'xtend.xtensions.state-binding-artifact.v5' },
+  operators: { ...v4.semantics.operators, nativeDomRepeat: true, nativeUiChildren: true, lifecycleConditions: false },
+  nativeViews: { sourceContract: 'xtend.rmtx.native-view.v1', rendererContract: 'xtend.rmt.native-view.v1',
+    values: 'closed-scalar-projections', keyIdentity: 'declaration-and-full-typed-parent-key-tuple',
+    childrenOnProviderHosts: false, nativeRepeatedEvents: false, unsafeSinks: 'reject', sourceExecution: false,
+    surfaceDefaults: { kind: 'region', component: 'div' }, surfaceComponents: 'closed-native-html-only' },
+  actions: { ...v4.semantics.actions, subprofile: '4.0.0' },
+  acceptance: { release: 'preparing', nativeUi: true, projectTooling: false, ssrParity: false }
+});
+const profiles = freeze({ '1.0.0': v1, '2.0.0': v2, '3.0.0': v3, '4.0.0': v4, '5.0.0': v5 });
 
 /** Return an immutable profile. Mutating a separately cloned copy cannot alter it. */
 function getRmtxOperatorProfile(version = '1.0.0') {
@@ -231,4 +260,4 @@ function getRmtxOperatorProfile(version = '1.0.0') {
   }
   return profiles[version];
 }
-module.exports = { RMTX_OPERATOR_PROFILE_API_VERSION, RMTX_OPERATOR_PROFILE_SCHEMA, RMTX_OPERATOR_PROFILE_SCHEMA_V2, RMTX_OPERATOR_PROFILE_SCHEMA_V3, getRmtxOperatorProfile };
+module.exports = { RMTX_OPERATOR_PROFILE_API_VERSION, RMTX_OPERATOR_PROFILE_SCHEMA, RMTX_OPERATOR_PROFILE_SCHEMA_V2, RMTX_OPERATOR_PROFILE_SCHEMA_V3, RMTX_OPERATOR_PROFILE_SCHEMA_V4, getRmtxOperatorProfile };

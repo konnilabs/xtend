@@ -1,0 +1,37 @@
+{
+  "stage": "A06.4.1-required-native-ingress-port-types",
+  "revision": "r03",
+  "date": "2026-11-18",
+  "passed": true,
+  "typescript": "5.9.3",
+  "strict": true,
+  "skipLibCheck": false,
+  "moduleResolution": "NodeNext",
+  "entrypoints": 8,
+  "requiredPortMember": "assertNativeCanonicalData",
+  "positiveAndNegativeTypeProbe": {
+    "path": "/tmp/xtend-a064-syntax/native-sdk-types.mts",
+    "sha256": "76f9d8f81b1743e9b0041b5d2b695b4e7a033f5fbe1ba51cea4253ef55b4e4bb"
+  },
+  "declarationPins": {
+    "xtend-maraca/plan-runtime.d.ts": "e45e099f4fd00a0bec08efae38b1cfaa19639a5be7eed5dd85b32a47069bcc91",
+    "tools/xtensions/native-view-projection.d.ts": "d84d26f0b2ad1752f8b976ce8a6bd215d6d899bbf21e6f0d7f4aa81b1c75e8ce"
+  },
+  "runs": [
+    {
+      "nodeMajor": 24,
+      "exitCode": 0,
+      "log": "/tmp/xtend-a064-syntax/native-sdk-types24-r03.log",
+      "sha256": "e5758738ad4cb2e6d67a41f620a7d8fdc4b021ff5a1ef09378d2e496ba9dd321",
+      "summary": "TypeScript 5.9.3 Node v24.22.2 entrypoints 8 diagnostics 0"
+    },
+    {
+      "nodeMajor": 26,
+      "exitCode": 0,
+      "log": "/tmp/xtend-a064-syntax/native-sdk-types26-r03.log",
+      "sha256": "5cc090c971f35668e3137bdfcc24296215f2112581850de9213505b6cfcdc0cf",
+      "summary": "TypeScript 5.9.3 Node v26.5.0 entrypoints 8 diagnostics 0"
+    }
+  ],
+  "acceptedForRelease": false
+}

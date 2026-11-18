@@ -1,0 +1,57 @@
+{
+  "scope": "original coordinated Updates Inspector build+retained deployment, identical path/config/code",
+  "node": "v24.22.2",
+  "originalInspectorPrefix": "xtend-a0437-contract-",
+  "sizes": {
+    "react": {
+      "frameworkBytes": 2134521,
+      "runtimeBytes": 214871,
+      "frameworkCeiling": 2200000,
+      "runtimeCeiling": 240000,
+      "withinCaps": true
+    },
+    "vue": {
+      "frameworkBytes": 2132525,
+      "runtimeBytes": 213267,
+      "frameworkCeiling": 2200000,
+      "runtimeCeiling": 240000,
+      "withinCaps": true
+    },
+    "mixed": {
+      "frameworkBytes": 2186989,
+      "runtimeBytes": 236819,
+      "frameworkCeiling": 2200000,
+      "runtimeCeiling": 240000,
+      "withinCaps": true
+    }
+  },
+  "passed": true,
+  "sourceBefore": {
+    "xtend-maraca/index.js": "98e2c412eab3364c555b0d9b3abeb014304c6d13937d919e846626e1c92f4347",
+    "xtend-maraca/plan-runtime.mjs": "307e18790bfad4ac13bfed1fa75f27e9fe2c03e3d669f71834cc9f8c63b212ab",
+    "xtend-maraca/browser-composition-runtime.mjs": "1bccb5146baa556ce67892e12bf27c1079807b9c1625569c1c8408a4159e7a0d",
+    "xtend-maraca/browser-host-adapter.mjs": "5991203b7d82a38ec75b7331bac1465d04e64417cf4f030aa7e96afc2cf23133",
+    "xtend-maraca/xtension-deployment.js": "9376e89a69d7b12a6540bd16223c9abf24ab675e9b4682bc4ee9414e13b17a55",
+    "xtend-maraca/xtension-composition-runtime.mjs": "45dbd10d55a80b94ce4cf063d20f265bcf6a70140820aef7581be321d8d7fb67",
+    "xtend-maraca/xtension-composition-contract.mjs": "4d9e0355e4494199afc5b28f204a29b65717a8a73f24f0d6d0ffed4af0e0cda6",
+    "xtend-maraca/xtension-component-binding.mjs": "7a643309709fc7e9fe5c6ce9ae5ac5899052085a096a3aaf0a5bd33ea4621f96",
+    "tools/xtensions/state-binding.js": "732c9c17411216883c703561be076a75e94cd1009c85891d611747091f3b9e83",
+    "tools/xtensions/native-data.js": "3fbd1e9f29e1b133f3042106a46eaaede2107f38fc71851c566a998f0b397684"
+  },
+  "sourceAfter": {
+    "xtend-maraca/index.js": "98e2c412eab3364c555b0d9b3abeb014304c6d13937d919e846626e1c92f4347",
+    "xtend-maraca/plan-runtime.mjs": "307e18790bfad4ac13bfed1fa75f27e9fe2c03e3d669f71834cc9f8c63b212ab",
+    "xtend-maraca/browser-composition-runtime.mjs": "1bccb5146baa556ce67892e12bf27c1079807b9c1625569c1c8408a4159e7a0d",
+    "xtend-maraca/browser-host-adapter.mjs": "5991203b7d82a38ec75b7331bac1465d04e64417cf4f030aa7e96afc2cf23133",
+    "xtend-maraca/xtension-deployment.js": "9376e89a69d7b12a6540bd16223c9abf24ab675e9b4682bc4ee9414e13b17a55",
+    "xtend-maraca/xtension-composition-runtime.mjs": "45dbd10d55a80b94ce4cf063d20f265bcf6a70140820aef7581be321d8d7fb67",
+    "xtend-maraca/xtension-composition-contract.mjs": "4d9e0355e4494199afc5b28f204a29b65717a8a73f24f0d6d0ffed4af0e0cda6",
+    "xtend-maraca/xtension-component-binding.mjs": "7a643309709fc7e9fe5c6ce9ae5ac5899052085a096a3aaf0a5bd33ea4621f96",
+    "tools/xtensions/state-binding.js": "732c9c17411216883c703561be076a75e94cd1009c85891d611747091f3b9e83",
+    "tools/xtensions/native-data.js": "3fbd1e9f29e1b133f3042106a46eaaede2107f38fc71851c566a998f0b397684"
+  },
+  "sourceDrift": [],
+  "durationMs": 24555,
+  "log": "/tmp/xtend-rmtx-a064/updates-budget24-02.log",
+  "logSha256": "d8620411004870fb19b21f0e54eee27612e8da90400389f1c9b7ced18130d1f9"
+}

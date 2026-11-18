@@ -1,0 +1,54 @@
+{
+  "stage": "A06.4.1-official-kernel-artifact-regeneration",
+  "date": "2026-11-18",
+  "passed": true,
+  "generatorCommand": "node xtend-builder/bin/xtend kernel-lab build --profile clean --version 0.9.0 --write --json",
+  "manualBundleEdits": false,
+  "build": {
+    "report": "/tmp/xtend-a064-syntax/kernel-lab-build.json",
+    "sha256": "c74996cd209c1d2db2c51b5607853d409c74458dba59f5083ccff7e5cbff4b34",
+    "ok": true,
+    "changedCount": 5,
+    "outputCount": 7,
+    "visibleModuleCount": 41,
+    "canonicalModuleCount": 79,
+    "mvcViolations": []
+  },
+  "freshness": {
+    "report": "/tmp/xtend-a064-syntax/kernel-lab-check.json",
+    "sha256": "685a5009113dc2badd975274b177df77547179aae7246590fcd4878b2173d482",
+    "ok": true,
+    "changedCount": 0
+  },
+  "parity": [
+    {
+      "lane": "24",
+      "report": "/tmp/xtend-a064-syntax/artifact-parity24.json",
+      "sha256": "c64e7dda44eb8dc29bd82353b10ea4b2444aa155325b29efb87432f7084bf352",
+      "checks": 291,
+      "exitCode": 0
+    },
+    {
+      "lane": "26",
+      "report": "/tmp/xtend-a064-syntax/artifact-parity26.json",
+      "sha256": "c64e7dda44eb8dc29bd82353b10ea4b2444aa155325b29efb87432f7084bf352",
+      "checks": 291,
+      "exitCode": 0
+    }
+  ],
+  "canonicalSources": {
+    "xtendrmt/rmt-dom-descriptor-renderer.js": "c4a368798a6d2d182f816b61357331072ab17af55a37d3739a16025a3372cebd",
+    "xtendrmt/rmt-dom-descriptor-renderer.d.ts": "a92a802595da11bd8737e0f8874eb82ee40c4d89d5ff13690bba5ab8bcd3b518"
+  },
+  "outputs": {
+    "xtendrmt/rmt-core.esm.js": "eadb09bdec2aa40ed47ccae0231e2f67d4d4047f3fd1f377f7822dbaafafb510",
+    "xtendrmt/rmt-runtime.esm.js": "29ecf6d24a4d2079fcbfdbf3378f6a1f986993aa4bc65452a2d161c4039bd994",
+    "xtendrmt/rmt-runtime.browser.js": "cd3cb7cd7ce03c5bd6fd5cad2d1ac424dd47ec767d4846154a0ec7a7d15a06ef",
+    "xtendrmt/rmt-core.d.ts": "50a36e6ddaffafebd1e503e55e4a64b9e47d64f23928b30c7b6a5bfa02f36a24",
+    "xtendrmt/rmt.schema.json": "725ad1c10dcca8e9c1ce7f447e8557a28d0b7d69b79f894fa3edd50a4b00a228",
+    "xtendrmt/rmt-manifest.json": "f93319d6eaeefaa3b91d7f7bfad6056d89d93909fa334145dddf65014f1b8440",
+    "xtendrmt/rmt-kernel-module-manifest.json": "a0eeee6e62c01b89e6c32e033e7d187588fb8775ccbfcf114c42eb0c1e1cacbe"
+  },
+  "allSourceAndOutputPinsCurrent": true,
+  "releaseAcceptance": false
+}
