@@ -1,6 +1,6 @@
 import type { RmtJsonValue } from './rmt-tooling-public-types';
 /** Static markers. Model/item fields are compiler-checked; no model type SDK is implied. */
-export declare const RMTX_AUTHORING_API_VERSION: '5.0.0';
+export declare const RMTX_AUTHORING_API_VERSION: '7.0.0';
 export type RmtxLegacyOperator = 'Program' | 'State' | 'Action' | 'Input' | 'Reduce' | 'Portal' | 'Surface' | 'Lane' | 'Mount';
 /** Complete original v1 authoring namespace type, retained for compatibility consumers. */
 export type RmtxLegacyAuthoringNamespace = Readonly<Record<RmtxLegacyOperator, (attributes: Readonly<Record<string, unknown>>) => null>>;
@@ -271,8 +271,24 @@ export interface RmtxAuthoringNamespaceV5 extends Omit<RmtxAuthoringNamespace, '
   readonly Text: (attributes: RmtxTextAttributes) => null;
   readonly When: (attributes: RmtxWhenAttributes) => null;
 }
-/** Module API5 exposes known names; syntax selection remains the compiler's responsibility. */
-export declare const RMT: Readonly<RmtxAuthoringNamespaceV5>;
+export interface RmtxMountAttributesV6 extends RmtxMountAttributesV4 { when?: unknown }
+export interface RmtxAuthoringNamespaceV6 extends Omit<RmtxAuthoringNamespaceV5, 'Mount'> {
+  readonly Mount: (attributes: RmtxMountAttributesV6) => null;
+}
+/** Module API7 exposes known names; syntax selection remains the compiler's responsibility. */
+export interface RmtxNativeLifecycleAttributesV7 {target:string;when?:unknown;children?:never}
+export interface RmtxPublicComponentAttributes {tag:import('./rmtx-native-components').RmtxPublicComponentTag;attributes?:Readonly<Record<string,unknown>>;properties?:Readonly<Record<string,unknown>>;children?:unknown}
+export interface RmtxSlotAttributes {name:string;children?:unknown}
+export interface RmtxAuthoringNamespaceV7 extends Omit<RmtxAuthoringNamespaceV6,'Mount'|'Hydrate'|'Suspend'|'Resume'|'Invalidate'|'Dispose'|'Prewarm'|'Recycle'|'Detach'|'Reattach'|'On'> {
+ readonly Mount:(attributes:RmtxNativeLifecycleAttributesV7)=>null;readonly Hydrate:(attributes:RmtxNativeLifecycleAttributesV7)=>null;
+ readonly Suspend:(attributes:RmtxNativeLifecycleAttributesV7)=>null;readonly Resume:(attributes:RmtxNativeLifecycleAttributesV7)=>null;
+ readonly Invalidate:(attributes:RmtxNativeLifecycleAttributesV7)=>null;readonly Dispose:(attributes:RmtxNativeLifecycleAttributesV7)=>null;
+ readonly Prewarm:(attributes:RmtxNativeLifecycleAttributesV7)=>null;readonly Recycle:(attributes:RmtxNativeLifecycleAttributesV7)=>null;
+ readonly Detach:(attributes:RmtxNativeLifecycleAttributesV7)=>null;readonly Reattach:(attributes:RmtxNativeLifecycleAttributesV7)=>null;
+ readonly Component:(attributes:RmtxPublicComponentAttributes)=>null;readonly Slot:(attributes:RmtxSlotAttributes)=>null;
+ readonly On:(attributes:RmtxOnAttributesV4&{keys?:Readonly<Record<string,number>>})=>null;
+}
+export declare const RMT: Readonly<RmtxAuthoringNamespaceV7>;
 export declare const model: RmtxLegacyReferenceNamespace;
 export declare const input: RmtxLegacyReferenceNamespace;
 export declare const selectors: Readonly<Record<string, unknown>>;

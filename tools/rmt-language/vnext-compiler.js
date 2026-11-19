@@ -16,7 +16,7 @@ const {
 
 const RMT_VNEXT_CORE_SCHEMA = 'xtend.rmt.core-format.vnext.v1';
 const RMT_VNEXT_COMPILER_SCHEMA = 'xtend.rmt.vnext-compiler.v1';
-const RMT_VNEXT_COMPILER_API_VERSION = '1.7.0';
+const RMT_VNEXT_COMPILER_API_VERSION = '1.9.0';
 const RMT_VNEXT_COMPILER_REPORT_SCHEMA = 'xtend.rmt.vnext-compiler-report.v1';
 const RMT_VNEXT_COMPILER_WORKPACKAGE = 'WP-E15-05';
 const RMT_VNEXT_PRIMITIVE_LOWERING_SCHEMA = 'xtend.rmt.vnext.primitive-lowering.v1';
@@ -24,6 +24,8 @@ const RMT_VNEXT_PRIMITIVE_LOWERING_WORKPACKAGE = 'RMT-VNEXT-PRIM-04';
 const RMT_APP_ORCHESTRATION_SCHEMA = 'xtend.rmt.app-orchestration.v1';
 const RMT_APP_ORCHESTRATION_SCHEMA_V2 = 'xtend.rmt.app-orchestration.v2';
 const RMT_APP_ORCHESTRATION_SCHEMA_V3 = 'xtend.rmt.app-orchestration.v3';
+const RMT_APP_ORCHESTRATION_SCHEMA_V5 = 'xtend.rmt.app-orchestration.v5';
+const RMT_APP_ORCHESTRATION_SCHEMA_V4 = 'xtend.rmt.app-orchestration.v4';
 const RMT_APP_ORCHESTRATION_WORKPACKAGE = 'RMT-APP-ORCH-01';
 const RMT_APP_SERVICE_DEMANDS_SCHEMA = 'xtend.maraca.app-service-demands.v1';
 const RMT_APP_SERVICE_INPUT_POLICY_SCHEMA = 'xtend.maraca.app-service-input-policy.v1';
@@ -2801,7 +2803,7 @@ function createServerResumabilityCapability(records) {
   };
 }
 
-function createHydrationPlan(core, appPlatform) {
+function createHydrationPlan(core, appPlatform, nativeCsrOperations = null) {
   const surfaceByCoreId = new Map(toArray(core && core.surfaces)
     .filter((surface) => surface && surface.primitive === true)
     .map((surface) => [surface.id, surface]));
@@ -2813,7 +2815,7 @@ function createHydrationPlan(core, appPlatform) {
   const insularIslands = [];
 
   toArray(core && core.operations).forEach((operation) => {
-    if (!operation || operation.kind !== 'lifecycle') return;
+    if (!operation || operation.kind !== 'lifecycle' || nativeCsrOperations?.has(operation.id)) return;
     const coreSurface = surfaceByCoreId.get(operation.scope && operation.scope.surface);
     const appSurface = appSurfaceByCoreId.get(operation.scope && operation.scope.surface);
     if (!coreSurface || !appSurface) return;
@@ -3812,7 +3814,7 @@ function staticDescriptorAttributeValue(value) {
 function collectStaticDescriptorIdOwners(descriptor, surfaceId, owners, pointer = '') {
   if (!descriptor || typeof descriptor !== 'object') return;
   const staticId = staticDescriptorAttributeValue(objectValue(descriptor.attributes).id);
-  if (staticId) {
+  if (staticId && descriptor.type !== 'native-component') {
     const records = owners.get(staticId) || [];
     records.push({ surface: surfaceId, pointer });
     owners.set(staticId, records);
@@ -3820,6 +3822,7 @@ function collectStaticDescriptorIdOwners(descriptor, surfaceId, owners, pointer 
   toArray(descriptor.children).forEach((child, index) => {
     collectStaticDescriptorIdOwners(child, surfaceId, owners, `${pointer}/children/${index}`);
   });
+  if (descriptor.type === 'native-component') toArray(descriptor.slots).forEach((slot,index)=>collectStaticDescriptorIdOwners(slot,surfaceId,owners,`${pointer}/slots/${index}`));
   if (descriptor.type === 'conditional') for (const branch of ['then', 'else', 'fallback']) {
     collectStaticDescriptorIdOwners(descriptor[branch], surfaceId, owners, `${pointer}/${branch}`);
   }
@@ -3843,6 +3846,7 @@ function appendAtStaticDescriptorId(descriptor, targetId, nestedDescriptors) {
     count += result.count;
     return result.descriptor;
   });
+  const slots = descriptor.type === 'native-component' ? toArray(descriptor.slots).map(slot=>{const result=appendAtStaticDescriptorId(slot,targetId,nestedDescriptors);count+=result.count;return result.descriptor;}) : null;
   const branches = {};
   if (descriptor.type === 'conditional') for (const branch of ['then', 'else', 'fallback']) if (descriptor[branch]) {
     const result = appendAtStaticDescriptorId(descriptor[branch], targetId, nestedDescriptors);
@@ -3850,7 +3854,7 @@ function appendAtStaticDescriptorId(descriptor, targetId, nestedDescriptors) {
     branches[branch] = result.descriptor;
   }
   return {
-    descriptor: { ...descriptor, ...(children.length > 0 ? {children} : {}), ...branches },
+    descriptor: { ...descriptor, ...(children.length > 0 ? {children} : {}), ...(slots?{slots}:{}), ...branches },
     count
   };
 }
@@ -4222,7 +4226,10 @@ function createRmtAppOrchestrationArtifacts(core, options = {}) {
   if (!core || !core.appPlatform) return null;
 
   const appPlatform = core.appPlatform;
-  const nativeViewProfile = options.sourceProfile?.syntax === 'rmtx' && options.sourceProfile.version === '5.0.0';
+  const orchestrationProfile = options.sourceProfile?.syntax === 'rmtx' && options.sourceProfile.version === '7.0.0';
+  const lifecycleProfile = orchestrationProfile || options.sourceProfile?.syntax === 'rmtx' && options.sourceProfile.version === '6.0.0';
+  if (lifecycleProfile) validateFrontendSourceProfile(options);
+  const nativeViewProfile = lifecycleProfile || options.sourceProfile?.syntax === 'rmtx' && options.sourceProfile.version === '5.0.0';
   // Source5 composes the unchanged, explicitly declared Action4 subprofile.
   const nativeInputs = nativeViewProfile || options.sourceProfile?.syntax === 'rmtx' && options.sourceProfile.version === '4.0.0';
   const inputContract = nativeInputs ? createRmtActionInputContract(core, options.rmtxActionInputRules) : null;
@@ -4269,7 +4276,11 @@ function createRmtAppOrchestrationArtifacts(core, options = {}) {
       throw Object.assign(new TypeError('Native View v1 Surface wrappers require the closed safe HTML tag set.'), { code: 'rmt.native-view.invalid' });
   }
   const nativeViews = nativeViewProfile
-    ? require('./rmtx-native-view').lowerRmtxNativeViews(options.rmtxNativeView, appPlatform) : null;
+    ? (orchestrationProfile ? require('./rmtx-native-view').lowerRmtxNativeOrchestrationViews(options.rmtxNativeView, appPlatform, {core,events:eventBindings,inputContract})
+      : require('./rmtx-native-view').lowerRmtxNativeViews(options.rmtxNativeView, appPlatform)) : null;
+  const nativeLifecycle = lifecycleProfile
+    ? (orchestrationProfile ? require('./rmtx-native-lifecycle').lowerRmtxNativeOrchestrationLifecycle(options.rmtxNativeLifecycle,core,options.rmtxNativeView)
+      : require('./rmtx-native-lifecycle').lowerRmtxNativeLifecycle(options.rmtxNativeLifecycle, core, nativeViews.contract)) : null;
   const renderDescriptors = toArray(appPlatform.surfaces).map((surface) => {
     if (!nativeViewProfile) return createRenderDescriptor(surface, eventBindings, initialStates);
     // Source5 view structure is compiler-owned. Mutable Model data named
@@ -4280,7 +4291,10 @@ function createRmtAppOrchestrationArtifacts(core, options = {}) {
     return descriptor;
   });
   const renderComposition = createRenderRoot(appPlatform, renderDescriptors);
-  const hydration = createHydrationPlan(core, appPlatform);
+  // Source7 commands belong to the validated CSR lifecycle plan2. In particular,
+  // its Resume is not the Classic signed server-prerender resume protocol.
+  const hydration = createHydrationPlan(core, appPlatform, orchestrationProfile
+    ? new Set(nativeLifecycle.plan.operations.map(operation => operation.id)) : null);
   if (nativeViewProfile) hydration.diagnostics = hydration.diagnostics.map(diagnostic => diagnostic.code === 'rmt.app_orchestration.hydration_policy_missing'
     ? { ...diagnostic, code: 'rmt.native-view.csr_owner', severity: 'info',
       message: `Surface ${diagnostic.surface} uses the explicit native CSR projection; no lifecycle hydration operation is inferred.` }
@@ -4320,7 +4334,8 @@ function createRmtAppOrchestrationArtifacts(core, options = {}) {
   const diagnostics = mergeDiagnostics(...Object.values(diagnosticPlans).map(plan => plan.diagnostics));
 
   const program = {
-    schema: nativeViewProfile ? RMT_APP_ORCHESTRATION_SCHEMA_V3 : nativeInputs ? RMT_APP_ORCHESTRATION_SCHEMA_V2 : RMT_APP_ORCHESTRATION_SCHEMA,
+    schema: orchestrationProfile ? RMT_APP_ORCHESTRATION_SCHEMA_V5 : lifecycleProfile ? RMT_APP_ORCHESTRATION_SCHEMA_V4 : nativeViewProfile ? RMT_APP_ORCHESTRATION_SCHEMA_V3 : nativeInputs ? RMT_APP_ORCHESTRATION_SCHEMA_V2 : RMT_APP_ORCHESTRATION_SCHEMA,
+    ...(lifecycleProfile ? { lifecycle: nativeLifecycle.plan } : {}),
     workpackage: RMT_APP_ORCHESTRATION_WORKPACKAGE,
     sourceSyntax: core.manifest && core.manifest.sourceSyntax || 'rmt-vnext',
     runtimeOrder: ['kernel', 'state', 'resource', 'validation', 'animation', 'transition', 'action', 'event', 'surface', 'renderer'],
@@ -4392,14 +4407,16 @@ function createRmtAppOrchestrationArtifacts(core, options = {}) {
     diagnostics,
     sourceMap: sourceMapForOrchestration(core)
   };
-  if (nativeViewProfile) require('../xtensions/native-view-projection').validateNativeViewProgram(program);
+  if (orchestrationProfile) require('../xtensions/native-surface-projection').validateNativeSurfaceViewProgram(program);
+  else if (lifecycleProfile) require('../xtensions/native-view-projection').validateNativeLifecycleViewProgram(program);
+  else if (nativeViewProfile) require('../xtensions/native-view-projection').validateNativeViewProgram(program);
   return program;
 }
 
 class VNextCompiler {
   constructor(ast, options = {}, sourceProfile = null) {
     this.ast = ast;
-    this.allowActionTemplates = sourceProfile?.syntax === 'rmtx' && ['4.0.0', '5.0.0'].includes(sourceProfile.version);
+    this.allowActionTemplates = sourceProfile?.syntax === 'rmtx' && ['4.0.0', '5.0.0', '6.0.0', '7.0.0'].includes(sourceProfile.version);
     const documentId = options.documentId || findFirstNamedDeclaration(ast) || 'rmt.vnext.document';
     this.core = createCoreDocument({
       documentId,
@@ -5551,10 +5568,22 @@ function validateFrontendSourceProfile(options) {
   const fields = plain && Object.getOwnPropertyDescriptors(profile);
   const valid = fields && Reflect.ownKeys(fields).length === 2
     && ['syntax', 'version'].every(key => fields[key] && fields[key].enumerable && 'value' in fields[key])
-    && fields.syntax.value === 'rmtx' && ['1.0.0', '2.0.0', '3.0.0', '4.0.0', '5.0.0'].includes(fields.version.value);
+    && fields.syntax.value === 'rmtx' && ['1.0.0', '2.0.0', '3.0.0', '4.0.0', '5.0.0', '6.0.0', '7.0.0'].includes(fields.version.value);
   if (!valid) throw Object.assign(new TypeError('Unsupported compiler frontend source profile.'), {
     code: 'rmt.compiler.source-profile.unsupported'
   });
+  if (['6.0.0','7.0.0'].includes(fields.version.value)) {
+    const { data, fields: closedFields } = require('../xtensions/state-binding-contract');
+    try {
+      for (const [key, version] of [['viewProfile', fields.version.value==='7.0.0'?'7.0.0':'5.0.0'], ['actionProfile', '4.0.0']]) {
+        const descriptor = Object.getOwnPropertyDescriptor(options, key);
+        if (!descriptor || !('value' in descriptor) || !descriptor.enumerable) throw new TypeError();
+        const value = descriptor.value;
+        data(value); closedFields(value, ['syntax', 'version'], key);
+        if (value.syntax !== 'rmtx' || value.version !== version) throw new TypeError();
+      }
+    } catch (_) { throw Object.assign(new TypeError('Source6 requires explicit unchanged View5 and Action4 subprofiles.'), { code: 'rmt.compiler.source-profile.unsupported' }); }
+  }
   return { syntax: fields.syntax.value, version: fields.version.value };
 }
 
@@ -5646,8 +5675,10 @@ function compileRmtVNextParserResult(parserResult, options = {}, sourceProfile =
     };
   }
   let compilerActionInputContract = null;
-  if (['4.0.0', '5.0.0'].includes(sourceProfile?.version)) {
+  if (['4.0.0', '5.0.0', '6.0.0', '7.0.0'].includes(sourceProfile?.version)) {
     try {
+      if(sourceProfile.version==='7.0.0') require('./rmtx-native-lifecycle').validateRmtxNativeOrchestrationLifecycleAst(options.rmtxNativeLifecycle,parserResult.ast);
+      else if (sourceProfile.version === '6.0.0') require('./rmtx-native-lifecycle').validateRmtxNativeLifecycleAst(options.rmtxNativeLifecycle, parserResult.ast);
       const actions = [];
       const visit = node => {
         if (!node || typeof node !== 'object') return;
@@ -5660,7 +5691,7 @@ function compileRmtVNextParserResult(parserResult, options = {}, sourceProfile =
     } catch (error) {
       const diagnostic = createCompilerDiagnostic(error.code || 'rmt.action.input.contract.invalid', error.message, parserResult.ast);
       return { schema: RMT_VNEXT_COMPILER_SCHEMA, workpackage: RMT_VNEXT_COMPILER_WORKPACKAGE, ok: false,
-        phase: 'action-inputs', status: 'invalid', parserResult, primitiveArtifacts: null, appServiceDemands: null,
+        phase: error.code === 'rmtx.lifecycle.invalid' ? 'native-lifecycle' : 'action-inputs', status: 'invalid', parserResult, primitiveArtifacts: null, appServiceDemands: null,
         orchestrationArtifacts: null, coreDocument: null, coreJson: null,
         diagnostics: parserResult.diagnostics.concat(diagnostic), compilerDiagnostics: [diagnostic] };
     }
@@ -5752,9 +5783,10 @@ function compileRmtVNextParserResult(parserResult, options = {}, sourceProfile =
     ].includes(entry.nodeType))
   } : null;
   let orchestrationArtifacts;
-  try { orchestrationArtifacts = createRmtAppOrchestrationArtifacts(coreDocument, { sourceProfile, rmtxActionInputRules: options.rmtxActionInputRules, rmtxNativeView: options.rmtxNativeView }); }
+  try { orchestrationArtifacts = createRmtAppOrchestrationArtifacts(coreDocument, { sourceProfile, rmtxActionInputRules: options.rmtxActionInputRules, rmtxNativeView: options.rmtxNativeView,
+    ...(['6.0.0','7.0.0'].includes(sourceProfile?.version) ? { viewProfile: options.viewProfile, actionProfile: options.actionProfile, rmtxNativeLifecycle: options.rmtxNativeLifecycle } : {}) }); }
   catch (error) {
-    if (!['4.0.0', '5.0.0'].includes(sourceProfile?.version)) throw error;
+    if (!['4.0.0', '5.0.0', '6.0.0', '7.0.0'].includes(sourceProfile?.version)) throw error;
     let owner = parserResult.ast;
     const visit = node => {
       if (!node || typeof node !== 'object') return;
@@ -5834,6 +5866,7 @@ module.exports = {
   RMT_APP_ORCHESTRATION_SCHEMA,
   RMT_APP_ORCHESTRATION_SCHEMA_V2,
   RMT_APP_ORCHESTRATION_SCHEMA_V3,
+  RMT_APP_ORCHESTRATION_SCHEMA_V4, RMT_APP_ORCHESTRATION_SCHEMA_V5,
   RMT_APP_ORCHESTRATION_WORKPACKAGE,
   RMT_APP_SERVICE_DEMANDS_SCHEMA,
   RMT_APP_SERVICE_INPUT_POLICY_SCHEMA,

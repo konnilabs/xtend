@@ -1,0 +1,8 @@
+import type { XtendSurfaceController } from '@ccslabs/xtend/components/xsurfacemanager-controller';
+import type { RmtSurfaceResourceGraphRuntime, RmtSurfaceResourceGraphRuntimeOptions } from '@ccslabs/xtend/rmt/surface-resource-graph-runtime';
+import type { NativeSurfaceMaterialization, NativeSurfaceInstance } from '@ccslabs/xtend-compiler/xtensions/native-surface-scopes';
+export const NATIVE_SURFACE_GRAPH_API_VERSION: '3.0.0';
+export const NATIVE_SURFACE_GRAPH_SCHEMA: 'xtend.maraca.native-surface-graph.v3';
+export interface NativeSurfaceGraphMaterializeReport { readonly schema: 'xtend.rmt.native-surface-graph-materialize.v1'; readonly ok: boolean; readonly status: 'materialized' | 'superseded'; readonly created: readonly string[]; readonly reused: readonly string[]; readonly retired: readonly string[]; readonly instances: readonly NativeSurfaceInstance[]; readonly authority: Readonly<{ before: number; after: number; ownWrites: number }> }
+export interface NativeSurfaceGraph extends Omit<RmtSurfaceResourceGraphRuntime, 'schema' | 'materialize'> { readonly schema: typeof NATIVE_SURFACE_GRAPH_SCHEMA; readonly resourceGraph: Readonly<{ readonly surfaceGraph: RmtSurfaceResourceGraphRuntime; readonly surfaceController: XtendSurfaceController }>; materializeInstances(materialization: NativeSurfaceMaterialization, metadata?: Readonly<Record<string, unknown>>): NativeSurfaceGraphMaterializeReport }
+export function createMaracaNativeSurfaceGraph(options: Omit<RmtSurfaceResourceGraphRuntimeOptions, 'surfaceController'> & { program: unknown; createSurfaceGraph: (options: RmtSurfaceResourceGraphRuntimeOptions) => RmtSurfaceResourceGraphRuntime; surfaceController: XtendSurfaceController }): NativeSurfaceGraph;

@@ -1,0 +1,15 @@
+{
+  "baseline": "aac069a0",
+  "node": "v26.5.0",
+  "versions": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "completeResultByteComparisons": 42,
+  "operatorProfileComparisons": 5,
+  "actualCapturedProviderReferenceComparisons": 2,
+  "pass": true
+}

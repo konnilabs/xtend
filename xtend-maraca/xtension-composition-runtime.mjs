@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
-import { validateArtifact, canonical, freeze, copy, name, json, INTEGRATED_ARTIFACT_SCHEMA, GRAPH_ARTIFACT_SCHEMA, DEFERRED_ARTIFACT_SCHEMA, SHARED_ARTIFACT_SCHEMA, DELIVERY_ARTIFACT_SCHEMA, COMPONENT_ARTIFACT_SCHEMA, SCOPED_COMPONENT_ARTIFACT_SCHEMA, PROJECTION_COMPONENT_ARTIFACT_SCHEMA, NATIVE_COMPONENT_ARTIFACT_SCHEMA } from './xtension-composition-contract.mjs';
+import { validateArtifact, canonical, freeze, copy, name, json, INTEGRATED_ARTIFACT_SCHEMA, GRAPH_ARTIFACT_SCHEMA, DEFERRED_ARTIFACT_SCHEMA, SHARED_ARTIFACT_SCHEMA, DELIVERY_ARTIFACT_SCHEMA, COMPONENT_ARTIFACT_SCHEMA, SCOPED_COMPONENT_ARTIFACT_SCHEMA, PROJECTION_COMPONENT_ARTIFACT_SCHEMA, NATIVE_COMPONENT_ARTIFACT_SCHEMA, LIFECYCLE_COMPONENT_ARTIFACT_SCHEMA, ORCHESTRATED_COMPONENT_ARTIFACT_SCHEMA } from './xtension-composition-contract.mjs';
 import { validateComponentBindings } from './xtension-component-binding.mjs';
-export const XTENSION_COMPOSITION_API_VERSION = '11.0.0';
+export const XTENSION_COMPOSITION_API_VERSION = '13.0.0';
 // Shared profile membership is private immutable data; artifact validation still
 // establishes the exact plan/manifest/program pair before any runtime work.
-const sharedArtifactSchemas = Object.freeze([SHARED_ARTIFACT_SCHEMA, DELIVERY_ARTIFACT_SCHEMA, COMPONENT_ARTIFACT_SCHEMA, SCOPED_COMPONENT_ARTIFACT_SCHEMA, PROJECTION_COMPONENT_ARTIFACT_SCHEMA, NATIVE_COMPONENT_ARTIFACT_SCHEMA]);
+const sharedArtifactSchemas = Object.freeze([SHARED_ARTIFACT_SCHEMA, DELIVERY_ARTIFACT_SCHEMA, COMPONENT_ARTIFACT_SCHEMA, SCOPED_COMPONENT_ARTIFACT_SCHEMA, PROJECTION_COMPONENT_ARTIFACT_SCHEMA, NATIVE_COMPONENT_ARTIFACT_SCHEMA, LIFECYCLE_COMPONENT_ARTIFACT_SCHEMA, ORCHESTRATED_COMPONENT_ARTIFACT_SCHEMA]);
 const integratedArtifactSchemas = Object.freeze([INTEGRATED_ARTIFACT_SCHEMA, GRAPH_ARTIFACT_SCHEMA, DEFERRED_ARTIFACT_SCHEMA, ...sharedArtifactSchemas]);
 
 function capturePolicies(hosts, input) {
@@ -76,7 +76,7 @@ function createSharedPeers(groups, providers, load) {
 export function createMaracaXTensionCompositionPort(options) {
   const artifact = validateArtifact(options.companion?.artifact, options.plan, options.bindingsRuntime);
   if (!integratedArtifactSchemas.includes(artifact.schema) || canonical(artifact) !== canonical(options.plan.xtensionComposition)) throw new TypeError('Integrated boot requires its exact versioned composition artifact.');
-  const native = artifact.schema === NATIVE_COMPONENT_ARTIFACT_SCHEMA, projected = native || artifact.schema === PROJECTION_COMPONENT_ARTIFACT_SCHEMA, scoped = projected || artifact.schema === SCOPED_COMPONENT_ARTIFACT_SCHEMA, component = scoped || artifact.schema === COMPONENT_ARTIFACT_SCHEMA;
+  const orchestrated = artifact.schema === ORCHESTRATED_COMPONENT_ARTIFACT_SCHEMA, lifecycle = orchestrated || artifact.schema === LIFECYCLE_COMPONENT_ARTIFACT_SCHEMA, native = lifecycle || artifact.schema === NATIVE_COMPONENT_ARTIFACT_SCHEMA, projected = native || artifact.schema === PROJECTION_COMPONENT_ARTIFACT_SCHEMA, scoped = projected || artifact.schema === SCOPED_COMPONENT_ARTIFACT_SCHEMA, component = scoped || artifact.schema === COMPONENT_ARTIFACT_SCHEMA;
   if (projected && options.ssr !== undefined) throw new TypeError(native ? 'Source5 has no SSR/adoption acceptance contract.' : 'Source4 has no SSR/adoption acceptance contract.');
   if (component && !scoped && options.ssr !== undefined) throw new TypeError('Component ownership v7 requires a separate A05 SSR handoff.');
   const componentInterfaceRuntime = component ? Object.freeze({ ...options.componentInterfaceRuntime }) : null;
@@ -89,7 +89,7 @@ export function createMaracaXTensionCompositionPort(options) {
   const adapters = Object.freeze(Object.fromEntries(Object.entries(options.adapters || {}).map(([id, api]) => [id, Object.freeze({ ...api })])));
   const plan = freeze(copy(options.plan)), bindingsRuntime = options.bindingsRuntime;
   const ssrSession = options.ssr === undefined ? null : options.ssrRuntime.createMaracaXTensionSSRSession({ artifact, bindingsRuntime, resumeBindingsRuntime: options.resumeBindingsRuntime, options: options.ssr, ...(scoped ? { componentInterfaceRuntime } : {}) });
-  return Object.freeze({ schema: native ? 'xtend.maraca.xtension-composition-port.v7' : projected ? 'xtend.maraca.xtension-composition-port.v6' : scoped ? ssrSession ? 'xtend.maraca.xtension-composition-port.v5' : 'xtend.maraca.xtension-composition-port.v4' : component ? 'xtend.maraca.xtension-composition-port.v3' : ssrSession ? 'xtend.maraca.xtension-composition-port.v2' : 'xtend.maraca.xtension-composition-port.v1', bindingsRuntime, ...(ssrSession ? { ssrSession, resumeBindingsRuntime: options.resumeBindingsRuntime } : {}),
+  return Object.freeze({ schema: orchestrated ? 'xtend.maraca.xtension-composition-port.v9' : lifecycle ? 'xtend.maraca.xtension-composition-port.v8' : native ? 'xtend.maraca.xtension-composition-port.v7' : projected ? 'xtend.maraca.xtension-composition-port.v6' : scoped ? ssrSession ? 'xtend.maraca.xtension-composition-port.v5' : 'xtend.maraca.xtension-composition-port.v4' : component ? 'xtend.maraca.xtension-composition-port.v3' : ssrSession ? 'xtend.maraca.xtension-composition-port.v2' : 'xtend.maraca.xtension-composition-port.v1', bindingsRuntime, ...(ssrSession ? { ssrSession, resumeBindingsRuntime: options.resumeBindingsRuntime } : {}),
     bind(ports) {
       validateArtifact(artifact, ports.plan, bindingsRuntime);
       return createHostFactory({ ...ports, plan, bindingsRuntime, adapters, ...(component ? { componentInterfaceRuntime } : {}), ...loaders, grants, ...(ssrSession ? { ssrSession } : {}),
@@ -115,7 +115,7 @@ export function createMaracaXTensionHostFactory(options) {
   const artifact = validateArtifact(options.artifact, options.plan, options.bindingsRuntime);
   const shared = sharedArtifactSchemas.includes(artifact.schema), deferred = shared || artifact.schema === DEFERRED_ARTIFACT_SCHEMA;
   if ((deferred && options.providers !== undefined) || (!deferred && options.loadProviders !== undefined)) throw new TypeError('Provider namespace/loader ports must match the artifact version.');
-  const native = artifact.schema === NATIVE_COMPONENT_ARTIFACT_SCHEMA, projected = native || artifact.schema === PROJECTION_COMPONENT_ARTIFACT_SCHEMA, scoped = projected || artifact.schema === SCOPED_COMPONENT_ARTIFACT_SCHEMA, componentProfile = scoped || artifact.schema === COMPONENT_ARTIFACT_SCHEMA;
+  const orchestrated = artifact.schema === ORCHESTRATED_COMPONENT_ARTIFACT_SCHEMA, lifecycle = orchestrated || artifact.schema === LIFECYCLE_COMPONENT_ARTIFACT_SCHEMA, native = lifecycle || artifact.schema === NATIVE_COMPONENT_ARTIFACT_SCHEMA, projected = native || artifact.schema === PROJECTION_COMPONENT_ARTIFACT_SCHEMA, scoped = projected || artifact.schema === SCOPED_COMPONENT_ARTIFACT_SCHEMA, componentProfile = scoped || artifact.schema === COMPONENT_ARTIFACT_SCHEMA;
   if (projected && options.ssrSession) throw new TypeError(native ? 'Source5 cannot use legacy SSR sessions.' : 'Source4 cannot use legacy SSR sessions.');
   if (componentProfile && !scoped && options.ssrSession) throw new TypeError('Component ownership v7 requires a separate A05 SSR handoff.');
   const componentInterfaceRuntime = componentProfile ? Object.freeze({ ...options.componentInterfaceRuntime }) : null;
@@ -136,7 +136,26 @@ export function createMaracaXTensionHostFactory(options) {
   const kernelWork = Object.freeze({ ...options.kernelWork }), resourceGraph = Object.freeze({ ...options.resourceGraph });
   name(kernelWork.rootId);
   if (!fabric || typeof fabric.createBoundary !== 'function' || !kernelWork.scheduler || !resourceGraph.kernel || !resourceGraph.surfaceGraph || !resourceGraph.surfaceController) throw new TypeError('Shared native Kernel, Fabric and Surface ports are required.');
-  return function createXTensionHost(context) {
+  async function loadProviderFactory(provider, signal) {
+    if (!deferred) return provider.factory;
+    if (signal.aborted) throw new DOMException('Provider lifetime was revoked.', 'AbortError');
+    let pending = providerLoads.get(provider.definition.id);
+    if (!pending) {
+      let resolveLoad, rejectLoad;
+      pending = new Promise((resolve, reject) => { resolveLoad = resolve; rejectLoad = reject; });
+      providerLoads.set(provider.definition.id, pending);
+      try {
+        Promise.resolve(provider.loadProvider()).then(namespace => {
+          const factory = namespace?.[provider.definition.entry.exportName];
+          if (typeof factory !== 'function') throw new TypeError('Loaded provider namespace lacks its declared factory export.');
+          return factory;
+        }).then(resolveLoad, rejectLoad);
+      } catch (error) { rejectLoad(error); }
+      pending.catch(() => { if (providerLoads.get(provider.definition.id) === pending) providerLoads.delete(provider.definition.id); });
+    }
+    return waitForProvider(pending, signal);
+  }
+  const createHost = function createXTensionHost(context) {
     const declarationId = context.identity?.address?.declarationId;
     const definition = artifact.manifest.hosts.find(entry => entry.declarationId === declarationId);
     const binding = artifact.plan.bindings.bindings.find(entry => entry.binding.address.declarationId === declarationId);
@@ -165,32 +184,12 @@ export function createMaracaXTensionHostFactory(options) {
       onEvent, component: proxy, fabric,
       ...(options.ssrSession ? { ssr: options.ssrSession.hostContext(context, provider.definition) } : {}),
       kernelWork: { scheduler: kernelWork.scheduler, rootId: kernelWork.rootId, scope: context.xtensionId, ...(Object.hasOwn(grants.data, 'lifecycle') ? { lifecycle: grants.data.lifecycle } : {}), work: grants.data.work },
-      resourceGraph: { ...resourceGraph, surfaceId: definition.ownerSurface },
+      resourceGraph: { ...resourceGraph, surfaceId: orchestrated ? concrete.ownerSurface : definition.ownerSurface },
       ...(Object.hasOwn(grants.data, 'workBudget') ? { workBudget: grants.data.workBudget } : {}),
       policy: { events, allowedResources: grants.data.allowedResources, authorize: grants.authorize, validateProps: componentContract ? props => { componentInterfaceRuntime.assertComponentProps(componentContract.definition, props); return grants.validateProps ? grants.validateProps(props) : true; } : grants.validateProps },
       capabilityRequirements: definition.capabilityRequirements, expectedVersions: provider.definition.peers,
       async loadRuntime({ signal }) {
-        let factory = provider.factory;
-        if (deferred) {
-          if (signal.aborted) throw new DOMException('Provider lifetime was revoked.', 'AbortError');
-          let pending = providerLoads.get(provider.definition.id);
-          if (!pending) {
-            let resolveLoad, rejectLoad;
-            pending = new Promise((resolve, reject) => { resolveLoad = resolve; rejectLoad = reject; });
-            providerLoads.set(provider.definition.id, pending);
-            // Start the literal import synchronously in the admitted callback.
-            // Install the shared promise first, including for trusted reentry.
-            try {
-              Promise.resolve(provider.loadProvider()).then(namespace => {
-                const value = namespace?.[provider.definition.entry.exportName];
-                if (typeof value !== 'function') throw new TypeError('Loaded provider namespace lacks its declared factory export.');
-                return value;
-              }).then(resolveLoad, rejectLoad);
-            } catch (error) { rejectLoad(error); }
-            pending.catch(() => { if (providerLoads.get(provider.definition.id) === pending) providerLoads.delete(provider.definition.id); });
-          }
-          factory = await waitForProvider(pending, signal);
-        }
+        const factory = deferred ? await loadProviderFactory(provider, signal) : provider.factory;
         if (signal.aborted) throw new DOMException('Provider lifetime was revoked.', 'AbortError');
         const loaded = await (shared ? loadPeers(provider, signal) : loadPeers(Object.freeze({ provider: provider.definition, signal })));
         if (signal.aborted) throw new DOMException('Provider lifetime was revoked.', 'AbortError');
@@ -205,4 +204,23 @@ export function createMaracaXTensionHostFactory(options) {
       }
     });
   };
+  if (orchestrated) Object.defineProperty(createHost, 'prewarm', { value: async request => {
+    const { surfaceIds, signal } = request || {};
+    if (!Array.isArray(surfaceIds) || !signal || typeof signal.addEventListener !== 'function') throw new TypeError('Prewarm requires explicit declaration surfaces and an admitted work signal.');
+    surfaceIds.forEach(name);
+    const known = new Set(artifact.plan.program.surfaces.map(row => row.id));
+    if (surfaceIds.some(id => !known.has(id))) throw new TypeError('Prewarm cannot nominate an unknown Surface declaration.');
+    if (signal.aborted) throw new DOMException('Prewarm authority was revoked.', 'AbortError');
+    const ids = new Set(artifact.manifest.hosts.filter(host => surfaceIds.includes(host.ownerSurface) || surfaceIds.includes(host.targetSurface)).map(host => host.providerId));
+    await Promise.all([...ids].map(async id => {
+      const provider = providers.get(id);
+      await loadProviderFactory(provider, signal);
+      if (signal.aborted) throw new DOMException('Prewarm authority was revoked.', 'AbortError');
+      const loaded = await (shared ? loadPeers(provider, signal) : loadPeers(Object.freeze({ provider: provider.definition, signal })));
+      verifiedPeers(provider, loaded);
+      if (signal.aborted) throw new DOMException('Prewarm authority was revoked.', 'AbortError');
+    }));
+    return freeze({ providerIds: [...ids].sort(), mounted: false });
+  } });
+  return createHost;
 }

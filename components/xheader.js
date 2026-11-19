@@ -1,6 +1,10 @@
 import { componentStyleNonce } from './style-nonce.js';
 import { xtendState } from './xtend-state.js';
 
+// A body marker is a lease held by the header that actually installed it.
+// Matching ID text alone cannot authorize another header to clear that marker.
+const XHEADER_MENU_MODALITY_OWNERS = new WeakMap();
+
 const XHEADER_MENU_MODES = Object.freeze(['drawer', 'side-panel', 'popover', 'fullscreen', 'inline-main']);
 const XHEADER_MENU_PLACEMENTS = Object.freeze(['start', 'end', 'top', 'bottom']);
 const XHEADER_MENU_ALIGNS = Object.freeze(['start', 'center', 'end', 'stretch']);
@@ -269,7 +273,9 @@ class XHeader extends HTMLElement {
     this._onWindowScroll = () => this._positionMenu();
     this._onDocumentClick = null;
     this._onDocumentKeydown = null;
-    this._render();
+    // Rendering also synchronizes host style/attributes. Custom-element
+    // construction must leave these untouched until createElement returns.
+    // Attributes and connectedCallback render the detached/connected shell.
   }
   connectedCallback() {
     if (!this.id) this.id = `xheader-${Math.random().toString(36).slice(2, 10)}`;
@@ -1245,16 +1251,20 @@ class XHeader extends HTMLElement {
     this._applyMenuModality(open && this._getMenuModal());
   }
   _applyMenuModality(active) {
-    if (typeof document === "undefined" || !document.body) return;
+    const body = this.ownerDocument && this.ownerDocument.body;
+    if (!body) return;
     const key = "xtendHeaderMenuModal";
     if (active && !this.isConnected) return;
     if (active) {
-      document.body.dataset[key] = this.id || "x-header";
+      const token = this.id || "x-header";
+      XHEADER_MENU_MODALITY_OWNERS.set(body, { owner: this, token });
+      body.dataset[key] = token;
       return;
     }
-    if (document.body.dataset[key] === (this.id || "x-header")) {
-      delete document.body.dataset[key];
-    }
+    const lease = XHEADER_MENU_MODALITY_OWNERS.get(body);
+    if (!lease || lease.owner !== this) return;
+    if (body.dataset[key] === lease.token) delete body.dataset[key];
+    XHEADER_MENU_MODALITY_OWNERS.delete(body);
   }
   _emitMenuConfigurationChange(type, oldValue, newValue) {
     if (!this.isConnected) return;

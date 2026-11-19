@@ -1,6 +1,6 @@
 const COMPONENT_COMMAND_SCHEMA = 'xtend.rmt.component-command.v1';
 const COMPONENT_COMMAND_RESULT_SCHEMA = 'xtend.maraca.component-command-result.v1';
-export const MARACA_BROWSER_HOST_API_VERSION = '3.0.0';
+export const MARACA_BROWSER_HOST_API_VERSION = '5.0.0';
 
 function clone(value) {
   if (value === undefined) return undefined;
@@ -28,7 +28,9 @@ function diagnostic(code, error) {
 
 export function createMaracaBrowserHostAdapter(configuration = {}, dependencies = {}) {
   const config = freeze(clone(configuration) || {});
-  const native = config.schema === 'xtend.maraca.browser-composition-root.v11';
+  const orchestrated = config.schema === 'xtend.maraca.browser-composition-root.v13';
+  const lifecycle = orchestrated || config.schema === 'xtend.maraca.browser-composition-root.v12';
+  const native = lifecycle || config.schema === 'xtend.maraca.browser-composition-root.v11';
   const globalTarget = dependencies.platformTarget || dependencies.globalTarget || globalThis;
   const windowTarget = dependencies.windowTarget || globalTarget.window || globalTarget;
   const documentTarget = dependencies.documentTarget || globalTarget.document || null;
@@ -131,6 +133,13 @@ export function createMaracaBrowserHostAdapter(configuration = {}, dependencies 
     return documentTarget && id ? documentTarget.getElementById(id) : null;
   }
 
+  function rendererComponentRegistry(supplied) {
+    if (!orchestrated) return supplied || null;
+    const create = dependencies.nativeViewRuntimePort?.createComponentRegistry;
+    if (typeof create !== 'function') throw new TypeError('Source7 native properties require their captured Component registry capability port.');
+    return create(config.orchestration.artifact, supplied || null);
+  }
+
   function createRenderer(options = {}) {
     if (options.domRenderer) return options.domRenderer;
     const api = runtimeApi('XTendRmtDomDescriptorRenderer');
@@ -139,7 +148,7 @@ export function createMaracaBrowserHostAdapter(configuration = {}, dependencies 
     }
     return api.createRmtDomDescriptorRenderer({
       documentTarget,
-      componentRegistry: options.componentRegistry || null,
+      componentRegistry: rendererComponentRegistry(options.componentRegistry),
       trustedDomRenderer: options.trustedDomRenderer,
       trustedDom: options.trustedDom
     });
@@ -275,7 +284,7 @@ export function createMaracaBrowserHostAdapter(configuration = {}, dependencies 
       publish('xtend-maraca:hydration-complete', { schema: 'xtend.maraca.hydration-history-entry.v1', tags: unique, metadata });
       return result;
     }
-    return freeze({
+    const port = freeze({
       ensureTags: ensureComponents,
       hydrate,
       snapshot() {
@@ -283,6 +292,7 @@ export function createMaracaBrowserHostAdapter(configuration = {}, dependencies 
       },
       dispose() { if (!observer) return false; observer.disconnect(); observer = null; return true; }
     });
+    return orchestrated ? freeze({ ...port, resolveComponentCapability: rendererComponentRegistry(port).resolveComponentCapability }) : port;
   }
 
   function createKernelController(options = {}) {
@@ -390,7 +400,7 @@ export function createMaracaBrowserHostAdapter(configuration = {}, dependencies 
   }
 
   return freeze({
-    schema: native ? 'xtend.maraca.browser-host-adapter.v3' : 'xtend.maraca.browser-host-adapter.v2', ...(native ? { inspectServerShell } : {}), config, publish, runtimeApi, readModelSnapshot, snapshotHandle: readOnlySnapshotHandle, installPublicFacades, clearPublicFacades,
+    schema: orchestrated ? 'xtend.maraca.browser-host-adapter.v5' : lifecycle ? 'xtend.maraca.browser-host-adapter.v4' : native ? 'xtend.maraca.browser-host-adapter.v3' : 'xtend.maraca.browser-host-adapter.v2', ...(native ? { inspectServerShell } : {}), config, publish, runtimeApi, readModelSnapshot, snapshotHandle: readOnlySnapshotHandle, installPublicFacades, clearPublicFacades,
     attachCss, resolveRoot, elementById, createRenderer,
     commitRootMetadata, renderCompatibility, readResumePayload, adoptServerShell, ensureComponent, ensureComponents,
     invokeComponentCommand, focusSurface, createHydrationPort, createKernelController, registerTemplateArtifacts, registerPwa, createTelemetryPort,

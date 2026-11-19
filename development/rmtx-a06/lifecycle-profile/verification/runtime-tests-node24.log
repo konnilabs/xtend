@@ -1,0 +1,17 @@
+✔ Source6 requires the explicit entry and keeps older native factories closed (1919.18714ms)
+✔ initialfalse has a Controller shell but no content or events; re-admission preserves Controller generation and kills old tokens (238.428826ms)
+✔ prospective invalid guards and accessors reject before the actual Model or DOM changes (102.39923ms)
+✔ guard true does not reopen an inactive Owner and explicit Surface resume admits fresh content (133.138228ms)
+✔ actual queued render work cannot write after Close and a compacted Destroy never returns through a true guard (94.279197ms)
+✔ a reentrant Controller close during own admission invalidation is never recaptured as a fresh grant (88.132098ms)
+✔ portal-owned React hosts have independent typed keys, no false loader, and retire before their native owner disappears (188.828877ms)
+✔ actual URL2 restore changes lifecycle guards through the shared Model/View barrier in both directions (128.958311ms)
+✔ a blocked legal undefined Surface never captures missing owner references of independent real providers (116.569201ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3690.92609

@@ -1,7 +1,7 @@
 import scopedModel from './scoped-model.cjs';
 export function createScopedFixture({source,document,React,ReactDOM,Vue,createFabric,kernelModule,surfaces,state,peerWait}, extra = {}) {
     const root = document.createElement('main'); document.body.append(root);
-    const admissions=[],actualFabric=createFabric(),fabric={...actualFabric,createBoundary(...args){const boundary=actualFabric.createBoundary(...args);return {...boundary,run(phase,task,metadata){if(metadata?.kernelJobId)admissions.push(metadata);return boundary.run(phase,task,metadata);}};}};
+    const admissions=[],actualFabric=createFabric(),fabric={...actualFabric,runFiber(input,callback){return actualFabric.runFiber(input,fiber=>{if(input.metadata?.schedulerJobId)admissions.push({schedulerJobId:input.metadata.schedulerJobId,operation:input.operation});return callback(fiber);});},createBoundary(...args){const boundary=actualFabric.createBoundary(...args);return {...boundary,run(phase,task,metadata){if(metadata?.kernelJobId)admissions.push(metadata);return boundary.run(phase,task,metadata);}};}};
     const previous = state.snapshot().data, hosts = [], contexts = [], controllers = [], requests = [];let graph;
     const adapters = Object.fromEntries(Object.entries(source.platform.adapters).map(([framework, api]) => {
       const method = framework === 'react' ? 'createReactKernelRuntimeAdapter' : 'createVueKernelRuntimeAdapter';
@@ -17,7 +17,9 @@ export function createScopedFixture({source,document,React,ReactDOM,Vue,createFa
           if (extra.waitForProvider) await extra.waitForProvider(id); return load();
         }]));
         const factory = ports.compositionRuntime.createMaracaXTensionHostFactory({ ...options, loadProviders });
-        return context => { contexts.push(context); return factory(context); };
+        const createHost = context => { contexts.push(context); return factory(context); };
+        if (typeof factory.prewarm === 'function') Object.defineProperty(createHost, 'prewarm', { value: request => factory.prewarm(request) });
+        return createHost;
       } } });
     } };
     const app = source.entry.createXtendMaraca({ xtensionCompanion: companion, xtensionPlatform: { ...source.platform, adapters }, windowTarget: document.defaultView, documentTarget: document, platformTarget: {},

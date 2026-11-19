@@ -146,6 +146,38 @@ function runXTensionsRuntimeGate({ rootDir, browser = false } = {}) {
       && native.productiveRmtxFrontendUsed === true && native.completeA064Implemented === false && native.completeRmtxFrontendImplemented === false
       && native.ssrAcceptancePerformed === false && native.acceptedForRelease === false,
     'Opt-in Source5 must execute native typed DOM loops, prospective validation, real Kernel/Fabric and Native URL/Router paths alongside React/Vue without claiming lifecycle or SSR completion');
+    const lifecycleArtifact = path.join(rootDir, '.xtend-test-results', `xtend-rmtx-native-lifecycle-runtime-${browser ? 'browser' : 'node'}-report.json`);
+    fs.rmSync(lifecycleArtifact, { force: true });
+    const lifecycleExecution = spawnSync(process.execPath, ['development/rmtx-a06/lifecycle-profile/runtime-test.cjs', ...(browser ? ['--browser'] : []), '--output', lifecycleArtifact], {
+      cwd: rootDir, env, encoding: 'utf8', timeout: 180000, maxBuffer: 16 * 1024 * 1024
+    });
+    context.assert(!lifecycleExecution.error && lifecycleExecution.status === 0, `Actual RMTX lifecycle admission passes: ${lifecycleExecution.stderr || lifecycleExecution.stdout || lifecycleExecution.error || ''}`);
+    const lifecycle = JSON.parse(fs.readFileSync(lifecycleArtifact, 'utf8'));
+    context.assert(lifecycle.schema === 'xtend.rmtx.native-lifecycle-runtime-acceptance.v1' && lifecycle.passed && lifecycle.node === process.version && lifecycle.cases >= 8
+      && lifecycle.mode === (browser ? 'chromium-sealed-native-esm' : 'jsdom-native-esm')
+      && (!browser || Boolean(lifecycle.browserVersion) && lifecycle.pageErrors.length === 0)
+      && lifecycle.compiler?.schema === 'xtend.rmtx.compile-result.v6' && lifecycle.compiler.sourceProfile?.version === '6.0.0'
+      && lifecycle.compileChecks?.passed === true && lifecycle.compiler.compositionArtifactSchema === 'xtend.maraca.xtension-composition-artifact.v11'
+      && lifecycle.compiler.programSchema === 'xtend.rmt.app-orchestration.v4' && lifecycle.compiler.buildPlanSchema === 'xtend.maraca.build-plan.v10'
+      && lifecycle.realReactVueProviders === true && lifecycle.initialFalseVerified === true && lifecycle.kernelFabricVerified === true
+      && lifecycle.completeA064Implemented === false && lifecycle.ssrAcceptancePerformed === false && lifecycle.acceptedForRelease === false,
+    'Source6 must run conditional native admission through the real Model/Controller/Kernel/Fabric/provider chain while retaining release limits');
+    const orchestratedArtifact = path.join(rootDir, '.xtend-test-results', `xtend-rmtx-native-orchestration-runtime-${browser ? 'browser' : 'node'}-report.json`);
+    fs.rmSync(orchestratedArtifact, {force:true});
+    const orchestratedExecution = spawnSync(process.execPath, ['--max-old-space-size=1024', 'development/rmtx-a06/native-orchestration-profile/runtime-test.cjs', ...(browser ? ['--browser'] : []), '--output', orchestratedArtifact], {
+      cwd:rootDir, env, encoding:'utf8', timeout:180000, maxBuffer:16*1024*1024
+    });
+    context.assert(!orchestratedExecution.error && orchestratedExecution.status === 0, `Actual Source7 native orchestration passes: ${orchestratedExecution.stderr || orchestratedExecution.stdout || orchestratedExecution.error || ''}`);
+    const orchestrated = JSON.parse(fs.readFileSync(orchestratedArtifact, 'utf8'));
+    context.assert(orchestrated.schema === 'xtend.rmtx.native-orchestration-runtime-acceptance.v1' && orchestrated.passed && orchestrated.node === process.version && orchestrated.cases >= 9
+      && orchestrated.mode === (browser ? 'chromium-sealed-native-esm' : 'jsdom-native-esm') && (!browser || Boolean(orchestrated.browserVersion) && orchestrated.pageErrors.length === 0)
+      && orchestrated.compileChecks?.passed === true && orchestrated.compileChecks.checks >= 10
+      && orchestrated.compiler?.schema === 'xtend.rmtx.compile-result.v7' && orchestrated.compiler.sourceProfile?.version === '7.0.0'
+      && orchestrated.compiler.programSchema === 'xtend.rmt.app-orchestration.v5' && orchestrated.compiler.buildPlanSchema === 'xtend.maraca.build-plan.v11'
+      && orchestrated.compiler.compositionArtifactSchema === 'xtend.maraca.xtension-composition-artifact.v12'
+      && orchestrated.realReactVueProviders === true && orchestrated.kernelFabricVerified === true && orchestrated.stableTypedAddressesVerified === true && orchestrated.slotsVerified === true
+      && orchestrated.staleProviderIntentVerified === true && orchestrated.acceptedForRelease === false && orchestrated.ssrAcceptancePerformed === false,
+      'Source7 must execute actual typed native owners, slots and retained framework lifetimes through Kernel/Fabric without changing release acceptance');
     if(browser){
       const componentSSRArtifact=path.join(rootDir,'.xtend-test-results','xtend-component-ssr-report.json');fs.rmSync(componentSSRArtifact,{force:true});
       const execution=spawnSync(process.execPath,['development/rmtx-a06/scoped-ssr-test.cjs','--output',componentSSRArtifact],{cwd:rootDir,env,encoding:'utf8',timeout:180000,maxBuffer:16*1024*1024});

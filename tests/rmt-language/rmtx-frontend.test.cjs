@@ -92,7 +92,7 @@ for (const [name,text] of denied) test(`closed profile rejects ${name} before pr
 test('unsupported syntax versions and source extensions fail explicitly', () => {
   noArtifacts(compileRmtxSource({text:program(''),filePath:'wrong.tsx'}));
   noArtifacts(compileRmtxSource({text:program(''),filePath:'wrong.rmtx?fake.tsx'}));
-  noArtifacts(compileRmtxSource({text:program(''),filePath:'right.rmtx'},{syntaxVersion:'6.0.0'}));
+  noArtifacts(compileRmtxSource({text:program(''),filePath:'right.rmtx'},{syntaxVersion:'8.0.0'}));
   assert.equal(parseRmtxSource(program('')).ok,true);
   assert.equal(compileRmtxSource(program('')).ok,true);
 });

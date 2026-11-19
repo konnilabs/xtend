@@ -60,7 +60,7 @@ function runCompilerChecks() {
   assert.throws(() => compiler.compileRmtClassicAst(enlarged)); checks++;
   assert.throws(() => compiler.compileRmtClassicAst(result.parserResult.ast, { xtensionBindings: declarations })); checks++;
   assert.equal(result.schema, 'xtend.rmt.classic.compile-result.v4');
-  assert.equal(compiler.createRmtClassicCompiler().apiVersion, '4.6.0');
+  assert.equal(compiler.createRmtClassicCompiler().apiVersion, '4.8.0');
   assert.equal(compiler.RMT_CLASSIC_COMPILER_CONTRACT.version, '1.0.0'); checks++;
   const conditionalInput = { text: fs.readFileSync(path.join(root, 'development/rmtx-a02/conditional-filters.rmt'), 'utf8'), filePath: 'conditional-filters.rmt' };
   const conditionalBindings = require('../../development/rmtx-a02/conditional-bindings.v2.json');

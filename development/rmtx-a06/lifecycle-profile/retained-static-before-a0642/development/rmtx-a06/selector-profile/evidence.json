@@ -1,0 +1,63 @@
+{
+  "format": 1,
+  "version": "1.0.0",
+  "stage": "A06.3.1-selector-profile",
+  "passed": true,
+  "sourceProfile": {
+    "syntax": "rmtx",
+    "version": "2.0.0"
+  },
+  "defaultSyntaxVersion": "1.0.0",
+  "apiVersions": {
+    "parser": "5.0.0",
+    "compiler": "5.0.0",
+    "classic": "4.6.0",
+    "vnext": "1.7.0"
+  },
+  "operatorCount": 14,
+  "legacyOperatorCount": 9,
+  "checks": {
+    "actualRmtxCompile": true,
+    "actualClassicCompile": true,
+    "effectiveStatePlanParity": true,
+    "actionPlanParity": true,
+    "canonicalDependencyReport": true
+  },
+  "generalRmtxOperatorCoverageComplete": false,
+  "modelFieldTypeInferenceImplemented": false,
+  "incrementalSelectorRecomputationImplemented": false,
+  "acceptedForRelease": false,
+  "sources": {
+    "development/rmtx-a06/selector-profile/inspect.cjs": "bf7049c75512cf39d92045e577a71cfa9ba862467c9bf8b1eaa40cd0e3f02847",
+    "development/rmtx-a06/selector-profile/runtime-acceptance.mjs": "46809039eb96b3aa8e745a4a3e3fa365a32c7a2175fa71e24035c49f241a8447",
+    "development/rmtx-a06/selector-profile/runtime-test.cjs": "9ec8bd2deaf3eeb18839f3d70230ca7a147ae4a426b352cd9a4b959610af702d",
+    "development/rmtx-a06/selector-profile/selectors.rmt": "f5ceadd19eedb8e497e5d8d4b9eb2f096f499a536527013e6ccb5723803f602e",
+    "development/rmtx-a06/selector-profile/selectors.rmtx": "3078f720f3c068b33c54afb510acd984ed19a53d61d5416731e584f38f75509b",
+    "development/rmtx-a06/selector-profile/two-host.rmtx": "f98fe6e856c396c36caf68f139baa547e339cf6baebf0ad60fdc563dba721369",
+    "scripts/check_release_preparation.cjs": "06dc57bf4b7c97b6ff12442b88a571a994cc7a398fd07ba58889562a06cf39a4",
+    "tests/release/preparation-gates.test.cjs": "26165d88a42945027c3b6d48c069f5a1716c37e6b898c8362eb087d2c283fb9b",
+    "tests/rmt-language/rmtx-operator-profiles.test.cjs": "362a95b6e9c6c13bd4f34f3438fb20032b05100a858f689a9dafb778d6dacf09",
+    "tests/rmt-language/rmtx-selector-dependencies.test.cjs": "47af12b727c783f53ae1b18a42ecdc5ce826042d15ba611d457a4303abbdbabd",
+    "tests/rmt-language/rmtx-selectors.test.cjs": "af106daadc88f400eeaded7eec145a9f57df65ef344fc9563d46f28ba482482d",
+    "tests/xtensions/xtensions_runtime_gate_suite.js": "4e439d3a038f2ca6becd726df45b5e294e239325021e2f53878cc7bd23a50d17",
+    "tools/rmt-language/classic-ast-contract.js": "3e17596b6615c7ca5528bb5a72551143e1d3403d8a8c606cf83569d71a3c79d4",
+    "tools/rmt-language/classic-ast-rules.js": "269c0ad5d14ba86a149e33877e7db28b3a4004d0217b8c6b829b26931a327b0d",
+    "tools/rmt-language/classic-compiler.d.ts": "3643f120af87e27644716f87e997846237d95c30c2cea73edfb14cb014f8f96b",
+    "tools/rmt-language/classic-compiler.js": "0fce500de51a9214e45e33fc739450c26b4dcce2a750730c7472f05947f4dd25",
+    "tools/rmt-language/classic-semantic-rules.js": "09e7a8706201958104fbebee8eea749d3f7b78de4b491eed0d0d79c2f4451549",
+    "tools/rmt-language/rmtx-compiler.d.ts": "823ead6fa57780359b787710e4b19aeb89f9f8920f8bc4278cf2da58ffdab8bd",
+    "tools/rmt-language/rmtx-compiler.js": "ebecb0bb4f4a5b47140a9b2d0c9c24d6f08fc99231c6cca3f3b6bbdd20f139fd",
+    "tools/rmt-language/rmtx-operator-profiles.d.ts": "0e4ed8e06b55d8893683e533de2eebd72f66a4ecf42bf0a366e4c7b82bf50199",
+    "tools/rmt-language/rmtx-operator-profiles.js": "48d4295474a73237c8a8b323fde2923b3f10016726ec4d5b79b72a9c04c42afd",
+    "tools/rmt-language/rmtx-parser.d.ts": "8f7c6628861280438a34a3d2d44ba1563f7a4f9e9249f6ebedaa58b616030a4b",
+    "tools/rmt-language/rmtx-parser.js": "0e9003f18c16d3ff5eded3e4e68049868bb90de45dc02f0b86d45238492a02c0",
+    "tools/rmt-language/rmtx-selector-dependencies.d.ts": "4e89b835b32c331354922af6c15d9938eb869a5d532ff16804c88e5433dd9c7f",
+    "tools/rmt-language/rmtx-selector-dependencies.js": "e44e81f1391642e82d573468c957bce657ef21b5c638d86a1b4f03ddcfbb1087",
+    "tools/rmt-language/rmtx.d.ts": "e8e9b138a1d70dd918239ae1c4868212828ba2f48cbf9580702a69f8bc5587d8",
+    "tools/rmt-language/rmtx.js": "d11d03bfba080820ed50a9e76a3f37c8194c8d16ed28fb9a9019a4f5705f6e0b",
+    "tools/rmt-language/semantic-graph.js": "38af11000b4cee776725b2789c2f20ca50a44ac14adcafd84de1bad01088c1af",
+    "tools/rmt-language/vnext-compiler.d.ts": "cb719c90afc5fc176625d8fa75f5aa0d0c1507611acc9a9b6a8033664f2cbb94",
+    "tools/rmt-language/vnext-compiler.js": "ef4e26b966f6661e42e6519315e51fae05bc9fe9890635082555dae0a7e12aa0",
+    "xtendrmt/rmt-state-selector-runtime.js": "150f5ae1a279cf7457be54fc7a466afeb1a2a026a911ab1cb1d16ae5da2a669d"
+  }
+}

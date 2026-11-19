@@ -23,7 +23,7 @@ const accepted = result => { assert.equal(result.ok, true, JSON.stringify(result
 const rejected = result => { assert.equal(result.ok, false); assert.equal(result.coreDocument, null); assert.equal(result.orchestrationArtifacts, null); assert.equal(result.nativeDependencies, null); return result; };
 
 test('source5 is explicit, carries its native contract and names the unchanged Action subprofile', () => {
-  assert.equal(RMTX_PARSER_API_VERSION, '5.0.0'); assert.equal(RMTX_COMPILER_API_VERSION, '5.0.0');
+  assert.equal(RMTX_PARSER_API_VERSION, '7.0.0'); assert.equal(RMTX_COMPILER_API_VERSION, '7.0.0');
   const result = accepted(compile(source(view('<RMT.Text value={model.meta.title}/>'))));
   assert.equal(result.schema, 'xtend.rmtx.compile-result.v5');
   assert.equal(result.parserResult.schema, 'xtend.rmtx.parser-result.v5');

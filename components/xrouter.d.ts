@@ -282,6 +282,8 @@ export interface XRouteElement extends Omit<HTMLElement, 'title'> {
 }
 
 export interface XRouterElement extends HTMLElement {
+  connectURLState(runtime: Pick<import('@ccslabs/xtend/maraca/plan-runtime').OrchestratedRmtxPlanRuntime16,'restoreURLState' | 'publishURLState'>, codec: import('@ccslabs/xtend/xtensions/url-state').OrchestratedURLStateRuntime): import('./xrouter-url-state.js').XRouterOrchestratedURLStateHost;
+  connectURLState(runtime: Pick<import('@ccslabs/xtend/maraca/plan-runtime').LifecycleRmtxPlanRuntime,'restoreURLState' | 'publishURLState'>, codec: import('@ccslabs/xtend/xtensions/url-state').LifecycleURLStateRuntime): import('./xrouter-url-state.js').XRouterLifecycleURLStateHost;
   connectURLState(runtime: Pick<import('@ccslabs/xtend/maraca/plan-runtime').NativeRmtxPlanRuntime,'restoreURLState' | 'publishURLState'>, codec: import('@ccslabs/xtend/xtensions/url-state').NativeURLStateRuntime): import('./xrouter-url-state.js').XRouterNativeURLStateHost;
   connectURLState(runtime: Pick<import('@ccslabs/xtend/maraca/plan-runtime').RmtxPlanRuntime,'restoreURLState' | 'publishURLState'>, codec: import('@ccslabs/xtend/xtensions/url-state').ProjectionURLStateRuntime): import('./xrouter-url-state.js').XRouterProjectionURLStateHost;
   connectURLState(runtime: Pick<import('@ccslabs/xtend/maraca/plan-runtime').MaracaPlanRuntime,'restoreURLState' | 'publishURLState'>, codec: typeof import('@ccslabs/xtend/xtensions/url-state')): import('./xrouter-url-state.js').XRouterURLStateHost;

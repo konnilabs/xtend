@@ -102,11 +102,11 @@
     },
     {
       "file": "tools/rmt-language/classic-compiler.d.ts",
-      "sha256": "3643f120af87e27644716f87e997846237d95c30c2cea73edfb14cb014f8f96b"
+      "sha256": "f22eeb7f5a0e4f1db541f18f62bf8ecb02ad849cdc1ba2409b0821c03677ae4e"
     },
     {
       "file": "tools/rmt-language/classic-compiler.js",
-      "sha256": "0fce500de51a9214e45e33fc739450c26b4dcce2a750730c7472f05947f4dd25"
+      "sha256": "cecab81710e72a213e57a9c2e43724a81a4ef017d71b0ae9d8d54dd417ea45b3"
     },
     {
       "file": "tools/rmt-language/classic-parser.d.ts",
@@ -130,15 +130,15 @@
     },
     {
       "file": "tools/rmt-language/semantic-graph.js",
-      "sha256": "38af11000b4cee776725b2789c2f20ca50a44ac14adcafd84de1bad01088c1af"
+      "sha256": "c641e0675f0f327bf76728ad2da3bf3d4a7b84437ba11f4d9cbeb8752f871df2"
     },
     {
       "file": "tools/rmt-language/vnext-compiler.d.ts",
-      "sha256": "cb719c90afc5fc176625d8fa75f5aa0d0c1507611acc9a9b6a8033664f2cbb94"
+      "sha256": "3206ae8e0f9cba4df860835bf59b9351bdc38863c11465be45bd0120f5534268"
     },
     {
       "file": "tools/rmt-language/vnext-compiler.js",
-      "sha256": "ef4e26b966f6661e42e6519315e51fae05bc9fe9890635082555dae0a7e12aa0"
+      "sha256": "baef0439c6ea27d8a398c829811660128d3e196f3b20b438ecd41e340a8bf3b8"
     },
     {
       "file": "tools/rmt-language/vnext-composition.js",
@@ -170,7 +170,7 @@
     },
     {
       "file": "xtend-maraca/plan-runtime.mjs",
-      "sha256": "307e18790bfad4ac13bfed1fa75f27e9fe2c03e3d669f71834cc9f8c63b212ab"
+      "sha256": "d4abbfc30526a0aeafe287d4842ce0d2a9055a36bf6f9926523720ae51853ea5"
     },
     {
       "file": "xtendrmt/contracts/portable-render.v2.json",
@@ -2263,87 +2263,101 @@
           "symbol": "<anonymous>"
         },
         {
+          "name": "RMT_APP_ORCHESTRATION_SCHEMA_V5",
+          "value": "xtend.rmt.app-orchestration.v5",
+          "file": "tools/rmt-language/vnext-compiler.js",
+          "line": 27,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RMT_APP_ORCHESTRATION_SCHEMA_V4",
+          "value": "xtend.rmt.app-orchestration.v4",
+          "file": "tools/rmt-language/vnext-compiler.js",
+          "line": 28,
+          "symbol": "<anonymous>"
+        },
+        {
           "name": "RMT_APP_SERVICE_DEMANDS_SCHEMA",
           "value": "xtend.maraca.app-service-demands.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 28,
+          "line": 30,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_APP_SERVICE_INPUT_POLICY_SCHEMA",
           "value": "xtend.maraca.app-service-input-policy.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 29,
+          "line": 31,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_COMPONENT_COMMAND_SCHEMA",
           "value": "xtend.rmt.component-command.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 30,
+          "line": 32,
           "symbol": "<anonymous>"
         },
         {
           "name": "SANITIZING_BOUNDARY_CONTRACT",
           "value": "xtend.security.sanitizing-boundary.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 31,
+          "line": 33,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_FORM_VALIDATION_SCHEMA",
           "value": "xtend.rmt.form-validation.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 32,
+          "line": 34,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_SURFACE_TRANSITION_SCHEMA",
           "value": "xtend.rmt.surface-transitions.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 33,
+          "line": 35,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_ANIMATION_ENGINE_SCHEMA",
           "value": "xtend.rmt.animation-engine.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 34,
+          "line": 36,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_SEARCH_RUNTIME_SCHEMA",
           "value": "xtend.rmt.search-runtime.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 35,
+          "line": 37,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_KERNEL_RECORDS_SCHEMA",
           "value": "xtend.rmt.vnext.kernel-records.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 40,
+          "line": 42,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_APP_PLATFORM_RECORDS_SCHEMA",
           "value": "xtend.rmt.vnext.app-platform-records.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 41,
+          "line": 43,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_SERVER_RESUME_ENVELOPE_SCHEMA",
           "value": "xtend.rmt.ssr-resume-envelope.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 2604,
+          "line": 2606,
           "symbol": "<anonymous>"
         },
         {
           "name": "RMT_RESUMABILITY_CAPABILITY_SCHEMA",
           "value": "xtend.rmt.app-resumability-capability.v1",
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 2605,
+          "line": 2607,
           "symbol": "<anonymous>"
         }
       ],
@@ -2355,7 +2369,7 @@
             "surface"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 43,
+          "line": 45,
           "symbol": "<anonymous>"
         },
         {
@@ -2366,7 +2380,7 @@
             "snapshot"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 44,
+          "line": 46,
           "symbol": "<anonymous>"
         },
         {
@@ -2382,7 +2396,7 @@
             "y"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 48,
+          "line": 50,
           "symbol": "<anonymous>"
         },
         {
@@ -2392,7 +2406,7 @@
             "responsive"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 49,
+          "line": 51,
           "symbol": "<anonymous>"
         },
         {
@@ -2402,7 +2416,7 @@
             "viewport"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 50,
+          "line": 52,
           "symbol": "<anonymous>"
         },
         {
@@ -2414,7 +2428,7 @@
             "min"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 51,
+          "line": 53,
           "symbol": "<anonymous>"
         },
         {
@@ -2433,7 +2447,7 @@
             "RmtValidationDeclaration"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 53,
+          "line": 55,
           "symbol": "<anonymous>"
         },
         {
@@ -2448,7 +2462,7 @@
             "RmtSurfaceSourceClause"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 66,
+          "line": 68,
           "symbol": "<anonymous>"
         },
         {
@@ -2465,7 +2479,7 @@
             "surface"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 75,
+          "line": 77,
           "symbol": "<anonymous>"
         },
         {
@@ -2502,7 +2516,7 @@
             "RmtValidationTargetClause"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 1370,
+          "line": 1372,
           "symbol": "sourceMapForOrchestration"
         },
         {
@@ -2531,7 +2545,7 @@
             "RmtValidationTargetClause"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 1405,
+          "line": 1407,
           "symbol": "sourceMapForKernel"
         },
         {
@@ -2542,7 +2556,7 @@
             "prototype"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 1822,
+          "line": 1824,
           "symbol": "<anonymous>"
         },
         {
@@ -2568,7 +2582,7 @@
             "worker_prerender_hydrate"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 2583,
+          "line": 2585,
           "symbol": "<anonymous>"
         },
         {
@@ -2580,7 +2594,7 @@
             "x-textarea"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 2997,
+          "line": 2999,
           "symbol": "<anonymous>"
         },
         {
@@ -2605,7 +2619,7 @@
             "zoom"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 2998,
+          "line": 3000,
           "symbol": "<anonymous>"
         },
         {
@@ -2616,7 +2630,7 @@
             "none"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 3018,
+          "line": 3020,
           "symbol": "<anonymous>"
         },
         {
@@ -2627,7 +2641,7 @@
             "replace"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 3019,
+          "line": 3021,
           "symbol": "<anonymous>"
         },
         {
@@ -2637,7 +2651,7 @@
             "transform"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 3020,
+          "line": 3022,
           "symbol": "<anonymous>"
         },
         {
@@ -2646,7 +2660,7 @@
             "filter"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 3021,
+          "line": 3023,
           "symbol": "<anonymous>"
         }
       ],
@@ -2672,7 +2686,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4446,
+          "line": 4463,
           "symbol": "compileImport"
         },
         {
@@ -2693,7 +2707,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4458,
+          "line": 4475,
           "symbol": "compileTemplate"
         },
         {
@@ -2727,7 +2741,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4542,
+          "line": 4559,
           "symbol": "compileSurface"
         },
         {
@@ -2758,7 +2772,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4612,
+          "line": 4629,
           "symbol": "compileSurfaceEvent"
         },
         {
@@ -2783,7 +2797,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4663,
+          "line": 4680,
           "symbol": "compilePrimitiveState"
         },
         {
@@ -2808,7 +2822,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4679,
+          "line": 4696,
           "symbol": "compilePrimitiveSelector"
         },
         {
@@ -2838,7 +2852,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4717,
+          "line": 4734,
           "symbol": "compilePrimitiveDataSource"
         },
         {
@@ -2868,7 +2882,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4780,
+          "line": 4797,
           "symbol": "compilePrimitiveAction"
         },
         {
@@ -2894,7 +2908,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4808,
+          "line": 4825,
           "symbol": "compilePrimitiveValidation"
         },
         {
@@ -2925,7 +2939,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4854,
+          "line": 4871,
           "symbol": "compilePrimitiveAnimation"
         },
         {
@@ -2962,7 +2976,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4909,
+          "line": 4926,
           "symbol": "compilePrimitiveTransition"
         },
         {
@@ -2989,7 +3003,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4922,
+          "line": 4939,
           "symbol": "compilePrimitiveEffect"
         },
         {
@@ -3015,7 +3029,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4960,
+          "line": 4977,
           "symbol": "compilePrimitivePortal"
         },
         {
@@ -3040,7 +3054,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 4978,
+          "line": 4995,
           "symbol": "compilePrimitiveOverlay"
         },
         {
@@ -3068,7 +3082,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5013,
+          "line": 5030,
           "symbol": "compilePrimitiveResource"
         },
         {
@@ -3106,7 +3120,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5056,
+          "line": 5073,
           "symbol": "compilePrimitiveSearchSource"
         },
         {
@@ -3136,7 +3150,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5248,
+          "line": 5265,
           "symbol": "compileRemoteSurface"
         },
         {
@@ -3159,7 +3173,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5318,
+          "line": 5335,
           "symbol": "compileLane"
         },
         {
@@ -3182,7 +3196,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5379,
+          "line": 5396,
           "symbol": "compileOperation"
         },
         {
@@ -3203,7 +3217,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5391,
+          "line": 5408,
           "symbol": "compileDataSource"
         },
         {
@@ -3224,7 +3238,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5436,
+          "line": 5453,
           "symbol": "compileSlot"
         },
         {
@@ -3248,7 +3262,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5475,
+          "line": 5492,
           "symbol": "compileEvent"
         },
         {
@@ -3269,7 +3283,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5480,
+          "line": 5497,
           "symbol": "compileSecurityPolicy"
         },
         {
@@ -3290,7 +3304,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5488,
+          "line": 5505,
           "symbol": "compileSecurityPolicy"
         },
         {
@@ -3312,7 +3326,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5498,
+          "line": 5515,
           "symbol": "compileHydrationPolicy"
         },
         {
@@ -3336,7 +3350,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5508,
+          "line": 5525,
           "symbol": "compileHydrationPolicy"
         },
         {
@@ -3359,7 +3373,7 @@
             "sourceRef"
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 5519,
+          "line": 5536,
           "symbol": "compileHydrationPolicy"
         }
       ],
@@ -3533,7 +3547,7 @@
             }
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 125,
+          "line": 127,
           "symbol": "createCoreDocument"
         },
         {
@@ -3629,7 +3643,7 @@
             }
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 864,
+          "line": 866,
           "symbol": "createAppPlatformRecords"
         },
         {
@@ -3647,7 +3661,7 @@
             }
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 1173,
+          "line": 1175,
           "symbol": "createRmtAppServiceDemands"
         },
         {
@@ -3738,7 +3752,7 @@
             }
           ],
           "file": "tools/rmt-language/vnext-compiler.js",
-          "line": 1254,
+          "line": 1256,
           "symbol": "createKernelRecords"
         }
       ]
@@ -4027,6 +4041,13 @@
           "symbol": "<anonymous>"
         },
         {
+          "name": "RmtClassicAstResultOptionsV6",
+          "fields": [],
+          "file": "tools/rmt-language/classic-compiler.d.ts",
+          "line": 16,
+          "symbol": "<anonymous>"
+        },
+        {
           "name": "RmtClassicCompileResult",
           "fields": [
             {
@@ -4085,7 +4106,7 @@
             }
           ],
           "file": "tools/rmt-language/classic-compiler.d.ts",
-          "line": 16,
+          "line": 17,
           "symbol": "<anonymous>"
         },
         {
@@ -4153,7 +4174,14 @@
             }
           ],
           "file": "tools/rmt-language/classic-compiler.d.ts",
-          "line": 47,
+          "line": 49,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtClassicAstResultOptionsV7",
+          "fields": [],
+          "file": "tools/rmt-language/classic-compiler.d.ts",
+          "line": 60,
           "symbol": "<anonymous>"
         }
       ],
@@ -4739,6 +4767,26 @@
           "symbol": "<anonymous>"
         },
         {
+          "name": "RmtCompilerSourceProfileV6",
+          "fields": [
+            {
+              "name": "syntax",
+              "optional": false,
+              "type": "'rmtx'",
+              "declaration": "readonly syntax: 'rmtx';"
+            },
+            {
+              "name": "version",
+              "optional": false,
+              "type": "'6.0.0'",
+              "declaration": "readonly version: '6.0.0'"
+            }
+          ],
+          "file": "tools/rmt-language/vnext-compiler.d.ts",
+          "line": 31,
+          "symbol": "<anonymous>"
+        },
+        {
           "name": "RmtVNextAstResultOptions",
           "fields": [
             {
@@ -4749,7 +4797,7 @@
             }
           ],
           "file": "tools/rmt-language/vnext-compiler.d.ts",
-          "line": 31,
+          "line": 32,
           "symbol": "<anonymous>"
         },
         {
@@ -4763,7 +4811,7 @@
             }
           ],
           "file": "tools/rmt-language/vnext-compiler.d.ts",
-          "line": 32,
+          "line": 33,
           "symbol": "<anonymous>"
         },
         {
@@ -4777,7 +4825,7 @@
             }
           ],
           "file": "tools/rmt-language/vnext-compiler.d.ts",
-          "line": 33,
+          "line": 34,
           "symbol": "<anonymous>"
         },
         {
@@ -4797,7 +4845,7 @@
             }
           ],
           "file": "tools/rmt-language/vnext-compiler.d.ts",
-          "line": 34,
+          "line": 35,
           "symbol": "<anonymous>"
         },
         {
@@ -4823,7 +4871,51 @@
             }
           ],
           "file": "tools/rmt-language/vnext-compiler.d.ts",
-          "line": 35,
+          "line": 36,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtVNextAstResultOptionsV6",
+          "fields": [
+            {
+              "name": "sourceProfile",
+              "optional": false,
+              "type": "RmtCompilerSourceProfileV6",
+              "declaration": "sourceProfile: RmtCompilerSourceProfileV6;"
+            },
+            {
+              "name": "viewProfile",
+              "optional": false,
+              "type": "RmtCompilerSourceProfileV5",
+              "declaration": "viewProfile: RmtCompilerSourceProfileV5;"
+            },
+            {
+              "name": "actionProfile",
+              "optional": false,
+              "type": "RmtCompilerSourceProfileV4",
+              "declaration": "actionProfile: RmtCompilerSourceProfileV4;"
+            },
+            {
+              "name": "rmtxActionInputRules",
+              "optional": false,
+              "type": "import('./action-input-contract').RmtxActionInputRules",
+              "declaration": "rmtxActionInputRules: import('./action-input-contract').RmtxActionInputRules;"
+            },
+            {
+              "name": "rmtxNativeView",
+              "optional": false,
+              "type": "import('./rmtx-native-view').RmtxNativeViewSourceContract",
+              "declaration": "rmtxNativeView: import('./rmtx-native-view').RmtxNativeViewSourceContract;"
+            },
+            {
+              "name": "rmtxNativeLifecycle",
+              "optional": false,
+              "type": "import('./rmtx-native-lifecycle').RmtxNativeLifecycleSourceContract",
+              "declaration": "rmtxNativeLifecycle: import('./rmtx-native-lifecycle').RmtxNativeLifecycleSourceContract;"
+            }
+          ],
+          "file": "tools/rmt-language/vnext-compiler.d.ts",
+          "line": 37,
           "symbol": "<anonymous>"
         },
         {
@@ -4879,7 +4971,71 @@
             }
           ],
           "file": "tools/rmt-language/vnext-compiler.d.ts",
-          "line": 36,
+          "line": 44,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtCompilerSourceProfileV7",
+          "fields": [
+            {
+              "name": "syntax",
+              "optional": false,
+              "type": "'rmtx'",
+              "declaration": "readonly syntax:'rmtx';"
+            },
+            {
+              "name": "version",
+              "optional": false,
+              "type": "'7.0.0'",
+              "declaration": "readonly version:'7.0.0'"
+            }
+          ],
+          "file": "tools/rmt-language/vnext-compiler.d.ts",
+          "line": 98,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "RmtVNextAstResultOptionsV7",
+          "fields": [
+            {
+              "name": "sourceProfile",
+              "optional": false,
+              "type": "RmtCompilerSourceProfileV7",
+              "declaration": "sourceProfile:RmtCompilerSourceProfileV7;"
+            },
+            {
+              "name": "viewProfile",
+              "optional": false,
+              "type": "RmtCompilerSourceProfileV7",
+              "declaration": "viewProfile:RmtCompilerSourceProfileV7;"
+            },
+            {
+              "name": "actionProfile",
+              "optional": false,
+              "type": "RmtCompilerSourceProfileV4",
+              "declaration": "actionProfile:RmtCompilerSourceProfileV4;"
+            },
+            {
+              "name": "rmtxActionInputRules",
+              "optional": false,
+              "type": "import('./action-input-contract').RmtxActionInputRules",
+              "declaration": "rmtxActionInputRules:import('./action-input-contract').RmtxActionInputRules;"
+            },
+            {
+              "name": "rmtxNativeView",
+              "optional": false,
+              "type": "import('./rmtx-native-view').RmtxNativeOrchestrationViewSourceContract",
+              "declaration": "rmtxNativeView:import('./rmtx-native-view').RmtxNativeOrchestrationViewSourceContract;"
+            },
+            {
+              "name": "rmtxNativeLifecycle",
+              "optional": false,
+              "type": "import('./rmtx-native-lifecycle').RmtxExtendedLifecycleSourceContract",
+              "declaration": "rmtxNativeLifecycle:import('./rmtx-native-lifecycle').RmtxExtendedLifecycleSourceContract;"
+            }
+          ],
+          "file": "tools/rmt-language/vnext-compiler.d.ts",
+          "line": 99,
           "symbol": "<anonymous>"
         }
       ],
@@ -18075,24 +18231,38 @@
           "symbol": "<anonymous>"
         },
         {
+          "name": "LIFECYCLE_RMTX_PLAN_RUNTIME_SCHEMA",
+          "value": "xtend.maraca.plan-runtime.v15",
+          "file": "xtend-maraca/plan-runtime.mjs",
+          "line": 12,
+          "symbol": "<anonymous>"
+        },
+        {
+          "name": "ORCHESTRATED_RMTX_PLAN_RUNTIME_SCHEMA",
+          "value": "xtend.maraca.plan-runtime.v16",
+          "file": "xtend-maraca/plan-runtime.mjs",
+          "line": 13,
+          "symbol": "<anonymous>"
+        },
+        {
           "name": "COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA",
           "value": "xtend.maraca.plan-runtime.v10",
           "file": "xtend-maraca/plan-runtime.mjs",
-          "line": 12,
+          "line": 14,
           "symbol": "<anonymous>"
         },
         {
           "name": "XTENSION_PLAN_RUNTIME_SCHEMA",
           "value": "xtend.maraca.plan-runtime.v8",
           "file": "xtend-maraca/plan-runtime.mjs",
-          "line": 13,
+          "line": 15,
           "symbol": "<anonymous>"
         },
         {
           "name": "DOM_COMMIT_SCHEMA",
           "value": "xtend.rmt.dom-commit-result.v1",
           "file": "xtend-maraca/plan-runtime.mjs",
-          "line": 15,
+          "line": 17,
           "symbol": "<anonymous>"
         }
       ],
@@ -18108,7 +18278,7 @@
             "writer:change"
           ],
           "file": "xtend-maraca/plan-runtime.mjs",
-          "line": 18,
+          "line": 20,
           "symbol": "<anonymous>"
         },
         {
@@ -18119,7 +18289,7 @@
             "hidden"
           ],
           "file": "xtend-maraca/plan-runtime.mjs",
-          "line": 178,
+          "line": 180,
           "symbol": "<anonymous>"
         },
         {
@@ -18133,7 +18303,7 @@
             "invalid"
           ],
           "file": "xtend-maraca/plan-runtime.mjs",
-          "line": 179,
+          "line": 181,
           "symbol": "<anonymous>"
         },
         {
@@ -18150,7 +18320,7 @@
             "will-change"
           ],
           "file": "xtend-maraca/plan-runtime.mjs",
-          "line": 180,
+          "line": 182,
           "symbol": "<anonymous>"
         }
       ],

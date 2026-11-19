@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { createHash } = require('node:crypto');
 const { TextDecoder } = require('node:util');
-const XTENSION_COMPOSITION_BUILD_API_VERSION = '14.0.0';
+const XTENSION_COMPOSITION_BUILD_API_VERSION = '16.0.0';
 const hash = value => createHash('sha256').update(value).digest('hex');
 function inspectSource(source, exportName) {
   const { parseAst } = require('rollup/parseAst');
@@ -27,12 +27,12 @@ function inspectSource(source, exportName) {
 /** Captures verified source bytes into a companion ESM graph for a compiled plan.
  * It does not execute providers, bundle peers, or certify HTTP delivery. */
 async function buildMaracaXTensionComposition(options) {
-  const { planIdentity, normalizeManifest, ARTIFACT_SCHEMA, INTEGRATED_ARTIFACT_SCHEMA, GRAPH_MANIFEST_SCHEMA, GRAPH_ARTIFACT_SCHEMA, DEFERRED_MANIFEST_SCHEMA, DEFERRED_ARTIFACT_SCHEMA, SHARED_MANIFEST_SCHEMA, SHARED_ARTIFACT_SCHEMA, DELIVERY_MANIFEST_SCHEMA, DELIVERY_ARTIFACT_SCHEMA, COMPONENT_MANIFEST_SCHEMA, COMPONENT_ARTIFACT_SCHEMA, SCOPED_COMPONENT_MANIFEST_SCHEMA, SCOPED_COMPONENT_ARTIFACT_SCHEMA, PROJECTION_COMPONENT_MANIFEST_SCHEMA, PROJECTION_COMPONENT_ARTIFACT_SCHEMA, NATIVE_COMPONENT_MANIFEST_SCHEMA, NATIVE_COMPONENT_ARTIFACT_SCHEMA, createLoadPlan, canonical } = await import('./xtension-composition-contract.mjs');
+  const { planIdentity, normalizeManifest, ARTIFACT_SCHEMA, INTEGRATED_ARTIFACT_SCHEMA, GRAPH_MANIFEST_SCHEMA, GRAPH_ARTIFACT_SCHEMA, DEFERRED_MANIFEST_SCHEMA, DEFERRED_ARTIFACT_SCHEMA, SHARED_MANIFEST_SCHEMA, SHARED_ARTIFACT_SCHEMA, DELIVERY_MANIFEST_SCHEMA, DELIVERY_ARTIFACT_SCHEMA, COMPONENT_MANIFEST_SCHEMA, COMPONENT_ARTIFACT_SCHEMA, SCOPED_COMPONENT_MANIFEST_SCHEMA, SCOPED_COMPONENT_ARTIFACT_SCHEMA, PROJECTION_COMPONENT_MANIFEST_SCHEMA, PROJECTION_COMPONENT_ARTIFACT_SCHEMA, NATIVE_COMPONENT_MANIFEST_SCHEMA, NATIVE_COMPONENT_ARTIFACT_SCHEMA, LIFECYCLE_COMPONENT_MANIFEST_SCHEMA, ORCHESTRATED_COMPONENT_MANIFEST_SCHEMA, LIFECYCLE_COMPONENT_ARTIFACT_SCHEMA, ORCHESTRATED_COMPONENT_ARTIFACT_SCHEMA, createLoadPlan, canonical } = await import('./xtension-composition-contract.mjs');
   const identity = planIdentity(options.plan, options.bindingsRuntime), manifest = normalizeManifest(options.manifest, identity);
-  const integrated = ['xtend.maraca.build-plan.v5','xtend.maraca.build-plan.v6','xtend.maraca.build-plan.v7','xtend.maraca.build-plan.v8','xtend.maraca.build-plan.v9'].includes(identity.schema);
+  const integrated = ['xtend.maraca.build-plan.v5','xtend.maraca.build-plan.v6','xtend.maraca.build-plan.v7','xtend.maraca.build-plan.v8','xtend.maraca.build-plan.v9','xtend.maraca.build-plan.v10','xtend.maraca.build-plan.v11'].includes(identity.schema);
   if (integrated && canonical(manifest) !== canonical(identity.compositionManifest)) throw new TypeError('The provider manifest must match its declared build plan.');
   const root = fs.realpathSync(options.rootDir), captures = [];
-  const native = manifest.schema === NATIVE_COMPONENT_MANIFEST_SCHEMA, projected = native || manifest.schema === PROJECTION_COMPONENT_MANIFEST_SCHEMA, scoped = projected || manifest.schema === SCOPED_COMPONENT_MANIFEST_SCHEMA, component = scoped || manifest.schema === COMPONENT_MANIFEST_SCHEMA, delivery = component || manifest.schema === DELIVERY_MANIFEST_SCHEMA, shared = delivery || manifest.schema === SHARED_MANIFEST_SCHEMA, deferred = shared || manifest.schema === DEFERRED_MANIFEST_SCHEMA;
+  const orchestrated = manifest.schema === ORCHESTRATED_COMPONENT_MANIFEST_SCHEMA, lifecycle = orchestrated || manifest.schema === LIFECYCLE_COMPONENT_MANIFEST_SCHEMA, native = lifecycle || manifest.schema === NATIVE_COMPONENT_MANIFEST_SCHEMA, projected = native || manifest.schema === PROJECTION_COMPONENT_MANIFEST_SCHEMA, scoped = projected || manifest.schema === SCOPED_COMPONENT_MANIFEST_SCHEMA, component = scoped || manifest.schema === COMPONENT_MANIFEST_SCHEMA, delivery = component || manifest.schema === DELIVERY_MANIFEST_SCHEMA, shared = delivery || manifest.schema === SHARED_MANIFEST_SCHEMA, deferred = shared || manifest.schema === DEFERRED_MANIFEST_SCHEMA;
   let componentInterfaces, interfaceFiles = [];
   if (component) {
     const api = require(path.join(path.dirname(require.resolve('@ccslabs/xtend-compiler/xtensions/component-interface')), 'component-interface-build.js'));
@@ -48,7 +48,7 @@ async function buildMaracaXTensionComposition(options) {
       return { ...record, fileName: file.fileName, sourceBytes: file.bytes.length };
     });
   }
-  const graph = [GRAPH_MANIFEST_SCHEMA, DEFERRED_MANIFEST_SCHEMA, SHARED_MANIFEST_SCHEMA, DELIVERY_MANIFEST_SCHEMA, COMPONENT_MANIFEST_SCHEMA, SCOPED_COMPONENT_MANIFEST_SCHEMA, PROJECTION_COMPONENT_MANIFEST_SCHEMA, NATIVE_COMPONENT_MANIFEST_SCHEMA].includes(manifest.schema) ? await require('./xtension-provider-graph').captureProviderGraph(root, manifest) : null;
+  const graph = [GRAPH_MANIFEST_SCHEMA, DEFERRED_MANIFEST_SCHEMA, SHARED_MANIFEST_SCHEMA, DELIVERY_MANIFEST_SCHEMA, COMPONENT_MANIFEST_SCHEMA, SCOPED_COMPONENT_MANIFEST_SCHEMA, PROJECTION_COMPONENT_MANIFEST_SCHEMA, NATIVE_COMPONENT_MANIFEST_SCHEMA, LIFECYCLE_COMPONENT_MANIFEST_SCHEMA, ORCHESTRATED_COMPONENT_MANIFEST_SCHEMA].includes(manifest.schema) ? await require('./xtension-provider-graph').captureProviderGraph(root, manifest) : null;
   for (const provider of graph ? [] : manifest.providers) {
     const sourcePath = fs.realpathSync(path.resolve(root, provider.entry.module));
     const relative = path.relative(root, sourcePath);
@@ -63,7 +63,7 @@ async function buildMaracaXTensionComposition(options) {
   // Neither path rereads original sources during output.
   const entryFile = `xtend.xtensions-${hash(canonical({ identity, manifest }))}.mjs`;
   const providers = graph ? graph.providers : captures.map(({ id, sha256, fileName }) => ({ id, sha256, fileName }));
-  const artifact = { schema: native ? NATIVE_COMPONENT_ARTIFACT_SCHEMA : projected ? PROJECTION_COMPONENT_ARTIFACT_SCHEMA : scoped ? SCOPED_COMPONENT_ARTIFACT_SCHEMA : component ? COMPONENT_ARTIFACT_SCHEMA : delivery ? DELIVERY_ARTIFACT_SCHEMA : shared ? SHARED_ARTIFACT_SCHEMA : deferred ? DEFERRED_ARTIFACT_SCHEMA : graph ? GRAPH_ARTIFACT_SCHEMA : integrated ? INTEGRATED_ARTIFACT_SCHEMA : ARTIFACT_SCHEMA, apiVersion: native ? '10.0.0' : projected ? '9.0.0' : scoped ? '8.0.0' : component ? '7.0.0' : delivery ? '6.0.0' : shared ? '5.0.0' : deferred ? '4.0.0' : graph ? '3.0.0' : integrated ? '2.0.0' : '1.0.0', plan: identity, manifest,
+  const artifact = { schema: orchestrated ? ORCHESTRATED_COMPONENT_ARTIFACT_SCHEMA : lifecycle ? LIFECYCLE_COMPONENT_ARTIFACT_SCHEMA : native ? NATIVE_COMPONENT_ARTIFACT_SCHEMA : projected ? PROJECTION_COMPONENT_ARTIFACT_SCHEMA : scoped ? SCOPED_COMPONENT_ARTIFACT_SCHEMA : component ? COMPONENT_ARTIFACT_SCHEMA : delivery ? DELIVERY_ARTIFACT_SCHEMA : shared ? SHARED_ARTIFACT_SCHEMA : deferred ? DEFERRED_ARTIFACT_SCHEMA : graph ? GRAPH_ARTIFACT_SCHEMA : integrated ? INTEGRATED_ARTIFACT_SCHEMA : ARTIFACT_SCHEMA, apiVersion: orchestrated ? '12.0.0' : lifecycle ? '11.0.0' : native ? '10.0.0' : projected ? '9.0.0' : scoped ? '8.0.0' : component ? '7.0.0' : delivery ? '6.0.0' : shared ? '5.0.0' : deferred ? '4.0.0' : graph ? '3.0.0' : integrated ? '2.0.0' : '1.0.0', plan: identity, manifest,
     ...(component ? { componentInterfaces } : {}), providers, ...(graph ? { modules: graph.modules } : {}), ...(deferred ? { loadPlan: createLoadPlan(manifest, graph.modules, providers) } : {}), entryFile, runtimeExecutionVerified: false };
   if (component) {
     const { validateComponentBindings } = await import('./xtension-component-binding.mjs');
@@ -91,7 +91,7 @@ async function buildMaracaXTensionComposition(options) {
     try { fs.writeFileSync(target, file.bytes, { flag: 'wx' }); }
     catch (error) { if (error.code !== 'EEXIST' || !fs.readFileSync(target).equals(file.bytes)) throw error; }
   }
-  return { schema: native ? 'xtend.maraca.xtension-composition-build-report.v10' : projected ? 'xtend.maraca.xtension-composition-build-report.v9' : scoped ? 'xtend.maraca.xtension-composition-build-report.v8' : component ? 'xtend.maraca.xtension-composition-build-report.v7' : delivery ? 'xtend.maraca.xtension-composition-build-report.v6' : shared ? 'xtend.maraca.xtension-composition-build-report.v5' : deferred ? 'xtend.maraca.xtension-composition-build-report.v4' : graph ? 'xtend.maraca.xtension-composition-build-report.v3' : integrated ? 'xtend.maraca.xtension-composition-build-report.v2' : 'xtend.maraca.xtension-composition-build-report.v1', apiVersion: native ? '10.0.0' : projected ? '9.0.0' : scoped ? '8.0.0' : component ? '7.0.0' : delivery ? '6.0.0' : shared ? '5.0.0' : deferred ? '4.0.0' : graph ? '3.0.0' : integrated ? '2.0.0' : '1.0.0', ok: true,
+  return { schema: orchestrated ? 'xtend.maraca.xtension-composition-build-report.v12' : lifecycle ? 'xtend.maraca.xtension-composition-build-report.v11' : native ? 'xtend.maraca.xtension-composition-build-report.v10' : projected ? 'xtend.maraca.xtension-composition-build-report.v9' : scoped ? 'xtend.maraca.xtension-composition-build-report.v8' : component ? 'xtend.maraca.xtension-composition-build-report.v7' : delivery ? 'xtend.maraca.xtension-composition-build-report.v6' : shared ? 'xtend.maraca.xtension-composition-build-report.v5' : deferred ? 'xtend.maraca.xtension-composition-build-report.v4' : graph ? 'xtend.maraca.xtension-composition-build-report.v3' : integrated ? 'xtend.maraca.xtension-composition-build-report.v2' : 'xtend.maraca.xtension-composition-build-report.v1', apiVersion: orchestrated ? '12.0.0' : lifecycle ? '11.0.0' : native ? '10.0.0' : projected ? '9.0.0' : scoped ? '8.0.0' : component ? '7.0.0' : delivery ? '6.0.0' : shared ? '5.0.0' : deferred ? '4.0.0' : graph ? '3.0.0' : integrated ? '2.0.0' : '1.0.0', ok: true,
     artifact, ...(delivery ? { deliveryFile } : {}), entryPath: path.join(output, entryFile), files: files.map(file => ({ fileName: file.fileName, sha256: file.sha256, bytes: file.bytes.length })),
     frameworkDependenciesBundled: false, runtimeExecutionVerified: false };
 }

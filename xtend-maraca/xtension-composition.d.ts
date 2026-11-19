@@ -1,7 +1,7 @@
 import type { MaracaBuildPlan } from './index';
 import type { XTensionCompositionManifest, XTensionCompositionArtifact, XTensionCompositionBindingRuntime } from './xtension-composition-runtime';
 export type { XTensionCompositionManifest, XTensionCompositionArtifact, XTensionCompositionProvider } from './xtension-composition-runtime';
-export const XTENSION_COMPOSITION_BUILD_API_VERSION: '14.0.0';
+export const XTENSION_COMPOSITION_BUILD_API_VERSION: '16.0.0';
 export interface XTensionCompositionBuildReport {
   readonly schema: 'xtend.maraca.xtension-composition-build-report.v1';
   readonly apiVersion: '1.0.0'; readonly ok: true;
@@ -213,3 +213,27 @@ export function buildMaracaXTensionComposition(options: {
   readonly bindingsRuntime: import('./xtension-composition-runtime').NativeComponentBindingRuntime;
   readonly rootDir: string; readonly outputDir: string;
 }): Promise<NativeComponentBuildReport>;
+
+/** Explicit Source6/Program4 composition; retained Native build reports remain v10. */
+export interface LifecycleComponentBuildReport extends Omit<ProjectionComponentBuildReport, 'schema' | 'apiVersion' | 'artifact'> {
+  readonly schema: 'xtend.maraca.xtension-composition-build-report.v11'; readonly apiVersion: '11.0.0';
+  readonly artifact: import('./xtension-composition-runtime').LifecycleComponentArtifact;
+}
+export function buildMaracaXTensionComposition(options: {
+  readonly plan: import('./index').LifecycleRmtxBuildPlan10;
+  readonly manifest: import('./xtension-composition-runtime').LifecycleComponentManifest;
+  readonly bindingsRuntime: import('./xtension-composition-runtime').LifecycleComponentBindingRuntime;
+  readonly rootDir: string; readonly outputDir: string;
+}): Promise<LifecycleComponentBuildReport>;
+
+/** Explicit Source7/Program5 composition; retained Native build reports remain v10. */
+export interface OrchestratedComponentBuildReport extends Omit<ProjectionComponentBuildReport, 'schema' | 'apiVersion' | 'artifact'> {
+  readonly schema: 'xtend.maraca.xtension-composition-build-report.v12'; readonly apiVersion: '12.0.0';
+  readonly artifact: import('./xtension-composition-runtime').OrchestratedComponentArtifact;
+}
+export function buildMaracaXTensionComposition(options: {
+  readonly plan: import('./index').OrchestratedRmtxBuildPlan11;
+  readonly manifest: import('./xtension-composition-runtime').OrchestratedComponentManifest;
+  readonly bindingsRuntime: import('./xtension-composition-runtime').OrchestratedComponentBindingRuntime;
+  readonly rootDir: string; readonly outputDir: string;
+}): Promise<OrchestratedComponentBuildReport>;

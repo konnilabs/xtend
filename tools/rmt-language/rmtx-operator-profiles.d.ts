@@ -1,11 +1,12 @@
 /** Capability API; retained v1/v2/v3 records keep their original apiVersion. */
-export declare const RMTX_OPERATOR_PROFILE_API_VERSION: '4.0.0';
+export declare const RMTX_OPERATOR_PROFILE_API_VERSION: '6.0.0';
 export declare const RMTX_OPERATOR_PROFILE_SCHEMA: 'xtend.rmtx.operator-profile.v1';
 export declare const RMTX_OPERATOR_PROFILE_SCHEMA_V2: 'xtend.rmtx.operator-profile.v2';
 export declare const RMTX_OPERATOR_PROFILE_SCHEMA_V3: 'xtend.rmtx.operator-profile.v3';
 export declare const RMTX_OPERATOR_PROFILE_SCHEMA_V4: 'xtend.rmtx.operator-profile.v4';
+export declare const RMTX_OPERATOR_PROFILE_SCHEMA_V5: 'xtend.rmtx.operator-profile.v5';
 export type RmtxLegacyOperatorProfileVersion = '1.0.0' | '2.0.0';
-export type RmtxOperatorProfileVersion = RmtxLegacyOperatorProfileVersion | '3.0.0' | '4.0.0' | '5.0.0';
+export type RmtxOperatorProfileVersion = RmtxLegacyOperatorProfileVersion | '3.0.0' | '4.0.0' | '5.0.0' | '6.0.0' | '7.0.0';
 export type RmtxOperatorAttributeKind = 'symbol' | 'string' | 'json-literal' | 'boolean' | 'reducer-value'
   | 'model-or-selector-path' | 'boolean-predicate' | 'item-path' | 'enum';
 export type RmtxOperatorAttributeKindV2 = RmtxOperatorAttributeKind
@@ -48,12 +49,12 @@ export interface RmtxOperatorContractV4 extends Omit<RmtxOperatorContractV3, 'at
   readonly contexts?: Readonly<{ host: readonly string[]; native: readonly string[] }>;
 }
 export interface RmtxOperatorProfile<V extends RmtxOperatorProfileVersion = RmtxOperatorProfileVersion> {
-  readonly schema: V extends '5.0.0' ? typeof RMTX_OPERATOR_PROFILE_SCHEMA_V4 : V extends '4.0.0' ? typeof RMTX_OPERATOR_PROFILE_SCHEMA_V3 : V extends '3.0.0' ? typeof RMTX_OPERATOR_PROFILE_SCHEMA_V2 : typeof RMTX_OPERATOR_PROFILE_SCHEMA;
-  readonly apiVersion: V extends '5.0.0' ? '4.0.0' : V extends '4.0.0' ? '3.0.0' : V extends '3.0.0' ? '2.0.0' : '1.0.0';
+  readonly schema: V extends '7.0.0' ? typeof RMTX_OPERATOR_PROFILE_SCHEMA_V6 : V extends '6.0.0' ? typeof RMTX_OPERATOR_PROFILE_SCHEMA_V5 : V extends '5.0.0' ? typeof RMTX_OPERATOR_PROFILE_SCHEMA_V4 : V extends '4.0.0' ? typeof RMTX_OPERATOR_PROFILE_SCHEMA_V3 : V extends '3.0.0' ? typeof RMTX_OPERATOR_PROFILE_SCHEMA_V2 : typeof RMTX_OPERATOR_PROFILE_SCHEMA;
+  readonly apiVersion: V extends '7.0.0' ? '6.0.0' : V extends '6.0.0' ? '5.0.0' : V extends '5.0.0' ? '4.0.0' : V extends '4.0.0' ? '3.0.0' : V extends '3.0.0' ? '2.0.0' : '1.0.0';
   readonly syntaxVersion: V;
   readonly sourceProfile: Readonly<{ syntax: 'rmtx'; version: V }>;
   readonly imports: readonly string[];
-  readonly operators: Readonly<Record<string, V extends '5.0.0' ? RmtxOperatorContractV4 : V extends '4.0.0' ? RmtxOperatorContractV3 : V extends '3.0.0' ? RmtxOperatorContractV2 : RmtxOperatorContract>>;
+  readonly operators: Readonly<Record<string, V extends '5.0.0' | '6.0.0' | '7.0.0' ? RmtxOperatorContractV4 : V extends '4.0.0' ? RmtxOperatorContractV3 : V extends '3.0.0' ? RmtxOperatorContractV2 : RmtxOperatorContract>>;
   readonly expressionContexts: Readonly<Record<string, RmtxProfileValue>>;
   readonly limits: Readonly<{ sourceUtf8Bytes: number; literalDepth: number; operatorDepth: number; expressionDepth: number; generatedNodes: number }>;
   readonly semantics: Readonly<Record<string, RmtxProfileValue>>;
@@ -64,3 +65,5 @@ export interface RmtxOperatorProfile<V extends RmtxOperatorProfileVersion = Rmtx
 }
 export declare function getRmtxOperatorProfile(): RmtxOperatorProfile<'1.0.0'>;
 export declare function getRmtxOperatorProfile<V extends RmtxOperatorProfileVersion>(version: V): RmtxOperatorProfile<V>;
+
+export const RMTX_OPERATOR_PROFILE_SCHEMA_V6:'xtend.rmtx.operator-profile.v6';

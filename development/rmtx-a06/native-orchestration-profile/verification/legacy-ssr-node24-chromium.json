@@ -1,0 +1,368 @@
+{
+  "schema": "xtend.xtensions.ssr-acceptance-report.v1",
+  "apiVersion": "1.0.0",
+  "ok": true,
+  "node": "v24.22.2",
+  "browser": "156.0.8078.4",
+  "checks": 84,
+  "cases": [
+    {
+      "name": "react: real Node SSR renders through Kernel/Fabric and records keyed provider/Model identity",
+      "passed": true
+    },
+    {
+      "name": "react: stable prefixes distinguish app roots in the same generation",
+      "passed": true
+    },
+    {
+      "name": "react: deferred framework adoption is outside the synchronous SSR profile",
+      "passed": true
+    },
+    {
+      "name": "react: serialized build reports cannot confer Node SSR authority",
+      "passed": true
+    },
+    {
+      "name": "react: altered output bytes fail before framework loading",
+      "passed": true
+    },
+    {
+      "name": "vue: real Node SSR renders through Kernel/Fabric and records keyed provider/Model identity",
+      "passed": true
+    },
+    {
+      "name": "vue: stable prefixes distinguish app roots in the same generation",
+      "passed": true
+    },
+    {
+      "name": "vue: deferred framework adoption is outside the synchronous SSR profile",
+      "passed": true
+    },
+    {
+      "name": "vue: serialized build reports cannot confer Node SSR authority",
+      "passed": true
+    },
+    {
+      "name": "vue: altered output bytes fail before framework loading",
+      "passed": true
+    },
+    {
+      "name": "mixed: real Node SSR renders through Kernel/Fabric and records keyed provider/Model identity",
+      "passed": true
+    },
+    {
+      "name": "mixed: stable prefixes distinguish app roots in the same generation",
+      "passed": true
+    },
+    {
+      "name": "mixed: deferred framework adoption is outside the synchronous SSR profile",
+      "passed": true
+    },
+    {
+      "name": "mixed: serialized build reports cannot confer Node SSR authority",
+      "passed": true
+    },
+    {
+      "name": "mixed: altered output bytes fail before framework loading",
+      "passed": true
+    },
+    {
+      "name": "react: native resume",
+      "passed": true
+    },
+    {
+      "name": "react: native replay",
+      "passed": true
+    },
+    {
+      "name": "react: native duplicate",
+      "passed": true
+    },
+    {
+      "name": "react: native reorder",
+      "passed": true
+    },
+    {
+      "name": "react: native renew",
+      "passed": true
+    },
+    {
+      "name": "react: native signed-props",
+      "passed": true
+    },
+    {
+      "name": "react: native signed-provider",
+      "passed": true
+    },
+    {
+      "name": "react: native signed-duplicate",
+      "passed": true
+    },
+    {
+      "name": "react: native signed-state",
+      "passed": true
+    },
+    {
+      "name": "react: native signature",
+      "passed": true
+    },
+    {
+      "name": "react: native source",
+      "passed": true
+    },
+    {
+      "name": "react: native expired",
+      "passed": true
+    },
+    {
+      "name": "react: native key-type",
+      "passed": true
+    },
+    {
+      "name": "react: native dom-reject",
+      "passed": true
+    },
+    {
+      "name": "react: native fallback",
+      "passed": true
+    },
+    {
+      "name": "react: native shell",
+      "passed": true
+    },
+    {
+      "name": "react: native wrong-intent",
+      "passed": true
+    },
+    {
+      "name": "react: native conflicting-intent",
+      "passed": true
+    },
+    {
+      "name": "react: native late-dom",
+      "passed": true
+    },
+    {
+      "name": "react: native late-container",
+      "passed": true
+    },
+    {
+      "name": "react: native framework-error",
+      "passed": true
+    },
+    {
+      "name": "react: native hydrate-error",
+      "passed": true
+    },
+    {
+      "name": "react: native hydration-repair",
+      "passed": true
+    },
+    {
+      "name": "react: native cancel-verify",
+      "passed": true
+    },
+    {
+      "name": "vue: native resume",
+      "passed": true
+    },
+    {
+      "name": "vue: native replay",
+      "passed": true
+    },
+    {
+      "name": "vue: native duplicate",
+      "passed": true
+    },
+    {
+      "name": "vue: native reorder",
+      "passed": true
+    },
+    {
+      "name": "vue: native renew",
+      "passed": true
+    },
+    {
+      "name": "vue: native signed-props",
+      "passed": true
+    },
+    {
+      "name": "vue: native signed-provider",
+      "passed": true
+    },
+    {
+      "name": "vue: native signed-duplicate",
+      "passed": true
+    },
+    {
+      "name": "vue: native signed-state",
+      "passed": true
+    },
+    {
+      "name": "vue: native signature",
+      "passed": true
+    },
+    {
+      "name": "vue: native source",
+      "passed": true
+    },
+    {
+      "name": "vue: native expired",
+      "passed": true
+    },
+    {
+      "name": "vue: native key-type",
+      "passed": true
+    },
+    {
+      "name": "vue: native dom-reject",
+      "passed": true
+    },
+    {
+      "name": "vue: native fallback",
+      "passed": true
+    },
+    {
+      "name": "vue: native shell",
+      "passed": true
+    },
+    {
+      "name": "vue: native wrong-intent",
+      "passed": true
+    },
+    {
+      "name": "vue: native conflicting-intent",
+      "passed": true
+    },
+    {
+      "name": "vue: native late-dom",
+      "passed": true
+    },
+    {
+      "name": "vue: native late-container",
+      "passed": true
+    },
+    {
+      "name": "vue: native framework-error",
+      "passed": true
+    },
+    {
+      "name": "vue: native hydrate-error",
+      "passed": true
+    },
+    {
+      "name": "vue: native hydration-repair",
+      "passed": true
+    },
+    {
+      "name": "vue: native cancel-verify",
+      "passed": true
+    },
+    {
+      "name": "mixed: native resume",
+      "passed": true
+    },
+    {
+      "name": "mixed: native replay",
+      "passed": true
+    },
+    {
+      "name": "mixed: native duplicate",
+      "passed": true
+    },
+    {
+      "name": "mixed: native signed-props",
+      "passed": true
+    },
+    {
+      "name": "mixed: native signed-provider",
+      "passed": true
+    },
+    {
+      "name": "mixed: native signed-duplicate",
+      "passed": true
+    },
+    {
+      "name": "mixed: native signed-state",
+      "passed": true
+    },
+    {
+      "name": "mixed: native signature",
+      "passed": true
+    },
+    {
+      "name": "mixed: native source",
+      "passed": true
+    },
+    {
+      "name": "mixed: native expired",
+      "passed": true
+    },
+    {
+      "name": "mixed: native dom-reject",
+      "passed": true
+    },
+    {
+      "name": "mixed: native fallback",
+      "passed": true
+    },
+    {
+      "name": "mixed: native shell",
+      "passed": true
+    },
+    {
+      "name": "mixed: native wrong-intent",
+      "passed": true
+    },
+    {
+      "name": "mixed: native conflicting-intent",
+      "passed": true
+    },
+    {
+      "name": "mixed: native late-dom",
+      "passed": true
+    },
+    {
+      "name": "mixed: native late-container",
+      "passed": true
+    },
+    {
+      "name": "mixed: native framework-error",
+      "passed": true
+    },
+    {
+      "name": "mixed: native hydrate-error",
+      "passed": true
+    },
+    {
+      "name": "mixed: native hydration-repair",
+      "passed": true
+    },
+    {
+      "name": "mixed: native cancel-verify",
+      "passed": true
+    }
+  ],
+  "frameworks": [
+    "react",
+    "vue"
+  ],
+  "ownership": "exclusive-container",
+  "signedSnapshotRequired": true,
+  "restoreBeforeReplay": true,
+  "releaseAccepted": false,
+  "sizes": {
+    "react": {
+      "runtimeBytes": 178455,
+      "frameworkBytes": 1637869
+    },
+    "vue": {
+      "runtimeBytes": 177095,
+      "frameworkBytes": 1636155
+    },
+    "mixed": {
+      "runtimeBytes": 198165,
+      "frameworkBytes": 1684143
+    }
+  }
+}

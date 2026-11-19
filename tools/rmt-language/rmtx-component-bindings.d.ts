@@ -50,3 +50,32 @@ export function projectRmtxComponents(input: { readonly contract: RmtxComponentS
   readonly xtensionComposition: Readonly<Record<string, unknown>> & { readonly schema: 'xtend.maraca.xtension-composition-manifest.v9' };
   readonly dependencies: RmtxComponentDependencyReportV2;
 };
+
+/** Source6 consumes the unchanged Source5 component source subprofile. */
+export const RMTX_LIFECYCLE_COMPONENT_BINDINGS_API_VERSION: '3.0.0';
+export const RMTX_COMPONENT_DEPENDENCIES_SCHEMA_V3: 'xtend.rmtx.component-dependencies.v3';
+export interface RmtxComponentDependencyReportV3 extends Omit<RmtxComponentDependencyReport, 'schema' | 'sourceProfile'> {
+  readonly schema: typeof RMTX_COMPONENT_DEPENDENCIES_SCHEMA_V3;
+  readonly sourceProfile: { readonly syntax: 'rmtx'; readonly version: '6.0.0' };
+  readonly viewProfile: RmtxComponentSourceContractV2['sourceProfile'];
+}
+export function projectRmtxLifecycleComponents(input: { readonly contract: RmtxComponentSourceContractV2; readonly catalog: RmtxComponentCatalog; readonly program: unknown }): {
+  readonly xtensionBindings: import('../xtensions/state-binding-artifact').XTensionLifecycleStateBindingArtifact;
+  readonly xtensionComposition: Readonly<Record<string, unknown>> & { readonly schema: 'xtend.maraca.xtension-composition-manifest.v10' };
+  readonly dependencies: RmtxComponentDependencyReportV3;
+};
+
+/** Source7 adds scoped native owners without widening the retained Source4–6 contracts. */
+export const RMTX_ORCHESTRATED_COMPONENT_BINDINGS_API_VERSION: '4.0.0';
+export interface RmtxComponentSourceContractV3 extends Omit<RmtxComponentSourceContract, 'schema' | 'sourceProfile'> {
+ readonly schema: 'xtend.rmtx.components.v3'; readonly sourceProfile: { readonly syntax: 'rmtx'; readonly version: '7.0.0' };
+}
+export interface RmtxComponentDependencyReportV4 extends Omit<RmtxComponentDependencyReport, 'schema' | 'sourceProfile'> {
+ readonly schema: 'xtend.rmtx.component-dependencies.v4'; readonly sourceProfile: RmtxComponentSourceContractV3['sourceProfile'];
+ readonly viewProfile: RmtxComponentSourceContractV3['sourceProfile'];
+}
+export function projectRmtxOrchestratedComponents(input: { readonly contract: RmtxComponentSourceContractV3; readonly catalog: RmtxComponentCatalog; readonly program: unknown }): {
+ readonly xtensionBindings: import('../xtensions/state-binding-artifact').XTensionOrchestratedStateBindingArtifact;
+ readonly xtensionComposition: Readonly<Record<string, unknown>> & { readonly schema: 'xtend.maraca.xtension-composition-manifest.v11' };
+ readonly dependencies: RmtxComponentDependencyReportV4;
+};

@@ -1052,6 +1052,34 @@
     "./xtensions/native-view-projection": {
       "types": "./tools/xtensions/native-view-projection.d.ts",
       "default": "./tools/xtensions/native-view-projection.js"
+    },
+    "./xtensions/native-lifecycle": {
+      "types": "./tools/xtensions/native-lifecycle.d.ts",
+      "default": "./tools/xtensions/native-lifecycle.js"
+    },
+    "./maraca/native-lifecycle-runtime": {
+      "types": "./xtend-maraca/native-lifecycle-runtime.d.ts",
+      "default": "./xtend-maraca/native-lifecycle-runtime.mjs"
+    },
+    "./xtensions/native-surface-scopes": {
+      "types": "./tools/xtensions/native-surface-scopes.d.ts",
+      "default": "./tools/xtensions/native-surface-scopes.js"
+    },
+    "./xtensions/native-surface-projection": {
+      "types": "./tools/xtensions/native-surface-projection.d.ts",
+      "default": "./tools/xtensions/native-surface-projection.js"
+    },
+    "./xtensions/native-orchestration-lifecycle": {
+      "types": "./tools/xtensions/native-orchestration-lifecycle.d.ts",
+      "default": "./tools/xtensions/native-orchestration-lifecycle.js"
+    },
+    "./maraca/native-orchestration-runtime": {
+      "types": "./xtend-maraca/native-orchestration-runtime.d.ts",
+      "default": "./xtend-maraca/native-orchestration-runtime.mjs"
+    },
+    "./maraca/native-surface-graph": {
+      "types": "./xtend-maraca/native-surface-graph.d.ts",
+      "default": "./xtend-maraca/native-surface-graph.mjs"
     }
   },
   "publishConfig": {
@@ -15660,7 +15688,7 @@
       "packageDryRunArtifact": ".xtend-test-results/xtend-pack-dry-run.json",
       "packageExportSurfaceArtifact": ".xtend-test-results/xtend-package-export-surface-lock.json",
       "packageExportLockReportArtifact": ".xtend-test-results/xtend-package-export-lock-report.json",
-      "expectedExportCount": 218,
+      "expectedExportCount": 225,
       "localGateRequiresNpmPackExecution": false,
       "artifactRequiredForRc1": true,
       "nextWorkpackage": "WP-E13-13",
@@ -15685,8 +15713,8 @@
       "localGate": "node scripts/run_xtend_tests.js type-exports --json",
       "packageScript": "npm run test:type-exports",
       "reportArtifact": ".xtend-test-results/xtend-type-exports-report.json",
-      "expectedExportCount": 218,
-      "lockedExportFingerprint": "6e59bcee5aed6581399276cb75f85f08766ec72361bc843c50819e4b9e7f6db5",
+      "expectedExportCount": 225,
+      "lockedExportFingerprint": "cf8ee7699ab8864b428b8cc1296e28d7031b0d6c241939cac2d64ab0c934fed2",
       "p0Exports": [
         ".",
         "./loader",

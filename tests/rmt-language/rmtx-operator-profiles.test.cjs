@@ -54,7 +54,7 @@ test('v2 declares selector admission, field rules and strict boolean semantics i
 });
 
 test('new profile capability preserves exact v1 and v2 wire contracts', () => {
-  assert.equal(profiles.RMTX_OPERATOR_PROFILE_API_VERSION,'4.0.0');
+  assert.equal(profiles.RMTX_OPERATOR_PROFILE_API_VERSION,'6.0.0');
   const expected={
     '1.0.0':'d40079c970f88ee4c66e547f81d1d35052643a86c3d79712b79d4e8cc4aff4ec',
     '2.0.0':'27f9d25ba4e730b0db9812a451af631d14bb1fa11cd16abd9ef35d19002f55c1'
@@ -145,9 +145,9 @@ test('catalog references remain coherent and do not claim dynamic tracking or ru
   }
 });
 
-test('authoring names follow the v5 catalog and all operator/helper calls require compilation', () => {
-  assert.equal(authoring.RMTX_AUTHORING_API_VERSION,'5.0.0');
-  assert.deepEqual(Object.keys(authoring.RMT),Object.keys(profiles.getRmtxOperatorProfile('5.0.0').operators));
+test('authoring names follow the v7 catalog and all operator/helper calls require compilation', () => {
+  assert.equal(authoring.RMTX_AUTHORING_API_VERSION,'7.0.0');
+  assert.deepEqual(Object.keys(authoring.RMT),Object.keys(profiles.getRmtxOperatorProfile('7.0.0').operators));
   assert(Object.isFrozen(authoring));assert(Object.isFrozen(authoring.RMT));
   let touched=false;
   const attrs=Object.defineProperty({},'id',{get(){touched=true;return 'forged';}});
@@ -202,8 +202,8 @@ RMT.Repeat({from:model.groups,keyBy:item.id,indexKey:true});
 RMT.On({event:'click'});
 // @ts-expect-error No event payload/selector syntax is introduced in this profile.
 RMT.On({event:'click',action:'select',selector:'#host'});
-// @ts-expect-error Mount conditions are not supported by the actual runtime.
-RMT.Mount({target:'card',when:true});
+// @ts-expect-error Mount conditions remain outside the named v3 namespace.
+({} as RmtxAuthoringNamespaceV3).Mount({target:'card',when:true});
 // @ts-expect-error On is a leaf operator.
 RMT.On({event:'click',action:'select',children:'text'});
 void [oldKeys,v2Keys,newKeys,sourceVersion,v3SourceVersion,oldProfileApi,newProfileApi];

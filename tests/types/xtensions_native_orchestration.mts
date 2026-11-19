@@ -1,0 +1,26 @@
+import {createRmtxCompiler} from '@ccslabs/xtend/rmt-language/rmtx-compiler';
+import {createMaracaBuildPlan,type OrchestratedRmtxOnlyBuildPlan11} from '@ccslabs/xtend/maraca';
+import {createMaracaNativeOrchestrationRuntime} from '@ccslabs/xtend/maraca/native-orchestration-runtime';
+import {NATIVE_ORCHESTRATION_VIEW_RUNTIME} from '@ccslabs/xtend/xtensions/native-surface-projection';
+import {ORCHESTRATED_STATE_BINDING_RUNTIME,validateOrchestratedStateBindingArtifact,materializeOrchestratedStateBindingArtifact} from '@ccslabs/xtend/xtensions/state-binding';
+import {ORCHESTRATED_URL_STATE_RUNTIME,type OrchestratedURLStateContract} from '@ccslabs/xtend/xtensions/url-state';
+import type {OrchestratedRmtxRuntimeOptions16,OrchestratedRmtxPlanRuntime16} from '@ccslabs/xtend/maraca/plan-runtime';
+import type {OrchestratedComponentPort,OrchestratedComponentManifest} from '@ccslabs/xtend/maraca/xtension-composition-runtime';
+const compiler=createRmtxCompiler({syntaxVersion:'7.0.0'});
+const plan:OrchestratedRmtxOnlyBuildPlan11=createMaracaBuildPlan({source:'app.rmtx',rmtxSyntaxVersion:'7.0.0'});
+const syntax:'7.0.0'=compiler.sourceProfile.version,portVersion:'3.0.0'=NATIVE_ORCHESTRATION_VIEW_RUNTIME.API_VERSION;
+const registryVersion:'6.0.0'=ORCHESTRATED_STATE_BINDING_RUNTIME.XTENSION_ORCHESTRATED_STATE_BINDING_API_VERSION;
+const urlVersion:'5.0.0'=ORCHESTRATED_URL_STATE_RUNTIME.API_VERSION;
+declare const options:OrchestratedRmtxRuntimeOptions16;
+const runtime:OrchestratedRmtxPlanRuntime16=createMaracaNativeOrchestrationRuntime(options);
+const schema:'xtend.maraca.plan-runtime.v16'=runtime.snapshot().schema;
+declare const manifest:OrchestratedComponentManifest;
+const mode:'orchestrated'=manifest.loading.provider;
+declare const compositionPort:OrchestratedComponentPort;
+declare const compositionPlan:Parameters<typeof compositionPort.bind>[0]['plan'];
+const factory=compositionPort.bind({plan:compositionPlan});factory.prewarm({surfaceIds:['owner']});
+const binding=validateOrchestratedStateBindingArtifact({},{});const rows=materializeOrchestratedStateBindingArtifact(binding,{states:{}});const owner:string=rows[0].ownerSurface;
+declare const contract:OrchestratedURLStateContract;contract.encode(contract.capture({states:{}}));
+// @ts-expect-error Source7 cannot be opted into an older View API.
+const oldPort:OrchestratedRmtxRuntimeOptions16={...options,nativeViewRuntimePort:{API_VERSION:'2.0.0'}};
+void[syntax,portVersion,registryVersion,urlVersion,schema,mode,owner,plan,oldPort];

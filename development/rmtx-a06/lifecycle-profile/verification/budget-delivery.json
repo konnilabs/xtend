@@ -1,0 +1,10 @@
+{
+  "name": "delivery",
+  "ok": true,
+  "diagnostics": [],
+  "status": "within_budget",
+  "frameworkBytes": 2097534,
+  "runtimeBytes": 238924,
+  "frameworkCap": 2200000,
+  "runtimeCap": 240000
+}

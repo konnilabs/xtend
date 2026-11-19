@@ -31,6 +31,12 @@ const MARACA_RMTX_HOST_SCOPE_API_VERSION = '1.0.0';
 const MARACA_RMTX_ORCHESTRATION_API_VERSION = '1.0.0';
 const MARACA_RMTX_BUILD_PLAN_SCHEMA = 'xtend.maraca.build-plan.v8';
 const MARACA_RMTX_BUILD_CONFIG_SCHEMA = 'xtend.maraca.build-config.v8';
+const MARACA_RMTX_ORCHESTRATED_API_VERSION = '1.0.0';
+const MARACA_RMTX_ORCHESTRATED_BUILD_PLAN_SCHEMA = 'xtend.maraca.build-plan.v11';
+const MARACA_RMTX_ORCHESTRATED_BUILD_CONFIG_SCHEMA = 'xtend.maraca.build-config.v11';
+const MARACA_RMTX_LIFECYCLE_API_VERSION = '1.0.0';
+const MARACA_RMTX_LIFECYCLE_BUILD_PLAN_SCHEMA = 'xtend.maraca.build-plan.v10';
+const MARACA_RMTX_LIFECYCLE_BUILD_CONFIG_SCHEMA = 'xtend.maraca.build-config.v10';
 const MARACA_RMTX_NATIVE_API_VERSION = '1.0.0';
 const MARACA_RMTX_NATIVE_BUILD_PLAN_SCHEMA = 'xtend.maraca.build-plan.v9';
 const MARACA_RMTX_NATIVE_BUILD_CONFIG_SCHEMA = 'xtend.maraca.build-config.v9';
@@ -186,6 +192,9 @@ const KERNEL_RUNTIME_BUNDLE_FILE = 'runtime/xtendrmt-runtime.esm.mjs';
 const KERNEL_CONTROLLER_BUNDLE_FILE = 'runtime/xtendrmt-kernel-orchestration-controller.mjs';
 const KERNEL_SCHEDULER_BUNDLE_FILE = 'runtime/rmt-kernel-scheduler.mjs';
 const KERNEL_RESUME_RUNTIME_BUNDLE_FILE = 'runtime/rmt-resume-runtime.mjs';
+const NATIVE_ORCHESTRATION_RUNTIME_BUNDLE_FILE = 'runtime/xtend-maraca-native-orchestration-runtime.mjs';
+const NATIVE_LIFECYCLE_RUNTIME_BUNDLE_FILE = 'runtime/xtend-maraca-native-lifecycle-runtime.mjs';
+const isNativePlan = plan => [MARACA_RMTX_NATIVE_BUILD_PLAN_SCHEMA, MARACA_RMTX_LIFECYCLE_BUILD_PLAN_SCHEMA, MARACA_RMTX_ORCHESTRATED_BUILD_PLAN_SCHEMA].includes(plan.schema);
 const NATIVE_VIEW_RUNTIME_BUNDLE_FILE = 'runtime/xtend-maraca-native-view.mjs';
 const PLAN_RUNTIME_BUNDLE_FILE = 'runtime/xtend-maraca-plan-runtime.mjs';
 const BROWSER_COMPOSITION_RUNTIME_BUNDLE_FILE = 'runtime/xtend-maraca-browser-composition-runtime.mjs';
@@ -1912,7 +1921,7 @@ function loadMaracaBuildConfig(values, rootDir) {
   }
   try {
     const config = readJson(configPath);
-    if (!config || ![MARACA_RMTX_NATIVE_BUILD_CONFIG_SCHEMA, MARACA_RMTX_BUILD_CONFIG_SCHEMA, MARACA_SCOPED_COMPONENT_BUILD_CONFIG_SCHEMA, MARACA_COMPONENT_BUILD_CONFIG_SCHEMA, MARACA_XTENSION_BUILD_CONFIG_SCHEMA, MARACA_BUILD_CONFIG_SCHEMA, 'xtend.maraca.build-config.v3', 'xtend.maraca.build-config.v2', LEGACY_MARACA_BUILD_CONFIG_SCHEMA].includes(config.schema)) {
+    if (!config || ![MARACA_RMTX_ORCHESTRATED_BUILD_CONFIG_SCHEMA, MARACA_RMTX_LIFECYCLE_BUILD_CONFIG_SCHEMA, MARACA_RMTX_NATIVE_BUILD_CONFIG_SCHEMA, MARACA_RMTX_BUILD_CONFIG_SCHEMA, MARACA_SCOPED_COMPONENT_BUILD_CONFIG_SCHEMA, MARACA_COMPONENT_BUILD_CONFIG_SCHEMA, MARACA_XTENSION_BUILD_CONFIG_SCHEMA, MARACA_BUILD_CONFIG_SCHEMA, 'xtend.maraca.build-config.v3', 'xtend.maraca.build-config.v2', LEGACY_MARACA_BUILD_CONFIG_SCHEMA].includes(config.schema)) {
       return {
         path: configPath,
         config,
@@ -1934,8 +1943,11 @@ function loadMaracaBuildConfig(values, rootDir) {
         }]
       };
     }
-    if (config.schema === MARACA_RMTX_NATIVE_BUILD_CONFIG_SCHEMA && config.options?.rmtxSyntaxVersion !== '5.0.0' || Object.hasOwn(config.options || {}, 'rmtxSyntaxVersion') && (config.schema !== MARACA_RMTX_NATIVE_BUILD_CONFIG_SCHEMA || config.options.rmtxSyntaxVersion !== '5.0.0')) return { path: configPath, config, diagnostics: [{ code: 'xtend.maraca.rmtx_native_config_version', severity: 'error', message: 'Native RMTX5 requires build-config.v9 with explicit rmtxSyntaxVersion5.' }] };
-    if (Object.hasOwn(config.options || {}, 'rmtxProviders') && ![MARACA_RMTX_BUILD_CONFIG_SCHEMA, MARACA_RMTX_NATIVE_BUILD_CONFIG_SCHEMA].includes(config.schema)) return { path: configPath, config, diagnostics: [{ code: 'xtend.maraca.rmtx_config_version', severity: 'error', message: 'Inline RMTX providers require build-config.v8.' }] };
+    const nativeConfigVersions = { [MARACA_RMTX_NATIVE_BUILD_CONFIG_SCHEMA]: '5.0.0', [MARACA_RMTX_LIFECYCLE_BUILD_CONFIG_SCHEMA]: '6.0.0', [MARACA_RMTX_ORCHESTRATED_BUILD_CONFIG_SCHEMA]: '7.0.0' };
+    if (Object.hasOwn(nativeConfigVersions, config.schema) && config.options?.rmtxSyntaxVersion !== nativeConfigVersions[config.schema]
+      || Object.hasOwn(config.options || {}, 'rmtxSyntaxVersion') && nativeConfigVersions[config.schema] !== config.options.rmtxSyntaxVersion)
+      return { path: configPath, config, diagnostics: [{ code: 'xtend.maraca.rmtx_native_config_version', severity: 'error', message: 'Native RMTX requires its exact build-config and explicit syntax version.' }] };
+    if (Object.hasOwn(config.options || {}, 'rmtxProviders') && ![MARACA_RMTX_BUILD_CONFIG_SCHEMA, MARACA_RMTX_NATIVE_BUILD_CONFIG_SCHEMA, MARACA_RMTX_LIFECYCLE_BUILD_CONFIG_SCHEMA, MARACA_RMTX_ORCHESTRATED_BUILD_CONFIG_SCHEMA].includes(config.schema)) return { path: configPath, config, diagnostics: [{ code: 'xtend.maraca.rmtx_config_version', severity: 'error', message: 'Inline RMTX providers require build-config.v8.' }] };
     if (Object.hasOwn(config.options || {}, 'xtensionComposition') && config.schema !== (config.options.xtensionComposition?.schema === 'xtend.maraca.xtension-composition-manifest.v7' ? MARACA_SCOPED_COMPONENT_BUILD_CONFIG_SCHEMA : config.options.xtensionComposition?.schema === 'xtend.maraca.xtension-composition-manifest.v6' ? MARACA_COMPONENT_BUILD_CONFIG_SCHEMA : MARACA_XTENSION_BUILD_CONFIG_SCHEMA)) return { path: configPath, config, diagnostics: [{ code: 'xtend.maraca.xtension_composition_config_version', severity: 'error', message: 'Automatic XTension composition requires its version-matched build-config.v5/v6/v7.' }] };
     if (config.schema === LEGACY_MARACA_BUILD_CONFIG_SCHEMA && Object.hasOwn(config.options || {}, 'xtensionBindings')) {
       return { path: configPath, config, diagnostics: [{ code: 'xtend.maraca.xtension_config_version', severity: 'error',
@@ -2313,27 +2325,39 @@ function compileSource(options, compile = null) {
       return { sourceText, compileResult: { ok: false, coreDocument: null, diagnostics: [{ code: 'xtend.maraca.rmtx_provider_capture.invalid', severity: 'error', message: error.message }] } };
     }
   }
-  if (Object.hasOwn(options, 'rmtxSyntaxVersion') && options.rmtxSyntaxVersion !== '5.0.0') return { sourceText, compileResult: { ok: false, coreDocument: null,
+  if (Object.hasOwn(options, 'rmtxSyntaxVersion') && !['5.0.0', '6.0.0', '7.0.0'].includes(options.rmtxSyntaxVersion)) return { sourceText, compileResult: { ok: false, coreDocument: null,
     diagnostics: [{ code: 'xtend.maraca.rmtx_native_version', severity: 'error', message: 'This explicit native frontend port requires rmtxSyntaxVersion5.' }] } };
-  const selectedCompile = compile || (options.rmtxSyntaxVersion === '5.0.0'
-    ? (input, selected) => loadRmtxHostScopeTools(options.rootDir).compileRmtxSource(input, { ...selected, syntaxVersion: '5.0.0' })
+  const selectedCompile = compile || (['5.0.0', '6.0.0', '7.0.0'].includes(options.rmtxSyntaxVersion)
+    ? (input, selected) => loadRmtxHostScopeTools(options.rootDir).compileRmtxSource(input, { ...selected, syntaxVersion: options.rmtxSyntaxVersion })
     : compiler.compileRmtClassicSource);
   let compileResult = selectedCompile({ text: sourceText, filePath: options.sourcePath }, settings);
+  const orchestratedProfile = compileResult.schema === 'xtend.rmtx.compile-result.v7' && compileResult.sourceProfile?.syntax === 'rmtx' && compileResult.sourceProfile.version === '7.0.0';
+  const lifecycleProfile = compileResult.schema === 'xtend.rmtx.compile-result.v6' && compileResult.sourceProfile?.syntax === 'rmtx' && compileResult.sourceProfile.version === '6.0.0';
   const nativeProfile = compileResult.schema === 'xtend.rmtx.compile-result.v5'
     && compileResult.sourceProfile?.syntax === 'rmtx' && compileResult.sourceProfile.version === '5.0.0';
-  if (options.rmtxSyntaxVersion === '5.0.0' && !nativeProfile) return { sourceText, compileResult: { ok: false, coreDocument: null,
+  if (Object.hasOwn(options, 'rmtxSyntaxVersion') && !(options.rmtxSyntaxVersion === '7.0.0' ? orchestratedProfile : options.rmtxSyntaxVersion === '5.0.0' ? nativeProfile : lifecycleProfile)) return { sourceText, compileResult: { ok: false, coreDocument: null,
     diagnostics: [{ code: 'xtend.maraca.rmtx_native_frontend', severity: 'error', message: 'Native configuration cannot use a different compiler profile.' }] } };
   const orchestrationProfile = compileResult.schema === 'xtend.rmtx.compile-result.v4'
     && compileResult.sourceProfile?.syntax === 'rmtx' && compileResult.sourceProfile.version === '4.0.0';
-  if (Object.hasOwn(options, 'rmtxProviders') && !orchestrationProfile && !nativeProfile) return { sourceText, compileResult: { ok: false, coreDocument: null,
+  if (Object.hasOwn(options, 'rmtxProviders') && !orchestrationProfile && !nativeProfile && !lifecycleProfile && !orchestratedProfile) return { sourceText, compileResult: { ok: false, coreDocument: null,
     diagnostics: [{ code: 'xtend.maraca.rmtx_provider_profile', severity: 'error', message: 'Inline provider pins require an explicit RMTX 4 frontend.' }] } };
-  if (orchestrationProfile || nativeProfile) {
+  if (orchestrationProfile || nativeProfile || lifecycleProfile || orchestratedProfile) {
     // Profile selection is a frontend port; only a fresh compilation of the
     // actual source and captured provider pins can authorize its boundaries.
     if (Object.hasOwn(options, 'xtensionComposition')) return { sourceText, compileResult: { ...compileResult, ok: false,
       coreDocument: null, orchestrationArtifacts: null, xtensionBindings: null, xtensionComposition: null,
       diagnostics: [...(compileResult.diagnostics || []), { code: 'xtend.maraca.rmtx.inline_conflict', severity: 'error', message: 'Inline RMTX providers cannot be mixed with a composition sidecar.' }] } };
-    compileResult = loadRmtxHostScopeTools(options.rootDir).compileRmtxSource({ text: sourceText, filePath: options.sourcePath }, { ...settings, syntaxVersion: nativeProfile ? '5.0.0' : '4.0.0' });
+    compileResult = loadRmtxHostScopeTools(options.rootDir).compileRmtxSource({ text: sourceText, filePath: options.sourcePath }, { ...settings, syntaxVersion: orchestratedProfile ? '7.0.0' : lifecycleProfile ? '6.0.0' : nativeProfile ? '5.0.0' : '4.0.0' });
+    if (orchestratedProfile && compileResult.ok) {
+      try {
+        const compilerPath = require.resolve('@ccslabs/xtend-compiler/rmt-language/rmtx-compiler', { paths: [options.rootDir, __dirname] });
+        const helper = require(path.join(path.dirname(compilerPath), 'rmtx-native-components.js'));
+        helper.verifyNativeComponentSources(compileResult.orchestrationArtifacts.render.nativeView.components, { rootDir: options.rootDir });
+      } catch (error) {
+        compileResult = { ...compileResult, ok: false, coreDocument: null, orchestrationArtifacts: null,
+          diagnostics: [...compileResult.diagnostics, { code: 'xtend.maraca.native_component_capture.invalid', severity: 'error', message: error.message }] };
+      }
+    }
     return { sourceText, compileResult };
   }
   const hostScopeProfile = compileResult.schema === 'xtend.rmtx.compile-result.v3'
@@ -4235,7 +4259,7 @@ function createMaracaOrchestrationPlan(compileResult, coreDocument, componentRec
   });
 
   events.forEach((event) => {
-    const typedEmpty = ['xtend.rmt.app-orchestration.v2', 'xtend.rmt.app-orchestration.v3'].includes(artifact.schema)
+    const typedEmpty = ['xtend.rmt.app-orchestration.v2', 'xtend.rmt.app-orchestration.v3', 'xtend.rmt.app-orchestration.v5'].includes(artifact.schema)
       && event.schema === 'xtend.rmt.native-event-binding.v2'
       && artifact.actions?.inputContract?.actions?.some(action => action.id === event.inputContract && Object.values(action.fields).every(rule => rule.required === false));
     if (!typedEmpty && (!event.payloadContract || !Array.isArray(event.payloadContract.required) || event.payloadContract.required.length === 0)) {
@@ -4522,7 +4546,7 @@ function createMaracaBuildPlan(input = {}, options = {}) {
   const normalized = normalizeOptions(input, options);
   if (options.kernelSourceArtifacts) normalized.kernelSourceArtifacts = options.kernelSourceArtifacts;
   let integrated = Object.hasOwn(normalized, 'xtensionComposition');
-  let planSchema = normalized.rmtxSyntaxVersion === '5.0.0' ? MARACA_RMTX_NATIVE_BUILD_PLAN_SCHEMA : Object.hasOwn(normalized, 'rmtxProviders') ? MARACA_RMTX_BUILD_PLAN_SCHEMA : integrated ? normalized.xtensionComposition?.schema === 'xtend.maraca.xtension-composition-manifest.v7' ? MARACA_SCOPED_COMPONENT_BUILD_PLAN_SCHEMA : normalized.xtensionComposition?.schema === 'xtend.maraca.xtension-composition-manifest.v6' ? MARACA_COMPONENT_BUILD_PLAN_SCHEMA : MARACA_XTENSION_BUILD_PLAN_SCHEMA : MARACA_BUILD_PLAN_SCHEMA;
+  let planSchema = normalized.rmtxSyntaxVersion === '7.0.0' ? MARACA_RMTX_ORCHESTRATED_BUILD_PLAN_SCHEMA : normalized.rmtxSyntaxVersion === '6.0.0' ? MARACA_RMTX_LIFECYCLE_BUILD_PLAN_SCHEMA : normalized.rmtxSyntaxVersion === '5.0.0' ? MARACA_RMTX_NATIVE_BUILD_PLAN_SCHEMA : Object.hasOwn(normalized, 'rmtxProviders') ? MARACA_RMTX_BUILD_PLAN_SCHEMA : integrated ? normalized.xtensionComposition?.schema === 'xtend.maraca.xtension-composition-manifest.v7' ? MARACA_SCOPED_COMPONENT_BUILD_PLAN_SCHEMA : normalized.xtensionComposition?.schema === 'xtend.maraca.xtension-composition-manifest.v6' ? MARACA_COMPONENT_BUILD_PLAN_SCHEMA : MARACA_XTENSION_BUILD_PLAN_SCHEMA : MARACA_BUILD_PLAN_SCHEMA;
   const diagnostics = normalized.buildConfigDiagnostics.slice();
   const initialCssBuild = createMaracaCssBuildPlan(normalized, normalized.sourceText);
   diagnostics.push(...initialCssBuild.diagnostics);
@@ -4602,10 +4626,12 @@ function createMaracaBuildPlan(input = {}, options = {}) {
   }
 
   const { sourceText, compileResult } = compileSource(normalized, options.compileSource);
-  if (compileResult.sourceProfile?.version === '5.0.0' && compileResult.schema === 'xtend.rmtx.compile-result.v5' || compileResult.sourceProfile?.version === '4.0.0' && compileResult.schema === 'xtend.rmtx.compile-result.v4') {
-    const native = compileResult.sourceProfile.version === '5.0.0';
-    planSchema = native ? MARACA_RMTX_NATIVE_BUILD_PLAN_SCHEMA : MARACA_RMTX_BUILD_PLAN_SCHEMA;
-    if (native) normalized.rmtxSyntaxVersion = '5.0.0';
+  if (compileResult.sourceProfile?.version === '7.0.0' && compileResult.schema === 'xtend.rmtx.compile-result.v7' || compileResult.sourceProfile?.version === '6.0.0' && compileResult.schema === 'xtend.rmtx.compile-result.v6' || compileResult.sourceProfile?.version === '5.0.0' && compileResult.schema === 'xtend.rmtx.compile-result.v5' || compileResult.sourceProfile?.version === '4.0.0' && compileResult.schema === 'xtend.rmtx.compile-result.v4') {
+    const orchestrated = compileResult.sourceProfile.version === '7.0.0';
+    const lifecycle = orchestrated || compileResult.sourceProfile.version === '6.0.0';
+    const native = lifecycle || compileResult.sourceProfile.version === '5.0.0';
+    planSchema = orchestrated ? MARACA_RMTX_ORCHESTRATED_BUILD_PLAN_SCHEMA : lifecycle ? MARACA_RMTX_LIFECYCLE_BUILD_PLAN_SCHEMA : native ? MARACA_RMTX_NATIVE_BUILD_PLAN_SCHEMA : MARACA_RMTX_BUILD_PLAN_SCHEMA;
+    if (native) normalized.rmtxSyntaxVersion = compileResult.sourceProfile.version;
     if (compileResult.ok && compileResult.xtensionComposition) {
       normalized.xtensionComposition = compileResult.xtensionComposition;
       integrated = true;
@@ -5387,8 +5413,12 @@ function createBundleSource(plan, providerCssText = null, compositionBuild = nul
     header.unshift(`import * as ${entry.importName} from "${entry.module}";`);
   });
   header.unshift(`import { createMaracaBrowserCompositionRoot, freezeMaracaConfiguration as freezeMaracaSnapshot } from "./${BROWSER_COMPOSITION_RUNTIME_BUNDLE_FILE}";`);
-  header.unshift(`import { createMaracaPlanRuntime } from "./${PLAN_RUNTIME_BUNDLE_FILE}";`);
-  if (plan.schema === MARACA_RMTX_NATIVE_BUILD_PLAN_SCHEMA) header.unshift(`import XTendNativeViewRuntime, { createNativeFabric } from "./${NATIVE_VIEW_RUNTIME_BUNDLE_FILE}";`);
+  header.unshift(plan.schema === MARACA_RMTX_ORCHESTRATED_BUILD_PLAN_SCHEMA
+    ? `import { createMaracaNativeOrchestrationRuntime as createMaracaPlanRuntime } from "./${NATIVE_ORCHESTRATION_RUNTIME_BUNDLE_FILE}";`
+    : plan.schema === MARACA_RMTX_LIFECYCLE_BUILD_PLAN_SCHEMA
+    ? `import { createMaracaNativeLifecycleRuntime as createMaracaPlanRuntime } from "./${NATIVE_LIFECYCLE_RUNTIME_BUNDLE_FILE}";`
+    : `import { createMaracaPlanRuntime } from "./${PLAN_RUNTIME_BUNDLE_FILE}";`);
+  if (isNativePlan(plan)) header.unshift(`import XTendNativeViewRuntime, { createNativeFabric } from "./${NATIVE_VIEW_RUNTIME_BUNDLE_FILE}";`);
   if (plan.kernel && plan.kernel.enabled) {
     header.unshift(`import * as XTendMaracaKernelRuntimeModule from "./${KERNEL_RUNTIME_BUNDLE_FILE}";`);
     header.unshift(`import * as XTendMaracaKernelControllerModule from "./${KERNEL_CONTROLLER_BUNDLE_FILE}";`);
@@ -5439,8 +5469,8 @@ const MARACA_COMPONENT_COMMAND_SCHEMA = ${JSON.stringify(MARACA_COMPONENT_COMMAN
 const MARACA_COMPONENT_COMMAND_RESULT_SCHEMA = ${JSON.stringify(MARACA_COMPONENT_COMMAND_RESULT_SCHEMA)};
 
 const MARACA_BOOT_CONFIGURATION = freezeMaracaSnapshot({
-  schema: ${JSON.stringify(plan.schema === MARACA_RMTX_NATIVE_BUILD_PLAN_SCHEMA ? 'xtend.maraca.browser-composition-root.v11' : plan.xtensionComposition ? plan.xtensionComposition.schema === 'xtend.maraca.xtension-composition-manifest.v8' ? 'xtend.maraca.browser-composition-root.v10' : plan.xtensionComposition.schema === 'xtend.maraca.xtension-composition-manifest.v7' ? 'xtend.maraca.browser-composition-root.v9' : plan.xtensionComposition.schema === 'xtend.maraca.xtension-composition-manifest.v6' ? 'xtend.maraca.browser-composition-root.v8' : 'xtend.maraca.browser-composition-root.v7' : MARACA_BUNDLE_REPORT_SCHEMA)},
-  ${plan.xtensionComposition ? `buildPlanSchema: ${JSON.stringify(plan.schema)}, sourceHash: ${JSON.stringify(plan.sourceHash)}, xtensionComposition: XTendXTensionCompanion.artifact,` : plan.schema === MARACA_RMTX_NATIVE_BUILD_PLAN_SCHEMA ? `buildPlanSchema: ${JSON.stringify(plan.schema)}, sourceHash: ${JSON.stringify(plan.sourceHash)},` : ''}
+  schema: ${JSON.stringify(plan.schema === MARACA_RMTX_ORCHESTRATED_BUILD_PLAN_SCHEMA ? 'xtend.maraca.browser-composition-root.v13' : plan.schema === MARACA_RMTX_LIFECYCLE_BUILD_PLAN_SCHEMA ? 'xtend.maraca.browser-composition-root.v12' : isNativePlan(plan) ? 'xtend.maraca.browser-composition-root.v11' : plan.xtensionComposition ? plan.xtensionComposition.schema === 'xtend.maraca.xtension-composition-manifest.v8' ? 'xtend.maraca.browser-composition-root.v10' : plan.xtensionComposition.schema === 'xtend.maraca.xtension-composition-manifest.v7' ? 'xtend.maraca.browser-composition-root.v9' : plan.xtensionComposition.schema === 'xtend.maraca.xtension-composition-manifest.v6' ? 'xtend.maraca.browser-composition-root.v8' : 'xtend.maraca.browser-composition-root.v7' : MARACA_BUNDLE_REPORT_SCHEMA)},
+  ${plan.xtensionComposition ? `buildPlanSchema: ${JSON.stringify(plan.schema)}, sourceHash: ${JSON.stringify(plan.sourceHash)}, xtensionComposition: XTendXTensionCompanion.artifact,` : isNativePlan(plan) ? `buildPlanSchema: ${JSON.stringify(plan.schema)}, sourceHash: ${JSON.stringify(plan.sourceHash)},` : ''}
   components: MARACA_COMPONENTS,
   surfaces: MARACA_SURFACES,
   state: MARACA_STATE,
@@ -5470,7 +5500,9 @@ const MARACA_BOOT_CONFIGURATION = freezeMaracaSnapshot({
 
 function createXtendMaraca(overrides = {}) { return createMaracaBrowserCompositionRoot(MARACA_BOOT_CONFIGURATION, {
   createPlanRuntime: createMaracaPlanRuntime,
-  ${plan.schema === MARACA_RMTX_NATIVE_BUILD_PLAN_SCHEMA ? 'nativeViewRuntimePort: XTendNativeViewRuntime,' : ''}
+  ${plan.schema === MARACA_RMTX_ORCHESTRATED_BUILD_PLAN_SCHEMA ? "createOrchestratedPlanRuntime: createMaracaPlanRuntime," : ""}
+  ${plan.schema === MARACA_RMTX_LIFECYCLE_BUILD_PLAN_SCHEMA ? "createLifecyclePlanRuntime: createMaracaPlanRuntime," : ""}
+  ${isNativePlan(plan) ? `nativeViewRuntimePort: XTendNativeViewRuntime${plan.schema === MARACA_RMTX_ORCHESTRATED_BUILD_PLAN_SCHEMA ? '.NATIVE_ORCHESTRATION_VIEW_RUNTIME' : plan.schema === MARACA_RMTX_LIFECYCLE_BUILD_PLAN_SCHEMA ? '.NATIVE_LIFECYCLE_VIEW_RUNTIME' : ''},` : ''}
   ${plan.xtensionComposition ? 'xtensionCompanion: XTendXTensionCompanion, xtensionPlatform: XTendXTensionPlatform,' : ''}
   runtimeModuleApis: MARACA_RUNTIME_MODULE_APIS,
   componentImporters: MARACA_IMPORTERS,
@@ -5499,7 +5531,7 @@ function shouldAutoBootXtendMaraca() {
 function resolveAutoBootOptions() {
   const options = window.__XTendMaracaAutoBootOptions;
   const selected = typeof options === "function" ? options() : (options && typeof options === "object" ? options : {});
-  ${plan.schema === MARACA_RMTX_NATIVE_BUILD_PLAN_SCHEMA ? `return Promise.resolve(selected).then(value => {
+  ${isNativePlan(plan) ? `return Promise.resolve(selected).then(value => {
     const boot = value && typeof value === "object" ? value : {};
     if (Object.prototype.hasOwnProperty.call(boot, "fabric")) return boot;
     return { ...boot, fabric: createNativeFabric() };
@@ -5588,7 +5620,9 @@ function createRollupManualChunks(plan) {
 }
 
 function isKernelRuntimeExternalImport(plan, id) {
-  if (plan.schema === MARACA_RMTX_NATIVE_BUILD_PLAN_SCHEMA && (toPosix(id).endsWith(`/${NATIVE_VIEW_RUNTIME_BUNDLE_FILE}`) || id === `./${NATIVE_VIEW_RUNTIME_BUNDLE_FILE}` || id === NATIVE_VIEW_RUNTIME_BUNDLE_FILE)) return true;
+  if (plan.schema === MARACA_RMTX_ORCHESTRATED_BUILD_PLAN_SCHEMA && toPosix(id).endsWith(NATIVE_ORCHESTRATION_RUNTIME_BUNDLE_FILE)) return true;
+  if (plan.schema === MARACA_RMTX_LIFECYCLE_BUILD_PLAN_SCHEMA && toPosix(id).endsWith(NATIVE_LIFECYCLE_RUNTIME_BUNDLE_FILE)) return true;
+  if (isNativePlan(plan) && (toPosix(id).endsWith(`/${NATIVE_VIEW_RUNTIME_BUNDLE_FILE}`) || id === `./${NATIVE_VIEW_RUNTIME_BUNDLE_FILE}` || id === NATIVE_VIEW_RUNTIME_BUNDLE_FILE)) return true;
   if (plan.xtensionComposition && (toPosix(id).endsWith('/runtime/xtension-platform.mjs') || /(?:^|\/)xtend\.xtensions-[a-f0-9]{64}\.mjs$/.test(toPosix(id)))) return true;
   if (
     id === `./${PLAN_RUNTIME_BUNDLE_FILE}`
@@ -5784,7 +5818,9 @@ async function createRollupBundleFiles(plan, rawSource) {
       entryFileNames: 'xtend.maraca.mjs',
       chunkFileNames: 'chunks/[name]-[hash].mjs',
       paths(id) {
-        if (plan.schema === MARACA_RMTX_NATIVE_BUILD_PLAN_SCHEMA && toPosix(id).endsWith(`/${NATIVE_VIEW_RUNTIME_BUNDLE_FILE}`)) return `./${NATIVE_VIEW_RUNTIME_BUNDLE_FILE}`;
+        if (plan.schema === MARACA_RMTX_ORCHESTRATED_BUILD_PLAN_SCHEMA && toPosix(id).endsWith(NATIVE_ORCHESTRATION_RUNTIME_BUNDLE_FILE)) return `./${NATIVE_ORCHESTRATION_RUNTIME_BUNDLE_FILE}`;
+        if (plan.schema === MARACA_RMTX_LIFECYCLE_BUILD_PLAN_SCHEMA && toPosix(id).endsWith(NATIVE_LIFECYCLE_RUNTIME_BUNDLE_FILE)) return `./${NATIVE_LIFECYCLE_RUNTIME_BUNDLE_FILE}`;
+        if (isNativePlan(plan) && toPosix(id).endsWith(`/${NATIVE_VIEW_RUNTIME_BUNDLE_FILE}`)) return `./${NATIVE_VIEW_RUNTIME_BUNDLE_FILE}`;
         if (plan.xtensionComposition && toPosix(id).endsWith('/runtime/xtension-platform.mjs')) return './runtime/xtension-platform.mjs';
         if (plan.xtensionComposition && /(?:^|\/)xtend\.xtensions-[a-f0-9]{64}\.mjs$/.test(toPosix(id))) return './' + path.basename(id);
         if (toPosix(id).endsWith(`/${PLAN_RUNTIME_BUNDLE_FILE}`) || id === `./${PLAN_RUNTIME_BUNDLE_FILE}` || id === PLAN_RUNTIME_BUNDLE_FILE) {
@@ -5830,10 +5866,10 @@ async function createRollupBundleFiles(plan, rawSource) {
 // The new projection semantics live in their own opt-in, closed compiler-owned
 // ESM asset. Legacy bundles retain the existing renderer and its wire contract.
 function buildNativeViewRuntimeAsset(plan) {
-  if (plan.schema !== MARACA_RMTX_NATIVE_BUILD_PLAN_SCHEMA) return null;
+  if (!isNativePlan(plan)) return null;
   const tool = requireOptional('esbuild', plan.rootDir);
   if (!tool.available) throw new TypeError('Native RMTX requires the explicit esbuild native projection toolchain.');
-  const file = require.resolve('@ccslabs/xtend-compiler/xtensions/native-view-projection', { paths: [plan.rootDir, __dirname] });
+  const file = require.resolve(plan.schema === MARACA_RMTX_ORCHESTRATED_BUILD_PLAN_SCHEMA ? '@ccslabs/xtend-compiler/xtensions/native-surface-projection' : '@ccslabs/xtend-compiler/xtensions/native-view-projection', { paths: [plan.rootDir, __dirname] });
   const fabric = require.resolve('@ccslabs/xtend/fabric', { paths: [plan.rootDir, __dirname] });
   const output = tool.module.buildSync({ stdin: { contents: `import * as api from ${JSON.stringify(file)}; import fabric from ${JSON.stringify(fabric)}; export const createNativeFabric = fabric.createXtendFabric; export default Object.freeze(api);`, resolveDir: path.dirname(file) },
     bundle: true, platform: 'browser', format: 'esm', target: 'es2022', write: false, metafile: true,
@@ -5844,6 +5880,23 @@ function buildNativeViewRuntimeAsset(plan) {
   return { type: 'asset', fileName: NATIVE_VIEW_RUNTIME_BUNDLE_FILE, path: target, bytes: fs.statSync(target).size,
     sha256: crypto.createHash('sha256').update(fs.readFileSync(target)).digest('hex'),
     isEntry: false, isDynamicEntry: false, imports: [], dynamicImports: [] };
+}
+
+function buildNativeLifecycleRuntimeAsset(plan) {
+  const orchestrated = plan.schema === MARACA_RMTX_ORCHESTRATED_BUILD_PLAN_SCHEMA;
+  if (!orchestrated && plan.schema !== MARACA_RMTX_LIFECYCLE_BUILD_PLAN_SCHEMA) return null;
+  const fileName = orchestrated ? NATIVE_ORCHESTRATION_RUNTIME_BUNDLE_FILE : NATIVE_LIFECYCLE_RUNTIME_BUNDLE_FILE;
+  const tool = requireOptional('esbuild', plan.rootDir);
+  if (!tool.available) throw new TypeError('Source6 requires the explicit esbuild lifecycle toolchain.');
+  const output = tool.module.buildSync({ entryPoints: [path.join(__dirname, orchestrated ? 'native-orchestration-runtime.mjs' : 'native-lifecycle-runtime.mjs')],
+    bundle: true, platform: 'browser', format: 'esm', target: 'es2022', write: false,
+    external: ['./plan-runtime.mjs'], minify: plan.profile !== 'debug', legalComments: 'none' });
+  const source = output.outputFiles[0].text.replaceAll('"./plan-runtime.mjs"', '"./xtend-maraca-plan-runtime.mjs"');
+  const target = path.join(plan.outputDir, fileName);
+  fs.mkdirSync(path.dirname(target), { recursive: true }); fs.writeFileSync(target, source);
+  return { type: 'asset', fileName, path: target, bytes: Buffer.byteLength(source),
+    sha256: crypto.createHash('sha256').update(source).digest('hex'), isEntry: false, isDynamicEntry: false,
+    imports: ['./xtend-maraca-plan-runtime.mjs'], dynamicImports: [] };
 }
 
 function copyPlanRuntimeAsset(plan) {
@@ -5878,9 +5931,10 @@ async function minifyCopiedMaracaRuntimeAssets(plan, files) {
     if (!/\.(?:mjs|js)$/u.test(file.fileName)) continue;
     const result = await terser.module.minify(fs.readFileSync(file.path, 'utf8'), {
       module: file.fileName.endsWith('.mjs'),
-      // Join adjacent declarations only; preserve every guard, call and name.
-      compress: { defaults: false, join_vars: true },
-      mangle: false,
+      // Preserve guards, calls, function/class names and all public/property names.
+      // Shorten private lexical bindings to keep shared assets inside retained budgets.
+      compress: { defaults: false, join_vars: true, booleans: true },
+      keep_fnames: true, keep_classnames: true, mangle: {},
       format: { comments: /@license|@preserve|^!/ }
     });
     if (!result || typeof result.code !== 'string') {
@@ -7241,7 +7295,7 @@ function createMaracaSizeBudgetReport(input) {
       serverAppServiceBytes: serverBudgetBytes
     }
   };
-  return plan.xtensionComposition && [MARACA_XTENSION_BUILD_PLAN_SCHEMA, MARACA_COMPONENT_BUILD_PLAN_SCHEMA, MARACA_SCOPED_COMPONENT_BUILD_PLAN_SCHEMA, MARACA_RMTX_BUILD_PLAN_SCHEMA, MARACA_RMTX_NATIVE_BUILD_PLAN_SCHEMA].includes(plan.schema) ? xtensionSizeBudget.apply(plan, report, input.bundleFiles) : report;
+  return plan.xtensionComposition && [MARACA_XTENSION_BUILD_PLAN_SCHEMA, MARACA_COMPONENT_BUILD_PLAN_SCHEMA, MARACA_SCOPED_COMPONENT_BUILD_PLAN_SCHEMA, MARACA_RMTX_BUILD_PLAN_SCHEMA, MARACA_RMTX_NATIVE_BUILD_PLAN_SCHEMA, MARACA_RMTX_LIFECYCLE_BUILD_PLAN_SCHEMA, MARACA_RMTX_ORCHESTRATED_BUILD_PLAN_SCHEMA].includes(plan.schema) ? xtensionSizeBudget.apply(plan, report, input.bundleFiles) : report;
 }
 
 function executeNativeCssProviderSync(plan) {
@@ -7347,6 +7401,7 @@ function buildMaracaBundle(input = {}, options = {}) {
   }
   const cssResult = executeNativeCssProviderSync(plan);
   const nativeViewRuntimeAsset = buildNativeViewRuntimeAsset(plan);
+  const nativeLifecycleRuntimeAsset = buildNativeLifecycleRuntimeAsset(plan);
   const planRuntimeAsset = copyPlanRuntimeAsset(plan);
   const browserRuntimeAssets = copyMaracaBrowserRuntimeAssets(plan);
   const kernelRuntimeAsset = copyKernelRuntimeAsset(plan);
@@ -7379,6 +7434,7 @@ function buildMaracaBundle(input = {}, options = {}) {
   bundleFiles = bundleFiles
     .concat(planRuntimeAsset ? [planRuntimeAsset] : [])
     .concat(nativeViewRuntimeAsset ? [nativeViewRuntimeAsset] : [])
+    .concat(nativeLifecycleRuntimeAsset ? [nativeLifecycleRuntimeAsset] : [])
     .concat(browserRuntimeAssets)
     .concat(kernelControllerRuntimeAssets)
     .concat(kernelRuntimeAsset ? [kernelRuntimeAsset] : [])
@@ -7390,9 +7446,9 @@ function buildMaracaBundle(input = {}, options = {}) {
   bundleFiles = bundleFiles.concat(pwaArtifacts.files);
   sizeBudgetReport = createMaracaSizeBudgetReport({
     plan, entryPath,
-    entryBytes: plan.schema === MARACA_RMTX_NATIVE_BUILD_PLAN_SCHEMA
+    entryBytes: isNativePlan(plan)
       ? bundleFiles.reduce((sum, file) => sum + Number(file.bytes || 0), 0) : entryBytes,
-    ...(plan.schema === MARACA_RMTX_NATIVE_BUILD_PLAN_SCHEMA ? { bundleFiles } : {})
+    ...(isNativePlan(plan) ? { bundleFiles } : {})
   });
   const bundleReport = createBundleReport(plan, bundleFiles, sizeBudgetReport, {
     activeToolchain: 'local-esm-importgraph-fallback',
@@ -7475,6 +7531,7 @@ async function buildMaracaBundleAsync(input = {}, options = {}) {
     };
   }
   const nativeViewRuntimeAsset = buildNativeViewRuntimeAsset(plan);
+  const nativeLifecycleRuntimeAsset = buildNativeLifecycleRuntimeAsset(plan);
   const planRuntimeAsset = copyPlanRuntimeAsset(plan);
   const browserRuntimeAssets = copyMaracaBrowserRuntimeAssets(plan);
   const kernelRuntimeAsset = copyKernelRuntimeAsset(plan);
@@ -7486,7 +7543,7 @@ async function buildMaracaBundleAsync(input = {}, options = {}) {
   try {
     rollupResult = await createRollupBundleFiles(plan, rawSource);
     // Copied ESM assets are outside Rollup's chunk minification pass.
-    await minifyCopiedMaracaRuntimeAssets(plan, [nativeViewRuntimeAsset, planRuntimeAsset, ...browserRuntimeAssets, ...(plan.xtensionComposition || plan.schema === MARACA_RMTX_NATIVE_BUILD_PLAN_SCHEMA ? [kernelRuntimeAsset, ...kernelResumeRuntimeAssets, ...kernelControllerRuntimeAssets] : [])]);
+    await minifyCopiedMaracaRuntimeAssets(plan, [nativeViewRuntimeAsset, nativeLifecycleRuntimeAsset, planRuntimeAsset, ...browserRuntimeAssets, ...(plan.xtensionComposition || isNativePlan(plan) ? [kernelRuntimeAsset, ...kernelResumeRuntimeAssets, ...kernelControllerRuntimeAssets] : [])]);
   } catch (error) {
     return {
       schema: MARACA_BUNDLE_REPORT_SCHEMA,
@@ -7542,6 +7599,7 @@ async function buildMaracaBundleAsync(input = {}, options = {}) {
     rollupResult.files.push(planRuntimeAsset);
   }
   if (nativeViewRuntimeAsset) rollupResult.files.push(nativeViewRuntimeAsset);
+  if (nativeLifecycleRuntimeAsset) rollupResult.files.push(nativeLifecycleRuntimeAsset);
   rollupResult.files.push(...browserRuntimeAssets, ...compositionFiles);
   rollupResult.files.push(writeMaracaHtmlHost(plan));
   const webAppManifestArtifacts = writeMaracaWebAppManifestArtifacts(plan, rollupResult.files);
@@ -7710,7 +7768,7 @@ function createMaracaTuneConfig(input = {}) {
     throw new TypeError('Maraca service graph fingerprint must be absent, null, or a SHA256 string.');
   }
   const base = {
-    schema: input.options?.rmtxSyntaxVersion === '5.0.0' ? MARACA_RMTX_NATIVE_BUILD_CONFIG_SCHEMA : Object.hasOwn(input.options || {}, 'rmtxProviders') ? MARACA_RMTX_BUILD_CONFIG_SCHEMA : Object.hasOwn(input.options || {}, 'xtensionComposition') ? input.options.xtensionComposition?.schema === 'xtend.maraca.xtension-composition-manifest.v7' ? MARACA_SCOPED_COMPONENT_BUILD_CONFIG_SCHEMA : input.options.xtensionComposition?.schema === 'xtend.maraca.xtension-composition-manifest.v6' ? MARACA_COMPONENT_BUILD_CONFIG_SCHEMA : MARACA_XTENSION_BUILD_CONFIG_SCHEMA : MARACA_BUILD_CONFIG_SCHEMA,
+    schema: input.options?.rmtxSyntaxVersion === '7.0.0' ? MARACA_RMTX_ORCHESTRATED_BUILD_CONFIG_SCHEMA : input.options?.rmtxSyntaxVersion === '6.0.0' ? MARACA_RMTX_LIFECYCLE_BUILD_CONFIG_SCHEMA : input.options?.rmtxSyntaxVersion === '5.0.0' ? MARACA_RMTX_NATIVE_BUILD_CONFIG_SCHEMA : Object.hasOwn(input.options || {}, 'rmtxProviders') ? MARACA_RMTX_BUILD_CONFIG_SCHEMA : Object.hasOwn(input.options || {}, 'xtensionComposition') ? input.options.xtensionComposition?.schema === 'xtend.maraca.xtension-composition-manifest.v7' ? MARACA_SCOPED_COMPONENT_BUILD_CONFIG_SCHEMA : input.options.xtensionComposition?.schema === 'xtend.maraca.xtension-composition-manifest.v6' ? MARACA_COMPONENT_BUILD_CONFIG_SCHEMA : MARACA_XTENSION_BUILD_CONFIG_SCHEMA : MARACA_BUILD_CONFIG_SCHEMA,
     source: input.source,
     sourceFingerprint: input.sourceFingerprint,
     serviceGraphFingerprint: serviceGraphFingerprint == null ? null : serviceGraphFingerprint,
@@ -7735,7 +7793,7 @@ async function tuneMaracaBuild(input = {}, options = {}) {
   const requestedConfigPath = explicit.config || explicit.configPath || explicit['build-config'];
   const configPath = path.resolve(rootDir, String(requestedConfigPath || 'maraca.config.json'));
   const existingConfig = fs.existsSync(configPath) ? readJson(configPath) : null;
-  const configuredOptions = existingConfig && [MARACA_RMTX_NATIVE_BUILD_CONFIG_SCHEMA, MARACA_RMTX_BUILD_CONFIG_SCHEMA, MARACA_SCOPED_COMPONENT_BUILD_CONFIG_SCHEMA, MARACA_COMPONENT_BUILD_CONFIG_SCHEMA, MARACA_XTENSION_BUILD_CONFIG_SCHEMA, MARACA_BUILD_CONFIG_SCHEMA, 'xtend.maraca.build-config.v3', 'xtend.maraca.build-config.v2', LEGACY_MARACA_BUILD_CONFIG_SCHEMA].includes(existingConfig.schema) && existingConfig.options && typeof existingConfig.options === 'object'
+  const configuredOptions = existingConfig && [MARACA_RMTX_ORCHESTRATED_BUILD_CONFIG_SCHEMA, MARACA_RMTX_LIFECYCLE_BUILD_CONFIG_SCHEMA, MARACA_RMTX_NATIVE_BUILD_CONFIG_SCHEMA, MARACA_RMTX_BUILD_CONFIG_SCHEMA, MARACA_SCOPED_COMPONENT_BUILD_CONFIG_SCHEMA, MARACA_COMPONENT_BUILD_CONFIG_SCHEMA, MARACA_XTENSION_BUILD_CONFIG_SCHEMA, MARACA_BUILD_CONFIG_SCHEMA, 'xtend.maraca.build-config.v3', 'xtend.maraca.build-config.v2', LEGACY_MARACA_BUILD_CONFIG_SCHEMA].includes(existingConfig.schema) && existingConfig.options && typeof existingConfig.options === 'object'
     ? existingConfig.options
     : {};
   const mergedInput = { ...configuredOptions, ...explicit };
@@ -7954,6 +8012,8 @@ module.exports = {
   MARACA_RMTX_HOST_SCOPE_API_VERSION,
   MARACA_RMTX_ORCHESTRATION_API_VERSION, MARACA_RMTX_BUILD_PLAN_SCHEMA, MARACA_RMTX_BUILD_CONFIG_SCHEMA,
   MARACA_RMTX_NATIVE_API_VERSION, MARACA_RMTX_NATIVE_BUILD_PLAN_SCHEMA, MARACA_RMTX_NATIVE_BUILD_CONFIG_SCHEMA,
+  MARACA_RMTX_LIFECYCLE_API_VERSION, MARACA_RMTX_LIFECYCLE_BUILD_PLAN_SCHEMA, MARACA_RMTX_LIFECYCLE_BUILD_CONFIG_SCHEMA,
+  MARACA_RMTX_ORCHESTRATED_API_VERSION, MARACA_RMTX_ORCHESTRATED_BUILD_PLAN_SCHEMA, MARACA_RMTX_ORCHESTRATED_BUILD_CONFIG_SCHEMA,
   MARACA_BUILD_PLAN_SCHEMA,
   MARACA_SCOPED_COMPONENT_BUILD_PLAN_SCHEMA,
   MARACA_COMPONENT_BUILD_PLAN_SCHEMA,

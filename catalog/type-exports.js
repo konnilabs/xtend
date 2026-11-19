@@ -29,8 +29,8 @@ const TYPE_EXPORTS_RELEASE_STATUS = 'accepted-productive-type-exports-release-ga
 const TYPE_EXPORTS_RELEASE_TARGET = 'productive-type-exports-release-gate-ready';
 const TYPE_EXPORTS_RELEASE_PACKAGE_SCRIPT = 'npm run test:type-exports:release';
 const TYPE_EXPORTS_RELEASE_LOCAL_GATE = 'node scripts/run_xtend_tests.js type-exports type-exports-loader type-exports-api type-exports-rmt type-exports-policy type-exports-builder type-exports-catalog type-exports-vendor --report .xtend-test-results/xtend-type-exports-report.json';
-const TYPE_EXPORTS_LOCKED_EXPORT_COUNT = 218;
-const TYPE_EXPORTS_LOCKED_EXPORT_FINGERPRINT = "6e59bcee5aed6581399276cb75f85f08766ec72361bc843c50819e4b9e7f6db5";
+const TYPE_EXPORTS_LOCKED_EXPORT_COUNT = 225;
+const TYPE_EXPORTS_LOCKED_EXPORT_FINGERPRINT = "cf8ee7699ab8864b428b8cc1296e28d7031b0d6c241939cac2d64ab0c934fed2";
 
 const TYPE_EXPORTS_COMPLETED_WORKPACKAGES = Object.freeze([
   'WP-TypeExports-01',
@@ -150,7 +150,7 @@ const TYPE_EXPORT_GROUPS = Object.freeze([
     id: 'maraca',
     priority: 'P1',
     workpackage: 'WP-Maraca-01',
-    exports: ['./maraca', './maraca/runtime', './maraca/page-client', './maraca/page-bootstrap', './maraca/remote-surface', './maraca/plan-runtime', './maraca/browser-composition-runtime', './maraca/css-provider', './maraca/app-services', './maraca/server-services', './maraca/node-app-service-host', './maraca/node-app-host', './maraca/service-build-provider', './maraca/xtension-composition', './maraca/xtension-composition-runtime'],
+    exports: ['./maraca', './maraca/runtime', './maraca/page-client', './maraca/page-bootstrap', './maraca/remote-surface', './maraca/plan-runtime', './maraca/native-lifecycle-runtime', './maraca/native-orchestration-runtime', './maraca/native-surface-graph', './maraca/browser-composition-runtime', './maraca/css-provider', './maraca/app-services', './maraca/server-services', './maraca/node-app-service-host', './maraca/node-app-host', './maraca/service-build-provider', './maraca/xtension-composition', './maraca/xtension-composition-runtime'],
     strategy: 'maraca-package-declaration-pack'
   },
   {

@@ -1,0 +1,106 @@
+{
+  "passed": true,
+  "checks": 20,
+  "entries": [
+    {
+      "syntaxVersion": "1.0.0",
+      "case": "complete-result-and-catalog",
+      "sha256": "fce9c6518296129b4f8fe9bf060d541efb7c265dbfb7af68ae3a5725398b1637"
+    },
+    {
+      "syntaxVersion": "2.0.0",
+      "case": "complete-result-and-catalog",
+      "sha256": "15784281f72fc1a638ff31c6e3b80ddd4e7601c969d9c3125240d01ba8775473"
+    },
+    {
+      "syntaxVersion": "3.0.0",
+      "case": "complete-result-and-catalog",
+      "sha256": "e1ea10aafa0882cf0c6b8d4f1ccf8a734ebdf2c51be55d7e120af683085b2a1a"
+    },
+    {
+      "syntaxVersion": "4.0.0",
+      "case": "complete-result-and-catalog",
+      "sha256": "b3db2faf9798f15bae3f03edcc126206e1c591e5a6f1fbcac52f9cbc2332889c"
+    },
+    {
+      "syntaxVersion": "5.0.0",
+      "case": "complete-result-and-catalog",
+      "sha256": "f972064890261d6f9583e02b1142315930de85995e81eeeac525231f543dd899"
+    },
+    {
+      "syntaxVersion": "6.0.0",
+      "case": "complete-result-and-catalog",
+      "sha256": "c323d51c57d1268e16ad551dfedddcf2394514cebb096e68291d019f120a2f84"
+    },
+    {
+      "syntaxVersion": "1.0.0",
+      "case": "frontend/two-host.rmtx",
+      "sha256": "4a57438420803ae000d97265e1ef9e1d384648e347ed866af97afaa130ea7c49"
+    },
+    {
+      "syntaxVersion": "2.0.0",
+      "case": "selector-profile/selectors.rmtx",
+      "sha256": "9085869c06c33c856d7e7c6295ebf8acd3cd6976b3eb07f9f6fd3885c5f5ef4a"
+    },
+    {
+      "syntaxVersion": "2.0.0",
+      "case": "selector-profile/two-host.rmtx",
+      "sha256": "767b631ffc33a7251675a0ae8ae2956596d7d288a686d97c763a507c207cdb41"
+    },
+    {
+      "syntaxVersion": "3.0.0",
+      "case": "keyed-profile/source.rmtx",
+      "sha256": "dd00f6836d848b153584961938cf361f1647c6bb601b80c55ff33a939b9b8c96"
+    },
+    {
+      "syntaxVersion": "4.0.0",
+      "case": "orchestration-profile/source.rmtx",
+      "sha256": "38a9476f749f93ade1f66ffd4d8f86c5575587e96b3d682a5fe9fa515a0367ef"
+    },
+    {
+      "syntaxVersion": "4.0.0",
+      "case": "full-orchestration-profile/source.rmtx",
+      "sha256": "cd12803eb774f580f3c9e12b6b52c975c1f1bedfa8938cc966983145f1479d2f"
+    },
+    {
+      "syntaxVersion": "5.0.0",
+      "case": "native-view-profile/source.rmtx",
+      "sha256": "c32f1fa3143c9b8b20a6fa9b91cb75e6028e765bb536d88b8d3334718ff38ae4"
+    },
+    {
+      "syntaxVersion": "5.0.0",
+      "case": "full-native-view-profile/source.rmtx",
+      "sha256": "796aa719480ee319ed4fa0b772cbf396d630bb0c25481baca6eea7694b345aa6"
+    },
+    {
+      "syntaxVersion": "5.0.0",
+      "case": "native-view-profile/native-only.rmtx",
+      "sha256": "f2698cd56e76502795dee6de0cdabc44bbf2d6a984806dc122b1843536fac30d"
+    },
+    {
+      "syntaxVersion": "5.0.0",
+      "case": "full-native-view-profile/native-only.rmtx",
+      "sha256": "8187c65003a3c6cf7e113afedb290eae33631893bc39f34e5e075c67da970c8d"
+    },
+    {
+      "syntaxVersion": "6.0.0",
+      "case": "lifecycle-profile/source.rmtx",
+      "sha256": "a7b86eca2a31389169122e295c0ad6c717a9220370f85dd25102fc9555f447c1"
+    },
+    {
+      "syntaxVersion": "6.0.0",
+      "case": "full-lifecycle-profile/source.rmtx",
+      "sha256": "d293f11456c2ccdd85c577f3b42bda14b65bdc02d6d2c4aa8afda385f193ac60"
+    },
+    {
+      "syntaxVersion": "6.0.0",
+      "case": "lifecycle-profile/native-only.rmtx",
+      "sha256": "6b6bee371bcd638a8148e9e56ba575f1ca34267b6e7101cbc0e1dbb9c4141e8f"
+    },
+    {
+      "syntaxVersion": "6.0.0",
+      "case": "full-lifecycle-profile/native-only.rmtx",
+      "sha256": "16de045b4f3610dad6a1817dcd0c51c17762b112c28bf06558064ef4f3822ca0"
+    }
+  ]
+}

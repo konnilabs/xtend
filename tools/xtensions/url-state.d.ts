@@ -1,4 +1,4 @@
-import type { XTensionStateBindingArtifact, XTensionProjectionStateBindingArtifact, XTensionNativeStateBindingArtifact, XTensionBindingModelReader } from './state-binding';
+import type { XTensionStateBindingArtifact, XTensionProjectionStateBindingArtifact, XTensionNativeStateBindingArtifact, XTensionLifecycleStateBindingArtifact, XTensionBindingModelReader } from './state-binding';
 export const API_VERSION: '1.0.0';
 export const PROJECTION_URL_STATE_API_VERSION: '2.0.0';
 export const NATIVE_URL_STATE_API_VERSION: '3.0.0';
@@ -80,3 +80,21 @@ export interface NativeURLStateRuntime extends Omit<ProjectionURLStateRuntime, '
   createURLStateContract(policy: PolicyV2, inputs: { program: unknown; bindings: XTensionNativeStateBindingArtifact }): NativeURLStateContract;
 }
 export const NATIVE_URL_STATE_RUNTIME: Readonly<NativeURLStateRuntime>;
+
+/** Program4/artifact6 capability; URL policy, token and restore wires remain v2. */
+export const LIFECYCLE_URL_STATE_API_VERSION: '4.0.0';
+export interface LifecycleURLStateContract extends Omit<ProjectionURLStateContract, 'apiVersion'> { readonly apiVersion: typeof LIFECYCLE_URL_STATE_API_VERSION }
+export interface LifecycleURLStateRuntime extends Omit<ProjectionURLStateRuntime, 'API_VERSION' | 'createURLStateContract'> {
+  readonly API_VERSION: typeof LIFECYCLE_URL_STATE_API_VERSION;
+  createURLStateContract(policy: PolicyV2, inputs: { program: unknown; bindings: XTensionLifecycleStateBindingArtifact }): LifecycleURLStateContract;
+}
+export const LIFECYCLE_URL_STATE_RUNTIME: Readonly<LifecycleURLStateRuntime>;
+
+/** Program5/artifact7 retain URL2 policy/token/wire formats. */
+export const ORCHESTRATED_URL_STATE_API_VERSION: '5.0.0';
+export interface OrchestratedURLStateContract extends Omit<ProjectionURLStateContract, 'apiVersion'> {readonly apiVersion: typeof ORCHESTRATED_URL_STATE_API_VERSION}
+export interface OrchestratedURLStateRuntime extends Omit<ProjectionURLStateRuntime, 'API_VERSION' | 'createURLStateContract'> {
+ readonly API_VERSION: typeof ORCHESTRATED_URL_STATE_API_VERSION;
+ createURLStateContract(policy: PolicyV2, inputs: {program: unknown; bindings: import('./state-binding-artifact').XTensionOrchestratedStateBindingArtifact}): OrchestratedURLStateContract;
+}
+export const ORCHESTRATED_URL_STATE_RUNTIME: Readonly<OrchestratedURLStateRuntime>;

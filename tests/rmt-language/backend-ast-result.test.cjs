@@ -25,8 +25,8 @@ test('full AST result uses the shared Source pipeline and leaves the declarative
     assert.deepEqual(result[key], normal[key], key);
   }
   assert.equal(JSON.stringify(parsed.ast), before);
-  assert.equal(classic.RMT_CLASSIC_COMPILER_API_VERSION, '4.6.0');
-  assert.equal(backend.RMT_VNEXT_COMPILER_API_VERSION, '1.7.0');
+  assert.equal(classic.RMT_CLASSIC_COMPILER_API_VERSION, '4.8.0');
+  assert.equal(backend.RMT_VNEXT_COMPILER_API_VERSION, '1.9.0');
 });
 
 test('RMTX source profile reaches Core, AppPlatform and orchestration before artifact serialization', () => {
@@ -81,7 +81,7 @@ test('unsupported source profiles fail closed and do not execute accessor metada
   const accessor = Object.defineProperty({ version: '1.0.0' }, 'syntax', { enumerable: true, get() { accessed = true; return 'rmtx'; } });
   const hidden = Object.defineProperty({ syntax: 'rmtx' }, 'version', { value: '1.0.0', enumerable: false });
   for (const sourceProfile of [null, '', [], {}, { syntax: 'rmtx' }, { syntax: 'tsx', version: '1.0.0' },
-    { syntax: 'rmtx', version: '6.0.0' }, { ...profile, execute: true }, accessor, hidden,
+    { syntax: 'rmtx', version: '8.0.0' }, { ...profile, execute: true }, accessor, hidden,
     Object.assign(Object.create({ inherited: true }), profile), { ...profile, [Symbol('extra')]: true }]) {
     assert.throws(() => classic.compileRmtClassicAstResult(parse().ast, { sourceProfile }), { code: 'rmt.compiler.source-profile.unsupported' });
   }

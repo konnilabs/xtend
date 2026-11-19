@@ -3,11 +3,13 @@
 // Declarative authoring contracts. The compiler interprets these records; they
 // never contain callbacks or execute template expressions.
 const { RMTX_EXTENDED_OPERATOR_RULES, RMTX_EXTENDED_PROGRAM_CHILDREN } = require('./rmtx-operator-coverage');
-const RMTX_OPERATOR_PROFILE_API_VERSION = '4.0.0';
+const RMTX_OPERATOR_PROFILE_API_VERSION = '6.0.0';
 const RMTX_OPERATOR_PROFILE_SCHEMA = 'xtend.rmtx.operator-profile.v1';
 const RMTX_OPERATOR_PROFILE_SCHEMA_V2 = 'xtend.rmtx.operator-profile.v2';
 const RMTX_OPERATOR_PROFILE_SCHEMA_V3 = 'xtend.rmtx.operator-profile.v3';
 const RMTX_OPERATOR_PROFILE_SCHEMA_V4 = 'xtend.rmtx.operator-profile.v4';
+const RMTX_OPERATOR_PROFILE_SCHEMA_V6 = 'xtend.rmtx.operator-profile.v6';
+const RMTX_OPERATOR_PROFILE_SCHEMA_V5 = 'xtend.rmtx.operator-profile.v5';
 const attribute = (kind, required = false, extra = {}) => ({ kind, required, ...extra });
 const operator = (astType, attributes, children = []) => ({ astType, attributes, children });
 const baseOperators = {
@@ -53,8 +55,8 @@ function freeze(value) {
 }
 function profile(version, imports, operators, expressionContexts, semantics = {}) {
   return freeze({
-    schema: version === '5.0.0' ? RMTX_OPERATOR_PROFILE_SCHEMA_V4 : version === '4.0.0' ? RMTX_OPERATOR_PROFILE_SCHEMA_V3 : version === '3.0.0' ? RMTX_OPERATOR_PROFILE_SCHEMA_V2 : RMTX_OPERATOR_PROFILE_SCHEMA,
-    apiVersion: version === '5.0.0' ? RMTX_OPERATOR_PROFILE_API_VERSION : version === '4.0.0' ? '3.0.0' : version === '3.0.0' ? '2.0.0' : '1.0.0',
+    schema: version === '7.0.0' ? RMTX_OPERATOR_PROFILE_SCHEMA_V6 : version === '6.0.0' ? RMTX_OPERATOR_PROFILE_SCHEMA_V5 : version === '5.0.0' ? RMTX_OPERATOR_PROFILE_SCHEMA_V4 : version === '4.0.0' ? RMTX_OPERATOR_PROFILE_SCHEMA_V3 : version === '3.0.0' ? RMTX_OPERATOR_PROFILE_SCHEMA_V2 : RMTX_OPERATOR_PROFILE_SCHEMA,
+    apiVersion: version === '7.0.0' ? RMTX_OPERATOR_PROFILE_API_VERSION : version === '6.0.0' ? '5.0.0' : version === '5.0.0' ? '4.0.0' : version === '4.0.0' ? '3.0.0' : version === '3.0.0' ? '2.0.0' : '1.0.0',
     syntaxVersion: version, sourceProfile: { syntax: 'rmtx', version }, imports, operators,
     expressionContexts, limits: { ...limits }, semantics: { ...baseSemantics, ...semantics },
     reads: {
@@ -251,7 +253,48 @@ const v5 = profile('5.0.0', [...v4.imports], {
   actions: { ...v4.semantics.actions, subprofile: '4.0.0' },
   acceptance: { release: 'preparing', nativeUi: true, projectTooling: false, ssrParity: false }
 });
-const profiles = freeze({ '1.0.0': v1, '2.0.0': v2, '3.0.0': v3, '4.0.0': v4, '5.0.0': v5 });
+const v6 = profile('6.0.0', [...v5.imports], {
+  ...v5.operators,
+  Mount: { ...v5.operators.Mount, attributes: { ...v5.operators.Mount.attributes,
+    when: attribute('native-boolean-projection', false, { expressionContext: 'lifecycle-condition' }) } }
+}, {
+  ...v5.expressionContexts,
+  'lifecycle-condition': { ...v5.expressionContexts['native-condition'], roots: ['model', 'selectors'], itemScopes: false }
+}, {
+  ...v5.semantics,
+  operators: { ...v5.semantics.operators, lifecycleConditions: 'owning-static-native-mount-only' },
+  nativeViews: { ...v5.semantics.nativeViews, subprofile: '5.0.0' },
+  lifecycle: { sourceContract: 'xtend.rmtx.native-lifecycle.v1', plan: 'xtend.rmt.native-lifecycle-plan.v1',
+    guard: 'strict-boolean-level-sensitive-content-admission', target: 'owning-static-native-surface',
+    controllerAuthority: 'existing-current-active-owner', opensOrRecreatesOwners: false,
+    sourceOrPolicy: false, providerOwnedTargets: false }
+});
+const lifecycleNames = ['Mount', 'Hydrate', 'Suspend', 'Resume', 'Invalidate', 'Dispose', 'Prewarm', 'Recycle', 'Detach', 'Reattach'];
+const orchestrationChildren = [...nativeChildren, 'Component'];
+const v7 = profile('7.0.0', [...v6.imports], {
+  ...v6.operators,
+  ...Object.fromEntries(lifecycleNames.map(op => [op, { ...v6.operators[op], attributes: { ...v6.operators[op].attributes,
+    when: attribute('native-boolean-projection', false, { expressionContext: 'lifecycle-condition' }) } }])),
+  On: {...v6.operators.On,attributes:{...v6.operators.On.attributes,keys:attribute('json-literal',false)}},
+  Surface: {...v6.operators.Surface, children: [...new Set([...v6.operators.Surface.children,'Surface','Repeat'])]},
+  View: {...v6.operators.View, children: orchestrationChildren},
+  Element: {...v6.operators.Element, children: orchestrationChildren},
+  When: {...v6.operators.When, children: orchestrationChildren},
+  Repeat: {...v6.operators.Repeat, children: [...new Set([...v6.operators.Repeat.children,'Component'])],
+    contexts:{host:['Repeat','Surface'],native:orchestrationChildren},lowering:'shared-typed-surface-or-native-element-scopes'},
+  Component: {...operator('RmtxNativeComponent', {tag:attribute('string',true),attributes:attribute('native-scalar-map',false,{expressionContext:'native-value'}),
+    properties:attribute('native-scalar-map',false,{expressionContext:'native-value'})},[...orchestrationChildren,'Slot']),lowering:'captured-shipped-shadow-component'},
+  Slot: {...operator('RmtxNativeSlot',{name:attribute('string',true)},orchestrationChildren),lowering:'compiler-owned-light-dom-slot'}
+}, {...v6.expressionContexts,'lifecycle-condition':{...v6.expressionContexts['native-condition'],roots:['model','selectors','item'],itemScopes:true}}, {
+  ...v6.semantics,
+  operators:{...v6.semantics.operators,nativeSurfaceRepeat:true,lifecycleConditions:'owning-native-surface-operations'},
+  hostScopes:{...v6.semantics.hostScopes,sourceContract:'xtend.rmtx.host-scopes.v4',bindingArtifact:'xtend.xtensions.state-binding-artifact.v7'},
+  nativeViews:{...v6.semantics.nativeViews,sourceContract:'xtend.rmtx.native-view.v2',rendererContract:'xtend.rmt.native-view.v2',subprofile:'7.0.0',
+    publicComponents:'captured-shipped-shadow-dom',slots:'declared-native-light-dom-only',surfaceScopes:'whole-surface-typed-key-tuple'},
+  lifecycle:{...v6.semantics.lifecycle,sourceContract:'xtend.rmtx.native-lifecycle.v2',plan:'xtend.rmt.native-lifecycle-plan.v2',
+    target:'owning-native-surface-instance',guard:'mount-level-and-rising-edge-commands',operations:lifecycleNames.map(x=>x.toLowerCase())}
+});
+const profiles = freeze({ '1.0.0': v1, '2.0.0': v2, '3.0.0': v3, '4.0.0': v4, '5.0.0': v5, '6.0.0': v6, '7.0.0': v7 });
 
 /** Return an immutable profile. Mutating a separately cloned copy cannot alter it. */
 function getRmtxOperatorProfile(version = '1.0.0') {
@@ -260,4 +303,4 @@ function getRmtxOperatorProfile(version = '1.0.0') {
   }
   return profiles[version];
 }
-module.exports = { RMTX_OPERATOR_PROFILE_API_VERSION, RMTX_OPERATOR_PROFILE_SCHEMA, RMTX_OPERATOR_PROFILE_SCHEMA_V2, RMTX_OPERATOR_PROFILE_SCHEMA_V3, RMTX_OPERATOR_PROFILE_SCHEMA_V4, getRmtxOperatorProfile };
+module.exports = { RMTX_OPERATOR_PROFILE_API_VERSION, RMTX_OPERATOR_PROFILE_SCHEMA, RMTX_OPERATOR_PROFILE_SCHEMA_V2, RMTX_OPERATOR_PROFILE_SCHEMA_V3, RMTX_OPERATOR_PROFILE_SCHEMA_V4, RMTX_OPERATOR_PROFILE_SCHEMA_V5, RMTX_OPERATOR_PROFILE_SCHEMA_V6, getRmtxOperatorProfile };

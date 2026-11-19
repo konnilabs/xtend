@@ -16,7 +16,7 @@ const tags = new Set(NATIVE_VIEW_TAG_NAMES), properties = new Set(NATIVE_VIEW_PR
 const blockedAttributes = new Set(['style', 'slot', 'part', 'srcdoc', 'innerhtml', 'outerhtml', 'insertadjacenthtml', '__proto__', 'prototype', 'constructor', 'srcset']);
 const booleanProperties = new Set('checked disabled selected readOnly required multiple indeterminate open'.split(' '));
 const booleanAttributes = new Set('hidden disabled checked selected readonly required multiple open autofocus novalidate controls autoplay loop muted inert reversed'.split(' '));
-const validated = new WeakSet();
+const validated = new WeakSet(), lifecycleValidated = new WeakSet();
 
 function assertNativeAttributeName(value) {
   if (typeof value !== 'string' || !/^[a-z][a-z0-9-]*$/u.test(value) || value.startsWith('on') || blockedAttributes.has(value)
@@ -168,10 +168,14 @@ function validateRoot(root, header, symbols) {
 }
 
 /** Pure validation; neither provider code nor a DOM operation is executed. */
-function validateNativeViewProgram(program) {
+function validateNativeViewProgram(program) { return validateNativeProfile(program, null); }
+function validateNativeLifecycleViewProgram(program) { return validateNativeProfile(program, require('./native-lifecycle').validateNativeLifecyclePlan); }
+function validateNativeProfile(program, lifecycleValidator) {
+  const lifecycle = typeof lifecycleValidator === 'function';
   try {
     assertNativeCanonicalData(program, true);
-    if (program?.schema !== 'xtend.rmt.app-orchestration.v3') invalid('Native View requires its explicitly versioned orchestration program v3.');
+    if (program?.schema !== (lifecycle ? 'xtend.rmt.app-orchestration.v4' : 'xtend.rmt.app-orchestration.v3')) invalid('Native View requires its explicitly versioned orchestration program.');
+    if (lifecycle) lifecycleValidator(program);
     const header = program.render?.nativeView;
     data(header); fields(header, ['schema', 'documentId', 'surfaces'], 'Native View header');
     if (header.schema !== NATIVE_VIEW_SCHEMA) invalid('Unsupported Native View schema.');
@@ -186,7 +190,7 @@ function validateNativeViewProgram(program) {
     }));
     if (header.surfaces.some(id => !surfaces.has(id))) invalid('Native View references an undeclared owning Surface.');
     validateRoot(program.render.root, header, symbols);
-    const result = freeze(clone(program)); validated.add(result); return result;
+    const result = freeze(clone(program)); (lifecycle ? lifecycleValidated : validated).add(result); return result;
   } catch (error) { if (error.code === 'rmt.native-view.invalid') throw error; invalid(error.message); }
 }
 function modelSnapshot(snapshot) {
@@ -202,12 +206,20 @@ function modelSnapshot(snapshot) {
 }
 
 /** Materialize only declarative data; shared renderer remains the sole DOM writer. */
-function materializeNativeView(input, snapshot, root) {
-  const program = validated.has(input) ? input : validateNativeViewProgram(input);
+function materializeNativeView(input, snapshot, root) { return materializeNativeProfile(input, snapshot, root, null); }
+function materializeNativeLifecycleView(input, snapshot, root, admission) { return materializeNativeProfile(input, snapshot, root, require('./native-lifecycle'), admission); }
+function materializeNativeProfile(input, snapshot, root, lifecycleAuthority, admission) {
+  const lifecycle = lifecycleAuthority !== null;
+  const program = (lifecycle ? lifecycleValidated : validated).has(input) ? input : validateNativeProfile(input, lifecycle ? lifecycleAuthority.validateNativeLifecyclePlan : null);
   const header = program.render.nativeView;
   root = root === undefined ? program.render.root : root;
   try {
     const current = modelSnapshot(snapshot);
+    const blocked = new Set();
+    if (lifecycle) {
+      const admitted = lifecycleAuthority.nativeLifecycleAdmission(program, current, admission);
+      for (const [id, allowed] of Object.entries(admitted)) if (!allowed) blocked.add(id);
+    }
     assertNativeCanonicalData(root, true);
     const symbols = { states: symbolMap(program.state?.states || [], 'state'), selectors: symbolMap(program.state?.selectors || [], 'selector'),
       surfaces: new Map((program.surfaces || []).map(surface => [surface.id, surface])) };
@@ -233,6 +245,7 @@ function materializeNativeView(input, snapshot, root) {
     function project(node, context = { repeat: [], keys: [], item: null }) {
       if (Array.isArray(node)) return node.flatMap(child => { const result = project(child, context); return Array.isArray(result) ? result : [result]; });
       if (!node || typeof node !== 'object') return node;
+      if (node.surface && blocked.has(String(node.surface))) return [];
       const declaration = node.nativeDeclarationId;
       if (!declaration) {
         const result = { ...node };
@@ -260,5 +273,10 @@ function materializeNativeView(input, snapshot, root) {
   } catch (error) { if (error.code === 'rmt.native-view.invalid') throw error; invalid(error.message); }
 }
 
-module.exports = { NATIVE_VIEW_PROJECTION_API_VERSION, NATIVE_VIEW_SCHEMA, NATIVE_VIEW_MAX_KEY_LENGTH, NATIVE_VIEW_TAG_NAMES, NATIVE_VIEW_PROPERTY_NAMES, NATIVE_VIEW_VOID_TAG_NAMES,
+const NATIVE_LIFECYCLE_VIEW_RUNTIME = Object.freeze({
+  API_VERSION: '2.0.0', NATIVE_VIEW_PROJECTION_API_VERSION: '2.0.0', assertNativeCanonicalData,
+  validateNativeViewProgram: validateNativeLifecycleViewProgram, materializeNativeView: materializeNativeLifecycleView
+});
+
+module.exports = { NATIVE_LIFECYCLE_VIEW_RUNTIME, validateNativeLifecycleViewProgram, materializeNativeLifecycleView, NATIVE_VIEW_PROJECTION_API_VERSION, NATIVE_VIEW_SCHEMA, NATIVE_VIEW_MAX_KEY_LENGTH, NATIVE_VIEW_TAG_NAMES, NATIVE_VIEW_PROPERTY_NAMES, NATIVE_VIEW_VOID_TAG_NAMES,
   assertNativeAttributeName, assertNativePropertyName, assertNativeDomId, assertNativeCanonicalData, validateNativeViewProgram, materializeNativeView };

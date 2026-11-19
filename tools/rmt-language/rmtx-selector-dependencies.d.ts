@@ -52,3 +52,15 @@ export interface RmtxSelectorDependencyReportV4 extends Omit<RmtxSelectorDepende
   readonly sourceProfile: Readonly<{ syntax: 'rmtx'; version: '5.0.0' }>;
 }
 export declare function createRmtxSelectorDependencyReport(result: { sourceProfile: Readonly<{ syntax: 'rmtx'; version: '5.0.0' }>; [metadata: string]: unknown }): RmtxSelectorDependencyReportV4;
+
+export declare const RMTX_SELECTOR_DEPENDENCIES_SCHEMA_V5: 'xtend.rmtx.selector-dependencies.v5';
+export interface RmtxSelectorDependencyReportV5 extends Omit<RmtxSelectorDependencyReport, 'schema' | 'sourceProfile'> {
+  readonly schema: typeof RMTX_SELECTOR_DEPENDENCIES_SCHEMA_V5;
+  readonly sourceProfile: Readonly<{ syntax: 'rmtx'; version: '6.0.0' }>;
+}
+export declare function createRmtxSelectorDependencyReport(result: { sourceProfile: Readonly<{ syntax: 'rmtx'; version: '6.0.0' }>; [metadata: string]: unknown }): RmtxSelectorDependencyReportV5;
+
+export const RMTX_SELECTOR_DEPENDENCIES_SCHEMA_V6:'xtend.rmtx.selector-dependencies.v6';
+export interface RmtxSelectorDependencyReportV6 extends Omit<RmtxSelectorDependencyReportV5,'schema'|'sourceProfile'>{readonly schema:typeof RMTX_SELECTOR_DEPENDENCIES_SCHEMA_V6;readonly sourceProfile:Readonly<{syntax:'rmtx';version:'7.0.0'}>}
+
+export declare function createRmtxSelectorDependencyReport(result:{sourceProfile:Readonly<{syntax:'rmtx';version:'7.0.0'}>;[metadata:string]:unknown}):RmtxSelectorDependencyReportV6;

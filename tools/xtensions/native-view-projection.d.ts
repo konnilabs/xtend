@@ -61,3 +61,17 @@ export function materializeNativeView(programOrValidated: unknown, snapshot: {
   readonly states: Readonly<Record<string, unknown>>;
   readonly selectors?: Readonly<Record<string, unknown>>;
 }, root?: unknown): unknown;
+
+/** Separate Source6 capability. The original API1 functions accept Program3 only. */
+export interface NativeLifecycleViewProgram extends Omit<NativeViewProgram, 'schema'> {
+  readonly schema: 'xtend.rmt.app-orchestration.v4';
+  readonly lifecycle: import('./native-lifecycle').NativeLifecyclePlan;
+}
+export function validateNativeLifecycleViewProgram(program: unknown): NativeLifecycleViewProgram;
+export function materializeNativeLifecycleView(program: unknown, snapshot: { readonly states: Readonly<Record<string, unknown>>; readonly selectors?: Readonly<Record<string, unknown>> }, root?: unknown, admission?: Readonly<Record<string, boolean>>): unknown;
+export const NATIVE_LIFECYCLE_VIEW_RUNTIME: Readonly<{
+  API_VERSION: '2.0.0'; NATIVE_VIEW_PROJECTION_API_VERSION: '2.0.0';
+  assertNativeCanonicalData: typeof assertNativeCanonicalData;
+  validateNativeViewProgram: typeof validateNativeLifecycleViewProgram;
+  materializeNativeView: typeof materializeNativeLifecycleView;
+}>;

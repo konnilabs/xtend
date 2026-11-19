@@ -1,0 +1,151 @@
+{
+  "format": 1,
+  "recordedAt": "2026-11-19T19:39:34.131990+00:00",
+  "source7RuntimeSourcesUnchanged": true,
+  "source7RuntimeSourceCount": 224,
+  "preparation": [
+    {
+      "file": "preparation-node24.json",
+      "sha256": "375a1bee3608bea4ae842211d3f7473ad687e5078ea73dcd29cd5e39b1e65fce",
+      "node": "v24.22.2",
+      "completed": 45,
+      "failed": 0,
+      "maximumConcurrentCommands": 1,
+      "maximumTestConcurrency": 1,
+      "nodeHeapMiB": 1024,
+      "source7GateCases": 70,
+      "source7GateSkips": 0,
+      "source7GateLog": {
+        "file": "source7-gates-node24.log",
+        "sha256": "fd83745622d98f16983657b2b1530edf4eea4d86db225f1fd877f234b89ac756"
+      },
+      "source7GateResourceLog": {
+        "file": "source7-gates-node24-resource.log",
+        "sha256": "ccd83e3b8a8df1b580e79f235cd2e0d92d8911e6931651cd0ac9b7e4791716e9"
+      }
+    },
+    {
+      "file": "preparation-node26.json",
+      "sha256": "dcb0e69245fe50ed63ea56c6db65968ad07bac92decd77d02d3d023ed90cc3ea",
+      "node": "v26.5.0",
+      "completed": 45,
+      "failed": 0,
+      "maximumConcurrentCommands": 1,
+      "maximumTestConcurrency": 1,
+      "nodeHeapMiB": 1024,
+      "source7GateCases": 70,
+      "source7GateSkips": 0,
+      "source7GateLog": {
+        "file": "source7-gates-node26.log",
+        "sha256": "14a11e94d9426f7c7415d6e67d6cf04e5308778148110f2c6871ac65cfaa6a62"
+      },
+      "source7GateResourceLog": {
+        "file": "source7-gates-node26-resource.log",
+        "sha256": "17c51187dc66af970859fea055abbad093bb50c55d64abe1acef68517affd47d"
+      }
+    }
+  ],
+  "legacyRuntime": [
+    {
+      "file": "legacy-runtime-node24.json",
+      "sha256": "c190d954efb9a2929f03b8d3d0e051b8875db91bb5db8012fbcbfa57b526ce2e",
+      "lane": "node24",
+      "node": "v24.22.2",
+      "browser": null,
+      "runtimeCases": 341,
+      "compilerChecks": 88,
+      "passed": true
+    },
+    {
+      "file": "legacy-runtime-node26.json",
+      "sha256": "0c108e0f40903d02f154e33a1c6fbf0b8f0eb8f60dc238395cccad32cf29d593",
+      "lane": "node26",
+      "node": "v26.5.0",
+      "browser": null,
+      "runtimeCases": 341,
+      "compilerChecks": 88,
+      "passed": true
+    },
+    {
+      "file": "legacy-runtime-browser.json",
+      "sha256": "dc660a792eb406841c17db3ccf74501fdd1b69842523fae0086f085e9a90be8d",
+      "lane": "browser",
+      "node": "v24.22.2",
+      "browser": "156.0.8078.4",
+      "runtimeCases": 341,
+      "compilerChecks": 88,
+      "passed": true
+    }
+  ],
+  "packedSDKTypeExportsAndHeader": [
+    {
+      "file": "packed-sdk-node24.json",
+      "sha256": "20d676455f332a578016ce98c3b01eedb4badf4a28f48e5db8b9de787ffdc57b",
+      "node": "v24.22.2",
+      "suites": 4,
+      "publicExports": 225,
+      "passed": true,
+      "executedBeforeFinalPortalCleanupPatch": true
+    },
+    {
+      "file": "packed-sdk-node26.json",
+      "sha256": "c1ccb3935f5a39c33d839f558cff4b1042ceafa8b50366a1d6e82ee729ccaf33",
+      "node": "v26.5.0",
+      "suites": 4,
+      "publicExports": 225,
+      "passed": true,
+      "executedBeforeFinalPortalCleanupPatch": true
+    }
+  ],
+  "legacySSR": {
+    "file": "legacy-ssr-node24-chromium.json",
+    "sha256": "2e6e625bfaebfe81e39438e54ad8e021ae596e38d87cb682878993e24dd0b151",
+    "node": "v24.22.2",
+    "browser": "156.0.8078.4",
+    "cases": 84,
+    "passed": true,
+    "sizes": {
+      "react": {
+        "runtimeBytes": 178455,
+        "frameworkBytes": 1637869
+      },
+      "vue": {
+        "runtimeBytes": 177095,
+        "frameworkBytes": 1636155
+      },
+      "mixed": {
+        "runtimeBytes": 198165,
+        "frameworkBytes": 1684143
+      }
+    },
+    "runtimeByteCap": 240000,
+    "frameworkByteCap": 2200000,
+    "source7SSRAccepted": false,
+    "executedBeforeFinalPortalCleanupPatch": true
+  },
+  "releaseGateTests": {
+    "casesPerNode": 3,
+    "lanes": [
+      "v24.22.2",
+      "v26.5.0"
+    ],
+    "passed": true
+  },
+  "legacyByteRetention": {
+    "file": "legacy-retention.json",
+    "sha256": "aee95524ac8559c0db3f77e60314605d401accd67e92f7c464d0123be5c053b4",
+    "comparisons": 20,
+    "sourceProfiles": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ]
+  },
+  "governanceRegistrationNegativeSuite": {
+    "rerunInThisStage": false,
+    "reason": "The 39-case Node24/26 suite was executed in the incoming Source6 stage. Producer, scanner, validators and official registration tests are unchanged. Final source-bound strict governance validation is a separate step; historical receipts are not relabeled."
+  }
+}

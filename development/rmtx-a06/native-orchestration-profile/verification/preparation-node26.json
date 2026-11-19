@@ -1,0 +1,767 @@
+{
+  "node": "v26.5.0",
+  "maximumConcurrentCommands": 1,
+  "maximumTestConcurrency": 1,
+  "nodeHeapMiB": 1024,
+  "passed": true,
+  "completed": 45,
+  "expected": 45,
+  "checks": [
+    {
+      "index": 1,
+      "command": [
+        "scripts/generate_rmt_classic_contract.js",
+        "--check"
+      ],
+      "executed": [
+        "scripts/generate_rmt_classic_contract.js",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 0.039,
+      "log": "preparation-final-node26-01.log",
+      "resourceLog": "preparation-final-node26-01-resource.log"
+    },
+    {
+      "index": 2,
+      "command": [
+        "scripts/sync_rmt_compiler_contracts.cjs",
+        "--check",
+        "--json"
+      ],
+      "executed": [
+        "scripts/sync_rmt_compiler_contracts.cjs",
+        "--check",
+        "--json"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 0.032,
+      "log": "preparation-final-node26-02.log",
+      "resourceLog": "preparation-final-node26-02-resource.log"
+    },
+    {
+      "index": 3,
+      "command": [
+        "--test",
+        "tests/rmt-language/action-execution-lowering.test.cjs",
+        "tests/rmt-language/event-condition-guards.test.cjs",
+        "tests/rmt-language/action-backend-regressions.test.cjs",
+        "tests/rmt/renderer-structural-ownership.test.cjs"
+      ],
+      "executed": [
+        "--test",
+        "--test-concurrency=1",
+        "tests/rmt-language/action-execution-lowering.test.cjs",
+        "tests/rmt-language/event-condition-guards.test.cjs",
+        "tests/rmt-language/action-backend-regressions.test.cjs",
+        "tests/rmt/renderer-structural-ownership.test.cjs"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 5.444,
+      "log": "preparation-final-node26-03.log",
+      "resourceLog": "preparation-final-node26-03-resource.log"
+    },
+    {
+      "index": 4,
+      "command": [
+        "--test",
+        "tests/rmt/surface-materialize-lifetime.test.cjs",
+        "tests/rmt/maraca-view-lifecycle.test.cjs",
+        "tests/maraca/native-surface-lifecycle.test.mjs"
+      ],
+      "executed": [
+        "--test",
+        "--test-concurrency=1",
+        "tests/rmt/surface-materialize-lifetime.test.cjs",
+        "tests/rmt/maraca-view-lifecycle.test.cjs",
+        "tests/maraca/native-surface-lifecycle.test.mjs"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 3.457,
+      "log": "preparation-final-node26-04.log",
+      "resourceLog": "preparation-final-node26-04-resource.log"
+    },
+    {
+      "index": 5,
+      "command": [
+        "--test",
+        "tests/rmt-language/backend-ast-result.test.cjs",
+        "tests/rmt-language/rmtx-frontend.test.cjs",
+        "tests/rmt-language/rmtx-maraca-integration.test.cjs"
+      ],
+      "executed": [
+        "--test",
+        "--test-concurrency=1",
+        "tests/rmt-language/backend-ast-result.test.cjs",
+        "tests/rmt-language/rmtx-frontend.test.cjs",
+        "tests/rmt-language/rmtx-maraca-integration.test.cjs"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 60.116,
+      "log": "preparation-final-node26-05.log",
+      "resourceLog": "preparation-final-node26-05-resource.log"
+    },
+    {
+      "index": 6,
+      "command": [
+        "development/rmtx-a06/frontend/inspect.cjs",
+        "--check"
+      ],
+      "executed": [
+        "development/rmtx-a06/frontend/inspect.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 0.288,
+      "log": "preparation-final-node26-06.log",
+      "resourceLog": "preparation-final-node26-06-resource.log"
+    },
+    {
+      "index": 7,
+      "command": [
+        "--test",
+        "tests/rmt-language/rmtx-operator-profiles.test.cjs",
+        "tests/rmt-language/rmtx-selector-dependencies.test.cjs",
+        "tests/rmt-language/rmtx-selectors.test.cjs"
+      ],
+      "executed": [
+        "--test",
+        "--test-concurrency=1",
+        "tests/rmt-language/rmtx-operator-profiles.test.cjs",
+        "tests/rmt-language/rmtx-selector-dependencies.test.cjs",
+        "tests/rmt-language/rmtx-selectors.test.cjs"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 2.745,
+      "log": "preparation-final-node26-07.log",
+      "resourceLog": "preparation-final-node26-07-resource.log"
+    },
+    {
+      "index": 8,
+      "command": [
+        "development/rmtx-a06/selector-profile/inspect.cjs",
+        "--check"
+      ],
+      "executed": [
+        "development/rmtx-a06/selector-profile/inspect.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 0.291,
+      "log": "preparation-final-node26-08.log",
+      "resourceLog": "preparation-final-node26-08-resource.log"
+    },
+    {
+      "index": 9,
+      "command": [
+        "--test",
+        "tests/rmt-language/rmtx-host-scopes.test.cjs",
+        "tests/rmt-language/rmtx-profile3-backend.test.cjs",
+        "tests/rmt-language/rmtx-maraca-host-scopes.test.cjs"
+      ],
+      "executed": [
+        "--test",
+        "--test-concurrency=1",
+        "tests/rmt-language/rmtx-host-scopes.test.cjs",
+        "tests/rmt-language/rmtx-profile3-backend.test.cjs",
+        "tests/rmt-language/rmtx-maraca-host-scopes.test.cjs"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 5.141,
+      "log": "preparation-final-node26-09.log",
+      "resourceLog": "preparation-final-node26-09-resource.log"
+    },
+    {
+      "index": 10,
+      "command": [
+        "development/rmtx-a06/keyed-profile/inspect.cjs",
+        "--check"
+      ],
+      "executed": [
+        "development/rmtx-a06/keyed-profile/inspect.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 7.246,
+      "log": "preparation-final-node26-10.log",
+      "resourceLog": "preparation-final-node26-10-resource.log"
+    },
+    {
+      "index": 11,
+      "command": [
+        "--test",
+        "tests/rmt-language/rmtx-extended-operators.test.cjs",
+        "tests/rmt-language/rmtx-orchestration.test.cjs",
+        "tests/rmt-language/rmtx-inline-components.test.cjs",
+        "tests/rmt-language/action-input-contract.test.cjs",
+        "tests/xtensions/projected-state-binding.test.cjs",
+        "tests/xtensions/projected-url-state.test.cjs",
+        "tests/xtensions/platform-projection-profile.test.cjs",
+        "tests/xtensions/projected-xrouter-url-state.test.cjs"
+      ],
+      "executed": [
+        "--test",
+        "--test-concurrency=1",
+        "tests/rmt-language/rmtx-extended-operators.test.cjs",
+        "tests/rmt-language/rmtx-orchestration.test.cjs",
+        "tests/rmt-language/rmtx-inline-components.test.cjs",
+        "tests/rmt-language/action-input-contract.test.cjs",
+        "tests/xtensions/projected-state-binding.test.cjs",
+        "tests/xtensions/projected-url-state.test.cjs",
+        "tests/xtensions/platform-projection-profile.test.cjs",
+        "tests/xtensions/projected-xrouter-url-state.test.cjs"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 10.587,
+      "log": "preparation-final-node26-11.log",
+      "resourceLog": "preparation-final-node26-11-resource.log"
+    },
+    {
+      "index": 12,
+      "command": [
+        "development/rmtx-a06/orchestration-profile/inspect.cjs",
+        "--check"
+      ],
+      "executed": [
+        "development/rmtx-a06/orchestration-profile/inspect.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 7.276,
+      "log": "preparation-final-node26-12.log",
+      "resourceLog": "preparation-final-node26-12-resource.log"
+    },
+    {
+      "index": 13,
+      "command": [
+        "--test",
+        "tests/rmt-language/rmtx-native-view.test.cjs",
+        "tests/xtensions/native-view-projection.test.cjs",
+        "tests/xtensions/native-state-binding.test.cjs",
+        "tests/xtensions/native-url-state.test.cjs",
+        "tests/xtensions/native-composition-profile.test.cjs",
+        "tests/rmt/renderer-preflight.test.cjs",
+        "tests/maraca/rmtx-native-boundaries.test.mjs"
+      ],
+      "executed": [
+        "--test",
+        "--test-concurrency=1",
+        "tests/rmt-language/rmtx-native-view.test.cjs",
+        "tests/xtensions/native-view-projection.test.cjs",
+        "tests/xtensions/native-state-binding.test.cjs",
+        "tests/xtensions/native-url-state.test.cjs",
+        "tests/xtensions/native-composition-profile.test.cjs",
+        "tests/rmt/renderer-preflight.test.cjs",
+        "tests/maraca/rmtx-native-boundaries.test.mjs"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 16.209,
+      "log": "preparation-final-node26-13.log",
+      "resourceLog": "preparation-final-node26-13-resource.log"
+    },
+    {
+      "index": 14,
+      "command": [
+        "development/rmtx-a06/native-view-profile/inspect.cjs",
+        "--check"
+      ],
+      "executed": [
+        "development/rmtx-a06/native-view-profile/inspect.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 12.53,
+      "log": "preparation-final-node26-14.log",
+      "resourceLog": "preparation-final-node26-14-resource.log"
+    },
+    {
+      "index": 15,
+      "command": [
+        "--test",
+        "tests/rmt-language/rmtx-lifecycle.test.cjs",
+        "tests/xtensions/native-lifecycle-protocol.test.cjs",
+        "tests/xtensions/lifecycle-composition-profile.test.cjs",
+        "tests/xtensions/lifecycle-browser-profile.test.cjs",
+        "tests/maraca/rmtx-lifecycle.test.mjs"
+      ],
+      "executed": [
+        "--test",
+        "--test-concurrency=1",
+        "tests/rmt-language/rmtx-lifecycle.test.cjs",
+        "tests/xtensions/native-lifecycle-protocol.test.cjs",
+        "tests/xtensions/lifecycle-composition-profile.test.cjs",
+        "tests/xtensions/lifecycle-browser-profile.test.cjs",
+        "tests/maraca/rmtx-lifecycle.test.mjs"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 5.613,
+      "log": "preparation-final-node26-15.log",
+      "resourceLog": "preparation-final-node26-15-resource.log"
+    },
+    {
+      "index": 16,
+      "command": [
+        "development/rmtx-a06/lifecycle-profile/inspect.cjs",
+        "--check"
+      ],
+      "executed": [
+        "development/rmtx-a06/lifecycle-profile/inspect.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 12.407,
+      "log": "preparation-final-node26-16.log",
+      "resourceLog": "preparation-final-node26-16-resource.log"
+    },
+    {
+      "index": 17,
+      "command": [
+        "--test",
+        "--test-concurrency=1",
+        "tests/rmt-language/rmtx-native-orchestration.test.cjs",
+        "tests/xtensions/native-orchestrated-contracts.test.cjs",
+        "tests/xtensions/native-orchestrated-prewarm.test.cjs",
+        "tests/xtensions/native-surface-projection.test.cjs",
+        "tests/maraca/rmtx-surface-graph.test.mjs",
+        "tests/maraca/rmtx-orchestration.test.mjs"
+      ],
+      "executed": [
+        "--test",
+        "--test-concurrency=1",
+        "tests/rmt-language/rmtx-native-orchestration.test.cjs",
+        "tests/xtensions/native-orchestrated-contracts.test.cjs",
+        "tests/xtensions/native-orchestrated-prewarm.test.cjs",
+        "tests/xtensions/native-surface-projection.test.cjs",
+        "tests/maraca/rmtx-surface-graph.test.mjs",
+        "tests/maraca/rmtx-orchestration.test.mjs"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 22.229,
+      "log": "preparation-final-node26-17.log",
+      "resourceLog": "preparation-final-node26-17-resource.log"
+    },
+    {
+      "index": 18,
+      "command": [
+        "development/rmtx-a06/native-components/generate.cjs",
+        "--check"
+      ],
+      "executed": [
+        "development/rmtx-a06/native-components/generate.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 0.269,
+      "log": "preparation-final-node26-18.log",
+      "resourceLog": "preparation-final-node26-18-resource.log"
+    },
+    {
+      "index": 19,
+      "command": [
+        "development/rmtx-a06/native-orchestration-profile/inspect.cjs",
+        "--check"
+      ],
+      "executed": [
+        "development/rmtx-a06/native-orchestration-profile/inspect.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 8.666,
+      "log": "preparation-final-node26-19.log",
+      "resourceLog": "preparation-final-node26-19-resource.log"
+    },
+    {
+      "index": 20,
+      "command": [
+        "development/rmtx-a01/inspect.cjs",
+        "--check"
+      ],
+      "executed": [
+        "development/rmtx-a01/inspect.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 1.136,
+      "log": "preparation-final-node26-20.log",
+      "resourceLog": "preparation-final-node26-20-resource.log"
+    },
+    {
+      "index": 21,
+      "command": [
+        "development/rmtx-a02/inspect.cjs",
+        "--check"
+      ],
+      "executed": [
+        "development/rmtx-a02/inspect.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 1.595,
+      "log": "preparation-final-node26-21.log",
+      "resourceLog": "preparation-final-node26-21-resource.log"
+    },
+    {
+      "index": 22,
+      "command": [
+        "development/rmtx-a02/url-history/inspect.cjs",
+        "--check"
+      ],
+      "executed": [
+        "development/rmtx-a02/url-history/inspect.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 1.633,
+      "log": "preparation-final-node26-22.log",
+      "resourceLog": "preparation-final-node26-22-resource.log"
+    },
+    {
+      "index": 23,
+      "command": [
+        "development/rmtx-a02/url-history/integration-inspect.cjs",
+        "--check"
+      ],
+      "executed": [
+        "development/rmtx-a02/url-history/integration-inspect.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 0.062,
+      "log": "preparation-final-node26-23.log",
+      "resourceLog": "preparation-final-node26-23-resource.log"
+    },
+    {
+      "index": 24,
+      "command": [
+        "development/rmtx-a03/inspect.cjs",
+        "--check"
+      ],
+      "executed": [
+        "development/rmtx-a03/inspect.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 0.067,
+      "log": "preparation-final-node26-24.log",
+      "resourceLog": "preparation-final-node26-24-resource.log"
+    },
+    {
+      "index": 25,
+      "command": [
+        "development/rmtx-a03/graph-inspect.cjs",
+        "--check"
+      ],
+      "executed": [
+        "development/rmtx-a03/graph-inspect.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 0.096,
+      "log": "preparation-final-node26-25.log",
+      "resourceLog": "preparation-final-node26-25-resource.log"
+    },
+    {
+      "index": 26,
+      "command": [
+        "development/rmtx-a03/budget-inspect.cjs",
+        "--check"
+      ],
+      "executed": [
+        "development/rmtx-a03/budget-inspect.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 0.074,
+      "log": "preparation-final-node26-26.log",
+      "resourceLog": "preparation-final-node26-26-resource.log"
+    },
+    {
+      "index": 27,
+      "command": [
+        "development/rmtx-a03/capability-inspect.cjs",
+        "--check"
+      ],
+      "executed": [
+        "development/rmtx-a03/capability-inspect.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 0.098,
+      "log": "preparation-final-node26-27.log",
+      "resourceLog": "preparation-final-node26-27-resource.log"
+    },
+    {
+      "index": 28,
+      "command": [
+        "development/rmtx-a04/inspect.cjs",
+        "--check"
+      ],
+      "executed": [
+        "development/rmtx-a04/inspect.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 1.485,
+      "log": "preparation-final-node26-28.log",
+      "resourceLog": "preparation-final-node26-28-resource.log"
+    },
+    {
+      "index": 29,
+      "command": [
+        "development/rmtx-a04/integration-inspect.cjs",
+        "--check"
+      ],
+      "executed": [
+        "development/rmtx-a04/integration-inspect.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 30.026,
+      "log": "preparation-final-node26-29.log",
+      "resourceLog": "preparation-final-node26-29-resource.log"
+    },
+    {
+      "index": 30,
+      "command": [
+        "development/rmtx-a04/graph-inspect.cjs",
+        "--check"
+      ],
+      "executed": [
+        "development/rmtx-a04/graph-inspect.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 17.731,
+      "log": "preparation-final-node26-30.log",
+      "resourceLog": "preparation-final-node26-30-resource.log"
+    },
+    {
+      "index": 31,
+      "command": [
+        "development/rmtx-a04/loading-inspect.cjs",
+        "--check"
+      ],
+      "executed": [
+        "development/rmtx-a04/loading-inspect.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 24.682,
+      "log": "preparation-final-node26-31.log",
+      "resourceLog": "preparation-final-node26-31-resource.log"
+    },
+    {
+      "index": 32,
+      "command": [
+        "development/rmtx-a04/peer-inspect.cjs",
+        "--check"
+      ],
+      "executed": [
+        "development/rmtx-a04/peer-inspect.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 24.857,
+      "log": "preparation-final-node26-32.log",
+      "resourceLog": "preparation-final-node26-32-resource.log"
+    },
+    {
+      "index": 33,
+      "command": [
+        "development/rmtx-a04/delivery-inspect.cjs",
+        "--check"
+      ],
+      "executed": [
+        "development/rmtx-a04/delivery-inspect.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 25.088,
+      "log": "preparation-final-node26-33.log",
+      "resourceLog": "preparation-final-node26-33-resource.log"
+    },
+    {
+      "index": 34,
+      "command": [
+        "development/rmtx-a04/integrity-inspect.cjs",
+        "--check"
+      ],
+      "executed": [
+        "development/rmtx-a04/integrity-inspect.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 20.266,
+      "log": "preparation-final-node26-34.log",
+      "resourceLog": "preparation-final-node26-34-resource.log"
+    },
+    {
+      "index": 35,
+      "command": [
+        "development/rmtx-a04/runtime-inspect.cjs",
+        "--check"
+      ],
+      "executed": [
+        "development/rmtx-a04/runtime-inspect.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 32.196,
+      "log": "preparation-final-node26-35.log",
+      "resourceLog": "preparation-final-node26-35-resource.log"
+    },
+    {
+      "index": 36,
+      "command": [
+        "development/rmtx-a04/updates-inspect.cjs",
+        "--check"
+      ],
+      "executed": [
+        "development/rmtx-a04/updates-inspect.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 34.734,
+      "log": "preparation-final-node26-36.log",
+      "resourceLog": "preparation-final-node26-36-resource.log"
+    },
+    {
+      "index": 37,
+      "command": [
+        "development/rmtx-a05/inspect.cjs",
+        "--check"
+      ],
+      "executed": [
+        "development/rmtx-a05/inspect.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 0.088,
+      "log": "preparation-final-node26-37.log",
+      "resourceLog": "preparation-final-node26-37-resource.log"
+    },
+    {
+      "index": 38,
+      "command": [
+        "development/rmtx-a06/two-host-inspect.cjs",
+        "--check"
+      ],
+      "executed": [
+        "development/rmtx-a06/two-host-inspect.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 2.154,
+      "log": "preparation-final-node26-38.log",
+      "resourceLog": "preparation-final-node26-38-resource.log"
+    },
+    {
+      "index": 39,
+      "command": [
+        "--test",
+        "tests/xtensions/component-interface.test.cjs"
+      ],
+      "executed": [
+        "--test",
+        "--test-concurrency=1",
+        "tests/xtensions/component-interface.test.cjs"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 2.105,
+      "log": "preparation-final-node26-39.log",
+      "resourceLog": "preparation-final-node26-39-resource.log"
+    },
+    {
+      "index": 40,
+      "command": [
+        "development/rmtx-a06/automatic-inspect.cjs",
+        "--check"
+      ],
+      "executed": [
+        "development/rmtx-a06/automatic-inspect.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 7.282,
+      "log": "preparation-final-node26-40.log",
+      "resourceLog": "preparation-final-node26-40-resource.log"
+    },
+    {
+      "index": 41,
+      "command": [
+        "--test",
+        "tests/xtensions/component-composition.test.cjs"
+      ],
+      "executed": [
+        "--test",
+        "--test-concurrency=1",
+        "tests/xtensions/component-composition.test.cjs"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 2.54,
+      "log": "preparation-final-node26-41.log",
+      "resourceLog": "preparation-final-node26-41-resource.log"
+    },
+    {
+      "index": 42,
+      "command": [
+        "development/rmtx-a06/scoped-inspect.cjs",
+        "--check"
+      ],
+      "executed": [
+        "development/rmtx-a06/scoped-inspect.cjs",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 7.263,
+      "log": "preparation-final-node26-42.log",
+      "resourceLog": "preparation-final-node26-42-resource.log"
+    },
+    {
+      "index": 43,
+      "command": [
+        "--test",
+        "tests/xtensions/scoped-components.test.cjs"
+      ],
+      "executed": [
+        "--test",
+        "--test-concurrency=1",
+        "tests/xtensions/scoped-components.test.cjs"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 2.333,
+      "log": "preparation-final-node26-43.log",
+      "resourceLog": "preparation-final-node26-43-resource.log"
+    },
+    {
+      "index": 44,
+      "command": [
+        "scripts/sync_xtend_package_versions.js",
+        "--check"
+      ],
+      "executed": [
+        "scripts/sync_xtend_package_versions.js",
+        "--check"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 0.053,
+      "log": "preparation-final-node26-44.log",
+      "resourceLog": "preparation-final-node26-44-resource.log"
+    },
+    {
+      "index": 45,
+      "command": [
+        "scripts/release/feature-scope.cjs",
+        "--check-plan"
+      ],
+      "executed": [
+        "scripts/release/feature-scope.cjs",
+        "--check-plan"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 0.044,
+      "log": "preparation-final-node26-45.log",
+      "resourceLog": "preparation-final-node26-45-resource.log"
+    }
+  ]
+}

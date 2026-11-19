@@ -401,7 +401,7 @@ export declare function bootMaracaPlan(options: SSRComposedMaracaPlanRuntimeOpti
 export declare function bootMaracaPlan(options: ComposedMaracaPlanRuntimeOptions): Promise<ComposedMaracaPlanRuntime>;
 export declare function bootMaracaPlan(options: MaracaPlanRuntimeOptions): Promise<MaracaPlanRuntime>;
 
-declare const api: Readonly<{ NATIVE_RMTX_PLAN_RUNTIME_SCHEMA:typeof NATIVE_RMTX_PLAN_RUNTIME_SCHEMA;RMTX_PLAN_RUNTIME_SCHEMA:typeof RMTX_PLAN_RUNTIME_SCHEMA;SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA:typeof SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA;COMPONENT_SSR_PLAN_RUNTIME_SCHEMA:typeof COMPONENT_SSR_PLAN_RUNTIME_SCHEMA;COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA: typeof COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA; SSR_XTENSION_PLAN_RUNTIME_SCHEMA: typeof SSR_XTENSION_PLAN_RUNTIME_SCHEMA; PLAN_RUNTIME_SCHEMA: typeof PLAN_RUNTIME_SCHEMA; XTENSION_PLAN_RUNTIME_SCHEMA: typeof XTENSION_PLAN_RUNTIME_SCHEMA; LEGACY_PLAN_RUNTIME_SCHEMA: typeof LEGACY_PLAN_RUNTIME_SCHEMA; createMaracaPlanRuntime: typeof createMaracaPlanRuntime; bootMaracaPlan: typeof bootMaracaPlan }>;
+declare const api: Readonly<{ LIFECYCLE_RMTX_PLAN_RUNTIME_SCHEMA:typeof LIFECYCLE_RMTX_PLAN_RUNTIME_SCHEMA;NATIVE_RMTX_PLAN_RUNTIME_SCHEMA:typeof NATIVE_RMTX_PLAN_RUNTIME_SCHEMA;RMTX_PLAN_RUNTIME_SCHEMA:typeof RMTX_PLAN_RUNTIME_SCHEMA;SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA:typeof SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA;COMPONENT_SSR_PLAN_RUNTIME_SCHEMA:typeof COMPONENT_SSR_PLAN_RUNTIME_SCHEMA;COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA: typeof COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA; SSR_XTENSION_PLAN_RUNTIME_SCHEMA: typeof SSR_XTENSION_PLAN_RUNTIME_SCHEMA; PLAN_RUNTIME_SCHEMA: typeof PLAN_RUNTIME_SCHEMA; XTENSION_PLAN_RUNTIME_SCHEMA: typeof XTENSION_PLAN_RUNTIME_SCHEMA; LEGACY_PLAN_RUNTIME_SCHEMA: typeof LEGACY_PLAN_RUNTIME_SCHEMA; createMaracaPlanRuntime: typeof createMaracaPlanRuntime; bootMaracaPlan: typeof bootMaracaPlan }>;
 export default api;
 
 /** Separate opt-in v8 contract; manual v7 options, runtime and snapshots remain intact. */
@@ -520,3 +520,54 @@ export type NativeRmtxRuntimeOptions14 = NativeRmtxRuntimeBaseOptions14 & Native
     }; xtensionCompositionPort: import('./xtension-composition-runtime').NativeComponentPort }
 );
 export type NativeRmtxPlanRuntimeOptions = NativeRmtxRuntimeOptions14;
+
+/** Source6 level content admission; no Surface Open/Recreate is inferred. */
+export const LIFECYCLE_RMTX_PLAN_RUNTIME_SCHEMA: 'xtend.maraca.plan-runtime.v15';
+export interface LifecycleRmtxPlanSnapshot extends Omit<NativeRmtxPlanSnapshot14, 'schema'> {
+  readonly schema: typeof LIFECYCLE_RMTX_PLAN_RUNTIME_SCHEMA;
+}
+export interface LifecycleRmtxPlanRuntime extends Omit<NativeRmtxPlanRuntime14, 'schema' | 'boot' | 'snapshot' | 'subscribe'> {
+  readonly schema: typeof LIFECYCLE_RMTX_PLAN_RUNTIME_SCHEMA;
+  boot(): Promise<LifecycleRmtxPlanSnapshot>;
+  snapshot(): LifecycleRmtxPlanSnapshot;
+  subscribe(listener: (snapshot: LifecycleRmtxPlanSnapshot) => void): () => void;
+}
+export type LifecycleNativeViewRuntimePort = typeof import('@ccslabs/xtend/xtensions/native-view-projection').NATIVE_LIFECYCLE_VIEW_RUNTIME;
+export interface LifecycleRmtxRuntimeBaseOptions extends Omit<NativeRmtxRuntimeBaseOptions14, 'nativeViewRuntimePort'> {
+  nativeViewRuntimePort: LifecycleNativeViewRuntimePort;
+}
+export type LifecycleRmtxRuntimeOptions = LifecycleRmtxRuntimeBaseOptions & (
+  | { urlStatePolicy?: undefined; urlStateRuntime?: typeof URLState.LIFECYCLE_URL_STATE_RUNTIME }
+  | { urlStatePolicy: URLState.PolicyV2; urlStateRuntime: typeof URLState.LIFECYCLE_URL_STATE_RUNTIME }
+) & (
+  | { plan: import('./index').LifecycleRmtxOnlyBuildPlan10; xtensionCompositionPort?: never }
+  | { plan: import('./index').LifecycleRmtxBuildPlan10;
+      xtensionCompositionPort: import('./xtension-composition-runtime').LifecycleComponentPort }
+);
+
+/** Source7: scoped native Surface instances and explicit content commands. */
+export const ORCHESTRATED_RMTX_PLAN_RUNTIME_SCHEMA: 'xtend.maraca.plan-runtime.v16';
+export interface OrchestratedRmtxPlanSnapshot16 extends Omit<LifecycleRmtxPlanSnapshot, 'schema'> {
+  readonly schema: typeof ORCHESTRATED_RMTX_PLAN_RUNTIME_SCHEMA;
+  readonly nativeLifecycle: Readonly<{
+    schema: 'xtend.rmt.native-orchestration-runtime-state.v1';
+    surfaces: readonly Readonly<{id: string; suspended: boolean; detached: boolean; disposed: boolean; hydrated: boolean}>[];
+    operations: readonly Readonly<{operationId: string; surfaceId: string; op: import('@ccslabs/xtend/xtensions/native-orchestration-lifecycle').NativeOrchestrationLifecycleOperation; lane: string; status: 'completed'}>[];
+  }>;
+}
+export interface OrchestratedRmtxPlanRuntime16 extends Omit<LifecycleRmtxPlanRuntime, 'schema' | 'boot' | 'snapshot' | 'subscribe'> {
+  readonly schema: typeof ORCHESTRATED_RMTX_PLAN_RUNTIME_SCHEMA;
+  boot(): Promise<OrchestratedRmtxPlanSnapshot16>;
+  snapshot(): OrchestratedRmtxPlanSnapshot16;
+  subscribe(listener: (snapshot: OrchestratedRmtxPlanSnapshot16) => void): () => void;
+}
+export interface OrchestratedRmtxRuntimeBaseOptions16 extends Omit<NativeRmtxRuntimeBaseOptions14, 'nativeViewRuntimePort'> {
+  nativeViewRuntimePort: typeof import('@ccslabs/xtend-compiler/xtensions/native-surface-projection').NATIVE_ORCHESTRATION_VIEW_RUNTIME;
+}
+export type OrchestratedRmtxRuntimeOptions16 = OrchestratedRmtxRuntimeBaseOptions16 & (
+  | { urlStatePolicy?: undefined; urlStateRuntime?: typeof URLState.ORCHESTRATED_URL_STATE_RUNTIME }
+  | { urlStatePolicy: URLState.PolicyV2; urlStateRuntime: typeof URLState.ORCHESTRATED_URL_STATE_RUNTIME }
+) & (
+  | { plan: import('./index').OrchestratedRmtxOnlyBuildPlan11; xtensionCompositionPort?: never }
+  | { plan: import('./index').OrchestratedRmtxBuildPlan11; xtensionCompositionPort: import('./xtension-composition-runtime').OrchestratedComponentPort }
+);

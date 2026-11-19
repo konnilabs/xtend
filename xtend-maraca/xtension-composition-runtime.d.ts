@@ -4,7 +4,7 @@ import type {
 } from '@ccslabs/xtend-compiler/xtensions/react-runtime-adapter';
 import type { XTensionBindingHostContext, XTensionStateBindingArtifact } from '@ccslabs/xtend-compiler/xtensions/state-binding';
 import type { MaracaBuildPlan } from './index';
-export const XTENSION_COMPOSITION_API_VERSION: '11.0.0';
+export const XTENSION_COMPOSITION_API_VERSION: '13.0.0';
 export type XTensionCompositionProvider = {
   readonly id: string;
   readonly version: string;
@@ -364,3 +364,66 @@ export type NativeComponentPortOptions = Omit<NativeComponentHostOptions, 'artif
 };
 export function createMaracaXTensionHostFactory(options: NativeComponentHostOptions): (context: ProjectionComponentHostContext) => NegotiatedRuntimeHostController;
 export function createMaracaXTensionCompositionPort(options: NativeComponentPortOptions): NativeComponentPort;
+
+/** Source6 composition retains Action4/View5 and adds explicit lifecycle admission. */
+export interface LifecycleComponentManifest extends Omit<NativeComponentManifest, 'schema'> {
+  readonly schema: 'xtend.maraca.xtension-composition-manifest.v10';
+}
+export interface LifecycleComponentArtifact extends Omit<NativeComponentArtifact, 'schema' | 'apiVersion' | 'plan' | 'manifest'> {
+  readonly schema: 'xtend.maraca.xtension-composition-artifact.v11'; readonly apiVersion: '11.0.0';
+  readonly manifest: LifecycleComponentManifest;
+  readonly plan: { readonly schema: 'xtend.maraca.build-plan.v10'; readonly sourceHash: string;
+    readonly program: import('@ccslabs/xtend-compiler/xtensions/native-view-projection').NativeLifecycleViewProgram;
+    readonly bindings: import('@ccslabs/xtend-compiler/xtensions/state-binding').XTensionLifecycleStateBindingArtifact;
+    readonly compositionManifest: LifecycleComponentManifest };
+}
+export interface LifecycleComponentBindingRuntime extends NativeComponentBindingRuntime {
+  readonly XTENSION_LIFECYCLE_STATE_BINDING_API_VERSION: '5.0.0';
+  validateLifecycleStateBindingArtifact: typeof import('@ccslabs/xtend-compiler/xtensions/state-binding').validateLifecycleStateBindingArtifact;
+  createXTensionLifecycleStateRegistry: typeof import('@ccslabs/xtend-compiler/xtensions/state-binding').createXTensionLifecycleStateRegistry;
+}
+export interface LifecycleComponentHostOptions extends Omit<NativeComponentHostOptions, 'artifact' | 'plan' | 'bindingsRuntime'> {
+  readonly artifact: LifecycleComponentArtifact;
+  readonly plan: Omit<import('./index').LifecycleRmtxBuildPlan10, 'xtensionComposition'> & {
+    readonly xtensionComposition: LifecycleComponentManifest | LifecycleComponentArtifact };
+  readonly bindingsRuntime: LifecycleComponentBindingRuntime;
+}
+export interface LifecycleComponentPort {
+  readonly schema: 'xtend.maraca.xtension-composition-port.v8'; readonly bindingsRuntime: LifecycleComponentBindingRuntime;
+  bind(ports: { readonly plan: LifecycleComponentHostOptions['plan']; readonly [key: string]: unknown }): (context: ProjectionComponentHostContext) => NegotiatedRuntimeHostController;
+}
+export type LifecycleComponentPortOptions = Omit<LifecycleComponentHostOptions, 'artifact' | 'plan' | 'fabric' | 'kernelWork' | 'resourceGraph' | 'loadProviders' | 'resolveHostBinding'> & {
+  readonly plan: Omit<import('./index').LifecycleRmtxBuildPlan10, 'xtensionComposition'> & { readonly xtensionComposition: LifecycleComponentArtifact };
+  readonly companion: { readonly artifact: LifecycleComponentArtifact; createHostFactory(ports: Readonly<Record<string, unknown>>): ReturnType<typeof createMaracaXTensionHostFactory> };
+  readonly ssr?: never;
+};
+export function createMaracaXTensionHostFactory(options: LifecycleComponentHostOptions): (context: ProjectionComponentHostContext) => NegotiatedRuntimeHostController;
+export function createMaracaXTensionCompositionPort(options: LifecycleComponentPortOptions): LifecycleComponentPort;
+
+/** Source7 retains logical XTension addresses and adds concrete native owner identity. */
+export interface OrchestratedComponentManifest extends Omit<NativeComponentManifest, 'schema' | 'loading'> {
+ readonly schema: 'xtend.maraca.xtension-composition-manifest.v11'; readonly loading: {readonly provider: 'orchestrated'; readonly peers: 'shared'};
+}
+export interface OrchestratedComponentArtifact extends Omit<NativeComponentArtifact, 'schema' | 'apiVersion' | 'plan' | 'manifest' | 'loadPlan'> {
+ readonly schema: 'xtend.maraca.xtension-composition-artifact.v12'; readonly apiVersion: '12.0.0'; readonly manifest: OrchestratedComponentManifest;
+ readonly plan: { readonly schema: 'xtend.maraca.build-plan.v11'; readonly sourceHash: string; readonly program: ReturnType<typeof import('@ccslabs/xtend/xtensions/native-surface-projection').validateNativeSurfaceViewProgram>; readonly bindings: import('@ccslabs/xtend/xtensions/state-binding').XTensionOrchestratedStateBindingArtifact; readonly compositionManifest: OrchestratedComponentManifest };
+ readonly loadPlan: Readonly<Record<string, unknown>> & {readonly schema: 'xtend.maraca.xtension-load-plan.v3'};
+}
+export type OrchestratedComponentBindingRuntime = typeof import('@ccslabs/xtend/xtensions/state-binding').ORCHESTRATED_STATE_BINDING_RUNTIME;
+export interface OrchestratedComponentHostOptions extends Omit<NativeComponentHostOptions, 'artifact' | 'plan' | 'bindingsRuntime' | 'resolveHostBinding'> {
+ readonly artifact: OrchestratedComponentArtifact; readonly plan: Omit<import('./index').OrchestratedRmtxBuildPlan11, 'xtensionComposition'> & {readonly xtensionComposition: OrchestratedComponentManifest | OrchestratedComponentArtifact}; readonly bindingsRuntime: OrchestratedComponentBindingRuntime;
+ resolveHostBinding(address: import('@ccslabs/xtend/xtensions/state-binding').XTensionInstanceAddress): {readonly surface: string; readonly hostSurface: string; readonly ownerSurface: string; readonly binding: import('@ccslabs/xtend/xtensions/state-binding').XTensionProjectionStateBinding} | null;
+}
+export interface OrchestratedComponentHostFactory {
+ (context: ProjectionComponentHostContext): NegotiatedRuntimeHostController;
+ prewarm(request: {readonly surfaceIds: readonly string[]; readonly signal?: AbortSignal}): Promise<{readonly providerIds: readonly string[]; readonly mounted: false}>;
+}
+export interface OrchestratedComponentPort {
+ readonly schema: 'xtend.maraca.xtension-composition-port.v9'; readonly bindingsRuntime: OrchestratedComponentBindingRuntime;
+ bind(ports: {readonly plan: OrchestratedComponentHostOptions['plan']; readonly [key: string]: unknown}): OrchestratedComponentHostFactory;
+}
+export type OrchestratedComponentPortOptions = Omit<OrchestratedComponentHostOptions, 'artifact' | 'plan' | 'fabric' | 'kernelWork' | 'resourceGraph' | 'loadProviders' | 'resolveHostBinding'> & {
+ readonly plan: Omit<import('./index').OrchestratedRmtxBuildPlan11, 'xtensionComposition'> & {readonly xtensionComposition: OrchestratedComponentArtifact}; readonly companion: {readonly artifact: OrchestratedComponentArtifact; createHostFactory(ports: Readonly<Record<string, unknown>>): OrchestratedComponentHostFactory}; readonly ssr?: never;
+};
+export function createMaracaXTensionHostFactory(options: OrchestratedComponentHostOptions): OrchestratedComponentHostFactory;
+export function createMaracaXTensionCompositionPort(options: OrchestratedComponentPortOptions): OrchestratedComponentPort;

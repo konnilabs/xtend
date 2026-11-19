@@ -23,6 +23,11 @@ test('development checks validate Classic drift, observations, versions and scop
   ['development/rmtx-a06/orchestration-profile/inspect.cjs', '--check'],
   ['--test', 'tests/rmt-language/rmtx-native-view.test.cjs', 'tests/xtensions/native-view-projection.test.cjs', 'tests/xtensions/native-state-binding.test.cjs', 'tests/xtensions/native-url-state.test.cjs', 'tests/xtensions/native-composition-profile.test.cjs', 'tests/rmt/renderer-preflight.test.cjs', 'tests/maraca/rmtx-native-boundaries.test.mjs'],
   ['development/rmtx-a06/native-view-profile/inspect.cjs', '--check'],
+  ['--test', 'tests/rmt-language/rmtx-lifecycle.test.cjs', 'tests/xtensions/native-lifecycle-protocol.test.cjs', 'tests/xtensions/lifecycle-composition-profile.test.cjs', 'tests/xtensions/lifecycle-browser-profile.test.cjs', 'tests/maraca/rmtx-lifecycle.test.mjs'],
+  ['development/rmtx-a06/lifecycle-profile/inspect.cjs', '--check'],
+  ['--test', '--test-concurrency=1', 'tests/rmt-language/rmtx-native-orchestration.test.cjs', 'tests/xtensions/native-orchestrated-contracts.test.cjs', 'tests/xtensions/native-orchestrated-prewarm.test.cjs', 'tests/xtensions/native-surface-projection.test.cjs', 'tests/maraca/rmtx-surface-graph.test.mjs', 'tests/maraca/rmtx-orchestration.test.mjs'],
+  ['development/rmtx-a06/native-components/generate.cjs', '--check'],
+  ['development/rmtx-a06/native-orchestration-profile/inspect.cjs', '--check'],
     ['development/rmtx-a01/inspect.cjs', '--check'],
     ['development/rmtx-a02/inspect.cjs', '--check'],
     ['development/rmtx-a02/url-history/inspect.cjs', '--check'],
@@ -79,6 +84,11 @@ test('GitHub development owners and nightly execute the same blocking preparatio
     for (const source of [normal, migration, nightly]) assert(source.includes(artifact), `${mode} Native evidence is uploaded`);
     assert(catalog.ci['ci-nightly'].artifacts.some(row => row.path === artifact && row.producer === 'full_release'
       && row.expectedSchema === 'xtend.rmtx.native-view-runtime-acceptance.v1' && row.expectedMode === expectedMode));
+  }
+  for (const mode of ['node','browser']) {
+    const artifact = `.xtend-test-results/xtend-rmtx-native-orchestration-runtime-${mode}-report.json`;
+    for (const source of [normal,migration,nightly]) assert(source.includes(artifact));
+    assert(catalog.ci['ci-nightly'].artifacts.some(row=>row.path===artifact && row.expectedSchema==='xtend.rmtx.native-orchestration-runtime-acceptance.v1'));
   }
   for (const [source, id] of [[normal, 'pr-fast-gates'], [normal, 'full-release-gates'], [migration, 'pr-fast-gates']]) {
     const start = source.indexOf('\n  ' + id + ':');

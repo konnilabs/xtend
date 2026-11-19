@@ -181,7 +181,7 @@ test('the compiler tarball alone carries the complete opt-in Source4 frontend an
     assert(entry.report.files.some(item => item.path === file), file);
   const parser = require(path.join(isolated, 'rmt-language/rmtx-parser.js'));
   const compiler = require(path.join(isolated, 'rmt-language/rmtx-compiler.js'));
-  assert.equal(parser.RMTX_PARSER_API_VERSION, '5.0.0');
+  assert.equal(parser.RMTX_PARSER_API_VERSION, '7.0.0');
   assert.equal(Object.keys(parser.getRmtxOperatorProfile('4.0.0').operators).length, 110);
   const selected = compiler.createRmtxCompiler({ syntaxVersion: '4.0.0' });
   const parsed = parser.parseRmtxSource({ text: source4, filePath: 'packed.rmtx' }, { syntaxVersion: '4.0.0' });
@@ -434,6 +434,60 @@ declare const artifact:NativeComponentArtifact;const artifact10:'xtend.maraca.xt
 void[schema5,schema4,wrong4,plan9,options,api3,host3,connected3,browser11,snapshot14,artifact10];`);
   const ts = require('typescript'), program = ts.createProgram([fixture], { noEmit: true, strict: true, skipLibCheck: false, types: [],
     module: ts.ModuleKind.NodeNext, moduleResolution: ts.ModuleResolutionKind.NodeNext, target: ts.ScriptTarget.ES2022 });
+  const diagnostics = ts.getPreEmitDiagnostics(program);
+  assert.equal(diagnostics.length, 0, ts.formatDiagnosticsWithColorAndContext(diagnostics, { getCurrentDirectory: () => temporary, getCanonicalFileName: file => file, getNewLine: () => '\n' }));
+});
+
+test('actual packed Source6 compiler and Maraca retain explicit lifecycle plan and public entrypoints', async () => {
+  const { packages } = packedPackages();
+  const compilerPackage = packages.find(value => value.manifest.name === '@ccslabs/xtend-compiler');
+  const maracaPackage = packages.find(value => value.manifest.name === '@ccslabs/xtend-maraca');
+  for (const file of ['rmt-language/rmtx-native-lifecycle.js', 'rmt-language/rmtx-native-lifecycle.d.ts', 'xtensions/native-lifecycle.js', 'xtensions/native-lifecycle.d.ts'])
+    assert(compilerPackage.report.files.some(value => value.path === file), file);
+  const source = `import {RMT,model} from '@ccslabs/xtend/rmt-language/rmtx';export default <RMT.Program id="packed6"><RMT.State id="ui" type="object" initial={{enabled:false}}/><RMT.Surface id="owner"><RMT.Lane name="visible"><RMT.Mount target="owner" when={model.ui.enabled}/></RMT.Lane><RMT.View><RMT.Text value="content"/></RMT.View></RMT.Surface></RMT.Program>`;
+  const compiler = require(path.join(compilerPackage.directory, 'rmt-language/rmtx-compiler')).createRmtxCompiler({ syntaxVersion: '6.0.0' });
+  const compiled = compiler.compileSource({ text: source, filePath: 'packed6.rmtx' });
+  assert.equal(compiled.ok, true, JSON.stringify(compiled.diagnostics));
+  assert.equal(compiled.orchestrationArtifacts.schema, 'xtend.rmt.app-orchestration.v4');
+  const projection = require(path.join(compilerPackage.directory, 'xtensions/native-view-projection'));
+  assert.throws(() => projection.validateNativeViewProgram(compiled.orchestrationArtifacts));
+  assert.equal(projection.NATIVE_LIFECYCLE_VIEW_RUNTIME.validateNativeViewProgram(compiled.orchestrationArtifacts).lifecycle.operations.length, 1);
+  const api = require(path.join(maracaPackage.directory, 'index'));
+  const input = { sourceText: source, virtualSourcePath: 'packed6.rmtx', rmtxSyntaxVersion: '6.0.0', orchestration: 'strict', kernel: 'strict', hydration: 'off', validation: 'off', transitions: 'off', pwa: false, services: false };
+  const plan = api.createMaracaBuildPlan(input, { rootDir: maracaPackage.directory, inspectToolchain: false });
+  assert.equal(plan.ok, true, JSON.stringify(plan.diagnostics)); assert.equal(plan.schema, 'xtend.maraca.build-plan.v10');
+  assert.equal(api.createMaracaTuneConfig({ options: input }).schema, 'xtend.maraca.build-config.v10');
+  const configFile = path.join(packedPackages().temporary, 'lifecycle-config.json');
+  for (const [schema, syntaxVersion] of [['xtend.maraca.build-config.v9', '6.0.0'], ['xtend.maraca.build-config.v10', '5.0.0']]) {
+    fs.writeFileSync(configFile, JSON.stringify({ schema, options: { ...input, rmtxSyntaxVersion: syntaxVersion } }));
+    const mixed = api.createMaracaBuildPlan({ config: configFile }, { rootDir: maracaPackage.directory, inspectToolchain: false });
+    assert.equal(mixed.ok, false); assert(mixed.diagnostics.some(value => value.code === 'xtend.maraca.rmtx_native_config_version'));
+  }
+  const entry = await import(require('node:url').pathToFileURL(path.join(maracaPackage.directory, 'native-lifecycle-runtime.mjs')));
+  assert.equal(typeof entry.createMaracaNativeLifecycleRuntime, 'function');
+});
+
+test('packed Source6 declarations reject older projection and runtime capabilities', () => {
+  const { temporary } = packedPackages(), fixture = path.join(temporary, 'lifecycle-consumer.mts');
+  fs.writeFileSync(fixture, `import {createMaracaBuildPlan,buildMaracaBundle,type LifecycleRmtxOnlyBuildPlan10} from '@ccslabs/xtend-maraca';
+import {createMaracaNativeLifecycleRuntime} from '@ccslabs/xtend-maraca/native-lifecycle-runtime';
+import {NATIVE_LIFECYCLE_VIEW_RUNTIME} from '@ccslabs/xtend-compiler/xtensions/native-view-projection';
+import {LIFECYCLE_URL_STATE_RUNTIME} from '@ccslabs/xtend-compiler/xtensions/url-state';
+import {createMaracaPlanRuntime} from '@ccslabs/xtend-maraca/plan-runtime';
+const plan:LifecycleRmtxOnlyBuildPlan10=createMaracaBuildPlan({source:'app.rmtx',rmtxSyntaxVersion:'6.0.0'});
+const schema:'xtend.maraca.build-plan.v10'=plan.schema;
+const syncSchema:'xtend.maraca.build-plan.v10'=buildMaracaBundle({source:'app.rmtx',rmtxSyntaxVersion:'6.0.0'}).plan.schema;
+const configured=createMaracaBuildPlan({config:'app.json'});
+const configuredLife:Extract<typeof configured,{schema:'xtend.maraca.build-plan.v10'}>=plan;
+const viewAPI:'2.0.0'=NATIVE_LIFECYCLE_VIEW_RUNTIME.API_VERSION;
+const urlAPI:'4.0.0'=LIFECYCLE_URL_STATE_RUNTIME.API_VERSION;
+// @ts-expect-error generic factory does not infer Source6 integration
+createMaracaPlanRuntime({plan});
+// @ts-expect-error new factory requires the explicit Native Projection2 capability
+createMaracaNativeLifecycleRuntime({plan,root:{}});
+void [schema,viewAPI,urlAPI];
+`);
+  const ts = require('typescript'), program = ts.createProgram([fixture], { noEmit: true, strict: true, skipLibCheck: false, types: [], module: ts.ModuleKind.NodeNext, moduleResolution: ts.ModuleResolutionKind.NodeNext, target: ts.ScriptTarget.ES2022 });
   const diagnostics = ts.getPreEmitDiagnostics(program);
   assert.equal(diagnostics.length, 0, ts.formatDiagnosticsWithColorAndContext(diagnostics, { getCurrentDirectory: () => temporary, getCanonicalFileName: file => file, getNewLine: () => '\n' }));
 });

@@ -60,7 +60,17 @@
     "xtensions/component-interface*.*",
     "xtensions/native-view-projection.*",
     "xtensions/native-data.js",
-    "xtensions/repeat-scopes.js"
+    "xtensions/repeat-scopes.js",
+    "xtensions/native-lifecycle.*",
+    "rmt-language/rmtx-native-lifecycle.*",
+    "xtensions/native-surface-scopes.*",
+    "xtensions/native-surface-projection.*",
+    "xtensions/native-orchestration-lifecycle.*",
+    "xtensions/native-component-contract.*",
+    "xtensions/state-binding-orchestrated.js",
+    "rmt-language/rmtx-native-components.*",
+    "xtensions/native-sink-contract.js",
+    "xtensions/native-component-catalog.js"
   ],
   "exports": {
     ".": {
@@ -181,6 +191,22 @@
     "./xtensions/native-view-projection": {
       "types": "./xtensions/native-view-projection.d.ts",
       "default": "./xtensions/native-view-projection.js"
+    },
+    "./xtensions/native-lifecycle": {
+      "types": "./xtensions/native-lifecycle.d.ts",
+      "default": "./xtensions/native-lifecycle.js"
+    },
+    "./xtensions/native-surface-scopes": {
+      "types": "./xtensions/native-surface-scopes.d.ts",
+      "default": "./xtensions/native-surface-scopes.js"
+    },
+    "./xtensions/native-surface-projection": {
+      "types": "./xtensions/native-surface-projection.d.ts",
+      "default": "./xtensions/native-surface-projection.js"
+    },
+    "./xtensions/native-orchestration-lifecycle": {
+      "types": "./xtensions/native-orchestration-lifecycle.d.ts",
+      "default": "./xtensions/native-orchestration-lifecycle.js"
     }
   },
   "publishConfig": {

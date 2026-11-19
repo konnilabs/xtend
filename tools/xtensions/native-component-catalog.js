@@ -1,0 +1,42 @@
+// Generated from explicitly reviewed Source7 component capability subsets.
+'use strict';
+const NATIVE_COMPONENT_CATALOG = [
+  {
+    "tag": "x-button",
+    "module": "components/xbutton.js",
+    "sha256": "2d800e863278ec40e6843ec29181b08ec3246a4123991ea5c5f7fc8054bfd34f",
+    "ownership": "shadow",
+    "attributes": [
+      "disabled",
+      "label",
+      "text"
+    ],
+    "properties": [
+      "title"
+    ],
+    "slots": [
+      "default"
+    ]
+  },
+  {
+    "tag": "x-header",
+    "module": "components/xheader.js",
+    "sha256": "8b04edf787418d4ae43fd464a0dcb9479a4c2fd7dddb76b948c6e158b0a61c45",
+    "ownership": "shadow",
+    "attributes": [
+      "title"
+    ],
+    "properties": [
+      "title"
+    ],
+    "slots": [
+      "actions",
+      "logo",
+      "nav",
+      "search",
+      "title",
+      "utility"
+    ]
+  }
+];
+module.exports = { NATIVE_COMPONENT_CATALOG };

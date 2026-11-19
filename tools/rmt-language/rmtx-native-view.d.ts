@@ -65,3 +65,47 @@ export function lowerRmtxNativeViews(contract: RmtxNativeViewSourceContract, app
   readonly state?: readonly { readonly id: string }[]; readonly selectors?: readonly { readonly id: string }[];
   readonly surfaces?: readonly { readonly id: string }[];
 }): RmtxNativeViewLowering;
+
+/** Explicit Source7 component, slot and whole-Surface scope grammar. */
+export const RMTX_NATIVE_ORCHESTRATION_VIEW_API_VERSION:'2.0.0';
+export const RMTX_NATIVE_ORCHESTRATION_VIEW_SCHEMA:'xtend.rmtx.native-view.v2';
+export const RMT_NATIVE_ORCHESTRATION_VIEW_SCHEMA:'xtend.rmt.native-view.v2';
+export const RMTX_NATIVE_ORCHESTRATION_VIEW_DEPENDENCIES_SCHEMA:'xtend.rmtx.native-view-dependencies.v2';
+export interface RmtxNativeSurfaceScope {
+  readonly surface:string; readonly repeat?:RmtxNativeRepeatScopes;
+  readonly presence?:{readonly state:string;readonly path:RmtxNativeSourcePath};
+  readonly parent?:string; readonly placement?:'nested'|'portal';
+}
+export interface RmtxNativeEventKeys {
+  readonly astPointer:string;readonly surface:string;readonly fields:Readonly<Record<string,number>>;
+}
+export interface RmtxNativeSourceSlot {
+  readonly type:'native-slot';readonly name:string;readonly nativeDeclarationId:string;readonly children:readonly RmtxNativeOrchestrationSourceNode[];
+}
+export type RmtxNativeOrchestrationSourceNode =
+  | Extract<RmtxNativeSourceNode,{type:'text'}>
+  | (Omit<Extract<RmtxNativeSourceNode,{type:'element'}>,'children'>&{readonly children:readonly RmtxNativeOrchestrationSourceNode[]})
+  | {readonly type:'native-repeat';readonly nativeDeclarationId:string;readonly repeat:RmtxNativeRepeatScopes;readonly children:readonly RmtxNativeOrchestrationSourceNode[]}
+  | {readonly type:'native-when';readonly nativeDeclarationId:string;readonly test:RmtxNativeProjection;readonly children:readonly RmtxNativeOrchestrationSourceNode[]}
+  | {readonly type:'native-component';readonly nativeDeclarationId:string;readonly tag:string;
+     readonly attributes?:Readonly<Record<string,RmtxNativeProjection>>;readonly properties?:Readonly<Record<string,RmtxNativeProjection>>;readonly slots:readonly RmtxNativeSourceSlot[]};
+export interface RmtxNativeOrchestrationViewSourceContract {
+  readonly schema:typeof RMTX_NATIVE_ORCHESTRATION_VIEW_SCHEMA;readonly sourceProfile:Readonly<{syntax:'rmtx';version:'7.0.0'}>;readonly documentId:string;
+  readonly components:readonly import('../xtensions/native-component-contract').NativeComponentMetadata[];
+  readonly scopes:readonly RmtxNativeSurfaceScope[];readonly eventKeys:readonly RmtxNativeEventKeys[];
+  readonly views:readonly {readonly surface:string;readonly repeat?:RmtxNativeRepeatScopes;readonly children:readonly RmtxNativeOrchestrationSourceNode[]}[];
+}
+export interface RmtNativeOrchestrationViewContract extends Omit<RmtNativeViewContract,'schema'> {
+  readonly schema:typeof RMT_NATIVE_ORCHESTRATION_VIEW_SCHEMA;
+  readonly components:RmtxNativeOrchestrationViewSourceContract['components'];
+  readonly scopes:readonly RmtxNativeSurfaceScope[];readonly eventKeys:readonly (RmtxNativeEventKeys&{readonly event:string})[];
+}
+export interface RmtxNativeOrchestrationDependencyReport extends Omit<RmtxNativeViewDependencyReport,'schema'|'sourceProfile'> {
+ readonly schema:typeof RMTX_NATIVE_ORCHESTRATION_VIEW_DEPENDENCIES_SCHEMA;readonly sourceProfile:RmtxNativeOrchestrationViewSourceContract['sourceProfile'];
+}
+export interface RmtxNativeOrchestrationViewLowering {
+ readonly surfaces:Map<string,readonly unknown[]>;readonly contract:RmtNativeOrchestrationViewContract;readonly dependencies:RmtxNativeOrchestrationDependencyReport;
+}
+export function validateRmtxNativeOrchestrationViewContract(contract:RmtxNativeOrchestrationViewSourceContract,appPlatform?:Parameters<typeof validateNativeViewContract>[1],context?:Readonly<{core?:import('./vnext-compiler').RmtVNextCoreDocument;events?:readonly unknown[];inputContract?:unknown}>):RmtxNativeOrchestrationViewLowering;
+export function lowerRmtxNativeOrchestrationViews(contract:RmtxNativeOrchestrationViewSourceContract,appPlatform:Parameters<typeof lowerRmtxNativeViews>[1],context?:Parameters<typeof validateRmtxNativeOrchestrationViewContract>[2]):RmtxNativeOrchestrationViewLowering;
+export function lowerRmtxNativeEventKeys(contract:RmtxNativeOrchestrationViewSourceContract,core:import('./vnext-compiler').RmtVNextCoreDocument,events:readonly unknown[],inputContract:unknown):RmtNativeOrchestrationViewContract['eventKeys'];

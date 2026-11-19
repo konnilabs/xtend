@@ -1,0 +1,10 @@
+{
+  "name": "source3",
+  "ok": true,
+  "diagnostics": [],
+  "status": "within_budget",
+  "frameworkBytes": 2186709,
+  "runtimeBytes": 273586,
+  "frameworkCap": 2200000,
+  "runtimeCap": 280000
+}

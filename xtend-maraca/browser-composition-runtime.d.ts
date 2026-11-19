@@ -72,7 +72,7 @@ export function createMaracaBrowserCompositionRoot(
   }>
 ): MaracaBrowserCompositionRoot;
 
-export const MARACA_XTENSION_BROWSER_API_VERSION: '11.0.0';
+export const MARACA_XTENSION_BROWSER_API_VERSION: '13.0.0';
 export interface MaracaXTensionBootOptions extends Record<string, unknown> {
   readonly fabric: import('./xtension-composition-runtime').XTensionHostCompositionOptions['fabric'];
   readonly xtensions: Pick<import('./xtension-composition-runtime').XTensionHostCompositionOptions, 'grants'> & import('./xtension-composition-runtime').XTensionPeerLoaderOptions;
@@ -165,3 +165,55 @@ export interface BrowserNativeComponentRoot extends Omit<BrowserProjectionCompon
   readonly facade: NativeComponentBrowserFacade;
   boot(options: NativeComponentBootOptions): ReturnType<NativeComponentBrowserFacade['boot']>;
 }
+
+/** Source6 uses a distinct factory and View API2; its lifecycle integration stays private. */
+export interface LifecycleComponentBootOptions extends Omit<NativeComponentBootOptions, 'nativeViewRuntimePort' | 'urlStateRuntime'> {
+  readonly nativeViewRuntimePort?: import('./plan-runtime').LifecycleNativeViewRuntimePort;
+  readonly urlStateRuntime?: typeof import('@ccslabs/xtend/xtensions/url-state').LIFECYCLE_URL_STATE_RUNTIME;
+}
+export interface LifecycleComponentBrowserFacade extends Omit<NativeComponentBrowserFacade, 'apiVersion' | 'orchestration' | 'snapshot' | 'subscribe' | 'boot' | 'restoreURLState' | 'publishURLState'> {
+  readonly apiVersion: '12.0.0'; readonly orchestration: LifecycleComponentBrowserFacade;
+  snapshot(): import('./plan-runtime').LifecycleRmtxPlanSnapshot;
+  subscribe(listener: (snapshot: import('./plan-runtime').LifecycleRmtxPlanSnapshot) => void): () => void;
+  boot(options: LifecycleComponentBootOptions): Promise<Readonly<Record<string, unknown>>>;
+  restoreURLState: import('./plan-runtime').LifecycleRmtxPlanRuntime['restoreURLState'];
+  publishURLState: import('./plan-runtime').LifecycleRmtxPlanRuntime['publishURLState'];
+}
+export interface BrowserLifecycleComponentRoot extends Omit<BrowserNativeComponentRoot, 'schema' | 'apiVersion' | 'facade' | 'boot'> {
+  readonly schema: 'xtend.maraca.browser-composition-root.v12'; readonly apiVersion: '12.0.0';
+  readonly facade: LifecycleComponentBrowserFacade;
+  boot(options: LifecycleComponentBootOptions): ReturnType<LifecycleComponentBrowserFacade['boot']>;
+}
+export function createMaracaBrowserCompositionRoot(configuration: Readonly<Record<string, unknown>> & {
+  readonly schema: 'xtend.maraca.browser-composition-root.v12'; readonly buildPlanSchema: 'xtend.maraca.build-plan.v10';
+  readonly xtensionComposition?: import('./xtension-composition-runtime').LifecycleComponentArtifact;
+}, dependencies: Readonly<Record<string, unknown>> & {
+  readonly nativeViewRuntimePort: import('./plan-runtime').LifecycleNativeViewRuntimePort;
+  readonly createLifecyclePlanRuntime: typeof import('./native-lifecycle-runtime').createMaracaNativeLifecycleRuntime;
+}): BrowserLifecycleComponentRoot;
+
+/** Source7 uses a distinct factory and View API3; its lifecycle integration stays private. */
+export interface OrchestratedComponentBootOptions extends Omit<NativeComponentBootOptions, 'nativeViewRuntimePort' | 'urlStateRuntime'> {
+  readonly nativeViewRuntimePort?: typeof import('@ccslabs/xtend/xtensions/native-surface-projection').NATIVE_ORCHESTRATION_VIEW_RUNTIME;
+  readonly urlStateRuntime?: typeof import('@ccslabs/xtend/xtensions/url-state').ORCHESTRATED_URL_STATE_RUNTIME;
+}
+export interface OrchestratedComponentBrowserFacade extends Omit<NativeComponentBrowserFacade, 'apiVersion' | 'orchestration' | 'snapshot' | 'subscribe' | 'boot' | 'restoreURLState' | 'publishURLState'> {
+  readonly apiVersion: '13.0.0'; readonly orchestration: OrchestratedComponentBrowserFacade;
+  snapshot(): import('./plan-runtime').OrchestratedRmtxPlanSnapshot16;
+  subscribe(listener: (snapshot: import('./plan-runtime').OrchestratedRmtxPlanSnapshot16) => void): () => void;
+  boot(options: OrchestratedComponentBootOptions): Promise<Readonly<Record<string, unknown>>>;
+  restoreURLState: import('./plan-runtime').OrchestratedRmtxPlanRuntime16['restoreURLState'];
+  publishURLState: import('./plan-runtime').OrchestratedRmtxPlanRuntime16['publishURLState'];
+}
+export interface BrowserOrchestratedComponentRoot extends Omit<BrowserNativeComponentRoot, 'schema' | 'apiVersion' | 'facade' | 'boot'> {
+  readonly schema: 'xtend.maraca.browser-composition-root.v13'; readonly apiVersion: '13.0.0';
+  readonly facade: OrchestratedComponentBrowserFacade;
+  boot(options: OrchestratedComponentBootOptions): ReturnType<OrchestratedComponentBrowserFacade['boot']>;
+}
+export function createMaracaBrowserCompositionRoot(configuration: Readonly<Record<string, unknown>> & {
+  readonly schema: 'xtend.maraca.browser-composition-root.v13'; readonly buildPlanSchema: 'xtend.maraca.build-plan.v11';
+  readonly xtensionComposition?: import('./xtension-composition-runtime').OrchestratedComponentArtifact;
+}, dependencies: Readonly<Record<string, unknown>> & {
+  readonly nativeViewRuntimePort: typeof import('@ccslabs/xtend/xtensions/native-surface-projection').NATIVE_ORCHESTRATION_VIEW_RUNTIME;
+  readonly createOrchestratedPlanRuntime: typeof import('./native-orchestration-runtime').createMaracaNativeOrchestrationRuntime;
+}): BrowserOrchestratedComponentRoot;

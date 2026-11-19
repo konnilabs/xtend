@@ -88,6 +88,18 @@
     "./xtension-composition-runtime": {
       "types": "./xtension-composition-runtime.d.ts",
       "default": "./xtension-composition-runtime.mjs"
+    },
+    "./native-lifecycle-runtime": {
+      "types": "./native-lifecycle-runtime.d.ts",
+      "default": "./native-lifecycle-runtime.mjs"
+    },
+    "./native-orchestration-runtime": {
+      "types": "./native-orchestration-runtime.d.ts",
+      "default": "./native-orchestration-runtime.mjs"
+    },
+    "./native-surface-graph": {
+      "types": "./native-surface-graph.d.ts",
+      "default": "./native-surface-graph.mjs"
     }
   },
   "files": [
@@ -157,7 +169,13 @@
     "xtension-size-budget.js",
     "xtension-provider-graph.js",
     "xtension-component-binding.mjs",
-    "xtension-component-binding-disabled.mjs"
+    "xtension-component-binding-disabled.mjs",
+    "native-lifecycle-runtime.mjs",
+    "native-lifecycle-runtime.d.ts",
+    "native-orchestration-runtime.mjs",
+    "native-orchestration-runtime.d.ts",
+    "native-surface-graph.mjs",
+    "native-surface-graph.d.ts"
   ],
   "engines": {
     "node": ">=24"

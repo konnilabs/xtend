@@ -1,0 +1,114 @@
+{
+  "format": 1,
+  "date": "2026-11-19",
+  "stage": "A06.4.2.1-static-native-mount-admission",
+  "baseline": "aac069a0",
+  "runtime": {
+    "node24": {
+      "node": "v24.22.2",
+      "mode": "jsdom-native-esm",
+      "browserVersion": null,
+      "passed": true,
+      "cases": 8,
+      "compileCases": 7,
+      "sourcePins": 191,
+      "pageErrors": []
+    },
+    "node26": {
+      "node": "v26.5.0",
+      "mode": "jsdom-native-esm",
+      "browserVersion": null,
+      "passed": true,
+      "cases": 8,
+      "compileCases": 7,
+      "sourcePins": 191,
+      "pageErrors": []
+    },
+    "chromium": {
+      "node": "v24.22.2",
+      "mode": "chromium-sealed-native-esm",
+      "browserVersion": "156.0.8078.4",
+      "passed": true,
+      "cases": 8,
+      "compileCases": 7,
+      "sourcePins": 191,
+      "pageErrors": []
+    }
+  },
+  "artifacts": {
+    "budget-delivery.json": {
+      "sha256": "ef35ab0dd37232bf4a21a6cacc402c6f85608da30719070f65eac5bcfab8fda9",
+      "bytes": 195
+    },
+    "budget-source3.json": {
+      "sha256": "1d12ce57c244104164cfbdad09012193abed54ab38491722f9f65f5925230ee7",
+      "bytes": 194
+    },
+    "docs-public-gates24.json": {
+      "sha256": "629f7fcf0bb5e1036312f6384ae847fcb827cddccfba194d74589b53208f8e7e",
+      "bytes": 4127
+    },
+    "docs-public-gates26.json": {
+      "sha256": "157f6084f05642ad0291be6c6e86066aae95da42cc3dcca49cd5d0f537043adf",
+      "bytes": 4127
+    },
+    "legacy-ssr-node24-chromium.json": {
+      "sha256": "20a95361a6ac1506ad098d3483c4198354b0281bbde1cd5ee9523e6acdda93e9",
+      "bytes": 7691
+    },
+    "official-runtime-gate-node24.json": {
+      "sha256": "93f0ed1a957625909eb164566c81faa66035a766ccfdc86a9efb0922bdce1b9d",
+      "bytes": 594
+    },
+    "retention-node24.json": {
+      "sha256": "6bb8f999fbde9a812558c3eb63cf4ab1bf6cfc84c78f8c716ce53cc6de4f95ea",
+      "bytes": 247
+    },
+    "retention-node26.json": {
+      "sha256": "ffd0b5d0a69397e2bc81a2a338dd6f9f162272494e8cdf2fecbed5bd2432146c",
+      "bytes": 246
+    },
+    "runtime-browser.json": {
+      "sha256": "0973f9f6fe7e07872270214e72650431b20efa47557beaffa039412449e2fcbf",
+      "bytes": 25288
+    },
+    "runtime-node24.json": {
+      "sha256": "8196464968888f8e5f1ce79a9e3a9addb1cbe2f5b69f43e39bc55a45918416d4",
+      "bytes": 25268
+    },
+    "runtime-node26.json": {
+      "sha256": "f58ccede755ec7371f3c17861cf30e757ba9fc00b79e869c25bad7f7e0124d6e",
+      "bytes": 25267
+    },
+    "runtime-tests-node24.log": {
+      "sha256": "9d5c4902c709f67d9b78045100a120b43d15e54a3214629a94f3ee2c076fe125",
+      "bytes": 1203
+    },
+    "runtime-tests-node26.log": {
+      "sha256": "d3dc552d8d4e0c7901f2c7e93e55eb88a9c78e72ab823dbcdfc212b05c3d753e",
+      "bytes": 1205
+    }
+  },
+  "sourcePinsVerified": true,
+  "officialRuntimeGate": {
+    "node24": {
+      "passed": true,
+      "checks": 38
+    }
+  },
+  "retainedSSR": {
+    "passed": true,
+    "cases": 84
+  },
+  "retainedSourceProfiles": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "completeA064Implemented": false,
+  "semanticProjectToolingImplemented": false,
+  "ssrAcceptancePerformed": false,
+  "acceptedForRelease": false
+}

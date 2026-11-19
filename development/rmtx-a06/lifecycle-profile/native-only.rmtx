@@ -1,0 +1,18 @@
+import { RMT, model, input, item } from '@ccslabs/xtend/rmt-language/rmtx';
+
+export default <RMT.Program id="native-only">
+  <RMT.State id="view" type="object" initial={{title:'Native only',show:false,items:[{id:1,label:'number'},{id:'1',label:'string'}]}} />
+  <RMT.Action id="view.replace"><RMT.Input name="view" type="object"/><RMT.Reduce state="view" value={input.view}/></RMT.Action>
+  <RMT.Surface id="native-only-owner" component="section">
+    <RMT.Lane name="visible"><RMT.Mount target="native-only-owner" when={model.view.show}/></RMT.Lane>
+    <RMT.View>
+      <RMT.Element tag="h1" attributes={{id:'native-only-title'}}><RMT.Text value={model.view.title}/></RMT.Element>
+      <RMT.When test={model.view.show}>
+        <RMT.Element tag="strong" attributes={{'data-native-only-visible':'true'}}><RMT.Text value="$model.literal-stays-data"/></RMT.Element>
+      </RMT.When>
+      <RMT.Repeat from={model.view.items} keyBy={item.id}>
+        <RMT.Element tag="input" attributes={{type:'text','aria-label':item.label}} properties={{value:item.label}}/>
+      </RMT.Repeat>
+    </RMT.View>
+  </RMT.Surface>
+</RMT.Program>;

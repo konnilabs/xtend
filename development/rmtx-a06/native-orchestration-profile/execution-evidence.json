@@ -1,0 +1,70 @@
+{
+  "schema": "xtend.rmtx.native-orchestration-execution-evidence.v1",
+  "version": "1.0.0",
+  "stage": "A06.4.2-native-orchestration",
+  "passed": true,
+  "runtimeLanes": [
+    {
+      "lane": "node24",
+      "file": "verification/runtime-node24.json",
+      "sha256": "7a6992fce31e534dc4ba57f245f821cb021ed9701ae053d2fe421c256345dcfe",
+      "node": "v24.22.2",
+      "mode": "jsdom-native-esm",
+      "browserVersion": null,
+      "runtimeCases": 10,
+      "compileChecks": 10,
+      "sourceFingerprints": 224
+    },
+    {
+      "lane": "node26",
+      "file": "verification/runtime-node26.json",
+      "sha256": "3a677e30e0fc9c133a1717ae7178ee0e1b268be799db49188a05e60611f27f7c",
+      "node": "v26.5.0",
+      "mode": "jsdom-native-esm",
+      "browserVersion": null,
+      "runtimeCases": 10,
+      "compileChecks": 10,
+      "sourceFingerprints": 224
+    },
+    {
+      "lane": "browser",
+      "file": "verification/runtime-browser.json",
+      "sha256": "b2fdf8dd5fa2a29b0bd6432d0c96d03f7ed684a046ff593b376831a403917af7",
+      "node": "v24.22.2",
+      "mode": "chromium-sealed-native-esm",
+      "browserVersion": "156.0.8078.4",
+      "runtimeCases": 10,
+      "compileChecks": 10,
+      "sourceFingerprints": 224
+    }
+  ],
+  "nativeComponents": [
+    "x-button",
+    "x-header"
+  ],
+  "legacyResultByteComparisons": 20,
+  "legacySourceProfiles": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "acceptedForRelease": false,
+  "ssrAcceptancePerformed": false,
+  "remaining": [
+    "A06.5 semantic project/editor integration",
+    "A06.6 shared target and release acceptance",
+    "additional native components require their own reviewed ownership/sink/state contract"
+  ],
+  "source7GateCasesPerNode": 70,
+  "source7NodeLanes": [
+    "v24.22.2",
+    "v26.5.0"
+  ],
+  "additionalChecks": {
+    "file": "verification/additional-checks.json",
+    "sha256": "9cdc51d0160933ccc3d4cc82379a97479e105e0d4d312236e6bb4db8a7c5f68f"
+  }
+}

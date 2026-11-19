@@ -3,9 +3,13 @@
 export const XROUTER_URL_STATE_API_VERSION = '1.0.0';
 export const XROUTER_PROJECTION_URL_STATE_API_VERSION = '2.0.0';
 export const XROUTER_NATIVE_URL_STATE_API_VERSION = '3.0.0';
+export const XROUTER_ORCHESTRATED_URL_STATE_API_VERSION = '5.0.0';
+export const XROUTER_LIFECYCLE_URL_STATE_API_VERSION = '4.0.0';
 export function createXRouterURLStateHost(options) { return createURLStateHost(options, XROUTER_URL_STATE_API_VERSION, 'xtend.router.url-state-host.v1'); }
 export function createXRouterProjectionURLStateHost(options) { return createURLStateHost(options, XROUTER_PROJECTION_URL_STATE_API_VERSION, 'xtend.router.url-state-host.v2'); }
 export function createXRouterNativeURLStateHost(options) { return createURLStateHost(options, XROUTER_NATIVE_URL_STATE_API_VERSION, 'xtend.router.url-state-host.v3'); }
+export function createXRouterOrchestratedURLStateHost(options) { return createURLStateHost(options, XROUTER_ORCHESTRATED_URL_STATE_API_VERSION, 'xtend.router.url-state-host.v5'); }
+export function createXRouterLifecycleURLStateHost(options) { return createURLStateHost(options, XROUTER_LIFECYCLE_URL_STATE_API_VERSION, 'xtend.router.url-state-host.v4'); }
 function createURLStateHost({ runtime, codec, windowTarget, mode = 'history', listen = false, isOwnerCurrent = () => true, onError = () => {} }, apiVersion, schema) {
   if (!['history','hash'].includes(mode) || !windowTarget?.history || typeof runtime?.restoreURLState !== 'function' || typeof runtime?.publishURLState !== 'function' || codec?.API_VERSION !== apiVersion) throw new TypeError(`URL-state host requires a route owner, v${apiVersion[0]} codec and Maraca restore/publish ports.`);
   let closed = false, sequence = 0, navigation = null, pending = Promise.resolve();

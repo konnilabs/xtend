@@ -13,10 +13,33 @@ function runExportChecks() {
   const runtime = {}, all = {};
   const bindingName = '@ccslabs/xtend/xtensions/state-binding';
   const binding = require(bindingName);
-  assert.deepEqual(Object.keys(binding).sort(), ['NATIVE_STATE_BINDING_ARTIFACT_SCHEMA', 'PROJECTION_BINDING_SCHEMA', 'PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA', 'XTENSION_NATIVE_STATE_BINDING_API_VERSION', 'XTENSION_PROJECTION_STATE_BINDING_API_VERSION', 'XTENSION_RESUME_STATE_BINDING_API_VERSION', 'XTENSION_STATE_BINDING_API_VERSION', 'XTENSION_STATE_BINDING_ARTIFACT_SCHEMA', 'XTENSION_STATE_BINDING_SCHEMA', 'createXTensionNativeStateRegistry', 'createXTensionProjectionStateRegistry', 'createXTensionResumeStateRegistry', 'createXTensionStateRegistry', 'materializeStateBindingArtifact', 'validateStateBinding', 'validateStateBindingArtifact']);
+  assert.deepEqual(Object.keys(binding).sort(), [
+    'LIFECYCLE_STATE_BINDING_ARTIFACT_SCHEMA', 'NATIVE_STATE_BINDING_ARTIFACT_SCHEMA',
+    'ORCHESTRATED_STATE_BINDING_ARTIFACT_SCHEMA', 'ORCHESTRATED_STATE_BINDING_RUNTIME',
+    'PROJECTION_BINDING_SCHEMA', 'PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA',
+    'XTENSION_LIFECYCLE_STATE_BINDING_API_VERSION', 'XTENSION_NATIVE_STATE_BINDING_API_VERSION',
+    'XTENSION_ORCHESTRATED_STATE_BINDING_API_VERSION', 'XTENSION_PROJECTION_STATE_BINDING_API_VERSION',
+    'XTENSION_RESUME_STATE_BINDING_API_VERSION', 'XTENSION_STATE_BINDING_API_VERSION',
+    'XTENSION_STATE_BINDING_ARTIFACT_SCHEMA', 'XTENSION_STATE_BINDING_SCHEMA',
+    'createXTensionLifecycleStateRegistry', 'createXTensionNativeStateRegistry',
+    'createXTensionOrchestratedStateRegistry', 'createXTensionProjectionStateRegistry',
+    'createXTensionResumeStateRegistry', 'createXTensionStateRegistry',
+    'materializeOrchestratedStateBindingArtifact', 'materializeStateBindingArtifact',
+    'validateLifecycleStateBindingArtifact', 'validateOrchestratedStateBindingArtifact',
+    'validateStateBinding', 'validateStateBindingArtifact'
+  ]);
   assert.equal(require('@ccslabs/xtend-compiler/xtensions/state-binding').createXTensionStateRegistry, binding.createXTensionStateRegistry);
   all[bindingName] = Object.entries(binding).map(([key, value]) => [key, typeof value]).sort();
   assert.equal(binding.XTENSION_NATIVE_STATE_BINDING_API_VERSION, '4.0.0');
+  assert.equal(binding.XTENSION_LIFECYCLE_STATE_BINDING_API_VERSION, '5.0.0');
+  assert.equal(binding.LIFECYCLE_STATE_BINDING_ARTIFACT_SCHEMA, 'xtend.xtensions.state-binding-artifact.v6');
+  assert.equal(binding.XTENSION_ORCHESTRATED_STATE_BINDING_API_VERSION, '6.0.0');
+  assert.equal(binding.ORCHESTRATED_STATE_BINDING_ARTIFACT_SCHEMA, 'xtend.xtensions.state-binding-artifact.v7');
+  assert.equal(binding.ORCHESTRATED_STATE_BINDING_RUNTIME.createXTensionStateRegistry, binding.createXTensionOrchestratedStateRegistry);
+  for (const key of ['createXTensionOrchestratedStateRegistry', 'validateOrchestratedStateBindingArtifact', 'materializeOrchestratedStateBindingArtifact']) {
+    assert.equal(typeof binding[key], 'function');
+    assert.equal(require('@ccslabs/xtend-compiler/xtensions/state-binding')[key], binding[key]);
+  }
   assert.equal(binding.XTENSION_PROJECTION_STATE_BINDING_API_VERSION, '3.0.0');
   assert.equal(require('@ccslabs/xtend-compiler/xtensions/state-binding').createXTensionNativeStateRegistry, binding.createXTensionNativeStateRegistry);
   const nativeName = '@ccslabs/xtend/xtensions/native-view-projection', native = require(nativeName);
@@ -26,8 +49,24 @@ function runExportChecks() {
     assert.equal(require('@ccslabs/xtend-compiler/xtensions/native-view-projection')[key], native[key]);
   }
   all[nativeName] = Object.entries(native).map(([key, value]) => [key, typeof value]).sort();
+  assert.equal(native.NATIVE_LIFECYCLE_VIEW_RUNTIME.NATIVE_VIEW_PROJECTION_API_VERSION, '2.0.0');
+  const lifecycleName = '@ccslabs/xtend/xtensions/native-lifecycle';
+  const lifecycle = require(lifecycleName);
+  assert.equal(lifecycle.NATIVE_LIFECYCLE_API_VERSION, '1.0.0');
+  assert.equal(require('@ccslabs/xtend-compiler/xtensions/native-lifecycle').validateNativeLifecyclePlan, lifecycle.validateNativeLifecyclePlan);
+  all[lifecycleName] = Object.entries(lifecycle).map(([key, value]) => [key, typeof value]).sort();
+  for (const subpath of ['native-surface-scopes', 'native-surface-projection', 'native-orchestration-lifecycle']) {
+    const name = '@ccslabs/xtend/xtensions/' + subpath, api = require(name);
+    const compilerApi = require('@ccslabs/xtend-compiler/xtensions/' + subpath);
+    for (const [key, value] of Object.entries(api)) assert.equal(compilerApi[key], value);
+    all[name] = Object.entries(api).map(([key, value]) => [key, typeof value]).sort();
+  }
+  assert.equal(require('@ccslabs/xtend/xtensions/native-surface-projection').NATIVE_ORCHESTRATION_VIEW_RUNTIME.NATIVE_VIEW_PROJECTION_API_VERSION, '3.0.0');
+  assert.equal(require('@ccslabs/xtend/xtensions/native-orchestration-lifecycle').NATIVE_ORCHESTRATION_LIFECYCLE_API_VERSION, '2.0.0');
   const url = require('@ccslabs/xtend/xtensions/url-state');
   assert.equal(url.API_VERSION, '1.0.0');
+  assert.equal(url.LIFECYCLE_URL_STATE_RUNTIME.API_VERSION, '4.0.0');
+  assert.equal(url.ORCHESTRATED_URL_STATE_RUNTIME.API_VERSION, '5.0.0');
   assert.equal(require('@ccslabs/xtend-compiler/xtensions/url-state').createURLStateContract, url.createURLStateContract);
   all['@ccslabs/xtend/xtensions/url-state'] = Object.entries(url).map(([key,value]) => [key,typeof value]).sort();
   for (const framework of ['react', 'vue']) {

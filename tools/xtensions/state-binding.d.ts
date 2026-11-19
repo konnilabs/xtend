@@ -1,8 +1,8 @@
 import type { RuntimeHostController, KernelRuntimeHostController, GraphRuntimeHostController, BudgetRuntimeHostController, NegotiatedRuntimeHostController } from './runtime-host-controller';
 export type { RuntimeHostController, KernelRuntimeHostController, GraphRuntimeHostController, BudgetRuntimeHostController, NegotiatedRuntimeHostController } from './runtime-host-controller';
 import type { XTensionsSurfaceEvent } from './signal-bridge-contract';
-export { PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA, NATIVE_STATE_BINDING_ARTIFACT_SCHEMA, XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBindingArtifact, materializeStateBindingArtifact } from './state-binding-artifact';
-export type { XTensionNativeStateBindingArtifact, XTensionProjectionStateBindingArtifact, XTensionStateBindingArtifact, XTensionHostPresence, XTensionBindingTemplate, XTensionRepeatScope, XTensionMaterializedBinding } from './state-binding-artifact';
+export { PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA, NATIVE_STATE_BINDING_ARTIFACT_SCHEMA, XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBindingArtifact, validateLifecycleStateBindingArtifact, materializeStateBindingArtifact } from './state-binding-artifact';
+export type { XTensionLifecycleStateBindingArtifact, XTensionNativeStateBindingArtifact, XTensionProjectionStateBindingArtifact, XTensionStateBindingArtifact, XTensionHostPresence, XTensionBindingTemplate, XTensionRepeatScope, XTensionMaterializedBinding } from './state-binding-artifact';
 
 export const XTENSION_STATE_BINDING_SCHEMA: 'xtend.xtensions.state-binding.v2';
 export const XTENSION_STATE_BINDING_API_VERSION: '2.4.0';
@@ -147,3 +147,25 @@ export const XTENSION_NATIVE_STATE_BINDING_API_VERSION: '4.0.0';
 export function createXTensionNativeStateRegistry(options: Parameters<typeof createXTensionStateRegistry>[0]): Omit<ReturnType<typeof createXTensionProjectionStateRegistry>, 'apiVersion'> & {
   readonly apiVersion: '4.0.0';
 };
+
+/** Explicit Source6 registry; retained Source5 factory remains API4. */
+export const XTENSION_LIFECYCLE_STATE_BINDING_API_VERSION: '5.0.0';
+export const LIFECYCLE_STATE_BINDING_ARTIFACT_SCHEMA: 'xtend.xtensions.state-binding-artifact.v6';
+export function createXTensionLifecycleStateRegistry(options: Parameters<typeof createXTensionStateRegistry>[0]): Omit<ReturnType<typeof createXTensionProjectionStateRegistry>, 'apiVersion'> & { readonly apiVersion: '5.0.0' };
+
+export { ORCHESTRATED_STATE_BINDING_ARTIFACT_SCHEMA } from './state-binding-artifact';
+export type { XTensionOrchestratedStateBindingArtifact } from './state-binding-artifact';
+export const XTENSION_ORCHESTRATED_STATE_BINDING_API_VERSION: '6.0.0';
+export function createXTensionOrchestratedStateRegistry(options: Parameters<typeof createXTensionStateRegistry>[0]): Omit<ReturnType<typeof createXTensionProjectionStateRegistry>, 'apiVersion'> & { readonly apiVersion: '6.0.0' };
+export const ORCHESTRATED_STATE_BINDING_RUNTIME: Readonly<{
+  XTENSION_STATE_BINDING_API_VERSION: '2.4.0'; XTENSION_ORCHESTRATED_STATE_BINDING_API_VERSION: '6.0.0';
+  ORCHESTRATED_STATE_BINDING_ARTIFACT_SCHEMA: 'xtend.xtensions.state-binding-artifact.v7';
+  validateStateBindingArtifact: typeof validateOrchestratedStateBindingArtifact;
+  validateOrchestratedStateBindingArtifact: typeof validateOrchestratedStateBindingArtifact;
+  materializeStateBindingArtifact: typeof materializeOrchestratedStateBindingArtifact;
+  materializeOrchestratedStateBindingArtifact: typeof materializeOrchestratedStateBindingArtifact;
+  createXTensionStateRegistry: typeof createXTensionOrchestratedStateRegistry; createXTensionOrchestratedStateRegistry: typeof createXTensionOrchestratedStateRegistry;
+}>;
+
+export function validateOrchestratedStateBindingArtifact(input: unknown, program: unknown): import('./state-binding-artifact').XTensionOrchestratedStateBindingArtifact;
+export function materializeOrchestratedStateBindingArtifact(artifact: import('./state-binding-artifact').XTensionOrchestratedStateBindingArtifact, snapshot: {readonly states: Readonly<Record<string, unknown>>; readonly selectors?: Readonly<Record<string, unknown>>}, admission?: Readonly<Record<string, boolean>>): readonly {readonly surface: string; readonly hostSurface: string; readonly ownerSurface: string; readonly binding: import('./state-binding').XTensionProjectionStateBinding}[];

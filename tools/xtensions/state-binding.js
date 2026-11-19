@@ -2,20 +2,26 @@
 'use strict';
 
 const { XTENSION_STATE_BINDING_SCHEMA, PROJECTION_BINDING_SCHEMA, validateStateBinding, addressKey, propsFrom, clone, freeze, data, record, typed } = require('./state-binding-contract');
-const { XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA, NATIVE_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBindingArtifact, materializeStateBindingArtifact } = require('./state-binding-artifact');
+const { XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA, NATIVE_STATE_BINDING_ARTIFACT_SCHEMA, LIFECYCLE_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBindingArtifact, validateLifecycleStateBindingArtifact, materializeStateBindingArtifact } = require('./state-binding-artifact');
 const { SSR_RUNTIME_HOST_CONTROLLER_SCHEMA, RUNTIME_HOST_CONTROLLER_SCHEMA, KERNEL_RUNTIME_HOST_CONTROLLER_SCHEMA, GRAPH_RUNTIME_HOST_CONTROLLER_SCHEMA, BUDGET_RUNTIME_HOST_CONTROLLER_SCHEMA, NEGOTIATED_RUNTIME_HOST_CONTROLLER_SCHEMA } = require('./runtime-host-controller');
+const { validateOrchestratedStateBindingArtifact, materializeOrchestratedStateBindingArtifact } = require('./state-binding-orchestrated');
 const { assertNativeCanonicalData } = require('./native-data');
 const XTENSION_STATE_BINDING_API_VERSION = '2.4.0';
 const XTENSION_PROJECTION_STATE_BINDING_API_VERSION = '3.0.0';
 const XTENSION_NATIVE_STATE_BINDING_API_VERSION = '4.0.0';
+const XTENSION_ORCHESTRATED_STATE_BINDING_API_VERSION = '6.0.0';
+const ORCHESTRATED_STATE_BINDING_ARTIFACT_SCHEMA = 'xtend.xtensions.state-binding-artifact.v7';
+const XTENSION_LIFECYCLE_STATE_BINDING_API_VERSION = '5.0.0';
 const XTENSION_RESUME_STATE_BINDING_API_VERSION = '3.0.0';
+function createXTensionOrchestratedStateRegistry(options) { return createStateRegistry(options, false, true, assertNativeCanonicalData, XTENSION_ORCHESTRATED_STATE_BINDING_API_VERSION); }
 function createXTensionStateRegistry(options) { return createStateRegistry(options, false); }
 function createXTensionResumeStateRegistry(options) { return createStateRegistry(options, true); }
 function createXTensionProjectionStateRegistry(options) { return createStateRegistry(options, false, true); }
 function createXTensionNativeStateRegistry(options) { return createStateRegistry(options, false, true, assertNativeCanonicalData); }
+function createXTensionLifecycleStateRegistry(options) { return createStateRegistry(options, false, true, assertNativeCanonicalData, XTENSION_LIFECYCLE_STATE_BINDING_API_VERSION); }
 
 /** One registry per Model session. Factories and ports are trusted host capabilities. */
-function createStateRegistry({ modelReader, modelCommandPort, commandDispatcher, onDiagnostic } = {}, resumeEnabled, projectionEnabled = false, nativeGuard = null) {
+function createStateRegistry({ modelReader, modelCommandPort, commandDispatcher, onDiagnostic } = {}, resumeEnabled, projectionEnabled = false, nativeGuard = null, nativeApiVersion = XTENSION_NATIVE_STATE_BINDING_API_VERSION) {
   if (!modelReader || typeof modelReader.snapshot !== 'function' || typeof modelReader.subscribe !== 'function' ||
     (!modelCommandPort || typeof modelCommandPort.apply !== 'function') && (!commandDispatcher || typeof commandDispatcher.dispatch !== 'function')) throw new TypeError('State bindings require Model reader and command ports.');
   if (commandDispatcher && modelCommandPort) throw new TypeError('A binding registry requires one command authority.');
@@ -37,6 +43,7 @@ function createStateRegistry({ modelReader, modelCommandPort, commandDispatcher,
     if (typeof createHost !== 'function') throw new TypeError('A trusted runtime host factory is required.');
     // A new conditional lifetime may be created between Model and public View notification.
     current = readSnapshot();
+    if (nativeApiVersion === XTENSION_LIFECYCLE_STATE_BINDING_API_VERSION && nativeGuard) nativeGuard(input);
     const definition = validateStateBinding(input), key = addressKey(definition.address);
     if ((definition.schema === PROJECTION_BINDING_SCHEMA) !== projectionEnabled) throw new TypeError('Binding schema requires its explicitly versioned registry.');
     if (entries.has(key)) throw new Error('The XTension instance address is already bound.');
@@ -197,7 +204,7 @@ function createStateRegistry({ modelReader, modelCommandPort, commandDispatcher,
         });
     }
   }
-  return Object.freeze({ apiVersion: nativeGuard ? XTENSION_NATIVE_STATE_BINDING_API_VERSION : projectionEnabled ? XTENSION_PROJECTION_STATE_BINDING_API_VERSION : resumeEnabled ? XTENSION_RESUME_STATE_BINDING_API_VERSION : XTENSION_STATE_BINDING_API_VERSION, bind, async flush() { await Promise.all([...entries.values()].map((entry) => entry.flush())); }, dispose() {
+  return Object.freeze({ apiVersion: nativeGuard ? nativeApiVersion : projectionEnabled ? XTENSION_PROJECTION_STATE_BINDING_API_VERSION : resumeEnabled ? XTENSION_RESUME_STATE_BINDING_API_VERSION : XTENSION_STATE_BINDING_API_VERSION, bind, async flush() { await Promise.all([...entries.values()].map((entry) => entry.flush())); }, dispose() {
     if (closing) return closing;
     closed = true; unsubscribe();
     closing = Promise.all([...entries.values()].map((entry) => entry.dispose())).then(() => undefined);
@@ -205,4 +212,8 @@ function createStateRegistry({ modelReader, modelCommandPort, commandDispatcher,
   } });
 }
 
-module.exports = { XTENSION_RESUME_STATE_BINDING_API_VERSION, createXTensionResumeStateRegistry, createXTensionProjectionStateRegistry, createXTensionNativeStateRegistry, XTENSION_STATE_BINDING_API_VERSION, XTENSION_PROJECTION_STATE_BINDING_API_VERSION, XTENSION_NATIVE_STATE_BINDING_API_VERSION, XTENSION_STATE_BINDING_SCHEMA, PROJECTION_BINDING_SCHEMA, XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA, NATIVE_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBinding, validateStateBindingArtifact, materializeStateBindingArtifact, createXTensionStateRegistry };
+const ORCHESTRATED_STATE_BINDING_RUNTIME = Object.freeze({ XTENSION_STATE_BINDING_API_VERSION, XTENSION_ORCHESTRATED_STATE_BINDING_API_VERSION, ORCHESTRATED_STATE_BINDING_ARTIFACT_SCHEMA,
+  validateStateBindingArtifact: validateOrchestratedStateBindingArtifact, validateOrchestratedStateBindingArtifact,
+  materializeStateBindingArtifact: materializeOrchestratedStateBindingArtifact, materializeOrchestratedStateBindingArtifact,
+  createXTensionStateRegistry: createXTensionOrchestratedStateRegistry, createXTensionOrchestratedStateRegistry });
+module.exports = { ORCHESTRATED_STATE_BINDING_RUNTIME, XTENSION_ORCHESTRATED_STATE_BINDING_API_VERSION, ORCHESTRATED_STATE_BINDING_ARTIFACT_SCHEMA, validateOrchestratedStateBindingArtifact, materializeOrchestratedStateBindingArtifact, createXTensionOrchestratedStateRegistry, validateLifecycleStateBindingArtifact, XTENSION_LIFECYCLE_STATE_BINDING_API_VERSION, createXTensionLifecycleStateRegistry, LIFECYCLE_STATE_BINDING_ARTIFACT_SCHEMA, XTENSION_RESUME_STATE_BINDING_API_VERSION, createXTensionResumeStateRegistry, createXTensionProjectionStateRegistry, createXTensionNativeStateRegistry, XTENSION_STATE_BINDING_API_VERSION, XTENSION_PROJECTION_STATE_BINDING_API_VERSION, XTENSION_NATIVE_STATE_BINDING_API_VERSION, XTENSION_STATE_BINDING_SCHEMA, PROJECTION_BINDING_SCHEMA, XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA, NATIVE_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBinding, validateStateBindingArtifact, materializeStateBindingArtifact, createXTensionStateRegistry };

@@ -24,7 +24,7 @@ async function companion() {
 test.after(() => fs.rmSync(temporary, { recursive: true, force: true }));
 test('actual Source5 compilation builds captured native manifest9/artifact10 through the existing provider graph', async () => {
   const { plan, report } = await companion(), contract = await import('../../xtend-maraca/xtension-composition-contract.mjs');
-  assert.equal(require('../../xtend-maraca/xtension-composition').XTENSION_COMPOSITION_BUILD_API_VERSION, '14.0.0');
+  assert.equal(require('../../xtend-maraca/xtension-composition').XTENSION_COMPOSITION_BUILD_API_VERSION, '16.0.0');
   assert.equal(report.schema, 'xtend.maraca.xtension-composition-build-report.v10'); assert.equal(report.apiVersion, '10.0.0');
   assert.equal(report.artifact.schema, 'xtend.maraca.xtension-composition-artifact.v10');
   assert.equal(report.artifact.plan.schema, 'xtend.maraca.build-plan.v9'); assert.equal(report.artifact.plan.program.schema, 'xtend.rmt.app-orchestration.v3');
@@ -51,7 +51,7 @@ test('native port7 uses the captured provider interface and rejects SSR before c
   const installedPlan = { ...plan, xtensionComposition: report.artifact }, actualCompanion = await import(pathToFileURL(report.entryPath).href);
   const options = { plan: installedPlan, companion: actualCompanion, bindingsRuntime, componentInterfaceRuntime: require('../../tools/xtensions/component-interface'),
     adapters: {}, loadPeerGroup() { throw new Error('Contract creation must not load peers.'); }, grants: Object.fromEntries(report.artifact.manifest.hosts.map(host => [host.declarationId, {}])) };
-  assert.equal(runtime.XTENSION_COMPOSITION_API_VERSION, '11.0.0');
+  assert.equal(runtime.XTENSION_COMPOSITION_API_VERSION, '13.0.0');
   assert.throws(() => runtime.createMaracaXTensionCompositionPort({ ...options, ssr: {} }), /Source5.*SSR/);
   const port = runtime.createMaracaXTensionCompositionPort(options); assert.equal(port.schema, 'xtend.maraca.xtension-composition-port.v7'); assert(Object.isFrozen(port));
   const forged = copy(report.artifact); forged.manifest.hosts[0].intents.unknown = {};
@@ -85,7 +85,7 @@ function nativeConfig() {
 test('native-only browser11 keeps its profile without composition and older browser5 stays unchanged', async () => {
   const runtime = await import('../../xtend-maraca/browser-composition-runtime.mjs');
   const native = runtime.createMaracaBrowserCompositionRoot(nativeConfig()), old = runtime.createMaracaBrowserCompositionRoot({});
-  assert.equal(runtime.MARACA_XTENSION_BROWSER_API_VERSION, '11.0.0'); assert.equal(native.schema, 'xtend.maraca.browser-composition-root.v11'); assert.equal(native.apiVersion, '11.0.0');
+  assert.equal(runtime.MARACA_XTENSION_BROWSER_API_VERSION, '13.0.0'); assert.equal(native.schema, 'xtend.maraca.browser-composition-root.v11'); assert.equal(native.apiVersion, '11.0.0');
   assert.equal(native.facade.snapshot().schema, 'xtend.maraca.plan-runtime.v14'); assert.equal(old.schema, 'xtend.maraca.browser-composition-root.v5'); assert.equal(old.apiVersion, '5.0.0');
   assert.throws(() => runtime.createMaracaBrowserCompositionRoot({ ...nativeConfig(), buildPlanSchema: 'xtend.maraca.build-plan.v8' }), /Native browser11/);
   assert.throws(() => runtime.createMaracaBrowserCompositionRoot({ ...nativeConfig(), schema: 'xtend.maraca.browser-composition-root.v10' }), /Native browser11/);
@@ -130,7 +130,7 @@ test('native host adapter exposes read-only SSR inspection and forwards the same
     const dependencies = { windowTarget: dom.window, documentTarget: dom.window.document, runtimeApis: { XTendRmtKernelOrchestrationController: { createRmtKernelOrchestrationController(options) { received = options; return { boot() {} }; } } } };
     const native = api.createMaracaBrowserHostAdapter({ schema: 'xtend.maraca.browser-composition-root.v11', kernel: { enabled: true, artifact: {} } }, dependencies);
     const old = api.createMaracaBrowserHostAdapter({}, dependencies), before = dom.window.document.documentElement.outerHTML;
-    assert.equal(api.MARACA_BROWSER_HOST_API_VERSION, '3.0.0'); assert.equal(native.schema, 'xtend.maraca.browser-host-adapter.v3'); assert.equal(old.schema, 'xtend.maraca.browser-host-adapter.v2'); assert.equal(old.inspectServerShell, undefined);
+    assert.equal(api.MARACA_BROWSER_HOST_API_VERSION, '5.0.0'); assert.equal(native.schema, 'xtend.maraca.browser-host-adapter.v3'); assert.equal(old.schema, 'xtend.maraca.browser-host-adapter.v2'); assert.equal(old.inspectServerShell, undefined);
     assert.equal(native.inspectServerShell(element).active, true); assert.equal(dom.window.document.documentElement.outerHTML, before);
     const fabric = { runFiber() {} }, scheduler = { schedule() {} }; native.createKernelController({ fabric, kernelScheduler: scheduler }); assert.equal(received.fabric, fabric); assert.equal(received.kernelScheduler, scheduler);
   } finally { dom.window.close(); }

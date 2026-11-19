@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 // Shared, data-only contract. No framework, filesystem or kernel implementation.
+export const ORCHESTRATED_COMPONENT_MANIFEST_SCHEMA = 'xtend.maraca.xtension-composition-manifest.v11';
+export const ORCHESTRATED_COMPONENT_ARTIFACT_SCHEMA = 'xtend.maraca.xtension-composition-artifact.v12';
+export const LIFECYCLE_COMPONENT_MANIFEST_SCHEMA = 'xtend.maraca.xtension-composition-manifest.v10';
+export const LIFECYCLE_COMPONENT_ARTIFACT_SCHEMA = 'xtend.maraca.xtension-composition-artifact.v11';
 export const NATIVE_COMPONENT_MANIFEST_SCHEMA = 'xtend.maraca.xtension-composition-manifest.v9';
 export const NATIVE_COMPONENT_ARTIFACT_SCHEMA = 'xtend.maraca.xtension-composition-artifact.v10';
 export const PROJECTION_COMPONENT_MANIFEST_SCHEMA = 'xtend.maraca.xtension-composition-manifest.v8';
@@ -12,6 +16,7 @@ export const DELIVERY_MANIFEST_SCHEMA = 'xtend.maraca.xtension-composition-manif
 export const DELIVERY_ARTIFACT_SCHEMA = 'xtend.maraca.xtension-composition-artifact.v6';
 export const SHARED_MANIFEST_SCHEMA = 'xtend.maraca.xtension-composition-manifest.v4';
 export const SHARED_ARTIFACT_SCHEMA = 'xtend.maraca.xtension-composition-artifact.v5';
+export const ORCHESTRATED_LOAD_PLAN_SCHEMA = 'xtend.maraca.xtension-load-plan.v3';
 export const SHARED_LOAD_PLAN_SCHEMA = 'xtend.maraca.xtension-load-plan.v2';
 export const DEFERRED_MANIFEST_SCHEMA = 'xtend.maraca.xtension-composition-manifest.v3';
 export const DEFERRED_ARTIFACT_SCHEMA = 'xtend.maraca.xtension-composition-artifact.v4';
@@ -72,25 +77,29 @@ function requirements(value, framework) {
   return result;
 }
 export function planIdentity(plan, bindingsRuntime) {
-  if (!plan || !['xtend.maraca.build-plan.v4', 'xtend.maraca.build-plan.v5', 'xtend.maraca.build-plan.v6', 'xtend.maraca.build-plan.v7','xtend.maraca.build-plan.v8','xtend.maraca.build-plan.v9'].includes(plan.schema) || plan.ok !== true || !/^[a-f0-9]{64}$/.test(plan.sourceHash || '') || !plan.orchestration?.enabled) throw new TypeError('An enabled, valid Maraca v4..v9 build plan is required.');
+  if (!plan || !['xtend.maraca.build-plan.v4', 'xtend.maraca.build-plan.v5', 'xtend.maraca.build-plan.v6', 'xtend.maraca.build-plan.v7','xtend.maraca.build-plan.v8','xtend.maraca.build-plan.v9','xtend.maraca.build-plan.v10','xtend.maraca.build-plan.v11'].includes(plan.schema) || plan.ok !== true || !/^[a-f0-9]{64}$/.test(plan.sourceHash || '') || !plan.orchestration?.enabled) throw new TypeError('An enabled, valid Maraca v4..v10 build plan is required.');
   if (bindingsRuntime?.XTENSION_STATE_BINDING_API_VERSION !== '2.4.0' || typeof bindingsRuntime.validateStateBindingArtifact !== 'function') throw new TypeError('The explicit state-binding API 2.4 runtime is required.');
   if (plan.schema === 'xtend.maraca.build-plan.v8' && bindingsRuntime.XTENSION_PROJECTION_STATE_BINDING_API_VERSION !== '3.0.0') throw new TypeError('Projection plans require state-binding projection API3.');
   if (plan.schema === 'xtend.maraca.build-plan.v9' && (bindingsRuntime.XTENSION_NATIVE_STATE_BINDING_API_VERSION !== '4.0.0' || typeof bindingsRuntime.createXTensionNativeStateRegistry !== 'function')) throw new TypeError('Native plans require the explicit native state-binding API4.');
-  const bindings = bindingsRuntime.validateStateBindingArtifact(plan.xtensionBindings, plan.orchestration.artifact);
+  const orchestrated = plan.schema === 'xtend.maraca.build-plan.v11';
+  const lifecycle = orchestrated || plan.schema === 'xtend.maraca.build-plan.v10';
+  if (orchestrated && (bindingsRuntime.XTENSION_ORCHESTRATED_STATE_BINDING_API_VERSION !== '6.0.0' || typeof bindingsRuntime.createXTensionOrchestratedStateRegistry !== 'function' || typeof bindingsRuntime.validateOrchestratedStateBindingArtifact !== 'function')) throw new TypeError('Source7 requires the explicit orchestrated binding API6.');
+  if (lifecycle && !orchestrated && (bindingsRuntime.XTENSION_LIFECYCLE_STATE_BINDING_API_VERSION !== '5.0.0' || typeof bindingsRuntime.createXTensionLifecycleStateRegistry !== 'function' || typeof bindingsRuntime.validateLifecycleStateBindingArtifact !== 'function')) throw new TypeError('Lifecycle plans require the explicit state-binding API5 and lifecycle validator.');
+  const bindings = (orchestrated ? bindingsRuntime.validateOrchestratedStateBindingArtifact : lifecycle ? bindingsRuntime.validateLifecycleStateBindingArtifact : bindingsRuntime.validateStateBindingArtifact)(plan.xtensionBindings, plan.orchestration.artifact);
   if (!bindings.bindings.length) throw new TypeError('Composition requires at least one binding declaration.');
   const identity = { schema: plan.schema, sourceHash: plan.sourceHash, program: copy(plan.orchestration.artifact), bindings: copy(bindings) };
-  if (['xtend.maraca.build-plan.v5', 'xtend.maraca.build-plan.v6', 'xtend.maraca.build-plan.v7','xtend.maraca.build-plan.v8','xtend.maraca.build-plan.v9'].includes(plan.schema)) {
+  if (['xtend.maraca.build-plan.v5', 'xtend.maraca.build-plan.v6', 'xtend.maraca.build-plan.v7','xtend.maraca.build-plan.v8','xtend.maraca.build-plan.v9','xtend.maraca.build-plan.v10','xtend.maraca.build-plan.v11'].includes(plan.schema)) {
     const composition = plan.xtensionComposition;
-    identity.compositionManifest = normalizeManifest([INTEGRATED_ARTIFACT_SCHEMA, GRAPH_ARTIFACT_SCHEMA, DEFERRED_ARTIFACT_SCHEMA, SHARED_ARTIFACT_SCHEMA, DELIVERY_ARTIFACT_SCHEMA, COMPONENT_ARTIFACT_SCHEMA, SCOPED_COMPONENT_ARTIFACT_SCHEMA, PROJECTION_COMPONENT_ARTIFACT_SCHEMA, NATIVE_COMPONENT_ARTIFACT_SCHEMA].includes(composition?.schema) ? composition.manifest : composition, identity);
+    identity.compositionManifest = normalizeManifest([INTEGRATED_ARTIFACT_SCHEMA, GRAPH_ARTIFACT_SCHEMA, DEFERRED_ARTIFACT_SCHEMA, SHARED_ARTIFACT_SCHEMA, DELIVERY_ARTIFACT_SCHEMA, COMPONENT_ARTIFACT_SCHEMA, SCOPED_COMPONENT_ARTIFACT_SCHEMA, PROJECTION_COMPONENT_ARTIFACT_SCHEMA, NATIVE_COMPONENT_ARTIFACT_SCHEMA, LIFECYCLE_COMPONENT_ARTIFACT_SCHEMA, ORCHESTRATED_COMPONENT_ARTIFACT_SCHEMA].includes(composition?.schema) ? composition.manifest : composition, identity);
   }
   return freeze(identity);
 }
 export function normalizeManifest(input, identity) {
-  json(input); const native = input?.schema === NATIVE_COMPONENT_MANIFEST_SCHEMA, projected = native || input?.schema === PROJECTION_COMPONENT_MANIFEST_SCHEMA, scoped = projected || input?.schema === SCOPED_COMPONENT_MANIFEST_SCHEMA, component = scoped || input?.schema === COMPONENT_MANIFEST_SCHEMA, delivery = component || input?.schema === DELIVERY_MANIFEST_SCHEMA, shared = delivery || input?.schema === SHARED_MANIFEST_SCHEMA, deferred = shared || input?.schema === DEFERRED_MANIFEST_SCHEMA, graph = deferred || input?.schema === GRAPH_MANIFEST_SCHEMA;
+  json(input); const orchestrated = input?.schema === ORCHESTRATED_COMPONENT_MANIFEST_SCHEMA, lifecycle = orchestrated || input?.schema === LIFECYCLE_COMPONENT_MANIFEST_SCHEMA, native = lifecycle || input?.schema === NATIVE_COMPONENT_MANIFEST_SCHEMA, projected = native || input?.schema === PROJECTION_COMPONENT_MANIFEST_SCHEMA, scoped = projected || input?.schema === SCOPED_COMPONENT_MANIFEST_SCHEMA, component = scoped || input?.schema === COMPONENT_MANIFEST_SCHEMA, delivery = component || input?.schema === DELIVERY_MANIFEST_SCHEMA, shared = delivery || input?.schema === SHARED_MANIFEST_SCHEMA, deferred = shared || input?.schema === DEFERRED_MANIFEST_SCHEMA, graph = deferred || input?.schema === GRAPH_MANIFEST_SCHEMA;
   fields(input, graph ? ['schema', 'providers', 'hosts', 'modules', ...(deferred ? ['loading'] : []), ...(delivery ? ['delivery'] : []), ...(component ? ['interfaces'] : [])] : ['schema', 'providers', 'hosts'], 'composition manifest');
-  if (![MANIFEST_SCHEMA, GRAPH_MANIFEST_SCHEMA, DEFERRED_MANIFEST_SCHEMA, SHARED_MANIFEST_SCHEMA, DELIVERY_MANIFEST_SCHEMA, COMPONENT_MANIFEST_SCHEMA, SCOPED_COMPONENT_MANIFEST_SCHEMA, PROJECTION_COMPONENT_MANIFEST_SCHEMA, NATIVE_COMPONENT_MANIFEST_SCHEMA].includes(input.schema) || !Array.isArray(input.providers) || !input.providers.length || input.providers.length > 64 || !Array.isArray(input.hosts) || input.hosts.length > 256) throw new TypeError('A bounded v1..v9 composition manifest is required.');
-  if (component && identity.schema !== undefined && identity.schema !== (native ? 'xtend.maraca.build-plan.v9' : projected ? 'xtend.maraca.build-plan.v8' : scoped ? 'xtend.maraca.build-plan.v7' : 'xtend.maraca.build-plan.v6') || !component && ['xtend.maraca.build-plan.v6','xtend.maraca.build-plan.v7','xtend.maraca.build-plan.v8','xtend.maraca.build-plan.v9'].includes(identity.schema)) throw new TypeError('Component profiles require their matching build-plan v6/v7/v8/v9.');
-  if (native && (identity.program?.schema !== 'xtend.rmt.app-orchestration.v3' || identity.bindings?.schema !== 'xtend.xtensions.state-binding-artifact.v5')) throw new TypeError('Native component manifests require program3 and binding artifact5.');
+  if (![MANIFEST_SCHEMA, GRAPH_MANIFEST_SCHEMA, DEFERRED_MANIFEST_SCHEMA, SHARED_MANIFEST_SCHEMA, DELIVERY_MANIFEST_SCHEMA, COMPONENT_MANIFEST_SCHEMA, SCOPED_COMPONENT_MANIFEST_SCHEMA, PROJECTION_COMPONENT_MANIFEST_SCHEMA, NATIVE_COMPONENT_MANIFEST_SCHEMA, LIFECYCLE_COMPONENT_MANIFEST_SCHEMA, ORCHESTRATED_COMPONENT_MANIFEST_SCHEMA].includes(input.schema) || !Array.isArray(input.providers) || !input.providers.length || input.providers.length > 64 || !Array.isArray(input.hosts) || input.hosts.length > 256) throw new TypeError('A bounded v1..v10 composition manifest is required.');
+  if (component && identity.schema !== undefined && identity.schema !== (orchestrated ? 'xtend.maraca.build-plan.v11' : lifecycle ? 'xtend.maraca.build-plan.v10' : native ? 'xtend.maraca.build-plan.v9' : projected ? 'xtend.maraca.build-plan.v8' : scoped ? 'xtend.maraca.build-plan.v7' : 'xtend.maraca.build-plan.v6') || !component && ['xtend.maraca.build-plan.v6','xtend.maraca.build-plan.v7','xtend.maraca.build-plan.v8','xtend.maraca.build-plan.v9','xtend.maraca.build-plan.v10','xtend.maraca.build-plan.v11'].includes(identity.schema)) throw new TypeError('Component profiles require their matching build-plan v6/v7/v8/v9/v10.');
+  if (native && (identity.program?.schema !== (orchestrated ? 'xtend.rmt.app-orchestration.v5' : lifecycle ? 'xtend.rmt.app-orchestration.v4' : 'xtend.rmt.app-orchestration.v3') || identity.bindings?.schema !== (orchestrated ? 'xtend.xtensions.state-binding-artifact.v7' : lifecycle ? 'xtend.xtensions.state-binding-artifact.v6' : 'xtend.xtensions.state-binding-artifact.v5'))) throw new TypeError(lifecycle ? 'Lifecycle component manifests require program4 and binding artifact6.' : 'Native component manifests require program3 and binding artifact5.');
   const ids = new Set();
   const providers = input.providers.map(provider => {
     fields(provider, ['id', 'framework', 'version', 'entry', 'integrity', 'peers'], 'provider');
@@ -135,7 +144,7 @@ export function normalizeManifest(input, identity) {
   }
   if (deferred) {
     fields(input.loading, ['provider', 'peers'], 'loading policy');
-    if (input.loading.provider !== 'on-mount' || input.loading.peers !== (shared ? 'shared' : 'per-host')) throw new TypeError('Manifest loading must match its explicit provider/peer version policy.');
+    if (input.loading.provider !== (orchestrated ? 'orchestrated' : 'on-mount') || input.loading.peers !== (shared ? 'shared' : 'per-host')) throw new TypeError('Manifest loading must match its explicit provider/peer version policy.');
   }
   if (delivery) {
     fields(input.delivery, ['schema', 'mode'], 'delivery policy');
@@ -154,16 +163,16 @@ export function normalizeManifest(input, identity) {
   return freeze({ schema: input.schema, providers, hosts, ...(component ? { interfaces } : {}), ...(graph ? { modules } : {}), ...(deferred ? { loading: copy(input.loading) } : {}), ...(delivery ? { delivery: copy(input.delivery) } : {}) });
 }
 export function validateArtifact(input, plan, bindingsRuntime) {
-  json(input); const native = input?.schema === NATIVE_COMPONENT_ARTIFACT_SCHEMA, projected = native || input?.schema === PROJECTION_COMPONENT_ARTIFACT_SCHEMA, scoped = projected || input?.schema === SCOPED_COMPONENT_ARTIFACT_SCHEMA, component = scoped || input?.schema === COMPONENT_ARTIFACT_SCHEMA, delivery = component || input?.schema === DELIVERY_ARTIFACT_SCHEMA, shared = delivery || input?.schema === SHARED_ARTIFACT_SCHEMA, deferred = shared || input?.schema === DEFERRED_ARTIFACT_SCHEMA, graph = deferred || input?.schema === GRAPH_ARTIFACT_SCHEMA;
+  json(input); const orchestrated = input?.schema === ORCHESTRATED_COMPONENT_ARTIFACT_SCHEMA, lifecycle = orchestrated || input?.schema === LIFECYCLE_COMPONENT_ARTIFACT_SCHEMA, native = lifecycle || input?.schema === NATIVE_COMPONENT_ARTIFACT_SCHEMA, projected = native || input?.schema === PROJECTION_COMPONENT_ARTIFACT_SCHEMA, scoped = projected || input?.schema === SCOPED_COMPONENT_ARTIFACT_SCHEMA, component = scoped || input?.schema === COMPONENT_ARTIFACT_SCHEMA, delivery = component || input?.schema === DELIVERY_ARTIFACT_SCHEMA, shared = delivery || input?.schema === SHARED_ARTIFACT_SCHEMA, deferred = shared || input?.schema === DEFERRED_ARTIFACT_SCHEMA, graph = deferred || input?.schema === GRAPH_ARTIFACT_SCHEMA;
   fields(input, ['schema', 'apiVersion', 'plan', 'manifest', 'providers', 'entryFile', 'runtimeExecutionVerified', ...(graph ? ['modules'] : []), ...(deferred ? ['loadPlan'] : []), ...(component ? ['componentInterfaces'] : [])], 'composition artifact');
   const integrated = input.schema === INTEGRATED_ARTIFACT_SCHEMA;
-  if ((!graph && !integrated && input.schema !== ARTIFACT_SCHEMA) || input.apiVersion !== (native ? '10.0.0' : projected ? '9.0.0' : scoped ? '8.0.0' : component ? '7.0.0' : delivery ? '6.0.0' : shared ? '5.0.0' : deferred ? '4.0.0' : graph ? '3.0.0' : integrated ? '2.0.0' : '1.0.0') || !(component ? [native ? 'xtend.maraca.build-plan.v9' : projected ? 'xtend.maraca.build-plan.v8' : scoped ? 'xtend.maraca.build-plan.v7' : 'xtend.maraca.build-plan.v6'] : graph ? ['xtend.maraca.build-plan.v4', 'xtend.maraca.build-plan.v5'] : [integrated ? 'xtend.maraca.build-plan.v5' : 'xtend.maraca.build-plan.v4']).includes(input.plan?.schema) || input.runtimeExecutionVerified !== false || !/^xtend\.xtensions-[a-f0-9]{64}\.mjs$/.test(input.entryFile || '')) throw new TypeError('A version-matched v1..v10 build composition artifact is required.');
+  if ((!graph && !integrated && input.schema !== ARTIFACT_SCHEMA) || input.apiVersion !== (orchestrated ? '12.0.0' : lifecycle ? '11.0.0' : native ? '10.0.0' : projected ? '9.0.0' : scoped ? '8.0.0' : component ? '7.0.0' : delivery ? '6.0.0' : shared ? '5.0.0' : deferred ? '4.0.0' : graph ? '3.0.0' : integrated ? '2.0.0' : '1.0.0') || !(component ? [orchestrated ? 'xtend.maraca.build-plan.v11' : lifecycle ? 'xtend.maraca.build-plan.v10' : native ? 'xtend.maraca.build-plan.v9' : projected ? 'xtend.maraca.build-plan.v8' : scoped ? 'xtend.maraca.build-plan.v7' : 'xtend.maraca.build-plan.v6'] : graph ? ['xtend.maraca.build-plan.v4', 'xtend.maraca.build-plan.v5'] : [integrated ? 'xtend.maraca.build-plan.v5' : 'xtend.maraca.build-plan.v4']).includes(input.plan?.schema) || input.runtimeExecutionVerified !== false || !/^xtend\.xtensions-[a-f0-9]{64}\.mjs$/.test(input.entryFile || '')) throw new TypeError('A version-matched v1..v11 build composition artifact is required.');
   const identity = planIdentity(plan, bindingsRuntime);
   if (canonical(input.plan) !== canonical(identity)) throw new TypeError('Composition artifact belongs to a different compiled source or binding contract.');
   const manifest = normalizeManifest(input.manifest, identity);
-  if ((integrated || graph && ['xtend.maraca.build-plan.v5','xtend.maraca.build-plan.v6','xtend.maraca.build-plan.v7','xtend.maraca.build-plan.v8','xtend.maraca.build-plan.v9'].includes(identity.schema)) && canonical(manifest) !== canonical(identity.compositionManifest)) throw new TypeError('The built provider manifest differs from the declared composition.');
+  if ((integrated || graph && ['xtend.maraca.build-plan.v5','xtend.maraca.build-plan.v6','xtend.maraca.build-plan.v7','xtend.maraca.build-plan.v8','xtend.maraca.build-plan.v9','xtend.maraca.build-plan.v10','xtend.maraca.build-plan.v11'].includes(identity.schema)) && canonical(manifest) !== canonical(identity.compositionManifest)) throw new TypeError('The built provider manifest differs from the declared composition.');
   if (!Array.isArray(input.providers) || input.providers.length !== manifest.providers.length) throw new TypeError('Provider build records must match the manifest.');
-  const expectedManifest = native ? NATIVE_COMPONENT_MANIFEST_SCHEMA : projected ? PROJECTION_COMPONENT_MANIFEST_SCHEMA : scoped ? SCOPED_COMPONENT_MANIFEST_SCHEMA
+  const expectedManifest = orchestrated ? ORCHESTRATED_COMPONENT_MANIFEST_SCHEMA : lifecycle ? LIFECYCLE_COMPONENT_MANIFEST_SCHEMA : native ? NATIVE_COMPONENT_MANIFEST_SCHEMA : projected ? PROJECTION_COMPONENT_MANIFEST_SCHEMA : scoped ? SCOPED_COMPONENT_MANIFEST_SCHEMA
     : component ? COMPONENT_MANIFEST_SCHEMA : delivery ? DELIVERY_MANIFEST_SCHEMA : shared ? SHARED_MANIFEST_SCHEMA : deferred ? DEFERRED_MANIFEST_SCHEMA : graph ? GRAPH_MANIFEST_SCHEMA : MANIFEST_SCHEMA;
   if (manifest.schema !== expectedManifest) throw new TypeError('The artifact and manifest graph versions must agree.');
   if (component) {
@@ -226,18 +235,18 @@ export function validateModuleGraph(modules, manifest) {
 /** Pure derivation: executable imports and peer requests cannot add graph members. */
 export function createLoadPlan(manifest, modules, providers) {
   const byModule = new Map(modules.map(row => [row.module, row]));
-  const shared = [SHARED_MANIFEST_SCHEMA, DELIVERY_MANIFEST_SCHEMA, COMPONENT_MANIFEST_SCHEMA, SCOPED_COMPONENT_MANIFEST_SCHEMA, PROJECTION_COMPONENT_MANIFEST_SCHEMA, NATIVE_COMPONENT_MANIFEST_SCHEMA].includes(manifest.schema), groups = new Map();
+  const shared = [SHARED_MANIFEST_SCHEMA, DELIVERY_MANIFEST_SCHEMA, COMPONENT_MANIFEST_SCHEMA, SCOPED_COMPONENT_MANIFEST_SCHEMA, PROJECTION_COMPONENT_MANIFEST_SCHEMA, NATIVE_COMPONENT_MANIFEST_SCHEMA, LIFECYCLE_COMPONENT_MANIFEST_SCHEMA, ORCHESTRATED_COMPONENT_MANIFEST_SCHEMA].includes(manifest.schema), groups = new Map();
   if (shared) for (const provider of manifest.providers) {
     const key = canonical({ framework: provider.framework, versions: provider.peers });
     if (!groups.has(key)) groups.set(key, { framework: provider.framework, versions: copy(provider.peers), providerIds: [] });
     groups.get(key).providerIds.push(provider.id);
   }
   const peerGroups = [...groups].sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0).map(([, group], index) => ({ id: 'peers-' + index, ...group, providerIds: group.providerIds.sort() }));
-  return freeze({ schema: shared ? SHARED_LOAD_PLAN_SCHEMA : LOAD_PLAN_SCHEMA, ...(shared ? { peerGroups } : {}), providers: manifest.providers.map(provider => {
+  return freeze({ schema: manifest.schema === ORCHESTRATED_COMPONENT_MANIFEST_SCHEMA ? ORCHESTRATED_LOAD_PLAN_SCHEMA : shared ? SHARED_LOAD_PLAN_SCHEMA : LOAD_PLAN_SCHEMA, ...(shared ? { peerGroups } : {}), providers: manifest.providers.map(provider => {
     const reachable = new Set();
     function visit(module) { if (reachable.has(module)) return; reachable.add(module); byModule.get(module).imports.forEach(edge => visit(edge.module)); }
     visit(provider.entry.module);
-    return { providerId: provider.id, mode: 'on-mount', phase: 'kernel.fabric.mount',
+    return { providerId: provider.id, mode: manifest.schema === ORCHESTRATED_COMPONENT_MANIFEST_SCHEMA ? 'orchestrated' : 'on-mount', phase: manifest.schema === ORCHESTRATED_COMPONENT_MANIFEST_SCHEMA ? 'kernel.fabric.lifecycle' : 'kernel.fabric.mount',
       entryFile: providers.find(row => row.id === provider.id).fileName, exportName: provider.entry.exportName,
       modules: [...reachable].map(module => byModule.get(module).fileName).sort(),
       peers: shared ? { mode: 'shared', groupId: peerGroups.find(group => group.providerIds.includes(provider.id)).id } : { mode: 'per-host', framework: provider.framework, versions: copy(provider.peers) } };

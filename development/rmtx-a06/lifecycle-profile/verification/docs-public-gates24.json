@@ -1,0 +1,114 @@
+{
+  "schema": "xtend.test.report.v1",
+  "status": "passed",
+  "startedAt": "2026-11-19T16:04:24.659Z",
+  "completedAt": "2026-11-19T16:04:26.824Z",
+  "durationMs": 2165,
+  "suiteCount": 3,
+  "passedCount": 3,
+  "failedCount": 0,
+  "skippedCount": 0,
+  "warningCount": 0,
+  "suites": [
+    {
+      "id": "rmt-ai-developer-kit",
+      "label": "RMT AI Developer Kit",
+      "status": "passed",
+      "exitCode": 0,
+      "passCount": 286,
+      "failureCount": 0,
+      "skipCount": 0,
+      "warningCount": 0,
+      "failures": [],
+      "skips": [],
+      "warnings": []
+    },
+    {
+      "id": "type-exports",
+      "label": "TypeExports Public Declaration Gate",
+      "status": "passed",
+      "exitCode": 0,
+      "passCount": 200,
+      "failureCount": 0,
+      "skipCount": 0,
+      "warningCount": 0,
+      "failures": [],
+      "skips": [],
+      "warnings": [],
+      "report": {
+        "schema": "xtend.type-exports.report.v1",
+        "exportCount": 220,
+        "p0ExportCount": 18,
+        "preparedTypesConditionCount": 210,
+        "unclassifiedExports": [],
+        "declarationDrift": [],
+        "packageTypesConditionDrift": [],
+        "releaseHandoff": {
+          "schema": "xtend.type-exports.drift-report.v1",
+          "workpackage": "WP-TypeExports-09",
+          "status": "accepted-productive-type-exports-release-gate",
+          "targetReadiness": "productive-type-exports-release-gate-ready",
+          "localGate": "node scripts/run_xtend_tests.js type-exports type-exports-loader type-exports-api type-exports-rmt type-exports-policy type-exports-builder type-exports-catalog type-exports-vendor --report .xtend-test-results/xtend-type-exports-report.json",
+          "packageScript": "npm run test:type-exports:release",
+          "reportArtifact": ".xtend-test-results/xtend-type-exports-report.json",
+          "packageExportLockGate": "node scripts/run_xtend_tests.js epic13-package-export-lock --json",
+          "gateScripts": [
+            "npm run test:type-exports",
+            "npm run test:type-exports-loader",
+            "npm run test:type-exports-api",
+            "npm run test:type-exports-rmt",
+            "npm run test:type-exports-policy",
+            "npm run test:type-exports-builder",
+            "npm run test:type-exports-catalog",
+            "npm run test:type-exports-vendor",
+            "npm run test:type-exports:release"
+          ],
+          "reportArtifacts": [
+            ".xtend-test-results/xtend-type-exports-report.json",
+            ".xtend-test-results/xtend-type-exports-loader-report.json",
+            ".xtend-test-results/xtend-type-exports-api-report.json",
+            ".xtend-test-results/xtend-type-exports-rmt-report.json",
+            ".xtend-test-results/xtend-type-exports-policy-report.json",
+            ".xtend-test-results/xtend-type-exports-builder-report.json",
+            ".xtend-test-results/xtend-type-exports-catalog-report.json",
+            ".xtend-test-results/xtend-type-exports-vendor-report.json"
+          ],
+          "docs": [
+            "docs/type-exports.md",
+            "docs/public-component-types.md",
+            "docs/typescript-components.md",
+            "docs/package-export-lock.md"
+          ],
+          "packageExportLockDocs": "docs/package-export-lock.md",
+          "missingReleaseGateScripts": [],
+          "missingCandidateGateScripts": [],
+          "missingArtifactChecklistEntries": [],
+          "releaseOwnerVisible": true,
+          "driftReportReady": true
+        },
+        "nextWorkpackages": []
+      }
+    },
+    {
+      "id": "epic13-package-export-lock",
+      "label": "Epic 13 Package Export Lock",
+      "status": "passed",
+      "exitCode": 0,
+      "passCount": 420,
+      "failureCount": 0,
+      "skipCount": 0,
+      "warningCount": 0,
+      "failures": [],
+      "skips": [],
+      "warnings": [],
+      "report": {
+        "schema": "xtend.epic13.package-export-lock-report.v1",
+        "exportCount": 220,
+        "packageFileRootCount": 31,
+        "surfaceGroupCount": 16,
+        "publishAllowed": false,
+        "nextWorkpackage": "WP-E13-13"
+      }
+    }
+  ]
+}

@@ -37,14 +37,14 @@
     "tools/xtensions/runtime-host-controller.d.ts": "b88df57206eae655721549bd699e8054e48189eea46e40c39f7bfc615a993e9b",
     "tools/xtensions/react-runtime-adapter.d.ts": "10700c9d08f2e94a79168e89a57d0a77eba223c89491aaf6d50ebb1bc33074c0",
     "tools/xtensions/vue-runtime-adapter.d.ts": "f441bed2550894206df776eec5d3cbfece18adb92c1432060494b38bc80d699f",
-    "tools/xtensions/state-binding.js": "732c9c17411216883c703561be076a75e94cd1009c85891d611747091f3b9e83",
-    "tools/xtensions/state-binding.d.ts": "f773975198e5064d809d5a63a3e4429537d1fd929f989371a0d5946a5ca3dae0",
-    "xtend-maraca/plan-runtime.d.ts": "e45e099f4fd00a0bec08efae38b1cfaa19639a5be7eed5dd85b32a47069bcc91",
+    "tools/xtensions/state-binding.js": "be2285ae195ec926ad3337a09a7e23c416ebcbf4ff3fddd0caeadb7a93da5965",
+    "tools/xtensions/state-binding.d.ts": "c107f80208183fced3c5031c3a9a9c9d4dc2ab95ee5b27070de88454d1b48810",
+    "xtend-maraca/plan-runtime.d.ts": "8aeb306c1ca0e4d502429aecd74e2dc8f48e66794d0354ca0ffd76c15424f955",
     "tests/xtensions/resource-graph-acceptance.js": "b0273e06199aa8c9c5cf8038bbd80146d078259137e6a7e3e6fa45fb7aa59714",
     "tests/xtensions/resource-graph-maraca-acceptance.js": "0483e2b7add52963cc8911fd3da04954d16210d7fda681248580fdfdac034225",
     "tests/types/xtensions_resource_graph.mts": "a8e92658829f2ee4444534a717393bf48269e858eb521457650d6e9dee9e06a9",
-    "tests/xtensions/xtensions_runtime_gate_suite.js": "4e439d3a038f2ca6becd726df45b5e294e239325021e2f53878cc7bd23a50d17",
-    "tests/xtensions/xtensions_consumer_package_suite.js": "28bb37f6b22d0cbe60dfe5f9592bb0811bcd732e0ec0407043944ae4e92961b4",
-    "tests/xtensions/runtime-adapter-exports.cjs": "895e14460c6e0bca76a0d2ef477ea634b412d415d8b8073b22029011911f097c"
+    "tests/xtensions/xtensions_runtime_gate_suite.js": "3e547c6a8b376f6455164bb30856df9935d84f097f022046fe32d8cda8902027",
+    "tests/xtensions/xtensions_consumer_package_suite.js": "8ee7b057e9c2dc2170ff8849394d5b5d33801d60ce9898568d4de680a8dbd00b",
+    "tests/xtensions/runtime-adapter-exports.cjs": "271bd4ac5b90e14141721b844c98d119a386d8dda3877daefc64915edcf4c785"
   }
 }

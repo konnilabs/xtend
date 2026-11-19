@@ -1,0 +1,46 @@
+import {RMT, model, item, input} from '@ccslabs/xtend/rmt-language/rmtx';
+export default <RMT.Program id="orchestrated.products">
+  <RMT.State id="catalog" type="object" initial={{items:[
+    {id:1,title:'Numeric',images:['front','back'],selectedImageId:'front',sort:'recent',enabled:true},
+    {id:'1',title:'Text',images:['front','back'],selectedImageId:'back',sort:'recent',enabled:true}
+  ]}}/>
+  <RMT.State id="ui" type="object" initial={{mount:true,hydrate:true,suspend:false,resume:false,invalidate:false,dispose:false,prewarm:false,recycle:false,detach:false,reattach:false}}/>
+  <RMT.State id="capture" type="object" initial={{productId:null,value:'',kind:''}}/>
+  <RMT.Action id="catalog.replace"><RMT.Input name="catalog" type="object"/><RMT.Reduce state="catalog" value={input.catalog}/></RMT.Action>
+  <RMT.Action id="ui.replace"><RMT.Input name="ui" type="object"/><RMT.Reduce state="ui" value={input.ui}/></RMT.Action>
+  <RMT.Action id="image.select"><RMT.Input name="productId" type="json"/><RMT.Input name="imageId" type="string"/>
+    <RMT.Reduce state="capture" path="productId" value={input.productId}/><RMT.Reduce state="capture" path="value" value={input.imageId}/><RMT.Reduce state="capture" path="kind" value="image"/>
+  </RMT.Action>
+  <RMT.Action id="reviews.sort"><RMT.Input name="productId" type="json"/><RMT.Input name="sort" type="string"/>
+    <RMT.Reduce state="capture" path="productId" value={input.productId}/><RMT.Reduce state="capture" path="value" value={input.sort}/><RMT.Reduce state="capture" path="kind" value="reviews"/>
+  </RMT.Action>
+  <RMT.Action id="native.select"><RMT.Input name="productId" type="json"/><RMT.Reduce state="capture" path="productId" value={input.productId}/><RMT.Reduce state="capture" path="kind" value="native"/></RMT.Action>
+  <RMT.Repeat from={model.catalog.items} keyBy={item.id}>
+    <RMT.Surface id="product" component="article" present={item.enabled}>
+      <RMT.Lane name="visible">
+        <RMT.Mount target="product" when={model.ui.mount}/><RMT.Hydrate target="product" when={model.ui.hydrate}/>
+        <RMT.Suspend target="product" when={model.ui.suspend}/><RMT.Resume target="product" when={model.ui.resume}/>
+        <RMT.Invalidate target="product" when={model.ui.invalidate}/><RMT.Dispose target="product" when={model.ui.dispose}/>
+        <RMT.Recycle target="product" when={model.ui.recycle}/><RMT.Detach target="product" when={model.ui.detach}/><RMT.Reattach target="product" when={model.ui.reattach}/>
+      </RMT.Lane>
+      <RMT.Lane name="idle"><RMT.Prewarm target="product" when={model.ui.prewarm}/></RMT.Lane>
+      <RMT.View>
+        <RMT.Component tag="x-header" properties={{title:item.title}}>
+          <RMT.Slot name="title"><RMT.Element tag="h2"><RMT.Text value={item.title}/></RMT.Element></RMT.Slot>
+          <RMT.Slot name="actions"><RMT.Element tag="button" attributes={{type:'button','data-native-select':'true'}}><RMT.Text value="Select"/></RMT.Element></RMT.Slot>
+        </RMT.Component>
+      </RMT.View>
+      <RMT.On event="native-select" action="native.select" payload={{}} keys={{productId:0}}/>
+      <RMT.Surface id="gallery" component="div">
+        <RMT.XTension id="product-gallery" provider="react-product-gallery" owner="product" lane="visible"
+          props={{images:item.images,selectedImageId:item.selectedImageId,context:{displayId:item.title,flags:[item.enabled,true]}}}
+          intents={{selectImage:{action:'image.select',payload:{imageId:'imageId'},keys:{productId:0}}}}/>
+      </RMT.Surface>
+      <RMT.Surface id="reviews" component="div">
+        <RMT.XTension id="product-reviews" provider="vue-product-reviews" owner="product" lane="idle"
+          props={{productId:item.title,sort:item.sort}}
+          intents={{changeSort:{action:'reviews.sort',payload:{sort:'order'},keys:{productId:0}}}}/>
+      </RMT.Surface>
+    </RMT.Surface>
+  </RMT.Repeat>
+</RMT.Program>;

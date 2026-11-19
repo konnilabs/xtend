@@ -85,3 +85,7 @@ The RMT TypeExports catalog includes all three declaration/runtime pairs. Actual
 ### A06.4.1 native View projection port (18 November2026)
 
 The public root surface now has **218 ordered export keys**, SHA-256 `6e59bcee5aed6581399276cb75f85f08766ec72361bc843c50819e4b9e7f6db5` (UTF-8 keys joined by newline, without a final newline). The appended typed entry is `./xtensions/native-view-projection`; previous entries retain their order and targets. The compiler package exposes the same public port and ships its private native-data/repeat-scope closure. The 217-entry fingerprint above records the historical A06.2 surface.
+
+A06.4.2.1 appends two typed entrypoints: `./xtensions/native-lifecycle` and `./maraca/native-lifecycle-runtime`. The ordered surface contains **220** entries, fingerprint `d34ed68c4a7689099363dfb9695205d9056b7e14ab831cbfcaae5225856ae19d`. The preceding 218-entry statement remains the historical A06.4.1 surface.
+
+A06.4.2 Source7 appends five typed entrypoints for native scope/projection/lifecycle ports and the optional Maraca orchestration runtime/graph adapters. The reviewed ordered surface contains **225** entries, fingerprint `cf8ee7699ab8864b428b8cc1296e28d7031b0d6c241939cac2d64ab0c934fed2`; the 220-entry record above is the retained Source6 surface.

@@ -9,6 +9,8 @@ const historySchema = freeze(clone(require('./url-state-contracts/history-propos
 const API_VERSION = '1.0.0';
 const PROJECTION_URL_STATE_API_VERSION = '2.0.0';
 const NATIVE_URL_STATE_API_VERSION = '3.0.0';
+const ORCHESTRATED_URL_STATE_API_VERSION = '5.0.0';
+const LIFECYCLE_URL_STATE_API_VERSION = '4.0.0';
 const projectionSchemas = freeze({ policySchema: clone(require('./url-state-contracts/policy.v2.schema.json')), stateSchema: clone(require('./url-state-contracts/state.v2.schema.json')), planSchema: clone(require('./url-state-contracts/restore-plan.v2.schema.json')), historySchema: clone(require('./url-state-contracts/history-proposal.v2.schema.json')) });
 const PARAMETER = 'xtend-state';
 const encoder = new TextEncoder();
@@ -60,26 +62,28 @@ function templatePath(source, blueprint, keys) {
 function createURLStateContract(input, inputs) { return createURLStateContractProfile(input, inputs, 'legacy'); }
 function createProjectionURLStateContract(input, inputs) { return createURLStateContractProfile(input, inputs, 'projection'); }
 function createNativeURLStateContract(input, inputs) { return createURLStateContractProfile(input, inputs, 'native'); }
-function createURLStateContractProfile(input, inputs, profile) {
+function createLifecycleURLStateContract(input, inputs) { return createURLStateContractProfile(input, inputs, 'lifecycle', bindingsApi.validateLifecycleStateBindingArtifact); }
+function createOrchestratedURLStateContract(input, inputs) { return createURLStateContractProfile(input, inputs, 'orchestrated', bindingsApi.validateOrchestratedStateBindingArtifact); }
+function createURLStateContractProfile(input, inputs, profile, validateBindings = bindingsApi.validateStateBindingArtifact) {
   data(inputs, new Set(), true);
   const { program, bindings } = inputs;
   const projected = profile !== 'legacy';
   const schemas = projected ? projectionSchemas : { policySchema, stateSchema, planSchema, historySchema };
   const { policySchema: selectedPolicy, stateSchema: selectedState, planSchema: selectedPlan, historySchema: selectedHistory } = schemas;
   return createURLStateEngine(input, { program, bindings }, { policySchema: selectedPolicy, stateSchema: selectedState, planSchema: selectedPlan, historySchema: selectedHistory,
-    apiVersion: profile === 'native' ? NATIVE_URL_STATE_API_VERSION : projected ? PROJECTION_URL_STATE_API_VERSION : API_VERSION,
+    validateBindings, apiVersion: profile === 'orchestrated' ? ORCHESTRATED_URL_STATE_API_VERSION : profile === 'lifecycle' ? LIFECYCLE_URL_STATE_API_VERSION : profile === 'native' ? NATIVE_URL_STATE_API_VERSION : projected ? PROJECTION_URL_STATE_API_VERSION : API_VERSION,
     tokenPrefix: projected ? '2.' : '1.', projected,
-    programSchema: profile === 'native' ? 'xtend.rmt.app-orchestration.v3' : projected ? 'xtend.rmt.app-orchestration.v2' : 'xtend.rmt.app-orchestration.v1',
-    bindingSchemas: profile === 'native' ? ['xtend.xtensions.state-binding-artifact.v5'] : projected ? ['xtend.xtensions.state-binding-artifact.v4'] : ['xtend.xtensions.state-binding-artifact.v1','xtend.xtensions.state-binding-artifact.v2','xtend.xtensions.state-binding-artifact.v3'] });
+    programSchema: profile === 'orchestrated' ? 'xtend.rmt.app-orchestration.v5' : profile === 'lifecycle' ? 'xtend.rmt.app-orchestration.v4' : profile === 'native' ? 'xtend.rmt.app-orchestration.v3' : projected ? 'xtend.rmt.app-orchestration.v2' : 'xtend.rmt.app-orchestration.v1',
+    bindingSchemas: profile === 'orchestrated' ? ['xtend.xtensions.state-binding-artifact.v7'] : profile === 'lifecycle' ? ['xtend.xtensions.state-binding-artifact.v6'] : profile === 'native' ? ['xtend.xtensions.state-binding-artifact.v5'] : projected ? ['xtend.xtensions.state-binding-artifact.v4'] : ['xtend.xtensions.state-binding-artifact.v1','xtend.xtensions.state-binding-artifact.v2','xtend.xtensions.state-binding-artifact.v3'] });
 }
-function createURLStateEngine(input, { program, bindings }, { policySchema, stateSchema, planSchema, historySchema, apiVersion, tokenPrefix, projected, programSchema, bindingSchemas }) {
+function createURLStateEngine(input, { program, bindings }, { policySchema, stateSchema, planSchema, historySchema, apiVersion, tokenPrefix, projected, programSchema, bindingSchemas, validateBindings }) {
   data(input); closed(input,policySchema);
   input=freeze(clone(input));
   demand(input.schema === policySchema.$id && input.exposure === 'public-url','Unsupported policy or missing explicit public URL grant.');
   named(input.id); named(input.documentId);
   demand(Number.isSafeInteger(input.version) && input.version > 0 && input.version <= 2147483647,'Invalid application policy version.');
   demand(program?.schema === programSchema && bindingSchemas.includes(bindings?.schema), 'URL contract requires its explicitly versioned Model/binding profile.');
-  const artifact = bindingsApi.validateStateBindingArtifact(bindings,program);
+  const artifact = validateBindings(bindings,program);
   demand(input.documentId === artifact.documentId,'Policy document differs from bindings.');
   closed(input.limits,policySchema.properties.limits);
   for (const [key,rule] of Object.entries(policySchema.properties.limits.properties)) demand(Number.isSafeInteger(input.limits[key]) && input.limits[key] >= rule.minimum && input.limits[key] <= rule.maximum,'Invalid URL budget.');
@@ -285,4 +289,6 @@ function withTokenProfile(query,token,tokenPrefix) {
 const PROJECTION_URL_STATE_RUNTIME = Object.freeze({ API_VERSION: PROJECTION_URL_STATE_API_VERSION, PARAMETER, createURLStateContract: createProjectionURLStateContract, readQuery, withToken: withProjectionToken, canonical });
 // Native views change the trusted program/binding profile, not the URL wire contract.
 const NATIVE_URL_STATE_RUNTIME = Object.freeze({ API_VERSION: NATIVE_URL_STATE_API_VERSION, PARAMETER, createURLStateContract: createNativeURLStateContract, readQuery, withToken: withProjectionToken, canonical });
-module.exports={API_VERSION,PROJECTION_URL_STATE_API_VERSION,PROJECTION_URL_STATE_RUNTIME,NATIVE_URL_STATE_API_VERSION,NATIVE_URL_STATE_RUNTIME,PARAMETER,createURLStateContract,readQuery,withToken,canonical};
+const LIFECYCLE_URL_STATE_RUNTIME = Object.freeze({ API_VERSION: LIFECYCLE_URL_STATE_API_VERSION, PARAMETER, createURLStateContract: createLifecycleURLStateContract, readQuery, withToken: withProjectionToken, canonical });
+const ORCHESTRATED_URL_STATE_RUNTIME = Object.freeze({ API_VERSION: ORCHESTRATED_URL_STATE_API_VERSION, PARAMETER, createURLStateContract: createOrchestratedURLStateContract, readQuery, withToken: withProjectionToken, canonical });
+module.exports={ORCHESTRATED_URL_STATE_API_VERSION,ORCHESTRATED_URL_STATE_RUNTIME,LIFECYCLE_URL_STATE_API_VERSION,LIFECYCLE_URL_STATE_RUNTIME,API_VERSION,PROJECTION_URL_STATE_API_VERSION,PROJECTION_URL_STATE_RUNTIME,NATIVE_URL_STATE_API_VERSION,NATIVE_URL_STATE_RUNTIME,PARAMETER,createURLStateContract,readQuery,withToken,canonical};

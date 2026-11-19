@@ -1,6 +1,6 @@
 # A06.4.2: Arbeitsvertrag für den Lifecycleanschluss
 
-Stand:18. November2026. **Planungsbefund, noch nicht implementiert und keine Schemafreigabe.** A06.4.1 projiziert Bedingungen und Wiederholungen innerhalb bereits existierender Surfaces. Die Viewbedingung erzeugt keine Surface-Lifetime.
+Stand:19. November2026. **A06.4.2.1 ist als begrenzter Source6-Vertrag implementiert; die übrige Matrix bleibt Planung.** Siehe [bedingte native Mount-Zulassung](../lifecycle-profile/README.md). A06.4.1 projiziert Bedingungen und Wiederholungen innerhalb bereits existierender Surfaces. Die Viewbedingung erzeugt keine Surface-Lifetime.
 
 Der unveränderte Classic-AST1 besitzt bereits `RmtLifecycleStatement.condition`; Classic bewahrt ihn in Core-Operationen auf. Kernel-Records und Schedulerplan führen diese Bedingung jedoch nicht aus. Source4 senkt ausdrücklich `condition:null` ab. Die vorhandenen Lifecycleoperatoren heißen Mount, Hydrate, Suspend, Resume, Invalidate, Dispose, Prewarm, Recycle, Detach und Reattach; ein Unmount-AST-Operator existiert nicht.
 

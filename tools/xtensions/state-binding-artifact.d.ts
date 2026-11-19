@@ -28,6 +28,7 @@ export interface XTensionMaterializedBinding {
   readonly surface: string; readonly hostSurface: string; readonly binding: XTensionStateBinding;
 }
 export function validateStateBindingArtifact(input: XTensionProjectionStateBindingArtifact, program: unknown): XTensionProjectionStateBindingArtifact;
+export function validateLifecycleStateBindingArtifact(input: XTensionLifecycleStateBindingArtifact, program: unknown): XTensionLifecycleStateBindingArtifact;
 export function validateStateBindingArtifact(input: XTensionNativeStateBindingArtifact, program: unknown): XTensionNativeStateBindingArtifact;
 export function validateStateBindingArtifact(input: unknown, program: unknown): XTensionStateBindingArtifact;
 /** Requires an artifact returned by this runtime's validator. Revalidate after serialization. */
@@ -56,3 +57,19 @@ export interface XTensionNativeStateBindingArtifact extends Omit<XTensionProject
 export function materializeStateBindingArtifact(artifact: XTensionNativeStateBindingArtifact, snapshot: { readonly states: Readonly<Record<string, unknown>>; readonly selectors?: Readonly<Record<string, unknown>> }): readonly {
   readonly surface: string; readonly hostSurface: string; readonly binding: import('./state-binding').XTensionProjectionStateBinding;
 }[];
+
+/** Source6 is paired exclusively with Program4; Binding3 itself is retained. */
+export const LIFECYCLE_STATE_BINDING_ARTIFACT_SCHEMA: 'xtend.xtensions.state-binding-artifact.v6';
+export interface XTensionLifecycleStateBindingArtifact extends Omit<XTensionProjectionStateBindingArtifact, 'schema'> {
+  readonly schema: typeof LIFECYCLE_STATE_BINDING_ARTIFACT_SCHEMA;
+}
+export function materializeStateBindingArtifact(artifact: XTensionLifecycleStateBindingArtifact, snapshot: { readonly states: Readonly<Record<string, unknown>>; readonly selectors?: Readonly<Record<string, unknown>> }, admission?: Readonly<Record<string, boolean>>): readonly {
+  readonly surface: string; readonly hostSurface: string; readonly binding: import('./state-binding').XTensionProjectionStateBinding;
+}[];
+
+/** Source7 owns concrete native Surface instances; its old materializer remains closed. */
+export const ORCHESTRATED_STATE_BINDING_ARTIFACT_SCHEMA: 'xtend.xtensions.state-binding-artifact.v7';
+export interface XTensionOrchestratedStateBindingArtifact extends Omit<XTensionProjectionStateBindingArtifact, 'schema' | 'bindings'> {
+  readonly schema: typeof ORCHESTRATED_STATE_BINDING_ARTIFACT_SCHEMA;
+  readonly bindings: readonly (XTensionProjectionStateBindingArtifact['bindings'][number] & { readonly ownerSurface: string })[];
+}

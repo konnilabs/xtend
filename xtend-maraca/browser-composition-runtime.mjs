@@ -5,7 +5,7 @@ import {
   createMaracaBrowserHostAdapter
 } from './browser-host-adapter.mjs';
 export const MARACA_BROWSER_API_VERSION = '5.0.0';
-export const MARACA_XTENSION_BROWSER_API_VERSION = '11.0.0';
+export const MARACA_XTENSION_BROWSER_API_VERSION = '13.0.0';
 export const LEGACY_BROWSER_COMPOSITION_SCHEMA = 'xtend.maraca.browser-composition-root.v1';
 
 function clone(value) {
@@ -195,7 +195,7 @@ function createAppServicesPort(config, dependencies, options, publish) {
 
 function createRuntimePlan(config, options) {
   return {
-    ...(config.schema === 'xtend.maraca.browser-composition-root.v11' ? { schema: config.buildPlanSchema, ok: true, sourceHash: config.sourceHash } : {}),
+    ...(['xtend.maraca.browser-composition-root.v11', 'xtend.maraca.browser-composition-root.v12', 'xtend.maraca.browser-composition-root.v13'].includes(config.schema) ? { schema: config.buildPlanSchema, ok: true, sourceHash: config.sourceHash } : {}),
     ...(Object.hasOwn(config, 'xtensionComposition') ? { schema: config.buildPlanSchema, ok: true, sourceHash: config.sourceHash, xtensionComposition: config.xtensionComposition } : {}),
     orchestration: config.orchestration,
     ...(Object.hasOwn(config, 'xtensionBindings') ? { xtensionBindings: config.xtensionBindings } : {}),
@@ -220,7 +220,7 @@ function createRuntimeConfiguration(config, options, host, handles) {
     xtensionBindingsRuntime: options.xtensionBindingsRuntime,
     urlStatePolicy: options.urlStatePolicy,
     urlStateRuntime: options.urlStateRuntime,
-    ...(config.schema === 'xtend.maraca.browser-composition-root.v11' ? { nativeViewRuntimePort: options.nativeViewRuntimePort || handles.dependencies.nativeViewRuntimePort } : {}),
+    ...(['xtend.maraca.browser-composition-root.v11', 'xtend.maraca.browser-composition-root.v12', 'xtend.maraca.browser-composition-root.v13'].includes(config.schema) ? { nativeViewRuntimePort: options.nativeViewRuntimePort || handles.dependencies.nativeViewRuntimePort } : {}),
     createXTensionHost: options.createXTensionHost,
     fastPassActions: options.fastPassActions || [],
     actionHistoryLimit: options.actionHistoryLimit,
@@ -303,17 +303,31 @@ function createRuntimeConfiguration(config, options, host, handles) {
 }
 
 export function createMaracaBrowserCompositionRoot(configuration = {}, dependencies = {}) {
+  const schema = Object.getOwnPropertyDescriptor(configuration, 'schema');
+  if (schema && !Object.hasOwn(schema, 'value')) throw new TypeError('Browser configuration schema must be an own data field.');
+  const orchestratedInput = schema?.value === 'xtend.maraca.browser-composition-root.v13';
+  const lifecycleInput = orchestratedInput || schema?.value === 'xtend.maraca.browser-composition-root.v12';
+  if (lifecycleInput) {
+    const port = dependencies.nativeViewRuntimePort;
+    if (port?.NATIVE_VIEW_PROJECTION_API_VERSION !== (orchestratedInput ? '3.0.0' : '2.0.0') || typeof port.assertNativeCanonicalData !== 'function')
+      throw new TypeError('Lifecycle browser12 requires its explicit Native View projection API2 port.');
+    port.assertNativeCanonicalData(configuration, true);
+    if (typeof dependencies[orchestratedInput ? 'createOrchestratedPlanRuntime' : 'createLifecyclePlanRuntime'] !== 'function') throw new TypeError('Lifecycle browser12 requires its explicit createLifecyclePlanRuntime factory.');
+  }
   const config = freezeMaracaConfiguration(configuration || {});
   const composed = Object.hasOwn(config, 'xtensionComposition');
-  const native = config.schema === 'xtend.maraca.browser-composition-root.v11';
+  const orchestrated = config.schema === 'xtend.maraca.browser-composition-root.v13';
+  const lifecycle = orchestrated || config.schema === 'xtend.maraca.browser-composition-root.v12';
+  if (lifecycle && !lifecycleInput) throw new TypeError('Lifecycle browser12 requires an explicit own schema field.');
+  const native = lifecycle || config.schema === 'xtend.maraca.browser-composition-root.v11';
   const projected = config.schema === 'xtend.maraca.browser-composition-root.v10', scoped = projected || config.schema === 'xtend.maraca.browser-composition-root.v9', componentProfile = scoped || config.schema === 'xtend.maraca.browser-composition-root.v8';
-  if (native ? config.buildPlanSchema !== 'xtend.maraca.build-plan.v9' || config.orchestration?.artifact?.schema !== 'xtend.rmt.app-orchestration.v3' || composed && config.xtensionComposition?.schema !== 'xtend.maraca.xtension-composition-artifact.v10'
-    : config.buildPlanSchema === 'xtend.maraca.build-plan.v9' || config.xtensionComposition?.schema === 'xtend.maraca.xtension-composition-artifact.v10') throw new TypeError('Native browser11 requires its exact plan9/program3 and optional composition artifact10.');
+  if (native ? config.buildPlanSchema !== (orchestrated ? 'xtend.maraca.build-plan.v11' : lifecycle ? 'xtend.maraca.build-plan.v10' : 'xtend.maraca.build-plan.v9') || config.orchestration?.artifact?.schema !== (orchestrated ? 'xtend.rmt.app-orchestration.v5' : lifecycle ? 'xtend.rmt.app-orchestration.v4' : 'xtend.rmt.app-orchestration.v3') || composed && config.xtensionComposition?.schema !== (orchestrated ? 'xtend.maraca.xtension-composition-artifact.v12' : lifecycle ? 'xtend.maraca.xtension-composition-artifact.v11' : 'xtend.maraca.xtension-composition-artifact.v10')
+    : ['xtend.maraca.build-plan.v9', 'xtend.maraca.build-plan.v10', 'xtend.maraca.build-plan.v11'].includes(config.buildPlanSchema) || ['xtend.maraca.xtension-composition-artifact.v10', 'xtend.maraca.xtension-composition-artifact.v11', 'xtend.maraca.xtension-composition-artifact.v12'].includes(config.xtensionComposition?.schema) || ['xtend.rmt.app-orchestration.v4','xtend.rmt.app-orchestration.v5'].includes(config.orchestration?.artifact?.schema)) throw new TypeError('Native browser11/12 requires its exact plan9/10, program3/4 and optional composition artifact10/11.');
   if (native && !composed && config.xtensionBindings?.bindings?.length) throw new TypeError('Native provider bindings require the automatic composition artifact10.');
   if (!native && (projected !== (config.xtensionComposition?.schema === 'xtend.maraca.xtension-composition-artifact.v9') || scoped !== ['xtend.maraca.xtension-composition-artifact.v8','xtend.maraca.xtension-composition-artifact.v9'].includes(config.xtensionComposition?.schema) || componentProfile !== ['xtend.maraca.xtension-composition-artifact.v7','xtend.maraca.xtension-composition-artifact.v8','xtend.maraca.xtension-composition-artifact.v9'].includes(config.xtensionComposition?.schema))) throw new TypeError('Component ownership requires the explicit v8 browser contract.');
   const ssrCapable = !projected && (scoped || config.schema === 'xtend.maraca.browser-composition-root.v7');
-  if (!native && composed !== (componentProfile || ssrCapable || config.schema === 'xtend.maraca.browser-composition-root.v6') || composed && config.buildPlanSchema !== (native ? 'xtend.maraca.build-plan.v9' : projected ? 'xtend.maraca.build-plan.v8' : scoped ? 'xtend.maraca.build-plan.v7' : componentProfile ? 'xtend.maraca.build-plan.v6' : 'xtend.maraca.build-plan.v5')) throw new TypeError('Automatic XTension boot requires its version-matched browser configuration and v5/v6/v7/v8/v9 build plan.');
-  const apiVersion = native ? MARACA_XTENSION_BROWSER_API_VERSION : composed ? projected ? '10.0.0' : scoped ? '9.0.0' : componentProfile ? '8.0.0' : ssrCapable ? '7.0.0' : '6.0.0' : MARACA_BROWSER_API_VERSION;
+  if (!native && composed !== (componentProfile || ssrCapable || config.schema === 'xtend.maraca.browser-composition-root.v6') || composed && config.buildPlanSchema !== (orchestrated ? 'xtend.maraca.build-plan.v11' : lifecycle ? 'xtend.maraca.build-plan.v10' : native ? 'xtend.maraca.build-plan.v9' : projected ? 'xtend.maraca.build-plan.v8' : scoped ? 'xtend.maraca.build-plan.v7' : componentProfile ? 'xtend.maraca.build-plan.v6' : 'xtend.maraca.build-plan.v5')) throw new TypeError('Automatic XTension boot requires its version-matched browser configuration and build plan.');
+  const apiVersion = orchestrated ? MARACA_XTENSION_BROWSER_API_VERSION : lifecycle ? '12.0.0' : native ? '11.0.0' : composed ? projected ? '10.0.0' : scoped ? '9.0.0' : componentProfile ? '8.0.0' : ssrCapable ? '7.0.0' : '6.0.0' : MARACA_BROWSER_API_VERSION;
   const platformTarget = dependencies.platformTarget || dependencies['global' + 'Target'] || dependencies.windowTarget || {};
   const windowTarget = dependencies.windowTarget || platformTarget['window'] || platformTarget;
   const documentTarget = dependencies.documentTarget || platformTarget['document'] || null;
@@ -404,7 +418,7 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
 
   function snapshot() {
     if (runtime && typeof runtime.snapshot === 'function') return deepFreeze(clone(runtime.snapshot()));
-    return deepFreeze({ schema: native ? 'xtend.maraca.plan-runtime.v14' : projected ? 'xtend.maraca.plan-runtime.v13' : scoped ? 'xtend.maraca.plan-runtime.v11' : componentProfile ? 'xtend.maraca.plan-runtime.v10' : composed ? 'xtend.maraca.plan-runtime.v8' : 'xtend.maraca.plan-runtime.v3', phase: 'created', enabled: false, status: 'not_booted', diagnostics: [] });
+    return deepFreeze({ schema: orchestrated ? 'xtend.maraca.plan-runtime.v16' : lifecycle ? 'xtend.maraca.plan-runtime.v15' : native ? 'xtend.maraca.plan-runtime.v14' : projected ? 'xtend.maraca.plan-runtime.v13' : scoped ? 'xtend.maraca.plan-runtime.v11' : componentProfile ? 'xtend.maraca.plan-runtime.v10' : composed ? 'xtend.maraca.plan-runtime.v8' : 'xtend.maraca.plan-runtime.v3', phase: 'created', enabled: false, status: 'not_booted', diagnostics: [] });
   }
 
   function subscribe(listener) {
@@ -479,8 +493,9 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
       attempt.hydration = host.createHydrationPort(attempt.root, options);
       const enabled = config.orchestration && config.orchestration.enabled && config.orchestration.artifact;
       if (enabled) {
-        if (typeof dependencies.createPlanRuntime !== 'function') throw new Error('XTend Maraca composition requires createMaracaPlanRuntime.');
-        attempt.runtime = dependencies.createPlanRuntime(createRuntimeConfiguration(config, options, host, {
+        const createRuntime = orchestrated ? dependencies.createOrchestratedPlanRuntime : lifecycle ? dependencies.createLifecyclePlanRuntime : dependencies.createPlanRuntime;
+        if (typeof createRuntime !== 'function') throw new Error('XTend Maraca composition requires its explicit Plan runtime factory.');
+        attempt.runtime = createRuntime(createRuntimeConfiguration(config, options, host, {
           root: attempt.root,
           compositionPort: attempt.compositionPort,
           renderer: attempt.renderer,
@@ -583,7 +598,11 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
     if (native && typeof options.fabric?.runFiber !== 'function') throw new TypeError('Native views require the explicit Fabric work port.');
     if (native) {
       const port = options.nativeViewRuntimePort || dependencies.nativeViewRuntimePort;
-      if (port?.NATIVE_VIEW_PROJECTION_API_VERSION !== '1.0.0' || typeof port.validateNativeViewProgram !== 'function' || typeof port.materializeNativeView !== 'function') throw new TypeError('Native views require their explicit projection API1 port.');
+      if (port?.NATIVE_VIEW_PROJECTION_API_VERSION !== (orchestrated ? '3.0.0' : lifecycle ? '2.0.0' : '1.0.0') || typeof port.validateNativeViewProgram !== 'function' || typeof port.materializeNativeView !== 'function') throw new TypeError('Native views require their explicit profile-matched projection port.');
+      if (lifecycle) {
+        if (typeof port.assertNativeCanonicalData !== 'function') throw new TypeError('Lifecycle native views require their canonical data boundary.');
+        if (options.initialState !== undefined) port.assertNativeCanonicalData(options.initialState);
+      }
     }
     if (bootResult && runtime) return duplicateBootResult(bootResult);
     if (bootAttempt) return duplicateBootResult(await bootAttempt.promise);
@@ -593,7 +612,7 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
       if (!options.fabric || typeof options.fabric.createBoundary !== 'function' || !options.xtensions || Object.keys(options.xtensions).some(key => !['loadPeers', 'loadPeerGroup', 'grants', 'ssr'].includes(key))) throw new TypeError('Automatic XTensions require Fabric and explicit peer-loader/grant options.');
       if (options.xtensions.ssr !== undefined && !ssrCapable) throw new TypeError('SSR requires the v7 browser composition contract.');
       const platform = dependencies.xtensionPlatform;
-      if (!(native ? ['11.0.0'] : projected ? ['10.0.0','11.0.0'] : scoped ? ['9.0.0','10.0.0','11.0.0'] : componentProfile ? ['8.0.0','9.0.0','10.0.0','11.0.0'] : ssrCapable ? ['7.0.0','8.0.0','9.0.0','10.0.0','11.0.0'] : ['6.0.0','7.0.0','8.0.0','9.0.0','10.0.0','11.0.0']).includes(platform?.compositionRuntime?.XTENSION_COMPOSITION_API_VERSION)) throw new TypeError('Automatic XTensions require the version-matched built platform API.');
+      if (!(orchestrated ? ['13.0.0'] : lifecycle ? ['12.0.0','13.0.0'] : native ? ['11.0.0','12.0.0','13.0.0'] : projected ? ['10.0.0','11.0.0','12.0.0','13.0.0'] : scoped ? ['9.0.0','10.0.0','11.0.0','12.0.0','13.0.0'] : componentProfile ? ['8.0.0','9.0.0','10.0.0','11.0.0','12.0.0','13.0.0'] : ssrCapable ? ['7.0.0','8.0.0','9.0.0','10.0.0','11.0.0','12.0.0','13.0.0'] : ['6.0.0','7.0.0','8.0.0','9.0.0','10.0.0','11.0.0','12.0.0','13.0.0']).includes(platform?.compositionRuntime?.XTENSION_COMPOSITION_API_VERSION)) throw new TypeError('Automatic XTensions require the version-matched built platform API.');
       compositionPort = platform.compositionRuntime.createMaracaXTensionCompositionPort({ plan: createRuntimePlan(config, {}), companion: dependencies.xtensionCompanion,
         bindingsRuntime: platform.bindingsRuntime, ...(componentProfile || native ? { componentInterfaceRuntime: platform.componentInterfaceRuntime } : {}), resumeBindingsRuntime: platform.resumeBindingsRuntime, ssrRuntime: platform.ssrRuntime, ssr: options.xtensions.ssr, adapters: platform.adapters, loadPeers: options.xtensions.loadPeers, loadPeerGroup: options.xtensions.loadPeerGroup, grants: options.xtensions.grants });
     }
@@ -739,7 +758,7 @@ export function createMaracaBrowserCompositionRoot(configuration = {}, dependenc
   facade = deepFreeze(facadeMembers);
 
   return deepFreeze({
-    schema: native ? 'xtend.maraca.browser-composition-root.v11' : composed ? projected ? 'xtend.maraca.browser-composition-root.v10' : scoped ? 'xtend.maraca.browser-composition-root.v9' : componentProfile ? 'xtend.maraca.browser-composition-root.v8' : ssrCapable ? 'xtend.maraca.browser-composition-root.v7' : 'xtend.maraca.browser-composition-root.v6' : 'xtend.maraca.browser-composition-root.v5',
+    schema: orchestrated ? 'xtend.maraca.browser-composition-root.v13' : lifecycle ? 'xtend.maraca.browser-composition-root.v12' : native ? 'xtend.maraca.browser-composition-root.v11' : composed ? projected ? 'xtend.maraca.browser-composition-root.v10' : scoped ? 'xtend.maraca.browser-composition-root.v9' : componentProfile ? 'xtend.maraca.browser-composition-root.v8' : ssrCapable ? 'xtend.maraca.browser-composition-root.v7' : 'xtend.maraca.browser-composition-root.v6' : 'xtend.maraca.browser-composition-root.v5',
     apiVersion,
     config,
     facade,

@@ -1,4 +1,5 @@
-import type { MaracaPlanRuntime, MaracaURLRestoreResult, RmtxPlanRuntime, NativeRmtxPlanRuntime } from '@ccslabs/xtend/maraca/plan-runtime';
+import type { OrchestratedRmtxPlanRuntime16 } from '@ccslabs/xtend/maraca/plan-runtime';
+import type { MaracaPlanRuntime, MaracaURLRestoreResult, RmtxPlanRuntime, NativeRmtxPlanRuntime, LifecycleRmtxPlanRuntime } from '@ccslabs/xtend/maraca/plan-runtime';
 import type * as Codec from '@ccslabs/xtend/xtensions/url-state';
 export const XROUTER_URL_STATE_API_VERSION: '1.0.0';
 export const XROUTER_PROJECTION_URL_STATE_API_VERSION: '2.0.0';
@@ -24,3 +25,21 @@ export interface XRouterNativeURLStateHost extends Omit<XRouterURLStateHost, 'sc
   reset(): ReturnType<NativeRmtxPlanRuntime['restoreURLState']>; retry(): ReturnType<NativeRmtxPlanRuntime['restoreURLState']>;
 }
 export function createXRouterNativeURLStateHost(options: { runtime: Pick<NativeRmtxPlanRuntime,'restoreURLState' | 'publishURLState'>; codec: Codec.NativeURLStateRuntime; windowTarget: Window; mode?: 'history' | 'hash'; listen?: boolean; isOwnerCurrent?(): boolean; onError?(error: unknown): void }): XRouterNativeURLStateHost;
+
+export const XROUTER_LIFECYCLE_URL_STATE_API_VERSION: '4.0.0';
+export interface XRouterLifecycleURLStateHost extends Omit<XRouterURLStateHost, 'schema' | 'apiVersion' | 'navigate' | 'publish' | 'reset' | 'retry'> {
+  readonly schema: 'xtend.router.url-state-host.v4'; readonly apiVersion: '4.0.0';
+  navigate(cause?: 'initialize' | 'traverse' | 'reset', force?: boolean): ReturnType<LifecycleRmtxPlanRuntime['restoreURLState']>;
+  publish(cause?: 'commit' | 'checkpoint'): ReturnType<LifecycleRmtxPlanRuntime['publishURLState']>;
+  reset(): ReturnType<LifecycleRmtxPlanRuntime['restoreURLState']>; retry(): ReturnType<LifecycleRmtxPlanRuntime['restoreURLState']>;
+}
+export function createXRouterLifecycleURLStateHost(options: { runtime: Pick<LifecycleRmtxPlanRuntime,'restoreURLState' | 'publishURLState'>; codec: Codec.LifecycleURLStateRuntime; windowTarget: Window; mode?: 'history' | 'hash'; listen?: boolean; isOwnerCurrent?(): boolean; onError?(error: unknown): void }): XRouterLifecycleURLStateHost;
+
+export const XROUTER_ORCHESTRATED_URL_STATE_API_VERSION: '5.0.0';
+export interface XRouterOrchestratedURLStateHost extends Omit<XRouterURLStateHost, 'schema' | 'apiVersion' | 'navigate' | 'publish' | 'reset' | 'retry'> {
+  readonly schema: 'xtend.router.url-state-host.v5'; readonly apiVersion: '5.0.0';
+  navigate(cause?: 'initialize' | 'traverse' | 'reset', force?: boolean): ReturnType<OrchestratedRmtxPlanRuntime16['restoreURLState']>;
+  publish(cause?: 'commit' | 'checkpoint'): ReturnType<OrchestratedRmtxPlanRuntime16['publishURLState']>;
+  reset(): ReturnType<OrchestratedRmtxPlanRuntime16['restoreURLState']>; retry(): ReturnType<OrchestratedRmtxPlanRuntime16['restoreURLState']>;
+}
+export function createXRouterOrchestratedURLStateHost(options: { runtime: Pick<OrchestratedRmtxPlanRuntime16,'restoreURLState' | 'publishURLState'>; codec: Codec.OrchestratedURLStateRuntime; windowTarget: Window; mode?: 'history' | 'hash'; listen?: boolean; isOwnerCurrent?(): boolean; onError?(error: unknown): void }): XRouterOrchestratedURLStateHost;
