@@ -47,7 +47,7 @@
     {
       "id": "A06.5",
       "required": true,
-      "status": "preparing",
+      "status": "implemented",
       "testProfile": null,
       "executionEvidence": null
     },

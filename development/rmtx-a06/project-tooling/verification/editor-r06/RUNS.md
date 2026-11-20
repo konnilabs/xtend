@@ -1,0 +1,5 @@
+The final current candidate is r06b, SHA-256 `3d65f3c6381fe09f8954739b8a366bdecc04a6452b55668bce61fe5bf60e3485`. It includes the MCP inline workspace-boundary guard and the subsequently verified early .rmtx diagnostic-profile correction. The earlier r06 build and successful Node24/Node26 closure smokes are preserved as actual older executions; that earlier artifact is not the final current candidate.
+
+The final r06b Node24 and Node26 packed stdio/MCP smokes passed. The real isolated VS Code host passed all ten checks with harness revision 2.0.0, SHA-256 `136ae3d64e2bba9143e071af5c1cfba31faaa15f5d6d0954aefee581257b2e42`, including its real FileSystemWatcher create-event readiness barrier. No simulated LSP watcher notification or active-installation update occurred. The actual extracted/current source comparison found no differences in 851 packaged copies.
+
+Original report JSON, stdout, stderr/resource records and their exact commands are copied byte-for-byte. The r05 failed host attempt and subsequent trace/readiness runs remain unchanged in editor-r05.

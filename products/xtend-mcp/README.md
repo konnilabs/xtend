@@ -27,6 +27,22 @@ Canonical Markdown is available at `xtend://docs/{locale}/{slug}` and the cursor
 
 `xtend_knowledge_search` and the context tool use one shared ranking implementation. `xtend_rmt_diagnostics`, compile checks, and Maraca planning call the existing executable truth sources. `xtend_rmt_apply_safe_repairs` is registered only with `--allow-workspace-write`; it requires fresh source and plan hashes, selected stable repair IDs, workspace containment, and normal host confirmation before an atomic write.
 
+### RMTX and mixed projects (tooling API 0.2)
+
+The source tools also accept `.rmtx` workspace files. For inline RMTX, select `sourceSyntax: "rmtx"` and `rmtxSyntaxVersion: "8.0.0"`; `project: true` enables the same bounded project compiler for a Classic entry. Existing `RMT.Import` declarations and Classic imports link `.rmt`/`.rmtx` declarations into one program. Provider `.tsx` modules are not declarative templates and are rejected as source-tool inputs.
+
+Every project/RMTX call, including inline source, requires an explicitly configured workspace root. Imports and optional provider metadata resolve inside that root. Legacy inline Classic v1 checks continue to work without a workspace root.
+
+```json
+{"path":"src/app.rmtx","sourceSyntax":"rmtx","rmtxSyntaxVersion":"8.0.0","project":true}
+```
+
+`xtend_rmt_compile_check` and `xtend_rmt_diagnostics` use the same compiler and semantic TypeScript checks as the CLI, with ranges mapped to original sources. Advanced source results use diagnostics/compile-check/Maraca-plan v2; legacy Classic calls retain v1. Maraca project planning returns a separate project wrapper around its existing native plan. Classic repair rules do not operate on RMTX. These CSR tooling paths grant no additional SSR/adoption or feature-release acceptance.
+
+Project diagnostics expose `workspacePath` and a URI such as `xtend-workspace:///src/view.rmtx`. Resolve that URI against the workspace selected for the request; URI path segments are percent encoded. This preserves original source identity and ranges without exposing the physical workspace root. It is not a `file:` URI.
+
+Provider interfaces are selected from the project's `rmtx.providers.json` when present, or explicitly through `rmtxProvidersFile`. The existing pinned `xtend.maraca.rmtx-providers.v1` registry supplies the same trusted metadata to semantic checks and Maraca planning; its registry, interface and module contents participate in project invalidation.
+
 ### Verification
 
 ```bash
@@ -80,6 +96,18 @@ XTEND_MCP_HTTP_TOKEN="replace-with-a-random-secret" xtend-mcp http --port 31415 
 Kanonisches Markdown ist unter `xtend://docs/{locale}/{slug}` und der cursorbasierte Katalog unter `xtend://docs/catalog/{locale}` verfügbar. AI-Kit-Ressourcen liegen unter `xtend://rmt/kit/`; alle sechs Prompts werden aus den Kit-Rezepten abgeleitet. Such- und Kontextergebnisse bewahren URI, Locale, Dokumenttyp, Quellpfad und SHA-256-Provenienz.
 
 `xtend_knowledge_search` und das Kontextwerkzeug nutzen eine einzige gemeinsame Ranking-Implementierung. `xtend_rmt_diagnostics`, Compilerprüfungen und Maraca-Planung rufen die bestehenden ausführbaren Wahrheitsquellen auf. `xtend_rmt_apply_safe_repairs` wird nur mit `--allow-workspace-write` registriert; vor einem atomaren Schreibvorgang verlangt es aktuelle Quell- und Plan-Hashes, ausgewählte stabile Repair-IDs, Workspace-Begrenzung und die normale Host-Bestätigung.
+
+### RMTX und gemischte Projekte (Tooling-API 0.2)
+
+Die Quellwerkzeuge akzeptieren auch `.rmtx`-Dateien im freigegebenen Workspace. Inline-RMTX benötigt `sourceSyntax: "rmtx"` und `rmtxSyntaxVersion: "8.0.0"`; `project: true` aktiviert denselben begrenzten Projektcompiler für einen Classic-Einstieg. Bestehende `RMT.Import`-Deklarationen und Classic-Imports verbinden `.rmt`-/`.rmtx`-Deklarationen zu einem Programm. Providerdateien mit `.tsx` werden nicht als deklarative Templates behandelt.
+
+Jeder Projekt-/RMTX-Aufruf benötigt auch bei Inlinequellen eine ausdrücklich konfigurierte Workspacewurzel. Imports und optionale Providermetadaten werden innerhalb dieser Wurzel aufgelöst. Bisherige Inlineprüfungen mit Classic v1 funktionieren weiterhin ohne Workspacewurzel.
+
+Compilerprüfung und Diagnosen verwenden dieselben semantischen Prüfungen wie die CLI und melden ursprüngliche Quellbereiche. Neue Projektaufrufe liefern die jeweiligen v2-Ergebnisse; bisherige Classic-Aufrufe behalten v1. Der Maraca-Projektwrapper bewahrt den bestehenden nativen Plan. Classic-Reparaturregeln werden nicht auf RMTX angewandt. Die CSR-Tooling-Unterstützung erteilt keine zusätzliche SSR-/Adoptions- oder Releasefreigabe.
+
+Projektdiagnosen enthalten `workspacePath` und beispielsweise `xtend-workspace:///src/view.rmtx`. Die URI wird gegen den für den Aufruf gewählten Workspace aufgelöst; Pfadsegmente sind prozentkodiert. So bleiben ursprüngliche Quelldatei und Bereiche erhalten, ohne den physischen Workspacepfad offenzulegen. Es handelt sich nicht um eine `file:`-URI.
+
+Provider-Schnittstellen kommen aus `rmtx.providers.json` im Projekt oder werden mit `rmtxProvidersFile` explizit gewählt. Das bestehende gepinnte Register `xtend.maraca.rmtx-providers.v1` liefert dieselben vertrauenswürdigen Metadaten für semantische Prüfung und Maraca-Planung; Änderungen an Register, Schnittstellen und Modulen invalidieren das Projekt.
 
 ### Verifikation
 

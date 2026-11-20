@@ -53,7 +53,7 @@ test('VS Code receives a valid MCP definition with workspace and read-only defau
   assert.deepEqual(server.args, [path.join(repoRoot, 'products/xtend-mcp/bin/xtend-mcp.mjs'), 'stdio', '--workspace', repoRoot]);
   assert.deepEqual(server.cwd, { scheme: 'file', fsPath: repoRoot });
   assert.equal(server.env.ELECTRON_RUN_AS_NODE, '1');
-  assert.equal(server.version, '0.1.0');
+  assert.equal(server.version, '0.2.0');
 });
 
 test('disabled XTend MCP does not register a server definition', async (t) => {

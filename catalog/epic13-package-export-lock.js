@@ -280,7 +280,10 @@ const EXPECTED_EXPORT_KEYS = Object.freeze([
   "./rmt-language/rmtx-native-components-v2",
   "./rmt-language/rmtx-native-component-bindings",
   "./maraca/native-managed-runtime",
-  "./components/native-services"
+  "./components/native-services",
+  "./rmt-language/rmt-project",
+  "./rmt-language/rmtx-language-service",
+  "./rmt-language/project-watch"
 ]);
 
 const REQUIRED_PACK_ROOTS = Object.freeze([

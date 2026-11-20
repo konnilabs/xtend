@@ -149,6 +149,20 @@ const TEMPLATE_REGISTRY = [
     purpose: 'Provider-neutral declarative RMT app shell with an AppService demand.'
   },
   {
+    id: 'app.rmtx.rmtx',
+    artifact: 'rmt-app-rmtx',
+    path: 'xtend-builder/templates/app/rmtx-app.template.rmtx',
+    status: 'implemented-A06.5',
+    purpose: 'Explicit Source8 declarative RMTX scaffold with native managed controls.'
+  },
+  {
+    id: 'app.rmtx.service-demands',
+    artifact: 'rmtx-service-demands',
+    path: 'xtend-builder/templates/app/rmtx-service-demands.template.rmt',
+    status: 'implemented-A06.5',
+    purpose: 'Classic host-service declarations explicitly imported by the RMTX project.'
+  },
+  {
     id: 'app.rmt.css',
     artifact: 'rmt-app-css',
     path: 'xtend-builder/templates/app/rmt-app.template.css',

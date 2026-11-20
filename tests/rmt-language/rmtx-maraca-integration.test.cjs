@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
-const { execFileSync } = require('node:child_process');
+const { execFileSync, spawnSync } = require('node:child_process');
 const maraca = require('../../xtend-maraca');
 const { compileRmtxSource } = require('../../tools/rmt-language/rmtx-compiler');
 const { compileRmtClassicSource } = require('../../tools/rmt-language/classic-compiler');
@@ -129,14 +129,21 @@ test('packed frontend declarations accept the existing Maraca compiler port in b
 import { parseRmtxSource } from '@ccslabs/xtend-compiler/rmt-language/rmtx-parser';
 import { compileRmtxSource } from '@ccslabs/xtend-compiler/rmt-language/rmtx-compiler';
 import { RMT } from '@ccslabs/xtend-compiler/rmt-language/rmtx';
-import { createMaracaBuildPlan, type MaracaRunOptions } from '@ccslabs/xtend/maraca';
+import { createMaracaBuildPlan, type MaracaRunOptions, type MaracaProjectRunOptions } from '@ccslabs/xtend/maraca';
+import {type MaracaProjectRunOptions as ScopedProjectOptions} from '@ccslabs/xtend-maraca';
+import {createRmtCompilationSession as rootSession} from '@ccslabs/xtend/rmt-language/compilation-session';
+import {createRmtCompilationSession as scopedSession} from '@ccslabs/xtend-compiler/rmt-language/compilation-session';
 const left: MaracaRunOptions = { compileSource: rootCompile };
 const right: MaracaRunOptions = { compileSource: compileRmtxSource };
+const projectLeft:MaracaProjectRunOptions={compileSource:rootSession().compileProjectSource};
+const projectRight:ScopedProjectOptions={compileSource:scopedSession().compileProjectSource};
+// @ts-expect-error the legacy raw frontend does not provide a project result contract
+const forgedProject:MaracaProjectRunOptions={compileSource:rootCompile};
 const parsed = parseRmtxSource({ text: '', filePath: 'app.rmtx' });
 const compiled = compileRmtxSource({ text: '', filePath: 'app.rmtx' });
 const ok: boolean = parsed.ok && compiled.ok;
 createMaracaBuildPlan({ sourceText: '', virtualSourcePath: 'app.rmtx' }, left);
-void [right, RMT, ok];
+void [right, RMT, ok, projectLeft, projectRight, forgedProject];
 `);
   const ts = require('typescript');
   const program = ts.createProgram([fixture], { noEmit: true, strict: true, skipLibCheck: true, types: [],
@@ -145,6 +152,80 @@ void [right, RMT, ok];
   assert.equal(diagnostics.length, 0, ts.formatDiagnosticsWithColorAndContext(diagnostics, {
     getCurrentDirectory: () => temporary, getCanonicalFileName: file => file, getNewLine: () => '\n'
   }));
+});
+
+test('separate actual Root/compiler/Maraca tarballs share genuine project sessions in both directions', () => {
+  const { temporary, packages } = packedPackages();
+  const rootPackage = packages.find(entry => entry.manifest.name === '@ccslabs/xtend');
+  const compilerPackage = packages.find(entry => entry.manifest.name === '@ccslabs/xtend-compiler');
+  const maracaPackage = packages.find(entry => entry.manifest.name === '@ccslabs/xtend-maraca');
+  assert(maracaPackage.report.files.some(file => file.path === 'project-build.js'));
+  const rootFile = path.join(rootPackage.directory, 'tools/rmt-language/compilation-session.js');
+  const compilerFile = path.join(compilerPackage.directory, 'rmt-language/compilation-session.js');
+  assert.notEqual(fs.realpathSync(rootFile), fs.realpathSync(compilerFile), 'The regression requires separate physical package copies.');
+  const rootSessions = require(rootFile), compilerSessions = require(compilerFile);
+  assert.notStrictEqual(rootSessions.createRmtCompilationSession, compilerSessions.createRmtCompilationSession, 'Separate shipped copies must retain their genuine independent session owners.');
+  assert.notStrictEqual(rootSessions.getRmtProjectSessionCompilerRoot, compilerSessions.getRmtProjectSessionCompilerRoot);
+  const facades = [require(path.join(rootPackage.directory, 'xtend-maraca/index.js')), require(path.join(maracaPackage.directory, 'index.js'))];
+  const sourceDir = path.join(temporary, 'project-session-fixture'); fs.mkdirSync(sourceDir);
+  fs.writeFileSync(path.join(sourceDir, 'state.rmt'), 'template shared { state title type string initial "linked" }');
+  fs.writeFileSync(path.join(sourceDir, 'app.rmtx'), `import {RMT,model} from '@ccslabs/xtend/rmt-language/rmtx';export default <RMT.Program id="packed.project"><RMT.Import path="./state.rmt"/><RMT.Surface id="root"><RMT.View><RMT.Element tag="p"><RMT.Text value={model.title}/></RMT.Element></RMT.View></RMT.Surface></RMT.Program>;`);
+  for (const owner of [rootSessions, compilerSessions]) {
+    const session = owner.createRmtCompilationSession({ root: temporary, applyDefaultDocumentId: false, readonlyResults: true });
+    try {
+      for (const facade of facades) {
+        const input = { source: 'project-session-fixture/app.rmtx', services: false, css: 'inline', sizeBudget: 'off' };
+        const options = { rootDir: temporary, inspectToolchain: false, compileSource: session.compileProjectSource };
+        const result = facade.createMaracaProjectBuildPlan(input, options);
+        assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+        assert.equal(result.project.dependencies.length, 2); assert.equal(result.project.effectiveSourceProfile.version, '8.0.0');
+        assert.equal(result.plan.schema, 'xtend.maraca.build-plan.v12');
+        assert.equal(result.plan.orchestration.artifact.state.states.find(row => row.id === 'title').initial, 'linked');
+        assert.ok(session.snapshot().documents > 0, 'The facade may not dispose its caller-owned session.');
+        const wrapped = (...args) => session.compileProjectSource(...args);
+        const forged = facade.createMaracaProjectBuildPlan(input, { ...options, compileSource: wrapped });
+        assert.equal(forged.ok, false); assert.equal(forged.status, 'project_invalid');
+        const foreign = owner.createRmtCompilationSession({ root: sourceDir, applyDefaultDocumentId: false });
+        try { assert.equal(facade.createMaracaProjectBuildPlan(input, { ...options, compileSource: foreign.compileProjectSource }).ok, false); }
+        finally { foreign.dispose(); }
+      }
+      assert.ok(session.snapshot().hits > 0, 'The two physical Maraca owners must reuse the same actual session facts.');
+    } finally { session.dispose(); }
+  }
+});
+
+test('generated RMTX dependency closure runs the actual packed standalone CLI without checkout fallbacks', () => {
+  const { temporary, packages } = packedPackages();
+  const generated = require('../../xtend-builder/generators/rmt-app').createRmtAppScaffold({ rootDir: temporary,
+    out: 'fresh-rmtx-app', sourceSyntax: 'rmtx', server: 'none', write: true });
+  assert.equal(generated.ok, true, JSON.stringify(generated.errors));
+  const app = path.join(temporary, 'fresh-rmtx-app');
+  const manifest = JSON.parse(fs.readFileSync(path.join(app, 'package.json'), 'utf8'));
+  assert.equal(manifest.devDependencies['@ccslabs/xtend-compiler'], '^0.9.0');
+  const declared = { ...manifest.dependencies, ...manifest.devDependencies }, modules = path.join(app, 'node_modules');
+  for (const entry of packages) {
+    assert(Object.hasOwn(declared, entry.manifest.name), 'Only generated declared XTend packages may enter this closure.');
+    const target = path.join(modules, entry.manifest.name); fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.cpSync(entry.directory, target, { recursive: true });
+  }
+  const [cli] = JSON.parse(execFileSync('npm', ['pack', path.join(root, 'xtend-builder'), '--ignore-scripts', '--json', '--pack-destination', temporary], {
+    cwd: temporary, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024, timeout: 180000,
+    env: { ...process.env, PATH: path.dirname(process.execPath) + path.delimiter + process.env.PATH, npm_config_cache: path.join(temporary, 'npm-cache'), npm_config_offline: 'true' }, stdio: ['ignore', 'pipe', 'pipe']
+  }));
+  assert(Object.hasOwn(declared, cli.name));
+  const cliDirectory = path.join(modules, cli.name); fs.mkdirSync(cliDirectory, { recursive: true });
+  execFileSync('tar', ['-xzf', path.join(temporary, cli.filename), '--strip-components=1', '-C', cliDirectory]);
+  assert(Object.hasOwn(declared, 'typescript'));
+  fs.cpSync(path.dirname(require.resolve('typescript/package.json')), path.join(modules, 'typescript'), { recursive: true });
+  const guard = path.join(app, 'assert-no-checkout.cjs');
+  fs.writeFileSync(guard, `process.once('exit',()=>{const app=${JSON.stringify(app)};const leak=Object.keys(require.cache).find(file=>!file.startsWith(app+require('node:path').sep));if(leak){console.error('Unexpected module outside the scaffold closure: '+leak);process.exitCode=1;}});`);
+  const checked = spawnSync(process.execPath, ['--require', guard, path.join(cliDirectory, 'scaffold.js'), 'rmt', 'check', 'src/app.rmtx', '--project', '--source-syntax', 'rmtx', '--rmtx-syntax-version', '8.0.0', '--json'],
+    { cwd: app, encoding: 'utf8', timeout: 30000, env: { ...process.env, NODE_PATH: '' } });
+  assert.equal(checked.status, 0, checked.stderr + checked.stdout);
+  const result = JSON.parse(checked.stdout);
+  assert.equal(result.schema, 'xtend.rmt.project-check.v1'); assert.equal(result.ok, true);
+  assert.equal(result.project.entryFile, path.join(app, 'src/app.rmtx'));
+  assert.equal(result.project.effectiveSourceProfile.version, '8.0.0'); assert.equal(result.project.dependencies.length, 2);
 });
 
 const source4 = `import {RMT,input,model,result} from '@ccslabs/xtend/rmt-language/rmtx';

@@ -1,0 +1,26 @@
+{
+  "format": 1,
+  "basis": "development/rmtx-a06/project-tooling/verification/final-r04/releaseprep-node24/source-after.json",
+  "basisSha256": "4dea52da4f37e149eb7d508f9faf84d6d59e65ce5416ce7baedf665e6b84e3b7",
+  "sourceMembersCompared": 4822,
+  "changedPaths": [
+    "development/WP-TypeExports-01-Public-Package-Entry-Points-und-types-Conditions-haerten.md",
+    "development/rmtx-a06/frontend/evidence.json",
+    "development/rmtx-a06/lifecycle-profile/evidence.json",
+    "development/rmtx-a06/native-orchestration-profile/evidence.json",
+    "development/rmtx-a06/native-view-profile/evidence.json",
+    "development/rmtx-a06/orchestration-profile/evidence.json",
+    "package.json",
+    "tests/platform/epic13_package_export_lock_suite.js"
+  ],
+  "exactReversibilityOfMetadataTestAndProseChanges": true,
+  "inspectorSemanticFieldsUnchanged": true,
+  "productJavaScriptTypeScriptAndRuntimeFixturesUnchanged": true,
+  "officialPreparationNotRerunAtThisStep": true,
+  "newGateExecutionRequired": [
+    "epic13-package-export-lock",
+    "SDK Node24/26",
+    "fresh source-bound CSR/Source7/Source8 reports",
+    "official final strict reports"
+  ]
+}

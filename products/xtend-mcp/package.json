@@ -1,6 +1,6 @@
 {
   "name": "@ccslabs/xtend-mcp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": false,
   "description": "Local-first MCP server for XTend documentation, XTendRMT knowledge and deterministic language tooling.",
   "type": "module",

@@ -169,8 +169,41 @@ export interface MaracaRunOptions {
   kernelSourceArtifacts?: { key: string; artifacts: Record<string, { ok: boolean; content: string; [key: string]: unknown }> };
   rootDir?: string;
   /** Explicit frontend port. RMTX callers may inject compileRmtxSource; file extensions alone do not select a compiler. */
-  compileSource?:import('@ccslabs/xtend/rmt-language/compilation-session').RmtCompilationSession['compileSource'];
+  compileSource?:(input:{text:string;filePath?:string},options?:Record<string,unknown>)=>ReturnType<typeof import('@ccslabs/xtend/rmt-language/vnext-compiler').compileRmtVNextSource>;
 }
+
+/** A06.5 project metadata wraps the existing runtime plan; no new runtime profile is implied. */
+export declare const MARACA_PROJECT_API_VERSION:'1.0.0';
+export declare const MARACA_PROJECT_CONFIG_SCHEMA:'xtend.maraca.project-config.v1';
+export declare const MARACA_PROJECT_BUILD_PLAN_SCHEMA:'xtend.maraca.project-build-plan.v1';
+export declare const MARACA_PROJECT_BUILD_RESULT_SCHEMA:'xtend.maraca.project-build-result.v1';
+export interface MaracaProjectBuildInput extends MaracaBuildInput {
+  project?:true;
+  sourceSyntax?:'rmt-vnext'|'rmtx';
+  rmtxSyntaxVersion?:'8.0.0';
+  rmtxProvidersFile?:string;
+}
+export interface MaracaProjectRunOptions extends Omit<MaracaRunOptions,'compileSource'> {
+  /** Only a genuine session.compileProjectSource for the same root is accepted. The caller owns that session. */
+  compileSource?:import('@ccslabs/xtend/rmt-language/compilation-session').RmtCompilationSession['compileProjectSource'];
+}
+export interface MaracaProjectBuildPlan {
+  schema:typeof MARACA_PROJECT_BUILD_PLAN_SCHEMA;
+  apiVersion:'1.0.0';ok:boolean;status:string;
+  project:ReturnType<typeof import('@ccslabs/xtend/rmt-language/rmt-project').compileRmtProjectSource>['project']|null;
+  plan:MaracaBuildPlan|ManagedRmtxBuildPlan12|null;
+  diagnostics:ReadonlyArray<MaracaDiagnostic>;
+}
+export interface MaracaProjectBuildResult {
+  schema:typeof MARACA_PROJECT_BUILD_RESULT_SCHEMA;
+  apiVersion:'1.0.0';ok:boolean;status:string;
+  project:MaracaProjectBuildPlan['project'];
+  build:(Omit<ReturnType<typeof buildMaracaBundle>,'plan'>&{plan:MaracaBuildPlan|ManagedRmtxBuildPlan12})|null;
+  diagnostics:ReadonlyArray<MaracaDiagnostic>;
+}
+export function createMaracaProjectBuildPlan(input?:MaracaProjectBuildInput,options?:MaracaProjectRunOptions):MaracaProjectBuildPlan;
+export function buildMaracaProjectBundle(input?:MaracaProjectBuildInput,options?:MaracaProjectRunOptions):MaracaProjectBuildResult;
+export function buildMaracaProjectBundleAsync(input?:MaracaProjectBuildInput,options?:MaracaProjectRunOptions):Promise<MaracaProjectBuildResult>;
 
 export interface MaracaDiagnostic {
   code: string;

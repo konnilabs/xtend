@@ -1,0 +1,1684 @@
+{
+  "schema": "xtend.test.report.v1",
+  "status": "passed",
+  "startedAt": "2026-11-20T22:44:21.617Z",
+  "completedAt": "2026-11-20T22:45:40.428Z",
+  "durationMs": 78811,
+  "suiteCount": 6,
+  "passedCount": 6,
+  "failedCount": 0,
+  "skippedCount": 0,
+  "warningCount": 0,
+  "suites": [
+    {
+      "id": "type-exports",
+      "label": "TypeExports Public Declaration Gate",
+      "status": "passed",
+      "exitCode": 0,
+      "passCount": 200,
+      "failureCount": 0,
+      "skipCount": 0,
+      "warningCount": 0,
+      "failures": [],
+      "skips": [],
+      "warnings": [],
+      "report": {
+        "schema": "xtend.type-exports.report.v1",
+        "exportCount": 241,
+        "p0ExportCount": 19,
+        "preparedTypesConditionCount": 231,
+        "unclassifiedExports": [],
+        "declarationDrift": [],
+        "packageTypesConditionDrift": [],
+        "releaseHandoff": {
+          "schema": "xtend.type-exports.drift-report.v1",
+          "workpackage": "WP-TypeExports-09",
+          "status": "accepted-productive-type-exports-release-gate",
+          "targetReadiness": "productive-type-exports-release-gate-ready",
+          "localGate": "node scripts/run_xtend_tests.js type-exports type-exports-loader type-exports-api type-exports-rmt type-exports-policy type-exports-builder type-exports-catalog type-exports-vendor --report .xtend-test-results/xtend-type-exports-report.json",
+          "packageScript": "npm run test:type-exports:release",
+          "reportArtifact": ".xtend-test-results/xtend-type-exports-report.json",
+          "packageExportLockGate": "node scripts/run_xtend_tests.js epic13-package-export-lock --json",
+          "gateScripts": [
+            "npm run test:type-exports",
+            "npm run test:type-exports-loader",
+            "npm run test:type-exports-api",
+            "npm run test:type-exports-rmt",
+            "npm run test:type-exports-policy",
+            "npm run test:type-exports-builder",
+            "npm run test:type-exports-catalog",
+            "npm run test:type-exports-vendor",
+            "npm run test:type-exports:release"
+          ],
+          "reportArtifacts": [
+            ".xtend-test-results/xtend-type-exports-report.json",
+            ".xtend-test-results/xtend-type-exports-loader-report.json",
+            ".xtend-test-results/xtend-type-exports-api-report.json",
+            ".xtend-test-results/xtend-type-exports-rmt-report.json",
+            ".xtend-test-results/xtend-type-exports-policy-report.json",
+            ".xtend-test-results/xtend-type-exports-builder-report.json",
+            ".xtend-test-results/xtend-type-exports-catalog-report.json",
+            ".xtend-test-results/xtend-type-exports-vendor-report.json"
+          ],
+          "docs": [
+            "docs/type-exports.md",
+            "docs/public-component-types.md",
+            "docs/typescript-components.md",
+            "docs/package-export-lock.md"
+          ],
+          "packageExportLockDocs": "docs/package-export-lock.md",
+          "missingReleaseGateScripts": [],
+          "missingCandidateGateScripts": [],
+          "missingArtifactChecklistEntries": [],
+          "releaseOwnerVisible": true,
+          "driftReportReady": true
+        },
+        "nextWorkpackages": []
+      }
+    },
+    {
+      "id": "epic13-package-export-lock",
+      "label": "Epic 13 Package Export Lock",
+      "status": "passed",
+      "exitCode": 0,
+      "passCount": 441,
+      "failureCount": 0,
+      "skipCount": 0,
+      "warningCount": 0,
+      "failures": [],
+      "skips": [],
+      "warnings": [],
+      "report": {
+        "schema": "xtend.epic13.package-export-lock-report.v1",
+        "exportCount": 241,
+        "packageFileRootCount": 31,
+        "surfaceGroupCount": 16,
+        "publishAllowed": false,
+        "nextWorkpackage": "WP-E13-13"
+      }
+    },
+    {
+      "id": "typescript-components",
+      "label": "XTend TypeScript Components Build",
+      "status": "passed",
+      "exitCode": 0,
+      "passCount": 26,
+      "failureCount": 0,
+      "skipCount": 0,
+      "warningCount": 0,
+      "failures": [],
+      "skips": [],
+      "warnings": [],
+      "report": {
+        "schema": "xtend.typescript.components-build.v2",
+        "localGate": "node scripts/run_xtend_tests.js typescript-components --json",
+        "buildStatus": 0,
+        "artifacts": [
+          "components/xtoggle.js",
+          "components/xtoggle.definition.js",
+          "components/xtoggle.d.ts"
+        ]
+      }
+    },
+    {
+      "id": "type-exports-rmt",
+      "label": "TypeExports RMT Declaration Gate",
+      "status": "passed",
+      "exitCode": 0,
+      "passCount": 490,
+      "failureCount": 0,
+      "skipCount": 0,
+      "warningCount": 0,
+      "failures": [],
+      "skips": [],
+      "warnings": [],
+      "report": {
+        "schema": "xtend.type-exports.rmt-declarations-report.v1",
+        "declarationFileCount": 77,
+        "packageExportCount": 77,
+        "runtimePackageExports": [
+          "./rmt",
+          "./rmt/browser",
+          "./rmt/browser-scheduler",
+          "./rmt/kernel-scheduler",
+          "./rmt/dom-descriptor-renderer",
+          "./rmt/safe-preview",
+          "./rmt/component-capability-registry",
+          "./rmt/state-selector-runtime",
+          "./rmt/state-host-adapter",
+          "./rmt/state-binding-view-projector",
+          "./rmt/action-effect-runtime",
+          "./rmt/event-routing-runtime",
+          "./rmt/maraca-view-projection-adapter",
+          "./rmt/presentation-effect-adapter",
+          "./rmt/form-validation-runtime",
+          "./rmt/animation-engine-runtime",
+          "./rmt/surface-transition-runtime",
+          "./rmt/surface-resource-graph-runtime",
+          "./rmt/kernel-orchestration-controller",
+          "./rmt/native-shell-runtime",
+          "./rmt/node-ssr-adapter",
+          "./rmt/resume-runtime"
+        ],
+        "toolingPackageExportCount": 55,
+        "sharedTypeTokens": [
+          "RmtToolingDiagnostic",
+          "RmtTextEdit",
+          "RmtWorkspaceEdit",
+          "RmtLanguageServiceReport",
+          "RmtJsonRpcMessage"
+        ],
+        "nextWorkpackage": "WP-TypeExports-05"
+      }
+    },
+    {
+      "id": "xtensions-consumer-package",
+      "label": "Packed XTensions Consumer Acceptance",
+      "status": "passed",
+      "exitCode": 0,
+      "passCount": 7,
+      "failureCount": 0,
+      "skipCount": 0,
+      "warningCount": 0,
+      "failures": [],
+      "skips": [],
+      "warnings": []
+    },
+    {
+      "id": "rmt-artifact-parity",
+      "label": "XTendRMT Artifact Parity",
+      "status": "passed",
+      "exitCode": 0,
+      "passCount": 291,
+      "failureCount": 0,
+      "skipCount": 0,
+      "warningCount": 0,
+      "failures": [],
+      "skips": [],
+      "warnings": [],
+      "report": {
+        "schema": "xtend.rmt.artifact-parity-report.v1",
+        "contract": "xtend.rmt.artifact-parity.v1",
+        "status": "passed",
+        "ok": true,
+        "rootDir": "/home/konni/Downloads/xtend-dev/xtend",
+        "passCount": 291,
+        "failureCount": 0,
+        "checks": [
+          {
+            "id": "exists:xtendrmt/rmt-core.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-core.esm.js exists"
+          },
+          {
+            "id": "exists:xtendrmt/rmt-runtime.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-runtime.esm.js exists"
+          },
+          {
+            "id": "exists:xtendrmt/rmt-runtime.browser.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-runtime.browser.js exists"
+          },
+          {
+            "id": "exists:xtendrmt/rmt-core.d.ts",
+            "status": "passed",
+            "message": "xtendrmt/rmt-core.d.ts exists"
+          },
+          {
+            "id": "exists:xtendrmt/rmt.schema.json",
+            "status": "passed",
+            "message": "xtendrmt/rmt.schema.json exists"
+          },
+          {
+            "id": "exists:xtendrmt/rmt-manifest.json",
+            "status": "passed",
+            "message": "xtendrmt/rmt-manifest.json exists"
+          },
+          {
+            "id": "exists:xtendrmt/rmt-dom-descriptor-renderer.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-dom-descriptor-renderer.js exists as a canonical KernelLab input"
+          },
+          {
+            "id": "exists:xtendrmt/rmt-dom-descriptor-renderer.d.ts",
+            "status": "passed",
+            "message": "xtendrmt/rmt-dom-descriptor-renderer.d.ts exists as a canonical KernelLab input"
+          },
+          {
+            "id": "exists:development/XTendRMT-Kernel-Artifact-Parity-Contract.md",
+            "status": "passed",
+            "message": "development/XTendRMT-Kernel-Artifact-Parity-Contract.md exists"
+          },
+          {
+            "id": "exists:development/WP-RKSH-10-Buildprozess-und-Artefakt-Paritaet-fuer-neue-Layer-absichern.md",
+            "status": "passed",
+            "message": "development/WP-RKSH-10-Buildprozess-und-Artefakt-Paritaet-fuer-neue-Layer-absichern.md exists"
+          },
+          {
+            "id": "exists:tools/rmt-language/kernel-trust-authority.js",
+            "status": "passed",
+            "message": "tools/rmt-language/kernel-trust-authority.js exists"
+          },
+          {
+            "id": "exists:tools/rmt-language/kernel-panic-monitor.js",
+            "status": "passed",
+            "message": "tools/rmt-language/kernel-panic-monitor.js exists"
+          },
+          {
+            "id": "exists:tools/rmt-language/kernel-recovery.js",
+            "status": "passed",
+            "message": "tools/rmt-language/kernel-recovery.js exists"
+          },
+          {
+            "id": "exists:tools/rmt-language/kernel-escalation.js",
+            "status": "passed",
+            "message": "tools/rmt-language/kernel-escalation.js exists"
+          },
+          {
+            "id": "exists:tools/rmt-language/kernel-scheduler-failure.js",
+            "status": "passed",
+            "message": "tools/rmt-language/kernel-scheduler-failure.js exists"
+          },
+          {
+            "id": "exists:tools/rmt-language/kernel-policy-parity.js",
+            "status": "passed",
+            "message": "tools/rmt-language/kernel-policy-parity.js exists"
+          },
+          {
+            "id": "exists:tools/rmt-language/kernel-security-regression.js",
+            "status": "passed",
+            "message": "tools/rmt-language/kernel-security-regression.js exists"
+          },
+          {
+            "id": "json:xtendrmt/rmt.schema.json",
+            "status": "passed",
+            "message": "RMT schema parses as JSON"
+          },
+          {
+            "id": "json:xtendrmt/rmt-manifest.json",
+            "status": "passed",
+            "message": "RMT manifest parses as JSON"
+          },
+          {
+            "id": "json:package.json",
+            "status": "passed",
+            "message": "package.json parses as JSON"
+          },
+          {
+            "id": "json:xtendrmt/rmt-kernel-module-manifest.json",
+            "status": "passed",
+            "message": "KernelLab module manifest parses as JSON"
+          },
+          {
+            "id": "json:xtendrmt/kernel/rmt-kernel-sources.json",
+            "status": "passed",
+            "message": "KernelLab canonical source manifest parses as JSON"
+          },
+          {
+            "id": "schema:contract",
+            "status": "passed",
+            "message": "schema exposes xtend.rmt.artifact-parity.v1"
+          },
+          {
+            "id": "schema:status",
+            "status": "passed",
+            "message": "schema marks artifact parity as Epic 05 / WP-13 contract"
+          },
+          {
+            "id": "schema:sourceOfTruth",
+            "status": "passed",
+            "message": "schema points artifact parity to the WP-13 source of truth"
+          },
+          {
+            "id": "schema:gateCommand",
+            "status": "passed",
+            "message": "schema documents the dedicated artifact parity gate command"
+          },
+          {
+            "id": "schema:artifactPaths",
+            "status": "passed",
+            "message": "schema lists every synchronized XTendRMT artifact path"
+          },
+          {
+            "id": "schema:requiredFactories",
+            "status": "passed",
+            "message": "schema lists the productive RMT adapter and bridge factories"
+          },
+          {
+            "id": "schema:requiredContracts",
+            "status": "passed",
+            "message": "schema lists the synchronized bridge and parity contract ids"
+          },
+          {
+            "id": "schema:artifactSurfaces",
+            "status": "passed",
+            "message": "schema lists the artifact parity gate and type surfaces"
+          },
+          {
+            "id": "schema:kernelHardeningSourceOfTruth",
+            "status": "passed",
+            "message": "schema points kernel hardening artifact parity to RKSH-WP-10"
+          },
+          {
+            "id": "schema:kernelHardeningContracts",
+            "status": "passed",
+            "message": "schema lists kernel hardening contract ids"
+          },
+          {
+            "id": "schema:kernelHardeningRuntimeHooks",
+            "status": "passed",
+            "message": "schema lists kernel hardening runtime hooks"
+          },
+          {
+            "id": "schema:kernelHardeningTypeSurfaces",
+            "status": "passed",
+            "message": "schema lists kernel hardening type surfaces"
+          },
+          {
+            "id": "schema:kernelHardeningToolingModules",
+            "status": "passed",
+            "message": "schema lists kernel hardening tooling modules"
+          },
+          {
+            "id": "schema:kernelHardeningGates",
+            "status": "passed",
+            "message": "schema lists kernel hardening gates"
+          },
+          {
+            "id": "manifest:contract",
+            "status": "passed",
+            "message": "manifest exposes xtend.rmt.artifact-parity.v1"
+          },
+          {
+            "id": "manifest:status",
+            "status": "passed",
+            "message": "manifest marks artifact parity as Epic 05 / WP-13 contract"
+          },
+          {
+            "id": "manifest:sourceOfTruth",
+            "status": "passed",
+            "message": "manifest points artifact parity to the WP-13 source of truth"
+          },
+          {
+            "id": "manifest:gateCommand",
+            "status": "passed",
+            "message": "manifest documents the dedicated artifact parity gate command"
+          },
+          {
+            "id": "manifest:artifactPaths",
+            "status": "passed",
+            "message": "manifest lists every synchronized XTendRMT artifact path"
+          },
+          {
+            "id": "manifest:requiredFactories",
+            "status": "passed",
+            "message": "manifest lists the productive RMT adapter and bridge factories"
+          },
+          {
+            "id": "manifest:requiredContracts",
+            "status": "passed",
+            "message": "manifest lists the synchronized bridge and parity contract ids"
+          },
+          {
+            "id": "manifest:artifactSurfaces",
+            "status": "passed",
+            "message": "manifest lists the artifact parity gate and type surfaces"
+          },
+          {
+            "id": "manifest:kernelHardeningSourceOfTruth",
+            "status": "passed",
+            "message": "manifest points kernel hardening artifact parity to RKSH-WP-10"
+          },
+          {
+            "id": "manifest:kernelHardeningContracts",
+            "status": "passed",
+            "message": "manifest lists kernel hardening contract ids"
+          },
+          {
+            "id": "manifest:kernelHardeningRuntimeHooks",
+            "status": "passed",
+            "message": "manifest lists kernel hardening runtime hooks"
+          },
+          {
+            "id": "manifest:kernelHardeningTypeSurfaces",
+            "status": "passed",
+            "message": "manifest lists kernel hardening type surfaces"
+          },
+          {
+            "id": "manifest:kernelHardeningToolingModules",
+            "status": "passed",
+            "message": "manifest lists kernel hardening tooling modules"
+          },
+          {
+            "id": "manifest:kernelHardeningGates",
+            "status": "passed",
+            "message": "manifest lists kernel hardening gates"
+          },
+          {
+            "id": "schema-dom-commit:contract",
+            "status": "passed",
+            "message": "RMT schema exposes xtend.rmt.dom-commit-result.v1"
+          },
+          {
+            "id": "schema-dom-commit:renderer",
+            "status": "passed",
+            "message": "RMT DOM commit contract references xtend.epic18.rmt-dom-descriptor-renderer.v1"
+          },
+          {
+            "id": "schema-dom-commit:operations",
+            "status": "passed",
+            "message": "RMT DOM commit contract lists every public commit operation"
+          },
+          {
+            "id": "schema-contract:xtend.epic18.rmt-dom-descriptor-renderer.v1",
+            "status": "passed",
+            "message": "RMT schema contains xtend.epic18.rmt-dom-descriptor-renderer.v1"
+          },
+          {
+            "id": "schema-contract:xtend.rmt.dom-commit-result.v1",
+            "status": "passed",
+            "message": "RMT schema contains xtend.rmt.dom-commit-result.v1"
+          },
+          {
+            "id": "schema-contract:xtend.rmt.runtime-registry.v1",
+            "status": "passed",
+            "message": "RMT schema contains xtend.rmt.runtime-registry.v1"
+          },
+          {
+            "id": "schema-contract:xtend.rmt.xrouter-adapter.v1",
+            "status": "passed",
+            "message": "RMT schema contains xtend.rmt.xrouter-adapter.v1"
+          },
+          {
+            "id": "schema-contract:xtend.rmt.xtend-component-adapter.v1",
+            "status": "passed",
+            "message": "RMT schema contains xtend.rmt.xtend-component-adapter.v1"
+          },
+          {
+            "id": "schema-contract:xtend.rmt.state-scheduler-diagnostics-bridge.v1",
+            "status": "passed",
+            "message": "RMT schema contains xtend.rmt.state-scheduler-diagnostics-bridge.v1"
+          },
+          {
+            "id": "schema-contract:xtend.rmt.artifact-parity.v1",
+            "status": "passed",
+            "message": "RMT schema contains xtend.rmt.artifact-parity.v1"
+          },
+          {
+            "id": "schema-contract:xtend.rmt.kernel-artifact-parity.v1",
+            "status": "passed",
+            "message": "RMT schema contains xtend.rmt.kernel-artifact-parity.v1"
+          },
+          {
+            "id": "schema-contract:xtend.rmt.kernel-trust-hardening.v1",
+            "status": "passed",
+            "message": "RMT schema contains xtend.rmt.kernel-trust-hardening.v1"
+          },
+          {
+            "id": "schema-contract:xtend.rmt.kernel-trust-authority.v1",
+            "status": "passed",
+            "message": "RMT schema contains xtend.rmt.kernel-trust-authority.v1"
+          },
+          {
+            "id": "schema-contract:xtend.rmt.kernel-trust-verdict.v1",
+            "status": "passed",
+            "message": "RMT schema contains xtend.rmt.kernel-trust-verdict.v1"
+          },
+          {
+            "id": "schema-contract:xtend.rmt.kernel-trusted-dom-runtime.v1",
+            "status": "passed",
+            "message": "RMT schema contains xtend.rmt.kernel-trusted-dom-runtime.v1"
+          },
+          {
+            "id": "schema-contract:xtend.rmt.kernel-binding-security.v1",
+            "status": "passed",
+            "message": "RMT schema contains xtend.rmt.kernel-binding-security.v1"
+          },
+          {
+            "id": "schema-contract:xtend.rmt.kernel-panic-monitor.v1",
+            "status": "passed",
+            "message": "RMT schema contains xtend.rmt.kernel-panic-monitor.v1"
+          },
+          {
+            "id": "schema-contract:xtend.rmt.kernel-panic-state.v1",
+            "status": "passed",
+            "message": "RMT schema contains xtend.rmt.kernel-panic-state.v1"
+          },
+          {
+            "id": "schema-contract:xtend.rmt.kernel-panic-event.v1",
+            "status": "passed",
+            "message": "RMT schema contains xtend.rmt.kernel-panic-event.v1"
+          },
+          {
+            "id": "schema-contract:xtend.rmt.kernel-recovery.v1",
+            "status": "passed",
+            "message": "RMT schema contains xtend.rmt.kernel-recovery.v1"
+          },
+          {
+            "id": "schema-contract:xtend.rmt.kernel-recovery-outcome.v1",
+            "status": "passed",
+            "message": "RMT schema contains xtend.rmt.kernel-recovery-outcome.v1"
+          },
+          {
+            "id": "schema-contract:xtend.rmt.kernel-recovery-safe-snapshot.v1",
+            "status": "passed",
+            "message": "RMT schema contains xtend.rmt.kernel-recovery-safe-snapshot.v1"
+          },
+          {
+            "id": "schema-contract:xtend.rmt.kernel-escalation.v1",
+            "status": "passed",
+            "message": "RMT schema contains xtend.rmt.kernel-escalation.v1"
+          },
+          {
+            "id": "schema-contract:xtend.rmt.kernel-escalation-envelope.v1",
+            "status": "passed",
+            "message": "RMT schema contains xtend.rmt.kernel-escalation-envelope.v1"
+          },
+          {
+            "id": "schema-contract:xtend.rmt.kernel-scheduler-failure.v1",
+            "status": "passed",
+            "message": "RMT schema contains xtend.rmt.kernel-scheduler-failure.v1"
+          },
+          {
+            "id": "schema-contract:xtend.rmt.kernel-scheduler-failure-record.v1",
+            "status": "passed",
+            "message": "RMT schema contains xtend.rmt.kernel-scheduler-failure-record.v1"
+          },
+          {
+            "id": "schema-contract:xtend.rmt.kernel-policy-parity.v1",
+            "status": "passed",
+            "message": "RMT schema contains xtend.rmt.kernel-policy-parity.v1"
+          },
+          {
+            "id": "schema-contract:xtend.rmt.kernel-security-regression.v1",
+            "status": "passed",
+            "message": "RMT schema contains xtend.rmt.kernel-security-regression.v1"
+          },
+          {
+            "id": "kernel-lab-dashboard-free:xtendrmt/rmt-core.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-core.esm.js does not contain removed Dashboard kernel symbols",
+            "symbols": []
+          },
+          {
+            "id": "kernel-lab-deprecated-brand-free:xtendrmt/rmt-core.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-core.esm.js does not contain deprecated kernel branding",
+            "matchCount": 0
+          },
+          {
+            "id": "kernel-lab-dashboard-free:xtendrmt/rmt-runtime.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-runtime.esm.js does not contain removed Dashboard kernel symbols",
+            "symbols": []
+          },
+          {
+            "id": "kernel-lab-deprecated-brand-free:xtendrmt/rmt-runtime.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-runtime.esm.js does not contain deprecated kernel branding",
+            "matchCount": 0
+          },
+          {
+            "id": "kernel-lab-dashboard-free:xtendrmt/rmt-runtime.browser.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-runtime.browser.js does not contain removed Dashboard kernel symbols",
+            "symbols": []
+          },
+          {
+            "id": "kernel-lab-deprecated-brand-free:xtendrmt/rmt-runtime.browser.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-runtime.browser.js does not contain deprecated kernel branding",
+            "matchCount": 0
+          },
+          {
+            "id": "kernel-lab-dashboard-free:xtendrmt/rmt-core.d.ts",
+            "status": "passed",
+            "message": "xtendrmt/rmt-core.d.ts does not contain removed Dashboard kernel symbols",
+            "symbols": []
+          },
+          {
+            "id": "kernel-lab-deprecated-brand-free:xtendrmt/rmt-core.d.ts",
+            "status": "passed",
+            "message": "xtendrmt/rmt-core.d.ts does not contain deprecated kernel branding",
+            "matchCount": 0
+          },
+          {
+            "id": "kernel-lab-dashboard-free:xtendrmt/rmt.schema.json",
+            "status": "passed",
+            "message": "xtendrmt/rmt.schema.json does not contain removed Dashboard kernel symbols",
+            "symbols": []
+          },
+          {
+            "id": "kernel-lab-deprecated-brand-free:xtendrmt/rmt.schema.json",
+            "status": "passed",
+            "message": "xtendrmt/rmt.schema.json does not contain deprecated kernel branding",
+            "matchCount": 0
+          },
+          {
+            "id": "kernel-lab-dashboard-free:xtendrmt/rmt-manifest.json",
+            "status": "passed",
+            "message": "xtendrmt/rmt-manifest.json does not contain removed Dashboard kernel symbols",
+            "symbols": []
+          },
+          {
+            "id": "kernel-lab-deprecated-brand-free:xtendrmt/rmt-manifest.json",
+            "status": "passed",
+            "message": "xtendrmt/rmt-manifest.json does not contain deprecated kernel branding",
+            "matchCount": 0
+          },
+          {
+            "id": "kernel-lab-version:manifest-api",
+            "status": "passed",
+            "message": "rmt-manifest version and apiVersion are synchronized"
+          },
+          {
+            "id": "kernel-lab-header:no-generated-at:xtendrmt/rmt-core.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-core.esm.js does not carry a stale generated timestamp"
+          },
+          {
+            "id": "kernel-lab-header:provenance:xtendrmt/rmt-core.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-core.esm.js records KernelLab build provenance"
+          },
+          {
+            "id": "kernel-lab-version:header:xtendrmt/rmt-core.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-core.esm.js header matches rmt-manifest version"
+          },
+          {
+            "id": "kernel-lab-version:runtime:xtendrmt/rmt-core.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-core.esm.js PUBLIC_API_VERSION matches rmt-manifest version"
+          },
+          {
+            "id": "kernel-lab-dom-commit:module:xtendrmt/rmt-core.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-core.esm.js includes the canonical DOM descriptor renderer module"
+          },
+          {
+            "id": "kernel-lab-dom-commit:factory:xtendrmt/rmt-core.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-core.esm.js registers createRmtDomDescriptorRenderer"
+          },
+          {
+            "id": "kernel-lab-dom-commit:component-bridge:xtendrmt/rmt-core.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-core.esm.js delegates XTend component writes to the DOM commit bridge"
+          },
+          {
+            "id": "kernel-lab-dom-commit:no-legacy-writer:xtendrmt/rmt-core.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-core.esm.js does not contain the legacy XTend component DOM writers"
+          },
+          {
+            "id": "kernel-lab-dom-commit:no-normal-html-sink:xtendrmt/rmt-core.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-core.esm.js does not contain the legacy normal slot HTML sink"
+          },
+          {
+            "id": "kernel-lab-dom-commit:canonical-trusted-html-sink:xtendrmt/rmt-core.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-core.esm.js contains one canonical Trusted-DOM parser sink and delegates the execution path"
+          },
+          {
+            "id": "kernel-lab-dom-commit:no-direct-element-html-sink:xtendrmt/rmt-core.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-core.esm.js does not contain direct element.innerHTML writers"
+          },
+          {
+            "id": "kernel-lab-header:no-generated-at:xtendrmt/rmt-runtime.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-runtime.esm.js does not carry a stale generated timestamp"
+          },
+          {
+            "id": "kernel-lab-header:provenance:xtendrmt/rmt-runtime.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-runtime.esm.js records KernelLab build provenance"
+          },
+          {
+            "id": "kernel-lab-version:header:xtendrmt/rmt-runtime.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-runtime.esm.js header matches rmt-manifest version"
+          },
+          {
+            "id": "kernel-lab-version:runtime:xtendrmt/rmt-runtime.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-runtime.esm.js PUBLIC_API_VERSION matches rmt-manifest version"
+          },
+          {
+            "id": "kernel-lab-dom-commit:module:xtendrmt/rmt-runtime.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-runtime.esm.js includes the canonical DOM descriptor renderer module"
+          },
+          {
+            "id": "kernel-lab-dom-commit:factory:xtendrmt/rmt-runtime.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-runtime.esm.js registers createRmtDomDescriptorRenderer"
+          },
+          {
+            "id": "kernel-lab-dom-commit:component-bridge:xtendrmt/rmt-runtime.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-runtime.esm.js delegates XTend component writes to the DOM commit bridge"
+          },
+          {
+            "id": "kernel-lab-dom-commit:no-legacy-writer:xtendrmt/rmt-runtime.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-runtime.esm.js does not contain the legacy XTend component DOM writers"
+          },
+          {
+            "id": "kernel-lab-dom-commit:no-normal-html-sink:xtendrmt/rmt-runtime.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-runtime.esm.js does not contain the legacy normal slot HTML sink"
+          },
+          {
+            "id": "kernel-lab-dom-commit:canonical-trusted-html-sink:xtendrmt/rmt-runtime.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-runtime.esm.js contains one canonical Trusted-DOM parser sink and delegates the execution path"
+          },
+          {
+            "id": "kernel-lab-dom-commit:no-direct-element-html-sink:xtendrmt/rmt-runtime.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-runtime.esm.js does not contain direct element.innerHTML writers"
+          },
+          {
+            "id": "kernel-lab-header:no-generated-at:xtendrmt/rmt-runtime.browser.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-runtime.browser.js does not carry a stale generated timestamp"
+          },
+          {
+            "id": "kernel-lab-header:provenance:xtendrmt/rmt-runtime.browser.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-runtime.browser.js records KernelLab build provenance"
+          },
+          {
+            "id": "kernel-lab-version:header:xtendrmt/rmt-runtime.browser.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-runtime.browser.js header matches rmt-manifest version"
+          },
+          {
+            "id": "kernel-lab-version:runtime:xtendrmt/rmt-runtime.browser.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-runtime.browser.js PUBLIC_API_VERSION matches rmt-manifest version"
+          },
+          {
+            "id": "kernel-lab-dom-commit:module:xtendrmt/rmt-runtime.browser.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-runtime.browser.js includes the canonical DOM descriptor renderer module"
+          },
+          {
+            "id": "kernel-lab-dom-commit:factory:xtendrmt/rmt-runtime.browser.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-runtime.browser.js registers createRmtDomDescriptorRenderer"
+          },
+          {
+            "id": "kernel-lab-dom-commit:component-bridge:xtendrmt/rmt-runtime.browser.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-runtime.browser.js delegates XTend component writes to the DOM commit bridge"
+          },
+          {
+            "id": "kernel-lab-dom-commit:no-legacy-writer:xtendrmt/rmt-runtime.browser.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-runtime.browser.js does not contain the legacy XTend component DOM writers"
+          },
+          {
+            "id": "kernel-lab-dom-commit:no-normal-html-sink:xtendrmt/rmt-runtime.browser.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-runtime.browser.js does not contain the legacy normal slot HTML sink"
+          },
+          {
+            "id": "kernel-lab-dom-commit:canonical-trusted-html-sink:xtendrmt/rmt-runtime.browser.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-runtime.browser.js contains one canonical Trusted-DOM parser sink and delegates the execution path"
+          },
+          {
+            "id": "kernel-lab-dom-commit:no-direct-element-html-sink:xtendrmt/rmt-runtime.browser.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-runtime.browser.js does not contain direct element.innerHTML writers"
+          },
+          {
+            "id": "kernel-lab-version:types",
+            "status": "passed",
+            "message": "rmt-core.d.ts header matches rmt-manifest version"
+          },
+          {
+            "id": "kernel-lab-dom-commit:types",
+            "status": "passed",
+            "message": "rmt-core.d.ts exposes the synchronized DOM commit request, result and renderer factory"
+          },
+          {
+            "id": "kernel-lab-module-manifest:schema",
+            "status": "passed",
+            "message": "KernelLab module manifest uses xtend.rmt.kernel-module-manifest.v2"
+          },
+          {
+            "id": "kernel-lab-module-manifest:count-reconciliation",
+            "status": "passed",
+            "message": "KernelLab module manifest records the complete 41-module canonical topology"
+          },
+          {
+            "id": "kernel-lab-module-manifest:canonical-source-mode",
+            "status": "passed",
+            "message": "KernelLab module manifest records canonical source-only assembly without legacy bundle inputs"
+          },
+          {
+            "id": "kernel-lab-module-manifest:dom-source",
+            "status": "passed",
+            "message": "KernelLab module manifest records the DOM renderer module, factory and schemas"
+          },
+          {
+            "id": "kernel-lab-module-manifest:dom-source-sha",
+            "status": "passed",
+            "message": "KernelLab module manifest hashes match both canonical DOM renderer inputs"
+          },
+          {
+            "id": "kernel-lab-module-manifest:dom-module",
+            "status": "passed",
+            "message": "KernelLab module topology includes the canonical DOM renderer module and factory"
+          },
+          {
+            "id": "kernel-lab-module-manifest:artifact-set",
+            "status": "passed",
+            "message": "KernelLab module manifest covers all six synchronized artifacts (seven outputs including itself)"
+          },
+          {
+            "id": "kernel-lab-module-manifest:version",
+            "status": "passed",
+            "message": "KernelLab module manifest records the manifest kernel version"
+          },
+          {
+            "id": "kernel-lab-module-manifest:deprecated-brand-free",
+            "status": "passed",
+            "message": "KernelLab module manifest does not contain deprecated kernel branding",
+            "matchCount": 0
+          },
+          {
+            "id": "kernel-lab-module-manifest:sha:xtendrmt/rmt-core.esm.js",
+            "status": "passed",
+            "message": "KernelLab module manifest sha matches xtendrmt/rmt-core.esm.js"
+          },
+          {
+            "id": "kernel-lab-module-manifest:dashboard-free:xtendrmt/rmt-core.esm.js",
+            "status": "passed",
+            "message": "KernelLab module manifest records xtendrmt/rmt-core.esm.js as Dashboard-free"
+          },
+          {
+            "id": "kernel-lab-module-manifest:sha:xtendrmt/rmt-runtime.esm.js",
+            "status": "passed",
+            "message": "KernelLab module manifest sha matches xtendrmt/rmt-runtime.esm.js"
+          },
+          {
+            "id": "kernel-lab-module-manifest:dashboard-free:xtendrmt/rmt-runtime.esm.js",
+            "status": "passed",
+            "message": "KernelLab module manifest records xtendrmt/rmt-runtime.esm.js as Dashboard-free"
+          },
+          {
+            "id": "kernel-lab-module-manifest:sha:xtendrmt/rmt-runtime.browser.js",
+            "status": "passed",
+            "message": "KernelLab module manifest sha matches xtendrmt/rmt-runtime.browser.js"
+          },
+          {
+            "id": "kernel-lab-module-manifest:dashboard-free:xtendrmt/rmt-runtime.browser.js",
+            "status": "passed",
+            "message": "KernelLab module manifest records xtendrmt/rmt-runtime.browser.js as Dashboard-free"
+          },
+          {
+            "id": "kernel-lab-module-manifest:sha:xtendrmt/rmt-core.d.ts",
+            "status": "passed",
+            "message": "KernelLab module manifest sha matches xtendrmt/rmt-core.d.ts"
+          },
+          {
+            "id": "kernel-lab-module-manifest:dashboard-free:xtendrmt/rmt-core.d.ts",
+            "status": "passed",
+            "message": "KernelLab module manifest records xtendrmt/rmt-core.d.ts as Dashboard-free"
+          },
+          {
+            "id": "kernel-lab-module-manifest:sha:xtendrmt/rmt.schema.json",
+            "status": "passed",
+            "message": "KernelLab module manifest sha matches xtendrmt/rmt.schema.json"
+          },
+          {
+            "id": "kernel-lab-module-manifest:dashboard-free:xtendrmt/rmt.schema.json",
+            "status": "passed",
+            "message": "KernelLab module manifest records xtendrmt/rmt.schema.json as Dashboard-free"
+          },
+          {
+            "id": "kernel-lab-module-manifest:sha:xtendrmt/rmt-manifest.json",
+            "status": "passed",
+            "message": "KernelLab module manifest sha matches xtendrmt/rmt-manifest.json"
+          },
+          {
+            "id": "kernel-lab-module-manifest:dashboard-free:xtendrmt/rmt-manifest.json",
+            "status": "passed",
+            "message": "KernelLab module manifest records xtendrmt/rmt-manifest.json as Dashboard-free"
+          },
+          {
+            "id": "manifest-dom-commit:runtime-contract",
+            "status": "passed",
+            "message": "rmt-manifest enables the canonical DOM descriptor commit contract"
+          },
+          {
+            "id": "manifest-factory:createRmtDomDescriptorRenderer",
+            "status": "passed",
+            "message": "rmt-manifest appModulesFactories includes createRmtDomDescriptorRenderer"
+          },
+          {
+            "id": "manifest-factory:createRmtFormat",
+            "status": "passed",
+            "message": "rmt-manifest appModulesFactories includes createRmtFormat"
+          },
+          {
+            "id": "manifest-factory:createRmtXRouterAdapter",
+            "status": "passed",
+            "message": "rmt-manifest appModulesFactories includes createRmtXRouterAdapter"
+          },
+          {
+            "id": "manifest-factory:createRmtXtendComponentAdapter",
+            "status": "passed",
+            "message": "rmt-manifest appModulesFactories includes createRmtXtendComponentAdapter"
+          },
+          {
+            "id": "manifest-factory:createRmtSurfaceAdapter",
+            "status": "passed",
+            "message": "rmt-manifest appModulesFactories includes createRmtSurfaceAdapter"
+          },
+          {
+            "id": "manifest-factory:createRmtStateSchedulerDiagnosticsBridge",
+            "status": "passed",
+            "message": "rmt-manifest appModulesFactories includes createRmtStateSchedulerDiagnosticsBridge"
+          },
+          {
+            "id": "manifest-factory:createRmtKernelPolicyParity",
+            "status": "passed",
+            "message": "rmt-manifest appModulesFactories includes createRmtKernelPolicyParity"
+          },
+          {
+            "id": "manifest-dom-commit:source-module:rmt-core.esm",
+            "status": "passed",
+            "message": "rmt-core.esm includes the canonical DOM renderer source module"
+          },
+          {
+            "id": "manifest-dom-commit:named-export:rmt-core.esm",
+            "status": "passed",
+            "message": "rmt-core.esm declares createRmtDomDescriptorRenderer as a named export"
+          },
+          {
+            "id": "manifest-dom-commit:source-module:rmt-runtime.esm",
+            "status": "passed",
+            "message": "rmt-runtime.esm includes the canonical DOM renderer source module"
+          },
+          {
+            "id": "manifest-dom-commit:named-export:rmt-runtime.esm",
+            "status": "passed",
+            "message": "rmt-runtime.esm declares createRmtDomDescriptorRenderer as a named export"
+          },
+          {
+            "id": "manifest-dom-commit:source-module:rmt-runtime.browser",
+            "status": "passed",
+            "message": "rmt-runtime.browser includes the canonical DOM renderer source module"
+          },
+          {
+            "id": "types-factory:createRmtDomDescriptorRenderer",
+            "status": "passed",
+            "message": "rmt-core.d.ts declares createRmtDomDescriptorRenderer"
+          },
+          {
+            "id": "types-factory:createRmtFormat",
+            "status": "passed",
+            "message": "rmt-core.d.ts declares createRmtFormat"
+          },
+          {
+            "id": "types-factory:createRmtXRouterAdapter",
+            "status": "passed",
+            "message": "rmt-core.d.ts declares createRmtXRouterAdapter"
+          },
+          {
+            "id": "types-factory:createRmtXtendComponentAdapter",
+            "status": "passed",
+            "message": "rmt-core.d.ts declares createRmtXtendComponentAdapter"
+          },
+          {
+            "id": "types-factory:createRmtSurfaceAdapter",
+            "status": "passed",
+            "message": "rmt-core.d.ts declares createRmtSurfaceAdapter"
+          },
+          {
+            "id": "types-factory:createRmtStateSchedulerDiagnosticsBridge",
+            "status": "passed",
+            "message": "rmt-core.d.ts declares createRmtStateSchedulerDiagnosticsBridge"
+          },
+          {
+            "id": "types-factory:createRmtKernelPolicyParity",
+            "status": "passed",
+            "message": "rmt-core.d.ts declares createRmtKernelPolicyParity"
+          },
+          {
+            "id": "types-surface:RmtArtifactParityContract",
+            "status": "passed",
+            "message": "rmt-core.d.ts exposes RmtArtifactParityContract"
+          },
+          {
+            "id": "types-surface:artifactParityContracts?: RmtArtifactParityContract[]",
+            "status": "passed",
+            "message": "rmt-core.d.ts exposes artifactParityContracts?: RmtArtifactParityContract[]"
+          },
+          {
+            "id": "kernel-types-surface:RmtKernelRuntimeTrustVerdict",
+            "status": "passed",
+            "message": "rmt-core.d.ts exposes RmtKernelRuntimeTrustVerdict"
+          },
+          {
+            "id": "kernel-types-surface:RmtKernelRuntimePanicEvent",
+            "status": "passed",
+            "message": "rmt-core.d.ts exposes RmtKernelRuntimePanicEvent"
+          },
+          {
+            "id": "kernel-types-surface:RmtKernelRuntimePanicSnapshot",
+            "status": "passed",
+            "message": "rmt-core.d.ts exposes RmtKernelRuntimePanicSnapshot"
+          },
+          {
+            "id": "kernel-types-surface:RmtKernelRuntimeRecoverySafeSnapshot",
+            "status": "passed",
+            "message": "rmt-core.d.ts exposes RmtKernelRuntimeRecoverySafeSnapshot"
+          },
+          {
+            "id": "kernel-types-surface:RmtKernelRuntimeRecoveryOutcome",
+            "status": "passed",
+            "message": "rmt-core.d.ts exposes RmtKernelRuntimeRecoveryOutcome"
+          },
+          {
+            "id": "kernel-types-surface:RmtKernelRuntimeEscalationEnvelope",
+            "status": "passed",
+            "message": "rmt-core.d.ts exposes RmtKernelRuntimeEscalationEnvelope"
+          },
+          {
+            "id": "kernel-types-surface:RmtKernelRuntimeSchedulerFailureRecord",
+            "status": "passed",
+            "message": "rmt-core.d.ts exposes RmtKernelRuntimeSchedulerFailureRecord"
+          },
+          {
+            "id": "kernel-types-surface:RmtKernelRuntimePolicyParityReport",
+            "status": "passed",
+            "message": "rmt-core.d.ts exposes RmtKernelRuntimePolicyParityReport"
+          },
+          {
+            "id": "kernel-types-surface:createRmtKernelPolicyParity",
+            "status": "passed",
+            "message": "rmt-core.d.ts exposes createRmtKernelPolicyParity"
+          },
+          {
+            "id": "syntax:xtendrmt/rmt-core.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-core.esm.js parses as a JavaScript artifact"
+          },
+          {
+            "id": "esm-target:rmt-core.esm",
+            "status": "passed",
+            "message": "rmt-manifest declares build target rmt-core.esm"
+          },
+          {
+            "id": "esm-exports:rmt-core.esm",
+            "status": "passed",
+            "message": "rmt-core.esm ESM export block covers manifest namedExports",
+            "expected": 34,
+            "actual": 38
+          },
+          {
+            "id": "esm-factory-snapshot:rmt-core.esm",
+            "status": "passed",
+            "message": "rmt-core.esm named exports resolve through a module-local factory snapshot instead of the live AppModules mirror"
+          },
+          {
+            "id": "esm-factory:rmt-core.esm:createRmtDomDescriptorRenderer",
+            "status": "passed",
+            "message": "rmt-core.esm exposes createRmtDomDescriptorRenderer through AppModules wrapper"
+          },
+          {
+            "id": "esm-factory:rmt-core.esm:createRmtFormat",
+            "status": "passed",
+            "message": "rmt-core.esm exposes createRmtFormat through AppModules wrapper"
+          },
+          {
+            "id": "esm-factory:rmt-core.esm:createRmtXRouterAdapter",
+            "status": "passed",
+            "message": "rmt-core.esm exposes createRmtXRouterAdapter through AppModules wrapper"
+          },
+          {
+            "id": "esm-factory:rmt-core.esm:createRmtXtendComponentAdapter",
+            "status": "passed",
+            "message": "rmt-core.esm exposes createRmtXtendComponentAdapter through AppModules wrapper"
+          },
+          {
+            "id": "esm-factory:rmt-core.esm:createRmtSurfaceAdapter",
+            "status": "passed",
+            "message": "rmt-core.esm exposes createRmtSurfaceAdapter through AppModules wrapper"
+          },
+          {
+            "id": "esm-factory:rmt-core.esm:createRmtStateSchedulerDiagnosticsBridge",
+            "status": "passed",
+            "message": "rmt-core.esm exposes createRmtStateSchedulerDiagnosticsBridge through AppModules wrapper"
+          },
+          {
+            "id": "esm-factory:rmt-core.esm:createRmtKernelPolicyParity",
+            "status": "passed",
+            "message": "rmt-core.esm exposes createRmtKernelPolicyParity through AppModules wrapper"
+          },
+          {
+            "id": "esm-kernel-hook:rmt-core.esm:commitTrustedHtml",
+            "status": "passed",
+            "message": "rmt-core.esm contains kernel hardening hook commitTrustedHtml"
+          },
+          {
+            "id": "esm-kernel-hook:rmt-core.esm:commitTrustedAttribute",
+            "status": "passed",
+            "message": "rmt-core.esm contains kernel hardening hook commitTrustedAttribute"
+          },
+          {
+            "id": "esm-kernel-hook:rmt-core.esm:commitTrustedProperty",
+            "status": "passed",
+            "message": "rmt-core.esm contains kernel hardening hook commitTrustedProperty"
+          },
+          {
+            "id": "esm-kernel-hook:rmt-core.esm:listTrustVerdicts",
+            "status": "passed",
+            "message": "rmt-core.esm contains kernel hardening hook listTrustVerdicts"
+          },
+          {
+            "id": "esm-kernel-hook:rmt-core.esm:getPanicSnapshot",
+            "status": "passed",
+            "message": "rmt-core.esm contains kernel hardening hook getPanicSnapshot"
+          },
+          {
+            "id": "esm-kernel-hook:rmt-core.esm:listPanicEvents",
+            "status": "passed",
+            "message": "rmt-core.esm contains kernel hardening hook listPanicEvents"
+          },
+          {
+            "id": "esm-kernel-hook:rmt-core.esm:recoverFromPanic",
+            "status": "passed",
+            "message": "rmt-core.esm contains kernel hardening hook recoverFromPanic"
+          },
+          {
+            "id": "esm-kernel-hook:rmt-core.esm:listRecoveryOutcomes",
+            "status": "passed",
+            "message": "rmt-core.esm contains kernel hardening hook listRecoveryOutcomes"
+          },
+          {
+            "id": "esm-kernel-hook:rmt-core.esm:recordEscalation",
+            "status": "passed",
+            "message": "rmt-core.esm contains kernel hardening hook recordEscalation"
+          },
+          {
+            "id": "esm-kernel-hook:rmt-core.esm:panicBlockScope",
+            "status": "passed",
+            "message": "rmt-core.esm contains kernel hardening hook panicBlockScope"
+          },
+          {
+            "id": "esm-kernel-hook:rmt-core.esm:createRmtKernelPolicyParity",
+            "status": "passed",
+            "message": "rmt-core.esm contains kernel hardening hook createRmtKernelPolicyParity"
+          },
+          {
+            "id": "private-factories:xtendrmt/rmt-core.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-core.esm.js retains createRmtProductManifest in its private factory scope"
+          },
+          {
+            "id": "generated-manifest-factory:rmt-core.esm:createRmtDomDescriptorRenderer",
+            "status": "passed",
+            "message": "rmt-core.esm generated product manifest includes createRmtDomDescriptorRenderer"
+          },
+          {
+            "id": "generated-manifest-factory:rmt-core.esm:createRmtFormat",
+            "status": "passed",
+            "message": "rmt-core.esm generated product manifest includes createRmtFormat"
+          },
+          {
+            "id": "generated-manifest-factory:rmt-core.esm:createRmtXRouterAdapter",
+            "status": "passed",
+            "message": "rmt-core.esm generated product manifest includes createRmtXRouterAdapter"
+          },
+          {
+            "id": "generated-manifest-factory:rmt-core.esm:createRmtXtendComponentAdapter",
+            "status": "passed",
+            "message": "rmt-core.esm generated product manifest includes createRmtXtendComponentAdapter"
+          },
+          {
+            "id": "generated-manifest-factory:rmt-core.esm:createRmtSurfaceAdapter",
+            "status": "passed",
+            "message": "rmt-core.esm generated product manifest includes createRmtSurfaceAdapter"
+          },
+          {
+            "id": "generated-manifest-factory:rmt-core.esm:createRmtStateSchedulerDiagnosticsBridge",
+            "status": "passed",
+            "message": "rmt-core.esm generated product manifest includes createRmtStateSchedulerDiagnosticsBridge"
+          },
+          {
+            "id": "generated-manifest-factory:rmt-core.esm:createRmtKernelPolicyParity",
+            "status": "passed",
+            "message": "rmt-core.esm generated product manifest includes createRmtKernelPolicyParity"
+          },
+          {
+            "id": "generated-manifest:rmt-core.esm:contract",
+            "status": "passed",
+            "message": "generated-manifest:rmt-core.esm exposes xtend.rmt.artifact-parity.v1"
+          },
+          {
+            "id": "generated-manifest:rmt-core.esm:status",
+            "status": "passed",
+            "message": "generated-manifest:rmt-core.esm marks artifact parity as Epic 05 / WP-13 contract"
+          },
+          {
+            "id": "generated-manifest:rmt-core.esm:sourceOfTruth",
+            "status": "passed",
+            "message": "generated-manifest:rmt-core.esm points artifact parity to the WP-13 source of truth"
+          },
+          {
+            "id": "generated-manifest:rmt-core.esm:gateCommand",
+            "status": "passed",
+            "message": "generated-manifest:rmt-core.esm documents the dedicated artifact parity gate command"
+          },
+          {
+            "id": "generated-manifest:rmt-core.esm:artifactPaths",
+            "status": "passed",
+            "message": "generated-manifest:rmt-core.esm lists every synchronized XTendRMT artifact path"
+          },
+          {
+            "id": "generated-manifest:rmt-core.esm:requiredFactories",
+            "status": "passed",
+            "message": "generated-manifest:rmt-core.esm lists the productive RMT adapter and bridge factories"
+          },
+          {
+            "id": "generated-manifest:rmt-core.esm:requiredContracts",
+            "status": "passed",
+            "message": "generated-manifest:rmt-core.esm lists the synchronized bridge and parity contract ids"
+          },
+          {
+            "id": "generated-manifest:rmt-core.esm:artifactSurfaces",
+            "status": "passed",
+            "message": "generated-manifest:rmt-core.esm lists the artifact parity gate and type surfaces"
+          },
+          {
+            "id": "generated-manifest:rmt-core.esm:kernelHardeningSourceOfTruth",
+            "status": "passed",
+            "message": "generated-manifest:rmt-core.esm points kernel hardening artifact parity to RKSH-WP-10"
+          },
+          {
+            "id": "generated-manifest:rmt-core.esm:kernelHardeningContracts",
+            "status": "passed",
+            "message": "generated-manifest:rmt-core.esm lists kernel hardening contract ids"
+          },
+          {
+            "id": "generated-manifest:rmt-core.esm:kernelHardeningRuntimeHooks",
+            "status": "passed",
+            "message": "generated-manifest:rmt-core.esm lists kernel hardening runtime hooks"
+          },
+          {
+            "id": "generated-manifest:rmt-core.esm:kernelHardeningTypeSurfaces",
+            "status": "passed",
+            "message": "generated-manifest:rmt-core.esm lists kernel hardening type surfaces"
+          },
+          {
+            "id": "generated-manifest:rmt-core.esm:kernelHardeningToolingModules",
+            "status": "passed",
+            "message": "generated-manifest:rmt-core.esm lists kernel hardening tooling modules"
+          },
+          {
+            "id": "generated-manifest:rmt-core.esm:kernelHardeningGates",
+            "status": "passed",
+            "message": "generated-manifest:rmt-core.esm lists kernel hardening gates"
+          },
+          {
+            "id": "syntax:xtendrmt/rmt-runtime.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-runtime.esm.js parses as a JavaScript artifact"
+          },
+          {
+            "id": "esm-target:rmt-runtime.esm",
+            "status": "passed",
+            "message": "rmt-manifest declares build target rmt-runtime.esm"
+          },
+          {
+            "id": "esm-exports:rmt-runtime.esm",
+            "status": "passed",
+            "message": "rmt-runtime.esm ESM export block covers manifest namedExports",
+            "expected": 34,
+            "actual": 38
+          },
+          {
+            "id": "esm-factory-snapshot:rmt-runtime.esm",
+            "status": "passed",
+            "message": "rmt-runtime.esm named exports resolve through a module-local factory snapshot instead of the live AppModules mirror"
+          },
+          {
+            "id": "esm-factory:rmt-runtime.esm:createRmtDomDescriptorRenderer",
+            "status": "passed",
+            "message": "rmt-runtime.esm exposes createRmtDomDescriptorRenderer through AppModules wrapper"
+          },
+          {
+            "id": "esm-factory:rmt-runtime.esm:createRmtFormat",
+            "status": "passed",
+            "message": "rmt-runtime.esm exposes createRmtFormat through AppModules wrapper"
+          },
+          {
+            "id": "esm-factory:rmt-runtime.esm:createRmtXRouterAdapter",
+            "status": "passed",
+            "message": "rmt-runtime.esm exposes createRmtXRouterAdapter through AppModules wrapper"
+          },
+          {
+            "id": "esm-factory:rmt-runtime.esm:createRmtXtendComponentAdapter",
+            "status": "passed",
+            "message": "rmt-runtime.esm exposes createRmtXtendComponentAdapter through AppModules wrapper"
+          },
+          {
+            "id": "esm-factory:rmt-runtime.esm:createRmtSurfaceAdapter",
+            "status": "passed",
+            "message": "rmt-runtime.esm exposes createRmtSurfaceAdapter through AppModules wrapper"
+          },
+          {
+            "id": "esm-factory:rmt-runtime.esm:createRmtStateSchedulerDiagnosticsBridge",
+            "status": "passed",
+            "message": "rmt-runtime.esm exposes createRmtStateSchedulerDiagnosticsBridge through AppModules wrapper"
+          },
+          {
+            "id": "esm-factory:rmt-runtime.esm:createRmtKernelPolicyParity",
+            "status": "passed",
+            "message": "rmt-runtime.esm exposes createRmtKernelPolicyParity through AppModules wrapper"
+          },
+          {
+            "id": "esm-kernel-hook:rmt-runtime.esm:commitTrustedHtml",
+            "status": "passed",
+            "message": "rmt-runtime.esm contains kernel hardening hook commitTrustedHtml"
+          },
+          {
+            "id": "esm-kernel-hook:rmt-runtime.esm:commitTrustedAttribute",
+            "status": "passed",
+            "message": "rmt-runtime.esm contains kernel hardening hook commitTrustedAttribute"
+          },
+          {
+            "id": "esm-kernel-hook:rmt-runtime.esm:commitTrustedProperty",
+            "status": "passed",
+            "message": "rmt-runtime.esm contains kernel hardening hook commitTrustedProperty"
+          },
+          {
+            "id": "esm-kernel-hook:rmt-runtime.esm:listTrustVerdicts",
+            "status": "passed",
+            "message": "rmt-runtime.esm contains kernel hardening hook listTrustVerdicts"
+          },
+          {
+            "id": "esm-kernel-hook:rmt-runtime.esm:getPanicSnapshot",
+            "status": "passed",
+            "message": "rmt-runtime.esm contains kernel hardening hook getPanicSnapshot"
+          },
+          {
+            "id": "esm-kernel-hook:rmt-runtime.esm:listPanicEvents",
+            "status": "passed",
+            "message": "rmt-runtime.esm contains kernel hardening hook listPanicEvents"
+          },
+          {
+            "id": "esm-kernel-hook:rmt-runtime.esm:recoverFromPanic",
+            "status": "passed",
+            "message": "rmt-runtime.esm contains kernel hardening hook recoverFromPanic"
+          },
+          {
+            "id": "esm-kernel-hook:rmt-runtime.esm:listRecoveryOutcomes",
+            "status": "passed",
+            "message": "rmt-runtime.esm contains kernel hardening hook listRecoveryOutcomes"
+          },
+          {
+            "id": "esm-kernel-hook:rmt-runtime.esm:recordEscalation",
+            "status": "passed",
+            "message": "rmt-runtime.esm contains kernel hardening hook recordEscalation"
+          },
+          {
+            "id": "esm-kernel-hook:rmt-runtime.esm:panicBlockScope",
+            "status": "passed",
+            "message": "rmt-runtime.esm contains kernel hardening hook panicBlockScope"
+          },
+          {
+            "id": "esm-kernel-hook:rmt-runtime.esm:createRmtKernelPolicyParity",
+            "status": "passed",
+            "message": "rmt-runtime.esm contains kernel hardening hook createRmtKernelPolicyParity"
+          },
+          {
+            "id": "private-factories:xtendrmt/rmt-runtime.esm.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-runtime.esm.js retains createRmtProductManifest in its private factory scope"
+          },
+          {
+            "id": "generated-manifest-factory:rmt-runtime.esm:createRmtDomDescriptorRenderer",
+            "status": "passed",
+            "message": "rmt-runtime.esm generated product manifest includes createRmtDomDescriptorRenderer"
+          },
+          {
+            "id": "generated-manifest-factory:rmt-runtime.esm:createRmtFormat",
+            "status": "passed",
+            "message": "rmt-runtime.esm generated product manifest includes createRmtFormat"
+          },
+          {
+            "id": "generated-manifest-factory:rmt-runtime.esm:createRmtXRouterAdapter",
+            "status": "passed",
+            "message": "rmt-runtime.esm generated product manifest includes createRmtXRouterAdapter"
+          },
+          {
+            "id": "generated-manifest-factory:rmt-runtime.esm:createRmtXtendComponentAdapter",
+            "status": "passed",
+            "message": "rmt-runtime.esm generated product manifest includes createRmtXtendComponentAdapter"
+          },
+          {
+            "id": "generated-manifest-factory:rmt-runtime.esm:createRmtSurfaceAdapter",
+            "status": "passed",
+            "message": "rmt-runtime.esm generated product manifest includes createRmtSurfaceAdapter"
+          },
+          {
+            "id": "generated-manifest-factory:rmt-runtime.esm:createRmtStateSchedulerDiagnosticsBridge",
+            "status": "passed",
+            "message": "rmt-runtime.esm generated product manifest includes createRmtStateSchedulerDiagnosticsBridge"
+          },
+          {
+            "id": "generated-manifest-factory:rmt-runtime.esm:createRmtKernelPolicyParity",
+            "status": "passed",
+            "message": "rmt-runtime.esm generated product manifest includes createRmtKernelPolicyParity"
+          },
+          {
+            "id": "generated-manifest:rmt-runtime.esm:contract",
+            "status": "passed",
+            "message": "generated-manifest:rmt-runtime.esm exposes xtend.rmt.artifact-parity.v1"
+          },
+          {
+            "id": "generated-manifest:rmt-runtime.esm:status",
+            "status": "passed",
+            "message": "generated-manifest:rmt-runtime.esm marks artifact parity as Epic 05 / WP-13 contract"
+          },
+          {
+            "id": "generated-manifest:rmt-runtime.esm:sourceOfTruth",
+            "status": "passed",
+            "message": "generated-manifest:rmt-runtime.esm points artifact parity to the WP-13 source of truth"
+          },
+          {
+            "id": "generated-manifest:rmt-runtime.esm:gateCommand",
+            "status": "passed",
+            "message": "generated-manifest:rmt-runtime.esm documents the dedicated artifact parity gate command"
+          },
+          {
+            "id": "generated-manifest:rmt-runtime.esm:artifactPaths",
+            "status": "passed",
+            "message": "generated-manifest:rmt-runtime.esm lists every synchronized XTendRMT artifact path"
+          },
+          {
+            "id": "generated-manifest:rmt-runtime.esm:requiredFactories",
+            "status": "passed",
+            "message": "generated-manifest:rmt-runtime.esm lists the productive RMT adapter and bridge factories"
+          },
+          {
+            "id": "generated-manifest:rmt-runtime.esm:requiredContracts",
+            "status": "passed",
+            "message": "generated-manifest:rmt-runtime.esm lists the synchronized bridge and parity contract ids"
+          },
+          {
+            "id": "generated-manifest:rmt-runtime.esm:artifactSurfaces",
+            "status": "passed",
+            "message": "generated-manifest:rmt-runtime.esm lists the artifact parity gate and type surfaces"
+          },
+          {
+            "id": "generated-manifest:rmt-runtime.esm:kernelHardeningSourceOfTruth",
+            "status": "passed",
+            "message": "generated-manifest:rmt-runtime.esm points kernel hardening artifact parity to RKSH-WP-10"
+          },
+          {
+            "id": "generated-manifest:rmt-runtime.esm:kernelHardeningContracts",
+            "status": "passed",
+            "message": "generated-manifest:rmt-runtime.esm lists kernel hardening contract ids"
+          },
+          {
+            "id": "generated-manifest:rmt-runtime.esm:kernelHardeningRuntimeHooks",
+            "status": "passed",
+            "message": "generated-manifest:rmt-runtime.esm lists kernel hardening runtime hooks"
+          },
+          {
+            "id": "generated-manifest:rmt-runtime.esm:kernelHardeningTypeSurfaces",
+            "status": "passed",
+            "message": "generated-manifest:rmt-runtime.esm lists kernel hardening type surfaces"
+          },
+          {
+            "id": "generated-manifest:rmt-runtime.esm:kernelHardeningToolingModules",
+            "status": "passed",
+            "message": "generated-manifest:rmt-runtime.esm lists kernel hardening tooling modules"
+          },
+          {
+            "id": "generated-manifest:rmt-runtime.esm:kernelHardeningGates",
+            "status": "passed",
+            "message": "generated-manifest:rmt-runtime.esm lists kernel hardening gates"
+          },
+          {
+            "id": "syntax:xtendrmt/rmt-runtime.browser.js",
+            "status": "passed",
+            "message": "xtendrmt/rmt-runtime.browser.js parses as a JavaScript artifact"
+          },
+          {
+            "id": "browser-factory:createRmtDomDescriptorRenderer",
+            "status": "passed",
+            "message": "browser runtime artifact contains createRmtDomDescriptorRenderer"
+          },
+          {
+            "id": "browser-factory:createRmtFormat",
+            "status": "passed",
+            "message": "browser runtime artifact contains createRmtFormat"
+          },
+          {
+            "id": "browser-factory:createRmtXRouterAdapter",
+            "status": "passed",
+            "message": "browser runtime artifact contains createRmtXRouterAdapter"
+          },
+          {
+            "id": "browser-factory:createRmtXtendComponentAdapter",
+            "status": "passed",
+            "message": "browser runtime artifact contains createRmtXtendComponentAdapter"
+          },
+          {
+            "id": "browser-factory:createRmtSurfaceAdapter",
+            "status": "passed",
+            "message": "browser runtime artifact contains createRmtSurfaceAdapter"
+          },
+          {
+            "id": "browser-factory:createRmtStateSchedulerDiagnosticsBridge",
+            "status": "passed",
+            "message": "browser runtime artifact contains createRmtStateSchedulerDiagnosticsBridge"
+          },
+          {
+            "id": "browser-factory:createRmtKernelPolicyParity",
+            "status": "passed",
+            "message": "browser runtime artifact contains createRmtKernelPolicyParity"
+          },
+          {
+            "id": "browser-kernel-hook:commitTrustedHtml",
+            "status": "passed",
+            "message": "browser runtime artifact contains kernel hardening hook commitTrustedHtml"
+          },
+          {
+            "id": "browser-kernel-hook:commitTrustedAttribute",
+            "status": "passed",
+            "message": "browser runtime artifact contains kernel hardening hook commitTrustedAttribute"
+          },
+          {
+            "id": "browser-kernel-hook:commitTrustedProperty",
+            "status": "passed",
+            "message": "browser runtime artifact contains kernel hardening hook commitTrustedProperty"
+          },
+          {
+            "id": "browser-kernel-hook:listTrustVerdicts",
+            "status": "passed",
+            "message": "browser runtime artifact contains kernel hardening hook listTrustVerdicts"
+          },
+          {
+            "id": "browser-kernel-hook:getPanicSnapshot",
+            "status": "passed",
+            "message": "browser runtime artifact contains kernel hardening hook getPanicSnapshot"
+          },
+          {
+            "id": "browser-kernel-hook:listPanicEvents",
+            "status": "passed",
+            "message": "browser runtime artifact contains kernel hardening hook listPanicEvents"
+          },
+          {
+            "id": "browser-kernel-hook:recoverFromPanic",
+            "status": "passed",
+            "message": "browser runtime artifact contains kernel hardening hook recoverFromPanic"
+          },
+          {
+            "id": "browser-kernel-hook:listRecoveryOutcomes",
+            "status": "passed",
+            "message": "browser runtime artifact contains kernel hardening hook listRecoveryOutcomes"
+          },
+          {
+            "id": "browser-kernel-hook:recordEscalation",
+            "status": "passed",
+            "message": "browser runtime artifact contains kernel hardening hook recordEscalation"
+          },
+          {
+            "id": "browser-kernel-hook:panicBlockScope",
+            "status": "passed",
+            "message": "browser runtime artifact contains kernel hardening hook panicBlockScope"
+          },
+          {
+            "id": "browser-kernel-hook:createRmtKernelPolicyParity",
+            "status": "passed",
+            "message": "browser runtime artifact contains kernel hardening hook createRmtKernelPolicyParity"
+          },
+          {
+            "id": "browser-artifact-parity-contract",
+            "status": "passed",
+            "message": "browser runtime generated manifest contains artifact parity contract"
+          },
+          {
+            "id": "package-script:test-rmt-artifact-parity",
+            "status": "passed",
+            "message": "package.json exposes npm run test:rmt-artifact-parity"
+          },
+          {
+            "id": "package-metadata:rmtKernelArtifactParity",
+            "status": "passed",
+            "message": "package.json exposes RKSH-WP-10 kernel artifact parity metadata"
+          },
+          {
+            "id": "package-metadata:rmtKernelArtifactParity-gate",
+            "status": "passed",
+            "message": "package.json exposes RKSH-WP-10 kernel artifact parity gate"
+          },
+          {
+            "id": "rmt-demo-inventory",
+            "status": "passed",
+            "message": "demo inventory and source hashes are current"
+          },
+          {
+            "id": "rmt-demo-package-boundary",
+            "status": "passed",
+            "message": "root package files exclude demos/ from the publish boundary"
+          }
+        ]
+      }
+    }
+  ]
+}

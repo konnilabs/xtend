@@ -1,0 +1,2015 @@
+{
+  "schema": "xtend.rmt.raw-profile-parity.v1",
+  "format": 1,
+  "passed": true,
+  "node": "v26.5.0",
+  "baseCommit": "6a123f9657b533554a455a8ee44d853b6b77bf6d",
+  "baseline": "/tmp/xtend-a065/raw-baseline-6a123",
+  "current": "/home/konni/Downloads/xtend-dev/xtend",
+  "cases": [
+    {
+      "version": "1.0.0",
+      "name": "positive",
+      "source": "development/rmtx-a06/frontend/two-host.rmtx",
+      "inputSha256": "c3fc93e6982969a03a7d4b839f3733348be9b390b8ae267d2708e896fdb1cca5",
+      "optionsSha256": "f49168cb315022b69975e0daaf7cb2d23ecbf38d5bdd3bfe93b5f004b506842d",
+      "accepted": true,
+      "bytes": 191090,
+      "baselineSha256": "df4634b9afd5fcb9b3282fa8d5c4e80e824f16e8c64f893aa84e1f141f3d47e3",
+      "currentSha256": "df4634b9afd5fcb9b3282fa8d5c4e80e824f16e8c64f893aa84e1f141f3d47e3",
+      "byteIdentical": true
+    },
+    {
+      "version": "1.0.0",
+      "name": "type-import-rejected",
+      "source": "development/rmtx-a06/frontend/two-host.rmtx",
+      "inputSha256": "70a9427ef15f6d7fb64aa05801941da7199799817d78c6d1a41e2d9fac7fac52",
+      "optionsSha256": "f49168cb315022b69975e0daaf7cb2d23ecbf38d5bdd3bfe93b5f004b506842d",
+      "accepted": false,
+      "bytes": 3853,
+      "baselineSha256": "4c0a8e990ed7f15e20f416e0a135c269b9b19bf7b6b8be44fca6d087bf61d9a7",
+      "currentSha256": "4c0a8e990ed7f15e20f416e0a135c269b9b19bf7b6b8be44fca6d087bf61d9a7",
+      "byteIdentical": true
+    },
+    {
+      "version": "2.0.0",
+      "name": "positive",
+      "source": "development/rmtx-a06/selector-profile/two-host.rmtx",
+      "inputSha256": "f98fe6e856c396c36caf68f139baa547e339cf6baebf0ad60fdc563dba721369",
+      "optionsSha256": "7cc3b80d79b7348418c3ac471dc5848d3c22ca7fcf9b0a7111b5359e50ef186c",
+      "accepted": true,
+      "bytes": 265886,
+      "baselineSha256": "4665c7df2c49cfcaccf25a2109a9e01ea8ee9efa62a04998fabc6d007b56fce4",
+      "currentSha256": "4665c7df2c49cfcaccf25a2109a9e01ea8ee9efa62a04998fabc6d007b56fce4",
+      "byteIdentical": true
+    },
+    {
+      "version": "2.0.0",
+      "name": "type-import-rejected",
+      "source": "development/rmtx-a06/selector-profile/two-host.rmtx",
+      "inputSha256": "d0e973146b4e6b8d275db279672645d574343bb9d695017aca4756194f3d3639",
+      "optionsSha256": "7cc3b80d79b7348418c3ac471dc5848d3c22ca7fcf9b0a7111b5359e50ef186c",
+      "accepted": false,
+      "bytes": 4825,
+      "baselineSha256": "9eb8b058bccaeddc5947784c9770c7ca4e807d3aad0ced7dde1ccacaa001cb55",
+      "currentSha256": "9eb8b058bccaeddc5947784c9770c7ca4e807d3aad0ced7dde1ccacaa001cb55",
+      "byteIdentical": true
+    },
+    {
+      "version": "3.0.0",
+      "name": "positive",
+      "source": "development/rmtx-a06/keyed-profile/source.rmtx",
+      "inputSha256": "bbf7900f713478a7dece1ae9e8360324ac3ca0dd4ce1e7116888e648e042a0ee",
+      "optionsSha256": "c5f0345d77615e4de7ec6b172d5c3e3c7983bd485fa5a6e8306ff451f6a2b4fe",
+      "accepted": true,
+      "bytes": 315656,
+      "baselineSha256": "74e66699dec4892f796789386f9c16b1720f21825bea3b417f94ae0e3dd5c67e",
+      "currentSha256": "74e66699dec4892f796789386f9c16b1720f21825bea3b417f94ae0e3dd5c67e",
+      "byteIdentical": true
+    },
+    {
+      "version": "3.0.0",
+      "name": "type-import-rejected",
+      "source": "development/rmtx-a06/keyed-profile/source.rmtx",
+      "inputSha256": "4d1bb968448aac87651a11a248a5a8726b53e5ee51c9325946f0b4370692b38c",
+      "optionsSha256": "c5f0345d77615e4de7ec6b172d5c3e3c7983bd485fa5a6e8306ff451f6a2b4fe",
+      "accepted": false,
+      "bytes": 5224,
+      "baselineSha256": "37143e32a17b376a878f4ce18d172e86ae4c0bcda8b264a7be91aefd9a223877",
+      "currentSha256": "37143e32a17b376a878f4ce18d172e86ae4c0bcda8b264a7be91aefd9a223877",
+      "byteIdentical": true
+    },
+    {
+      "version": "4.0.0",
+      "name": "positive",
+      "source": "development/rmtx-a06/orchestration-profile/source.rmtx",
+      "inputSha256": "0e7099ef1954239748bd3a0d3c867a1731fa2555a99ab5f13272ceae783e2b16",
+      "optionsSha256": "a6bddd6f1a9c7f37d086942c7eb83b49336561f8ff7f0db7a710c8cf4b48b605",
+      "accepted": true,
+      "bytes": 408410,
+      "baselineSha256": "cd12803eb774f580f3c9e12b6b52c975c1f1bedfa8938cc966983145f1479d2f",
+      "currentSha256": "cd12803eb774f580f3c9e12b6b52c975c1f1bedfa8938cc966983145f1479d2f",
+      "byteIdentical": true
+    },
+    {
+      "version": "4.0.0",
+      "name": "type-import-rejected",
+      "source": "development/rmtx-a06/orchestration-profile/source.rmtx",
+      "inputSha256": "2d3b195658edcacc25e34bf530afcf786c0753a3d591a41e7064109bc96bf7f2",
+      "optionsSha256": "a6bddd6f1a9c7f37d086942c7eb83b49336561f8ff7f0db7a710c8cf4b48b605",
+      "accepted": false,
+      "bytes": 6734,
+      "baselineSha256": "bf704eefb9e86047c25d0ec7706644d78d2e75c4aa989c6c729da74a708bac28",
+      "currentSha256": "bf704eefb9e86047c25d0ec7706644d78d2e75c4aa989c6c729da74a708bac28",
+      "byteIdentical": true
+    },
+    {
+      "version": "5.0.0",
+      "name": "positive",
+      "source": "development/rmtx-a06/native-view-profile/source.rmtx",
+      "inputSha256": "771aedd82258310a1c0d769e01a38dbd604bc5f4494586cd10b69c90b1f00e33",
+      "optionsSha256": "c4112a50b6b7cfad5f00920b73b5e656f8a47b36ddd9bbcf7866dcdd74ee3309",
+      "accepted": true,
+      "bytes": 514321,
+      "baselineSha256": "796aa719480ee319ed4fa0b772cbf396d630bb0c25481baca6eea7694b345aa6",
+      "currentSha256": "796aa719480ee319ed4fa0b772cbf396d630bb0c25481baca6eea7694b345aa6",
+      "byteIdentical": true
+    },
+    {
+      "version": "5.0.0",
+      "name": "type-import-rejected",
+      "source": "development/rmtx-a06/native-view-profile/source.rmtx",
+      "inputSha256": "e2de51e3f3c6bba19102e2ad0de6775ad37d8efd0f15ef3d8b1a7bb4160a0c80",
+      "optionsSha256": "c4112a50b6b7cfad5f00920b73b5e656f8a47b36ddd9bbcf7866dcdd74ee3309",
+      "accepted": false,
+      "bytes": 9740,
+      "baselineSha256": "150201115e2819bc6c393704594fd59a919660ba7615ebeea791a734be54c7c2",
+      "currentSha256": "150201115e2819bc6c393704594fd59a919660ba7615ebeea791a734be54c7c2",
+      "byteIdentical": true
+    },
+    {
+      "version": "6.0.0",
+      "name": "positive",
+      "source": "development/rmtx-a06/lifecycle-profile/source.rmtx",
+      "inputSha256": "fac7b7db05921de68a8788125fa51df2f48b096060362aef6b5ff6686ceadb3c",
+      "optionsSha256": "dde715061a11fa293706578c3ee19237c2c5f7667711040b84703cc2cddc27f4",
+      "accepted": true,
+      "bytes": 516085,
+      "baselineSha256": "d293f11456c2ccdd85c577f3b42bda14b65bdc02d6d2c4aa8afda385f193ac60",
+      "currentSha256": "d293f11456c2ccdd85c577f3b42bda14b65bdc02d6d2c4aa8afda385f193ac60",
+      "byteIdentical": true
+    },
+    {
+      "version": "6.0.0",
+      "name": "type-import-rejected",
+      "source": "development/rmtx-a06/lifecycle-profile/source.rmtx",
+      "inputSha256": "4b95f618c479e242e30fa0526e6dc6cfe1d18b3708efadcf80c27cb031027674",
+      "optionsSha256": "dde715061a11fa293706578c3ee19237c2c5f7667711040b84703cc2cddc27f4",
+      "accepted": false,
+      "bytes": 9848,
+      "baselineSha256": "b3f857bd231a261649526b23bd95d7412877fc25967d7c949b57f9e475726d07",
+      "currentSha256": "b3f857bd231a261649526b23bd95d7412877fc25967d7c949b57f9e475726d07",
+      "byteIdentical": true
+    },
+    {
+      "version": "7.0.0",
+      "name": "positive",
+      "source": "development/rmtx-a06/native-orchestration-profile/source.rmtx",
+      "inputSha256": "c5aeba99729358926d0a1a5841b1ac0e6f55ec591aa2ab2f3657d6d0a2b7c731",
+      "optionsSha256": "86aa36511166ec72da1e45d51d5aee40f8cff5a187487e36fae5f9842f706323",
+      "accepted": true,
+      "bytes": 421884,
+      "baselineSha256": "f61074ca0135799987923dac05fcc0c0b7181e900f8110ff2bb0b7c583e42991",
+      "currentSha256": "f61074ca0135799987923dac05fcc0c0b7181e900f8110ff2bb0b7c583e42991",
+      "byteIdentical": true
+    },
+    {
+      "version": "7.0.0",
+      "name": "type-import-rejected",
+      "source": "development/rmtx-a06/native-orchestration-profile/source.rmtx",
+      "inputSha256": "f1bd5a7675ae5adfe8dc424463238cf98d82f4b108bf119c3792f1275aa8f660",
+      "optionsSha256": "86aa36511166ec72da1e45d51d5aee40f8cff5a187487e36fae5f9842f706323",
+      "accepted": false,
+      "bytes": 6752,
+      "baselineSha256": "c8f6e24a40164b8fc2922eed47b464ead8cf49e3388afcb39fa6401dad1030c6",
+      "currentSha256": "c8f6e24a40164b8fc2922eed47b464ead8cf49e3388afcb39fa6401dad1030c6",
+      "byteIdentical": true
+    },
+    {
+      "version": "8.0.0",
+      "name": "positive",
+      "source": "development/rmtx-a06/native-component-catalog/source.rmtx",
+      "inputSha256": "25d5dcdb624130af99b528d15facc292d3e7a3f609e3a2812c77cbede27823bd",
+      "optionsSha256": "b9538227c553c95e40bb81b2587a1cdfb1e6ce78b0544c701694e744afcd8a70",
+      "accepted": true,
+      "bytes": 461290,
+      "baselineSha256": "b30c1487282db172b6f4b94fd1d28f6f6086d3d4368e808982864231ee9a17d7",
+      "currentSha256": "b30c1487282db172b6f4b94fd1d28f6f6086d3d4368e808982864231ee9a17d7",
+      "byteIdentical": true
+    },
+    {
+      "version": "8.0.0",
+      "name": "type-import-rejected",
+      "source": "development/rmtx-a06/native-component-catalog/source.rmtx",
+      "inputSha256": "c77f54c71059c688ad5ee88b266adc274dc2f707621f10997772209e5aeb86e7",
+      "optionsSha256": "b9538227c553c95e40bb81b2587a1cdfb1e6ce78b0544c701694e744afcd8a70",
+      "accepted": false,
+      "bytes": 6960,
+      "baselineSha256": "c26b35b33b6b03a78dd03e1303540e3b6ace716723266399e091c394a0c84782",
+      "currentSha256": "c26b35b33b6b03a78dd03e1303540e3b6ace716723266399e091c394a0c84782",
+      "byteIdentical": true
+    }
+  ],
+  "inputs": {
+    "baseline": {
+      "development/rmtx-a06/frontend/two-host.rmtx": "c3fc93e6982969a03a7d4b839f3733348be9b390b8ae267d2708e896fdb1cca5",
+      "development/rmtx-a06/keyed-profile/source.rmtx": "bbf7900f713478a7dece1ae9e8360324ac3ca0dd4ce1e7116888e648e042a0ee",
+      "development/rmtx-a06/lifecycle-profile/source.rmtx": "fac7b7db05921de68a8788125fa51df2f48b096060362aef6b5ff6686ceadb3c",
+      "development/rmtx-a06/native-component-catalog/source.rmtx": "25d5dcdb624130af99b528d15facc292d3e7a3f609e3a2812c77cbede27823bd",
+      "development/rmtx-a06/native-orchestration-profile/source.rmtx": "c5aeba99729358926d0a1a5841b1ac0e6f55ec591aa2ab2f3657d6d0a2b7c731",
+      "development/rmtx-a06/native-view-profile/source.rmtx": "771aedd82258310a1c0d769e01a38dbd604bc5f4494586cd10b69c90b1f00e33",
+      "development/rmtx-a06/orchestration-profile/source.rmtx": "0e7099ef1954239748bd3a0d3c867a1731fa2555a99ab5f13272ceae783e2b16",
+      "development/rmtx-a06/selector-profile/two-host.rmtx": "f98fe6e856c396c36caf68f139baa547e339cf6baebf0ad60fdc563dba721369",
+      "tools/rmt-language/action-execution-lowering.js": "661647a20aaadf2c1f2bdcfacbfbb2a5de992cc6069b56002e187f2b0e91948e",
+      "tools/rmt-language/action-input-contract.d.ts": "a5b4c57524be6c4aa2f777afdc4ea5db4855793e90c0c65a0a03bcc3bef05242",
+      "tools/rmt-language/action-input-contract.js": "a2587bf7f380b3759747d7752a407e8cbdcd4f40ff7a854f8a23ab9bc3b408f5",
+      "tools/rmt-language/app-platform-tooling.d.ts": "2f5a34a44e2f67486aa087e55c4fafccab3a95dd663ca9683df6a5173252394b",
+      "tools/rmt-language/app-platform-tooling.js": "b4d84dbd3c74865d6e976ea76f9692e875aa768cbacab4a68fab9288a9609d1b",
+      "tools/rmt-language/classic-ast-contract.js": "3e17596b6615c7ca5528bb5a72551143e1d3403d8a8c606cf83569d71a3c79d4",
+      "tools/rmt-language/classic-ast-rules.js": "269c0ad5d14ba86a149e33877e7db28b3a4004d0217b8c6b829b26931a327b0d",
+      "tools/rmt-language/classic-ast-types.d.ts": "5487aa747c0b647acd2d2ef02275d5af03e14b24f7ac69ae58bedc6bcedb3c52",
+      "tools/rmt-language/classic-compiler.d.ts": "964abe83eea301b40ebb1e1c4e8458535e687c2edd5ab366bb4a7942ee45b435",
+      "tools/rmt-language/classic-compiler.js": "aab7fa9cce452e9cfcb969b425e726fb0f0b98876484644c8a00d3ff451a4c8a",
+      "tools/rmt-language/classic-parser.d.ts": "efd754914ccb1c0067fd85d07f9131e96bc4fde1f03379648ac27baa6fc9a9d9",
+      "tools/rmt-language/classic-parser.js": "f4d051313259d160d3a46892df3607ae68f6c3a69e5d62731cf0b028b3721b42",
+      "tools/rmt-language/classic-semantic-rules.js": "09e7a8706201958104fbebee8eea749d3f7b78de4b491eed0d0d79c2f4451549",
+      "tools/rmt-language/code-actions.d.ts": "e6122f52faef3413c07588f84e9ce340a3cc8e61af6d1eccc509bd0263294d45",
+      "tools/rmt-language/code-actions.js": "d13f6f667628854a3614ca1be846691eef30eeb7192e2da989c696b4051d4819",
+      "tools/rmt-language/compilation-session.d.ts": "96d9f877b46ce5b31dd9bc4bd5ee5e85732dc0ae3c56c21ee8589ae4c722636d",
+      "tools/rmt-language/compilation-session.js": "0a607d1f30c0031343e07e83761ab8b0991dbbad5bb919b4bbd6a3d07af4e09f",
+      "tools/rmt-language/completions.d.ts": "6722e80d831e1d744cee63cc031d3a23a25e13c4782adf634a5ae2a2d80eb413",
+      "tools/rmt-language/completions.js": "d1a3b8e4ed3a09c5a24a0134293940b7c95585f853e9cb1fb65784b49f67fd28",
+      "tools/rmt-language/contracts/action-input-contract.v1.schema.json": "269ae86ff73fa9b4baaa18fe3273b3a090eb50a51b5c130923530521ef26e7cf",
+      "tools/rmt-language/contracts/classic-ast.v1.schema.json": "2f0b45c8c05dbc38adb7355fcc3ae36bbf8eb2f3b26c4ec024b71ed04fb2b457",
+      "tools/rmt-language/definitions.d.ts": "c75b2021eb9ee84f99a7422396f07896d74ff6868d7fd66d974873ed72b9ea05",
+      "tools/rmt-language/definitions.js": "e91e72fc4aea6da2d13d65380ba83c56ddb3d455f6f54394479448b10b98eeaf",
+      "tools/rmt-language/diagnostics.d.ts": "af6cb0f8694971ec2ddf5baf9a01ea4cc8a9151b3e64e2885af4e3a93fa430b6",
+      "tools/rmt-language/diagnostics.js": "376358da022971504a3698d5787ce882672a18688ca04216fcd83b7c8c5d3bc6",
+      "tools/rmt-language/fixtures/kernel-orchestration-contract.rmt": "db16bc40793d62ef7d8898faeea5ac9d7ea266f71b781e73e2a6e948fe1cd063",
+      "tools/rmt-language/fixtures/validation-transition-contract.rmt": "bc90deb57170dd735b61002535ce5f74c86f6aead327a27ce1506a06af245d61",
+      "tools/rmt-language/format-adapter.d.ts": "b97df3c7afb646e6f6ad8945058f0f6697c064c3cc9106ce15c2e922b23c57d8",
+      "tools/rmt-language/format-adapter.js": "3bcbba373882142df1cef4ee1b3607e8838e65e9e63e8e18460fc50642663e1a",
+      "tools/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.guardrails.json": "3be3d10f21e6806e09464165ed12cca4fccdc8b2e613ac7d599ccb06792f02cc",
+      "tools/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.manifest.json": "1b7c35d86da71b1a469ca42756322453615d693fae0922b3144ea2c987f0fab8",
+      "tools/rmt-language/hover.d.ts": "ef4bacdb87eed9e97d13a027ec856695b962bdf6aea56fdee439c6e733755a1f",
+      "tools/rmt-language/hover.js": "96ee29f1b71262b914ce75a377d4c86ce6e73a0642c0fdec70ab73660f31b584",
+      "tools/rmt-language/html-sink-syntax.js": "a9dba87510b3825027224ca84403450598561bda16e04ba275dd57299a9ddf82",
+      "tools/rmt-language/kernel-escalation.d.ts": "8623b575def9f27e9907651067b3941851ec21f0bcd0dbab6383868c5e2458a3",
+      "tools/rmt-language/kernel-escalation.js": "16f168d62902c90a9ddb0f2699bf6961c5569924b553df3c18b7087c6ba9ce38",
+      "tools/rmt-language/kernel-panic-monitor.d.ts": "df597569617b558dedc5f613a317c50d9340e0ab29e3518dc821e4fe2e8bf38c",
+      "tools/rmt-language/kernel-panic-monitor.js": "1997ad2903ba5631af58bcb518584e882ec08da1e631fef7afcb24835f0ab4fb",
+      "tools/rmt-language/kernel-policy-parity.d.ts": "cd77dff1e7f416f6a8e422fe2178c5a7f4c322c199d1d3f89c568b34cfc96acc",
+      "tools/rmt-language/kernel-policy-parity.js": "bfe8d3b01dfce2a2c4bacc1f1f1d4da84f3371302c73d18ba1bf15834ed8b3fd",
+      "tools/rmt-language/kernel-recovery.d.ts": "ab2ddc6a4843231f556c74eecdfdf5c89355aee0feeba1419f05ea7f9498c430",
+      "tools/rmt-language/kernel-recovery.js": "e00d09855df670f9bf0a622169a1bff8ceba6d348afd22003e60586c562bc04f",
+      "tools/rmt-language/kernel-scheduler-failure.d.ts": "e90ccba29538a2904de66d2643625cc8e24a5590c85ea42b3361fc5a596e6641",
+      "tools/rmt-language/kernel-scheduler-failure.js": "574f3bb234252517d168deff26fa8955693587567f8aea9b63253376deecc0b7",
+      "tools/rmt-language/kernel-security-regression.d.ts": "f10379bbffca40b72f84122a2f0539c671d23b628f0c2a630b9af1da36358d46",
+      "tools/rmt-language/kernel-security-regression.js": "7191d5cb9abbbfc4cb98f38ebb3f726ce5485cd08da2196b5986f52b2407f022",
+      "tools/rmt-language/kernel-trust-authority.d.ts": "d95ff0439f948c64262373b1f002df4df7ec1c5d9aee2698fed303be55b4d586",
+      "tools/rmt-language/kernel-trust-authority.js": "1b84c3f7e9d4053b56f8f38b358e6eaa15a0df1eba0c29611b4f528e9698fbf3",
+      "tools/rmt-language/navigation-facts.js": "803525a851a2d959094a6dd54ebb0090d66c1984ac7e8b7e80e8e91db33f4c72",
+      "tools/rmt-language/page-build.d.ts": "257d7f7186d758a49834fe51e9fe465e4d7b9fa530fdf1e1cc7e247c15217fb0",
+      "tools/rmt-language/page-build.js": "04f6e0fb50e11b2f042c18f5208032f4e442bd57d752b186c769fe406cd71fd6",
+      "tools/rmt-language/parser.d.ts": "e6ee789e1bb184792e59d5bf40668f6814f89cae3f1b5bbd0fccf62539559857",
+      "tools/rmt-language/parser.js": "a4e0dc973cf4043b93901bb73cdad84fcdb94ef7aeda8778b223bb7d8db4347c",
+      "tools/rmt-language/progressive-controls.json": "2f1a0d5027220f423b158d6664898fca050d460fe4d734a70cd61f8b115eb507",
+      "tools/rmt-language/rmt-ai-developer-kit.d.ts": "6076fc2b37b3c52abc78850ce8e14a0bf26c06be09bba6f404ef4ff8d17724cc",
+      "tools/rmt-language/rmt-ai-developer-kit.js": "c13c17079e4a163a702c073e03baebc33dd569893806a45d839a76f8fa22f483",
+      "tools/rmt-language/rmt-tooling-public-types.d.ts": "a7c4d28ad15b9d7d42de1cb17824715852f12d922f5d66255704a2425637e139",
+      "tools/rmt-language/rmtx-compiler.d.ts": "8f2ed558b8d6a2abebef8c7d402b13a61d0d9e77d9a9d819ea5425670c950d6e",
+      "tools/rmt-language/rmtx-compiler.js": "0a53430dd7c70d36ec1b36c6ba1f3f10a2470bc33e853d27e54edf40c61db3c9",
+      "tools/rmt-language/rmtx-component-bindings.d.ts": "ac99b0655d1e6a29aeeca27d00c8dc0542b293977d6d3c34719a7fe78d4c1782",
+      "tools/rmt-language/rmtx-component-bindings.js": "928c94e02699049395b9f3cfa32e6cec34bc6e16586248cff7cef10a49b8cd1f",
+      "tools/rmt-language/rmtx-extended-operators.js": "a27401ee8dde2d89db66c64ca9fdf087219154a148a2c47d198de325763f4f2e",
+      "tools/rmt-language/rmtx-host-scopes.js": "cb56b867e74e87bf6bb796b3ae1c36675b9030d9a45a550f97d3553a885c7d2f",
+      "tools/rmt-language/rmtx-native-component-bindings.d.ts": "f17a491d07a363cc86d1646ab1f24b5c2a16ee46455cd90f60b96d7addea8269",
+      "tools/rmt-language/rmtx-native-component-bindings.js": "ac4b6015f3105c483fae0c684f6d513aa85cc3354eb9baaa2556869054af5384",
+      "tools/rmt-language/rmtx-native-components-v2.d.ts": "dda9f5b6fd30f8c0831337d3d74bb02b8f58d2852fcd322df040d6d50c0bacd1",
+      "tools/rmt-language/rmtx-native-components-v2.generated.d.ts": "3bc1c20924478755263c5161d0c6ee2115524305abbb223eadbf1d75d24a01cb",
+      "tools/rmt-language/rmtx-native-components-v2.js": "1eee9f704cf87b3e9737c18fabff8058490bbcbe5c20a8cbfec7356b5aa92c5d",
+      "tools/rmt-language/rmtx-native-components-v2.json": "b4529fecd6b24569e12dbd1a121da6622aaa58dd9a4e3fbb08e9b76bb0059019",
+      "tools/rmt-language/rmtx-native-components.d.ts": "551082895743ea1c6fe2ed32e2381e64370cad21d3c0e6c0a46c8bd21bee5cab",
+      "tools/rmt-language/rmtx-native-components.generated.d.ts": "8e9eac047e1c9eb737f8145566fd76ebc7e4d568841bb737a0cd21169bf8589b",
+      "tools/rmt-language/rmtx-native-components.js": "fcaf5a54f193fc5baaa78d508bcffed9e647c212e28361814c638d264722787e",
+      "tools/rmt-language/rmtx-native-components.v1.json": "8be8c16abfdc686b1186f2e77712303637e4cc301f6c02f142fa962e5fca4e51",
+      "tools/rmt-language/rmtx-native-lifecycle.d.ts": "488439b153ce8d213fb4886cfc8b70967883758f045bdfbb83a44e3c03067186",
+      "tools/rmt-language/rmtx-native-lifecycle.js": "3af7912b5bd2747a280567a13556a904e0ce3f2c87badec242d9c7ac1f7fd76c",
+      "tools/rmt-language/rmtx-native-view.d.ts": "73c548f1585e53faa0803d9f923eb31a9817b3cd6c7eff92957b268f8dd80c8a",
+      "tools/rmt-language/rmtx-native-view.js": "2c70a425f78795c5ac6abf7a492dbee772e367d089b3aa2462fb33ee8976cac6",
+      "tools/rmt-language/rmtx-operator-coverage.js": "c4742d000786d1679dbfa375b223499567dc93ef55649b6cd7589a033cf05f94",
+      "tools/rmt-language/rmtx-operator-coverage.json": "38a39759c35f6bcd1e85eb46d4e24680761da48779f3766520f43bed675ca17c",
+      "tools/rmt-language/rmtx-operator-profiles.d.ts": "242966aaba13e37dac28c16f963e6cf980d14a59777e307e0cfa59a7f47566a9",
+      "tools/rmt-language/rmtx-operator-profiles.js": "4fc42347933f3f22083e4d111d18624e5efd3c1d551d4d3bc64845c25eaf724e",
+      "tools/rmt-language/rmtx-parser.d.ts": "2ed4184e4edd5b3e856a1a67231ad1f72805cd675761b3f034a1254686c1c4f3",
+      "tools/rmt-language/rmtx-parser.js": "5537e8c60812ec96534820c27b7558a4d4a63865dd308c6abfcf9da198b7a7af",
+      "tools/rmt-language/rmtx-selector-dependencies.d.ts": "3cbb5431317afe92c33ce54995d49f6f11c0a72ba64941ae21d1482632449ee7",
+      "tools/rmt-language/rmtx-selector-dependencies.js": "3d57fa5655787c60cfc1a495321292286cb9583adb4ebe95f539eb0de81f03e5",
+      "tools/rmt-language/rmtx.d.ts": "41cff4edfa316c51db52ec2d35ae1e90b89188bc977b8eb45c40c4ecb1906834",
+      "tools/rmt-language/rmtx.js": "bcad67886a2b47f91cdc78041b7f86744343185372c1b20bd37ed8f0c5b08d4e",
+      "tools/rmt-language/rules/app-platform-policy.js": "38bbc3d3b4d4e4d1c2c920c2f8125849d71106ecdd18714deb8b417db496facd",
+      "tools/rmt-language/rules/boundary-policy.js": "07aa0def755f48717a7303171e56a6901cd99fc32565eca2a9ce014f99ea33d6",
+      "tools/rmt-language/rules/document-policy.js": "f1727373e4812c64cc827d9d8627414f91e1aea29585b0092a073579817903d2",
+      "tools/rmt-language/rules/index.js": "68af24ee425be4c24a0cf1aedb6bddf00796b1c19a1ae930447ac78695da787d",
+      "tools/rmt-language/rules/route-policy.js": "c33f04d0e5cc02b8bb9f192ffc8061409c1d2f749080002dd55c45a29ee31a45",
+      "tools/rmt-language/rules/scheduler-policy.js": "b5236b5c6caef98328518aa570c1fd6b0952175f8609d1b546f0a9c93e70f5ee",
+      "tools/rmt-language/rules/template-policy.js": "b362bf682baf9c43ea09b3446a2251f476b8cda2ad046c021b7aa7ad3cb015ea",
+      "tools/rmt-language/scheduler-lanes.js": "a0d76615b3cfbe2639a96af01179f987407554040acce54aa9b4dd99516f9b76",
+      "tools/rmt-language/semantic-graph.d.ts": "62c8e33564438919ebf8193e88fdbd061fe1d4e19a126f2c2cff07bd3e20d2b7",
+      "tools/rmt-language/semantic-graph.js": "c641e0675f0f327bf76728ad2da3bf3d4a7b84437ba11f4d9cbeb8752f871df2",
+      "tools/rmt-language/snippets/index.d.ts": "8bbbd7596aff39971e9488d63c5975f80deb0d16de6507c5aa8073df12ae0a3e",
+      "tools/rmt-language/snippets/index.js": "0a279fc8079ef4d1aa3b0aa92dcae47cf3c34ef592e7d0330ce5e4084df2b9f7",
+      "tools/rmt-language/source-model.d.ts": "eb5cd92198321a6c74b01e4ae91ad4d671f249f2acebc6cd5d40940bdaa155de",
+      "tools/rmt-language/source-model.js": "73aa135d823f7452283da29eb29b5c9e5a45a20e7649c9f99c38a08d04d243b6",
+      "tools/rmt-language/super-prewarm-worker-experiment.d.ts": "3befe5297e5a31157a268b1bbfc678967aabd83274d4b4abc01a630573d2acfa",
+      "tools/rmt-language/super-prewarm-worker-experiment.js": "250e5fca8637df0b8a95d02b821bafe38b4eb07702aa2bb1939b02ab9fb437f3",
+      "tools/rmt-language/symbols.d.ts": "405d259a498d66d956bf9e5d10451076b55b4be4ada9e8a1866b2e007f873859",
+      "tools/rmt-language/symbols.js": "8d5f4d1be5b3382ec08ededbc670fe3e53986ae13ed8244f3266a57f40d8f89b",
+      "tools/rmt-language/vendor/fastpass-contract.js": "af8e26104243deea58ccf3a334d67ecb3286617146257074a29eeb7866a3b1a3",
+      "tools/rmt-language/vendor/manifest.json": "588c8d474ac376cb59b6787cbd4e5460e746c61a9d5e5b211ae92ab631d58218",
+      "tools/rmt-language/vnext-compatibility.d.ts": "cb04c2653a45f029e1da4bf797e28fdba5b072fb62122130016fd2e4db09ff0b",
+      "tools/rmt-language/vnext-compatibility.js": "1f7f1b22cc489f278a4b07ecaecf10c782ef25bb701abe1fac035e9ad8e6d960",
+      "tools/rmt-language/vnext-compiler.d.ts": "aaeb02549ba52984b0131ba633238deb917162b2a622e0df14d24bbbb7770212",
+      "tools/rmt-language/vnext-compiler.js": "f6ce4b76cffaffa8a5c3261b131d6a9f74499a181ff4391ec205a985f9eda642",
+      "tools/rmt-language/vnext-composition.d.ts": "ec8b20cce62c7f15c818408d07a6321a730c86378c7a1aec335deb1d21cec400",
+      "tools/rmt-language/vnext-composition.js": "7a0b2aac4a26e761b182c95efa3f489c6e776c8c03ba57a7bb7f87a29f285390",
+      "tools/rmt-language/vnext-conditions.d.ts": "7da0425e2ce56494b2d446b9053723a50127072ee3a1ef619547ef7529603c31",
+      "tools/rmt-language/vnext-conditions.js": "8cbcb89982b8b0bb8dfca5f9d7807d6338748f8905c3981afce0b80d15102125",
+      "tools/rmt-language/vnext-cross-surface-events.d.ts": "8e8a37ef5f5ba733447ced67bd0446d0efbb906abbc6f575b79b6d0624166fb5",
+      "tools/rmt-language/vnext-cross-surface-events.js": "c50bd4a8c15c77835ffe73704c236b54bed16707a92ee337ac134581988d7cae",
+      "tools/rmt-language/vnext-degradation.d.ts": "62be8b20689840031fc9c020e00d4aa8600f8f634e1cbc99cadac45e7d143428",
+      "tools/rmt-language/vnext-degradation.js": "c70a2552a2e10128954e18493d239b60aa966cdb4e5f408737e367298551696d",
+      "tools/rmt-language/vnext-enterprise-fixtures.d.ts": "b1bc8a316539e1b0e6edefb31f5d4179e2786d77fcd05a2741c37b5edb80929d",
+      "tools/rmt-language/vnext-enterprise-fixtures.js": "35bf3ffc53646d7b1373b714257dca8c8108f459e8872ee371df652e30245fc8",
+      "tools/rmt-language/vnext-enterprise-registry.d.ts": "b2e08b1b321acdb728dc671018e301f29de25033fb5d72a47c8647ec954a361c",
+      "tools/rmt-language/vnext-enterprise-registry.js": "66d67ca37a482bf4135f37c6c55c42d2103efd367eb1d496916ffb96bc254905",
+      "tools/rmt-language/vnext-enterprise-release.d.ts": "d67b1b2578f2761e12c9861b594ee6525cf1a745a42648c1503ea7cf3e066a66",
+      "tools/rmt-language/vnext-enterprise-release.js": "fd5d09dbe72a59aa1bc2c358b3c8a2ac75a73588e4f243618f3c4cf5fc8f5114",
+      "tools/rmt-language/vnext-event-governance.d.ts": "614266ac7785f38acbad0039b709d749dc7c7ed8863c42a31538ee7c54b11a3a",
+      "tools/rmt-language/vnext-event-governance.js": "a0ad1e6aae8da5c41bf814239cb41202bd92c3cffb9fda1f22e42b9d2cd65e52",
+      "tools/rmt-language/vnext-events.d.ts": "132e3381fde4d6326c9a5591e7874e547115766bd3bd826b30fda010499cfbae",
+      "tools/rmt-language/vnext-events.js": "679e1a7da335cb9adf992ff272163670d1ab406d3cb9f7c9381f008d1c5defc2",
+      "tools/rmt-language/vnext-import-resolver.d.ts": "5f19779741b094e8398590266a3b4af7f0f5284d1f732c27899f78d6cba37df4",
+      "tools/rmt-language/vnext-import-resolver.js": "868e9504655bce2b012f4a02bffac16d4d6185e3553548908eace74bb059085d",
+      "tools/rmt-language/vnext-lifecycle.d.ts": "548d0601160b4df9a3486fec5deecb27c63b8859fc34a8c8d4296b7f13468aff",
+      "tools/rmt-language/vnext-lifecycle.js": "4e96015e0853dbe932486e6526476590849cfc8341de53c01a3ce0a191b69436",
+      "tools/rmt-language/vnext-parser.d.ts": "39d3c176c235a3293cfbe51635541f2aef831b6b79a0588463968b825d12690b",
+      "tools/rmt-language/vnext-parser.js": "80668bc8c738f5fda9ed3149b367c3e3388eac9f1ae4f90650d65910a5359579",
+      "tools/rmt-language/vnext-regression.d.ts": "328cca56f15fc73da30d3f976a787a45dad8e624b11eb63c488b82905b79b5fb",
+      "tools/rmt-language/vnext-regression.js": "323cf5349cb82075434a2c8fb0c71d8dafe22bd6b0c5da2ce261f84abe076163",
+      "tools/rmt-language/vnext-release.d.ts": "eb4f92b0847221fa1f75575e4bad222afd217629ee29395fa97449953e4b4bae",
+      "tools/rmt-language/vnext-release.js": "4dda3ec30d064d7771c4d723db4275f46f9258f0fe267761bb26583936cd57f0",
+      "tools/rmt-language/vnext-remote-compatibility.d.ts": "364b246a47d9b7dc8f999f8c52c3f7e8457a560581c71cae15f0d3917ba7bfb0",
+      "tools/rmt-language/vnext-remote-compatibility.js": "0f845c1a742bd7eaed5e21e6eb016f4d3d03bc6d50a20eb2d79e10e95df94082",
+      "tools/rmt-language/vnext-remote-compiler.d.ts": "db8e79c600222ba87c7ac9425cb51e51fd2adaacffee2bf39fa19efccbf5cab6",
+      "tools/rmt-language/vnext-remote-compiler.js": "ede3cc4e5e5975e260a2d751e59278c1d538fca89430725d52afb029ad5f0564",
+      "tools/rmt-language/vnext-remote-manifest.d.ts": "0b7ae83faf71b1a3c785feb69467a7d86db32f9eeb0b2ac43b6112b3e366a9ff",
+      "tools/rmt-language/vnext-remote-manifest.js": "5c452b16935ab6897b0ee877258a7a2d8932ed5400980823fd2f5bf42f4e6409",
+      "tools/rmt-language/vnext-remote-security.d.ts": "89db6588d55a73432e5acdede73acc3e90241281b5686dd3877d27615727b51e",
+      "tools/rmt-language/vnext-remote-security.js": "2339cd2870690d0c8c04c17c24b57dbc8c530821c88f52e6364a837af99daf8a",
+      "tools/rmt-language/vnext-remote-tooling.d.ts": "1d5d055e195fa9efeff26b00292701ad649ca0058f78fa5e1cc49be3a22d8f0f",
+      "tools/rmt-language/vnext-remote-tooling.js": "27a22693053bff686b298765eda3d4f2aba32209426c185feff847cfed11cbe5",
+      "tools/rmt-language/vnext-scheduler.d.ts": "a764d2f061a7647e8265e512f6d783cc57d78c108212396521545b56e3ba0f87",
+      "tools/rmt-language/vnext-scheduler.js": "9d6895fbb88fa58a1b1821f7dae139a27beb170ab1abd49d68ce09db68a2a5c1",
+      "tools/rmt-language/vnext-security.d.ts": "2b3295c73364164bb7785e2330a223017a0552be4bedc131cb3e0a3a82fff894",
+      "tools/rmt-language/vnext-security.js": "370f5c798d2612cd4d42ffef496b7dd2098162200e21b0234d2be52cfda8a336",
+      "tools/rmt-language/vnext-source-to-sea.d.ts": "dc13afa296db98924dde64300d6c8689c07a9aefe2d824d42de61776281f83ee",
+      "tools/rmt-language/vnext-source-to-sea.js": "d07e97db6a18dbed5220de08d6cbe3a47d9da382ab01ae870760206ff938a3fa",
+      "tools/rmt-language/vnext-streaming.d.ts": "650aee2761f40ce1fc36504a9a0d0b82a9f85c215c3faccf76024ca7d15b64a5",
+      "tools/rmt-language/vnext-streaming.js": "e8a5bfb65f985edf221b6aff61313f7a4ed223ef0156eb981bdc8f2c6b3a2265",
+      "tools/rmt-language/vnext-surfaces.d.ts": "16cdfaf5b2e122d7d383c7897648f52aed262fc4912bde73a5605aab64b3f28e",
+      "tools/rmt-language/vnext-surfaces.js": "1597067ef327723606460f6d9718f6f47178f3ca4aad8a667df363c10ae9e385",
+      "tools/rmt-language/vnext-tooling.d.ts": "14af60e315c3eede3a554b7bec11b9e695c1b8bea8cfa41de01561416a53464b",
+      "tools/rmt-language/vnext-tooling.js": "12bdf9cbbd4c44ffa49d374071d80569fb65f56d22c7abada0cc352b2488f6ee",
+      "tools/rmt-language/xscaler-protocol.d.ts": "092f22b583a1f944282cadb4a186ae61b15b42f99a188febd478f023547fa3a2",
+      "tools/rmt-language/xscaler-protocol.js": "b9637746b9e7432859eb49d9b175e1653c4deacc295481b44ae1d737fbf02377",
+      "tools/xtensions/adoption-handoff.d.ts": "90429feda900bad38b9471584f9e1281949be798e8efaa6528daa2dc5930ed9e",
+      "tools/xtensions/adoption-handoff.js": "b9398d87bad5c53b7dc2dc65405d62c6348172d6b6fefcc3032376588f1f353d",
+      "tools/xtensions/angular-host-adapter.d.ts": "3dc30af8e475c4d867b3242a5c2314ef5370db3e799da903a4c53fbcf7a7e770",
+      "tools/xtensions/angular-host-adapter.js": "5f0595006dc3410d5893263dd08b8a330df91b140c01ed66d7e0b94421a1bd67",
+      "tools/xtensions/component-interface-build.js": "8a9fbbccf7b12b68f054f5a2a5a62b4aefe726eec2f598bf1b173d91ecd9af9a",
+      "tools/xtensions/component-interface.d.ts": "4fb0bb4ab3163c856c0ef7d78d6a888b3a1d94b35c4dbaf0172aef6a8a61dc3c",
+      "tools/xtensions/component-interface.js": "9c0b45fdea6f8dc98563144a9bc000c997800a2f0f57f433b9e352539cdbcae2",
+      "tools/xtensions/component-interface.v1.schema.json": "ee6e3c40c66f69e2b39ecf6b7031a9bd16afc576fc5e0884e286eade49399f36",
+      "tools/xtensions/component-interface.v2.schema.json": "db772ecb0e874e73ba21406eadbcf6577302648d0eea13a5f41a1c992b6542e1",
+      "tools/xtensions/cooperative-resource-scope.d.ts": "153d15cd63d7ea8437372e94c22051d580301ac2086c8aa2780d74d98aaec479",
+      "tools/xtensions/cooperative-resource-scope.js": "ba8f05d9f5ce605512c95d45b3b563c6184e88a2dab5874ffdcee2c1836174ab",
+      "tools/xtensions/diagnostic-trail.d.ts": "f9c03bd2292b02c26e6b9d413459f81bc73bd2593d36fb3a0530afe325b66df1",
+      "tools/xtensions/diagnostic-trail.js": "2caf92b3ca9533dc11639c4a9229c87e9d4c07995d78094d3b4e6af6b124bcc0",
+      "tools/xtensions/framework-ssr.d.ts": "c5d96d1c34dd9e914527c9b7c3afa1b251c1df6018c9ccd2d2262e047e4e0578",
+      "tools/xtensions/framework-ssr.js": "6b4c457f2ac54762afcfda78314e788ea9e119e939e93ed9d63355991e31a700",
+      "tools/xtensions/host-capability-negotiation.js": "762751a35c6e99eccb66cbad3b0d885098dbd949ed4b5a774a3671a5bac02373",
+      "tools/xtensions/host-controller-contract.d.ts": "5137df09aa1173e3eb7172da2073c659c3a7d5ab9324b60866c1d8418f644989",
+      "tools/xtensions/host-controller-contract.js": "fc168ff8cec8a95375942f9ef2871ed3cdbf74cede192c708dd374efc14278b7",
+      "tools/xtensions/host-resource-cleanup-record.d.ts": "2cbe174ae3d9a3ab5862358c53d4522c51162401ecfe9cc3c26ca8bde9541bd7",
+      "tools/xtensions/host-resource-cleanup-record.js": "631ba35928b8e8a990dd05b245cd61333984197b866f4c46e0821221404a4a6e",
+      "tools/xtensions/imperative-host-pocs.d.ts": "6f06f96bb960d0d7b10f2b6c98ed4ec81bc9337817f6c37aac57864bb3da7719",
+      "tools/xtensions/imperative-host-pocs.js": "ef4579ecfa747d261562a0b7b93e03e4c1d0b76e4393b9d2683f249b873a9db9",
+      "tools/xtensions/kernel-work-scope.js": "2bc544e13567898f8c4eefd973c66e62c29f616477c103e21b28a0f39a716dc8",
+      "tools/xtensions/maraca-xtension-manifest.d.ts": "1f20e947f6c4f3fa9cbb2c4d54075b8c793219d94da6a480b2ba3acb45f1c6f8",
+      "tools/xtensions/maraca-xtension-manifest.js": "267f8009ab0679ac044e6fbe826b251bf54d00e090aa29ad218ffc2ebea521d8",
+      "tools/xtensions/multi-framework-dashboard-fixture.d.ts": "e6dc3a35496e92d2a53283ade0111bd43691621d562ee26412dc25e18b587364",
+      "tools/xtensions/multi-framework-dashboard-fixture.js": "45e6a8ad6ca4fa90ce913b6b41fc99f662de0a23d151f079451b7d183a0f0af3",
+      "tools/xtensions/native-component-bindings.d.ts": "f50ea99b7371556e878a81baedc76bf5819abe915d35a2dcf7c4ff06e3fb29a0",
+      "tools/xtensions/native-component-bindings.js": "cfc47bf0af1079f58c54763e8cba1b6d8d47d07a1226d0171377c634e2b54ec7",
+      "tools/xtensions/native-component-catalog-v2.js": "27a25ad2578fbf2fcb0df9b9c98f4fc6c7698355e6a108d40afcef825d6193b6",
+      "tools/xtensions/native-component-catalog.js": "5a9ec040fe98e17fc75fdd9081976f2f8b7ff7c825e8318dbb67c52d995e6936",
+      "tools/xtensions/native-component-contract-v2.d.ts": "dd065a7a42d882b437b61ff2368af4848dd47c2b96cb3656f7d5f7fa4e8b6b02",
+      "tools/xtensions/native-component-contract-v2.js": "41564661296d9131cdf37beb3f8a0b3340aa0eca7e075672c3f9688d3930cb1a",
+      "tools/xtensions/native-component-contract.d.ts": "e58503b02f4759d42189138ae1ee1d91279f1cf48793ede65c413902d83d7421",
+      "tools/xtensions/native-component-contract.js": "757d4ff5cbe02ee63bd2ba32bb2bdf5bab24c0dc377d949465baca0a23af835b",
+      "tools/xtensions/native-component-managed.d.ts": "6af76f25e7b1368b4d06bbb5ab7cf2f8f81cf947ca5f9713cb9ea1dd0ce09433",
+      "tools/xtensions/native-component-managed.js": "e382bc79eeeaf9cc1e5216d19dc1e0f16044dfe9392545f413972c95ddfc1a34",
+      "tools/xtensions/native-component-source.js": "81e8a6dc635a55066dfd47e4b309952a7d85b3b7b128960a2913e4fafb07e5b5",
+      "tools/xtensions/native-data.js": "3fbd1e9f29e1b133f3042106a46eaaede2107f38fc71851c566a998f0b397684",
+      "tools/xtensions/native-lifecycle.d.ts": "dceafcd21e056e4dfd1a006c430f9f3a9689d86b11dbbfc4cf2e087c6437a55c",
+      "tools/xtensions/native-lifecycle.js": "b1d3419d077ab63b8add830a735f16b6c70b53ca92afe46a7c50ab9f0c6e7562",
+      "tools/xtensions/native-managed-component-registry.js": "8e0a978d82fe2bae4482543961c4a135301936e82a96eed34fead9d3225ba274",
+      "tools/xtensions/native-managed-lifecycle.d.ts": "a7945065e7a24ca46dff681988830f5cdea16cb043b0a03735997fc0e0eeba81",
+      "tools/xtensions/native-managed-lifecycle.js": "0c5bcf91e870b066bf5a055c78b904b3be1f87b5a53db245291abea28141a6dc",
+      "tools/xtensions/native-managed-orchestration-lifecycle.d.ts": "b9cb5d6f0a5b2160c16c4255fb0042aa1e4d4dd26f7ad9ae9da7dcb07589ee73",
+      "tools/xtensions/native-managed-orchestration-lifecycle.js": "a2cefd6726bf652478f9a4001ae286817d44e0d9c0ef603ec8fa27384bb5a41f",
+      "tools/xtensions/native-managed-surface-scopes.d.ts": "ae142b8f262a3c896530e267986a5213df95c9cf3bdaa71d0204ca65e4b6cc3a",
+      "tools/xtensions/native-managed-surface-scopes.js": "f5a1e1e5bf7881a8914f1024f22ca00918396213fde8a5666987700438cbde1c",
+      "tools/xtensions/native-managed-view-projection.d.ts": "043ceefec72e03bc1def410abf11aaa73944c427376db7cd85ea4ca7a9be9938",
+      "tools/xtensions/native-managed-view-projection.js": "2381cd9314a6ec8e503fed6ac33e5466bed5eaaa95faf139d0e151005570b323",
+      "tools/xtensions/native-managed-view-validation.d.ts": "a29d820d243a11e5fd02f0a6b8d381809c2ff31538d345ed99c8d3689b9aa747",
+      "tools/xtensions/native-managed-view-validation.js": "91f4dc1336f6344e0c356cc61fb127a648bcf7dbd996369c6ac520da97cd6201",
+      "tools/xtensions/native-orchestration-lifecycle-core.js": "7e141e9efd03c786145a12d65181270a86f2971481a5f7adbaec06e857cf4827",
+      "tools/xtensions/native-orchestration-lifecycle.d.ts": "3441597c8e842d620d24593eff7c4189aae2a6be4ab7d63e084c125107734797",
+      "tools/xtensions/native-orchestration-lifecycle.js": "99378013ad40a3f48b1cc51a0aeceac4279f5d5cf2cd363f61605491178c72d7",
+      "tools/xtensions/native-sink-contract.js": "59089b6fce9afb48785ecb98c243a66086fed31bf5a7e09083714b3c993ea3cd",
+      "tools/xtensions/native-surface-projection-core.js": "ca5dc9a1430cf309bb973a601ebf1c49183e7ae4ca727b62f7cacfa539a5f7e5",
+      "tools/xtensions/native-surface-projection.d.ts": "3bf8086cdc250dfe79e10cb839f35290f56019eda131bb6aadd15a6601e3e533",
+      "tools/xtensions/native-surface-projection.js": "24d81d71027d3c30919a08b8d3ce35a19eb73660b2e0048ac3cb4f17dd3c1945",
+      "tools/xtensions/native-surface-scopes-core.js": "a0fbb0d5aac3e7d2e1c583cdbf32bfdf48d0c3ee956d25194bf17e27c980a97c",
+      "tools/xtensions/native-surface-scopes.d.ts": "ac84f887e28fc58c4f18e6d6fa42608d4f693aa459b894a30de9c9e304295696",
+      "tools/xtensions/native-surface-scopes.js": "83fcfc57293036530d7ae3f4d911d0769655bfed433221171815eaa9cb3cf3d2",
+      "tools/xtensions/native-surface-validation-core.js": "0f663176a1c592060becec416e2aed210bb6ecab2d725d17dc9c015f302885bd",
+      "tools/xtensions/native-view-projection.d.ts": "c3f4cf877575c9f8eb79a17cf85e54495dec685cd364f2be09b4fbfdd8b81ca5",
+      "tools/xtensions/native-view-projection.js": "d4af727f82b66f0c757062cf6c696490f53df135aeb4471e462b0dadae58cc89",
+      "tools/xtensions/openui5-host-adapter.d.ts": "6134ce59b9ee5959ac075f2c00a558d50cb9da41974ad7d7e20d7760b8f958e6",
+      "tools/xtensions/openui5-host-adapter.js": "a6bf0947d8b48282d6336ccdcee688bb578f2a9bea0324a646be96d13b9a61e9",
+      "tools/xtensions/react-host-adapter.d.ts": "5dfac901efe6b67dae0111a00588f43db2688d2ab7d6e6965680e4767447da66",
+      "tools/xtensions/react-host-adapter.js": "5fc08eaacea435a627d711611477b66fe2e66545236e427901e28fc915175d84",
+      "tools/xtensions/react-host-controller-poc.d.ts": "996f7c068339bfee9fe6a80e0efb71e0031b71adc448263439c3c00d1a42bcf6",
+      "tools/xtensions/react-host-controller-poc.js": "dd136f2a3cfd4b25b69d3c0150cc7c3553f0168f46ccd7d58b0533e66dad39a8",
+      "tools/xtensions/react-payload-boundary.js": "a63f4bdc1d39813d81f07623316e5e1814ff44e5cc29f93a17145683385ddb5c",
+      "tools/xtensions/react-runtime-adapter.d.ts": "10700c9d08f2e94a79168e89a57d0a77eba223c89491aaf6d50ebb1bc33074c0",
+      "tools/xtensions/react-runtime-adapter.js": "e780ccdfcc00ca7d75bec3b2bdebb383e3caa2fc40d3bfdaf4bfe85995a0308a",
+      "tools/xtensions/react-runtime-boundary.js": "647575e8da3f01a63df9ee6cefe1d0dfd61f056633972fbe46e9ceed5d617596",
+      "tools/xtensions/registry-package-strategy.d.ts": "8e1e7b58ff45146925215fff825e05986977d802ee01c1bd5bcee2d287ca7833",
+      "tools/xtensions/registry-package-strategy.js": "b38e438db65229a3ade6304af75fbe445d65d28dc0bd4622372b655bdedbd53f",
+      "tools/xtensions/repeat-scopes.js": "52a2860132aacc6da0ed95cac68128193180ebaeff91794d77a1a8b8764599d4",
+      "tools/xtensions/resource-graph-binding.js": "0488d4da2eed0c8689d4ec7c49860665873cfcbc433bf52f458575384edf67e2",
+      "tools/xtensions/resume-adapter-contract.d.ts": "a097da80789949511fa7042914e60c3bd7e247cf1c10d5690d8194e964e65dc3",
+      "tools/xtensions/resume-adapter-contract.js": "7e545c9e1be3b1312dd1ff0f583572a6910a4b1b25ea8f9cb70ea6c6b29e6073",
+      "tools/xtensions/runtime-capability-registry.d.ts": "c3dbef0ff61baac66489a908b95abcf93c6c3e943377ca27ea44ff0b6dd6edf4",
+      "tools/xtensions/runtime-capability-registry.js": "c82536dde3907a3b7cf530d0b4e7767d643c932d3ede2688f8b694d6e792d4db",
+      "tools/xtensions/runtime-host-controller.d.ts": "b88df57206eae655721549bd699e8054e48189eea46e40c39f7bfc615a993e9b",
+      "tools/xtensions/runtime-host-controller.js": "9627d38ad20200c2c846a7eb057dec28f93cc012f63b76fa0c5a86de785a4574",
+      "tools/xtensions/security-integrity-gate.d.ts": "d01a99e38c33825c6808f960b897aeae2801d48bae1e9020921a9c839e961fc6",
+      "tools/xtensions/security-integrity-gate.js": "219761e8ec8b33988d618c4cfc64b268539033522be74e4a5f11963fb1be2ca0",
+      "tools/xtensions/signal-bridge-contract.d.ts": "cfd7401bf328d59fd230a4a06669ab45fd4a2f957f7c0aa12996fe2b428ad761",
+      "tools/xtensions/signal-bridge-contract.js": "63d56f44011907554c7b7e6b336daf115bee90f29847debf6e088a5a03f60e1e",
+      "tools/xtensions/state-binding-artifact.d.ts": "7af9eba63333fd6dc684b8b383656c6f56e1436ca4fa55c9ae4385686aba92bf",
+      "tools/xtensions/state-binding-artifact.js": "fd4435ffb4b1034adb76cda66a2dea7cfb439cd76ad947a128fa698d6735f907",
+      "tools/xtensions/state-binding-contract.js": "857867ed26115ea9aa966b7c3e74099675c890f5bb3bbc4c890dfa5d581af2b6",
+      "tools/xtensions/state-binding-managed.d.ts": "7cba0805ab421c6d50a45702d0284bedcb97219df5b701048d5032afc3db5894",
+      "tools/xtensions/state-binding-managed.js": "21288b74dce9e0104bcd571063150197970e254a8e2845ff29e7c7f06381502b",
+      "tools/xtensions/state-binding-orchestrated-disabled.js": "a379e82cf80b5bc9914ade2b1067e2283a0e2412198c010ad7f0960f9ec3b0ed",
+      "tools/xtensions/state-binding-orchestrated.js": "25576e92eb149ad9bcad2f32dd63d3ae98c8f619873f4ce7765d00fa636a617a",
+      "tools/xtensions/state-binding-projection-disabled.js": "c0bfee6ef6138a4a14d9f95526d1cf97ff04d57a77dd10c6769f9fb60d4137b5",
+      "tools/xtensions/state-binding-projection.js": "62d116bb6a8fcdeccdd0426d5c6a21537d3e01c952393b4cc82f1f88b0aea739",
+      "tools/xtensions/state-binding-registry-core.js": "d33a69f98cb9b4d5d2b4eaf375f23add41e94ec466dfd122250906cf3aed77d0",
+      "tools/xtensions/state-binding.d.ts": "c107f80208183fced3c5031c3a9a9c9d4dc2ab95ee5b27070de88454d1b48810",
+      "tools/xtensions/state-binding.js": "6c2db5ef127540d95b2ba99bdd64e353f54ce25e40752df7edd39c2d312ad34b",
+      "tools/xtensions/static-contract-introspection.d.ts": "a2cd5c2c076a31550ee7c03aaf5e8e3199b6bf2d414be5c552f826a6993fc270",
+      "tools/xtensions/static-contract-introspection.js": "0bad8a9904bec5db7445686c5b6b8f14072eadefb1a9615f4c328dc538ede1a6",
+      "tools/xtensions/three-render-loop-poc.d.ts": "30897d8f189961269e37c17ff4ed394e4f9a73416145647c26b8840036e03a3c",
+      "tools/xtensions/three-render-loop-poc.js": "adbc1757403f693114932d20fcd3e5071ef106c262d228711461e6915f0fa562",
+      "tools/xtensions/url-state-contracts/history-proposal.v1.schema.json": "63aadd491141cd781ebcacaf4a903421e079cdedae89689531efd41c65d8f1b0",
+      "tools/xtensions/url-state-contracts/history-proposal.v2.schema.json": "2b63c3eedfcf9220a609ea04b67d9b588fa8e034db78b7aef46ecacaf78cba0b",
+      "tools/xtensions/url-state-contracts/policy.v1.schema.json": "bcc9335779f6cb9f2752800dc9054184a1121bcf8b08af923c0218d7f292067d",
+      "tools/xtensions/url-state-contracts/policy.v2.schema.json": "9ec44bb834471bdf94b55f43c01f76e0922a0eb68861263fd2d8a40bc0f29c6a",
+      "tools/xtensions/url-state-contracts/restore-plan.v1.schema.json": "57d5ea6e30f2378a66f418e5d601e201ac2bc552b719be1bd8d94d03877aeab0",
+      "tools/xtensions/url-state-contracts/restore-plan.v2.schema.json": "3f952e46330a5379fa9a323132e9969608f6ff01f30612df149f12e336ba0ddf",
+      "tools/xtensions/url-state-contracts/state.v1.schema.json": "8a569847a037c463aa26b8cfa46f660a20b3a0afc7ede5de1dbd57bfa32a57d8",
+      "tools/xtensions/url-state-contracts/state.v2.schema.json": "d9a2f1b973f43bc5adc7b2a49c0e84a473af0968cda3e6a1d720f0cff02fd442",
+      "tools/xtensions/url-state-managed.d.ts": "163fe9ce7cec6c8a28f9caeb07118b0898b4fdcc317e7684bbde6de580494301",
+      "tools/xtensions/url-state-managed.js": "5cea854d3641fae6f289bdfea372175d0766edea543b08a9c2efd5c7d8b68881",
+      "tools/xtensions/url-state.d.ts": "35f6de4b4e0d17742991073f1a689b9bdd4827a1240a968442e9accada759d0c",
+      "tools/xtensions/url-state.js": "d4d35ddf7bf40de80acc161cd99abf3a8ecb21bac18ad4830c6a31f183e3fd72",
+      "tools/xtensions/vanilla-host-adapter.d.ts": "d09d51af3df2e6e645e3d23354d6dbcc6c91728720495f3f4fcac5602ad30903",
+      "tools/xtensions/vanilla-host-adapter.js": "9a11d99d2571fe537c84ade01b137fddce83c0132781e560c4fecf2c4fa08045",
+      "tools/xtensions/vue-host-adapter.d.ts": "7d056b5dd80101fb7a3487d7703f82858fd16eaf968b05c5b64a501aa3f2bb0c",
+      "tools/xtensions/vue-host-adapter.js": "833734a7b55d7313bd6082a6ab75113898a7ceed699945083cdfa8ec666a66e1",
+      "tools/xtensions/vue-host-controller-poc.d.ts": "0062f0ae2bda87f24f50803ac44e7b21940bff9042825389e1a2f02a9aa0bf08",
+      "tools/xtensions/vue-host-controller-poc.js": "1518685b96201edf87340159599085d52c56a3b13ad756830844a2f337bacf37",
+      "tools/xtensions/vue-payload-boundary.js": "e5b7b619251e63bf1937b42ffe346d33b742843e24ef267c680f264dac54e80c",
+      "tools/xtensions/vue-runtime-adapter.d.ts": "f441bed2550894206df776eec5d3cbfece18adb92c1432060494b38bc80d699f",
+      "tools/xtensions/vue-runtime-adapter.js": "d68a72b9782be8c3d705d10af40ca4a6576c3cc0e3a9884c8db02073c8b9745c",
+      "tools/xtensions/vue-runtime-boundary.js": "f1b28462c543f0e8b0d8a8ee59e48b15e1c213cf8381e100677b02e59f03aeed",
+      "tools/xtensions/work-budget-policy.js": "e3223e4e46ee792259b321a6fe6c82086c420c239316a04fd8bf77bdbc896779"
+    },
+    "current": {
+      "development/rmtx-a06/frontend/two-host.rmtx": "c3fc93e6982969a03a7d4b839f3733348be9b390b8ae267d2708e896fdb1cca5",
+      "development/rmtx-a06/keyed-profile/source.rmtx": "bbf7900f713478a7dece1ae9e8360324ac3ca0dd4ce1e7116888e648e042a0ee",
+      "development/rmtx-a06/lifecycle-profile/source.rmtx": "fac7b7db05921de68a8788125fa51df2f48b096060362aef6b5ff6686ceadb3c",
+      "development/rmtx-a06/native-component-catalog/source.rmtx": "25d5dcdb624130af99b528d15facc292d3e7a3f609e3a2812c77cbede27823bd",
+      "development/rmtx-a06/native-orchestration-profile/source.rmtx": "c5aeba99729358926d0a1a5841b1ac0e6f55ec591aa2ab2f3657d6d0a2b7c731",
+      "development/rmtx-a06/native-view-profile/source.rmtx": "771aedd82258310a1c0d769e01a38dbd604bc5f4494586cd10b69c90b1f00e33",
+      "development/rmtx-a06/orchestration-profile/source.rmtx": "0e7099ef1954239748bd3a0d3c867a1731fa2555a99ab5f13272ceae783e2b16",
+      "development/rmtx-a06/selector-profile/two-host.rmtx": "f98fe6e856c396c36caf68f139baa547e339cf6baebf0ad60fdc563dba721369",
+      "tools/rmt-language/action-execution-lowering.js": "661647a20aaadf2c1f2bdcfacbfbb2a5de992cc6069b56002e187f2b0e91948e",
+      "tools/rmt-language/action-input-contract.d.ts": "a5b4c57524be6c4aa2f777afdc4ea5db4855793e90c0c65a0a03bcc3bef05242",
+      "tools/rmt-language/action-input-contract.js": "a2587bf7f380b3759747d7752a407e8cbdcd4f40ff7a854f8a23ab9bc3b408f5",
+      "tools/rmt-language/app-platform-tooling.d.ts": "2f5a34a44e2f67486aa087e55c4fafccab3a95dd663ca9683df6a5173252394b",
+      "tools/rmt-language/app-platform-tooling.js": "b4d84dbd3c74865d6e976ea76f9692e875aa768cbacab4a68fab9288a9609d1b",
+      "tools/rmt-language/classic-ast-contract.js": "3e17596b6615c7ca5528bb5a72551143e1d3403d8a8c606cf83569d71a3c79d4",
+      "tools/rmt-language/classic-ast-rules.js": "269c0ad5d14ba86a149e33877e7db28b3a4004d0217b8c6b829b26931a327b0d",
+      "tools/rmt-language/classic-ast-types.d.ts": "5487aa747c0b647acd2d2ef02275d5af03e14b24f7ac69ae58bedc6bcedb3c52",
+      "tools/rmt-language/classic-compiler.d.ts": "964abe83eea301b40ebb1e1c4e8458535e687c2edd5ab366bb4a7942ee45b435",
+      "tools/rmt-language/classic-compiler.js": "aab7fa9cce452e9cfcb969b425e726fb0f0b98876484644c8a00d3ff451a4c8a",
+      "tools/rmt-language/classic-parser.d.ts": "efd754914ccb1c0067fd85d07f9131e96bc4fde1f03379648ac27baa6fc9a9d9",
+      "tools/rmt-language/classic-parser.js": "f4d051313259d160d3a46892df3607ae68f6c3a69e5d62731cf0b028b3721b42",
+      "tools/rmt-language/classic-semantic-rules.js": "09e7a8706201958104fbebee8eea749d3f7b78de4b491eed0d0d79c2f4451549",
+      "tools/rmt-language/code-actions.d.ts": "e6122f52faef3413c07588f84e9ce340a3cc8e61af6d1eccc509bd0263294d45",
+      "tools/rmt-language/code-actions.js": "d13f6f667628854a3614ca1be846691eef30eeb7192e2da989c696b4051d4819",
+      "tools/rmt-language/compilation-session.d.ts": "6f3c369f23b0797886ca615dd32702fddf921048142f37fc4c8992f23c845f99",
+      "tools/rmt-language/compilation-session.js": "b4decdc724a13eb4d32a44e69d690b0f8983da5732c842dade6eeecd5f51793c",
+      "tools/rmt-language/completions.d.ts": "6722e80d831e1d744cee63cc031d3a23a25e13c4782adf634a5ae2a2d80eb413",
+      "tools/rmt-language/completions.js": "d1a3b8e4ed3a09c5a24a0134293940b7c95585f853e9cb1fb65784b49f67fd28",
+      "tools/rmt-language/contracts/action-input-contract.v1.schema.json": "269ae86ff73fa9b4baaa18fe3273b3a090eb50a51b5c130923530521ef26e7cf",
+      "tools/rmt-language/contracts/classic-ast.v1.schema.json": "2f0b45c8c05dbc38adb7355fcc3ae36bbf8eb2f3b26c4ec024b71ed04fb2b457",
+      "tools/rmt-language/definitions.d.ts": "c75b2021eb9ee84f99a7422396f07896d74ff6868d7fd66d974873ed72b9ea05",
+      "tools/rmt-language/definitions.js": "e91e72fc4aea6da2d13d65380ba83c56ddb3d455f6f54394479448b10b98eeaf",
+      "tools/rmt-language/diagnostics.d.ts": "af6cb0f8694971ec2ddf5baf9a01ea4cc8a9151b3e64e2885af4e3a93fa430b6",
+      "tools/rmt-language/diagnostics.js": "376358da022971504a3698d5787ce882672a18688ca04216fcd83b7c8c5d3bc6",
+      "tools/rmt-language/fixtures/kernel-orchestration-contract.rmt": "db16bc40793d62ef7d8898faeea5ac9d7ea266f71b781e73e2a6e948fe1cd063",
+      "tools/rmt-language/fixtures/validation-transition-contract.rmt": "bc90deb57170dd735b61002535ce5f74c86f6aead327a27ce1506a06af245d61",
+      "tools/rmt-language/format-adapter.d.ts": "b97df3c7afb646e6f6ad8945058f0f6697c064c3cc9106ce15c2e922b23c57d8",
+      "tools/rmt-language/format-adapter.js": "3bcbba373882142df1cef4ee1b3607e8838e65e9e63e8e18460fc50642663e1a",
+      "tools/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.guardrails.json": "3be3d10f21e6806e09464165ed12cca4fccdc8b2e613ac7d599ccb06792f02cc",
+      "tools/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.manifest.json": "173df3db1f4375f14905ebc27972900cd5dcfedf3453a7fd9be5969277c81498",
+      "tools/rmt-language/hover.d.ts": "ef4bacdb87eed9e97d13a027ec856695b962bdf6aea56fdee439c6e733755a1f",
+      "tools/rmt-language/hover.js": "96ee29f1b71262b914ce75a377d4c86ce6e73a0642c0fdec70ab73660f31b584",
+      "tools/rmt-language/html-sink-syntax.js": "a9dba87510b3825027224ca84403450598561bda16e04ba275dd57299a9ddf82",
+      "tools/rmt-language/kernel-escalation.d.ts": "8623b575def9f27e9907651067b3941851ec21f0bcd0dbab6383868c5e2458a3",
+      "tools/rmt-language/kernel-escalation.js": "16f168d62902c90a9ddb0f2699bf6961c5569924b553df3c18b7087c6ba9ce38",
+      "tools/rmt-language/kernel-panic-monitor.d.ts": "df597569617b558dedc5f613a317c50d9340e0ab29e3518dc821e4fe2e8bf38c",
+      "tools/rmt-language/kernel-panic-monitor.js": "1997ad2903ba5631af58bcb518584e882ec08da1e631fef7afcb24835f0ab4fb",
+      "tools/rmt-language/kernel-policy-parity.d.ts": "cd77dff1e7f416f6a8e422fe2178c5a7f4c322c199d1d3f89c568b34cfc96acc",
+      "tools/rmt-language/kernel-policy-parity.js": "bfe8d3b01dfce2a2c4bacc1f1f1d4da84f3371302c73d18ba1bf15834ed8b3fd",
+      "tools/rmt-language/kernel-recovery.d.ts": "ab2ddc6a4843231f556c74eecdfdf5c89355aee0feeba1419f05ea7f9498c430",
+      "tools/rmt-language/kernel-recovery.js": "e00d09855df670f9bf0a622169a1bff8ceba6d348afd22003e60586c562bc04f",
+      "tools/rmt-language/kernel-scheduler-failure.d.ts": "e90ccba29538a2904de66d2643625cc8e24a5590c85ea42b3361fc5a596e6641",
+      "tools/rmt-language/kernel-scheduler-failure.js": "574f3bb234252517d168deff26fa8955693587567f8aea9b63253376deecc0b7",
+      "tools/rmt-language/kernel-security-regression.d.ts": "f10379bbffca40b72f84122a2f0539c671d23b628f0c2a630b9af1da36358d46",
+      "tools/rmt-language/kernel-security-regression.js": "7191d5cb9abbbfc4cb98f38ebb3f726ce5485cd08da2196b5986f52b2407f022",
+      "tools/rmt-language/kernel-trust-authority.d.ts": "d95ff0439f948c64262373b1f002df4df7ec1c5d9aee2698fed303be55b4d586",
+      "tools/rmt-language/kernel-trust-authority.js": "1b84c3f7e9d4053b56f8f38b358e6eaa15a0df1eba0c29611b4f528e9698fbf3",
+      "tools/rmt-language/navigation-facts.js": "803525a851a2d959094a6dd54ebb0090d66c1984ac7e8b7e80e8e91db33f4c72",
+      "tools/rmt-language/page-build.d.ts": "257d7f7186d758a49834fe51e9fe465e4d7b9fa530fdf1e1cc7e247c15217fb0",
+      "tools/rmt-language/page-build.js": "076dfa197e170a50ff373f609887db567356f1aa262f8be0504d0539d4719d57",
+      "tools/rmt-language/parser.d.ts": "e6ee789e1bb184792e59d5bf40668f6814f89cae3f1b5bbd0fccf62539559857",
+      "tools/rmt-language/parser.js": "a4e0dc973cf4043b93901bb73cdad84fcdb94ef7aeda8778b223bb7d8db4347c",
+      "tools/rmt-language/progressive-controls.json": "2f1a0d5027220f423b158d6664898fca050d460fe4d734a70cd61f8b115eb507",
+      "tools/rmt-language/project-watch.d.ts": "f4de152f26a1c93e31f6661f7e46c1c290e0e01a0cc161566b153f5251779208",
+      "tools/rmt-language/project-watch.js": "0f78408ac38c7d5c41dfb7a0c6853ac89abb67f3334d64142e9a81b2a5ff47ac",
+      "tools/rmt-language/rmt-ai-developer-kit.d.ts": "6076fc2b37b3c52abc78850ce8e14a0bf26c06be09bba6f404ef4ff8d17724cc",
+      "tools/rmt-language/rmt-ai-developer-kit.js": "c13c17079e4a163a702c073e03baebc33dd569893806a45d839a76f8fa22f483",
+      "tools/rmt-language/rmt-project-context.js": "a602196a458a22a5258fd4085a910a5b92ca1bb3d972e15441ee67b34eb259e7",
+      "tools/rmt-language/rmt-project.d.ts": "825657fa6d36f81530542ce3bfb7f5469aa26f2492260bd2c7cd69c6186473d4",
+      "tools/rmt-language/rmt-project.js": "fd2cf7eb767389d37af5bdf6f1eb5cee6b58503d0e97077bdeae0017089eb745",
+      "tools/rmt-language/rmt-tooling-public-types.d.ts": "a7c4d28ad15b9d7d42de1cb17824715852f12d922f5d66255704a2425637e139",
+      "tools/rmt-language/rmtx-compiler.d.ts": "8f2ed558b8d6a2abebef8c7d402b13a61d0d9e77d9a9d819ea5425670c950d6e",
+      "tools/rmt-language/rmtx-compiler.js": "0a53430dd7c70d36ec1b36c6ba1f3f10a2470bc33e853d27e54edf40c61db3c9",
+      "tools/rmt-language/rmtx-component-bindings.d.ts": "ac99b0655d1e6a29aeeca27d00c8dc0542b293977d6d3c34719a7fe78d4c1782",
+      "tools/rmt-language/rmtx-component-bindings.js": "928c94e02699049395b9f3cfa32e6cec34bc6e16586248cff7cef10a49b8cd1f",
+      "tools/rmt-language/rmtx-extended-operators.js": "a27401ee8dde2d89db66c64ca9fdf087219154a148a2c47d198de325763f4f2e",
+      "tools/rmt-language/rmtx-host-scopes.js": "cb56b867e74e87bf6bb796b3ae1c36675b9030d9a45a550f97d3553a885c7d2f",
+      "tools/rmt-language/rmtx-language-service.d.ts": "03013ff02a199628dc130a1162546114a30675d4d5651b29726e2340a825f3b5",
+      "tools/rmt-language/rmtx-language-service.js": "6686ed57d3c4235d8a0ed3149f3b77658b5f4f1c18926acf1a91e791c5bc864b",
+      "tools/rmt-language/rmtx-native-component-bindings.d.ts": "f17a491d07a363cc86d1646ab1f24b5c2a16ee46455cd90f60b96d7addea8269",
+      "tools/rmt-language/rmtx-native-component-bindings.js": "ac4b6015f3105c483fae0c684f6d513aa85cc3354eb9baaa2556869054af5384",
+      "tools/rmt-language/rmtx-native-components-v2.d.ts": "dda9f5b6fd30f8c0831337d3d74bb02b8f58d2852fcd322df040d6d50c0bacd1",
+      "tools/rmt-language/rmtx-native-components-v2.generated.d.ts": "3bc1c20924478755263c5161d0c6ee2115524305abbb223eadbf1d75d24a01cb",
+      "tools/rmt-language/rmtx-native-components-v2.js": "1eee9f704cf87b3e9737c18fabff8058490bbcbe5c20a8cbfec7356b5aa92c5d",
+      "tools/rmt-language/rmtx-native-components-v2.json": "b4529fecd6b24569e12dbd1a121da6622aaa58dd9a4e3fbb08e9b76bb0059019",
+      "tools/rmt-language/rmtx-native-components.d.ts": "551082895743ea1c6fe2ed32e2381e64370cad21d3c0e6c0a46c8bd21bee5cab",
+      "tools/rmt-language/rmtx-native-components.generated.d.ts": "8e9eac047e1c9eb737f8145566fd76ebc7e4d568841bb737a0cd21169bf8589b",
+      "tools/rmt-language/rmtx-native-components.js": "fcaf5a54f193fc5baaa78d508bcffed9e647c212e28361814c638d264722787e",
+      "tools/rmt-language/rmtx-native-components.v1.json": "8be8c16abfdc686b1186f2e77712303637e4cc301f6c02f142fa962e5fca4e51",
+      "tools/rmt-language/rmtx-native-lifecycle.d.ts": "488439b153ce8d213fb4886cfc8b70967883758f045bdfbb83a44e3c03067186",
+      "tools/rmt-language/rmtx-native-lifecycle.js": "3af7912b5bd2747a280567a13556a904e0ce3f2c87badec242d9c7ac1f7fd76c",
+      "tools/rmt-language/rmtx-native-view.d.ts": "73c548f1585e53faa0803d9f923eb31a9817b3cd6c7eff92957b268f8dd80c8a",
+      "tools/rmt-language/rmtx-native-view.js": "2c70a425f78795c5ac6abf7a492dbee772e367d089b3aa2462fb33ee8976cac6",
+      "tools/rmt-language/rmtx-operator-coverage.js": "c4742d000786d1679dbfa375b223499567dc93ef55649b6cd7589a033cf05f94",
+      "tools/rmt-language/rmtx-operator-coverage.json": "38a39759c35f6bcd1e85eb46d4e24680761da48779f3766520f43bed675ca17c",
+      "tools/rmt-language/rmtx-operator-profiles.d.ts": "242966aaba13e37dac28c16f963e6cf980d14a59777e307e0cfa59a7f47566a9",
+      "tools/rmt-language/rmtx-operator-profiles.js": "4fc42347933f3f22083e4d111d18624e5efd3c1d551d4d3bc64845c25eaf724e",
+      "tools/rmt-language/rmtx-parser.d.ts": "2ed4184e4edd5b3e856a1a67231ad1f72805cd675761b3f034a1254686c1c4f3",
+      "tools/rmt-language/rmtx-parser.js": "e50d78a1d5df9adc10a8bc62cbdd6108170ba8cc7ace7e35431fc6203ab0fb10",
+      "tools/rmt-language/rmtx-selector-dependencies.d.ts": "3cbb5431317afe92c33ce54995d49f6f11c0a72ba64941ae21d1482632449ee7",
+      "tools/rmt-language/rmtx-selector-dependencies.js": "3d57fa5655787c60cfc1a495321292286cb9583adb4ebe95f539eb0de81f03e5",
+      "tools/rmt-language/rmtx.d.ts": "41cff4edfa316c51db52ec2d35ae1e90b89188bc977b8eb45c40c4ecb1906834",
+      "tools/rmt-language/rmtx.js": "bcad67886a2b47f91cdc78041b7f86744343185372c1b20bd37ed8f0c5b08d4e",
+      "tools/rmt-language/rules/app-platform-policy.js": "38bbc3d3b4d4e4d1c2c920c2f8125849d71106ecdd18714deb8b417db496facd",
+      "tools/rmt-language/rules/boundary-policy.js": "07aa0def755f48717a7303171e56a6901cd99fc32565eca2a9ce014f99ea33d6",
+      "tools/rmt-language/rules/document-policy.js": "f1727373e4812c64cc827d9d8627414f91e1aea29585b0092a073579817903d2",
+      "tools/rmt-language/rules/index.js": "68af24ee425be4c24a0cf1aedb6bddf00796b1c19a1ae930447ac78695da787d",
+      "tools/rmt-language/rules/route-policy.js": "c33f04d0e5cc02b8bb9f192ffc8061409c1d2f749080002dd55c45a29ee31a45",
+      "tools/rmt-language/rules/scheduler-policy.js": "b5236b5c6caef98328518aa570c1fd6b0952175f8609d1b546f0a9c93e70f5ee",
+      "tools/rmt-language/rules/template-policy.js": "b362bf682baf9c43ea09b3446a2251f476b8cda2ad046c021b7aa7ad3cb015ea",
+      "tools/rmt-language/scheduler-lanes.js": "a0d76615b3cfbe2639a96af01179f987407554040acce54aa9b4dd99516f9b76",
+      "tools/rmt-language/semantic-graph.d.ts": "62c8e33564438919ebf8193e88fdbd061fe1d4e19a126f2c2cff07bd3e20d2b7",
+      "tools/rmt-language/semantic-graph.js": "c641e0675f0f327bf76728ad2da3bf3d4a7b84437ba11f4d9cbeb8752f871df2",
+      "tools/rmt-language/snippets/index.d.ts": "8bbbd7596aff39971e9488d63c5975f80deb0d16de6507c5aa8073df12ae0a3e",
+      "tools/rmt-language/snippets/index.js": "0a279fc8079ef4d1aa3b0aa92dcae47cf3c34ef592e7d0330ce5e4084df2b9f7",
+      "tools/rmt-language/source-model.d.ts": "eb5cd92198321a6c74b01e4ae91ad4d671f249f2acebc6cd5d40940bdaa155de",
+      "tools/rmt-language/source-model.js": "73aa135d823f7452283da29eb29b5c9e5a45a20e7649c9f99c38a08d04d243b6",
+      "tools/rmt-language/super-prewarm-worker-experiment.d.ts": "3befe5297e5a31157a268b1bbfc678967aabd83274d4b4abc01a630573d2acfa",
+      "tools/rmt-language/super-prewarm-worker-experiment.js": "250e5fca8637df0b8a95d02b821bafe38b4eb07702aa2bb1939b02ab9fb437f3",
+      "tools/rmt-language/symbols.d.ts": "405d259a498d66d956bf9e5d10451076b55b4be4ada9e8a1866b2e007f873859",
+      "tools/rmt-language/symbols.js": "8d5f4d1be5b3382ec08ededbc670fe3e53986ae13ed8244f3266a57f40d8f89b",
+      "tools/rmt-language/vendor/fastpass-contract.js": "af8e26104243deea58ccf3a334d67ecb3286617146257074a29eeb7866a3b1a3",
+      "tools/rmt-language/vendor/manifest.json": "588c8d474ac376cb59b6787cbd4e5460e746c61a9d5e5b211ae92ab631d58218",
+      "tools/rmt-language/vnext-compatibility.d.ts": "cb04c2653a45f029e1da4bf797e28fdba5b072fb62122130016fd2e4db09ff0b",
+      "tools/rmt-language/vnext-compatibility.js": "1f7f1b22cc489f278a4b07ecaecf10c782ef25bb701abe1fac035e9ad8e6d960",
+      "tools/rmt-language/vnext-compiler.d.ts": "aaeb02549ba52984b0131ba633238deb917162b2a622e0df14d24bbbb7770212",
+      "tools/rmt-language/vnext-compiler.js": "f6ce4b76cffaffa8a5c3261b131d6a9f74499a181ff4391ec205a985f9eda642",
+      "tools/rmt-language/vnext-composition.d.ts": "ec8b20cce62c7f15c818408d07a6321a730c86378c7a1aec335deb1d21cec400",
+      "tools/rmt-language/vnext-composition.js": "7a0b2aac4a26e761b182c95efa3f489c6e776c8c03ba57a7bb7f87a29f285390",
+      "tools/rmt-language/vnext-conditions.d.ts": "7da0425e2ce56494b2d446b9053723a50127072ee3a1ef619547ef7529603c31",
+      "tools/rmt-language/vnext-conditions.js": "8cbcb89982b8b0bb8dfca5f9d7807d6338748f8905c3981afce0b80d15102125",
+      "tools/rmt-language/vnext-cross-surface-events.d.ts": "8e8a37ef5f5ba733447ced67bd0446d0efbb906abbc6f575b79b6d0624166fb5",
+      "tools/rmt-language/vnext-cross-surface-events.js": "c50bd4a8c15c77835ffe73704c236b54bed16707a92ee337ac134581988d7cae",
+      "tools/rmt-language/vnext-degradation.d.ts": "62be8b20689840031fc9c020e00d4aa8600f8f634e1cbc99cadac45e7d143428",
+      "tools/rmt-language/vnext-degradation.js": "c70a2552a2e10128954e18493d239b60aa966cdb4e5f408737e367298551696d",
+      "tools/rmt-language/vnext-enterprise-fixtures.d.ts": "b1bc8a316539e1b0e6edefb31f5d4179e2786d77fcd05a2741c37b5edb80929d",
+      "tools/rmt-language/vnext-enterprise-fixtures.js": "35bf3ffc53646d7b1373b714257dca8c8108f459e8872ee371df652e30245fc8",
+      "tools/rmt-language/vnext-enterprise-registry.d.ts": "b2e08b1b321acdb728dc671018e301f29de25033fb5d72a47c8647ec954a361c",
+      "tools/rmt-language/vnext-enterprise-registry.js": "66d67ca37a482bf4135f37c6c55c42d2103efd367eb1d496916ffb96bc254905",
+      "tools/rmt-language/vnext-enterprise-release.d.ts": "d67b1b2578f2761e12c9861b594ee6525cf1a745a42648c1503ea7cf3e066a66",
+      "tools/rmt-language/vnext-enterprise-release.js": "fd5d09dbe72a59aa1bc2c358b3c8a2ac75a73588e4f243618f3c4cf5fc8f5114",
+      "tools/rmt-language/vnext-event-governance.d.ts": "614266ac7785f38acbad0039b709d749dc7c7ed8863c42a31538ee7c54b11a3a",
+      "tools/rmt-language/vnext-event-governance.js": "a0ad1e6aae8da5c41bf814239cb41202bd92c3cffb9fda1f22e42b9d2cd65e52",
+      "tools/rmt-language/vnext-events.d.ts": "132e3381fde4d6326c9a5591e7874e547115766bd3bd826b30fda010499cfbae",
+      "tools/rmt-language/vnext-events.js": "679e1a7da335cb9adf992ff272163670d1ab406d3cb9f7c9381f008d1c5defc2",
+      "tools/rmt-language/vnext-import-resolver.d.ts": "5f19779741b094e8398590266a3b4af7f0f5284d1f732c27899f78d6cba37df4",
+      "tools/rmt-language/vnext-import-resolver.js": "868e9504655bce2b012f4a02bffac16d4d6185e3553548908eace74bb059085d",
+      "tools/rmt-language/vnext-lifecycle.d.ts": "548d0601160b4df9a3486fec5deecb27c63b8859fc34a8c8d4296b7f13468aff",
+      "tools/rmt-language/vnext-lifecycle.js": "4e96015e0853dbe932486e6526476590849cfc8341de53c01a3ce0a191b69436",
+      "tools/rmt-language/vnext-parser.d.ts": "39d3c176c235a3293cfbe51635541f2aef831b6b79a0588463968b825d12690b",
+      "tools/rmt-language/vnext-parser.js": "80668bc8c738f5fda9ed3149b367c3e3388eac9f1ae4f90650d65910a5359579",
+      "tools/rmt-language/vnext-regression.d.ts": "328cca56f15fc73da30d3f976a787a45dad8e624b11eb63c488b82905b79b5fb",
+      "tools/rmt-language/vnext-regression.js": "323cf5349cb82075434a2c8fb0c71d8dafe22bd6b0c5da2ce261f84abe076163",
+      "tools/rmt-language/vnext-release.d.ts": "eb4f92b0847221fa1f75575e4bad222afd217629ee29395fa97449953e4b4bae",
+      "tools/rmt-language/vnext-release.js": "4dda3ec30d064d7771c4d723db4275f46f9258f0fe267761bb26583936cd57f0",
+      "tools/rmt-language/vnext-remote-compatibility.d.ts": "364b246a47d9b7dc8f999f8c52c3f7e8457a560581c71cae15f0d3917ba7bfb0",
+      "tools/rmt-language/vnext-remote-compatibility.js": "0f845c1a742bd7eaed5e21e6eb016f4d3d03bc6d50a20eb2d79e10e95df94082",
+      "tools/rmt-language/vnext-remote-compiler.d.ts": "db8e79c600222ba87c7ac9425cb51e51fd2adaacffee2bf39fa19efccbf5cab6",
+      "tools/rmt-language/vnext-remote-compiler.js": "ede3cc4e5e5975e260a2d751e59278c1d538fca89430725d52afb029ad5f0564",
+      "tools/rmt-language/vnext-remote-manifest.d.ts": "0b7ae83faf71b1a3c785feb69467a7d86db32f9eeb0b2ac43b6112b3e366a9ff",
+      "tools/rmt-language/vnext-remote-manifest.js": "5c452b16935ab6897b0ee877258a7a2d8932ed5400980823fd2f5bf42f4e6409",
+      "tools/rmt-language/vnext-remote-security.d.ts": "89db6588d55a73432e5acdede73acc3e90241281b5686dd3877d27615727b51e",
+      "tools/rmt-language/vnext-remote-security.js": "2339cd2870690d0c8c04c17c24b57dbc8c530821c88f52e6364a837af99daf8a",
+      "tools/rmt-language/vnext-remote-tooling.d.ts": "1d5d055e195fa9efeff26b00292701ad649ca0058f78fa5e1cc49be3a22d8f0f",
+      "tools/rmt-language/vnext-remote-tooling.js": "27a22693053bff686b298765eda3d4f2aba32209426c185feff847cfed11cbe5",
+      "tools/rmt-language/vnext-scheduler.d.ts": "a764d2f061a7647e8265e512f6d783cc57d78c108212396521545b56e3ba0f87",
+      "tools/rmt-language/vnext-scheduler.js": "9d6895fbb88fa58a1b1821f7dae139a27beb170ab1abd49d68ce09db68a2a5c1",
+      "tools/rmt-language/vnext-security.d.ts": "2b3295c73364164bb7785e2330a223017a0552be4bedc131cb3e0a3a82fff894",
+      "tools/rmt-language/vnext-security.js": "370f5c798d2612cd4d42ffef496b7dd2098162200e21b0234d2be52cfda8a336",
+      "tools/rmt-language/vnext-source-to-sea.d.ts": "dc13afa296db98924dde64300d6c8689c07a9aefe2d824d42de61776281f83ee",
+      "tools/rmt-language/vnext-source-to-sea.js": "d07e97db6a18dbed5220de08d6cbe3a47d9da382ab01ae870760206ff938a3fa",
+      "tools/rmt-language/vnext-streaming.d.ts": "650aee2761f40ce1fc36504a9a0d0b82a9f85c215c3faccf76024ca7d15b64a5",
+      "tools/rmt-language/vnext-streaming.js": "e8a5bfb65f985edf221b6aff61313f7a4ed223ef0156eb981bdc8f2c6b3a2265",
+      "tools/rmt-language/vnext-surfaces.d.ts": "16cdfaf5b2e122d7d383c7897648f52aed262fc4912bde73a5605aab64b3f28e",
+      "tools/rmt-language/vnext-surfaces.js": "1597067ef327723606460f6d9718f6f47178f3ca4aad8a667df363c10ae9e385",
+      "tools/rmt-language/vnext-tooling.d.ts": "14af60e315c3eede3a554b7bec11b9e695c1b8bea8cfa41de01561416a53464b",
+      "tools/rmt-language/vnext-tooling.js": "12bdf9cbbd4c44ffa49d374071d80569fb65f56d22c7abada0cc352b2488f6ee",
+      "tools/rmt-language/xscaler-protocol.d.ts": "092f22b583a1f944282cadb4a186ae61b15b42f99a188febd478f023547fa3a2",
+      "tools/rmt-language/xscaler-protocol.js": "b9637746b9e7432859eb49d9b175e1653c4deacc295481b44ae1d737fbf02377",
+      "tools/xtensions/adoption-handoff.d.ts": "90429feda900bad38b9471584f9e1281949be798e8efaa6528daa2dc5930ed9e",
+      "tools/xtensions/adoption-handoff.js": "b9398d87bad5c53b7dc2dc65405d62c6348172d6b6fefcc3032376588f1f353d",
+      "tools/xtensions/angular-host-adapter.d.ts": "3dc30af8e475c4d867b3242a5c2314ef5370db3e799da903a4c53fbcf7a7e770",
+      "tools/xtensions/angular-host-adapter.js": "5f0595006dc3410d5893263dd08b8a330df91b140c01ed66d7e0b94421a1bd67",
+      "tools/xtensions/component-interface-build.js": "8a9fbbccf7b12b68f054f5a2a5a62b4aefe726eec2f598bf1b173d91ecd9af9a",
+      "tools/xtensions/component-interface.d.ts": "4fb0bb4ab3163c856c0ef7d78d6a888b3a1d94b35c4dbaf0172aef6a8a61dc3c",
+      "tools/xtensions/component-interface.js": "9c0b45fdea6f8dc98563144a9bc000c997800a2f0f57f433b9e352539cdbcae2",
+      "tools/xtensions/component-interface.v1.schema.json": "ee6e3c40c66f69e2b39ecf6b7031a9bd16afc576fc5e0884e286eade49399f36",
+      "tools/xtensions/component-interface.v2.schema.json": "db772ecb0e874e73ba21406eadbcf6577302648d0eea13a5f41a1c992b6542e1",
+      "tools/xtensions/cooperative-resource-scope.d.ts": "153d15cd63d7ea8437372e94c22051d580301ac2086c8aa2780d74d98aaec479",
+      "tools/xtensions/cooperative-resource-scope.js": "ba8f05d9f5ce605512c95d45b3b563c6184e88a2dab5874ffdcee2c1836174ab",
+      "tools/xtensions/diagnostic-trail.d.ts": "f9c03bd2292b02c26e6b9d413459f81bc73bd2593d36fb3a0530afe325b66df1",
+      "tools/xtensions/diagnostic-trail.js": "2caf92b3ca9533dc11639c4a9229c87e9d4c07995d78094d3b4e6af6b124bcc0",
+      "tools/xtensions/framework-ssr.d.ts": "c5d96d1c34dd9e914527c9b7c3afa1b251c1df6018c9ccd2d2262e047e4e0578",
+      "tools/xtensions/framework-ssr.js": "6b4c457f2ac54762afcfda78314e788ea9e119e939e93ed9d63355991e31a700",
+      "tools/xtensions/host-capability-negotiation.js": "762751a35c6e99eccb66cbad3b0d885098dbd949ed4b5a774a3671a5bac02373",
+      "tools/xtensions/host-controller-contract.d.ts": "5137df09aa1173e3eb7172da2073c659c3a7d5ab9324b60866c1d8418f644989",
+      "tools/xtensions/host-controller-contract.js": "fc168ff8cec8a95375942f9ef2871ed3cdbf74cede192c708dd374efc14278b7",
+      "tools/xtensions/host-resource-cleanup-record.d.ts": "2cbe174ae3d9a3ab5862358c53d4522c51162401ecfe9cc3c26ca8bde9541bd7",
+      "tools/xtensions/host-resource-cleanup-record.js": "631ba35928b8e8a990dd05b245cd61333984197b866f4c46e0821221404a4a6e",
+      "tools/xtensions/imperative-host-pocs.d.ts": "6f06f96bb960d0d7b10f2b6c98ed4ec81bc9337817f6c37aac57864bb3da7719",
+      "tools/xtensions/imperative-host-pocs.js": "ef4579ecfa747d261562a0b7b93e03e4c1d0b76e4393b9d2683f249b873a9db9",
+      "tools/xtensions/kernel-work-scope.js": "2bc544e13567898f8c4eefd973c66e62c29f616477c103e21b28a0f39a716dc8",
+      "tools/xtensions/maraca-xtension-manifest.d.ts": "1f20e947f6c4f3fa9cbb2c4d54075b8c793219d94da6a480b2ba3acb45f1c6f8",
+      "tools/xtensions/maraca-xtension-manifest.js": "267f8009ab0679ac044e6fbe826b251bf54d00e090aa29ad218ffc2ebea521d8",
+      "tools/xtensions/multi-framework-dashboard-fixture.d.ts": "e6dc3a35496e92d2a53283ade0111bd43691621d562ee26412dc25e18b587364",
+      "tools/xtensions/multi-framework-dashboard-fixture.js": "45e6a8ad6ca4fa90ce913b6b41fc99f662de0a23d151f079451b7d183a0f0af3",
+      "tools/xtensions/native-component-bindings.d.ts": "f50ea99b7371556e878a81baedc76bf5819abe915d35a2dcf7c4ff06e3fb29a0",
+      "tools/xtensions/native-component-bindings.js": "cfc47bf0af1079f58c54763e8cba1b6d8d47d07a1226d0171377c634e2b54ec7",
+      "tools/xtensions/native-component-catalog-v2.js": "27a25ad2578fbf2fcb0df9b9c98f4fc6c7698355e6a108d40afcef825d6193b6",
+      "tools/xtensions/native-component-catalog.js": "5a9ec040fe98e17fc75fdd9081976f2f8b7ff7c825e8318dbb67c52d995e6936",
+      "tools/xtensions/native-component-contract-v2.d.ts": "dd065a7a42d882b437b61ff2368af4848dd47c2b96cb3656f7d5f7fa4e8b6b02",
+      "tools/xtensions/native-component-contract-v2.js": "41564661296d9131cdf37beb3f8a0b3340aa0eca7e075672c3f9688d3930cb1a",
+      "tools/xtensions/native-component-contract.d.ts": "e58503b02f4759d42189138ae1ee1d91279f1cf48793ede65c413902d83d7421",
+      "tools/xtensions/native-component-contract.js": "757d4ff5cbe02ee63bd2ba32bb2bdf5bab24c0dc377d949465baca0a23af835b",
+      "tools/xtensions/native-component-managed.d.ts": "6af76f25e7b1368b4d06bbb5ab7cf2f8f81cf947ca5f9713cb9ea1dd0ce09433",
+      "tools/xtensions/native-component-managed.js": "e382bc79eeeaf9cc1e5216d19dc1e0f16044dfe9392545f413972c95ddfc1a34",
+      "tools/xtensions/native-component-source.js": "81e8a6dc635a55066dfd47e4b309952a7d85b3b7b128960a2913e4fafb07e5b5",
+      "tools/xtensions/native-data.js": "3fbd1e9f29e1b133f3042106a46eaaede2107f38fc71851c566a998f0b397684",
+      "tools/xtensions/native-lifecycle.d.ts": "dceafcd21e056e4dfd1a006c430f9f3a9689d86b11dbbfc4cf2e087c6437a55c",
+      "tools/xtensions/native-lifecycle.js": "b1d3419d077ab63b8add830a735f16b6c70b53ca92afe46a7c50ab9f0c6e7562",
+      "tools/xtensions/native-managed-component-registry.js": "8e0a978d82fe2bae4482543961c4a135301936e82a96eed34fead9d3225ba274",
+      "tools/xtensions/native-managed-lifecycle.d.ts": "a7945065e7a24ca46dff681988830f5cdea16cb043b0a03735997fc0e0eeba81",
+      "tools/xtensions/native-managed-lifecycle.js": "0c5bcf91e870b066bf5a055c78b904b3be1f87b5a53db245291abea28141a6dc",
+      "tools/xtensions/native-managed-orchestration-lifecycle.d.ts": "b9cb5d6f0a5b2160c16c4255fb0042aa1e4d4dd26f7ad9ae9da7dcb07589ee73",
+      "tools/xtensions/native-managed-orchestration-lifecycle.js": "a2cefd6726bf652478f9a4001ae286817d44e0d9c0ef603ec8fa27384bb5a41f",
+      "tools/xtensions/native-managed-surface-scopes.d.ts": "ae142b8f262a3c896530e267986a5213df95c9cf3bdaa71d0204ca65e4b6cc3a",
+      "tools/xtensions/native-managed-surface-scopes.js": "f5a1e1e5bf7881a8914f1024f22ca00918396213fde8a5666987700438cbde1c",
+      "tools/xtensions/native-managed-view-projection.d.ts": "043ceefec72e03bc1def410abf11aaa73944c427376db7cd85ea4ca7a9be9938",
+      "tools/xtensions/native-managed-view-projection.js": "2381cd9314a6ec8e503fed6ac33e5466bed5eaaa95faf139d0e151005570b323",
+      "tools/xtensions/native-managed-view-validation.d.ts": "a29d820d243a11e5fd02f0a6b8d381809c2ff31538d345ed99c8d3689b9aa747",
+      "tools/xtensions/native-managed-view-validation.js": "91f4dc1336f6344e0c356cc61fb127a648bcf7dbd996369c6ac520da97cd6201",
+      "tools/xtensions/native-orchestration-lifecycle-core.js": "7e141e9efd03c786145a12d65181270a86f2971481a5f7adbaec06e857cf4827",
+      "tools/xtensions/native-orchestration-lifecycle.d.ts": "3441597c8e842d620d24593eff7c4189aae2a6be4ab7d63e084c125107734797",
+      "tools/xtensions/native-orchestration-lifecycle.js": "99378013ad40a3f48b1cc51a0aeceac4279f5d5cf2cd363f61605491178c72d7",
+      "tools/xtensions/native-sink-contract.js": "59089b6fce9afb48785ecb98c243a66086fed31bf5a7e09083714b3c993ea3cd",
+      "tools/xtensions/native-surface-projection-core.js": "ca5dc9a1430cf309bb973a601ebf1c49183e7ae4ca727b62f7cacfa539a5f7e5",
+      "tools/xtensions/native-surface-projection.d.ts": "3bf8086cdc250dfe79e10cb839f35290f56019eda131bb6aadd15a6601e3e533",
+      "tools/xtensions/native-surface-projection.js": "24d81d71027d3c30919a08b8d3ce35a19eb73660b2e0048ac3cb4f17dd3c1945",
+      "tools/xtensions/native-surface-scopes-core.js": "a0fbb0d5aac3e7d2e1c583cdbf32bfdf48d0c3ee956d25194bf17e27c980a97c",
+      "tools/xtensions/native-surface-scopes.d.ts": "ac84f887e28fc58c4f18e6d6fa42608d4f693aa459b894a30de9c9e304295696",
+      "tools/xtensions/native-surface-scopes.js": "83fcfc57293036530d7ae3f4d911d0769655bfed433221171815eaa9cb3cf3d2",
+      "tools/xtensions/native-surface-validation-core.js": "0f663176a1c592060becec416e2aed210bb6ecab2d725d17dc9c015f302885bd",
+      "tools/xtensions/native-view-projection.d.ts": "c3f4cf877575c9f8eb79a17cf85e54495dec685cd364f2be09b4fbfdd8b81ca5",
+      "tools/xtensions/native-view-projection.js": "d4af727f82b66f0c757062cf6c696490f53df135aeb4471e462b0dadae58cc89",
+      "tools/xtensions/openui5-host-adapter.d.ts": "6134ce59b9ee5959ac075f2c00a558d50cb9da41974ad7d7e20d7760b8f958e6",
+      "tools/xtensions/openui5-host-adapter.js": "a6bf0947d8b48282d6336ccdcee688bb578f2a9bea0324a646be96d13b9a61e9",
+      "tools/xtensions/react-host-adapter.d.ts": "5dfac901efe6b67dae0111a00588f43db2688d2ab7d6e6965680e4767447da66",
+      "tools/xtensions/react-host-adapter.js": "5fc08eaacea435a627d711611477b66fe2e66545236e427901e28fc915175d84",
+      "tools/xtensions/react-host-controller-poc.d.ts": "996f7c068339bfee9fe6a80e0efb71e0031b71adc448263439c3c00d1a42bcf6",
+      "tools/xtensions/react-host-controller-poc.js": "dd136f2a3cfd4b25b69d3c0150cc7c3553f0168f46ccd7d58b0533e66dad39a8",
+      "tools/xtensions/react-payload-boundary.js": "a63f4bdc1d39813d81f07623316e5e1814ff44e5cc29f93a17145683385ddb5c",
+      "tools/xtensions/react-runtime-adapter.d.ts": "10700c9d08f2e94a79168e89a57d0a77eba223c89491aaf6d50ebb1bc33074c0",
+      "tools/xtensions/react-runtime-adapter.js": "e780ccdfcc00ca7d75bec3b2bdebb383e3caa2fc40d3bfdaf4bfe85995a0308a",
+      "tools/xtensions/react-runtime-boundary.js": "647575e8da3f01a63df9ee6cefe1d0dfd61f056633972fbe46e9ceed5d617596",
+      "tools/xtensions/registry-package-strategy.d.ts": "8e1e7b58ff45146925215fff825e05986977d802ee01c1bd5bcee2d287ca7833",
+      "tools/xtensions/registry-package-strategy.js": "b38e438db65229a3ade6304af75fbe445d65d28dc0bd4622372b655bdedbd53f",
+      "tools/xtensions/repeat-scopes.js": "52a2860132aacc6da0ed95cac68128193180ebaeff91794d77a1a8b8764599d4",
+      "tools/xtensions/resource-graph-binding.js": "0488d4da2eed0c8689d4ec7c49860665873cfcbc433bf52f458575384edf67e2",
+      "tools/xtensions/resume-adapter-contract.d.ts": "a097da80789949511fa7042914e60c3bd7e247cf1c10d5690d8194e964e65dc3",
+      "tools/xtensions/resume-adapter-contract.js": "7e545c9e1be3b1312dd1ff0f583572a6910a4b1b25ea8f9cb70ea6c6b29e6073",
+      "tools/xtensions/runtime-capability-registry.d.ts": "c3dbef0ff61baac66489a908b95abcf93c6c3e943377ca27ea44ff0b6dd6edf4",
+      "tools/xtensions/runtime-capability-registry.js": "c82536dde3907a3b7cf530d0b4e7767d643c932d3ede2688f8b694d6e792d4db",
+      "tools/xtensions/runtime-host-controller.d.ts": "b88df57206eae655721549bd699e8054e48189eea46e40c39f7bfc615a993e9b",
+      "tools/xtensions/runtime-host-controller.js": "9627d38ad20200c2c846a7eb057dec28f93cc012f63b76fa0c5a86de785a4574",
+      "tools/xtensions/security-integrity-gate.d.ts": "d01a99e38c33825c6808f960b897aeae2801d48bae1e9020921a9c839e961fc6",
+      "tools/xtensions/security-integrity-gate.js": "219761e8ec8b33988d618c4cfc64b268539033522be74e4a5f11963fb1be2ca0",
+      "tools/xtensions/signal-bridge-contract.d.ts": "cfd7401bf328d59fd230a4a06669ab45fd4a2f957f7c0aa12996fe2b428ad761",
+      "tools/xtensions/signal-bridge-contract.js": "63d56f44011907554c7b7e6b336daf115bee90f29847debf6e088a5a03f60e1e",
+      "tools/xtensions/state-binding-artifact.d.ts": "7af9eba63333fd6dc684b8b383656c6f56e1436ca4fa55c9ae4385686aba92bf",
+      "tools/xtensions/state-binding-artifact.js": "fd4435ffb4b1034adb76cda66a2dea7cfb439cd76ad947a128fa698d6735f907",
+      "tools/xtensions/state-binding-contract.js": "857867ed26115ea9aa966b7c3e74099675c890f5bb3bbc4c890dfa5d581af2b6",
+      "tools/xtensions/state-binding-managed.d.ts": "7cba0805ab421c6d50a45702d0284bedcb97219df5b701048d5032afc3db5894",
+      "tools/xtensions/state-binding-managed.js": "21288b74dce9e0104bcd571063150197970e254a8e2845ff29e7c7f06381502b",
+      "tools/xtensions/state-binding-orchestrated-disabled.js": "a379e82cf80b5bc9914ade2b1067e2283a0e2412198c010ad7f0960f9ec3b0ed",
+      "tools/xtensions/state-binding-orchestrated.js": "25576e92eb149ad9bcad2f32dd63d3ae98c8f619873f4ce7765d00fa636a617a",
+      "tools/xtensions/state-binding-projection-disabled.js": "c0bfee6ef6138a4a14d9f95526d1cf97ff04d57a77dd10c6769f9fb60d4137b5",
+      "tools/xtensions/state-binding-projection.js": "62d116bb6a8fcdeccdd0426d5c6a21537d3e01c952393b4cc82f1f88b0aea739",
+      "tools/xtensions/state-binding-registry-core.js": "d33a69f98cb9b4d5d2b4eaf375f23add41e94ec466dfd122250906cf3aed77d0",
+      "tools/xtensions/state-binding.d.ts": "c107f80208183fced3c5031c3a9a9c9d4dc2ab95ee5b27070de88454d1b48810",
+      "tools/xtensions/state-binding.js": "6c2db5ef127540d95b2ba99bdd64e353f54ce25e40752df7edd39c2d312ad34b",
+      "tools/xtensions/static-contract-introspection.d.ts": "a2cd5c2c076a31550ee7c03aaf5e8e3199b6bf2d414be5c552f826a6993fc270",
+      "tools/xtensions/static-contract-introspection.js": "0bad8a9904bec5db7445686c5b6b8f14072eadefb1a9615f4c328dc538ede1a6",
+      "tools/xtensions/three-render-loop-poc.d.ts": "30897d8f189961269e37c17ff4ed394e4f9a73416145647c26b8840036e03a3c",
+      "tools/xtensions/three-render-loop-poc.js": "adbc1757403f693114932d20fcd3e5071ef106c262d228711461e6915f0fa562",
+      "tools/xtensions/url-state-contracts/history-proposal.v1.schema.json": "63aadd491141cd781ebcacaf4a903421e079cdedae89689531efd41c65d8f1b0",
+      "tools/xtensions/url-state-contracts/history-proposal.v2.schema.json": "2b63c3eedfcf9220a609ea04b67d9b588fa8e034db78b7aef46ecacaf78cba0b",
+      "tools/xtensions/url-state-contracts/policy.v1.schema.json": "bcc9335779f6cb9f2752800dc9054184a1121bcf8b08af923c0218d7f292067d",
+      "tools/xtensions/url-state-contracts/policy.v2.schema.json": "9ec44bb834471bdf94b55f43c01f76e0922a0eb68861263fd2d8a40bc0f29c6a",
+      "tools/xtensions/url-state-contracts/restore-plan.v1.schema.json": "57d5ea6e30f2378a66f418e5d601e201ac2bc552b719be1bd8d94d03877aeab0",
+      "tools/xtensions/url-state-contracts/restore-plan.v2.schema.json": "3f952e46330a5379fa9a323132e9969608f6ff01f30612df149f12e336ba0ddf",
+      "tools/xtensions/url-state-contracts/state.v1.schema.json": "8a569847a037c463aa26b8cfa46f660a20b3a0afc7ede5de1dbd57bfa32a57d8",
+      "tools/xtensions/url-state-contracts/state.v2.schema.json": "d9a2f1b973f43bc5adc7b2a49c0e84a473af0968cda3e6a1d720f0cff02fd442",
+      "tools/xtensions/url-state-managed.d.ts": "163fe9ce7cec6c8a28f9caeb07118b0898b4fdcc317e7684bbde6de580494301",
+      "tools/xtensions/url-state-managed.js": "5cea854d3641fae6f289bdfea372175d0766edea543b08a9c2efd5c7d8b68881",
+      "tools/xtensions/url-state.d.ts": "35f6de4b4e0d17742991073f1a689b9bdd4827a1240a968442e9accada759d0c",
+      "tools/xtensions/url-state.js": "d4d35ddf7bf40de80acc161cd99abf3a8ecb21bac18ad4830c6a31f183e3fd72",
+      "tools/xtensions/vanilla-host-adapter.d.ts": "d09d51af3df2e6e645e3d23354d6dbcc6c91728720495f3f4fcac5602ad30903",
+      "tools/xtensions/vanilla-host-adapter.js": "9a11d99d2571fe537c84ade01b137fddce83c0132781e560c4fecf2c4fa08045",
+      "tools/xtensions/vue-host-adapter.d.ts": "7d056b5dd80101fb7a3487d7703f82858fd16eaf968b05c5b64a501aa3f2bb0c",
+      "tools/xtensions/vue-host-adapter.js": "833734a7b55d7313bd6082a6ab75113898a7ceed699945083cdfa8ec666a66e1",
+      "tools/xtensions/vue-host-controller-poc.d.ts": "0062f0ae2bda87f24f50803ac44e7b21940bff9042825389e1a2f02a9aa0bf08",
+      "tools/xtensions/vue-host-controller-poc.js": "1518685b96201edf87340159599085d52c56a3b13ad756830844a2f337bacf37",
+      "tools/xtensions/vue-payload-boundary.js": "e5b7b619251e63bf1937b42ffe346d33b742843e24ef267c680f264dac54e80c",
+      "tools/xtensions/vue-runtime-adapter.d.ts": "f441bed2550894206df776eec5d3cbfece18adb92c1432060494b38bc80d699f",
+      "tools/xtensions/vue-runtime-adapter.js": "d68a72b9782be8c3d705d10af40ca4a6576c3cc0e3a9884c8db02073c8b9745c",
+      "tools/xtensions/vue-runtime-boundary.js": "f1b28462c543f0e8b0d8a8ee59e48b15e1c213cf8381e100677b02e59f03aeed",
+      "tools/xtensions/work-budget-policy.js": "e3223e4e46ee792259b321a6fe6c82086c420c239316a04fd8bf77bdbc896779"
+    }
+  },
+  "baselineTrackedObjects": {
+    "development/rmtx-a06/frontend/two-host.rmtx": {
+      "objectId": "f00952920f29e0087a04bed804043517d3cecdd6",
+      "mode": "100644"
+    },
+    "development/rmtx-a06/keyed-profile/source.rmtx": {
+      "objectId": "4eee0f4400d019ec0245a7134262c2d811018634",
+      "mode": "100644"
+    },
+    "development/rmtx-a06/lifecycle-profile/source.rmtx": {
+      "objectId": "3837ba8a1155c16117c3cd7178ec766322f1d299",
+      "mode": "100644"
+    },
+    "development/rmtx-a06/native-component-catalog/source.rmtx": {
+      "objectId": "70c388ed0469daca90b9667d56d7ab635eb7fd24",
+      "mode": "100644"
+    },
+    "development/rmtx-a06/native-orchestration-profile/source.rmtx": {
+      "objectId": "a3cfb51cdb98ce0865ef358400704ea61bbd0544",
+      "mode": "100644"
+    },
+    "development/rmtx-a06/native-view-profile/source.rmtx": {
+      "objectId": "9690fa4a8e207a67b1129fcef64da6ce40e76094",
+      "mode": "100644"
+    },
+    "development/rmtx-a06/orchestration-profile/source.rmtx": {
+      "objectId": "00d780e0a9e7c704e3fa1a38231858b21fede8ca",
+      "mode": "100644"
+    },
+    "development/rmtx-a06/selector-profile/two-host.rmtx": {
+      "objectId": "db35ea21e0688cb773cb02baa3c167d258065bce",
+      "mode": "100644"
+    },
+    "tools/rmt-language/action-execution-lowering.js": {
+      "objectId": "b27b878251a6018410ba4f9b100a80d70db4886c",
+      "mode": "100644"
+    },
+    "tools/rmt-language/action-input-contract.d.ts": {
+      "objectId": "12e8469e2b2eb4ad6e5cb9ca1f4f203a11538758",
+      "mode": "100644"
+    },
+    "tools/rmt-language/action-input-contract.js": {
+      "objectId": "332e8e39629715609fc3f960537e50d377376821",
+      "mode": "100644"
+    },
+    "tools/rmt-language/app-platform-tooling.d.ts": {
+      "objectId": "22b4a0636aa7833756becd41eb02ac0c1bb68024",
+      "mode": "100644"
+    },
+    "tools/rmt-language/app-platform-tooling.js": {
+      "objectId": "31bdbfe2e1af4edb9bc67011e0023b85743cc4d2",
+      "mode": "100644"
+    },
+    "tools/rmt-language/classic-ast-contract.js": {
+      "objectId": "851fe04f3b15c0b001892d03f7f32be78dfe523b",
+      "mode": "100644"
+    },
+    "tools/rmt-language/classic-ast-rules.js": {
+      "objectId": "543cfdc509d8b7cbc734a6fdd52e5dc0b4ec18d2",
+      "mode": "100644"
+    },
+    "tools/rmt-language/classic-ast-types.d.ts": {
+      "objectId": "b91ff5bfa7e79ef0085be03902e701ed3c511f8f",
+      "mode": "100644"
+    },
+    "tools/rmt-language/classic-compiler.d.ts": {
+      "objectId": "8792dc3ffad4eff7f5d342ce934ea6f8a06c5af5",
+      "mode": "100644"
+    },
+    "tools/rmt-language/classic-compiler.js": {
+      "objectId": "ff3d12be743b17ce6763e3398634ebcc7bafe12e",
+      "mode": "100644"
+    },
+    "tools/rmt-language/classic-parser.d.ts": {
+      "objectId": "26f7f7dd140178daaa45752498c8a86c46c4271b",
+      "mode": "100644"
+    },
+    "tools/rmt-language/classic-parser.js": {
+      "objectId": "d0d746e017f98872fa8c3dcd398d8161d4fa1804",
+      "mode": "100644"
+    },
+    "tools/rmt-language/classic-semantic-rules.js": {
+      "objectId": "add7d37325b5675c5705aacbb329dfcded57be88",
+      "mode": "100644"
+    },
+    "tools/rmt-language/code-actions.d.ts": {
+      "objectId": "2513edc4ff6c9349f59294d26e7363d6cc9578d5",
+      "mode": "100644"
+    },
+    "tools/rmt-language/code-actions.js": {
+      "objectId": "c11fed989adbe7adf655e7b83d2c27a3f1d19d51",
+      "mode": "100644"
+    },
+    "tools/rmt-language/compilation-session.d.ts": {
+      "objectId": "ca5cf341019bcbb9c08df6c20e13755042802a6c",
+      "mode": "100644"
+    },
+    "tools/rmt-language/compilation-session.js": {
+      "objectId": "a1a23d16258db80e450e48f8c9d74e11387c565e",
+      "mode": "100644"
+    },
+    "tools/rmt-language/completions.d.ts": {
+      "objectId": "6a821f3b1d9f05b92a0f5e96ff8a98fb9b4bc600",
+      "mode": "100644"
+    },
+    "tools/rmt-language/completions.js": {
+      "objectId": "420921648ad0d53aef4263db85ddeffe7ccbcc51",
+      "mode": "100644"
+    },
+    "tools/rmt-language/contracts/action-input-contract.v1.schema.json": {
+      "objectId": "1847fad73b348816b591080446a0271a78fabbad",
+      "mode": "100644"
+    },
+    "tools/rmt-language/contracts/classic-ast.v1.schema.json": {
+      "objectId": "d9c59f56ff0fd540a617d1c0147a7bc4a63e998c",
+      "mode": "100644"
+    },
+    "tools/rmt-language/definitions.d.ts": {
+      "objectId": "330c5882a8f619645d1888f8ac3b3b8b33e50f5c",
+      "mode": "100644"
+    },
+    "tools/rmt-language/definitions.js": {
+      "objectId": "ee04e806e669eb932e83bde915c24b47863a3c02",
+      "mode": "100644"
+    },
+    "tools/rmt-language/diagnostics.d.ts": {
+      "objectId": "9f64377378c2853b78e7bdf64efab422a36ddb0b",
+      "mode": "100644"
+    },
+    "tools/rmt-language/diagnostics.js": {
+      "objectId": "97971a4f804630c1b24cc84ee53e6d232ce94ac6",
+      "mode": "100644"
+    },
+    "tools/rmt-language/fixtures/kernel-orchestration-contract.rmt": {
+      "objectId": "538cdc55b19ef2f99db4d664f7dd06eee678931b",
+      "mode": "100644"
+    },
+    "tools/rmt-language/fixtures/validation-transition-contract.rmt": {
+      "objectId": "ea57a103310643f55567cd3960945f18a117b6e8",
+      "mode": "100644"
+    },
+    "tools/rmt-language/format-adapter.d.ts": {
+      "objectId": "9ea04232a26492f9f50f624af6efae1be7ecc793",
+      "mode": "100644"
+    },
+    "tools/rmt-language/format-adapter.js": {
+      "objectId": "68eed45be8cfc66eb8586ce0cd0e0d79595d4f9f",
+      "mode": "100644"
+    },
+    "tools/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.guardrails.json": {
+      "objectId": "d426b202cd34298d99d4649bf0c0e91cb5ba29d4",
+      "mode": "100644"
+    },
+    "tools/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.manifest.json": {
+      "objectId": "6b8e2b37062bdb22cb6408963457c061e5be9789",
+      "mode": "100644"
+    },
+    "tools/rmt-language/hover.d.ts": {
+      "objectId": "792e5f94a2257325a3e7ff2894a5f6a4e8bd8de0",
+      "mode": "100644"
+    },
+    "tools/rmt-language/hover.js": {
+      "objectId": "39ace42e5291821eaa1e71c85cb40439fe0ff8d8",
+      "mode": "100644"
+    },
+    "tools/rmt-language/html-sink-syntax.js": {
+      "objectId": "ca929b3fa6cf19caddc785acc5ab8dc5d8f0fa40",
+      "mode": "100644"
+    },
+    "tools/rmt-language/kernel-escalation.d.ts": {
+      "objectId": "b799480256490c99cc326a0129a664d0e1bcaf8a",
+      "mode": "100644"
+    },
+    "tools/rmt-language/kernel-escalation.js": {
+      "objectId": "6fb7fd2a7d02fed3dce73a661bf8732b4a353b2d",
+      "mode": "100644"
+    },
+    "tools/rmt-language/kernel-panic-monitor.d.ts": {
+      "objectId": "fcc245dfd9dd69e055dae2d769d82bad23932f52",
+      "mode": "100644"
+    },
+    "tools/rmt-language/kernel-panic-monitor.js": {
+      "objectId": "f70607a90ccc5dc4d400aa90999dcafd5dc656b5",
+      "mode": "100644"
+    },
+    "tools/rmt-language/kernel-policy-parity.d.ts": {
+      "objectId": "ddca82c9d1bbd01fb603fc748d70ce5849509db4",
+      "mode": "100644"
+    },
+    "tools/rmt-language/kernel-policy-parity.js": {
+      "objectId": "cf0a57eec22dd8859146f13d1f6165a6416ea378",
+      "mode": "100644"
+    },
+    "tools/rmt-language/kernel-recovery.d.ts": {
+      "objectId": "373fb36601df7a9c84865c8f54a3a71aaeb20e5f",
+      "mode": "100644"
+    },
+    "tools/rmt-language/kernel-recovery.js": {
+      "objectId": "d0f547bd4eb6c52f7ec4823c9ede1da5da3dabd0",
+      "mode": "100644"
+    },
+    "tools/rmt-language/kernel-scheduler-failure.d.ts": {
+      "objectId": "87500702762785c367fbdb2607ffbc35ddd4bad4",
+      "mode": "100644"
+    },
+    "tools/rmt-language/kernel-scheduler-failure.js": {
+      "objectId": "44ce1de8d4a55b5f7465e1d3693770e191f07b65",
+      "mode": "100644"
+    },
+    "tools/rmt-language/kernel-security-regression.d.ts": {
+      "objectId": "7e3017bf3523691a74917d5ca53990e5d29eadb7",
+      "mode": "100644"
+    },
+    "tools/rmt-language/kernel-security-regression.js": {
+      "objectId": "d2990cdbc6682803e679a05cc064618acf8ec16e",
+      "mode": "100644"
+    },
+    "tools/rmt-language/kernel-trust-authority.d.ts": {
+      "objectId": "3745846873b5285f41498d8122a09e999c3c2827",
+      "mode": "100644"
+    },
+    "tools/rmt-language/kernel-trust-authority.js": {
+      "objectId": "811074cc11a19f773cad666a2cb9955845b7a6a0",
+      "mode": "100644"
+    },
+    "tools/rmt-language/navigation-facts.js": {
+      "objectId": "6faa39a0352527b30f5fadbe7c4a610435fef2c4",
+      "mode": "100644"
+    },
+    "tools/rmt-language/page-build.d.ts": {
+      "objectId": "03fb0eed337532561c7acab806c184df86777a8d",
+      "mode": "100644"
+    },
+    "tools/rmt-language/page-build.js": {
+      "objectId": "c30e7e68ddace44ffa28c11405ae27e71f048f83",
+      "mode": "100644"
+    },
+    "tools/rmt-language/parser.d.ts": {
+      "objectId": "26a005d870dc50c8cc7591c78aab8fb16f3f6d48",
+      "mode": "100644"
+    },
+    "tools/rmt-language/parser.js": {
+      "objectId": "b8b494198b0fe2e49148b79d5e039a8bb802b51d",
+      "mode": "100644"
+    },
+    "tools/rmt-language/progressive-controls.json": {
+      "objectId": "cd082bda37e1dc3d84ff1241c36ca4feeb39b41a",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmt-ai-developer-kit.d.ts": {
+      "objectId": "60a8caabf3c297b44d3bd95a97d8bff8c9747cf1",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmt-ai-developer-kit.js": {
+      "objectId": "1aed0afd783df04bf4f46c698cf4bf4b91c8af57",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmt-tooling-public-types.d.ts": {
+      "objectId": "c970dc7fa27667a6ac2d14b949fe005e9cfc6a79",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmtx-compiler.d.ts": {
+      "objectId": "01967238263a3e1e6c9cde2e65aae4300bf7df22",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmtx-compiler.js": {
+      "objectId": "7e8a5dbfc5294c1d5a7571161618803be856900b",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmtx-component-bindings.d.ts": {
+      "objectId": "303bc7c4ddaac359497693d924206b97b558d265",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmtx-component-bindings.js": {
+      "objectId": "41747d07aee2e304c1dd178a37d0b3b77c580e71",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmtx-extended-operators.js": {
+      "objectId": "90f797749c958add0732d26fc270e5756bca7c4d",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmtx-host-scopes.js": {
+      "objectId": "e9ada31ae7e7dcbccde2c0de50b1569a6b41d919",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmtx-native-component-bindings.d.ts": {
+      "objectId": "3760b7e5511d4cdeb607097a7c4d8eb325c9119e",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmtx-native-component-bindings.js": {
+      "objectId": "40f2a2fbbb14798a3ff5a6c78de153cb65032c9d",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmtx-native-components-v2.d.ts": {
+      "objectId": "20759f1cfabaf097c9544885f62e71e65d27c4f0",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmtx-native-components-v2.generated.d.ts": {
+      "objectId": "833326b27508f5f1ea40025019bc8ac656c4016c",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmtx-native-components-v2.js": {
+      "objectId": "bb0babb218c7e4b01b2534f76ad047f1062f7ff9",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmtx-native-components-v2.json": {
+      "objectId": "1a382c0aa47f03e79b2413e9f441a6700c2b9dfc",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmtx-native-components.d.ts": {
+      "objectId": "55d1984f5024a33640b9f6ec2492137db2a95a66",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmtx-native-components.generated.d.ts": {
+      "objectId": "b5445b1743952dac92c3121efc03e7d122309331",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmtx-native-components.js": {
+      "objectId": "7f3e4f67651478cd809040b7103260dadaa7823d",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmtx-native-components.v1.json": {
+      "objectId": "484e2ef9d4bbc4f7a60dcf219c9f8e1386e53084",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmtx-native-lifecycle.d.ts": {
+      "objectId": "73dbbca6ceb0ddf01731c625180360722889a329",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmtx-native-lifecycle.js": {
+      "objectId": "5d1ba581f2d5b21ac4912ce77ba15d303e26f46e",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmtx-native-view.d.ts": {
+      "objectId": "75ea9d650f1a36f41e015da54696140fdc06301b",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmtx-native-view.js": {
+      "objectId": "4bdb41989b176c16fd97eccec84474940d0fb4a2",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmtx-operator-coverage.js": {
+      "objectId": "8d24226f9b273cde2e938a21077497381688d1a8",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmtx-operator-coverage.json": {
+      "objectId": "d83f9358a2a365b2816beffad1dc3c622fa6ff9b",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmtx-operator-profiles.d.ts": {
+      "objectId": "f50b997cb76bc0644f25fa1f797d9c0413f99935",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmtx-operator-profiles.js": {
+      "objectId": "4df2769f4750ea0c165b8e94dd6a41cbf407bb3d",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmtx-parser.d.ts": {
+      "objectId": "833c37a63595063c1b9b85b2697efea2556a047c",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmtx-parser.js": {
+      "objectId": "cdab020d567e671e80764f26b8e45d450bad01a6",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmtx-selector-dependencies.d.ts": {
+      "objectId": "80c85f241df09d1325f3db67c5f30b3b5cf50d6a",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmtx-selector-dependencies.js": {
+      "objectId": "91687242ee968992a33ea7d25a54265992be776b",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmtx.d.ts": {
+      "objectId": "7a270f3062ae12486e7de4a9db7d51763b3759a2",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rmtx.js": {
+      "objectId": "78024f480128fbe2f9bd7a94a6cf5ed141ae72a6",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rules/app-platform-policy.js": {
+      "objectId": "c7f4fa23924dc2c087c5d1b4f5227f38f7745705",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rules/boundary-policy.js": {
+      "objectId": "476ad546df7e311ecd2f72698ed75c9db369fe0b",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rules/document-policy.js": {
+      "objectId": "cee1c19ac21d44bfe7808d825fbbbacba83e3578",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rules/index.js": {
+      "objectId": "081af2dbd1cab9fafcd8a2bca2ded213d14e19c9",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rules/route-policy.js": {
+      "objectId": "8cdc7713c38abd57787e6e3acad62e8c0033b45f",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rules/scheduler-policy.js": {
+      "objectId": "743e4ce1ae14c84e5994d4ab857c5ed7f3aefd37",
+      "mode": "100644"
+    },
+    "tools/rmt-language/rules/template-policy.js": {
+      "objectId": "ab7733b10f07659885ef07f5fde6df7563f27862",
+      "mode": "100644"
+    },
+    "tools/rmt-language/scheduler-lanes.js": {
+      "objectId": "d45c7a02a12efdc92ab1c1be2ffcb6403389eeca",
+      "mode": "100644"
+    },
+    "tools/rmt-language/semantic-graph.d.ts": {
+      "objectId": "54e6444293da8ede3984acec4bf52190c826eb6d",
+      "mode": "100644"
+    },
+    "tools/rmt-language/semantic-graph.js": {
+      "objectId": "ef84ea27949a9ae4d913d0548dceed59d87128d4",
+      "mode": "100644"
+    },
+    "tools/rmt-language/snippets/index.d.ts": {
+      "objectId": "5dd885d53cc246b194a8d2e5af9bc07c08489bae",
+      "mode": "100644"
+    },
+    "tools/rmt-language/snippets/index.js": {
+      "objectId": "71d14cb39afdb09ae4f0fccc5270e75e70854cd5",
+      "mode": "100644"
+    },
+    "tools/rmt-language/source-model.d.ts": {
+      "objectId": "2f4df00ae30f6d94b59dc01b678172fc16f05c68",
+      "mode": "100644"
+    },
+    "tools/rmt-language/source-model.js": {
+      "objectId": "08060abb5233a521a775a3f05eded2b89955a18c",
+      "mode": "100644"
+    },
+    "tools/rmt-language/super-prewarm-worker-experiment.d.ts": {
+      "objectId": "420e7702c1c425360833d1cf9491af8f2ece1b75",
+      "mode": "100644"
+    },
+    "tools/rmt-language/super-prewarm-worker-experiment.js": {
+      "objectId": "71f85aa6e3118fb6f85fc73c69fcf89eabb7b44f",
+      "mode": "100644"
+    },
+    "tools/rmt-language/symbols.d.ts": {
+      "objectId": "37781793cb5f075d82c6d4a59ddce4c99d922158",
+      "mode": "100644"
+    },
+    "tools/rmt-language/symbols.js": {
+      "objectId": "a97e6b0acfed7703ff5b9f4ef38fe2c6b0d6b931",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vendor/fastpass-contract.js": {
+      "objectId": "adfe3f123f502aa627fff73d0c2c612510f4fe58",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vendor/manifest.json": {
+      "objectId": "a1deffd362911ad3878faf3abe4b4adbef6503d9",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-compatibility.d.ts": {
+      "objectId": "8d1c92f62b3b6c251d3d4e8a888c763ab213ba07",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-compatibility.js": {
+      "objectId": "00bbff61669d7752e6ae07ea066e61d14d7e4ff8",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-compiler.d.ts": {
+      "objectId": "65127cd81d0201292453820311946bf7432164bd",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-compiler.js": {
+      "objectId": "fc7d1b47678b36670ce1ef83370c697cb764e6b2",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-composition.d.ts": {
+      "objectId": "63e00d0e8f844707aa7dd0b2600bd32a7fff7414",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-composition.js": {
+      "objectId": "be051e2a16b2389f200e4c462c5fe592ad8f8e26",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-conditions.d.ts": {
+      "objectId": "1febc3f9100d7fb563e316f9a07604b72c123a2b",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-conditions.js": {
+      "objectId": "6a6c28e19a9a98b311bbbfb6859d9727a3220366",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-cross-surface-events.d.ts": {
+      "objectId": "a16fc79af7905094317b94ee0ba228e097f27246",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-cross-surface-events.js": {
+      "objectId": "66c192a97d350a0e532b1d677d0dc0e6735b3be0",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-degradation.d.ts": {
+      "objectId": "0d4621330a54756f8279c3918b27963316d43a20",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-degradation.js": {
+      "objectId": "65b30dc4d69998d8bf4e5fe9193e235a54221236",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-enterprise-fixtures.d.ts": {
+      "objectId": "326c6dbc0c502f77a1f7a72117ef0a353248b811",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-enterprise-fixtures.js": {
+      "objectId": "1ebfd94b0cd4170c669814fc8d53bab8d1512064",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-enterprise-registry.d.ts": {
+      "objectId": "572340a3743d536e625849346c15b98d9ca13326",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-enterprise-registry.js": {
+      "objectId": "cecd58102534cc7a362bdd1976b4576f45f77e11",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-enterprise-release.d.ts": {
+      "objectId": "d1d03715b892744ff44223855b66613f24c88954",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-enterprise-release.js": {
+      "objectId": "e630744517edf623453c04701d198a6f9d1f8a2b",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-event-governance.d.ts": {
+      "objectId": "86ecae603a32388f93f683d87d9f96256e3e26f9",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-event-governance.js": {
+      "objectId": "e678926e1470a2261768b192c17c4f6b5769951f",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-events.d.ts": {
+      "objectId": "96d5d1063b471308391b9a5ab9f5de384660f3e0",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-events.js": {
+      "objectId": "c416b77d45bc2e6922abf9ebe197105464877d1e",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-import-resolver.d.ts": {
+      "objectId": "f4bdeff8b8cb5417ec8445b8c0def323d10cbdc6",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-import-resolver.js": {
+      "objectId": "5633b27634c7786ec26fa3d97d696162862e3375",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-lifecycle.d.ts": {
+      "objectId": "f9aa40f14e8747b636d94889679a9e30db4ed0ea",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-lifecycle.js": {
+      "objectId": "7738447c32a335a5b946d52cd31c15a7b955cb17",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-parser.d.ts": {
+      "objectId": "c87aa3b3beaa33c26208ea52bf55f87f0678ab47",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-parser.js": {
+      "objectId": "04888b7f3856e66db780d4fe73a1bfa4eb22341d",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-regression.d.ts": {
+      "objectId": "738b959b3ab29cc582ca9506958c662360968920",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-regression.js": {
+      "objectId": "d865f48b394fa2fae084225e46b08b71922eca87",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-release.d.ts": {
+      "objectId": "92d612d27c22c5fe932157f17065d6809f8d6cd3",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-release.js": {
+      "objectId": "7ad31bbc61fdb17aee36388db451bd70f8cff96e",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-remote-compatibility.d.ts": {
+      "objectId": "69efa7c9e85baf24935ed630e92e3803e82f908c",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-remote-compatibility.js": {
+      "objectId": "897d0f581eb411c548ae9a12a98a89ed6c7ff23e",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-remote-compiler.d.ts": {
+      "objectId": "9f37a6ab3c73532f4c09802ea3f14781462e3c8c",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-remote-compiler.js": {
+      "objectId": "e7a0adb8211eea54156af138546ab7dd206f6941",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-remote-manifest.d.ts": {
+      "objectId": "4df2a00ae0762bcd5f3efa0bf54a1c4f50175980",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-remote-manifest.js": {
+      "objectId": "dd88ca5577b7dde436a7b27269f9731f4b40d03e",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-remote-security.d.ts": {
+      "objectId": "6c4656e44b582b0504436b052cd2f3bcde477563",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-remote-security.js": {
+      "objectId": "c7ba612cf6819412132b0345618bd0235513dac7",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-remote-tooling.d.ts": {
+      "objectId": "03b38fdf1308fe22538dab76f9ea7ca83b7deeb3",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-remote-tooling.js": {
+      "objectId": "1d941b97d087515efe075a3e0d5436a4e0fde718",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-scheduler.d.ts": {
+      "objectId": "04aee82344ef08a77b0c3481fe9df55b92a0f0b7",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-scheduler.js": {
+      "objectId": "398776400b1a08794fcf46b91423f43435057d64",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-security.d.ts": {
+      "objectId": "9653bc6ac80772070317f0a3e102ed6234faabbd",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-security.js": {
+      "objectId": "48e45147a25c1170d4ad7cb5ed1a8012fdefe32e",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-source-to-sea.d.ts": {
+      "objectId": "93d8534a077ab4fac8d17d286feb452453c71e39",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-source-to-sea.js": {
+      "objectId": "d65bf37a46da63501c708b36df36f6b6fe16c61a",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-streaming.d.ts": {
+      "objectId": "634b51c4bf142e1c59c54e564c20405d8482c2c9",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-streaming.js": {
+      "objectId": "98691cfabcea4a0e5edcbaaedc7381d9ad1d1f9f",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-surfaces.d.ts": {
+      "objectId": "88faeac7671ae5c5fd3471dd50dde5ee8c054d09",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-surfaces.js": {
+      "objectId": "170f521769834ec75e463f28bd4c2fe3f0d266b4",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-tooling.d.ts": {
+      "objectId": "f2ba7a032eff4bba3a3b25b92c7f8dbcaf36dc03",
+      "mode": "100644"
+    },
+    "tools/rmt-language/vnext-tooling.js": {
+      "objectId": "9d1fcca07a5886ec814cd4ea07a73340290195e0",
+      "mode": "100644"
+    },
+    "tools/rmt-language/xscaler-protocol.d.ts": {
+      "objectId": "5641144393433abf580676475278b25c5460c551",
+      "mode": "100644"
+    },
+    "tools/rmt-language/xscaler-protocol.js": {
+      "objectId": "7cc971f9cb05e060da69ba684e586d7cbc2868e3",
+      "mode": "100644"
+    },
+    "tools/xtensions/adoption-handoff.d.ts": {
+      "objectId": "2e6b8ef295f4fe22fb2f4a80f2d3b7b6bf79800a",
+      "mode": "100644"
+    },
+    "tools/xtensions/adoption-handoff.js": {
+      "objectId": "1453d95a02a0fc8ff9c2c1cba8935c4aae57e87b",
+      "mode": "100644"
+    },
+    "tools/xtensions/angular-host-adapter.d.ts": {
+      "objectId": "5a7ef61bc9a701fd57958b64eb66bad4f3b7ab61",
+      "mode": "100644"
+    },
+    "tools/xtensions/angular-host-adapter.js": {
+      "objectId": "411b91a2ee5cfca266ca01e323c316f6a8762372",
+      "mode": "100644"
+    },
+    "tools/xtensions/component-interface-build.js": {
+      "objectId": "c36b99a7d542588089d74a1213cb8a255d3302d2",
+      "mode": "100644"
+    },
+    "tools/xtensions/component-interface.d.ts": {
+      "objectId": "d4da9f3678cdf152db8309dbcca786ef8840ac92",
+      "mode": "100644"
+    },
+    "tools/xtensions/component-interface.js": {
+      "objectId": "15f30d3a207f71e4ff60d3f5ed854b6a2f7705d6",
+      "mode": "100644"
+    },
+    "tools/xtensions/component-interface.v1.schema.json": {
+      "objectId": "d75b00a39ee47a056af1ba492b055c058627f991",
+      "mode": "100644"
+    },
+    "tools/xtensions/component-interface.v2.schema.json": {
+      "objectId": "f67f4ca1a0f77ef5fee381e1d3fb3fa5f4698d32",
+      "mode": "100644"
+    },
+    "tools/xtensions/cooperative-resource-scope.d.ts": {
+      "objectId": "75abaf169292f7a2c9aa7b2593a742c559bf7610",
+      "mode": "100644"
+    },
+    "tools/xtensions/cooperative-resource-scope.js": {
+      "objectId": "d5a4a6a05283072c4dd268ab0ff2a41f573ca238",
+      "mode": "100644"
+    },
+    "tools/xtensions/diagnostic-trail.d.ts": {
+      "objectId": "ca1118d630225320f43d5bebaf454cc5fdb80733",
+      "mode": "100644"
+    },
+    "tools/xtensions/diagnostic-trail.js": {
+      "objectId": "332a3f41db18a2413a39f32019273ee6fdef05ec",
+      "mode": "100644"
+    },
+    "tools/xtensions/framework-ssr.d.ts": {
+      "objectId": "f1b192035229a6d10b018c28cf1976df4f5218ce",
+      "mode": "100644"
+    },
+    "tools/xtensions/framework-ssr.js": {
+      "objectId": "0421aa0eeceb672d3e3de058264feadae997c2ae",
+      "mode": "100644"
+    },
+    "tools/xtensions/host-capability-negotiation.js": {
+      "objectId": "c4c52f94d3732e06af70a19dea2182a9da4abb81",
+      "mode": "100644"
+    },
+    "tools/xtensions/host-controller-contract.d.ts": {
+      "objectId": "cf86e5694e5075a47f5adc6d8d616c70fbf51c9a",
+      "mode": "100644"
+    },
+    "tools/xtensions/host-controller-contract.js": {
+      "objectId": "f25cdb2e9bcd251f51c4f7371f0ebbc1efc22773",
+      "mode": "100644"
+    },
+    "tools/xtensions/host-resource-cleanup-record.d.ts": {
+      "objectId": "ce68ed5b4bddb08530a0014eb9a89b004db89fec",
+      "mode": "100644"
+    },
+    "tools/xtensions/host-resource-cleanup-record.js": {
+      "objectId": "f5d433a4622b81fc2c70f93e8b93820c73330a01",
+      "mode": "100644"
+    },
+    "tools/xtensions/imperative-host-pocs.d.ts": {
+      "objectId": "f51d9bc55ae9a9e46a617b7bbda07cc3f65c0148",
+      "mode": "100644"
+    },
+    "tools/xtensions/imperative-host-pocs.js": {
+      "objectId": "15e32eddc3b67c302fabd92cee5905733749180f",
+      "mode": "100644"
+    },
+    "tools/xtensions/kernel-work-scope.js": {
+      "objectId": "b3e7dea30990d6fb37a4857f57ecfba5269353cf",
+      "mode": "100644"
+    },
+    "tools/xtensions/maraca-xtension-manifest.d.ts": {
+      "objectId": "84fef81079fbd53b58c9fc410f9e310970b65ac2",
+      "mode": "100644"
+    },
+    "tools/xtensions/maraca-xtension-manifest.js": {
+      "objectId": "221715c17b53578f0d224783015db4a541e74e7b",
+      "mode": "100644"
+    },
+    "tools/xtensions/multi-framework-dashboard-fixture.d.ts": {
+      "objectId": "15f02490aadf6722b13b1793478a5b88efb939d3",
+      "mode": "100644"
+    },
+    "tools/xtensions/multi-framework-dashboard-fixture.js": {
+      "objectId": "e57538aeb716e418244198c5f0482940dd541ac2",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-component-bindings.d.ts": {
+      "objectId": "1b1c0f7fb7303df9b81c31de781187a908752baf",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-component-bindings.js": {
+      "objectId": "56a14c69c8042eadcffb339eaf6149ddaecebef3",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-component-catalog-v2.js": {
+      "objectId": "a87c4581b9add711c3bd340ee536dd5062c07969",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-component-catalog.js": {
+      "objectId": "3f3720ef431b337bae53d68db314498e39a9799a",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-component-contract-v2.d.ts": {
+      "objectId": "14b91e95bc2cf35b901eed688767f77475e2a3e8",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-component-contract-v2.js": {
+      "objectId": "c287442cc115c5b01b0ec33945e9f0fb510c3266",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-component-contract.d.ts": {
+      "objectId": "2d4643c87f604d8b3e9e787d0aa0b628e367cea4",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-component-contract.js": {
+      "objectId": "6b1c57be68428c0750a6a5523a27189142d83ae4",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-component-managed.d.ts": {
+      "objectId": "a2312db52dc90c9a712d2cafe098b0f83d49f5fe",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-component-managed.js": {
+      "objectId": "f1777e52e8120ad12f1f3a21f4df34540ec3711b",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-component-source.js": {
+      "objectId": "9ec5370da003ee016d347a7383b1dfdcfddb7106",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-data.js": {
+      "objectId": "da9d6c3cf0745495751e660c6edc8a1da688248c",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-lifecycle.d.ts": {
+      "objectId": "8f2193f1b2297f0d8b9fcdcd24e891cb3d86222f",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-lifecycle.js": {
+      "objectId": "b6b5b075a00fabb5dd60f51669191c3bc8c327ab",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-managed-component-registry.js": {
+      "objectId": "a38ad9cf59360b435e9692b8c265ff4f46894fae",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-managed-lifecycle.d.ts": {
+      "objectId": "b23c95955a8d89259f584afeb4da4cdc01219985",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-managed-lifecycle.js": {
+      "objectId": "a6b6e090a48a92e78241665f94c7b03ed4f8bdc3",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-managed-orchestration-lifecycle.d.ts": {
+      "objectId": "8926c5eda74d78a5d1a9f23bd793804e5894d514",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-managed-orchestration-lifecycle.js": {
+      "objectId": "f6ccebe8f6441176850be04c1afb65bd31d74b92",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-managed-surface-scopes.d.ts": {
+      "objectId": "ca5a32bc7cde6cb6d9bfcec8ab5eff702ba6efd3",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-managed-surface-scopes.js": {
+      "objectId": "bbc9b30cca20e37f6db1f86e7af10498f76e1e45",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-managed-view-projection.d.ts": {
+      "objectId": "9fe3c5027d8dcd76094ae2b62cd93e0e9b007e15",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-managed-view-projection.js": {
+      "objectId": "4011bff6a35368533b9a01edf9c73af0b8818275",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-managed-view-validation.d.ts": {
+      "objectId": "fa0fc22390245a7abfc9b2779f84652e0a7975f2",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-managed-view-validation.js": {
+      "objectId": "0941bee735562f3c341f39ce3d181813c653fd98",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-orchestration-lifecycle-core.js": {
+      "objectId": "76b33a8b4566a5f1cd838e45894ac6eabd319ca8",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-orchestration-lifecycle.d.ts": {
+      "objectId": "d9e3b887d0100e24d6a185d3fd4549f5e0c2dad0",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-orchestration-lifecycle.js": {
+      "objectId": "86ca5af47dc8efb3697fcc72d9b44a246c33b107",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-sink-contract.js": {
+      "objectId": "bd8088ad32a644c7e3d38de5b1ef9647c0e134d6",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-surface-projection-core.js": {
+      "objectId": "5473a41d02019c6a358125ed08b2553256b1cf5b",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-surface-projection.d.ts": {
+      "objectId": "619f122d2159811e7d7912ada1c6a4049cb419bf",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-surface-projection.js": {
+      "objectId": "19851606f95489a106a047fa77126382d9960920",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-surface-scopes-core.js": {
+      "objectId": "bc1a671ede96d4ec21df72c6ebfe05026c07f6ba",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-surface-scopes.d.ts": {
+      "objectId": "7fa8756f68e7c8261a824b5e59a039c00a7d5b7b",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-surface-scopes.js": {
+      "objectId": "a14d166416e0332e5e89539cbb5ee67c3380f027",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-surface-validation-core.js": {
+      "objectId": "d73c487f9210a37d07adce434e7dced56833d035",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-view-projection.d.ts": {
+      "objectId": "17b3497d398e3d0cbf44d9cfc597a7910c17b9f0",
+      "mode": "100644"
+    },
+    "tools/xtensions/native-view-projection.js": {
+      "objectId": "e2a09f6b314daab64897800bfffae29398945758",
+      "mode": "100644"
+    },
+    "tools/xtensions/openui5-host-adapter.d.ts": {
+      "objectId": "314d0f5caf3ef9227207c597289320da309d9e3a",
+      "mode": "100644"
+    },
+    "tools/xtensions/openui5-host-adapter.js": {
+      "objectId": "eb5ad5ae011b6f3a913eec9625b3a0f0bed8ca4d",
+      "mode": "100644"
+    },
+    "tools/xtensions/react-host-adapter.d.ts": {
+      "objectId": "1fd35259ade5bfae9161ec552ff4a25df0c66aa8",
+      "mode": "100644"
+    },
+    "tools/xtensions/react-host-adapter.js": {
+      "objectId": "24160fd9b6567894de4be4856a774e270834a5fc",
+      "mode": "100644"
+    },
+    "tools/xtensions/react-host-controller-poc.d.ts": {
+      "objectId": "abe8bf3e80533a15720110b8e663e394e4dc6b3a",
+      "mode": "100644"
+    },
+    "tools/xtensions/react-host-controller-poc.js": {
+      "objectId": "dfcd37d5e6038260189173add483c1a38ed715ce",
+      "mode": "100644"
+    },
+    "tools/xtensions/react-payload-boundary.js": {
+      "objectId": "b028b0f8505fcc350e3519f35a0e41938518d4c0",
+      "mode": "100644"
+    },
+    "tools/xtensions/react-runtime-adapter.d.ts": {
+      "objectId": "7fc55eb22cfd753a76ded26247ed940bbe3d0379",
+      "mode": "100644"
+    },
+    "tools/xtensions/react-runtime-adapter.js": {
+      "objectId": "103a291b209dbc3fe0a949360071e1697ef50c45",
+      "mode": "100644"
+    },
+    "tools/xtensions/react-runtime-boundary.js": {
+      "objectId": "abcc06df2da1d8146d6bf18ea2ac26f0ce02257a",
+      "mode": "100644"
+    },
+    "tools/xtensions/registry-package-strategy.d.ts": {
+      "objectId": "6515a6e7a29443cee2b35b6154082c78b101b171",
+      "mode": "100644"
+    },
+    "tools/xtensions/registry-package-strategy.js": {
+      "objectId": "07a3cefe26effeca18e7dfa74d05737af931f254",
+      "mode": "100644"
+    },
+    "tools/xtensions/repeat-scopes.js": {
+      "objectId": "01829e90303dd91daefa07a3484e8a43ae283f00",
+      "mode": "100644"
+    },
+    "tools/xtensions/resource-graph-binding.js": {
+      "objectId": "77fd9a9cb53151f0f199a033a82a81a4fc033471",
+      "mode": "100644"
+    },
+    "tools/xtensions/resume-adapter-contract.d.ts": {
+      "objectId": "b02c0a671288d68675ff88488773b4ce21a2249f",
+      "mode": "100644"
+    },
+    "tools/xtensions/resume-adapter-contract.js": {
+      "objectId": "f93257b39bb298c175a03d3971c3978258e5dfe0",
+      "mode": "100644"
+    },
+    "tools/xtensions/runtime-capability-registry.d.ts": {
+      "objectId": "84b121746b35d56efc5d96b826a63e61316ca935",
+      "mode": "100644"
+    },
+    "tools/xtensions/runtime-capability-registry.js": {
+      "objectId": "cdedea3088011cf83f94f5dc0856fd19f6450cdd",
+      "mode": "100644"
+    },
+    "tools/xtensions/runtime-host-controller.d.ts": {
+      "objectId": "d78cb5c1f9bf4d6c1d66c13eefebfc169109d3ec",
+      "mode": "100644"
+    },
+    "tools/xtensions/runtime-host-controller.js": {
+      "objectId": "3b115cd5f3dee6e09e1904f56cb8c6e5026ead54",
+      "mode": "100644"
+    },
+    "tools/xtensions/security-integrity-gate.d.ts": {
+      "objectId": "f8fdba1d1af040e775f606e308e63c24387d36c1",
+      "mode": "100644"
+    },
+    "tools/xtensions/security-integrity-gate.js": {
+      "objectId": "92c742e5447e0c84a17308c6ec30552e9f37e2ec",
+      "mode": "100644"
+    },
+    "tools/xtensions/signal-bridge-contract.d.ts": {
+      "objectId": "c15b8f5a54bde8ad52f5c4a7df222f3e9290f527",
+      "mode": "100644"
+    },
+    "tools/xtensions/signal-bridge-contract.js": {
+      "objectId": "072ebaa5b849d466f3d8a713f10749b1656e09e5",
+      "mode": "100644"
+    },
+    "tools/xtensions/state-binding-artifact.d.ts": {
+      "objectId": "9e03338b31885687668c7e9e482777f0064f7c8a",
+      "mode": "100644"
+    },
+    "tools/xtensions/state-binding-artifact.js": {
+      "objectId": "2b437d64e1ecfa3a5bec687cf9c198704bfdba8f",
+      "mode": "100644"
+    },
+    "tools/xtensions/state-binding-contract.js": {
+      "objectId": "889ded98eef5cb69b85cc91fbb12a9ebadeb3d40",
+      "mode": "100644"
+    },
+    "tools/xtensions/state-binding-managed.d.ts": {
+      "objectId": "5fb773a36f198c64231533fc0db91911a3abe7f8",
+      "mode": "100644"
+    },
+    "tools/xtensions/state-binding-managed.js": {
+      "objectId": "d516befd44a6a6e2cf0f81b2d7a47a636c429ee9",
+      "mode": "100644"
+    },
+    "tools/xtensions/state-binding-orchestrated-disabled.js": {
+      "objectId": "820699565f0c44556137b8013c7601a5badf77e8",
+      "mode": "100644"
+    },
+    "tools/xtensions/state-binding-orchestrated.js": {
+      "objectId": "c4863ea0c352aecc2a809e3c84400b66dd1bc8f1",
+      "mode": "100644"
+    },
+    "tools/xtensions/state-binding-projection-disabled.js": {
+      "objectId": "0526755d9b02c399ac58cdb7adbe4bea82d61ded",
+      "mode": "100644"
+    },
+    "tools/xtensions/state-binding-projection.js": {
+      "objectId": "1b881431e9bd224a245e89e8906cf63ebf8c9567",
+      "mode": "100644"
+    },
+    "tools/xtensions/state-binding-registry-core.js": {
+      "objectId": "5b7284c5d8322dab2cfe6aed10934dadbbad55a1",
+      "mode": "100644"
+    },
+    "tools/xtensions/state-binding.d.ts": {
+      "objectId": "56e14b6cbcb2bc5731c9b80e2105f466765b7396",
+      "mode": "100644"
+    },
+    "tools/xtensions/state-binding.js": {
+      "objectId": "ecba0487776c2e8ec8a531c2a0b23263cec528d4",
+      "mode": "100644"
+    },
+    "tools/xtensions/static-contract-introspection.d.ts": {
+      "objectId": "97364f45ad416bb1a91ed8ad1c2bc5ba8ec94a89",
+      "mode": "100644"
+    },
+    "tools/xtensions/static-contract-introspection.js": {
+      "objectId": "804be359c1121570e89d15adea27d4800281cc5e",
+      "mode": "100644"
+    },
+    "tools/xtensions/three-render-loop-poc.d.ts": {
+      "objectId": "6e46c0f1ce034f23679ac5fffcb5cab0acb88a70",
+      "mode": "100644"
+    },
+    "tools/xtensions/three-render-loop-poc.js": {
+      "objectId": "d9c8b8f2b363f221c25e5f3f87f0139b73cff9f4",
+      "mode": "100644"
+    },
+    "tools/xtensions/url-state-contracts/history-proposal.v1.schema.json": {
+      "objectId": "ff0b1ddc074f105ac4185995ccbf3fec839c1787",
+      "mode": "100644"
+    },
+    "tools/xtensions/url-state-contracts/history-proposal.v2.schema.json": {
+      "objectId": "6da95e715b7bae3f7d0b4e69ee40fc7547f0c074",
+      "mode": "100644"
+    },
+    "tools/xtensions/url-state-contracts/policy.v1.schema.json": {
+      "objectId": "3fb0cb9b2160bf120b899b3a5cd65161c103e465",
+      "mode": "100644"
+    },
+    "tools/xtensions/url-state-contracts/policy.v2.schema.json": {
+      "objectId": "1f6029eb93bcf3347ca814bd35664b42ac8d4429",
+      "mode": "100644"
+    },
+    "tools/xtensions/url-state-contracts/restore-plan.v1.schema.json": {
+      "objectId": "f61a217b1a34dbdf1b17a87ad178011983fbb7e2",
+      "mode": "100644"
+    },
+    "tools/xtensions/url-state-contracts/restore-plan.v2.schema.json": {
+      "objectId": "653eb08c935bedfd6e438e489fac6083a5200066",
+      "mode": "100644"
+    },
+    "tools/xtensions/url-state-contracts/state.v1.schema.json": {
+      "objectId": "2363c6f7d5a4e61cb8c308f76e102677d53f7609",
+      "mode": "100644"
+    },
+    "tools/xtensions/url-state-contracts/state.v2.schema.json": {
+      "objectId": "b0271568545d00dd5e6fa29016fb6225970c4305",
+      "mode": "100644"
+    },
+    "tools/xtensions/url-state-managed.d.ts": {
+      "objectId": "b0fea6b0cae2251fe64c4f3febc62e6b2b7c8b0d",
+      "mode": "100644"
+    },
+    "tools/xtensions/url-state-managed.js": {
+      "objectId": "8851836a741ccf73362508df5e521186e6596506",
+      "mode": "100644"
+    },
+    "tools/xtensions/url-state.d.ts": {
+      "objectId": "643bdac99899253b9a8c35fef63376c438a68dbe",
+      "mode": "100644"
+    },
+    "tools/xtensions/url-state.js": {
+      "objectId": "4b2c321fd370d728050301092a73f3eaf35f93a1",
+      "mode": "100644"
+    },
+    "tools/xtensions/vanilla-host-adapter.d.ts": {
+      "objectId": "f44e41c41da57cdbaa02d550fc824e20c4028966",
+      "mode": "100644"
+    },
+    "tools/xtensions/vanilla-host-adapter.js": {
+      "objectId": "dcee6bfbfb197c4ac0865cae192e15892a2fcc3f",
+      "mode": "100644"
+    },
+    "tools/xtensions/vue-host-adapter.d.ts": {
+      "objectId": "e23782d8401d1406a5ea4753a244702ae481cf9d",
+      "mode": "100644"
+    },
+    "tools/xtensions/vue-host-adapter.js": {
+      "objectId": "12480331ef134aeaa7af5096e2f044eba6885f40",
+      "mode": "100644"
+    },
+    "tools/xtensions/vue-host-controller-poc.d.ts": {
+      "objectId": "6aae658429021bb914cf541ce7a414d010409f7f",
+      "mode": "100644"
+    },
+    "tools/xtensions/vue-host-controller-poc.js": {
+      "objectId": "5cfca94f2c9fdd7490eab3d7f9cb4801f5f086b0",
+      "mode": "100644"
+    },
+    "tools/xtensions/vue-payload-boundary.js": {
+      "objectId": "fbd7b91c2939337ed2d692b336a0009415f92ba8",
+      "mode": "100644"
+    },
+    "tools/xtensions/vue-runtime-adapter.d.ts": {
+      "objectId": "8343a496b422aabe3bf32f096856932a50417ee6",
+      "mode": "100644"
+    },
+    "tools/xtensions/vue-runtime-adapter.js": {
+      "objectId": "ae8366bdddc2e7f1e15f43c106cd35eb18c42e20",
+      "mode": "100644"
+    },
+    "tools/xtensions/vue-runtime-boundary.js": {
+      "objectId": "b77b2e41cd5650d7c1845b6427f05a8b5949768c",
+      "mode": "100644"
+    },
+    "tools/xtensions/work-budget-policy.js": {
+      "objectId": "6cd8ae06e733110d51336dfc46b62113305d7af6",
+      "mode": "100644"
+    }
+  },
+  "comparison": "complete JSON.stringify result bytes; no fields removed",
+  "baselineAndCurrentSourceIdentityEqual": true,
+  "acceptedForRelease": false
+}

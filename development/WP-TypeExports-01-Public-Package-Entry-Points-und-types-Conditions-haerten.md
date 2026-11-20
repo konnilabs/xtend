@@ -92,3 +92,6 @@ A06.4.2 Source7 appends five typed entrypoints for native scope/projection/lifec
 
 
 A06.4.3 Source8 appends thirteen typed entrypoints. The exact ordered public surface now contains **238** keys, fingerprint `bd25c6c527c1ccb1009157b0b3b8ccce81a1228bf7f57cc55df898c727eccf81`. The previous 225 entries retain their order and targets. Added ports cover managed native projection/scopes/lifecycle, metadata2, instance preparation and component bindings, explicit managed State/URL, catalog2 and compiler binding types, the Maraca managed runtime and scoped native services. The generic SDK retains its complete catalog; production specialization changes emitted data only for the exact compiled used tags. This is an additive preparing-0.9 surface, without release acceptance for RMTX or XTensions2.0.
+
+
+A06.5 ergänzt drei ausdrücklich typisierte Toolingeinstiege: `rmt-language/rmt-project`, `rmt-language/rmtx-language-service` und `rmt-language/project-watch`. Die bisherige geordnete Oberfläche von 238 Schlüsseln bleibt als Präfix erhalten. Der aktuelle additive Vertrag umfasst **241** Schlüssel mit Fingerprint `594f35eed61ea18a37cbe6807728ab451a4a7e6bea40518940b0888636658238`. Projekt-, Analyse- und Portverträge sind getrennt versioniert; diese Ergänzung erteilt keine 0.9-Featurefreigabe.

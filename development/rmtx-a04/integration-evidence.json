@@ -79,9 +79,9 @@
     }
   },
   "sources": {
-    "xtend-maraca/index.js": "044bdcb3e0aae13f4e8eca34f2bf42c9185dfc90c109d9d86cb54e4e90cf7811",
-    "xtend-maraca/index.d.ts": "8169206aa63008cfba4b6afdce02e3d9fc7c0fc9548ccb8dbfe31596895ce06d",
-    "xtend-maraca/package.json": "540533ad70bd86045ef7632d71fde8ce44ce70349201e777dd8d6104939bbbf3",
+    "xtend-maraca/index.js": "c6a2703caab64128c18f91ded281a766ea28915b657bd845ab82771aadbf889c",
+    "xtend-maraca/index.d.ts": "3f3756ca963dc9be0e6e8f7ad5b2f13492e329c54ce44ae46b86b70326a1ef75",
+    "xtend-maraca/package.json": "bee88ce77e5bdd0b288450b3ec3d8bbda26ec877d18f7920282da85e4b538e35",
     "xtend-maraca/xtension-platform-build.js": "51acd5a51c1416a83375275fada51b9eae62a12945d83c838cfdbaa630c3c212",
     "xtend-maraca/xtension-size-budget.js": "61f22885757a9015fc9c74e5de6a4dc4b7763770b9d29a454604b35ed1992767",
     "xtend-maraca/xtension-composition-contract.mjs": "362f901e3ab0a1bf783fe76426d3f6db31b06678a865db1e976c82c6a938f918",
@@ -104,7 +104,7 @@
     "tests/xtensions/xtensions_consumer_package_suite.js": "70830eff9f88790b5c7d46d6b710ae03719976d6c26f5076a9c98a5b83e19ffd",
     "tests/types/xtensions_integrated_composition.mts": "0e7de34ce7c4324143fabf822ac6c83aba229f90f9368ac5b65250311bd2b601",
     "scripts/test_xtensions_runtime_adapters.cjs": "d9df3dfd883ea4e46c87bb94359b4728602ca15d1c535205fcaa5755a42a39b8",
-    "scripts/check_release_preparation.cjs": "9b878537c9ce954f02e38d6dde0a8788321a79fad6a7c2d4d13b90ddcadbfbe1",
-    "tests/release/preparation-gates.test.cjs": "6c8718b489e83389d8b393962bd9c859c8a6e3b2689e8dd033d4f71960711099"
+    "scripts/check_release_preparation.cjs": "61c1234db4ba912fd97e9dcfe1df454e614cb6b03fcba8cef11a19102dac5501",
+    "tests/release/preparation-gates.test.cjs": "d1bdf4aa8bbf411567b56ba05eda499f91b9fdcc28af66a29205b716dab1b59a"
   }
 }

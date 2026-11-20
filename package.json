@@ -1132,6 +1132,18 @@
     "./components/native-services": {
       "types": "./components/native-services.d.ts",
       "default": "./components/native-services.js"
+    },
+    "./rmt-language/rmt-project": {
+      "types": "./tools/rmt-language/rmt-project.d.ts",
+      "default": "./tools/rmt-language/rmt-project.js"
+    },
+    "./rmt-language/rmtx-language-service": {
+      "types": "./tools/rmt-language/rmtx-language-service.d.ts",
+      "default": "./tools/rmt-language/rmtx-language-service.js"
+    },
+    "./rmt-language/project-watch": {
+      "types": "./tools/rmt-language/project-watch.d.ts",
+      "default": "./tools/rmt-language/project-watch.js"
     }
   },
   "publishConfig": {
@@ -3667,7 +3679,7 @@
       "localGate": "node scripts/run_xtend_tests.js rmt-vnext-tooling --json",
       "packageScript": "npm run test:rmt-vnext-tooling",
       "linter": "xtend.rmt.linter.report.v1",
-      "languageServer": "xtend.rmt.language-server.v1",
+      "languageServer": "xtend.rmt.language-server.v2",
       "completionProvider": "xtend.rmt.completion-provider.v1",
       "navigationProviders": [
         "hover",
@@ -4618,8 +4630,8 @@
       ]
     },
     "rmtLanguageServer": {
-      "schema": "xtend.rmt.language-server.v1",
-      "reportSchema": "xtend.rmt.language-server-report.v1",
+      "schema": "xtend.rmt.language-server.v2",
+      "reportSchema": "xtend.rmt.language-server-report.v2",
       "protocolSchema": "xtend.rmt.language-server.protocol.v1",
       "workpackage": "WP-E14-09",
       "status": "accepted-lsp-mvp",
@@ -4631,6 +4643,7 @@
       "transport": "stdio-json-rpc",
       "textDocumentSync": "full",
       "languageId": "rmt",
+      "languageIds": ["rmt", "rmtx"],
       "capabilities": [
         "initialize",
         "textDocument/didOpen",
@@ -4640,7 +4653,10 @@
         "textDocument/completion",
         "textDocument/hover",
         "textDocument/documentSymbol",
-        "textDocument/definition"
+        "textDocument/definition",
+        "textDocument/references",
+        "textDocument/prepareRename",
+        "textDocument/rename"
       ],
       "providers": {
         "diagnostics": "xtend.rmt.linter.rule-engine.v1",
@@ -4667,7 +4683,7 @@
       "suite": "tests/rmt-language/rmt_code_actions_suite.js",
       "localGate": "node scripts/run_xtend_tests.js rmt-code-actions --json",
       "packageScript": "npm run test:rmt-code-actions",
-      "languageServer": "xtend.rmt.language-server.v1",
+      "languageServer": "xtend.rmt.language-server.v2",
       "diagnostics": "xtend.rmt.linter.rule-engine.v1",
       "capabilities": [
         "create-missing-schedule",
@@ -4859,7 +4875,7 @@
       "contracts": [
         "xtend.rmt.linter.report.v1",
         "xtend.rmt.ai-agent-repair-report.v1",
-        "xtend.rmt.language-server.v1",
+        "xtend.rmt.language-server.v2",
         "xtend.rmt.editor-packaging.v1",
         "xtend.rmt.snippet-catalog.v1"
       ],
@@ -15740,7 +15756,7 @@
       "packageDryRunArtifact": ".xtend-test-results/xtend-pack-dry-run.json",
       "packageExportSurfaceArtifact": ".xtend-test-results/xtend-package-export-surface-lock.json",
       "packageExportLockReportArtifact": ".xtend-test-results/xtend-package-export-lock-report.json",
-      "expectedExportCount": 238,
+      "expectedExportCount": 241,
       "localGateRequiresNpmPackExecution": false,
       "artifactRequiredForRc1": true,
       "nextWorkpackage": "WP-E13-13",
@@ -15765,8 +15781,8 @@
       "localGate": "node scripts/run_xtend_tests.js type-exports --json",
       "packageScript": "npm run test:type-exports",
       "reportArtifact": ".xtend-test-results/xtend-type-exports-report.json",
-      "expectedExportCount": 238,
-      "lockedExportFingerprint": "bd25c6c527c1ccb1009157b0b3b8ccce81a1228bf7f57cc55df898c727eccf81",
+      "expectedExportCount": 241,
+      "lockedExportFingerprint": "594f35eed61ea18a37cbe6807728ab451a4a7e6bea40518940b0888636658238",
       "p0Exports": [
         ".",
         "./loader",

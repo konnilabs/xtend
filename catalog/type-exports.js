@@ -29,8 +29,8 @@ const TYPE_EXPORTS_RELEASE_STATUS = 'accepted-productive-type-exports-release-ga
 const TYPE_EXPORTS_RELEASE_TARGET = 'productive-type-exports-release-gate-ready';
 const TYPE_EXPORTS_RELEASE_PACKAGE_SCRIPT = 'npm run test:type-exports:release';
 const TYPE_EXPORTS_RELEASE_LOCAL_GATE = 'node scripts/run_xtend_tests.js type-exports type-exports-loader type-exports-api type-exports-rmt type-exports-policy type-exports-builder type-exports-catalog type-exports-vendor --report .xtend-test-results/xtend-type-exports-report.json';
-const TYPE_EXPORTS_LOCKED_EXPORT_COUNT = 238;
-const TYPE_EXPORTS_LOCKED_EXPORT_FINGERPRINT = "bd25c6c527c1ccb1009157b0b3b8ccce81a1228bf7f57cc55df898c727eccf81";
+const TYPE_EXPORTS_LOCKED_EXPORT_COUNT = 241;
+const TYPE_EXPORTS_LOCKED_EXPORT_FINGERPRINT = "594f35eed61ea18a37cbe6807728ab451a4a7e6bea40518940b0888636658238";
 
 const TYPE_EXPORTS_COMPLETED_WORKPACKAGES = Object.freeze([
   'WP-TypeExports-01',

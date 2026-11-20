@@ -1,0 +1,19 @@
+{
+  "schema": "xtend.rmt.editor.semantic-host-smoke.v1",
+  "ok": true,
+  "node": "v24.22.1",
+  "vscode": "1.146.0",
+  "checks": [
+    "packaged extension discovered",
+    "LanguageClient 9 closure packaged",
+    "TypeScript 5.9.3 packaged",
+    "no author NODE_PATH required",
+    "RMTX language selected",
+    "definition routes to real Classic dependency",
+    "rename edits both original source files",
+    "incomplete RMTX completion uses imported model shape",
+    "diagnostic original UTF16 range",
+    "closed dependency file watcher invalidates semantic types"
+  ],
+  "extensionPath": "/tmp/xtend-a065-editor/pack-r04/extension"
+}

@@ -1,0 +1,36 @@
+✔ RMTX registers its own extension and depends explicitly on the maintained TSX grammar (1.412206ms)
+✔ every declared RMTX contribution is a real local packaged file (0.497545ms)
+✔ RMTX snippets distinguish self-closing from paired operators and configuration supports TSX comments (0.288623ms)
+✔ LanguageClient selects Classic and RMTX explicitly, without claiming provider TSX files (0.91082ms)
+✔ direct Classic code actions reject RMTX before constructing a server: rmtx /tmp/editor.rmtx (0.396204ms)
+✔ direct Classic code actions reject RMTX before constructing a server: rmt /tmp/mislabeled.rmtx (0.115142ms)
+✔ direct Classic code actions reject RMTX before constructing a server: rmtx /tmp/mislabeled.rmt (0.102681ms)
+✔ direct Classic code actions reject RMTX before constructing a server: rmtx null (0.119331ms)
+✔ active-document Classic experience preserves the unsupported result without requesting an LSP (0.331994ms)
+✔ Classic lint and debug paths reject RMTX while project build check and write route to the real CLI (2.031503ms)
+✔ actual activation registers a shared dispatcher, provider metadata watcher and bundled Node client (2.879033ms)
+✔ LSP routes RMTX to semantic tooling and invalidates open consumers on Classic dependency edits (1157.710299ms)
+✔ actual stdio server supplies original-file diagnostics, completion and navigation (1090.086274ms)
+✔ independent workspace roots retain separate models, original navigation and folder-change overlays (1216.467911ms)
+✔ virtual TSX checks model fields and native properties against actual authoring types (481.11046ms)
+✔ repeated item and nested repeated item follow their lexical collection types (286.414922ms)
+✔ action inputs remain distinct between actions and model dynamic markers have no any fallback (251.484358ms)
+✔ selectors preserve the source row fields, including item lookup and closed path validation (227.075413ms)
+✔ Classic imported states produce original-file model definitions and field rename edits (252.897254ms)
+✔ CRLF and UTF16 positions map diagnostics and field completions to real RMTX source (427.675367ms)
+✔ unsaved imported RMTX state overlays invalidate model types before disk save (470.749892ms)
+✔ provider props use the same captured provider value rules as the compiler (183.812374ms)
+✔ file-based provider metadata reaches semantic props without executing provider code (257.120622ms)
+✔ qualified State IDs and chained selectors obey longest declared prefixes independent of declaration order (195.731099ms)
+✔ Action, State and native component references navigate and rename on original source strings (9.345886ms)
+✔ nullable selector results narrow inside declarative When guards without executing source (198.126866ms)
+✔ references from an imported declaration include unsaved open consumers in its real project (253.109666ms)
+✔ navigation never pins a closed disk dependency as a stale editor overlay (503.619203ms)
+ℹ tests 28
+ℹ suites 0
+ℹ pass 28
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8128.477391

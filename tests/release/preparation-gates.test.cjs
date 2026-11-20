@@ -56,6 +56,7 @@ test('development checks validate Classic drift, observations, versions and scop
     ['development/rmtx-a06/scoped-inspect.cjs', '--check'],
     ['--test', 'tests/xtensions/scoped-components.test.cjs'],
     ['scripts/sync_xtend_package_versions.js', '--check'],
+    ['--test', '--test-concurrency=1', 'tests/rmt-language/rmt-project.test.cjs', 'tests/rmt-language/rmtx-language-service.test.cjs', 'tests/rmt-language/rmtx-language-server.test.cjs', 'tests/rmt-language/rmtx-editor.test.cjs', 'tests/rmt-language/rmt-project-integrations.test.cjs'],
     ['scripts/release/feature-scope.cjs', '--check-plan']
   ]);
   const calls = [];

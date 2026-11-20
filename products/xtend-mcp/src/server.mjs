@@ -19,21 +19,25 @@ import {
   toolingProvenance
 } from './tooling.mjs';
 
-export const XTEND_MCP_VERSION = '0.1.0';
+export const XTEND_MCP_VERSION = '0.2.0';
 export const XTEND_MCP_RESULT_SCHEMA = 'xtend.mcp.tool-result.v1';
 export const XTEND_MCP_INSTRUCTIONS = [
   'Use XTend MCP as the authoritative access layer for XTend documentation and RMT tooling.',
   'When generating RMT source, first retrieve relevant XTend knowledge, then validate the exact proposed source with xtend_rmt_compile_check.',
   'Only describe RMT source as valid when compile_check returns ok=true and status=compiled.',
-  'RMT authoring is a textual DSL built from template, state, selector, portal, surface and related operators; compiled/core JSON records are not RMT source.',
+  'RMT Classic uses the textual .rmt DSL; declarative RMTX uses .rmtx TSX grammar with qualified RMT operators. Select sourceSyntax and its exact profile for inline RMTX. Provider .tsx modules are not RMTX. Compiled/core JSON records are not source.',
   'If knowledge retrieval or validation is unavailable or fails, report that failure and do not invent replacement RMT syntax.'
 ].join(' ');
 
 const localeSchema = z.enum(['de', 'en', 'all']).default('all');
 const scopeSchema = z.enum(['docs', 'rmt-kit']);
 const sourceSchema = z.object({
-  source: z.string().max(2_000_000).optional().describe('Inline RMT source.'),
-  path: z.string().max(4096).optional().describe('Workspace-relative RMT file path.')
+  source: z.string().max(2_000_000).optional().describe('Inline RMT Classic or RMTX source.'),
+  path: z.string().max(4096).optional().describe('Workspace-relative .rmt or .rmtx file path.'),
+  sourceSyntax: z.enum(['rmt-vnext', 'rmtx']).optional(),
+  rmtxSyntaxVersion: z.enum(['1.0.0', '2.0.0', '3.0.0', '4.0.0', '5.0.0', '6.0.0', '7.0.0', '8.0.0']).optional(),
+  rmtxProvidersFile: z.string().min(1).max(4096).optional().describe('Workspace-relative pinned Provider registry; imports and metadata remain inside the workspace.'),
+  project: z.boolean().optional().describe('Resolve and compile the bounded transitive RMT/RMTX module graph.')
 }).refine((value) => (typeof value.source === 'string') !== (typeof value.path === 'string'), {
   message: 'Provide exactly one of source or path.'
 });

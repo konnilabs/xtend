@@ -66,7 +66,7 @@
     "tests/xtensions/xtensions_runtime_gate_suite.js": "4a05bba2c09bb14754c42c183bba7a86ca6161447abc93887ca8dcfb56e953ed",
     "tests/xtensions/xtensions_consumer_package_suite.js": "70830eff9f88790b5c7d46d6b710ae03719976d6c26f5076a9c98a5b83e19ffd",
     "tests/types/xtensions_integrated_composition.mts": "0e7de34ce7c4324143fabf822ac6c83aba229f90f9368ac5b65250311bd2b601",
-    "scripts/check_release_preparation.cjs": "9b878537c9ce954f02e38d6dde0a8788321a79fad6a7c2d4d13b90ddcadbfbe1",
-    "tests/release/preparation-gates.test.cjs": "6c8718b489e83389d8b393962bd9c859c8a6e3b2689e8dd033d4f71960711099"
+    "scripts/check_release_preparation.cjs": "61c1234db4ba912fd97e9dcfe1df454e614cb6b03fcba8cef11a19102dac5501",
+    "tests/release/preparation-gates.test.cjs": "d1bdf4aa8bbf411567b56ba05eda499f91b9fdcc28af66a29205b716dab1b59a"
   }
 }

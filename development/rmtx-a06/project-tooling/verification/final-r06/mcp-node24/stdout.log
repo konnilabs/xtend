@@ -1,0 +1,172 @@
+TAP version 13
+# Subtest: tool input budget counts all nested keys and array entries before schema validation or execution
+ok 1 - tool input budget counts all nested keys and array entries before schema validation or execution
+  ---
+  duration_ms: 165.355473
+  type: 'test'
+  ...
+# Subtest: the maximum repair selection reaches existing workspace safeguards within the input budget
+ok 2 - the maximum repair selection reaches existing workspace safeguards within the input budget
+  ---
+  duration_ms: 15.303795
+  type: 'test'
+  ...
+# Subtest: MCP initialization publishes versioned resources, templates, six derived prompts, and read-only tools
+ok 3 - MCP initialization publishes versioned resources, templates, six derived prompts, and read-only tools
+  ---
+  duration_ms: 24.699823
+  type: 'test'
+  ...
+# Subtest: MCP resources preserve Markdown and support cursor-addressed catalog pages
+ok 4 - MCP resources preserve Markdown and support cursor-addressed catalog pages
+  ---
+  duration_ms: 16.803052
+  type: 'test'
+  ...
+# Subtest: knowledge and source tools return the common structuredContent envelope and bounded schemas
+ok 5 - knowledge and source tools return the common structuredContent envelope and bounded schemas
+  ---
+  duration_ms: 1584.249667
+  type: 'test'
+  ...
+# Subtest: RMT app-shell authoring retrieves source syntax and compile-checks the exact three-primitive example
+ok 6 - RMT app-shell authoring retrieves source syntax and compile-checks the exact three-primitive example
+  ---
+  duration_ms: 62.291423
+  type: 'test'
+  ...
+# Subtest: write-capable server registers the destructive apply tool only after explicit opt-in
+ok 7 - write-capable server registers the destructive apply tool only after explicit opt-in
+  ---
+  duration_ms: 14.517576
+  type: 'test'
+  ...
+# Subtest: LLM direct and stdio MCP modes are byte-equivalent for a fixed bilingual corpus
+ok 8 - LLM direct and stdio MCP modes are byte-equivalent for a fixed bilingual corpus
+  ---
+  duration_ms: 411.221097
+  type: 'test'
+  ...
+# Subtest: VS Code definition stays read-only by default and adds writes only after user opt-in
+ok 9 - VS Code definition stays read-only by default and adds writes only after user opt-in
+  ---
+  duration_ms: 0.577837
+  type: 'test'
+  ...
+# Subtest: VS Code manifest and repository catfooding config expose the stable provider contract
+ok 10 - VS Code manifest and repository catfooding config expose the stable provider contract
+  ---
+  duration_ms: 0.356604
+  type: 'test'
+  ...
+# Subtest: unchanged knowledge drift check rejects a stale generated artifact
+ok 11 - unchanged knowledge drift check rejects a stale generated artifact
+  ---
+  duration_ms: 254.594754
+  type: 'test'
+  ...
+# Subtest: hash-checked generated knowledge stays LF-normalized on every Git checkout
+ok 12 - hash-checked generated knowledge stays LF-normalized on every Git checkout
+  ---
+  duration_ms: 0.379174
+  type: 'test'
+  ...
+# Subtest: deterministic bundle covers every canonical bilingual Markdown source byte-for-byte
+ok 13 - deterministic bundle covers every canonical bilingual Markdown source byte-for-byte
+  ---
+  duration_ms: 155.369149
+  type: 'test'
+  ...
+# Subtest: docs catalogs are stable, cursor-addressable, and converge without duplicates
+ok 14 - docs catalogs are stable, cursor-addressable, and converge without duplicates
+  ---
+  duration_ms: 1.588878
+  type: 'test'
+  ...
+# Subtest: search and formatted contexts retain URI, locale, document type, path, and SHA-256 provenance
+ok 15 - search and formatted contexts retain URI, locale, document type, path, and SHA-256 provenance
+  ---
+  duration_ms: 19.004687
+  type: 'test'
+  ...
+# Subtest: local deployment export binds canonical docs, kit and changed backend bytes without a GitHub-main claim
+ok 16 - local deployment export binds canonical docs, kit and changed backend bytes without a GitHub-main claim
+  ---
+  duration_ms: 44.918345
+  type: 'test'
+  ...
+# Subtest: stale canonical documentation and AI-kit provenance cannot replace a previously valid local export
+ok 17 - stale canonical documentation and AI-kit provenance cannot replace a previously valid local export
+  ---
+  duration_ms: 23.306956
+  type: 'test'
+  ...
+# Subtest: local deployment export refuses to overwrite the source checkout
+ok 18 - local deployment export refuses to overwrite the source checkout
+  ---
+  duration_ms: 9.928833
+  type: 'test'
+  ...
+# Subtest: path tools reject absolute paths, traversal, and symlink escapes
+ok 19 - path tools reject absolute paths, traversal, and symlink escapes
+  ---
+  duration_ms: 2.455428
+  type: 'test'
+  ...
+# Subtest: safe repairs require opt-in and hashes, support partial selection, preserve EOL/mode, and re-diagnose
+ok 20 - safe repairs require opt-in and hashes, support partial selection, preserve EOL/mode, and re-diagnose
+  ---
+  duration_ms: 277.636239
+  type: 'test'
+  ...
+# Subtest: repair application aborts unchanged when the source or plan drifts
+ok 21 - repair application aborts unchanged when the source or plan drifts
+  ---
+  duration_ms: 60.092157
+  type: 'test'
+  ...
+# Subtest: atomic repairs preserve original modes under restrictive and ordinary umasks
+ok 22 - atomic repairs preserve original modes under restrictive and ordinary umasks
+  ---
+  duration_ms: 834.880627
+  type: 'test'
+  ...
+# Subtest: Streamable HTTP stays on loopback and enforces Bearer, Host, and Origin checks
+ok 23 - Streamable HTTP stays on loopback and enforces Bearer, Host, and Origin checks
+  ---
+  duration_ms: 237.640071
+  type: 'test'
+  ...
+# Subtest: HTTP enforces the 4 MiB wire-byte boundary for declared and chunked bodies
+ok 24 - HTTP enforces the 4 MiB wire-byte boundary for declared and chunked bodies
+  ---
+  duration_ms: 289.386863
+  type: 'test'
+  ...
+# Subtest: HTTP and stdio reject oversized tool arguments while preserving subsequent calls
+ok 25 - HTTP and stdio reject oversized tool arguments while preserving subsequent calls
+  ---
+  duration_ms: 361.503368
+  type: 'test'
+  ...
+# Subtest: VS Code receives a valid MCP definition with workspace and read-only defaults
+ok 26 - VS Code receives a valid MCP definition with workspace and read-only defaults
+  ---
+  duration_ms: 1.972603
+  type: 'test'
+  ...
+# Subtest: disabled XTend MCP does not register a server definition
+ok 27 - disabled XTend MCP does not register a server definition
+  ---
+  duration_ms: 0.314763
+  type: 'test'
+  ...
+1..27
+# tests 27
+# suites 0
+# pass 27
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5641.906447

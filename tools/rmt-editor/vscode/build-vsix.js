@@ -12,7 +12,7 @@ const BUILD_ROOT = path.join(EXTENSION_DIR, '.xtend-test-results', 'vscode-vsix-
 const STAGE_DIR = path.join(BUILD_ROOT, 'stage');
 const EXTENSION_STAGE_DIR = path.join(STAGE_DIR, 'extension');
 const LEGACY_DEPENDENCY_VSIX = path.join(EXTENSION_DIR, 'xtend-rmt-language-0.0.0-enterprise-readiness.vsix');
-const EXPECTED_MCP_VERSION = '0.1.0';
+const EXPECTED_MCP_VERSION = '0.2.0';
 
 const FILES_TO_STAGE = [
   'extension.js',
@@ -34,7 +34,10 @@ const DIRECTORIES_TO_STAGE = [
 const REPO_DIRECTORIES_TO_STAGE = [
   'tools/rmt-language-server',
   'tools/rmt-language',
-  'tools/project-index'
+  'tools/project-index',
+  'tools/rmt-linter',
+  'tools/xtensions',
+  'fabric'
 ];
 
 const MCP_LOCAL_PACKAGES = new Map([
@@ -264,6 +267,9 @@ function stageExtension() {
   FILES_TO_STAGE.forEach(copyFile);
   DIRECTORIES_TO_STAGE.forEach(copyDir);
   REPO_DIRECTORIES_TO_STAGE.forEach(copyRepoDir);
+  // Semantic RMTX uses the pinned compiler even when MCP's optional local SDK
+  // closure is not installed at the workspace root. Missing TS is a build error.
+  stageRuntimePackage('typescript');
   // The RMT format adapter loads its canonical core artifact relative to tools/.
   copyPublishedPackage(path.join(REPO_ROOT, 'xtendrmt'), path.join(EXTENSION_STAGE_DIR, 'xtendrmt'));
   // The staged compiler resolves the shared FastPass validator beside tools/.

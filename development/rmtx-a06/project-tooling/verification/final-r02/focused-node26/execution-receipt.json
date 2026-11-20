@@ -1,0 +1,49 @@
+{
+  "format": 1,
+  "step": "focused-node26",
+  "command": [
+    "/tmp/xtend-a065/node_modules/node-linux-x64/bin/node",
+    "--max-old-space-size=512",
+    "--test",
+    "--test-concurrency=1",
+    "--test-reporter=tap",
+    "tests/rmt-language/rmt-project.test.cjs",
+    "tests/rmt-language/rmtx-language-service.test.cjs",
+    "tests/rmt-language/rmtx-language-server.test.cjs",
+    "tests/rmt-language/rmtx-editor.test.cjs",
+    "tests/rmt-language/rmt-project-integrations.test.cjs"
+  ],
+  "workingDirectory": "/home/konni/Downloads/xtend-dev/xtend",
+  "node": "v26.5.0",
+  "environment": {
+    "XTENSIONS_TEST_PEERS": "/tmp/xtend-a065/setup/runtime-peers-node26",
+    "XTEND_A065_TEST_PEERS": "/tmp/xtend-a065/setup/runtime-peers-node26",
+    "NODE_PATH": "/tmp/xtend-a065/setup/runtime-peers-node26/node_modules:/tmp/xtend-a065/node_modules",
+    "NODE_OPTIONS": "--max-old-space-size=512",
+    "PATH": "/tmp/xtend-a065/setup/bin-node26:/tmp/xtend-a065/node_modules/node-linux-x64/bin:/tmp/xtend-a065/node_modules/.bin:/home/konni/.local/bin:/home/konni/.codex/tmp/arg0-linux/codex-arg0h92Tn6:/home/konni/.local/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/home/konni/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/home/konni/.vscode/extensions/openai.chatgpt-26.1111.21308-linux-x64/bin/linux-x86_64",
+    "npm_config_offline": "true",
+    "CHROME_BIN": "/home/konni/.cache/ms-playwright/chromium-1248/chrome-linux64/chrome"
+  },
+  "beforeSourceSha256": "a87ff9be88910e15773e9ce01699144b2bf5dab145de8f96423c9f99a82458bf",
+  "wholeCurrentSourceMembershipPinnedExceptOwnVerificationOutputs": true,
+  "heapMiB": 512,
+  "timeoutSeconds": 300,
+  "releaseAcceptancePerformed": false,
+  "startedAt": "2026-11-20T21:32:04.295289+00:00",
+  "completedAt": "2026-11-20T21:32:24.581306+00:00",
+  "wallSeconds": 20.286,
+  "exitCode": 0,
+  "timedOut": false,
+  "actualSourceFilesUnchanged": true,
+  "sourceDrift": [],
+  "afterSourceSha256": "a87ff9be88910e15773e9ce01699144b2bf5dab145de8f96423c9f99a82458bf",
+  "passed": true,
+  "tapSummary": {
+    "tests": 70,
+    "pass": 70,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  }
+}

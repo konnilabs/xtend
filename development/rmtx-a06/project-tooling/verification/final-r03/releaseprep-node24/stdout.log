@@ -1,0 +1,190 @@
+{"nodeTypes":122,"outputs":["tools/rmt-language/contracts/classic-ast.v1.schema.json","tools/rmt-language/classic-ast-types.d.ts"]}
+{
+  "ok": true,
+  "manifest": "tools/rmt-language/vendor/manifest.json",
+  "manifestFresh": true,
+  "copies": [
+    {
+      "canonical": "xtend-maraca/fastpass-contract.js",
+      "vendored": "tools/rmt-language/vendor/fastpass-contract.js",
+      "sha256": "af8e26104243deea58ccf3a334d67ecb3286617146257074a29eeb7866a3b1a3",
+      "vendoredSha256": "af8e26104243deea58ccf3a334d67ecb3286617146257074a29eeb7866a3b1a3",
+      "fresh": true
+    }
+  ]
+}
+✔ regular Maraca plans preserve string, zero, false and null State initial values (1636.942571ms)
+✔ managed reducers resolve State and Selector values against previous reductions without confusing literal reference spellings (56.67214ms)
+✔ qualified State symbols resolve their longest declared owner before the field path (43.741082ms)
+✔ managed references work through the existing Model reader contract without an optional resolve method (52.63071ms)
+✔ unmarked managed artifact values retain the legacy input/result versus literal State/error distinction (49.326917ms)
+✔ success handlers commit atomically and emissions publish once only after Model and View commit (50.777931ms)
+✔ error handlers resolve errors, emit only their error phase and render danger overlays through the native graph (175.150111ms)
+✔ nested emit templates resolve reference leaves while keeping literal strings unchanged (45.978275ms)
+✔ a failed Model typeguard rolls all reductions back and publishes no event (46.109096ms)
+✔ disposing during a datasource prevents late handlers, commits, and publications (42.600661ms)
+✔ the direct Action executor executes result phases and uses only its explicit publication adapter (3.258182ms)
+✔ the direct Action executor applies only error handlers after a failed datasource (2.358573ms)
+✔ direct publications reject unsafe templates and missing publication authority (0.652316ms)
+✔ direct unmarked values keep the previous dollar-reference syntax and unknown value kinds fail closed (0.877498ms)
+✔ unsafe overlay tones are rejected before native lifecycle or DOM mutation (33.900395ms)
+✔ result overlays reject a declared portal outside the owned app root (39.556891ms)
+✔ native overlay portal resolution rejects ambiguous targets before mounting anything (30.404711ms)
+✔ compiler API versions identify the restored Action/Event semantics without changing the input AST (15.120179ms)
+✔ all result phases survive lowering as closed execution data, including overlay options (6.982639ms)
+✔ literal reference spellings and actual references retain distinct execution metadata (3.150292ms)
+✔ nested Emit payloads retain explicit reference leaves instead of ambiguous strings (2.618096ms)
+✔ compiler rejects unknown phase before producing executable artifacts (1.876658ms)
+✔ compiler rejects unknown operation before producing executable artifacts (1.890429ms)
+✔ compiler rejects unresolved overlay before producing executable artifacts (1.434835ms)
+✔ compiler rejects unknown overlay option before producing executable artifacts (1.487625ms)
+✔ compiler rejects duplicate overlay option before producing executable artifacts (1.677457ms)
+✔ compiler rejects unknown overlay tone before producing executable artifacts (1.436954ms)
+✔ compiler rejects unknown emitted input before producing executable artifacts (1.709687ms)
+✔ compiler rejects duplicate emitted field before producing executable artifacts (1.332503ms)
+✔ compiler rejects unsafe emitted field before producing executable artifacts (1.96772ms)
+✔ compiler rejects unsafe nested field before producing executable artifacts (2.03912ms)
+✔ compiler rejects unsafe nested reference before producing executable artifacts (1.274922ms)
+✔ compiler rejects nonfinite numeric reducer before producing executable artifacts (1.750018ms)
+✔ compiler condition reaches the event artifact and false blocks before payload or DOM governance (31.487331ms)
+✔ compound compiled guards read live Model, Selector, detail and target values (14.343992ms)
+✔ Classic negation precedence and strict equality survive Core expression evaluation (28.294069ms)
+✔ logical RHS values inside comparisons match the compiled Model selector semantics (33.021476ms)
+✔ compiled event guards read native input value and dataset through actual DOM events (607.376692ms)
+✔ longest declared Model symbol wins; explicit namespaces disambiguate State and Selector (0.98626ms)
+✔ one snapshot supplies the whole guard and short circuit does not read an unused event getter (8.033939ms)
+✔ boolean guards and the when alias preserve false rather than normalizing it away (0.843519ms)
+✔ legacy equality, falsy, includes and keyboard guard records retain their behavior (1.00813ms)
+✔ unsupported or malformed guards fail closed, including an invalid unused logical branch (0.899299ms)
+✔ guard AST accessors and plain event-data getters are never invoked (0.462844ms)
+✔ invalid or failing Model ports cannot grant an event and module API declares the new behavior (0.620836ms)
+✔ Kernel MVC declares the Event Router Model reader without granting state writes (1297.09342ms)
+✔ parent reconciliation retains a trusted owner root, its focused subtree and DOM identity (201.823575ms)
+✔ replace-children leaves foreign owner roots connected instead of replacing or reattaching them (29.209629ms)
+✔ ordinary DOM and forged source or attribute ownership markers receive no reservation (20.995087ms)
+✔ same-owner removal cleans its reservation instead of preserving its own old nodes (11.446593ms)
+✔ a matching key never lets a parent reuse or patch a different owners node (15.14446ms)
+✔ disposing a node or the renderer releases private reservations (12.002338ms)
+✔ only returned create-node roots are reserved, not arbitrary descendants moved out of that scope (12.032899ms)
+✔ text replacement and stale-content cleanup preserve another owner root inside a reused element (22.17994ms)
+✔ a parent reconcile retains a native ancestor of a deeply nested private foreign root (27.232729ms)
+✔ replace-children does not indirectly detach a foreign root through its native ancestor (31.852965ms)
+✔ text replacement and stale native content cleanup preserve a nested foreign branch (24.448091ms)
+✔ normal native wrapper updates reconcile in place without accumulating protected duplicates (20.529063ms)
+✔ a new authoritative generation key creates a new wrapper while its old foreign branch stays anchored (18.780826ms)
+✔ same-owner cleanup and explicit resource disposal release protected native ancestors (20.101549ms)
+✔ private foreign roots inside an open shadow tree protect the native host ancestry (19.855536ms)
+✔ hide and restore preserve an existing inline display priority within one restore commit (12.266252ms)
+✔ temporary style-priority preservation does not outlive its commit (10.624985ms)
+✔ a removed native branch retains only its foreign root shell, clearing ordinary native text and controls (18.064838ms)
+✔ pruning a retained native branch stops at private roots and preserves their own complete subtree (19.520213ms)
+ℹ tests 65
+ℹ suites 0
+ℹ pass 65
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6235.81135
+✔ native close/commit/resume preserves identity, current Model and unrelated roots (1610.234052ms)
+✔ direct Destroy from open synchronously fences the old command before Model writes (35.625242ms)
+✔ unscoped commands after Destroy update Model without resurrecting its native view (36.46149ms)
+✔ explicit recreation authorizes a new native generation and never revives old tokens (41.128627ms)
+✔ a recreated native key retains evaluation of the original structured Model expression (43.51653ms)
+✔ model hidden state survives a close/resume lifecycle overlay and subsequent Model updates (51.701201ms)
+✔ legacy v1 ViewProjectionPort remains accepted while complete lifecycle authority fences tokens (35.644093ms)
+✔ a claimed v2 View port missing lifecycle projection is rejected before boot (32.38608ms)
+✔ a failed native Model commit restores the closed lifecycle overlay in finally (53.077915ms)
+✔ deep foreign roots survive native Destroy and do not become a recreated owner view (131.296369ms)
+✔ atomic multi-Surface Destroy revokes scopes whose tombstones were evicted before publication (30.871595ms)
+✔ trimmed owner disappearance retires its registry binding before later Model delivery (36.648763ms)
+✔ v2 is explicit and opt-in v1 retains its original port and schema (79.725039ms)
+✔ close, minimized and collapsed hide only the native owner and preserve nodes on resume (28.075648ms)
+✔ original visibility and ARIA survive close/resume including inline style priority (12.622835ms)
+✔ prepare/project phases retain Model visibility changes made while closed (11.344883ms)
+✔ restore does not overwrite an intervening presentation writer (10.491144ms)
+✔ destroy cleans native subtree and index without touching a sibling or external root (11.198041ms)
+✔ destroy preserves privately reserved foreign roots and their wrappers until owner disposal (91.765018ms)
+✔ native descendants of a retained retired owner are excluded from lifecycle lookup (11.230031ms)
+✔ old generation cannot resurrect a destroyed view while a new generation can index a new view (10.392523ms)
+✔ an application root remains a shell and can host a new authoritative surface generation (11.849597ms)
+✔ bad batches and missing renderer authority fail before any lifecycle mutation (9.848848ms)
+✔ disposed adapter rejects lifecycle and cannot touch retained nodes (9.275692ms)
+✔ managed materialization preserves a destroyed lifetime and its tombstone while retaining live siblings (12.752146ms)
+✔ the legacy standalone default still rematerializes a destroyed surface (1.811678ms)
+✔ an explicit trusted recreate permits a new lifetime without reviving the old generation (1.729897ms)
+✔ preserving destroyed keyed instances does not freeze their live siblings (0.901678ms)
+✔ invalid preserveDestroyed values fail before lifecycle mutation (0.361364ms)
+✔ compacted tombstones remain revoked and explicit recreation advances the cached authoritative generation (0.688887ms)
+ℹ tests 30
+ℹ suites 0
+ℹ pass 30
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3615.301971
+✔ full AST result uses the shared Source pipeline and leaves the declarative input unchanged (18.059688ms)
+✔ RMTX source profile reaches Core, AppPlatform and orchestration before artifact serialization (3.737706ms)
+✔ lowered AST ranges and RMTX URI survive semantic errors and source maps without reparsing Classic text (1.313303ms)
+✔ new AST result validates structure and rejects executable data before producing plans (2.620495ms)
+✔ unsupported source profiles fail closed and do not execute accessor metadata (11.814677ms)
+✔ legacy Source and Core-only AST APIs retain their Classic identity and throwing contract (4.610996ms)
+✔ the standalone result APIs do not expand the existing compiler factory ports (5.151351ms)
+✔ full AST result retains valid binding sidecars and rejects invalid bindings before use (33.143478ms)
+✔ the productive frontend lowers the complete reference through the same compiler and plans (58.981114ms)
+✔ namespace and model/input aliases resolve from canonical imports rather than tag spelling (5.291062ms)
+✔ JSON literal values preserve strings, nested values, falsy scalars and source string escapes (5.177381ms)
+✔ JSX string entities are explicit and unsupported entities cannot silently change values (1.862529ms)
+✔ closed profile rejects source statements before producing executable artifacts (1.273212ms)
+✔ closed profile rejects call expression before producing executable artifacts (0.755607ms)
+✔ closed profile rejects IIFE before producing executable artifacts (1.108471ms)
+✔ closed profile rejects dynamic import before producing executable artifacts (0.589315ms)
+✔ closed profile rejects spread attributes before producing executable artifacts (0.529895ms)
+✔ closed profile rejects duplicate attributes before producing executable artifacts (0.519895ms)
+✔ closed profile rejects unknown attributes before producing executable artifacts (0.450874ms)
+✔ closed profile rejects unknown operators before producing executable artifacts (0.357693ms)
+✔ closed profile rejects unqualified UI before producing executable artifacts (0.309584ms)
+✔ closed profile rejects native text before producing executable artifacts (0.271763ms)
+✔ closed profile rejects function children before producing executable artifacts (0.635226ms)
+✔ closed profile rejects type arguments before producing executable artifacts (0.568496ms)
+✔ closed profile rejects computed fields before producing executable artifacts (0.477444ms)
+✔ closed profile rejects object accessors before producing executable artifacts (0.594305ms)
+✔ closed profile rejects duplicate fields before producing executable artifacts (0.578946ms)
+✔ closed profile rejects unsafe field before producing executable artifacts (0.386614ms)
+✔ closed profile rejects unsafe path before producing executable artifacts (0.607886ms)
+✔ closed profile rejects optional path before producing executable artifacts (0.490935ms)
+✔ closed profile rejects computed path before producing executable artifacts (0.599656ms)
+✔ closed profile rejects nonfinite literal before producing executable artifacts (0.357593ms)
+✔ closed profile rejects sparse array before producing executable artifacts (0.411304ms)
+✔ closed profile rejects illegal context before producing executable artifacts (0.258543ms)
+✔ closed profile rejects unknown reference before producing executable artifacts (0.870669ms)
+✔ closed profile rejects unknown input before producing executable artifacts (1.404744ms)
+✔ closed profile rejects malformed JSX before producing executable artifacts (0.716057ms)
+✔ unsupported syntax versions and source extensions fail explicitly (1.160981ms)
+✔ diagnostics retain RMTX URI and point at the offending original expression (0.404994ms)
+✔ factory defaults preserve frontend profile and unsupported authoring runtime execution fails (1.335733ms)
+✔ RMTX builds a real Maraca plan through the explicit compiler port and existing XTension sidecar (1418.062849ms)
+✔ Maraca preserves the injected frontend result schema when it revalidates a binding sidecar (19.594764ms)
+✔ bad RMTX syntax and invalid XTension bindings block the plan before runtime work (12.852407ms)
+✔ Classic defaults remain Classic and an extension does not silently select a different compiler (8.417313ms)
+✔ actual root and compiler tarballs expose typed RMTX entrypoints and declare their parser dependency (51235.681073ms)
+✔ packed frontend declarations accept the existing Maraca compiler port in both public packages (669.304188ms)
+✔ separate actual Root/compiler/Maraca tarballs share genuine project sessions in both directions (3298.143918ms)
+✔ generated RMTX dependency closure runs the actual packed standalone CLI without checkout fallbacks (1552.013832ms)
+✔ the compiler tarball alone carries the complete opt-in Source4 frontend and input contracts (68.998368ms)
+✔ the actual Maraca tarball builds Source4 Plan8 through the explicit packed compiler port (33.335593ms)
+✔ packed Source4 and standalone Maraca declarations preserve legacy results and discriminate opt-in types (1411.915438ms)
+✔ the compiler tarball alone includes Source5 native lowering, the projector and shared typed-key engine (80.558363ms)
+✔ actual standalone Maraca and compiler tarballs compile Source5 native-only plan9 without sidecars (38.219631ms)
+✔ packed Source5 native URL/browser/composition types are strict and preserve the Source4 namespace (1255.46422ms)
+✔ actual packed Source6 compiler and Maraca retain explicit lifecycle plan and public entrypoints (67.602044ms)
+✔ packed Source6 declarations reject older projection and runtime capabilities (922.665663ms)
+ℹ tests 56
+ℹ suites 0
+ℹ pass 56
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 63184.118267

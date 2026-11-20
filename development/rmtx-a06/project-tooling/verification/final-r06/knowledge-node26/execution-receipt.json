@@ -1,0 +1,84 @@
+{
+  "format": 1,
+  "step": "knowledge-node26",
+  "command": [
+    "/tmp/xtend-a065/node_modules/node-linux-x64/bin/node",
+    "--max-old-space-size=512",
+    "products/xtend-mcp/scripts/build-knowledge.mjs",
+    "--check"
+  ],
+  "workingDirectory": "/home/konni/Downloads/xtend-dev/xtend",
+  "node": "v26.5.0",
+  "environment": {
+    "XTENSIONS_TEST_PEERS": "/tmp/xtend-a065/setup/runtime-peers-node26",
+    "XTEND_A065_TEST_PEERS": "/tmp/xtend-a065/setup/runtime-peers-node26",
+    "NODE_PATH": "/tmp/xtend-a065/setup/runtime-peers-node26/node_modules:/tmp/xtend-a065/node_modules",
+    "NODE_OPTIONS": "--max-old-space-size=512",
+    "PATH": "/tmp/xtend-a065/setup/bin-node26:/tmp/xtend-a065/node_modules/node-linux-x64/bin:/tmp/xtend-a065/node_modules/.bin:/home/konni/.local/bin:/home/konni/.codex/tmp/arg0-linux/codex-arg0h92Tn6:/home/konni/.local/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/home/konni/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/home/konni/.vscode/extensions/openai.chatgpt-26.1111.21308-linux-x64/bin/linux-x86_64",
+    "npm_config_offline": "true",
+    "CHROME_BIN": "/home/konni/.cache/ms-playwright/chromium-1248/chrome-linux64/chrome"
+  },
+  "beforeSourceSha256": "e5105e64a41c9139c43760dfa0fa6d00f77decc26976ba0530c7f8ddfab2a7bf",
+  "wholeCurrentSourceMembershipPinnedExceptOwnVerificationOutputs": true,
+  "heapMiB": 512,
+  "timeoutSeconds": 300,
+  "releaseAcceptancePerformed": false,
+  "startedAt": "2026-11-20T22:51:23.867491+00:00",
+  "completedAt": "2026-11-20T22:51:24.346158+00:00",
+  "wallSeconds": 0.479,
+  "exitCode": 0,
+  "timedOut": false,
+  "actualSourceFilesUnchanged": true,
+  "sourceDrift": [],
+  "afterSourceSha256": "e5105e64a41c9139c43760dfa0fa6d00f77decc26976ba0530c7f8ddfab2a7bf",
+  "passed": true,
+  "sourceScopes": {
+    "generatedFileCount": 6,
+    "generatedFileDrift": [],
+    "governedBefore": {
+      "tests/schemas/core-release-inventory.json": {
+        "sha256": "cd897af112365fdaebb75a8fd307fc81bb809ac2e28138a8711dbe3f7de87dea",
+        "bytes": 73571981,
+        "mode": "100644"
+      },
+      "development/core-release-authority-decision.json": {
+        "sha256": "f9dec03228e07f7888dee704fdfc80b8229e5d026022db17951f6ece584640f4",
+        "bytes": 1362643,
+        "mode": "100644"
+      },
+      "scripts/release/core-projection-policy.json": {
+        "sha256": "180098ce6e02f3ac343fbdb3e60bc0fcd389bded05083846af067a9d4e50a88e",
+        "bytes": 301737,
+        "mode": "100644"
+      },
+      "development/rmtx-a01/inventory.json": {
+        "sha256": "41f3e41b197a6a96185e93836eb47aa107471e8f41edee803d6640fc35123d8b",
+        "bytes": 826702,
+        "mode": "100644"
+      }
+    },
+    "governedAfter": {
+      "tests/schemas/core-release-inventory.json": {
+        "sha256": "cd897af112365fdaebb75a8fd307fc81bb809ac2e28138a8711dbe3f7de87dea",
+        "bytes": 73571981,
+        "mode": "100644"
+      },
+      "development/core-release-authority-decision.json": {
+        "sha256": "f9dec03228e07f7888dee704fdfc80b8229e5d026022db17951f6ece584640f4",
+        "bytes": 1362643,
+        "mode": "100644"
+      },
+      "scripts/release/core-projection-policy.json": {
+        "sha256": "180098ce6e02f3ac343fbdb3e60bc0fcd389bded05083846af067a9d4e50a88e",
+        "bytes": 301737,
+        "mode": "100644"
+      },
+      "development/rmtx-a01/inventory.json": {
+        "sha256": "41f3e41b197a6a96185e93836eb47aa107471e8f41edee803d6640fc35123d8b",
+        "bytes": 826702,
+        "mode": "100644"
+      }
+    },
+    "governedFileDrift": []
+  }
+}

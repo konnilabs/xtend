@@ -1,0 +1,4265 @@
+{
+  "schema": "xtend.rmt.editor.pack-source-comparison.v1",
+  "ok": true,
+  "artifact": "/tmp/xtend-a065-editor/xtend-rmt-language-0.3.0-r05.vsix",
+  "artifactSha256": "47e041af2be6e50b93c9e0db3f0090d9833c00e3e8fac604e8829ee1611bc27c",
+  "comparedFiles": 851,
+  "mismatches": [],
+  "files": [
+    {
+      "packed": "tools/rmt-language/app-platform-tooling.js",
+      "source": "tools/rmt-language/app-platform-tooling.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx-language-service.d.ts",
+      "source": "tools/rmt-language/rmtx-language-service.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-release.d.ts",
+      "source": "tools/rmt-language/vnext-release.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/kernel-scheduler-failure.d.ts",
+      "source": "tools/rmt-language/kernel-scheduler-failure.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-remote-tooling.d.ts",
+      "source": "tools/rmt-language/vnext-remote-tooling.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx-native-components-v2.js",
+      "source": "tools/rmt-language/rmtx-native-components-v2.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-compatibility.js",
+      "source": "tools/rmt-language/vnext-compatibility.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-remote-security.js",
+      "source": "tools/rmt-language/vnext-remote-security.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/hover.js",
+      "source": "tools/rmt-language/hover.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/semantic-graph.d.ts",
+      "source": "tools/rmt-language/semantic-graph.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/completions.js",
+      "source": "tools/rmt-language/completions.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx-native-components.js",
+      "source": "tools/rmt-language/rmtx-native-components.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx-native-components-v2.d.ts",
+      "source": "tools/rmt-language/rmtx-native-components-v2.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-tooling.js",
+      "source": "tools/rmt-language/vnext-tooling.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-scheduler.d.ts",
+      "source": "tools/rmt-language/vnext-scheduler.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx-operator-coverage.json",
+      "source": "tools/rmt-language/rmtx-operator-coverage.json",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/diagnostics.js",
+      "source": "tools/rmt-language/diagnostics.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-remote-manifest.js",
+      "source": "tools/rmt-language/vnext-remote-manifest.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx-native-view.d.ts",
+      "source": "tools/rmt-language/rmtx-native-view.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/kernel-policy-parity.js",
+      "source": "tools/rmt-language/kernel-policy-parity.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx-native-lifecycle.js",
+      "source": "tools/rmt-language/rmtx-native-lifecycle.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx-component-bindings.d.ts",
+      "source": "tools/rmt-language/rmtx-component-bindings.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx-operator-profiles.d.ts",
+      "source": "tools/rmt-language/rmtx-operator-profiles.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/kernel-recovery.d.ts",
+      "source": "tools/rmt-language/kernel-recovery.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-surfaces.d.ts",
+      "source": "tools/rmt-language/vnext-surfaces.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-events.js",
+      "source": "tools/rmt-language/vnext-events.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-scheduler.js",
+      "source": "tools/rmt-language/vnext-scheduler.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx-parser.js",
+      "source": "tools/rmt-language/rmtx-parser.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx-selector-dependencies.d.ts",
+      "source": "tools/rmt-language/rmtx-selector-dependencies.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/parser.js",
+      "source": "tools/rmt-language/parser.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/app-platform-tooling.d.ts",
+      "source": "tools/rmt-language/app-platform-tooling.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-import-resolver.js",
+      "source": "tools/rmt-language/vnext-import-resolver.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/kernel-escalation.js",
+      "source": "tools/rmt-language/kernel-escalation.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/completions.d.ts",
+      "source": "tools/rmt-language/completions.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-cross-surface-events.js",
+      "source": "tools/rmt-language/vnext-cross-surface-events.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-conditions.js",
+      "source": "tools/rmt-language/vnext-conditions.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-cross-surface-events.d.ts",
+      "source": "tools/rmt-language/vnext-cross-surface-events.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/kernel-security-regression.js",
+      "source": "tools/rmt-language/kernel-security-regression.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/kernel-scheduler-failure.js",
+      "source": "tools/rmt-language/kernel-scheduler-failure.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/format-adapter.js",
+      "source": "tools/rmt-language/format-adapter.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/compilation-session.js",
+      "source": "tools/rmt-language/compilation-session.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx-host-scopes.js",
+      "source": "tools/rmt-language/rmtx-host-scopes.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-regression.d.ts",
+      "source": "tools/rmt-language/vnext-regression.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-parser.js",
+      "source": "tools/rmt-language/vnext-parser.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmt-project-context.js",
+      "source": "tools/rmt-language/rmt-project-context.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/action-execution-lowering.js",
+      "source": "tools/rmt-language/action-execution-lowering.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmt-project.js",
+      "source": "tools/rmt-language/rmt-project.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-parser.d.ts",
+      "source": "tools/rmt-language/vnext-parser.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx-native-components.d.ts",
+      "source": "tools/rmt-language/rmtx-native-components.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/classic-compiler.js",
+      "source": "tools/rmt-language/classic-compiler.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/scheduler-lanes.js",
+      "source": "tools/rmt-language/scheduler-lanes.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx-native-components-v2.generated.d.ts",
+      "source": "tools/rmt-language/rmtx-native-components-v2.generated.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/format-adapter.d.ts",
+      "source": "tools/rmt-language/format-adapter.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/classic-parser.d.ts",
+      "source": "tools/rmt-language/classic-parser.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-import-resolver.d.ts",
+      "source": "tools/rmt-language/vnext-import-resolver.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/kernel-panic-monitor.d.ts",
+      "source": "tools/rmt-language/kernel-panic-monitor.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/kernel-security-regression.d.ts",
+      "source": "tools/rmt-language/kernel-security-regression.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/kernel-escalation.d.ts",
+      "source": "tools/rmt-language/kernel-escalation.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-enterprise-fixtures.d.ts",
+      "source": "tools/rmt-language/vnext-enterprise-fixtures.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-degradation.js",
+      "source": "tools/rmt-language/vnext-degradation.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx-component-bindings.js",
+      "source": "tools/rmt-language/rmtx-component-bindings.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/classic-compiler.d.ts",
+      "source": "tools/rmt-language/classic-compiler.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/code-actions.d.ts",
+      "source": "tools/rmt-language/code-actions.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx-operator-profiles.js",
+      "source": "tools/rmt-language/rmtx-operator-profiles.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-enterprise-release.js",
+      "source": "tools/rmt-language/vnext-enterprise-release.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-regression.js",
+      "source": "tools/rmt-language/vnext-regression.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx-native-component-bindings.d.ts",
+      "source": "tools/rmt-language/rmtx-native-component-bindings.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/classic-parser.js",
+      "source": "tools/rmt-language/classic-parser.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/symbols.js",
+      "source": "tools/rmt-language/symbols.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/symbols.d.ts",
+      "source": "tools/rmt-language/symbols.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx.js",
+      "source": "tools/rmt-language/rmtx.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx.d.ts",
+      "source": "tools/rmt-language/rmtx.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/classic-ast-types.d.ts",
+      "source": "tools/rmt-language/classic-ast-types.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-lifecycle.js",
+      "source": "tools/rmt-language/vnext-lifecycle.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-security.js",
+      "source": "tools/rmt-language/vnext-security.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/diagnostics.d.ts",
+      "source": "tools/rmt-language/diagnostics.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/definitions.d.ts",
+      "source": "tools/rmt-language/definitions.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/page-build.d.ts",
+      "source": "tools/rmt-language/page-build.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx-native-components.v1.json",
+      "source": "tools/rmt-language/rmtx-native-components.v1.json",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx-native-view.js",
+      "source": "tools/rmt-language/rmtx-native-view.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmt-tooling-public-types.d.ts",
+      "source": "tools/rmt-language/rmt-tooling-public-types.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx-parser.d.ts",
+      "source": "tools/rmt-language/rmtx-parser.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-remote-tooling.js",
+      "source": "tools/rmt-language/vnext-remote-tooling.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx-native-components-v2.json",
+      "source": "tools/rmt-language/rmtx-native-components-v2.json",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx-native-components.generated.d.ts",
+      "source": "tools/rmt-language/rmtx-native-components.generated.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx-compiler.js",
+      "source": "tools/rmt-language/rmtx-compiler.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx-compiler.d.ts",
+      "source": "tools/rmt-language/rmtx-compiler.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/kernel-trust-authority.d.ts",
+      "source": "tools/rmt-language/kernel-trust-authority.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmt-ai-developer-kit.js",
+      "source": "tools/rmt-language/rmt-ai-developer-kit.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-degradation.d.ts",
+      "source": "tools/rmt-language/vnext-degradation.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/parser.d.ts",
+      "source": "tools/rmt-language/parser.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/super-prewarm-worker-experiment.d.ts",
+      "source": "tools/rmt-language/super-prewarm-worker-experiment.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/definitions.js",
+      "source": "tools/rmt-language/definitions.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-compiler.js",
+      "source": "tools/rmt-language/vnext-compiler.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-enterprise-registry.js",
+      "source": "tools/rmt-language/vnext-enterprise-registry.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/compilation-session.d.ts",
+      "source": "tools/rmt-language/compilation-session.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/progressive-controls.json",
+      "source": "tools/rmt-language/progressive-controls.json",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/hover.d.ts",
+      "source": "tools/rmt-language/hover.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-lifecycle.d.ts",
+      "source": "tools/rmt-language/vnext-lifecycle.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-security.d.ts",
+      "source": "tools/rmt-language/vnext-security.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/kernel-panic-monitor.js",
+      "source": "tools/rmt-language/kernel-panic-monitor.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-conditions.d.ts",
+      "source": "tools/rmt-language/vnext-conditions.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/project-watch.d.ts",
+      "source": "tools/rmt-language/project-watch.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-events.d.ts",
+      "source": "tools/rmt-language/vnext-events.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-tooling.d.ts",
+      "source": "tools/rmt-language/vnext-tooling.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-streaming.js",
+      "source": "tools/rmt-language/vnext-streaming.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-remote-compiler.js",
+      "source": "tools/rmt-language/vnext-remote-compiler.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-event-governance.d.ts",
+      "source": "tools/rmt-language/vnext-event-governance.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx-extended-operators.js",
+      "source": "tools/rmt-language/rmtx-extended-operators.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-composition.js",
+      "source": "tools/rmt-language/vnext-composition.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-enterprise-registry.d.ts",
+      "source": "tools/rmt-language/vnext-enterprise-registry.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-streaming.d.ts",
+      "source": "tools/rmt-language/vnext-streaming.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/html-sink-syntax.js",
+      "source": "tools/rmt-language/html-sink-syntax.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/kernel-trust-authority.js",
+      "source": "tools/rmt-language/kernel-trust-authority.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-event-governance.js",
+      "source": "tools/rmt-language/vnext-event-governance.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx-language-service.js",
+      "source": "tools/rmt-language/rmtx-language-service.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx-selector-dependencies.js",
+      "source": "tools/rmt-language/rmtx-selector-dependencies.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-enterprise-fixtures.js",
+      "source": "tools/rmt-language/vnext-enterprise-fixtures.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-surfaces.js",
+      "source": "tools/rmt-language/vnext-surfaces.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx-operator-coverage.js",
+      "source": "tools/rmt-language/rmtx-operator-coverage.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmt-project.d.ts",
+      "source": "tools/rmt-language/rmt-project.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-remote-compatibility.d.ts",
+      "source": "tools/rmt-language/vnext-remote-compatibility.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/source-model.d.ts",
+      "source": "tools/rmt-language/source-model.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/project-watch.js",
+      "source": "tools/rmt-language/project-watch.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-release.js",
+      "source": "tools/rmt-language/vnext-release.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-remote-manifest.d.ts",
+      "source": "tools/rmt-language/vnext-remote-manifest.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/super-prewarm-worker-experiment.js",
+      "source": "tools/rmt-language/super-prewarm-worker-experiment.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/classic-semantic-rules.js",
+      "source": "tools/rmt-language/classic-semantic-rules.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/xscaler-protocol.d.ts",
+      "source": "tools/rmt-language/xscaler-protocol.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-remote-compiler.d.ts",
+      "source": "tools/rmt-language/vnext-remote-compiler.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/action-input-contract.d.ts",
+      "source": "tools/rmt-language/action-input-contract.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-composition.d.ts",
+      "source": "tools/rmt-language/vnext-composition.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmt-ai-developer-kit.d.ts",
+      "source": "tools/rmt-language/rmt-ai-developer-kit.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-source-to-sea.d.ts",
+      "source": "tools/rmt-language/vnext-source-to-sea.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/semantic-graph.js",
+      "source": "tools/rmt-language/semantic-graph.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/kernel-recovery.js",
+      "source": "tools/rmt-language/kernel-recovery.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/classic-ast-contract.js",
+      "source": "tools/rmt-language/classic-ast-contract.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/classic-ast-rules.js",
+      "source": "tools/rmt-language/classic-ast-rules.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/code-actions.js",
+      "source": "tools/rmt-language/code-actions.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/action-input-contract.js",
+      "source": "tools/rmt-language/action-input-contract.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-compiler.d.ts",
+      "source": "tools/rmt-language/vnext-compiler.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-compatibility.d.ts",
+      "source": "tools/rmt-language/vnext-compatibility.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/kernel-policy-parity.d.ts",
+      "source": "tools/rmt-language/kernel-policy-parity.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/page-build.js",
+      "source": "tools/rmt-language/page-build.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-enterprise-release.d.ts",
+      "source": "tools/rmt-language/vnext-enterprise-release.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-remote-compatibility.js",
+      "source": "tools/rmt-language/vnext-remote-compatibility.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/xscaler-protocol.js",
+      "source": "tools/rmt-language/xscaler-protocol.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/source-model.js",
+      "source": "tools/rmt-language/source-model.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx-native-component-bindings.js",
+      "source": "tools/rmt-language/rmtx-native-component-bindings.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-remote-security.d.ts",
+      "source": "tools/rmt-language/vnext-remote-security.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rmtx-native-lifecycle.d.ts",
+      "source": "tools/rmt-language/rmtx-native-lifecycle.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vnext-source-to-sea.js",
+      "source": "tools/rmt-language/vnext-source-to-sea.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/navigation-facts.js",
+      "source": "tools/rmt-language/navigation-facts.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vendor/manifest.json",
+      "source": "tools/rmt-language/vendor/manifest.json",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/vendor/fastpass-contract.js",
+      "source": "tools/rmt-language/vendor/fastpass-contract.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/fixtures/kernel-orchestration-contract.rmt",
+      "source": "tools/rmt-language/fixtures/kernel-orchestration-contract.rmt",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/fixtures/validation-transition-contract.rmt",
+      "source": "tools/rmt-language/fixtures/validation-transition-contract.rmt",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rules/route-policy.js",
+      "source": "tools/rmt-language/rules/route-policy.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rules/boundary-policy.js",
+      "source": "tools/rmt-language/rules/boundary-policy.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rules/app-platform-policy.js",
+      "source": "tools/rmt-language/rules/app-platform-policy.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rules/scheduler-policy.js",
+      "source": "tools/rmt-language/rules/scheduler-policy.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rules/template-policy.js",
+      "source": "tools/rmt-language/rules/template-policy.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rules/document-policy.js",
+      "source": "tools/rmt-language/rules/document-policy.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/rules/index.js",
+      "source": "tools/rmt-language/rules/index.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/contracts/classic-ast.v1.schema.json",
+      "source": "tools/rmt-language/contracts/classic-ast.v1.schema.json",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/contracts/action-input-contract.v1.schema.json",
+      "source": "tools/rmt-language/contracts/action-input-contract.v1.schema.json",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/snippets/README.md",
+      "source": "tools/rmt-language/snippets/README.md",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/snippets/index.d.ts",
+      "source": "tools/rmt-language/snippets/index.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/snippets/index.js",
+      "source": "tools/rmt-language/snippets/index.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/snippets/rmt.code-snippets",
+      "source": "tools/rmt-language/snippets/rmt.code-snippets",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.compact.md",
+      "source": "tools/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.compact.md",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.reference.jsonl",
+      "source": "tools/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.reference.jsonl",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.prompts.md",
+      "source": "tools/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.prompts.md",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.manifest.json",
+      "source": "tools/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.manifest.json",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.recipes.jsonl",
+      "source": "tools/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.recipes.jsonl",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.guardrails.json",
+      "source": "tools/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.guardrails.json",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language-server/protocol.d.ts",
+      "source": "tools/rmt-language-server/protocol.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language-server/protocol.js",
+      "source": "tools/rmt-language-server/protocol.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language-server/server.js",
+      "source": "tools/rmt-language-server/server.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-language-server/server.d.ts",
+      "source": "tools/rmt-language-server/server.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/project-index/cli.d.ts",
+      "source": "tools/project-index/cli.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/project-index/impact.js",
+      "source": "tools/project-index/impact.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/project-index/repository.js",
+      "source": "tools/project-index/repository.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/project-index/sources.js",
+      "source": "tools/project-index/sources.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/project-index/index.d.ts",
+      "source": "tools/project-index/index.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/project-index/rmt.js",
+      "source": "tools/project-index/rmt.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/project-index/index.js",
+      "source": "tools/project-index/index.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/project-index/modules.js",
+      "source": "tools/project-index/modules.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/project-index/cli.js",
+      "source": "tools/project-index/cli.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-linter/reporter.js",
+      "source": "tools/rmt-linter/reporter.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-linter/cli.d.ts",
+      "source": "tools/rmt-linter/cli.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-linter/reporter.d.ts",
+      "source": "tools/rmt-linter/reporter.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/rmt-linter/cli.js",
+      "source": "tools/rmt-linter/cli.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/vue-host-adapter.d.ts",
+      "source": "tools/xtensions/vue-host-adapter.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/React-19-LICENSE.txt",
+      "source": "tools/xtensions/React-19-LICENSE.txt",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-component-source.js",
+      "source": "tools/xtensions/native-component-source.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/angular-host-adapter.d.ts",
+      "source": "tools/xtensions/angular-host-adapter.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/resource-graph-binding.js",
+      "source": "tools/xtensions/resource-graph-binding.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/maraca-xtension-manifest.js",
+      "source": "tools/xtensions/maraca-xtension-manifest.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-managed-view-projection.js",
+      "source": "tools/xtensions/native-managed-view-projection.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-component-managed.d.ts",
+      "source": "tools/xtensions/native-component-managed.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/component-interface.v2.schema.json",
+      "source": "tools/xtensions/component-interface.v2.schema.json",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/runtime-capability-registry.d.ts",
+      "source": "tools/xtensions/runtime-capability-registry.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-component-contract-v2.js",
+      "source": "tools/xtensions/native-component-contract-v2.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-surface-projection.js",
+      "source": "tools/xtensions/native-surface-projection.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-component-catalog.js",
+      "source": "tools/xtensions/native-component-catalog.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/kernel-work-scope.js",
+      "source": "tools/xtensions/kernel-work-scope.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/react-runtime-boundary.js",
+      "source": "tools/xtensions/react-runtime-boundary.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-surface-validation-core.js",
+      "source": "tools/xtensions/native-surface-validation-core.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/framework-ssr.js",
+      "source": "tools/xtensions/framework-ssr.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-orchestration-lifecycle-core.js",
+      "source": "tools/xtensions/native-orchestration-lifecycle-core.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-orchestration-lifecycle.js",
+      "source": "tools/xtensions/native-orchestration-lifecycle.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/repeat-scopes.js",
+      "source": "tools/xtensions/repeat-scopes.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-managed-surface-scopes.js",
+      "source": "tools/xtensions/native-managed-surface-scopes.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-managed-view-validation.d.ts",
+      "source": "tools/xtensions/native-managed-view-validation.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/host-resource-cleanup-record.js",
+      "source": "tools/xtensions/host-resource-cleanup-record.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/url-state-managed.d.ts",
+      "source": "tools/xtensions/url-state-managed.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-component-contract.js",
+      "source": "tools/xtensions/native-component-contract.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/vanilla-host-adapter.d.ts",
+      "source": "tools/xtensions/vanilla-host-adapter.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-component-catalog-v2.js",
+      "source": "tools/xtensions/native-component-catalog-v2.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/diagnostic-trail.js",
+      "source": "tools/xtensions/diagnostic-trail.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/state-binding-orchestrated-disabled.js",
+      "source": "tools/xtensions/state-binding-orchestrated-disabled.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/adoption-handoff.d.ts",
+      "source": "tools/xtensions/adoption-handoff.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-surface-scopes.js",
+      "source": "tools/xtensions/native-surface-scopes.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/component-interface.js",
+      "source": "tools/xtensions/component-interface.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/static-contract-introspection.js",
+      "source": "tools/xtensions/static-contract-introspection.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/imperative-host-pocs.d.ts",
+      "source": "tools/xtensions/imperative-host-pocs.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/imperative-host-pocs.js",
+      "source": "tools/xtensions/imperative-host-pocs.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/component-interface.d.ts",
+      "source": "tools/xtensions/component-interface.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/signal-bridge-contract.d.ts",
+      "source": "tools/xtensions/signal-bridge-contract.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/resume-adapter-contract.d.ts",
+      "source": "tools/xtensions/resume-adapter-contract.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-managed-lifecycle.js",
+      "source": "tools/xtensions/native-managed-lifecycle.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-component-contract-v2.d.ts",
+      "source": "tools/xtensions/native-component-contract-v2.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/state-binding-projection.js",
+      "source": "tools/xtensions/state-binding-projection.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-component-bindings.d.ts",
+      "source": "tools/xtensions/native-component-bindings.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/angular-host-adapter.js",
+      "source": "tools/xtensions/angular-host-adapter.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/react-host-adapter.d.ts",
+      "source": "tools/xtensions/react-host-adapter.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/Apache-2.0-LICENSE.txt",
+      "source": "tools/xtensions/Apache-2.0-LICENSE.txt",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-managed-orchestration-lifecycle.js",
+      "source": "tools/xtensions/native-managed-orchestration-lifecycle.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/multi-framework-dashboard-fixture.d.ts",
+      "source": "tools/xtensions/multi-framework-dashboard-fixture.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/state-binding.d.ts",
+      "source": "tools/xtensions/state-binding.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/state-binding-contract.js",
+      "source": "tools/xtensions/state-binding-contract.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/Vue-LICENSE.txt",
+      "source": "tools/xtensions/Vue-LICENSE.txt",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/signal-bridge-contract.js",
+      "source": "tools/xtensions/signal-bridge-contract.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/vue-runtime-adapter.d.ts",
+      "source": "tools/xtensions/vue-runtime-adapter.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/state-binding-orchestrated.js",
+      "source": "tools/xtensions/state-binding-orchestrated.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/react-runtime-adapter.js",
+      "source": "tools/xtensions/react-runtime-adapter.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/react-host-adapter.js",
+      "source": "tools/xtensions/react-host-adapter.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/component-interface-build.js",
+      "source": "tools/xtensions/component-interface-build.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-surface-scopes.d.ts",
+      "source": "tools/xtensions/native-surface-scopes.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/state-binding-managed.d.ts",
+      "source": "tools/xtensions/state-binding-managed.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/state-binding.js",
+      "source": "tools/xtensions/state-binding.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/runtime-host-controller.d.ts",
+      "source": "tools/xtensions/runtime-host-controller.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/three-render-loop-poc.js",
+      "source": "tools/xtensions/three-render-loop-poc.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/react-host-controller-poc.js",
+      "source": "tools/xtensions/react-host-controller-poc.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/react-host-controller-poc.d.ts",
+      "source": "tools/xtensions/react-host-controller-poc.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/state-binding-projection-disabled.js",
+      "source": "tools/xtensions/state-binding-projection-disabled.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/state-binding-artifact.js",
+      "source": "tools/xtensions/state-binding-artifact.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/url-state.d.ts",
+      "source": "tools/xtensions/url-state.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/maraca-xtension-manifest.d.ts",
+      "source": "tools/xtensions/maraca-xtension-manifest.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/host-controller-contract.d.ts",
+      "source": "tools/xtensions/host-controller-contract.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/url-state-managed.js",
+      "source": "tools/xtensions/url-state-managed.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/state-binding-artifact.d.ts",
+      "source": "tools/xtensions/state-binding-artifact.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-managed-orchestration-lifecycle.d.ts",
+      "source": "tools/xtensions/native-managed-orchestration-lifecycle.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/vue-host-controller-poc.d.ts",
+      "source": "tools/xtensions/vue-host-controller-poc.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/openui5-host-adapter.js",
+      "source": "tools/xtensions/openui5-host-adapter.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/vanilla-host-adapter.js",
+      "source": "tools/xtensions/vanilla-host-adapter.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-managed-view-validation.js",
+      "source": "tools/xtensions/native-managed-view-validation.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/host-controller-contract.js",
+      "source": "tools/xtensions/host-controller-contract.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/work-budget-policy.js",
+      "source": "tools/xtensions/work-budget-policy.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-lifecycle.d.ts",
+      "source": "tools/xtensions/native-lifecycle.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/host-capability-negotiation.js",
+      "source": "tools/xtensions/host-capability-negotiation.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/vue-payload-boundary.js",
+      "source": "tools/xtensions/vue-payload-boundary.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-managed-view-projection.d.ts",
+      "source": "tools/xtensions/native-managed-view-projection.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/static-contract-introspection.d.ts",
+      "source": "tools/xtensions/static-contract-introspection.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-data.js",
+      "source": "tools/xtensions/native-data.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/diagnostic-trail.d.ts",
+      "source": "tools/xtensions/diagnostic-trail.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-component-contract.d.ts",
+      "source": "tools/xtensions/native-component-contract.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-view-projection.js",
+      "source": "tools/xtensions/native-view-projection.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/openui5-host-adapter.d.ts",
+      "source": "tools/xtensions/openui5-host-adapter.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/vue-host-controller-poc.js",
+      "source": "tools/xtensions/vue-host-controller-poc.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/security-integrity-gate.js",
+      "source": "tools/xtensions/security-integrity-gate.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/registry-package-strategy.js",
+      "source": "tools/xtensions/registry-package-strategy.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/vue-runtime-boundary.js",
+      "source": "tools/xtensions/vue-runtime-boundary.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/cooperative-resource-scope.js",
+      "source": "tools/xtensions/cooperative-resource-scope.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/adoption-handoff.js",
+      "source": "tools/xtensions/adoption-handoff.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/multi-framework-dashboard-fixture.js",
+      "source": "tools/xtensions/multi-framework-dashboard-fixture.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-sink-contract.js",
+      "source": "tools/xtensions/native-sink-contract.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/react-payload-boundary.js",
+      "source": "tools/xtensions/react-payload-boundary.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/React-18-LICENSE.txt",
+      "source": "tools/xtensions/React-18-LICENSE.txt",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/framework-ssr.d.ts",
+      "source": "tools/xtensions/framework-ssr.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/three-render-loop-poc.d.ts",
+      "source": "tools/xtensions/three-render-loop-poc.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/registry-package-strategy.d.ts",
+      "source": "tools/xtensions/registry-package-strategy.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/cooperative-resource-scope.d.ts",
+      "source": "tools/xtensions/cooperative-resource-scope.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-surface-projection-core.js",
+      "source": "tools/xtensions/native-surface-projection-core.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-orchestration-lifecycle.d.ts",
+      "source": "tools/xtensions/native-orchestration-lifecycle.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/url-state.js",
+      "source": "tools/xtensions/url-state.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-surface-scopes-core.js",
+      "source": "tools/xtensions/native-surface-scopes-core.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-managed-surface-scopes.d.ts",
+      "source": "tools/xtensions/native-managed-surface-scopes.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/component-interface.v1.schema.json",
+      "source": "tools/xtensions/component-interface.v1.schema.json",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-surface-projection.d.ts",
+      "source": "tools/xtensions/native-surface-projection.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/vue-runtime-adapter.js",
+      "source": "tools/xtensions/vue-runtime-adapter.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/runtime-host-controller.js",
+      "source": "tools/xtensions/runtime-host-controller.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/host-resource-cleanup-record.d.ts",
+      "source": "tools/xtensions/host-resource-cleanup-record.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/resume-adapter-contract.js",
+      "source": "tools/xtensions/resume-adapter-contract.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-managed-lifecycle.d.ts",
+      "source": "tools/xtensions/native-managed-lifecycle.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/security-integrity-gate.d.ts",
+      "source": "tools/xtensions/security-integrity-gate.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/NOTICE",
+      "source": "tools/xtensions/NOTICE",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/state-binding-managed.js",
+      "source": "tools/xtensions/state-binding-managed.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-component-bindings.js",
+      "source": "tools/xtensions/native-component-bindings.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-view-projection.d.ts",
+      "source": "tools/xtensions/native-view-projection.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-lifecycle.js",
+      "source": "tools/xtensions/native-lifecycle.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-component-managed.js",
+      "source": "tools/xtensions/native-component-managed.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/state-binding-registry-core.js",
+      "source": "tools/xtensions/state-binding-registry-core.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/native-managed-component-registry.js",
+      "source": "tools/xtensions/native-managed-component-registry.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/react-runtime-adapter.d.ts",
+      "source": "tools/xtensions/react-runtime-adapter.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/runtime-capability-registry.js",
+      "source": "tools/xtensions/runtime-capability-registry.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/vue-host-adapter.js",
+      "source": "tools/xtensions/vue-host-adapter.js",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/url-state-contracts/policy.v1.schema.json",
+      "source": "tools/xtensions/url-state-contracts/policy.v1.schema.json",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/url-state-contracts/state.v2.schema.json",
+      "source": "tools/xtensions/url-state-contracts/state.v2.schema.json",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/url-state-contracts/history-proposal.v2.schema.json",
+      "source": "tools/xtensions/url-state-contracts/history-proposal.v2.schema.json",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/url-state-contracts/state.v1.schema.json",
+      "source": "tools/xtensions/url-state-contracts/state.v1.schema.json",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/url-state-contracts/history-proposal.v1.schema.json",
+      "source": "tools/xtensions/url-state-contracts/history-proposal.v1.schema.json",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/url-state-contracts/restore-plan.v1.schema.json",
+      "source": "tools/xtensions/url-state-contracts/restore-plan.v1.schema.json",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/url-state-contracts/policy.v2.schema.json",
+      "source": "tools/xtensions/url-state-contracts/policy.v2.schema.json",
+      "matches": true
+    },
+    {
+      "packed": "tools/xtensions/url-state-contracts/restore-plan.v2.schema.json",
+      "source": "tools/xtensions/url-state-contracts/restore-plan.v2.schema.json",
+      "matches": true
+    },
+    {
+      "packed": "fabric/xtend-policy-public-types.d.ts",
+      "source": "fabric/xtend-policy-public-types.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "fabric/rmt-lane-mapping.js",
+      "source": "fabric/rmt-lane-mapping.js",
+      "matches": true
+    },
+    {
+      "packed": "fabric/README.md",
+      "source": "fabric/README.md",
+      "matches": true
+    },
+    {
+      "packed": "fabric/hydration-policy.js",
+      "source": "fabric/hydration-policy.js",
+      "matches": true
+    },
+    {
+      "packed": "fabric/rmt-lane-mapping.d.ts",
+      "source": "fabric/rmt-lane-mapping.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "fabric/hydration-policy.d.ts",
+      "source": "fabric/hydration-policy.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "fabric/package.json",
+      "source": "fabric/package.json",
+      "matches": true
+    },
+    {
+      "packed": "fabric/xtend-fabric.js",
+      "source": "fabric/xtend-fabric.js",
+      "matches": true
+    },
+    {
+      "packed": "fabric/xtend-fabric.d.ts",
+      "source": "fabric/xtend-fabric.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-portable-render.d.ts",
+      "source": "xtendrmt/rmt-portable-render.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-app-host-adapter.d.ts",
+      "source": "xtendrmt/rmt-app-host-adapter.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-resume-capture-adapter.js",
+      "source": "xtendrmt/rmt-resume-capture-adapter.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-state-binding-view-projector.js",
+      "source": "xtendrmt/rmt-state-binding-view-projector.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-state-host-adapter.js",
+      "source": "xtendrmt/rmt-state-host-adapter.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/html-sanitizer.cjs",
+      "source": "xtendrmt/html-sanitizer.cjs",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-node-ssr-adapter.js",
+      "source": "xtendrmt/rmt-node-ssr-adapter.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-app-view-projector.d.ts",
+      "source": "xtendrmt/rmt-app-view-projector.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-form-validation-runtime.d.ts",
+      "source": "xtendrmt/rmt-form-validation-runtime.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-native-shell-runtime.d.ts",
+      "source": "xtendrmt/rmt-native-shell-runtime.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-app-runtime.js",
+      "source": "xtendrmt/rmt-app-runtime.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-portable-render.js",
+      "source": "xtendrmt/rmt-portable-render.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-php-ssr-adapter.php",
+      "source": "xtendrmt/rmt-php-ssr-adapter.php",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-core.d.ts",
+      "source": "xtendrmt/rmt-core.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-event-routing-runtime.js",
+      "source": "xtendrmt/rmt-event-routing-runtime.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-action-effect-runtime.js",
+      "source": "xtendrmt/rmt-action-effect-runtime.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-surface-resource-graph-runtime.d.ts",
+      "source": "xtendrmt/rmt-surface-resource-graph-runtime.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-resume-runtime.js",
+      "source": "xtendrmt/rmt-resume-runtime.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-animation-engine-runtime.d.ts",
+      "source": "xtendrmt/rmt-animation-engine-runtime.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-app-view-projector.js",
+      "source": "xtendrmt/rmt-app-view-projector.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-action-effect-runtime.d.ts",
+      "source": "xtendrmt/rmt-action-effect-runtime.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-maraca-view-projection-adapter.js",
+      "source": "xtendrmt/rmt-maraca-view-projection-adapter.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/page-form.d.ts",
+      "source": "xtendrmt/page-form.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-runtime.browser.js",
+      "source": "xtendrmt/rmt-runtime.browser.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-state-binding-view-projector.d.ts",
+      "source": "xtendrmt/rmt-state-binding-view-projector.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-page-data.php",
+      "source": "xtendrmt/rmt-page-data.php",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-browser-scheduler.d.ts",
+      "source": "xtendrmt/rmt-browser-scheduler.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-core.esm.js",
+      "source": "xtendrmt/rmt-core.esm.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-safe-preview.js",
+      "source": "xtendrmt/rmt-safe-preview.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-animation-engine-runtime.js",
+      "source": "xtendrmt/rmt-animation-engine-runtime.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/README.md",
+      "source": "xtendrmt/README.md",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/node-page-host.mjs",
+      "source": "xtendrmt/node-page-host.mjs",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/page-client.mjs",
+      "source": "xtendrmt/page-client.mjs",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-maraca-view-projection-adapter.d.ts",
+      "source": "xtendrmt/rmt-maraca-view-projection-adapter.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/html-sanitizer.mjs",
+      "source": "xtendrmt/html-sanitizer.mjs",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-app-host-adapter.js",
+      "source": "xtendrmt/rmt-app-host-adapter.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-app-runtime.d.ts",
+      "source": "xtendrmt/rmt-app-runtime.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-surface-transition-runtime.js",
+      "source": "xtendrmt/rmt-surface-transition-runtime.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-surface-resource-graph-runtime.js",
+      "source": "xtendrmt/rmt-surface-resource-graph-runtime.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-php-app-service-adapter.php",
+      "source": "xtendrmt/rmt-php-app-service-adapter.php",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-kernel-feature-adoption-registry.d.ts",
+      "source": "xtendrmt/rmt-kernel-feature-adoption-registry.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-dom-descriptor-renderer.d.ts",
+      "source": "xtendrmt/rmt-dom-descriptor-renderer.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/page-resource-cache.d.ts",
+      "source": "xtendrmt/page-resource-cache.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-form-validation-model-command-adapter.js",
+      "source": "xtendrmt/rmt-form-validation-model-command-adapter.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-resume-command-controller.js",
+      "source": "xtendrmt/rmt-resume-command-controller.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-component-capability-registry.js",
+      "source": "xtendrmt/rmt-component-capability-registry.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-event-routing-runtime.d.ts",
+      "source": "xtendrmt/rmt-event-routing-runtime.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-manifest.json",
+      "source": "xtendrmt/rmt-manifest.json",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/page-form.mjs",
+      "source": "xtendrmt/page-form.mjs",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/node-page-host.d.ts",
+      "source": "xtendrmt/node-page-host.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-kernel-feature-adoption-registry.js",
+      "source": "xtendrmt/rmt-kernel-feature-adoption-registry.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/DOMPurify-LICENSE",
+      "source": "xtendrmt/DOMPurify-LICENSE",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-portable-render.php",
+      "source": "xtendrmt/rmt-portable-render.php",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-kernel-orchestration-controller.d.ts",
+      "source": "xtendrmt/rmt-kernel-orchestration-controller.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-resume-capture-adapter.d.ts",
+      "source": "xtendrmt/rmt-resume-capture-adapter.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/page-client.d.ts",
+      "source": "xtendrmt/page-client.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-presentation-effect-adapter.js",
+      "source": "xtendrmt/rmt-presentation-effect-adapter.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-kernel-orchestration-controller.js",
+      "source": "xtendrmt/rmt-kernel-orchestration-controller.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/page-contract.d.ts",
+      "source": "xtendrmt/page-contract.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-resume-runtime.d.ts",
+      "source": "xtendrmt/rmt-resume-runtime.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-resume-protocol.js",
+      "source": "xtendrmt/rmt-resume-protocol.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-state-host-adapter.d.ts",
+      "source": "xtendrmt/rmt-state-host-adapter.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-kernel-scheduler.js",
+      "source": "xtendrmt/rmt-kernel-scheduler.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-ssr-stream-host.js",
+      "source": "xtendrmt/rmt-ssr-stream-host.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-kernel-scheduler.d.ts",
+      "source": "xtendrmt/rmt-kernel-scheduler.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/page-initial.mjs",
+      "source": "xtendrmt/page-initial.mjs",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/page-wire.mjs",
+      "source": "xtendrmt/page-wire.mjs",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/package.json",
+      "source": "xtendrmt/package.json",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-node-ssr-adapter.d.ts",
+      "source": "xtendrmt/rmt-node-ssr-adapter.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt.schema.json",
+      "source": "xtendrmt/rmt.schema.json",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-resume-host-adapter.js",
+      "source": "xtendrmt/rmt-resume-host-adapter.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/page-contract.mjs",
+      "source": "xtendrmt/page-contract.mjs",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/page-resource-cache.mjs",
+      "source": "xtendrmt/page-resource-cache.mjs",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-presentation-effect-adapter.d.ts",
+      "source": "xtendrmt/rmt-presentation-effect-adapter.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-form-validation-evaluator.js",
+      "source": "xtendrmt/rmt-form-validation-evaluator.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-form-validation-runtime.js",
+      "source": "xtendrmt/rmt-form-validation-runtime.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-native-shell-runtime.js",
+      "source": "xtendrmt/rmt-native-shell-runtime.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-form-validation-view-projector.js",
+      "source": "xtendrmt/rmt-form-validation-view-projector.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-browser-scheduler.js",
+      "source": "xtendrmt/rmt-browser-scheduler.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-dom-descriptor-renderer.js",
+      "source": "xtendrmt/rmt-dom-descriptor-renderer.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-runtime.esm.js",
+      "source": "xtendrmt/rmt-runtime.esm.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-resume-command-adapter.js",
+      "source": "xtendrmt/rmt-resume-command-adapter.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-safe-preview.d.ts",
+      "source": "xtendrmt/rmt-safe-preview.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-state-selector-runtime.d.ts",
+      "source": "xtendrmt/rmt-state-selector-runtime.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-component-capability-registry.d.ts",
+      "source": "xtendrmt/rmt-component-capability-registry.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-surface-transition-runtime.d.ts",
+      "source": "xtendrmt/rmt-surface-transition-runtime.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/rmt-state-selector-runtime.js",
+      "source": "xtendrmt/rmt-state-selector-runtime.js",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/contracts/ssr-coverage.v1.json",
+      "source": "xtendrmt/contracts/ssr-coverage.v1.json",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/contracts/node-ssr-fabric-telemetry-hints.v2.json",
+      "source": "xtendrmt/contracts/node-ssr-fabric-telemetry-hints.v2.json",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/contracts/page-wire.v2.json",
+      "source": "xtendrmt/contracts/page-wire.v2.json",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/contracts/page-manifest.v2.json",
+      "source": "xtendrmt/contracts/page-manifest.v2.json",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/contracts/page-response.v2.json",
+      "source": "xtendrmt/contracts/page-response.v2.json",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/contracts/page-initial-wire.v1.json",
+      "source": "xtendrmt/contracts/page-initial-wire.v1.json",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/contracts/page-initial-resume.v1.json",
+      "source": "xtendrmt/contracts/page-initial-resume.v1.json",
+      "matches": true
+    },
+    {
+      "packed": "xtendrmt/contracts/portable-render.v2.json",
+      "source": "xtendrmt/contracts/portable-render.v2.json",
+      "matches": true
+    },
+    {
+      "packed": "xtend-maraca/fastpass-contract.js",
+      "source": "xtend-maraca/fastpass-contract.js",
+      "matches": true
+    },
+    {
+      "packed": "products/xtend-mcp/transports.d.ts",
+      "source": "products/xtend-mcp/transports.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "products/xtend-mcp/client.d.ts",
+      "source": "products/xtend-mcp/client.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "products/xtend-mcp/README.md",
+      "source": "products/xtend-mcp/README.md",
+      "matches": true
+    },
+    {
+      "packed": "products/xtend-mcp/index.d.ts",
+      "source": "products/xtend-mcp/index.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "products/xtend-mcp/package.json",
+      "source": "products/xtend-mcp/package.json",
+      "matches": true
+    },
+    {
+      "packed": "products/xtend-mcp/knowledge.d.ts",
+      "source": "products/xtend-mcp/knowledge.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "products/xtend-mcp/generated/knowledge-manifest.json",
+      "source": "products/xtend-mcp/generated/knowledge-manifest.json",
+      "matches": true
+    },
+    {
+      "packed": "products/xtend-mcp/generated/docs.jsonl",
+      "source": "products/xtend-mcp/generated/docs.jsonl",
+      "matches": true
+    },
+    {
+      "packed": "products/xtend-mcp/src/transports.mjs",
+      "source": "products/xtend-mcp/src/transports.mjs",
+      "matches": true
+    },
+    {
+      "packed": "products/xtend-mcp/src/knowledge.mjs",
+      "source": "products/xtend-mcp/src/knowledge.mjs",
+      "matches": true
+    },
+    {
+      "packed": "products/xtend-mcp/src/server.mjs",
+      "source": "products/xtend-mcp/src/server.mjs",
+      "matches": true
+    },
+    {
+      "packed": "products/xtend-mcp/src/tooling.mjs",
+      "source": "products/xtend-mcp/src/tooling.mjs",
+      "matches": true
+    },
+    {
+      "packed": "products/xtend-mcp/src/client.mjs",
+      "source": "products/xtend-mcp/src/client.mjs",
+      "matches": true
+    },
+    {
+      "packed": "products/xtend-mcp/bin/xtend-mcp.mjs",
+      "source": "products/xtend-mcp/bin/xtend-mcp.mjs",
+      "matches": true
+    },
+    {
+      "packed": "products/xtend-mcp/generated/rmt-ai-kit/rmt-ai-kit.compact.md",
+      "source": "products/xtend-mcp/generated/rmt-ai-kit/rmt-ai-kit.compact.md",
+      "matches": true
+    },
+    {
+      "packed": "products/xtend-mcp/generated/rmt-ai-kit/rmt-ai-kit.reference.jsonl",
+      "source": "products/xtend-mcp/generated/rmt-ai-kit/rmt-ai-kit.reference.jsonl",
+      "matches": true
+    },
+    {
+      "packed": "products/xtend-mcp/generated/rmt-ai-kit/rmt-ai-kit.prompts.md",
+      "source": "products/xtend-mcp/generated/rmt-ai-kit/rmt-ai-kit.prompts.md",
+      "matches": true
+    },
+    {
+      "packed": "products/xtend-mcp/generated/rmt-ai-kit/rmt-ai-kit.manifest.json",
+      "source": "products/xtend-mcp/generated/rmt-ai-kit/rmt-ai-kit.manifest.json",
+      "matches": true
+    },
+    {
+      "packed": "products/xtend-mcp/generated/rmt-ai-kit/rmt-ai-kit.recipes.jsonl",
+      "source": "products/xtend-mcp/generated/rmt-ai-kit/rmt-ai-kit.recipes.jsonl",
+      "matches": true
+    },
+    {
+      "packed": "products/xtend-mcp/generated/rmt-ai-kit/rmt-ai-kit.guardrails.json",
+      "source": "products/xtend-mcp/generated/rmt-ai-kit/rmt-ai-kit.guardrails.json",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/tooling-bridge.js",
+      "source": "tools/tooling-bridge.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/tooling-bridge-client.php",
+      "source": "tools/tooling-bridge-client.php",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-jit-kernel-cache.js",
+      "source": "tools/rmt-jit-kernel-cache.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/README.md",
+      "source": "tools/README.md",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-jit-kernel-cache.d.ts",
+      "source": "tools/rmt-jit-kernel-cache.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/package.json",
+      "source": "tools/package.json",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-jit-cache-cli.js",
+      "source": "tools/rmt-jit-cache-cli.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/tooling-bridge-cli.js",
+      "source": "tools/tooling-bridge-cli.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/tooling-bridge.d.ts",
+      "source": "tools/tooling-bridge.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/project-index/cli.d.ts",
+      "source": "tools/project-index/cli.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/project-index/impact.js",
+      "source": "tools/project-index/impact.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/project-index/repository.js",
+      "source": "tools/project-index/repository.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/project-index/sources.js",
+      "source": "tools/project-index/sources.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/project-index/index.d.ts",
+      "source": "tools/project-index/index.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/project-index/rmt.js",
+      "source": "tools/project-index/rmt.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/project-index/index.js",
+      "source": "tools/project-index/index.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/project-index/modules.js",
+      "source": "tools/project-index/modules.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/project-index/cli.js",
+      "source": "tools/project-index/cli.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-linter/reporter.js",
+      "source": "tools/rmt-linter/reporter.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-linter/cli.d.ts",
+      "source": "tools/rmt-linter/cli.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-linter/reporter.d.ts",
+      "source": "tools/rmt-linter/reporter.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-linter/cli.js",
+      "source": "tools/rmt-linter/cli.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/app-platform-tooling.js",
+      "source": "tools/rmt-language/app-platform-tooling.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx-language-service.d.ts",
+      "source": "tools/rmt-language/rmtx-language-service.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-release.d.ts",
+      "source": "tools/rmt-language/vnext-release.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/kernel-scheduler-failure.d.ts",
+      "source": "tools/rmt-language/kernel-scheduler-failure.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-remote-tooling.d.ts",
+      "source": "tools/rmt-language/vnext-remote-tooling.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx-native-components-v2.js",
+      "source": "tools/rmt-language/rmtx-native-components-v2.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-compatibility.js",
+      "source": "tools/rmt-language/vnext-compatibility.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-remote-security.js",
+      "source": "tools/rmt-language/vnext-remote-security.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/hover.js",
+      "source": "tools/rmt-language/hover.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/semantic-graph.d.ts",
+      "source": "tools/rmt-language/semantic-graph.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/completions.js",
+      "source": "tools/rmt-language/completions.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx-native-components.js",
+      "source": "tools/rmt-language/rmtx-native-components.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx-native-components-v2.d.ts",
+      "source": "tools/rmt-language/rmtx-native-components-v2.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-tooling.js",
+      "source": "tools/rmt-language/vnext-tooling.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-scheduler.d.ts",
+      "source": "tools/rmt-language/vnext-scheduler.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx-operator-coverage.json",
+      "source": "tools/rmt-language/rmtx-operator-coverage.json",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/diagnostics.js",
+      "source": "tools/rmt-language/diagnostics.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-remote-manifest.js",
+      "source": "tools/rmt-language/vnext-remote-manifest.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx-native-view.d.ts",
+      "source": "tools/rmt-language/rmtx-native-view.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/kernel-policy-parity.js",
+      "source": "tools/rmt-language/kernel-policy-parity.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx-native-lifecycle.js",
+      "source": "tools/rmt-language/rmtx-native-lifecycle.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx-component-bindings.d.ts",
+      "source": "tools/rmt-language/rmtx-component-bindings.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx-operator-profiles.d.ts",
+      "source": "tools/rmt-language/rmtx-operator-profiles.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/kernel-recovery.d.ts",
+      "source": "tools/rmt-language/kernel-recovery.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-surfaces.d.ts",
+      "source": "tools/rmt-language/vnext-surfaces.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-events.js",
+      "source": "tools/rmt-language/vnext-events.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-scheduler.js",
+      "source": "tools/rmt-language/vnext-scheduler.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx-parser.js",
+      "source": "tools/rmt-language/rmtx-parser.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx-selector-dependencies.d.ts",
+      "source": "tools/rmt-language/rmtx-selector-dependencies.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/parser.js",
+      "source": "tools/rmt-language/parser.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/app-platform-tooling.d.ts",
+      "source": "tools/rmt-language/app-platform-tooling.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-import-resolver.js",
+      "source": "tools/rmt-language/vnext-import-resolver.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/kernel-escalation.js",
+      "source": "tools/rmt-language/kernel-escalation.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/completions.d.ts",
+      "source": "tools/rmt-language/completions.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-cross-surface-events.js",
+      "source": "tools/rmt-language/vnext-cross-surface-events.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-conditions.js",
+      "source": "tools/rmt-language/vnext-conditions.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-cross-surface-events.d.ts",
+      "source": "tools/rmt-language/vnext-cross-surface-events.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/kernel-security-regression.js",
+      "source": "tools/rmt-language/kernel-security-regression.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/kernel-scheduler-failure.js",
+      "source": "tools/rmt-language/kernel-scheduler-failure.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/format-adapter.js",
+      "source": "tools/rmt-language/format-adapter.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/compilation-session.js",
+      "source": "tools/rmt-language/compilation-session.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx-host-scopes.js",
+      "source": "tools/rmt-language/rmtx-host-scopes.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-regression.d.ts",
+      "source": "tools/rmt-language/vnext-regression.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-parser.js",
+      "source": "tools/rmt-language/vnext-parser.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmt-project-context.js",
+      "source": "tools/rmt-language/rmt-project-context.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/action-execution-lowering.js",
+      "source": "tools/rmt-language/action-execution-lowering.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmt-project.js",
+      "source": "tools/rmt-language/rmt-project.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-parser.d.ts",
+      "source": "tools/rmt-language/vnext-parser.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx-native-components.d.ts",
+      "source": "tools/rmt-language/rmtx-native-components.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/classic-compiler.js",
+      "source": "tools/rmt-language/classic-compiler.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/scheduler-lanes.js",
+      "source": "tools/rmt-language/scheduler-lanes.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx-native-components-v2.generated.d.ts",
+      "source": "tools/rmt-language/rmtx-native-components-v2.generated.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/format-adapter.d.ts",
+      "source": "tools/rmt-language/format-adapter.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/classic-parser.d.ts",
+      "source": "tools/rmt-language/classic-parser.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-import-resolver.d.ts",
+      "source": "tools/rmt-language/vnext-import-resolver.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/kernel-panic-monitor.d.ts",
+      "source": "tools/rmt-language/kernel-panic-monitor.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/kernel-security-regression.d.ts",
+      "source": "tools/rmt-language/kernel-security-regression.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/kernel-escalation.d.ts",
+      "source": "tools/rmt-language/kernel-escalation.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-enterprise-fixtures.d.ts",
+      "source": "tools/rmt-language/vnext-enterprise-fixtures.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-degradation.js",
+      "source": "tools/rmt-language/vnext-degradation.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx-component-bindings.js",
+      "source": "tools/rmt-language/rmtx-component-bindings.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/classic-compiler.d.ts",
+      "source": "tools/rmt-language/classic-compiler.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/code-actions.d.ts",
+      "source": "tools/rmt-language/code-actions.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx-operator-profiles.js",
+      "source": "tools/rmt-language/rmtx-operator-profiles.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-enterprise-release.js",
+      "source": "tools/rmt-language/vnext-enterprise-release.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-regression.js",
+      "source": "tools/rmt-language/vnext-regression.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx-native-component-bindings.d.ts",
+      "source": "tools/rmt-language/rmtx-native-component-bindings.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/classic-parser.js",
+      "source": "tools/rmt-language/classic-parser.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/symbols.js",
+      "source": "tools/rmt-language/symbols.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/symbols.d.ts",
+      "source": "tools/rmt-language/symbols.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx.js",
+      "source": "tools/rmt-language/rmtx.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx.d.ts",
+      "source": "tools/rmt-language/rmtx.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/classic-ast-types.d.ts",
+      "source": "tools/rmt-language/classic-ast-types.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-lifecycle.js",
+      "source": "tools/rmt-language/vnext-lifecycle.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-security.js",
+      "source": "tools/rmt-language/vnext-security.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/diagnostics.d.ts",
+      "source": "tools/rmt-language/diagnostics.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/definitions.d.ts",
+      "source": "tools/rmt-language/definitions.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/page-build.d.ts",
+      "source": "tools/rmt-language/page-build.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx-native-components.v1.json",
+      "source": "tools/rmt-language/rmtx-native-components.v1.json",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx-native-view.js",
+      "source": "tools/rmt-language/rmtx-native-view.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmt-tooling-public-types.d.ts",
+      "source": "tools/rmt-language/rmt-tooling-public-types.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx-parser.d.ts",
+      "source": "tools/rmt-language/rmtx-parser.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-remote-tooling.js",
+      "source": "tools/rmt-language/vnext-remote-tooling.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx-native-components-v2.json",
+      "source": "tools/rmt-language/rmtx-native-components-v2.json",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx-native-components.generated.d.ts",
+      "source": "tools/rmt-language/rmtx-native-components.generated.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx-compiler.js",
+      "source": "tools/rmt-language/rmtx-compiler.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx-compiler.d.ts",
+      "source": "tools/rmt-language/rmtx-compiler.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/kernel-trust-authority.d.ts",
+      "source": "tools/rmt-language/kernel-trust-authority.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmt-ai-developer-kit.js",
+      "source": "tools/rmt-language/rmt-ai-developer-kit.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-degradation.d.ts",
+      "source": "tools/rmt-language/vnext-degradation.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/parser.d.ts",
+      "source": "tools/rmt-language/parser.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/super-prewarm-worker-experiment.d.ts",
+      "source": "tools/rmt-language/super-prewarm-worker-experiment.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/definitions.js",
+      "source": "tools/rmt-language/definitions.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-compiler.js",
+      "source": "tools/rmt-language/vnext-compiler.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-enterprise-registry.js",
+      "source": "tools/rmt-language/vnext-enterprise-registry.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/compilation-session.d.ts",
+      "source": "tools/rmt-language/compilation-session.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/progressive-controls.json",
+      "source": "tools/rmt-language/progressive-controls.json",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/hover.d.ts",
+      "source": "tools/rmt-language/hover.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-lifecycle.d.ts",
+      "source": "tools/rmt-language/vnext-lifecycle.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-security.d.ts",
+      "source": "tools/rmt-language/vnext-security.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/kernel-panic-monitor.js",
+      "source": "tools/rmt-language/kernel-panic-monitor.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-conditions.d.ts",
+      "source": "tools/rmt-language/vnext-conditions.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/project-watch.d.ts",
+      "source": "tools/rmt-language/project-watch.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-events.d.ts",
+      "source": "tools/rmt-language/vnext-events.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-tooling.d.ts",
+      "source": "tools/rmt-language/vnext-tooling.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-streaming.js",
+      "source": "tools/rmt-language/vnext-streaming.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-remote-compiler.js",
+      "source": "tools/rmt-language/vnext-remote-compiler.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-event-governance.d.ts",
+      "source": "tools/rmt-language/vnext-event-governance.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx-extended-operators.js",
+      "source": "tools/rmt-language/rmtx-extended-operators.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-composition.js",
+      "source": "tools/rmt-language/vnext-composition.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-enterprise-registry.d.ts",
+      "source": "tools/rmt-language/vnext-enterprise-registry.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-streaming.d.ts",
+      "source": "tools/rmt-language/vnext-streaming.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/html-sink-syntax.js",
+      "source": "tools/rmt-language/html-sink-syntax.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/kernel-trust-authority.js",
+      "source": "tools/rmt-language/kernel-trust-authority.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-event-governance.js",
+      "source": "tools/rmt-language/vnext-event-governance.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx-language-service.js",
+      "source": "tools/rmt-language/rmtx-language-service.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx-selector-dependencies.js",
+      "source": "tools/rmt-language/rmtx-selector-dependencies.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-enterprise-fixtures.js",
+      "source": "tools/rmt-language/vnext-enterprise-fixtures.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-surfaces.js",
+      "source": "tools/rmt-language/vnext-surfaces.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx-operator-coverage.js",
+      "source": "tools/rmt-language/rmtx-operator-coverage.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmt-project.d.ts",
+      "source": "tools/rmt-language/rmt-project.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-remote-compatibility.d.ts",
+      "source": "tools/rmt-language/vnext-remote-compatibility.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/source-model.d.ts",
+      "source": "tools/rmt-language/source-model.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/project-watch.js",
+      "source": "tools/rmt-language/project-watch.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-release.js",
+      "source": "tools/rmt-language/vnext-release.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-remote-manifest.d.ts",
+      "source": "tools/rmt-language/vnext-remote-manifest.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/super-prewarm-worker-experiment.js",
+      "source": "tools/rmt-language/super-prewarm-worker-experiment.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/classic-semantic-rules.js",
+      "source": "tools/rmt-language/classic-semantic-rules.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/xscaler-protocol.d.ts",
+      "source": "tools/rmt-language/xscaler-protocol.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-remote-compiler.d.ts",
+      "source": "tools/rmt-language/vnext-remote-compiler.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/action-input-contract.d.ts",
+      "source": "tools/rmt-language/action-input-contract.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-composition.d.ts",
+      "source": "tools/rmt-language/vnext-composition.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmt-ai-developer-kit.d.ts",
+      "source": "tools/rmt-language/rmt-ai-developer-kit.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-source-to-sea.d.ts",
+      "source": "tools/rmt-language/vnext-source-to-sea.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/semantic-graph.js",
+      "source": "tools/rmt-language/semantic-graph.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/kernel-recovery.js",
+      "source": "tools/rmt-language/kernel-recovery.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/classic-ast-contract.js",
+      "source": "tools/rmt-language/classic-ast-contract.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/classic-ast-rules.js",
+      "source": "tools/rmt-language/classic-ast-rules.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/code-actions.js",
+      "source": "tools/rmt-language/code-actions.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/action-input-contract.js",
+      "source": "tools/rmt-language/action-input-contract.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-compiler.d.ts",
+      "source": "tools/rmt-language/vnext-compiler.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-compatibility.d.ts",
+      "source": "tools/rmt-language/vnext-compatibility.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/kernel-policy-parity.d.ts",
+      "source": "tools/rmt-language/kernel-policy-parity.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/page-build.js",
+      "source": "tools/rmt-language/page-build.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-enterprise-release.d.ts",
+      "source": "tools/rmt-language/vnext-enterprise-release.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-remote-compatibility.js",
+      "source": "tools/rmt-language/vnext-remote-compatibility.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/xscaler-protocol.js",
+      "source": "tools/rmt-language/xscaler-protocol.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/source-model.js",
+      "source": "tools/rmt-language/source-model.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx-native-component-bindings.js",
+      "source": "tools/rmt-language/rmtx-native-component-bindings.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-remote-security.d.ts",
+      "source": "tools/rmt-language/vnext-remote-security.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rmtx-native-lifecycle.d.ts",
+      "source": "tools/rmt-language/rmtx-native-lifecycle.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vnext-source-to-sea.js",
+      "source": "tools/rmt-language/vnext-source-to-sea.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/navigation-facts.js",
+      "source": "tools/rmt-language/navigation-facts.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/xtensions/native-component-catalog.js",
+      "source": "tools/xtensions/native-component-catalog.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/xtensions/react-runtime-boundary.js",
+      "source": "tools/xtensions/react-runtime-boundary.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/xtensions/repeat-scopes.js",
+      "source": "tools/xtensions/repeat-scopes.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/xtensions/state-binding-orchestrated.js",
+      "source": "tools/xtensions/state-binding-orchestrated.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/xtensions/vue-payload-boundary.js",
+      "source": "tools/xtensions/vue-payload-boundary.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/xtensions/native-data.js",
+      "source": "tools/xtensions/native-data.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/xtensions/vue-runtime-boundary.js",
+      "source": "tools/xtensions/vue-runtime-boundary.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/xtensions/native-sink-contract.js",
+      "source": "tools/xtensions/native-sink-contract.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/xtensions/react-payload-boundary.js",
+      "source": "tools/xtensions/react-payload-boundary.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/xtensions/NOTICE",
+      "source": "tools/xtensions/NOTICE",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language-server/protocol.d.ts",
+      "source": "tools/rmt-language-server/protocol.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language-server/protocol.js",
+      "source": "tools/rmt-language-server/protocol.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language-server/server.js",
+      "source": "tools/rmt-language-server/server.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language-server/server.d.ts",
+      "source": "tools/rmt-language-server/server.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/xtensions/url-state-contracts/policy.v1.schema.json",
+      "source": "tools/xtensions/url-state-contracts/policy.v1.schema.json",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/xtensions/url-state-contracts/state.v2.schema.json",
+      "source": "tools/xtensions/url-state-contracts/state.v2.schema.json",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/xtensions/url-state-contracts/history-proposal.v2.schema.json",
+      "source": "tools/xtensions/url-state-contracts/history-proposal.v2.schema.json",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/xtensions/url-state-contracts/state.v1.schema.json",
+      "source": "tools/xtensions/url-state-contracts/state.v1.schema.json",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/xtensions/url-state-contracts/history-proposal.v1.schema.json",
+      "source": "tools/xtensions/url-state-contracts/history-proposal.v1.schema.json",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/xtensions/url-state-contracts/restore-plan.v1.schema.json",
+      "source": "tools/xtensions/url-state-contracts/restore-plan.v1.schema.json",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/xtensions/url-state-contracts/policy.v2.schema.json",
+      "source": "tools/xtensions/url-state-contracts/policy.v2.schema.json",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/xtensions/url-state-contracts/restore-plan.v2.schema.json",
+      "source": "tools/xtensions/url-state-contracts/restore-plan.v2.schema.json",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vendor/manifest.json",
+      "source": "tools/rmt-language/vendor/manifest.json",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/vendor/fastpass-contract.js",
+      "source": "tools/rmt-language/vendor/fastpass-contract.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/fixtures/kernel-orchestration-contract.rmt",
+      "source": "tools/rmt-language/fixtures/kernel-orchestration-contract.rmt",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/fixtures/validation-transition-contract.rmt",
+      "source": "tools/rmt-language/fixtures/validation-transition-contract.rmt",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rules/route-policy.js",
+      "source": "tools/rmt-language/rules/route-policy.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rules/boundary-policy.js",
+      "source": "tools/rmt-language/rules/boundary-policy.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rules/app-platform-policy.js",
+      "source": "tools/rmt-language/rules/app-platform-policy.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rules/scheduler-policy.js",
+      "source": "tools/rmt-language/rules/scheduler-policy.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rules/template-policy.js",
+      "source": "tools/rmt-language/rules/template-policy.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rules/document-policy.js",
+      "source": "tools/rmt-language/rules/document-policy.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/rules/index.js",
+      "source": "tools/rmt-language/rules/index.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/contracts/classic-ast.v1.schema.json",
+      "source": "tools/rmt-language/contracts/classic-ast.v1.schema.json",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/contracts/action-input-contract.v1.schema.json",
+      "source": "tools/rmt-language/contracts/action-input-contract.v1.schema.json",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/snippets/README.md",
+      "source": "tools/rmt-language/snippets/README.md",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/snippets/index.d.ts",
+      "source": "tools/rmt-language/snippets/index.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/snippets/index.js",
+      "source": "tools/rmt-language/snippets/index.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/snippets/rmt.code-snippets",
+      "source": "tools/rmt-language/snippets/rmt.code-snippets",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.compact.md",
+      "source": "tools/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.compact.md",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.reference.jsonl",
+      "source": "tools/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.reference.jsonl",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.prompts.md",
+      "source": "tools/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.prompts.md",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.manifest.json",
+      "source": "tools/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.manifest.json",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.recipes.jsonl",
+      "source": "tools/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.recipes.jsonl",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-compiler/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.guardrails.json",
+      "source": "tools/rmt-language/generated/rmt-ai-developer-kit/rmt-ai-kit.guardrails.json",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/remote-surface.mjs",
+      "source": "xtend-maraca/remote-surface.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/node-app-service-host.d.ts",
+      "source": "xtend-maraca/node-app-service-host.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/server-services.mjs",
+      "source": "xtend-maraca/server-services.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/fastpass.mjs",
+      "source": "xtend-maraca/fastpass.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/xtension-composition-contract.mjs",
+      "source": "xtend-maraca/xtension-composition-contract.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/node-app-service-host.mjs",
+      "source": "xtend-maraca/node-app-service-host.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/browser-composition-runtime.mjs",
+      "source": "xtend-maraca/browser-composition-runtime.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/native-data-literal.js",
+      "source": "xtend-maraca/native-data-literal.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/xtension-deployment-lifecycle.js",
+      "source": "xtend-maraca/xtension-deployment-lifecycle.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/xtension-composition.js",
+      "source": "xtend-maraca/xtension-composition.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/service-build-provider.d.ts",
+      "source": "xtend-maraca/service-build-provider.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/app-services.mjs",
+      "source": "xtend-maraca/app-services.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/native-surface-graph.mjs",
+      "source": "xtend-maraca/native-surface-graph.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/xtension-deployment-updates.js",
+      "source": "xtend-maraca/xtension-deployment-updates.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/native-orchestration-core.mjs",
+      "source": "xtend-maraca/native-orchestration-core.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/app-services.d.ts",
+      "source": "xtend-maraca/app-services.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/plan-runtime.v4.d.ts",
+      "source": "xtend-maraca/plan-runtime.v4.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/page-bootstrap.mjs",
+      "source": "xtend-maraca/page-bootstrap.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/xtension-deployment-pwa.js",
+      "source": "xtend-maraca/xtension-deployment-pwa.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/xtension-ssr.js",
+      "source": "xtend-maraca/xtension-ssr.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/xtension-deployment.js",
+      "source": "xtend-maraca/xtension-deployment.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/README.md",
+      "source": "xtend-maraca/README.md",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/page-bootstrap.d.ts",
+      "source": "xtend-maraca/page-bootstrap.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/page-client.mjs",
+      "source": "xtend-maraca/page-client.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/xtension-provider-graph.js",
+      "source": "xtend-maraca/xtension-provider-graph.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/remote-surface.d.ts",
+      "source": "xtend-maraca/remote-surface.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/native-lifecycle-runtime.mjs",
+      "source": "xtend-maraca/native-lifecycle-runtime.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/browser-composition-runtime.d.ts",
+      "source": "xtend-maraca/browser-composition-runtime.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/native-surface-graph.d.ts",
+      "source": "xtend-maraca/native-surface-graph.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/node-app-service-host.js",
+      "source": "xtend-maraca/node-app-service-host.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/server-services.d.ts",
+      "source": "xtend-maraca/server-services.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/app-services.js",
+      "source": "xtend-maraca/app-services.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/trusted-text-sanitizer.mjs",
+      "source": "xtend-maraca/trusted-text-sanitizer.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/trusted-text-sanitizer.js",
+      "source": "xtend-maraca/trusted-text-sanitizer.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/node-app-host.mjs",
+      "source": "xtend-maraca/node-app-host.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/xtension-ssr.d.ts",
+      "source": "xtend-maraca/xtension-ssr.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/html-security.js",
+      "source": "xtend-maraca/html-security.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/xtension-size-budget.js",
+      "source": "xtend-maraca/xtension-size-budget.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/runtime.js",
+      "source": "xtend-maraca/runtime.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/plan-runtime.v5.d.ts",
+      "source": "xtend-maraca/plan-runtime.v5.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/xtension-component-binding-disabled.mjs",
+      "source": "xtend-maraca/xtension-component-binding-disabled.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/xtension-platform-esm.js",
+      "source": "xtend-maraca/xtension-platform-esm.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/abort-boundary.d.ts",
+      "source": "xtend-maraca/abort-boundary.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/service-build-provider.js",
+      "source": "xtend-maraca/service-build-provider.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/node-app-host.d.ts",
+      "source": "xtend-maraca/node-app-host.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/xtension-platform-build.js",
+      "source": "xtend-maraca/xtension-platform-build.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/xtension-composition-runtime.mjs",
+      "source": "xtend-maraca/xtension-composition-runtime.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/native-platform-host.d.ts",
+      "source": "xtend-maraca/native-platform-host.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/index.d.ts",
+      "source": "xtend-maraca/index.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/project-build.js",
+      "source": "xtend-maraca/project-build.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/native-platform-host.mjs",
+      "source": "xtend-maraca/native-platform-host.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/fastpass-contract.js",
+      "source": "xtend-maraca/fastpass-contract.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/node-app-host.js",
+      "source": "xtend-maraca/node-app-host.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/page-client.d.ts",
+      "source": "xtend-maraca/page-client.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/plan-runtime.v3.d.ts",
+      "source": "xtend-maraca/plan-runtime.v3.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/plan-runtime.v6.d.ts",
+      "source": "xtend-maraca/plan-runtime.v6.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/xtension-component-binding.mjs",
+      "source": "xtend-maraca/xtension-component-binding.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/xtension-deployment-lifecycle-client.d.ts",
+      "source": "xtend-maraca/xtension-deployment-lifecycle-client.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/css-provider.d.ts",
+      "source": "xtend-maraca/css-provider.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/index.js",
+      "source": "xtend-maraca/index.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/fastpass.schema.json",
+      "source": "xtend-maraca/fastpass.schema.json",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/plan-runtime.mjs",
+      "source": "xtend-maraca/plan-runtime.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/package.json",
+      "source": "xtend-maraca/package.json",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/xtension-ssr-runtime.mjs",
+      "source": "xtend-maraca/xtension-ssr-runtime.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/browser-host-adapter.mjs",
+      "source": "xtend-maraca/browser-host-adapter.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/native-managed-runtime.d.ts",
+      "source": "xtend-maraca/native-managed-runtime.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/native-surface-graph-core.mjs",
+      "source": "xtend-maraca/native-surface-graph-core.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/xtension-deployment-client.d.ts",
+      "source": "xtend-maraca/xtension-deployment-client.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/xtension-composition-runtime.d.ts",
+      "source": "xtend-maraca/xtension-composition-runtime.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/abort-boundary.mjs",
+      "source": "xtend-maraca/abort-boundary.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/native-lifecycle-runtime.d.ts",
+      "source": "xtend-maraca/native-lifecycle-runtime.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/native-orchestration-runtime.mjs",
+      "source": "xtend-maraca/native-orchestration-runtime.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/browser-composition-runtime.v4.d.ts",
+      "source": "xtend-maraca/browser-composition-runtime.v4.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/server-services.js",
+      "source": "xtend-maraca/server-services.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/native-managed-runtime.mjs",
+      "source": "xtend-maraca/native-managed-runtime.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/css-provider.js",
+      "source": "xtend-maraca/css-provider.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/xtension-composition.d.ts",
+      "source": "xtend-maraca/xtension-composition.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/plan-runtime.d.ts",
+      "source": "xtend-maraca/plan-runtime.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/browser-host-adapter.d.ts",
+      "source": "xtend-maraca/browser-host-adapter.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/native-orchestration-runtime.d.ts",
+      "source": "xtend-maraca/native-orchestration-runtime.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-maraca/runtime.d.ts",
+      "source": "xtend-maraca/runtime.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-portable-render.d.ts",
+      "source": "xtendrmt/rmt-portable-render.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-app-host-adapter.d.ts",
+      "source": "xtendrmt/rmt-app-host-adapter.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-resume-capture-adapter.js",
+      "source": "xtendrmt/rmt-resume-capture-adapter.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-state-binding-view-projector.js",
+      "source": "xtendrmt/rmt-state-binding-view-projector.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-state-host-adapter.js",
+      "source": "xtendrmt/rmt-state-host-adapter.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/html-sanitizer.cjs",
+      "source": "xtendrmt/html-sanitizer.cjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-node-ssr-adapter.js",
+      "source": "xtendrmt/rmt-node-ssr-adapter.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-app-view-projector.d.ts",
+      "source": "xtendrmt/rmt-app-view-projector.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-form-validation-runtime.d.ts",
+      "source": "xtendrmt/rmt-form-validation-runtime.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-native-shell-runtime.d.ts",
+      "source": "xtendrmt/rmt-native-shell-runtime.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-app-runtime.js",
+      "source": "xtendrmt/rmt-app-runtime.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-portable-render.js",
+      "source": "xtendrmt/rmt-portable-render.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-php-ssr-adapter.php",
+      "source": "xtendrmt/rmt-php-ssr-adapter.php",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-core.d.ts",
+      "source": "xtendrmt/rmt-core.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-event-routing-runtime.js",
+      "source": "xtendrmt/rmt-event-routing-runtime.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-action-effect-runtime.js",
+      "source": "xtendrmt/rmt-action-effect-runtime.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-surface-resource-graph-runtime.d.ts",
+      "source": "xtendrmt/rmt-surface-resource-graph-runtime.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-resume-runtime.js",
+      "source": "xtendrmt/rmt-resume-runtime.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-animation-engine-runtime.d.ts",
+      "source": "xtendrmt/rmt-animation-engine-runtime.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-app-view-projector.js",
+      "source": "xtendrmt/rmt-app-view-projector.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-action-effect-runtime.d.ts",
+      "source": "xtendrmt/rmt-action-effect-runtime.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-maraca-view-projection-adapter.js",
+      "source": "xtendrmt/rmt-maraca-view-projection-adapter.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/page-form.d.ts",
+      "source": "xtendrmt/page-form.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-runtime.browser.js",
+      "source": "xtendrmt/rmt-runtime.browser.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-state-binding-view-projector.d.ts",
+      "source": "xtendrmt/rmt-state-binding-view-projector.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-page-data.php",
+      "source": "xtendrmt/rmt-page-data.php",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-browser-scheduler.d.ts",
+      "source": "xtendrmt/rmt-browser-scheduler.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-core.esm.js",
+      "source": "xtendrmt/rmt-core.esm.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-safe-preview.js",
+      "source": "xtendrmt/rmt-safe-preview.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-animation-engine-runtime.js",
+      "source": "xtendrmt/rmt-animation-engine-runtime.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/README.md",
+      "source": "xtendrmt/README.md",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/node-page-host.mjs",
+      "source": "xtendrmt/node-page-host.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/page-client.mjs",
+      "source": "xtendrmt/page-client.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-maraca-view-projection-adapter.d.ts",
+      "source": "xtendrmt/rmt-maraca-view-projection-adapter.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/html-sanitizer.mjs",
+      "source": "xtendrmt/html-sanitizer.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-app-host-adapter.js",
+      "source": "xtendrmt/rmt-app-host-adapter.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-app-runtime.d.ts",
+      "source": "xtendrmt/rmt-app-runtime.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-surface-transition-runtime.js",
+      "source": "xtendrmt/rmt-surface-transition-runtime.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-surface-resource-graph-runtime.js",
+      "source": "xtendrmt/rmt-surface-resource-graph-runtime.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-php-app-service-adapter.php",
+      "source": "xtendrmt/rmt-php-app-service-adapter.php",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-kernel-feature-adoption-registry.d.ts",
+      "source": "xtendrmt/rmt-kernel-feature-adoption-registry.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-dom-descriptor-renderer.d.ts",
+      "source": "xtendrmt/rmt-dom-descriptor-renderer.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/page-resource-cache.d.ts",
+      "source": "xtendrmt/page-resource-cache.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-form-validation-model-command-adapter.js",
+      "source": "xtendrmt/rmt-form-validation-model-command-adapter.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-resume-command-controller.js",
+      "source": "xtendrmt/rmt-resume-command-controller.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-component-capability-registry.js",
+      "source": "xtendrmt/rmt-component-capability-registry.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-event-routing-runtime.d.ts",
+      "source": "xtendrmt/rmt-event-routing-runtime.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-manifest.json",
+      "source": "xtendrmt/rmt-manifest.json",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/page-form.mjs",
+      "source": "xtendrmt/page-form.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/node-page-host.d.ts",
+      "source": "xtendrmt/node-page-host.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-kernel-feature-adoption-registry.js",
+      "source": "xtendrmt/rmt-kernel-feature-adoption-registry.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/DOMPurify-LICENSE",
+      "source": "xtendrmt/DOMPurify-LICENSE",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-portable-render.php",
+      "source": "xtendrmt/rmt-portable-render.php",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-kernel-orchestration-controller.d.ts",
+      "source": "xtendrmt/rmt-kernel-orchestration-controller.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-resume-capture-adapter.d.ts",
+      "source": "xtendrmt/rmt-resume-capture-adapter.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/page-client.d.ts",
+      "source": "xtendrmt/page-client.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-presentation-effect-adapter.js",
+      "source": "xtendrmt/rmt-presentation-effect-adapter.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-kernel-orchestration-controller.js",
+      "source": "xtendrmt/rmt-kernel-orchestration-controller.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/page-contract.d.ts",
+      "source": "xtendrmt/page-contract.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-resume-runtime.d.ts",
+      "source": "xtendrmt/rmt-resume-runtime.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-resume-protocol.js",
+      "source": "xtendrmt/rmt-resume-protocol.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-state-host-adapter.d.ts",
+      "source": "xtendrmt/rmt-state-host-adapter.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-kernel-scheduler.js",
+      "source": "xtendrmt/rmt-kernel-scheduler.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-ssr-stream-host.js",
+      "source": "xtendrmt/rmt-ssr-stream-host.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-kernel-scheduler.d.ts",
+      "source": "xtendrmt/rmt-kernel-scheduler.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/page-initial.mjs",
+      "source": "xtendrmt/page-initial.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/page-wire.mjs",
+      "source": "xtendrmt/page-wire.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/package.json",
+      "source": "xtendrmt/package.json",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-node-ssr-adapter.d.ts",
+      "source": "xtendrmt/rmt-node-ssr-adapter.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt.schema.json",
+      "source": "xtendrmt/rmt.schema.json",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-resume-host-adapter.js",
+      "source": "xtendrmt/rmt-resume-host-adapter.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/page-contract.mjs",
+      "source": "xtendrmt/page-contract.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/page-resource-cache.mjs",
+      "source": "xtendrmt/page-resource-cache.mjs",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-presentation-effect-adapter.d.ts",
+      "source": "xtendrmt/rmt-presentation-effect-adapter.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-form-validation-evaluator.js",
+      "source": "xtendrmt/rmt-form-validation-evaluator.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-form-validation-runtime.js",
+      "source": "xtendrmt/rmt-form-validation-runtime.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-native-shell-runtime.js",
+      "source": "xtendrmt/rmt-native-shell-runtime.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-form-validation-view-projector.js",
+      "source": "xtendrmt/rmt-form-validation-view-projector.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-browser-scheduler.js",
+      "source": "xtendrmt/rmt-browser-scheduler.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-dom-descriptor-renderer.js",
+      "source": "xtendrmt/rmt-dom-descriptor-renderer.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-runtime.esm.js",
+      "source": "xtendrmt/rmt-runtime.esm.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-resume-command-adapter.js",
+      "source": "xtendrmt/rmt-resume-command-adapter.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-safe-preview.d.ts",
+      "source": "xtendrmt/rmt-safe-preview.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-state-selector-runtime.d.ts",
+      "source": "xtendrmt/rmt-state-selector-runtime.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-component-capability-registry.d.ts",
+      "source": "xtendrmt/rmt-component-capability-registry.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-surface-transition-runtime.d.ts",
+      "source": "xtendrmt/rmt-surface-transition-runtime.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/rmt-state-selector-runtime.js",
+      "source": "xtendrmt/rmt-state-selector-runtime.js",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/contracts/ssr-coverage.v1.json",
+      "source": "xtendrmt/contracts/ssr-coverage.v1.json",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/contracts/node-ssr-fabric-telemetry-hints.v2.json",
+      "source": "xtendrmt/contracts/node-ssr-fabric-telemetry-hints.v2.json",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/contracts/page-wire.v2.json",
+      "source": "xtendrmt/contracts/page-wire.v2.json",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/contracts/page-manifest.v2.json",
+      "source": "xtendrmt/contracts/page-manifest.v2.json",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/contracts/page-response.v2.json",
+      "source": "xtendrmt/contracts/page-response.v2.json",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/contracts/page-initial-wire.v1.json",
+      "source": "xtendrmt/contracts/page-initial-wire.v1.json",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/contracts/page-initial-resume.v1.json",
+      "source": "xtendrmt/contracts/page-initial-resume.v1.json",
+      "matches": true
+    },
+    {
+      "packed": "node_modules/@ccslabs/xtend-rmt/contracts/portable-render.v2.json",
+      "source": "xtendrmt/contracts/portable-render.v2.json",
+      "matches": true
+    },
+    {
+      "packed": "extension.js",
+      "source": "tools/rmt-editor/vscode/extension.js",
+      "matches": true
+    },
+    {
+      "packed": "extension.d.ts",
+      "source": "tools/rmt-editor/vscode/extension.d.ts",
+      "matches": true
+    },
+    {
+      "packed": "package.json",
+      "source": "tools/rmt-editor/vscode/package.json",
+      "matches": true
+    },
+    {
+      "packed": "README.md",
+      "source": "tools/rmt-editor/vscode/README.md",
+      "matches": true
+    }
+  ]
+}

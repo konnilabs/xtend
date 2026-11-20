@@ -76,7 +76,8 @@ test('MCP initialization publishes versioned resources, templates, six derived p
 
   const tools = await handle.client.listTools();
   assert.match(handle.client.getInstructions(), /first retrieve relevant XTend knowledge/iu);
-  assert.match(handle.client.getInstructions(), /compiled\/core JSON records are not RMT source/iu);
+  assert.match(handle.client.getInstructions(), /RMT Classic uses the textual \.rmt DSL; declarative RMTX uses \.rmtx TSX grammar/iu);
+  assert.match(handle.client.getInstructions(), /compiled\/core JSON records are not source/iu);
   assert.deepEqual(tools.tools.map((tool) => tool.name), [
     'xtend_knowledge_search',
     'xtend_knowledge_context',

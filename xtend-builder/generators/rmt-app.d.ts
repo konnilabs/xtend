@@ -1,6 +1,8 @@
 export interface RmtAppScaffoldInput {
   rootDir?: string;
   runtime?: 'maraca' | string;
+  sourceSyntax?:'rmt-vnext'|'rmtx';
+  'source-syntax'?:'rmt-vnext'|'rmtx';
   designKit?: 'none' | 'native' | 'neutral' | string;
   server?: 'none' | 'node' | 'php' | 'both' | string;
   out?: string;

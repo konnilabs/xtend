@@ -32,6 +32,7 @@ test('unchanged knowledge drift check rejects a stale generated artifact', () =>
     const script = path.join(root, 'products/xtend-mcp/scripts/build-knowledge.mjs');
     fs.mkdirSync(path.dirname(script), { recursive: true });
     fs.copyFileSync(path.join(packageRoot, 'scripts/build-knowledge.mjs'), script);
+    fs.copyFileSync(path.join(packageRoot, 'package.json'), path.join(root, 'products/xtend-mcp/package.json'));
     for (const locale of ['de', 'en']) {
       fs.mkdirSync(path.join(root, 'docs', locale), { recursive: true });
       fs.writeFileSync(path.join(root, 'docs', locale, 'fixture.md'), '# Fixture\nCanonical knowledge.\n');

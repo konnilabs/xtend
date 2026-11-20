@@ -729,6 +729,16 @@ function parseRmtxSource(input = {}, options = {}) {
       }
     }
     const template = element(program, ['Program']);
+    const projectDeclarations = require('./rmt-project-context').consumeProjectDeclarations(options, input);
+    if (projectDeclarations.length) {
+      template.body.unshift(...projectDeclarations);
+      // Classic inputs have no RMTX-only optional/default source annotations.
+      for (const action of projectDeclarations.filter(node => node.type === 'RmtActionDeclaration')) {
+        for (const field of action.body.filter(node => node.type === 'RmtActionInputClause')) {
+          inputRules.set(field, { name: field.name, type: field.dataType.value });
+        }
+      }
+    }
     if (orchestration) {
       // The formal Classic AST1 keeps Surface declarations at template scope.
       // Source7 preserves lexical ownership in Header2.scopes rather than
@@ -852,7 +862,7 @@ function parseRmtxSource(input = {}, options = {}) {
       if (!value || typeof value !== 'object') return;
       if (value.type) value.astPointer = pointer || '/';
       for (const [key, child] of Object.entries(value)) {
-        if (key === 'range' || key === 'astPointer') continue;
+        if (key === 'range' || key === 'astPointer' || key === 'startToken' || key === 'endToken') continue;
         if (Array.isArray(child)) child.forEach((item, i) => pointers(item, `${pointer}/${key}/${i}`));
         else pointers(child, `${pointer}/${key}`);
       }

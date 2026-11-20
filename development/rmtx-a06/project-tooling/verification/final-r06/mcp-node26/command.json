@@ -1,0 +1,33 @@
+{
+  "format": 1,
+  "step": "mcp-node26",
+  "command": [
+    "/tmp/xtend-a065/node_modules/node-linux-x64/bin/node",
+    "--max-old-space-size=512",
+    "--test",
+    "--test-concurrency=1",
+    "--test-reporter=tap",
+    "products/xtend-mcp/tests/contract.test.mjs",
+    "products/xtend-mcp/tests/integration.test.mjs",
+    "products/xtend-mcp/tests/knowledge.test.mjs",
+    "products/xtend-mcp/tests/local-bundle.test.mjs",
+    "products/xtend-mcp/tests/security.test.mjs",
+    "products/xtend-mcp/tests/vscode-provider.test.mjs"
+  ],
+  "workingDirectory": "/home/konni/Downloads/xtend-dev/xtend",
+  "node": "v26.5.0",
+  "environment": {
+    "XTENSIONS_TEST_PEERS": "/tmp/xtend-a065/setup/runtime-peers-node26",
+    "XTEND_A065_TEST_PEERS": "/tmp/xtend-a065/setup/runtime-peers-node26",
+    "NODE_PATH": "/tmp/xtend-a065/setup/runtime-peers-node26/node_modules:/tmp/xtend-a065/node_modules",
+    "NODE_OPTIONS": "--max-old-space-size=512",
+    "PATH": "/tmp/xtend-a065/setup/bin-node26:/tmp/xtend-a065/node_modules/node-linux-x64/bin:/tmp/xtend-a065/node_modules/.bin:/home/konni/.local/bin:/home/konni/.codex/tmp/arg0-linux/codex-arg0h92Tn6:/home/konni/.local/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/home/konni/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/home/konni/.vscode/extensions/openai.chatgpt-26.1111.21308-linux-x64/bin/linux-x86_64",
+    "npm_config_offline": "true",
+    "CHROME_BIN": "/home/konni/.cache/ms-playwright/chromium-1248/chrome-linux64/chrome"
+  },
+  "beforeSourceSha256": "e5105e64a41c9139c43760dfa0fa6d00f77decc26976ba0530c7f8ddfab2a7bf",
+  "wholeCurrentSourceMembershipPinnedExceptOwnVerificationOutputs": true,
+  "heapMiB": 512,
+  "timeoutSeconds": 300,
+  "releaseAcceptancePerformed": false
+}

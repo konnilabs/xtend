@@ -3,7 +3,7 @@ const fs = require('node:fs'), path = require('node:path'), os = require('node:o
 const { createRequire } = require('node:module'), { pathToFileURL } = require('node:url'), { createHash } = require('node:crypto');
 const root = path.resolve(__dirname, '../../..'), hash = value => createHash('sha256').update(value).digest('hex');
 const RMTX_NATIVE_ORCHESTRATION_RUNTIME_ACCEPTANCE_SCHEMA = 'xtend.rmtx.native-orchestration-runtime-acceptance.v1';
-async function run() {
+async function run({ buildObserver } = {}) {
   if (!process.env.XTENSIONS_TEST_PEERS) throw Error('XTENSIONS_TEST_PEERS is required.');
   const peerRoot = path.resolve(process.env.XTENSIONS_TEST_PEERS), peers = createRequire(path.join(peerRoot, 'package.json'));
   const browserMode = process.argv.includes('--browser'), temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'xtend-rmtx-orchestration-'));
@@ -14,6 +14,9 @@ async function run() {
     const buildDir = path.join(temporary, 'mixed'), build = await reference.build(buildDir);
     assert.equal(build.ok, true, build.status + JSON.stringify(build.plan.diagnostics));
     assert.equal(build.plan.schema, 'xtend.maraca.build-plan.v11'); assert.equal(build.plan.rmt.compilerSchema, 'xtend.rmtx.compile-result.v7');
+    // Private verification hook: observe the actual single productive build
+    // before its temporary output is removed. The standard report is unchanged.
+    if (buildObserver) await buildObserver({ build, buildDir });
     const compiled = reference.compiler().compileSource({ text: fs.readFileSync(path.join(root, reference.source), 'utf8'), filePath: reference.source }, { componentInterfaceCatalog: reference.catalog() });
     assert.equal(compiled.ok, true, JSON.stringify(compiled.diagnostics));
     const artifact = JSON.parse(fs.readFileSync(path.join(buildDir, 'xtend.xtensions.report.json'))).artifact;

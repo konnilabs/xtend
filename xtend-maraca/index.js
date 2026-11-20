@@ -2304,6 +2304,7 @@ function loadRmtxHostScopeTools(rootDir) {
     || require.resolve('@ccslabs/xtend-compiler/rmt-language/rmtx-compiler', { paths: [rootDir, __dirname] });
   const compilerDirectory = path.dirname(compilerPath);
   return {
+    compilerDirectory,
     compileRmtxSource: require(path.join(compilerDirectory, 'rmtx-compiler.js')).compileRmtxSource,
     captureComponentInterfaceMetadata: require(path.join(compilerDirectory, '..', 'xtensions', 'component-interface-build.js')).captureComponentInterfaceMetadata,
     validateBindingData: require(path.join(compilerDirectory, '..', 'xtensions', 'state-binding-contract.js')).data,
@@ -2352,11 +2353,12 @@ function compileSource(options, compile = null) {
     if (Object.hasOwn(options, 'xtensionComposition')) return { sourceText, compileResult: { ...compileResult, ok: false,
       coreDocument: null, orchestrationArtifacts: null, xtensionBindings: null, xtensionComposition: null,
       diagnostics: [...(compileResult.diagnostics || []), { code: 'xtend.maraca.rmtx.inline_conflict', severity: 'error', message: 'Inline RMTX providers cannot be mixed with a composition sidecar.' }] } };
-    compileResult = loadRmtxHostScopeTools(options.rootDir).compileRmtxSource({ text: sourceText, filePath: options.sourcePath }, { ...settings, syntaxVersion: managedProfile ? '8.0.0' : orchestratedProfile ? '7.0.0' : lifecycleProfile ? '6.0.0' : nativeProfile ? '5.0.0' : '4.0.0' });
+    compileResult = require('./project-build').isMaracaProjectCompiler(compile)
+      ? selectedCompile({ text: sourceText, filePath: options.sourcePath }, settings)
+      : loadRmtxHostScopeTools(options.rootDir).compileRmtxSource({ text: sourceText, filePath: options.sourcePath }, { ...settings, syntaxVersion: managedProfile ? '8.0.0' : orchestratedProfile ? '7.0.0' : lifecycleProfile ? '6.0.0' : nativeProfile ? '5.0.0' : '4.0.0' });
     if ((orchestratedProfile || managedProfile) && compileResult.ok) {
       try {
-        const compilerPath = require.resolve('@ccslabs/xtend-compiler/rmt-language/rmtx-compiler', { paths: [options.rootDir, __dirname] });
-        const helper = require(path.join(path.dirname(compilerPath), managedProfile ? 'rmtx-native-components-v2.js' : 'rmtx-native-components.js'));
+        const helper = require(path.join(loadRmtxHostScopeTools(options.rootDir).compilerDirectory, managedProfile ? 'rmtx-native-components-v2.js' : 'rmtx-native-components.js'));
         helper[managedProfile ? 'verifyNativeComponentSourcesV2' : 'verifyNativeComponentSources'](compileResult.orchestrationArtifacts.render.nativeView.components, { rootDir: options.rootDir });
       } catch (error) {
         compileResult = { ...compileResult, ok: false, coreDocument: null, orchestrationArtifacts: null,
@@ -8141,3 +8143,6 @@ module.exports = {
   invokeMaracaComponentCommand,
   getMaracaToolchainAvailability
 };
+const projectBuild = require('./project-build');
+for (const key of ['MARACA_PROJECT_API_VERSION', 'MARACA_PROJECT_CONFIG_SCHEMA', 'MARACA_PROJECT_BUILD_PLAN_SCHEMA', 'MARACA_PROJECT_BUILD_RESULT_SCHEMA',
+  'createMaracaProjectBuildPlan', 'buildMaracaProjectBundle', 'buildMaracaProjectBundleAsync']) module.exports[key] = projectBuild[key];

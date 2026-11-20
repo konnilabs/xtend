@@ -31,10 +31,12 @@ async function buildPages(options) {
   function compileDefinition(name, definition) {
     if (!name || ['__proto__', 'constructor', 'prototype'].includes(name)) throw new Error('Invalid page identity.');
     const source = path.resolve(root, definition.source);
+    if (/\.rmtx$/iu.test(source)) throw Object.assign(new Error('RMTX SSR/adoption remains gated until A06.6; build its CSR project through Maraca.'), { code: 'xtend.page_build.rmtx_ssr_unaccepted' });
     const graph = createRmtVNextImportResolver({ rootDir: root, roots: [root], compileSource }).createGraph({ entryFile: source });
     if (!graph.ok) throw Object.assign(new Error(`Page ${name} has invalid RMT imports or compiler diagnostics.`), { diagnostics: graph.diagnostics });
     const result = compiled.get(source)?.result;
     if (!result?.ok) throw new Error(`Page ${name} did not compile.`);
+    if (result.sourceProfile?.syntax === 'rmtx' || result.project?.effectiveSourceProfile?.syntax === 'rmtx') throw Object.assign(new Error('A mixed RMTX project cannot implicitly acquire portable SSR/adoption acceptance.'), { code: 'xtend.page_build.rmtx_ssr_unaccepted' });
     const artifact = createPortableRenderArtifact(result, { target: target === 'node' ? 'node' : 'php', inputs: definition.inputs, defaults: definition.defaults, sourceRef: path.relative(root, source).replace(/\\/gu, '/') });
     return { artifact, source: artifact.sourceRef, layout: definition.layout || null, head: definition.head || [], ...(definition.maraca ? {maraca: definition.maraca} : {}) };
   }

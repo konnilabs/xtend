@@ -1,0 +1,17 @@
+import { RMT, model } from '@ccslabs/xtend/rmt-language/rmtx';
+export default <RMT.Program id="project.runtime">
+  <RMT.Import path="./shared.rmt" />
+  <RMT.Action id="focus">
+    <RMT.Effect kind="component-command" target="owner.trigger" command="focus" args={{}} />
+  </RMT.Action>
+  <RMT.Surface id="owner" component="section">
+    <RMT.Lane name="visible"><RMT.Mount target="owner" /><RMT.Hydrate target="owner" /></RMT.Lane>
+    <RMT.View>
+      <RMT.Component tag="x-header" ref="heading" properties={{ title: model.title }} />
+      <RMT.Component tag="x-button" ref="trigger" attributes={{ label: 'clicked' }}>
+        <RMT.On event="button-interaction" action="rename" payload={{ value: 'detail.type' }} />
+      </RMT.Component>
+      <RMT.Element tag="output" attributes={{ id: 'project-value' }}><RMT.Text value={model.title} /></RMT.Element>
+    </RMT.View>
+  </RMT.Surface>
+</RMT.Program>;

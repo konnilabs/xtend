@@ -1,0 +1,15 @@
+{
+  "schema": "xtend.rmt.editor.vscode-local-vsix-build.v1",
+  "ok": true,
+  "package": "xtend-rmt-language",
+  "version": "0.3.0",
+  "output": "../../../../../../../../tmp/xtend-a065-editor/xtend-rmt-language-0.3.0-r05.vsix",
+  "bytes": 26068184,
+  "dependencyTreeStaged": true,
+  "mcpPackage": {
+    "version": "0.2.0",
+    "knowledgeManifestSha256": "d52bac2010282cbdfc197e7b734168e1d1935665df4e0edf1b68a605b4952a55",
+    "docsArtifactSha256": "09c91d279cce5584b2579f92e401e5b5631a9264ea4716cb35a300eff0ddff16"
+  },
+  "networkRequired": false
+}

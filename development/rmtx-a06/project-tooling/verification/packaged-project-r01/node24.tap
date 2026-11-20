@@ -1,0 +1,12 @@
+✔ packed frontend declarations accept the existing Maraca compiler port in both public packages (49850.474491ms)
+✔ separate actual Root/compiler/Maraca tarballs share genuine project sessions in both directions (3428.27313ms)
+✔ the actual Maraca tarball builds Source4 Plan8 through the explicit packed compiler port (37.165ms)
+✔ packed Source4 and standalone Maraca declarations preserve legacy results and discriminate opt-in types (1292.500021ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 55070.518729

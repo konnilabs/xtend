@@ -1,0 +1,424 @@
+TAP version 13
+# Subtest: legacy compilation session retains exact counters and readonly facts
+ok 1 - legacy compilation session retains exact counters and readonly facts
+  ---
+  duration_ms: 12.767923
+  type: 'test'
+  ...
+# Subtest: project cache rechecks transitive contents and language/version identity
+ok 2 - project cache rechecks transitive contents and language/version identity
+  ---
+  duration_ms: 1037.356865
+  type: 'test'
+  ...
+# Subtest: content watcher observes unchanged graphs, edits, missing files and renames
+ok 3 - content watcher observes unchanged graphs, edits, missing files and renames
+  ---
+  duration_ms: 693.389333
+  type: 'test'
+  ...
+# Subtest: bridge v1 remains legacy and v2 runs typed project compilation
+ok 4 - bridge v1 remains legacy and v2 runs typed project compilation
+  ---
+  duration_ms: 199.854198
+  type: 'test'
+  ...
+# Subtest: bridge diagnostics and compile share original semantic errors without a disable bypass
+ok 5 - bridge diagnostics and compile share original semantic errors without a disable bypass
+  ---
+  duration_ms: 512.75043
+  type: 'test'
+  ...
+# Subtest: MCP selects explicit RMTX, rejects provider TSX and preserves dependency locations
+ok 6 - MCP selects explicit RMTX, rejects provider TSX and preserves dependency locations
+  ---
+  duration_ms: 8.141951
+  type: 'test'
+  ...
+# Subtest: RMTX scaffold writes an explicit native project config and actually compiles
+ok 7 - RMTX scaffold writes an explicit native project config and actually compiles
+  ---
+  duration_ms: 303.775081
+  type: 'test'
+  ...
+# Subtest: Maraca project plans preserve the native wire contract and used imported declarations
+ok 8 - Maraca project plans preserve the native wire contract and used imported declarations
+  ---
+  duration_ms: 1636.118158
+  type: 'test'
+  ...
+# Subtest: Maraca project plans share genuine same-root session facts and reject foreign callbacks
+ok 9 - Maraca project plans share genuine same-root session facts and reject foreign callbacks
+  ---
+  duration_ms: 235.563747
+  type: 'test'
+  ...
+# Subtest: CLI project check and watch-once return the same source-bound graph
+ok 10 - CLI project check and watch-once return the same source-bound graph
+  ---
+  duration_ms: 1662.698833
+  type: 'test'
+  ...
+# Subtest: CLI and MCP report identical imported compiler codes and original ranges
+ok 11 - CLI and MCP report identical imported compiler codes and original ranges
+  ---
+  duration_ms: 320.873182
+  type: 'test'
+  ...
+# Subtest: CLI, MCP and Maraca share the selected provider registry without executing provider code
+ok 12 - CLI, MCP and Maraca share the selected provider registry without executing provider code
+  ---
+  duration_ms: 2556.017453
+  type: 'test'
+  ...
+# Subtest: default provider registries capture interface and module pins without execution
+ok 13 - default provider registries capture interface and module pins without execution
+  ---
+  duration_ms: 50.91532
+  type: 'test'
+  ...
+# Subtest: explicit provider registry selection and inline pins use the same captured metadata
+ok 14 - explicit provider registry selection and inline pins use the same captured metadata
+  ---
+  duration_ms: 4.406179
+  type: 'test'
+  ...
+# Subtest: bad provider registry paths and pins are structured project failures
+ok 15 - bad provider registry paths and pins are structured project failures
+  ---
+  duration_ms: 2.946183
+  type: 'test'
+  ...
+# Subtest: invalid provider metadata does not hide editor import discovery
+ok 16 - invalid provider metadata does not hide editor import discovery
+  ---
+  duration_ms: 4.752143
+  type: 'test'
+  ...
+# Subtest: a standalone project retains the raw Source8 compiler result
+ok 17 - a standalone project retains the raw Source8 compiler result
+  ---
+  duration_ms: 36.263056
+  type: 'test'
+  ...
+# Subtest: RMTX imports are linked into one executable Model and Action plan
+ok 18 - RMTX imports are linked into one executable Model and Action plan
+  ---
+  duration_ms: 25.391595
+  type: 'test'
+  ...
+# Subtest: aliased authoring imports keep their field names and original identity
+ok 19 - aliased authoring imports keep their field names and original identity
+  ---
+  duration_ms: 15.813557
+  type: 'test'
+  ...
+# Subtest: classic declarations imported by RMTX participate in the same program
+ok 20 - classic declarations imported by RMTX participate in the same program
+  ---
+  duration_ms: 15.17317
+  type: 'test'
+  ...
+# Subtest: a Classic entry imports a real RMTX view under an explicit effective profile
+ok 21 - a Classic entry imports a real RMTX view under an explicit effective profile
+  ---
+  duration_ms: 22.593473
+  type: 'test'
+  ...
+# Subtest: dependency-only bytes, deletion, rename and glob membership affect identity
+ok 22 - dependency-only bytes, deletion, rename and glob membership affect identity
+  ---
+  duration_ms: 5.231759
+  type: 'test'
+  ...
+# Subtest: open overlays are linked and closing restores actual disk data
+ok 23 - open overlays are linked and closing restores actual disk data
+  ---
+  duration_ms: 29.583701
+  type: 'test'
+  ...
+# Subtest: errors from a dependency map back through aliases, CRLF and astral UTF16
+ok 24 - errors from a dependency map back through aliases, CRLF and astral UTF16
+  ---
+  duration_ms: 2.63191
+  type: 'test'
+  ...
+# Subtest: project fails closed for provider TSX entry
+ok 25 - project fails closed for provider TSX entry
+  ---
+  duration_ms: 0.552317
+  type: 'test'
+  ...
+# Subtest: project fails closed for provider import
+ok 26 - project fails closed for provider import
+  ---
+  duration_ms: 1.009341
+  type: 'test'
+  ...
+# Subtest: project fails closed for cycle
+ok 27 - project fails closed for cycle
+  ---
+  duration_ms: 1.378025
+  type: 'test'
+  ...
+# Subtest: project fails closed for executable statements
+ok 28 - project fails closed for executable statements
+  ---
+  duration_ms: 0.950031
+  type: 'test'
+  ...
+# Subtest: project fails closed for foreign source import
+ok 29 - project fails closed for foreign source import
+  ---
+  duration_ms: 0.500186
+  type: 'test'
+  ...
+# Subtest: project fails closed for lexical boundary
+ok 30 - project fails closed for lexical boundary
+  ---
+  duration_ms: 0.782099
+  type: 'test'
+  ...
+# Subtest: project fails closed for forged public parser context
+ok 31 - project fails closed for forged public parser context
+  ---
+  duration_ms: 2.056793
+  type: 'test'
+  ...
+# Subtest: physical symlink imports cannot cross the project root
+ok 32 - physical symlink imports cannot cross the project root
+  ---
+  duration_ms: 1.178753
+  type: 'test'
+  ...
+# Subtest: recursive globs include nested disk and unsaved modules with stable ordering
+ok 33 - recursive globs include nested disk and unsaved modules with stable ordering
+  ---
+  duration_ms: 22.268829
+  type: 'test'
+  ...
+# Subtest: a dangling glob symlink is a structured diagnostic, not an uncaught exception
+ok 34 - a dangling glob symlink is a structured diagnostic, not an uncaught exception
+  ---
+  duration_ms: 1.249704
+  type: 'test'
+  ...
+# Subtest: per-call document overlays override stale defaults and in-memory buffers
+ok 35 - per-call document overlays override stale defaults and in-memory buffers
+  ---
+  duration_ms: 10.72954
+  type: 'test'
+  ...
+# Subtest: Classic-only dependency errors and source witnesses retain the actual imported file
+ok 36 - Classic-only dependency errors and source witnesses retain the actual imported file
+  ---
+  duration_ms: 2.074803
+  type: 'test'
+  ...
+# Subtest: mapped errors span the complete expression after an authoring alias replacement
+ok 37 - mapped errors span the complete expression after an authoring alias replacement
+  ---
+  duration_ms: 1.78046
+  type: 'test'
+  ...
+# Subtest: semantic type errors clear every successful backend artifact and demand
+ok 38 - semantic type errors clear every successful backend artifact and demand
+  ---
+  duration_ms: 468.09292
+  type: 'test'
+  ...
+# Subtest: the public snapshot is a serializable DTO, never a TypeScript parent graph
+ok 39 - the public snapshot is a serializable DTO, never a TypeScript parent graph
+  ---
+  duration_ms: 1.990712
+  type: 'test'
+  ...
+# Subtest: Classic-only imports build one real state/action plan and retain both source files
+ok 40 - Classic-only imports build one real state/action plan and retain both source files
+  ---
+  duration_ms: 3.272547
+  type: 'test'
+  ...
+# Subtest: editor recovery retains trusted imports without accepting incomplete JSX as a build
+ok 41 - editor recovery retains trusted imports without accepting incomplete JSX as a build
+  ---
+  duration_ms: 3.078035
+  type: 'test'
+  ...
+# Subtest: RMTX registers its own extension and depends explicitly on the maintained TSX grammar
+ok 42 - RMTX registers its own extension and depends explicitly on the maintained TSX grammar
+  ---
+  duration_ms: 1.379556
+  type: 'test'
+  ...
+# Subtest: every declared RMTX contribution is a real local packaged file
+ok 43 - every declared RMTX contribution is a real local packaged file
+  ---
+  duration_ms: 0.490836
+  type: 'test'
+  ...
+# Subtest: RMTX snippets distinguish self-closing from paired operators and configuration supports TSX comments
+ok 44 - RMTX snippets distinguish self-closing from paired operators and configuration supports TSX comments
+  ---
+  duration_ms: 0.270183
+  type: 'test'
+  ...
+# Subtest: LanguageClient selects Classic and RMTX explicitly, without claiming provider TSX files
+ok 45 - LanguageClient selects Classic and RMTX explicitly, without claiming provider TSX files
+  ---
+  duration_ms: 1.007461
+  type: 'test'
+  ...
+# Subtest: direct Classic code actions reject RMTX before constructing a server: rmtx /tmp/editor.rmtx
+ok 46 - direct Classic code actions reject RMTX before constructing a server: rmtx /tmp/editor.rmtx
+  ---
+  duration_ms: 1.207963
+  type: 'test'
+  ...
+# Subtest: direct Classic code actions reject RMTX before constructing a server: rmt /tmp/mislabeled.rmtx
+ok 47 - direct Classic code actions reject RMTX before constructing a server: rmt /tmp/mislabeled.rmtx
+  ---
+  duration_ms: 0.109611
+  type: 'test'
+  ...
+# Subtest: direct Classic code actions reject RMTX before constructing a server: rmtx /tmp/mislabeled.rmt
+ok 48 - direct Classic code actions reject RMTX before constructing a server: rmtx /tmp/mislabeled.rmt
+  ---
+  duration_ms: 0.093092
+  type: 'test'
+  ...
+# Subtest: direct Classic code actions reject RMTX before constructing a server: rmtx null
+ok 49 - direct Classic code actions reject RMTX before constructing a server: rmtx null
+  ---
+  duration_ms: 0.107341
+  type: 'test'
+  ...
+# Subtest: active-document Classic experience preserves the unsupported result without requesting an LSP
+ok 50 - active-document Classic experience preserves the unsupported result without requesting an LSP
+  ---
+  duration_ms: 0.395664
+  type: 'test'
+  ...
+# Subtest: Classic lint and debug paths reject RMTX while project build check and write route to the real CLI
+ok 51 - Classic lint and debug paths reject RMTX while project build check and write route to the real CLI
+  ---
+  duration_ms: 2.008392
+  type: 'test'
+  ...
+# Subtest: actual activation registers a shared dispatcher, provider metadata watcher and bundled Node client
+ok 52 - actual activation registers a shared dispatcher, provider metadata watcher and bundled Node client
+  ---
+  duration_ms: 2.954173
+  type: 'test'
+  ...
+# Subtest: LSP routes RMTX to semantic tooling and invalidates open consumers on Classic dependency edits
+ok 53 - LSP routes RMTX to semantic tooling and invalidates open consumers on Classic dependency edits
+  ---
+  duration_ms: 1296.011516
+  type: 'test'
+  ...
+# Subtest: actual stdio server supplies original-file diagnostics, completion and navigation
+ok 54 - actual stdio server supplies original-file diagnostics, completion and navigation
+  ---
+  duration_ms: 1209.74993
+  type: 'test'
+  ...
+# Subtest: independent workspace roots retain separate models, original navigation and folder-change overlays
+ok 55 - independent workspace roots retain separate models, original navigation and folder-change overlays
+  ---
+  duration_ms: 1318.183682
+  type: 'test'
+  ...
+# Subtest: virtual TSX checks model fields and native properties against actual authoring types
+ok 56 - virtual TSX checks model fields and native properties against actual authoring types
+  ---
+  duration_ms: 493.463292
+  type: 'test'
+  ...
+# Subtest: repeated item and nested repeated item follow their lexical collection types
+ok 57 - repeated item and nested repeated item follow their lexical collection types
+  ---
+  duration_ms: 275.134199
+  type: 'test'
+  ...
+# Subtest: action inputs remain distinct between actions and model dynamic markers have no any fallback
+ok 58 - action inputs remain distinct between actions and model dynamic markers have no any fallback
+  ---
+  duration_ms: 221.177215
+  type: 'test'
+  ...
+# Subtest: selectors preserve the source row fields, including item lookup and closed path validation
+ok 59 - selectors preserve the source row fields, including item lookup and closed path validation
+  ---
+  duration_ms: 241.615394
+  type: 'test'
+  ...
+# Subtest: Classic imported states produce original-file model definitions and field rename edits
+ok 60 - Classic imported states produce original-file model definitions and field rename edits
+  ---
+  duration_ms: 293.9849
+  type: 'test'
+  ...
+# Subtest: CRLF and UTF16 positions map diagnostics and field completions to real RMTX source
+ok 61 - CRLF and UTF16 positions map diagnostics and field completions to real RMTX source
+  ---
+  duration_ms: 533.777063
+  type: 'test'
+  ...
+# Subtest: unsaved imported RMTX state overlays invalidate model types before disk save
+ok 62 - unsaved imported RMTX state overlays invalidate model types before disk save
+  ---
+  duration_ms: 502.918318
+  type: 'test'
+  ...
+# Subtest: provider props use the same captured provider value rules as the compiler
+ok 63 - provider props use the same captured provider value rules as the compiler
+  ---
+  duration_ms: 251.149781
+  type: 'test'
+  ...
+# Subtest: file-based provider metadata reaches semantic props without executing provider code
+ok 64 - file-based provider metadata reaches semantic props without executing provider code
+  ---
+  duration_ms: 261.193943
+  type: 'test'
+  ...
+# Subtest: qualified State IDs and chained selectors obey longest declared prefixes independent of declaration order
+ok 65 - qualified State IDs and chained selectors obey longest declared prefixes independent of declaration order
+  ---
+  duration_ms: 230.55035
+  type: 'test'
+  ...
+# Subtest: Action, State and native component references navigate and rename on original source strings
+ok 66 - Action, State and native component references navigate and rename on original source strings
+  ---
+  duration_ms: 11.423888
+  type: 'test'
+  ...
+# Subtest: nullable selector results narrow inside declarative When guards without executing source
+ok 67 - nullable selector results narrow inside declarative When guards without executing source
+  ---
+  duration_ms: 222.657452
+  type: 'test'
+  ...
+# Subtest: references from an imported declaration include unsaved open consumers in its real project
+ok 68 - references from an imported declaration include unsaved open consumers in its real project
+  ---
+  duration_ms: 259.820537
+  type: 'test'
+  ...
+# Subtest: navigation never pins a closed disk dependency as a stale editor overlay
+ok 69 - navigation never pins a closed disk dependency as a stale editor overlay
+  ---
+  duration_ms: 615.548248
+  type: 'test'
+  ...
+1..69
+# tests 69
+# suites 0
+# pass 69
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 19469.854423

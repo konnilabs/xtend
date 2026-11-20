@@ -3,7 +3,15 @@ declare(strict_types=1);
 
 function xtendToolingBridgeRequest(string $bridgePath, string $repoRoot, array $envelope, array $options = []): array
 {
-    $schema = 'xtend.compiler.tooling-bridge-response.v1';
+    $payload = is_array($envelope['payload'] ?? null) ? $envelope['payload'] : [];
+    $compilerOptions = is_array($payload['options'] ?? null) ? $payload['options'] : [];
+    $projectInput = ($envelope['schema'] ?? null) === 'xtend.compiler.tooling-bridge.v2'
+        || ($payload['project'] ?? false) === true
+        || ($compilerOptions['project'] ?? false) === true
+        || array_key_exists('sourceSyntax', $payload) || array_key_exists('sourceSyntax', $compilerOptions)
+        || array_key_exists('rmtxProvidersFile', $payload) || array_key_exists('rmtxProvidersFile', $compilerOptions)
+        || preg_match('/\.rmtx$/i', (string) ($payload['filePath'] ?? '')) === 1;
+    $schema = $projectInput ? 'xtend.compiler.tooling-bridge-response.v2' : 'xtend.compiler.tooling-bridge-response.v1';
     $failure = static function (string $status, array $diagnostics = []) use ($schema): array {
         return ['schema' => $schema, 'ok' => false, 'status' => $status, 'diagnostics' => $diagnostics];
     };

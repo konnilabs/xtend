@@ -1,0 +1,13 @@
+{
+  "schema": "xtend.mcp.vsix-smoke.v1",
+  "ok": true,
+  "platform": "linux",
+  "node": "26.5.0",
+  "packageVersion": "0.2.0",
+  "knowledgeManifestSha256": "d52bac2010282cbdfc197e7b734168e1d1935665df4e0edf1b68a605b4952a55",
+  "docsArtifactSha256": "09c91d279cce5584b2579f92e401e5b5631a9264ea4716cb35a300eff0ddff16",
+  "readOnlyToolCount": 6,
+  "writableToolCount": 7,
+  "missingNodeDiagnostic": "not found",
+  "evidence": ".xtend-test-results/xtend-mcp-vsix-smoke.json"
+}

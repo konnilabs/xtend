@@ -1,0 +1,2410 @@
+TAP version 13
+# Subtest: all 122 Classic nodes have exactly one explicit source, helper or native UI classification
+ok 1 - all 122 Classic nodes have exactly one explicit source, helper or native UI classification
+  ---
+  duration_ms: 2.698121
+  type: 'test'
+  ...
+# Subtest: source4 additions preserve complete byte-equivalent catalog data for profiles 1, 2 and 3
+ok 2 - source4 additions preserve complete byte-equivalent catalog data for profiles 1, 2 and 3
+  ---
+  duration_ms: 0.585359
+  type: 'test'
+  ...
+# Subtest: every extended tag closes its attributes and requires an explicit source4 opt-in
+ok 3 - every extended tag closes its attributes and requires an explicit source4 opt-in
+  ---
+  duration_ms: 106.652592
+  type: 'test'
+  ...
+# Subtest: closed DataSource attributes lower to formal RmtDataSourceDeclaration
+ok 4 - closed DataSource attributes lower to formal RmtDataSourceDeclaration
+  ---
+  duration_ms: 2.124182
+  type: 'test'
+  ...
+# Subtest: closed DataSourceMode attributes lower to formal RmtDataSourceModeClause
+ok 5 - closed DataSourceMode attributes lower to formal RmtDataSourceModeClause
+  ---
+  duration_ms: 0.956564
+  type: 'test'
+  ...
+# Subtest: closed DataSourceMethod attributes lower to formal RmtDataSourceMethodClause
+ok 6 - closed DataSourceMethod attributes lower to formal RmtDataSourceMethodClause
+  ---
+  duration_ms: 0.786072
+  type: 'test'
+  ...
+# Subtest: closed DataSourceContract attributes lower to formal RmtDataSourceContractClause
+ok 7 - closed DataSourceContract attributes lower to formal RmtDataSourceContractClause
+  ---
+  duration_ms: 0.596939
+  type: 'test'
+  ...
+# Subtest: closed DataSourceResult attributes lower to formal RmtDataSourceResultClause
+ok 8 - closed DataSourceResult attributes lower to formal RmtDataSourceResultClause
+  ---
+  duration_ms: 0.559509
+  type: 'test'
+  ...
+# Subtest: closed DataSourceFallback attributes lower to formal RmtDataSourceFallbackClause
+ok 9 - closed DataSourceFallback attributes lower to formal RmtDataSourceFallbackClause
+  ---
+  duration_ms: 0.589068
+  type: 'test'
+  ...
+# Subtest: closed Status attributes lower to formal RmtActionStatusClause
+ok 10 - closed Status attributes lower to formal RmtActionStatusClause
+  ---
+  duration_ms: 0.611109
+  type: 'test'
+  ...
+# Subtest: closed Execution attributes lower to formal RmtActionExecutionClause
+ok 11 - closed Execution attributes lower to formal RmtActionExecutionClause
+  ---
+  duration_ms: 0.457857
+  type: 'test'
+  ...
+# Subtest: closed InputPolicy attributes lower to formal RmtActionInputPolicy
+ok 12 - closed InputPolicy attributes lower to formal RmtActionInputPolicy
+  ---
+  duration_ms: 0.580668
+  type: 'test'
+  ...
+# Subtest: closed Effect attributes lower to formal RmtEffectStatement
+ok 13 - closed Effect attributes lower to formal RmtEffectStatement
+  ---
+  duration_ms: 0.453017
+  type: 'test'
+  ...
+# Subtest: closed Recipe attributes lower to formal RmtReducerRecipeStatement
+ok 14 - closed Recipe attributes lower to formal RmtReducerRecipeStatement
+  ---
+  duration_ms: 0.552078
+  type: 'test'
+  ...
+# Subtest: closed Emit attributes lower to formal RmtEmitStatement
+ok 15 - closed Emit attributes lower to formal RmtEmitStatement
+  ---
+  duration_ms: 0.65683
+  type: 'test'
+  ...
+# Subtest: closed ResultHandler attributes lower to formal RmtActionResultHandler
+ok 16 - closed ResultHandler attributes lower to formal RmtActionResultHandler
+  ---
+  duration_ms: 0.781342
+  type: 'test'
+  ...
+# Subtest: closed Validation attributes lower to formal RmtValidationDeclaration
+ok 17 - closed Validation attributes lower to formal RmtValidationDeclaration
+  ---
+  duration_ms: 0.381055
+  type: 'test'
+  ...
+# Subtest: closed ValidationMode attributes lower to formal RmtValidationModeClause
+ok 18 - closed ValidationMode attributes lower to formal RmtValidationModeClause
+  ---
+  duration_ms: 0.459767
+  type: 'test'
+  ...
+# Subtest: closed ValidationTarget attributes lower to formal RmtValidationTargetClause
+ok 19 - closed ValidationTarget attributes lower to formal RmtValidationTargetClause
+  ---
+  duration_ms: 0.442467
+  type: 'test'
+  ...
+# Subtest: closed ValidationField attributes lower to formal RmtValidationFieldClause
+ok 20 - closed ValidationField attributes lower to formal RmtValidationFieldClause
+  ---
+  duration_ms: 0.438417
+  type: 'test'
+  ...
+# Subtest: closed ValidationRule attributes lower to formal RmtValidationRule
+ok 21 - closed ValidationRule attributes lower to formal RmtValidationRule
+  ---
+  duration_ms: 0.963105
+  type: 'test'
+  ...
+# Subtest: closed ValidationInclude attributes lower to formal RmtValidationIncludeClause
+ok 22 - closed ValidationInclude attributes lower to formal RmtValidationIncludeClause
+  ---
+  duration_ms: 0.456397
+  type: 'test'
+  ...
+# Subtest: closed Animation attributes lower to formal RmtAnimationDeclaration
+ok 23 - closed Animation attributes lower to formal RmtAnimationDeclaration
+  ---
+  duration_ms: 0.355935
+  type: 'test'
+  ...
+# Subtest: closed AnimationPreset attributes lower to formal RmtAnimationPresetClause
+ok 24 - closed AnimationPreset attributes lower to formal RmtAnimationPresetClause
+  ---
+  duration_ms: 0.448757
+  type: 'test'
+  ...
+# Subtest: closed AnimationEffect attributes lower to formal RmtAnimationEffectClause
+ok 25 - closed AnimationEffect attributes lower to formal RmtAnimationEffectClause
+  ---
+  duration_ms: 0.432506
+  type: 'test'
+  ...
+# Subtest: closed AnimationDuration attributes lower to formal RmtAnimationDurationClause
+ok 26 - closed AnimationDuration attributes lower to formal RmtAnimationDurationClause
+  ---
+  duration_ms: 0.519108
+  type: 'test'
+  ...
+# Subtest: closed AnimationEasing attributes lower to formal RmtAnimationEasingClause
+ok 27 - closed AnimationEasing attributes lower to formal RmtAnimationEasingClause
+  ---
+  duration_ms: 0.536128
+  type: 'test'
+  ...
+# Subtest: closed AnimationAllowFilter attributes lower to formal RmtAnimationAllowFilterClause
+ok 28 - closed AnimationAllowFilter attributes lower to formal RmtAnimationAllowFilterClause
+  ---
+  duration_ms: 0.501057
+  type: 'test'
+  ...
+# Subtest: closed AnimationReducedMotion attributes lower to formal RmtAnimationReducedMotionClause
+ok 29 - closed AnimationReducedMotion attributes lower to formal RmtAnimationReducedMotionClause
+  ---
+  duration_ms: 0.422206
+  type: 'test'
+  ...
+# Subtest: closed AnimationSpring attributes lower to formal RmtAnimationSpringClause
+ok 30 - closed AnimationSpring attributes lower to formal RmtAnimationSpringClause
+  ---
+  duration_ms: 0.466047
+  type: 'test'
+  ...
+# Subtest: closed AnimationKeyframe attributes lower to formal RmtAnimationKeyframeClause
+ok 31 - closed AnimationKeyframe attributes lower to formal RmtAnimationKeyframeClause
+  ---
+  duration_ms: 0.399976
+  type: 'test'
+  ...
+# Subtest: closed AnimationTimeline attributes lower to formal RmtAnimationTimelineClause
+ok 32 - closed AnimationTimeline attributes lower to formal RmtAnimationTimelineClause
+  ---
+  duration_ms: 0.504158
+  type: 'test'
+  ...
+# Subtest: closed AnimationTimelineStep attributes lower to formal RmtAnimationTimelineStep
+ok 33 - closed AnimationTimelineStep attributes lower to formal RmtAnimationTimelineStep
+  ---
+  duration_ms: 0.459347
+  type: 'test'
+  ...
+# Subtest: closed TransitionTimeline attributes lower to formal RmtTransitionTimelineClause
+ok 34 - closed TransitionTimeline attributes lower to formal RmtTransitionTimelineClause
+  ---
+  duration_ms: 0.540468
+  type: 'test'
+  ...
+# Subtest: closed TransitionTimelineStep attributes lower to formal RmtTransitionTimelineStep
+ok 35 - closed TransitionTimelineStep attributes lower to formal RmtTransitionTimelineStep
+  ---
+  duration_ms: 0.577159
+  type: 'test'
+  ...
+# Subtest: closed Transition attributes lower to formal RmtTransitionDeclaration
+ok 36 - closed Transition attributes lower to formal RmtTransitionDeclaration
+  ---
+  duration_ms: 0.392556
+  type: 'test'
+  ...
+# Subtest: closed TransitionTrigger attributes lower to formal RmtTransitionTriggerClause
+ok 37 - closed TransitionTrigger attributes lower to formal RmtTransitionTriggerClause
+  ---
+  duration_ms: 0.471677
+  type: 'test'
+  ...
+# Subtest: closed TransitionFrom attributes lower to formal RmtTransitionFromClause
+ok 38 - closed TransitionFrom attributes lower to formal RmtTransitionFromClause
+  ---
+  duration_ms: 0.703601
+  type: 'test'
+  ...
+# Subtest: closed TransitionTo attributes lower to formal RmtTransitionToClause
+ok 39 - closed TransitionTo attributes lower to formal RmtTransitionToClause
+  ---
+  duration_ms: 0.450827
+  type: 'test'
+  ...
+# Subtest: closed TransitionDuration attributes lower to formal RmtTransitionDurationClause
+ok 40 - closed TransitionDuration attributes lower to formal RmtTransitionDurationClause
+  ---
+  duration_ms: 0.754761
+  type: 'test'
+  ...
+# Subtest: closed TransitionEasing attributes lower to formal RmtTransitionEasingClause
+ok 41 - closed TransitionEasing attributes lower to formal RmtTransitionEasingClause
+  ---
+  duration_ms: 0.586489
+  type: 'test'
+  ...
+# Subtest: closed TransitionLayoutKey attributes lower to formal RmtTransitionLayoutKeyClause
+ok 42 - closed TransitionLayoutKey attributes lower to formal RmtTransitionLayoutKeyClause
+  ---
+  duration_ms: 0.585419
+  type: 'test'
+  ...
+# Subtest: closed TransitionEffect attributes lower to formal RmtTransitionEffectClause
+ok 43 - closed TransitionEffect attributes lower to formal RmtTransitionEffectClause
+  ---
+  duration_ms: 0.473767
+  type: 'test'
+  ...
+# Subtest: closed TransitionLane attributes lower to formal RmtTransitionLaneClause
+ok 44 - closed TransitionLane attributes lower to formal RmtTransitionLaneClause
+  ---
+  duration_ms: 0.355175
+  type: 'test'
+  ...
+# Subtest: closed TransitionUseAnimation attributes lower to formal RmtTransitionUseAnimationClause
+ok 45 - closed TransitionUseAnimation attributes lower to formal RmtTransitionUseAnimationClause
+  ---
+  duration_ms: 0.331345
+  type: 'test'
+  ...
+# Subtest: closed TransitionInterrupt attributes lower to formal RmtTransitionInterruptClause
+ok 46 - closed TransitionInterrupt attributes lower to formal RmtTransitionInterruptClause
+  ---
+  duration_ms: 0.340245
+  type: 'test'
+  ...
+# Subtest: closed TransitionReducedMotion attributes lower to formal RmtTransitionReducedMotionClause
+ok 47 - closed TransitionReducedMotion attributes lower to formal RmtTransitionReducedMotionClause
+  ---
+  duration_ms: 0.329745
+  type: 'test'
+  ...
+# Subtest: closed Portal attributes lower to formal RmtPortalDeclaration
+ok 48 - closed Portal attributes lower to formal RmtPortalDeclaration
+  ---
+  duration_ms: 0.349395
+  type: 'test'
+  ...
+# Subtest: closed Overlay attributes lower to formal RmtOverlayDeclaration
+ok 49 - closed Overlay attributes lower to formal RmtOverlayDeclaration
+  ---
+  duration_ms: 0.300504
+  type: 'test'
+  ...
+# Subtest: closed PortalPolicy attributes lower to formal RmtPortalPolicyClause
+ok 50 - closed PortalPolicy attributes lower to formal RmtPortalPolicyClause
+  ---
+  duration_ms: 0.6487
+  type: 'test'
+  ...
+# Subtest: closed OverlayPolicy attributes lower to formal RmtOverlayPolicyClause
+ok 51 - closed OverlayPolicy attributes lower to formal RmtOverlayPolicyClause
+  ---
+  duration_ms: 0.472277
+  type: 'test'
+  ...
+# Subtest: closed Resource attributes lower to formal RmtResourceDeclaration
+ok 52 - closed Resource attributes lower to formal RmtResourceDeclaration
+  ---
+  duration_ms: 0.365696
+  type: 'test'
+  ...
+# Subtest: closed ResourceImport attributes lower to formal RmtResourceImportClause
+ok 53 - closed ResourceImport attributes lower to formal RmtResourceImportClause
+  ---
+  duration_ms: 0.405816
+  type: 'test'
+  ...
+# Subtest: closed ResourceSource attributes lower to formal RmtResourceSourceClause
+ok 54 - closed ResourceSource attributes lower to formal RmtResourceSourceClause
+  ---
+  duration_ms: 0.353435
+  type: 'test'
+  ...
+# Subtest: closed ResourceDispose attributes lower to formal RmtResourceDisposeClause
+ok 55 - closed ResourceDispose attributes lower to formal RmtResourceDisposeClause
+  ---
+  duration_ms: 0.945445
+  type: 'test'
+  ...
+# Subtest: closed SurfaceSource attributes lower to formal RmtSurfaceSourceClause
+ok 56 - closed SurfaceSource attributes lower to formal RmtSurfaceSourceClause
+  ---
+  duration_ms: 0.411466
+  type: 'test'
+  ...
+# Subtest: closed SurfaceBounds attributes lower to formal RmtSurfaceBoundsClause
+ok 57 - closed SurfaceBounds attributes lower to formal RmtSurfaceBoundsClause
+  ---
+  duration_ms: 0.379645
+  type: 'test'
+  ...
+# Subtest: closed SurfacePreserve attributes lower to formal RmtSurfacePreserveClause
+ok 58 - closed SurfacePreserve attributes lower to formal RmtSurfacePreserveClause
+  ---
+  duration_ms: 0.326425
+  type: 'test'
+  ...
+# Subtest: closed SurfaceDestroy attributes lower to formal RmtSurfaceDestroyClause
+ok 59 - closed SurfaceDestroy attributes lower to formal RmtSurfaceDestroyClause
+  ---
+  duration_ms: 0.336965
+  type: 'test'
+  ...
+# Subtest: closed SearchSource attributes lower to formal RmtSearchSourceDeclaration
+ok 60 - closed SearchSource attributes lower to formal RmtSearchSourceDeclaration
+  ---
+  duration_ms: 0.290844
+  type: 'test'
+  ...
+# Subtest: closed SearchQuery attributes lower to formal RmtSearchQueryClause
+ok 61 - closed SearchQuery attributes lower to formal RmtSearchQueryClause
+  ---
+  duration_ms: 0.367986
+  type: 'test'
+  ...
+# Subtest: closed SearchResource attributes lower to formal RmtSearchResourceClause
+ok 62 - closed SearchResource attributes lower to formal RmtSearchResourceClause
+  ---
+  duration_ms: 0.342415
+  type: 'test'
+  ...
+# Subtest: closed SearchFallbackResource attributes lower to formal RmtSearchFallbackResourceClause
+ok 63 - closed SearchFallbackResource attributes lower to formal RmtSearchFallbackResourceClause
+  ---
+  duration_ms: 0.384376
+  type: 'test'
+  ...
+# Subtest: closed SearchWeight attributes lower to formal RmtSearchWeightClause
+ok 64 - closed SearchWeight attributes lower to formal RmtSearchWeightClause
+  ---
+  duration_ms: 0.443747
+  type: 'test'
+  ...
+# Subtest: closed SearchValue attributes lower to formal RmtSearchValueClause
+ok 65 - closed SearchValue attributes lower to formal RmtSearchValueClause
+  ---
+  duration_ms: 0.696371
+  type: 'test'
+  ...
+# Subtest: closed Mount attributes lower to formal RmtLifecycleStatement
+ok 66 - closed Mount attributes lower to formal RmtLifecycleStatement
+  ---
+  duration_ms: 0.770171
+  type: 'test'
+  ...
+# Subtest: closed Hydrate attributes lower to formal RmtLifecycleStatement
+ok 67 - closed Hydrate attributes lower to formal RmtLifecycleStatement
+  ---
+  duration_ms: 0.467987
+  type: 'test'
+  ...
+# Subtest: closed Suspend attributes lower to formal RmtLifecycleStatement
+ok 68 - closed Suspend attributes lower to formal RmtLifecycleStatement
+  ---
+  duration_ms: 0.464457
+  type: 'test'
+  ...
+# Subtest: closed Resume attributes lower to formal RmtLifecycleStatement
+ok 69 - closed Resume attributes lower to formal RmtLifecycleStatement
+  ---
+  duration_ms: 0.476498
+  type: 'test'
+  ...
+# Subtest: closed Invalidate attributes lower to formal RmtLifecycleStatement
+ok 70 - closed Invalidate attributes lower to formal RmtLifecycleStatement
+  ---
+  duration_ms: 0.471157
+  type: 'test'
+  ...
+# Subtest: closed Dispose attributes lower to formal RmtLifecycleStatement
+ok 71 - closed Dispose attributes lower to formal RmtLifecycleStatement
+  ---
+  duration_ms: 0.511328
+  type: 'test'
+  ...
+# Subtest: closed Prewarm attributes lower to formal RmtLifecycleStatement
+ok 72 - closed Prewarm attributes lower to formal RmtLifecycleStatement
+  ---
+  duration_ms: 0.709081
+  type: 'test'
+  ...
+# Subtest: closed Recycle attributes lower to formal RmtLifecycleStatement
+ok 73 - closed Recycle attributes lower to formal RmtLifecycleStatement
+  ---
+  duration_ms: 0.6685
+  type: 'test'
+  ...
+# Subtest: closed Detach attributes lower to formal RmtLifecycleStatement
+ok 74 - closed Detach attributes lower to formal RmtLifecycleStatement
+  ---
+  duration_ms: 0.638099
+  type: 'test'
+  ...
+# Subtest: closed Reattach attributes lower to formal RmtLifecycleStatement
+ok 75 - closed Reattach attributes lower to formal RmtLifecycleStatement
+  ---
+  duration_ms: 0.630169
+  type: 'test'
+  ...
+# Subtest: closed Stream attributes lower to formal RmtStreamStatement
+ok 76 - closed Stream attributes lower to formal RmtStreamStatement
+  ---
+  duration_ms: 0.583319
+  type: 'test'
+  ...
+# Subtest: closed Source attributes lower to formal RmtSourceClause
+ok 77 - closed Source attributes lower to formal RmtSourceClause
+  ---
+  duration_ms: 0.478677
+  type: 'test'
+  ...
+# Subtest: closed Policy attributes lower to formal RmtPolicyBlock
+ok 78 - closed Policy attributes lower to formal RmtPolicyBlock
+  ---
+  duration_ms: 0.458957
+  type: 'test'
+  ...
+# Subtest: closed Slot attributes lower to formal RmtSlotDeclaration
+ok 79 - closed Slot attributes lower to formal RmtSlotDeclaration
+  ---
+  duration_ms: 0.65159
+  type: 'test'
+  ...
+# Subtest: closed TrustBoundary attributes lower to formal RmtTrustBoundaryPolicy
+ok 80 - closed TrustBoundary attributes lower to formal RmtTrustBoundaryPolicy
+  ---
+  duration_ms: 0.614229
+  type: 'test'
+  ...
+# Subtest: closed Sanitize attributes lower to formal RmtSanitizePolicy
+ok 81 - closed Sanitize attributes lower to formal RmtSanitizePolicy
+  ---
+  duration_ms: 0.511818
+  type: 'test'
+  ...
+# Subtest: closed Hydration attributes lower to formal RmtHydrationPolicy
+ok 82 - closed Hydration attributes lower to formal RmtHydrationPolicy
+  ---
+  duration_ms: 2.150562
+  type: 'test'
+  ...
+# Subtest: closed Resumability attributes lower to formal RmtResumabilityPolicy
+ok 83 - closed Resumability attributes lower to formal RmtResumabilityPolicy
+  ---
+  duration_ms: 0.845083
+  type: 'test'
+  ...
+# Subtest: closed Isolation attributes lower to formal RmtIsolationPolicy
+ok 84 - closed Isolation attributes lower to formal RmtIsolationPolicy
+  ---
+  duration_ms: 0.69304
+  type: 'test'
+  ...
+# Subtest: closed RemoteSurface attributes lower to formal RmtRemoteSurfaceDeclaration
+ok 85 - closed RemoteSurface attributes lower to formal RmtRemoteSurfaceDeclaration
+  ---
+  duration_ms: 0.406026
+  type: 'test'
+  ...
+# Subtest: closed RemoteOwner attributes lower to formal RmtRemoteOwnerClause
+ok 86 - closed RemoteOwner attributes lower to formal RmtRemoteOwnerClause
+  ---
+  duration_ms: 0.445907
+  type: 'test'
+  ...
+# Subtest: closed RemoteVersion attributes lower to formal RmtRemoteVersionClause
+ok 87 - closed RemoteVersion attributes lower to formal RmtRemoteVersionClause
+  ---
+  duration_ms: 0.399976
+  type: 'test'
+  ...
+# Subtest: closed RemoteOrigin attributes lower to formal RmtRemoteOriginClause
+ok 88 - closed RemoteOrigin attributes lower to formal RmtRemoteOriginClause
+  ---
+  duration_ms: 0.398786
+  type: 'test'
+  ...
+# Subtest: closed RemoteEventPayload attributes lower to formal RmtRemoteEventPayloadClause
+ok 89 - closed RemoteEventPayload attributes lower to formal RmtRemoteEventPayloadClause
+  ---
+  duration_ms: 0.489098
+  type: 'test'
+  ...
+# Subtest: closed RemoteIntegrity attributes lower to formal RmtRemoteIntegrityClause
+ok 90 - closed RemoteIntegrity attributes lower to formal RmtRemoteIntegrityClause
+  ---
+  duration_ms: 0.459237
+  type: 'test'
+  ...
+# Subtest: closed RemoteTrustBoundary attributes lower to formal RmtRemoteTrustBoundaryClause
+ok 91 - closed RemoteTrustBoundary attributes lower to formal RmtRemoteTrustBoundaryClause
+  ---
+  duration_ms: 0.434427
+  type: 'test'
+  ...
+# Subtest: closed RemoteFallback attributes lower to formal RmtRemoteFallbackClause
+ok 92 - closed RemoteFallback attributes lower to formal RmtRemoteFallbackClause
+  ---
+  duration_ms: 0.510408
+  type: 'test'
+  ...
+# Subtest: closed RemoteExpose attributes lower to formal RmtRemoteExposeClause
+ok 93 - closed RemoteExpose attributes lower to formal RmtRemoteExposeClause
+  ---
+  duration_ms: 0.578148
+  type: 'test'
+  ...
+# Subtest: closed RemoteEvent attributes lower to formal RmtRemoteEventClause
+ok 94 - closed RemoteEvent attributes lower to formal RmtRemoteEventClause
+  ---
+  duration_ms: 0.62541
+  type: 'test'
+  ...
+# Subtest: closed RemoteEventDirection attributes lower to formal RmtRemoteEventDirectionClause
+ok 95 - closed RemoteEventDirection attributes lower to formal RmtRemoteEventDirectionClause
+  ---
+  duration_ms: 0.614509
+  type: 'test'
+  ...
+# Subtest: closed RemoteEventLane attributes lower to formal RmtRemoteEventLaneClause
+ok 96 - closed RemoteEventLane attributes lower to formal RmtRemoteEventLaneClause
+  ---
+  duration_ms: 0.568028
+  type: 'test'
+  ...
+# Subtest: closed RemoteEventFrom attributes lower to formal RmtRemoteEventFromClause
+ok 97 - closed RemoteEventFrom attributes lower to formal RmtRemoteEventFromClause
+  ---
+  duration_ms: 0.599729
+  type: 'test'
+  ...
+# Subtest: closed Import attributes lower to formal RmtImportDeclaration
+ok 98 - closed Import attributes lower to formal RmtImportDeclaration
+  ---
+  duration_ms: 0.393226
+  type: 'test'
+  ...
+# Subtest: DataSource, Effects, Emit and result handlers reach actual backend artifacts
+ok 99 - DataSource, Effects, Emit and result handlers reach actual backend artifacts
+  ---
+  duration_ms: 19.286332
+  type: 'test'
+  ...
+# Subtest: Validation, Animation and Transition compile structured configuration and generated timeline tokens
+ok 100 - Validation, Animation and Transition compile structured configuration and generated timeline tokens
+  ---
+  duration_ms: 14.720953
+  type: 'test'
+  ...
+# Subtest: Portal, Overlay, Resource and Surface contracts generate data without admitting source text
+ok 101 - Portal, Overlay, Resource and Surface contracts generate data without admitting source text
+  ---
+  duration_ms: 7.564384
+  type: 'test'
+  ...
+# Subtest: SearchSource closes references, numeric settings and field weights through the existing backend
+ok 102 - SearchSource closes references, numeric settings and field weights through the existing backend
+  ---
+  duration_ms: 3.610774
+  type: 'test'
+  ...
+# Subtest: remote declarations hoist into the document and retain real cross-surface target contracts
+ok 103 - remote declarations hoist into the document and retain real cross-surface target contracts
+  ---
+  duration_ms: 4.64663
+  type: 'test'
+  ...
+# Subtest: generated Recipe and result-handler text preserves nested reference trees and escaped literals
+ok 104 - generated Recipe and result-handler text preserves nested reference trees and escaped literals
+  ---
+  duration_ms: 5.891199
+  type: 'test'
+  ...
+# Subtest: multi-attribute policy syntax lowers one formal clause per policy value including false
+ok 105 - multi-attribute policy syntax lowers one formal clause per policy value including false
+  ---
+  duration_ms: 1.148178
+  type: 'test'
+  ...
+# Subtest: source4 safe dollar symbols survive generated nested values, recipes and result operations
+ok 106 - source4 safe dollar symbols survive generated nested values, recipes and result operations
+  ---
+  duration_ms: 4.123213
+  type: 'test'
+  ...
+# Subtest: closed attributes reject AST, DSL text, wrong primitive kinds, duplicate clauses and lifecycle when
+ok 107 - closed attributes reject AST, DSL text, wrong primitive kinds, duplicate clauses and lifecycle when
+  ---
+  duration_ms: 4.523249
+  type: 'test'
+  ...
+# Subtest: source4 contracts, all authoring names and declarations are immutable data and closed types
+ok 108 - source4 contracts, all authoring names and declarations are immutable data and closed types
+  ---
+  duration_ms: 468.613672
+  type: 'test'
+  ...
+# Subtest: the productive frontend lowers the complete reference through the same compiler and plans
+ok 109 - the productive frontend lowers the complete reference through the same compiler and plans
+  ---
+  duration_ms: 61.303986
+  type: 'test'
+  ...
+# Subtest: namespace and model/input aliases resolve from canonical imports rather than tag spelling
+ok 110 - namespace and model/input aliases resolve from canonical imports rather than tag spelling
+  ---
+  duration_ms: 4.549319
+  type: 'test'
+  ...
+# Subtest: JSON literal values preserve strings, nested values, falsy scalars and source string escapes
+ok 111 - JSON literal values preserve strings, nested values, falsy scalars and source string escapes
+  ---
+  duration_ms: 4.761972
+  type: 'test'
+  ...
+# Subtest: JSX string entities are explicit and unsupported entities cannot silently change values
+ok 112 - JSX string entities are explicit and unsupported entities cannot silently change values
+  ---
+  duration_ms: 1.736266
+  type: 'test'
+  ...
+# Subtest: closed profile rejects source statements before producing executable artifacts
+ok 113 - closed profile rejects source statements before producing executable artifacts
+  ---
+  duration_ms: 1.080106
+  type: 'test'
+  ...
+# Subtest: closed profile rejects call expression before producing executable artifacts
+ok 114 - closed profile rejects call expression before producing executable artifacts
+  ---
+  duration_ms: 0.584909
+  type: 'test'
+  ...
+# Subtest: closed profile rejects IIFE before producing executable artifacts
+ok 115 - closed profile rejects IIFE before producing executable artifacts
+  ---
+  duration_ms: 1.37243
+  type: 'test'
+  ...
+# Subtest: closed profile rejects dynamic import before producing executable artifacts
+ok 116 - closed profile rejects dynamic import before producing executable artifacts
+  ---
+  duration_ms: 0.555888
+  type: 'test'
+  ...
+# Subtest: closed profile rejects spread attributes before producing executable artifacts
+ok 117 - closed profile rejects spread attributes before producing executable artifacts
+  ---
+  duration_ms: 0.556468
+  type: 'test'
+  ...
+# Subtest: closed profile rejects duplicate attributes before producing executable artifacts
+ok 118 - closed profile rejects duplicate attributes before producing executable artifacts
+  ---
+  duration_ms: 0.535278
+  type: 'test'
+  ...
+# Subtest: closed profile rejects unknown attributes before producing executable artifacts
+ok 119 - closed profile rejects unknown attributes before producing executable artifacts
+  ---
+  duration_ms: 0.499237
+  type: 'test'
+  ...
+# Subtest: closed profile rejects unknown operators before producing executable artifacts
+ok 120 - closed profile rejects unknown operators before producing executable artifacts
+  ---
+  duration_ms: 0.358975
+  type: 'test'
+  ...
+# Subtest: closed profile rejects unqualified UI before producing executable artifacts
+ok 121 - closed profile rejects unqualified UI before producing executable artifacts
+  ---
+  duration_ms: 0.327365
+  type: 'test'
+  ...
+# Subtest: closed profile rejects native text before producing executable artifacts
+ok 122 - closed profile rejects native text before producing executable artifacts
+  ---
+  duration_ms: 0.296454
+  type: 'test'
+  ...
+# Subtest: closed profile rejects function children before producing executable artifacts
+ok 123 - closed profile rejects function children before producing executable artifacts
+  ---
+  duration_ms: 0.62521
+  type: 'test'
+  ...
+# Subtest: closed profile rejects type arguments before producing executable artifacts
+ok 124 - closed profile rejects type arguments before producing executable artifacts
+  ---
+  duration_ms: 0.61563
+  type: 'test'
+  ...
+# Subtest: closed profile rejects computed fields before producing executable artifacts
+ok 125 - closed profile rejects computed fields before producing executable artifacts
+  ---
+  duration_ms: 0.561399
+  type: 'test'
+  ...
+# Subtest: closed profile rejects object accessors before producing executable artifacts
+ok 126 - closed profile rejects object accessors before producing executable artifacts
+  ---
+  duration_ms: 0.655
+  type: 'test'
+  ...
+# Subtest: closed profile rejects duplicate fields before producing executable artifacts
+ok 127 - closed profile rejects duplicate fields before producing executable artifacts
+  ---
+  duration_ms: 0.389066
+  type: 'test'
+  ...
+# Subtest: closed profile rejects unsafe field before producing executable artifacts
+ok 128 - closed profile rejects unsafe field before producing executable artifacts
+  ---
+  duration_ms: 0.436496
+  type: 'test'
+  ...
+# Subtest: closed profile rejects unsafe path before producing executable artifacts
+ok 129 - closed profile rejects unsafe path before producing executable artifacts
+  ---
+  duration_ms: 0.451817
+  type: 'test'
+  ...
+# Subtest: closed profile rejects optional path before producing executable artifacts
+ok 130 - closed profile rejects optional path before producing executable artifacts
+  ---
+  duration_ms: 0.496638
+  type: 'test'
+  ...
+# Subtest: closed profile rejects computed path before producing executable artifacts
+ok 131 - closed profile rejects computed path before producing executable artifacts
+  ---
+  duration_ms: 0.64381
+  type: 'test'
+  ...
+# Subtest: closed profile rejects nonfinite literal before producing executable artifacts
+ok 132 - closed profile rejects nonfinite literal before producing executable artifacts
+  ---
+  duration_ms: 0.355086
+  type: 'test'
+  ...
+# Subtest: closed profile rejects sparse array before producing executable artifacts
+ok 133 - closed profile rejects sparse array before producing executable artifacts
+  ---
+  duration_ms: 0.383226
+  type: 'test'
+  ...
+# Subtest: closed profile rejects illegal context before producing executable artifacts
+ok 134 - closed profile rejects illegal context before producing executable artifacts
+  ---
+  duration_ms: 0.270095
+  type: 'test'
+  ...
+# Subtest: closed profile rejects unknown reference before producing executable artifacts
+ok 135 - closed profile rejects unknown reference before producing executable artifacts
+  ---
+  duration_ms: 0.941664
+  type: 'test'
+  ...
+# Subtest: closed profile rejects unknown input before producing executable artifacts
+ok 136 - closed profile rejects unknown input before producing executable artifacts
+  ---
+  duration_ms: 1.397521
+  type: 'test'
+  ...
+# Subtest: closed profile rejects malformed JSX before producing executable artifacts
+ok 137 - closed profile rejects malformed JSX before producing executable artifacts
+  ---
+  duration_ms: 0.742432
+  type: 'test'
+  ...
+# Subtest: unsupported syntax versions and source extensions fail explicitly
+ok 138 - unsupported syntax versions and source extensions fail explicitly
+  ---
+  duration_ms: 1.087586
+  type: 'test'
+  ...
+# Subtest: diagnostics retain RMTX URI and point at the offending original expression
+ok 139 - diagnostics retain RMTX URI and point at the offending original expression
+  ---
+  duration_ms: 0.430296
+  type: 'test'
+  ...
+# Subtest: factory defaults preserve frontend profile and unsupported authoring runtime execution fails
+ok 140 - factory defaults preserve frontend profile and unsupported authoring runtime execution fails
+  ---
+  duration_ms: 1.32709
+  type: 'test'
+  ...
+# Subtest: explicit profile3 has own result and source contracts while defaults and profile2 retain their data shapes
+ok 141 - explicit profile3 has own result and source contracts while defaults and profile2 retain their data shapes
+  ---
+  duration_ms: 18.916626
+  type: 'test'
+  ...
+# Subtest: nested source scopes flatten only static AST hosts and project into the existing validated v3 binding
+ok 142 - nested source scopes flatten only static AST hosts and project into the existing validated v3 binding
+  ---
+  duration_ms: 20.647962
+  type: 'test'
+  ...
+# Subtest: source key tuples retain identity through reorder and presence removes exactly the selected typed row
+ok 143 - source key tuples retain identity through reorder and presence removes exactly the selected typed row
+  ---
+  duration_ms: 6.541429
+  type: 'test'
+  ...
+# Subtest: empty root and nested collections retain declared scopes without inventing runtime hosts
+ok 144 - empty root and nested collections retain declared scopes without inventing runtime hosts
+  ---
+  duration_ms: 6.871654
+  type: 'test'
+  ...
+# Subtest: matching existing sidecar scopes are accepted independently of object member order; conflicts are rejected
+ok 145 - matching existing sidecar scopes are accepted independently of object member order; conflicts are rejected
+  ---
+  duration_ms: 11.201319
+  type: 'test'
+  ...
+# Subtest: scoped host syntax cannot silently compile without its binding or with another artifact version
+ok 146 - scoped host syntax cannot silently compile without its binding or with another artifact version
+  ---
+  duration_ms: 13.22368
+  type: 'test'
+  ...
+# Subtest: initial invalid keys, duplicate siblings, and non-boolean presence clear every executable artifact
+ok 147 - initial invalid keys, duplicate siblings, and non-boolean presence clear every executable artifact
+  ---
+  duration_ms: 18.180105
+  type: 'test'
+  ...
+# Subtest: typed zero keys remain valid and unsafe sidecar values cannot be erased by a projection clone
+ok 148 - typed zero keys remain valid and unsafe sidecar values cannot be erased by a projection clone
+  ---
+  duration_ms: 7.348491
+  type: 'test'
+  ...
+# Subtest: Model-root resolution uses the longest declared symbol in scope and presence paths
+ok 149 - Model-root resolution uses the longest declared symbol in scope and presence paths
+  ---
+  duration_ms: 0.997825
+  type: 'test'
+  ...
+# Subtest: closed source scopes reject missing key
+ok 150 - closed source scopes reject missing key
+  ---
+  duration_ms: 1.004736
+  type: 'test'
+  ...
+# Subtest: closed source scopes reject computed key
+ok 151 - closed source scopes reject computed key
+  ---
+  duration_ms: 0.808282
+  type: 'test'
+  ...
+# Subtest: closed source scopes reject index key
+ok 152 - closed source scopes reject index key
+  ---
+  duration_ms: 0.64353
+  type: 'test'
+  ...
+# Subtest: closed source scopes reject whole item key
+ok 153 - closed source scopes reject whole item key
+  ---
+  duration_ms: 0.588479
+  type: 'test'
+  ...
+# Subtest: closed source scopes reject optional key
+ok 154 - closed source scopes reject optional key
+  ---
+  duration_ms: 0.723921
+  type: 'test'
+  ...
+# Subtest: closed source scopes reject unsafe key
+ok 155 - closed source scopes reject unsafe key
+  ---
+  duration_ms: 0.576119
+  type: 'test'
+  ...
+# Subtest: closed source scopes reject root item scope
+ok 156 - closed source scopes reject root item scope
+  ---
+  duration_ms: 0.64684
+  type: 'test'
+  ...
+# Subtest: closed source scopes reject nested Model scope
+ok 157 - closed source scopes reject nested Model scope
+  ---
+  duration_ms: 0.818723
+  type: 'test'
+  ...
+# Subtest: closed source scopes reject unknown state
+ok 158 - closed source scopes reject unknown state
+  ---
+  duration_ms: 0.556949
+  type: 'test'
+  ...
+# Subtest: closed source scopes reject presence call
+ok 159 - closed source scopes reject presence call
+  ---
+  duration_ms: 0.914514
+  type: 'test'
+  ...
+# Subtest: closed source scopes reject presence comparison
+ok 160 - closed source scopes reject presence comparison
+  ---
+  duration_ms: 0.813013
+  type: 'test'
+  ...
+# Subtest: closed source scopes reject presence input
+ok 161 - closed source scopes reject presence input
+  ---
+  duration_ms: 0.583429
+  type: 'test'
+  ...
+# Subtest: closed source scopes reject native key attribute
+ok 162 - closed source scopes reject native key attribute
+  ---
+  duration_ms: 0.576659
+  type: 'test'
+  ...
+# Subtest: v1/v2 reject all new operators and fields instead of dropping orchestration
+ok 163 - v1/v2 reject all new operators and fields instead of dropping orchestration
+  ---
+  duration_ms: 0.879963
+  type: 'test'
+  ...
+# Subtest: source-scoped parser errors retain original document URI and offending range
+ok 164 - source-scoped parser errors retain original document URI and offending range
+  ---
+  duration_ms: 0.686301
+  type: 'test'
+  ...
+# Subtest: On.when uses actual event routing and reads live Model before dispatch
+ok 165 - On.when uses actual event routing and reads live Model before dispatch
+  ---
+  duration_ms: 13.138658
+  type: 'test'
+  ...
+# Subtest: On condition rejects model.absent.ready === true
+ok 166 - On condition rejects model.absent.ready === true
+  ---
+  duration_ms: 0.746701
+  type: 'test'
+  ...
+# Subtest: On condition rejects item.ready === true
+ok 167 - On condition rejects item.ready === true
+  ---
+  duration_ms: 0.485947
+  type: 'test'
+  ...
+# Subtest: On condition rejects input.ready === true
+ok 168 - On condition rejects input.ready === true
+  ---
+  duration_ms: 0.458187
+  type: 'test'
+  ...
+# Subtest: On condition rejects model.app.ready
+ok 169 - On condition rejects model.app.ready
+  ---
+  duration_ms: 0.414887
+  type: 'test'
+  ...
+# Subtest: On condition rejects model.app.count == 2
+ok 170 - On condition rejects model.app.count == 2
+  ---
+  duration_ms: 0.586959
+  type: 'test'
+  ...
+# Subtest: On condition rejects !model.app.ready
+ok 171 - On condition rejects !model.app.ready
+  ---
+  duration_ms: 0.481287
+  type: 'test'
+  ...
+# Subtest: On condition rejects contains(model.app.ready, "true")
+ok 172 - On condition rejects contains(model.app.ready, "true")
+  ---
+  duration_ms: 0.512468
+  type: 'test'
+  ...
+# Subtest: unsupported Lifecycle conditions cannot appear as successful ignored guards
+ok 173 - unsupported Lifecycle conditions cannot appear as successful ignored guards
+  ---
+  duration_ms: 0.384956
+  type: 'test'
+  ...
+# Subtest: On rejects invalid payload map {}
+ok 174 - On rejects invalid payload map {}
+  ---
+  duration_ms: 0.507198
+  type: 'test'
+  ...
+# Subtest: On rejects invalid payload map {id: 1}
+ok 175 - On rejects invalid payload map {id: 1}
+  ---
+  duration_ms: 1.29383
+  type: 'test'
+  ...
+# Subtest: On rejects invalid payload map {id: "detail.constructor"}
+ok 176 - On rejects invalid payload map {id: "detail.constructor"}
+  ---
+  duration_ms: 0.462807
+  type: 'test'
+  ...
+# Subtest: On rejects invalid payload map {id: "global.secret"}
+ok 177 - On rejects invalid payload map {id: "global.secret"}
+  ---
+  duration_ms: 0.418576
+  type: 'test'
+  ...
+# Subtest: On rejects invalid payload map {id: "detail[0]"}
+ok 178 - On rejects invalid payload map {id: "detail[0]"}
+  ---
+  duration_ms: 0.468087
+  type: 'test'
+  ...
+# Subtest: source presence outside repeats projects a strictly boolean root Model path
+ok 179 - source presence outside repeats projects a strictly boolean root Model path
+  ---
+  duration_ms: 2.779532
+  type: 'test'
+  ...
+# Subtest: public profile3 types preserve distinct legacy results and accurately expose source scopes and dependencies
+ok 180 - public profile3 types preserve distinct legacy results and accurately expose source scopes and dependencies
+  ---
+  duration_ms: 1002.191025
+  type: 'test'
+  ...
+# Subtest: On payload fields must exactly match the declared Action inputs
+ok 181 - On payload fields must exactly match the declared Action inputs
+  ---
+  duration_ms: 2.256454
+  type: 'test'
+  ...
+# Subtest: scoped XTension templates cannot bypass provider intents through native On bindings
+ok 182 - scoped XTension templates cannot bypass provider intents through native On bindings
+  ---
+  duration_ms: 1.003465
+  type: 'test'
+  ...
+# Subtest: inline declarations produce pinned manifests and bindings without host sidecars
+ok 183 - inline declarations produce pinned manifests and bindings without host sidecars
+  ---
+  duration_ms: 1433.339008
+  type: 'test'
+  ...
+# Subtest: props readsets include all conditional branches and transitive selector state reads
+ok 184 - props readsets include all conditional branches and transitive selector state reads
+  ---
+  duration_ms: 15.821178
+  type: 'test'
+  ...
+# Subtest: inline source rejects unsupported capabilities, expressions and ownership before build
+ok 185 - inline source rejects unsupported capabilities, expressions and ownership before build
+  ---
+  duration_ms: 108.926234
+  type: 'test'
+  ...
+# Subtest: Maraca captures exact provider bytes and reparses actual source before authorizing inline hosts
+ok 186 - Maraca captures exact provider bytes and reparses actual source before authorizing inline hosts
+  ---
+  duration_ms: 79.366937
+  type: 'test'
+  ...
+# Subtest: pinned source registries require the new config and frontend profile
+ok 187 - pinned source registries require the new config and frontend profile
+  ---
+  duration_ms: 20.430318
+  type: 'test'
+  ...
+# Subtest: Source6 composes explicit Action4/View5 and lowers a guard through the exact unchanged Classic AST mapping
+ok 188 - Source6 composes explicit Action4/View5 and lowers a guard through the exact unchanged Classic AST mapping
+  ---
+  duration_ms: 66.097277
+  type: 'test'
+  ...
+# Subtest: Lifecycle reads retain every branch, longest declared Model prefix and transitive Selector State reads
+ok 189 - Lifecycle reads retain every branch, longest declared Model prefix and transitive Selector State reads
+  ---
+  duration_ms: 12.394327
+  type: 'test'
+  ...
+# Subtest: Static independent owners have distinct operation identities; unguarded Source6 has an explicit empty lifecycle plan
+ok 190 - Static independent owners have distinct operation identities; unguarded Source6 has an explicit empty lifecycle plan
+  ---
+  duration_ms: 19.767528
+  type: 'test'
+  ...
+# Subtest: Source6 rejects unsupported guard: nonboolean literal
+ok 191 - Source6 rejects unsupported guard: nonboolean literal
+  ---
+  duration_ms: 1.966789
+  type: 'test'
+  ...
+# Subtest: Source6 rejects unsupported guard: string literal
+ok 192 - Source6 rejects unsupported guard: string literal
+  ---
+  duration_ms: 1.99471
+  type: 'test'
+  ...
+# Subtest: Source6 rejects unsupported guard: array
+ok 193 - Source6 rejects unsupported guard: array
+  ---
+  duration_ms: 1.868818
+  type: 'test'
+  ...
+# Subtest: Source6 rejects unsupported guard: object
+ok 194 - Source6 rejects unsupported guard: object
+  ---
+  duration_ms: 2.714161
+  type: 'test'
+  ...
+# Subtest: Source6 rejects unsupported guard: computed path
+ok 195 - Source6 rejects unsupported guard: computed path
+  ---
+  duration_ms: 1.33112
+  type: 'test'
+  ...
+# Subtest: Source6 rejects unsupported guard: optional path
+ok 196 - Source6 rejects unsupported guard: optional path
+  ---
+  duration_ms: 1.32784
+  type: 'test'
+  ...
+# Subtest: Source6 rejects unsupported guard: method call
+ok 197 - Source6 rejects unsupported guard: method call
+  ---
+  duration_ms: 1.551193
+  type: 'test'
+  ...
+# Subtest: Source6 rejects unsupported guard: unknown model
+ok 198 - Source6 rejects unsupported guard: unknown model
+  ---
+  duration_ms: 0.954365
+  type: 'test'
+  ...
+# Subtest: Source6 rejects unsupported guard: unknown selector
+ok 199 - Source6 rejects unsupported guard: unknown selector
+  ---
+  duration_ms: 0.939105
+  type: 'test'
+  ...
+# Subtest: Source6 rejects unsupported guard: item scope
+ok 200 - Source6 rejects unsupported guard: item scope
+  ---
+  duration_ms: 0.893354
+  type: 'test'
+  ...
+# Subtest: Source6 rejects unsupported guard: Action input
+ok 201 - Source6 rejects unsupported guard: Action input
+  ---
+  duration_ms: 0.870743
+  type: 'test'
+  ...
+# Subtest: Source6 rejects unsupported guard: negative zero
+ok 202 - Source6 rejects unsupported guard: negative zero
+  ---
+  duration_ms: 1.34758
+  type: 'test'
+  ...
+# Subtest: Source6 rejects unsupported guard: loose equality
+ok 203 - Source6 rejects unsupported guard: loose equality
+  ---
+  duration_ms: 0.907723
+  type: 'test'
+  ...
+# Subtest: Source6 rejects unsupported lifecycle placement: different target
+ok 204 - Source6 rejects unsupported lifecycle placement: different target
+  ---
+  duration_ms: 0.849253
+  type: 'test'
+  ...
+# Subtest: Source6 rejects unsupported lifecycle placement: missing native View
+ok 205 - Source6 rejects unsupported lifecycle placement: missing native View
+  ---
+  duration_ms: 1.009555
+  type: 'test'
+  ...
+# Subtest: Source6 rejects unsupported lifecycle placement: multiple guarded Mounts
+ok 206 - Source6 rejects unsupported lifecycle placement: multiple guarded Mounts
+  ---
+  duration_ms: 1.118467
+  type: 'test'
+  ...
+# Subtest: Source6 rejects unsupported lifecycle placement: idle lane
+ok 207 - Source6 rejects unsupported lifecycle placement: idle lane
+  ---
+  duration_ms: 1.019816
+  type: 'test'
+  ...
+# Subtest: Source6 rejects unsupported lifecycle placement: user-blocking lane
+ok 208 - Source6 rejects unsupported lifecycle placement: user-blocking lane
+  ---
+  duration_ms: 0.874643
+  type: 'test'
+  ...
+# Subtest: Source6 rejects unsupported lifecycle placement: Source child
+ok 209 - Source6 rejects unsupported lifecycle placement: Source child
+  ---
+  duration_ms: 0.71118
+  type: 'test'
+  ...
+# Subtest: Source6 rejects unsupported lifecycle placement: Policy child
+ok 210 - Source6 rejects unsupported lifecycle placement: Policy child
+  ---
+  duration_ms: 0.719041
+  type: 'test'
+  ...
+# Subtest: Source6 rejects unsupported lifecycle placement: conditional host
+ok 211 - Source6 rejects unsupported lifecycle placement: conditional host
+  ---
+  duration_ms: 0.760532
+  type: 'test'
+  ...
+# Subtest: Source6 rejects unsupported lifecycle placement: repeated host
+ok 212 - Source6 rejects unsupported lifecycle placement: repeated host
+  ---
+  duration_ms: 0.804922
+  type: 'test'
+  ...
+# Subtest: Source6 rejects unsupported lifecycle placement: other lifecycle operation
+ok 213 - Source6 rejects unsupported lifecycle placement: other lifecycle operation
+  ---
+  duration_ms: 0.812853
+  type: 'test'
+  ...
+# Subtest: Source6 rejects unsupported lifecycle placement: nested Policy slot
+ok 214 - Source6 rejects unsupported lifecycle placement: nested Policy slot
+  ---
+  duration_ms: 1.360771
+  type: 'test'
+  ...
+# Subtest: Source1–5 reject guarded Mount while their operator profiles and View-only When keep their own meaning
+ok 215 - Source1–5 reject guarded Mount while their operator profiles and View-only When keep their own meaning
+  ---
+  duration_ms: 9.075887
+  type: 'test'
+  ...
+# Subtest: Backend rejects forged AST joins and altered operation semantics without a partial program
+ok 216 - Backend rejects forged AST joins and altered operation semantics without a partial program
+  ---
+  duration_ms: 17.034936
+  type: 'test'
+  ...
+# Subtest: Raw source contract accessors are rejected before they can execute and backend requires explicit subprofiles
+ok 217 - Raw source contract accessors are rejected before they can execute and backend requires explicit subprofiles
+  ---
+  duration_ms: 1.092617
+  type: 'test'
+  ...
+# Subtest: Maraca reparses productive v3 source scopes before revalidating the projected existing sidecar
+ok 218 - Maraca reparses productive v3 source scopes before revalidating the projected existing sidecar
+  ---
+  duration_ms: 1339.804684
+  type: 'test'
+  ...
+# Subtest: empty source collections remain valid host declarations with no materialized instances
+ok 219 - empty source collections remain valid host declarations with no materialized instances
+  ---
+  duration_ms: 14.249615
+  type: 'test'
+  ...
+# Subtest: forged callback parser scope metadata is ignored in favor of the actual source
+ok 220 - forged callback parser scope metadata is ignored in favor of the actual source
+  ---
+  duration_ms: 24.142904
+  type: 'test'
+  ...
+# Subtest: callback success cannot bypass source errors, absent bindings or contradictory source scopes
+ok 221 - callback success cannot bypass source errors, absent bindings or contradictory source scopes
+  ---
+  duration_ms: 26.296816
+  type: 'test'
+  ...
+# Subtest: matching source scopes are idempotent while final validation still rejects malformed keys and accessors
+ok 222 - matching source scopes are idempotent while final validation still rejects malformed keys and accessors
+  ---
+  duration_ms: 29.20568
+  type: 'test'
+  ...
+# Subtest: the source scope bridge requires both v3 result schema and v3 source profile
+ok 223 - the source scope bridge requires both v3 result schema and v3 source profile
+  ---
+  duration_ms: 51.587727
+  type: 'test'
+  ...
+# Subtest: profile3 without source host scopes does not require an invented binding sidecar
+ok 224 - profile3 without source host scopes does not require an invented binding sidecar
+  ---
+  duration_ms: 8.885044
+  type: 'test'
+  ...
+# Subtest: native On reaches the actual owning DOM surface, Action and Model while false guards precede payload mapping
+ok 225 - native On reaches the actual owning DOM surface, Action and Model while false guards precede payload mapping
+  ---
+  duration_ms: 560.613885
+  type: 'test'
+  ...
+# Subtest: RMTX builds a real Maraca plan through the explicit compiler port and existing XTension sidecar
+ok 226 - RMTX builds a real Maraca plan through the explicit compiler port and existing XTension sidecar
+  ---
+  duration_ms: 1378.137646
+  type: 'test'
+  ...
+# Subtest: Maraca preserves the injected frontend result schema when it revalidates a binding sidecar
+ok 227 - Maraca preserves the injected frontend result schema when it revalidates a binding sidecar
+  ---
+  duration_ms: 18.477668
+  type: 'test'
+  ...
+# Subtest: bad RMTX syntax and invalid XTension bindings block the plan before runtime work
+ok 228 - bad RMTX syntax and invalid XTension bindings block the plan before runtime work
+  ---
+  duration_ms: 13.543443
+  type: 'test'
+  ...
+# Subtest: Classic defaults remain Classic and an extension does not silently select a different compiler
+ok 229 - Classic defaults remain Classic and an extension does not silently select a different compiler
+  ---
+  duration_ms: 7.831597
+  type: 'test'
+  ...
+# Subtest: actual root and compiler tarballs expose typed RMTX entrypoints and declare their parser dependency
+ok 230 - actual root and compiler tarballs expose typed RMTX entrypoints and declare their parser dependency
+  ---
+  duration_ms: 49267.689117
+  type: 'test'
+  ...
+# Subtest: packed frontend declarations accept the existing Maraca compiler port in both public packages
+ok 231 - packed frontend declarations accept the existing Maraca compiler port in both public packages
+  ---
+  duration_ms: 635.650407
+  type: 'test'
+  ...
+# Subtest: separate actual Root/compiler/Maraca tarballs share genuine project sessions in both directions
+ok 232 - separate actual Root/compiler/Maraca tarballs share genuine project sessions in both directions
+  ---
+  duration_ms: 3162.293821
+  type: 'test'
+  ...
+# Subtest: generated RMTX dependency closure runs the actual packed standalone CLI without checkout fallbacks
+ok 233 - generated RMTX dependency closure runs the actual packed standalone CLI without checkout fallbacks
+  ---
+  duration_ms: 1629.541929
+  type: 'test'
+  ...
+# Subtest: the compiler tarball alone carries the complete opt-in Source4 frontend and input contracts
+ok 234 - the compiler tarball alone carries the complete opt-in Source4 frontend and input contracts
+  ---
+  duration_ms: 73.163922
+  type: 'test'
+  ...
+# Subtest: the actual Maraca tarball builds Source4 Plan8 through the explicit packed compiler port
+ok 235 - the actual Maraca tarball builds Source4 Plan8 through the explicit packed compiler port
+  ---
+  duration_ms: 36.048118
+  type: 'test'
+  ...
+# Subtest: packed Source4 and standalone Maraca declarations preserve legacy results and discriminate opt-in types
+ok 236 - packed Source4 and standalone Maraca declarations preserve legacy results and discriminate opt-in types
+  ---
+  duration_ms: 1196.679711
+  type: 'test'
+  ...
+# Subtest: the compiler tarball alone includes Source5 native lowering, the projector and shared typed-key engine
+ok 237 - the compiler tarball alone includes Source5 native lowering, the projector and shared typed-key engine
+  ---
+  duration_ms: 78.764433
+  type: 'test'
+  ...
+# Subtest: actual standalone Maraca and compiler tarballs compile Source5 native-only plan9 without sidecars
+ok 238 - actual standalone Maraca and compiler tarballs compile Source5 native-only plan9 without sidecars
+  ---
+  duration_ms: 25.914739
+  type: 'test'
+  ...
+# Subtest: packed Source5 native URL/browser/composition types are strict and preserve the Source4 namespace
+ok 239 - packed Source5 native URL/browser/composition types are strict and preserve the Source4 namespace
+  ---
+  duration_ms: 1308.806592
+  type: 'test'
+  ...
+# Subtest: actual packed Source6 compiler and Maraca retain explicit lifecycle plan and public entrypoints
+ok 240 - actual packed Source6 compiler and Maraca retain explicit lifecycle plan and public entrypoints
+  ---
+  duration_ms: 69.139442
+  type: 'test'
+  ...
+# Subtest: packed Source6 declarations reject older projection and runtime capabilities
+ok 241 - packed Source6 declarations reject older projection and runtime capabilities
+  ---
+  duration_ms: 1175.848224
+  type: 'test'
+  ...
+# Subtest: Source7 is explicit and preserves the closed Source6 operator catalog
+ok 242 - Source7 is explicit and preserves the closed Source6 operator catalog
+  ---
+  duration_ms: 16.44258
+  type: 'test'
+  ...
+# Subtest: Source7 captures all ten own-Surface lifecycle commands with exact repeat and lane context
+ok 243 - Source7 captures all ten own-Surface lifecycle commands with exact repeat and lane context
+  ---
+  duration_ms: 20.353178
+  type: 'test'
+  ...
+# Subtest: Native Surface repeats share one Header2 authority and extend stable typed item scopes
+ok 244 - Native Surface repeats share one Header2 authority and extend stable typed item scopes
+  ---
+  duration_ms: 8.806038
+  type: 'test'
+  ...
+# Subtest: Public controls capture shipped metadata; named/default slots remain explicit native nodes
+ok 245 - Public controls capture shipped metadata; named/default slots remain explicit native nodes
+  ---
+  duration_ms: 21.390813
+  type: 'test'
+  ...
+# Subtest: Captured metadata cannot be supplied or widened by a callsite and empty captures need no library lookup
+ok 246 - Captured metadata cannot be supplied or widened by a callsite and empty captures need no library lookup
+  ---
+  duration_ms: 9.62136
+  type: 'test'
+  ...
+# Subtest: Source7 allows nested native shell scopes and keeps provider roots exclusive
+ok 247 - Source7 allows nested native shell scopes and keeps provider roots exclusive
+  ---
+  duration_ms: 1.968119
+  type: 'test'
+  ...
+# Subtest: Complete Source7 backend emits Program5, Header2, plan2 and trusted native event-key joins
+ok 248 - Complete Source7 backend emits Program5, Header2, plan2 and trusted native event-key joins
+  ---
+  duration_ms: 42.733915
+  type: 'test'
+  ...
+# Subtest: Public component field whitelists retain global sink and raw slot defenses
+ok 249 - Public component field whitelists retain global sink and raw slot defenses
+  ---
+  duration_ms: 16.753015
+  type: 'test'
+  ...
+# Subtest: Captured component source bytes and realpath containment are checked before build execution
+ok 250 - Captured component source bytes and realpath containment are checked before build execution
+  ---
+  duration_ms: 1.187057
+  type: 'test'
+  ...
+# Subtest: Shipped x-header receives direct native slotted elements in source order without universal wrappers
+ok 251 - Shipped x-header receives direct native slotted elements in source order without universal wrappers
+  ---
+  duration_ms: 867.31314
+  type: 'test'
+  ...
+# Subtest: Lexical nested native Surfaces lower to legal flat Classic AST1 with Header2 parent authority
+ok 252 - Lexical nested native Surfaces lower to legal flat Classic AST1 with Header2 parent authority
+  ---
+  duration_ms: 16.049305
+  type: 'test'
+  ...
+# Subtest: Source7 CSR lifecycle commands never infer legacy SSR resume or duplicate hydration work
+ok 253 - Source7 CSR lifecycle commands never infer legacy SSR resume or duplicate hydration work
+  ---
+  duration_ms: 17.161111
+  type: 'test'
+  ...
+# Subtest: Source7 native Views without authored Mount desugar a real CSR default through AST1, source-map and Kernel
+ok 254 - Source7 native Views without authored Mount desugar a real CSR default through AST1, source-map and Kernel
+  ---
+  duration_ms: 12.755396
+  type: 'test'
+  ...
+# Subtest: Source7 default Mount keeps nested typed repeat scopes and preserves explicit false admission
+ok 255 - Source7 default Mount keeps nested typed repeat scopes and preserves explicit false admission
+  ---
+  duration_ms: 47.811669
+  type: 'test'
+  ...
+# Subtest: Source7 public control capture excludes existing light-DOM writers and authored host/slot portals
+ok 256 - Source7 public control capture excludes existing light-DOM writers and authored host/slot portals
+  ---
+  duration_ms: 2.932953
+  type: 'test'
+  ...
+# Subtest: Source7 component capability capture is an exact reviewed subset with no inherited/data/ARIA fallthrough
+ok 257 - Source7 component capability capture is an exact reviewed subset with no inherited/data/ARIA fallthrough
+  ---
+  duration_ms: 34.522674
+  type: 'test'
+  ...
+# Subtest: a default native Header cannot clear another body modality lease while legacy modal Headers retain their own behavior
+ok 258 - a default native Header cannot clear another body modality lease while legacy modal Headers retain their own behavior
+  ---
+  duration_ms: 180.095922
+  type: 'test'
+  ...
+# Subtest: source5 is explicit, carries its native contract and names the unchanged Action subprofile
+ok 259 - source5 is explicit, carries its native contract and names the unchanged Action subprofile
+  ---
+  duration_ms: 65.385766
+  type: 'test'
+  ...
+# Subtest: source5 fixes implicit Surface kind and component without rewriting source4 defaults
+ok 260 - source5 fixes implicit Surface kind and component without rewriting source4 defaults
+  ---
+  duration_ms: 9.928285
+  type: 'test'
+  ...
+# Subtest: Source5 preserves ordinary zero through State, Action defaults and native scalar serialization
+ok 261 - Source5 preserves ordinary zero through State, Action defaults and native scalar serialization
+  ---
+  duration_ms: 8.18391
+  type: 'test'
+  ...
+# Subtest: Source5 rejects negative zero in initial typed key before JSON erases its sign
+ok 262 - Source5 rejects negative zero in initial typed key before JSON erases its sign
+  ---
+  duration_ms: 1.737816
+  type: 'test'
+  ...
+# Subtest: Source5 rejects negative zero in Action default before JSON erases its sign
+ok 263 - Source5 rejects negative zero in Action default before JSON erases its sign
+  ---
+  duration_ms: 1.38882
+  type: 'test'
+  ...
+# Subtest: Source5 rejects negative zero in native text before JSON erases its sign
+ok 264 - Source5 rejects negative zero in native text before JSON erases its sign
+  ---
+  duration_ms: 1.337549
+  type: 'test'
+  ...
+# Subtest: Source5 rejects negative zero in parenthesized native text before JSON erases its sign
+ok 265 - Source5 rejects negative zero in parenthesized native text before JSON erases its sign
+  ---
+  duration_ms: 1.752446
+  type: 'test'
+  ...
+# Subtest: Source5 rejects negative zero in native attribute before JSON erases its sign
+ok 266 - Source5 rejects negative zero in native attribute before JSON erases its sign
+  ---
+  duration_ms: 1.264208
+  type: 'test'
+  ...
+# Subtest: Source5 rejects negative zero in native property before JSON erases its sign
+ok 267 - Source5 rejects negative zero in native property before JSON erases its sign
+  ---
+  duration_ms: 1.134677
+  type: 'test'
+  ...
+# Subtest: Source5 rejects negative zero in nested initial underflow before JSON erases its sign
+ok 268 - Source5 rejects negative zero in nested initial underflow before JSON erases its sign
+  ---
+  duration_ms: 0.945043
+  type: 'test'
+  ...
+# Subtest: literal text and attribute spellings cannot turn into Model lookups or interpolation
+ok 269 - literal text and attribute spellings cannot turn into Model lookups or interpolation
+  ---
+  duration_ms: 8.469604
+  type: 'test'
+  ...
+# Subtest: native property DOM ids use the canonical static Portal target before Surface composition
+ok 270 - native property DOM ids use the canonical static Portal target before Surface composition
+  ---
+  duration_ms: 7.102234
+  type: 'test'
+  ...
+# Subtest: a null property DOM id is canonicalized without inventing a static target
+ok 271 - a null property DOM id is canonicalized without inventing a static target
+  ---
+  duration_ms: 4.829841
+  type: 'test'
+  ...
+# Subtest: native DOM identity rejects two source id sinks ("same", "same")
+ok 272 - native DOM identity rejects two source id sinks ("same", "same")
+  ---
+  duration_ms: 1.631013
+  type: 'test'
+  ...
+# Subtest: native DOM identity rejects two source id sinks ("one", "two")
+ok 273 - native DOM identity rejects two source id sinks ("one", "two")
+  ---
+  duration_ms: 0.850832
+  type: 'test'
+  ...
+# Subtest: native DOM identity rejects two source id sinks (null, "target")
+ok 274 - native DOM identity rejects two source id sinks (null, "target")
+  ---
+  duration_ms: 0.798461
+  type: 'test'
+  ...
+# Subtest: native DOM identity rejects two source id sinks ("target", null)
+ok 275 - native DOM identity rejects two source id sinks ("target", null)
+  ---
+  duration_ms: 1.439201
+  type: 'test'
+  ...
+# Subtest: native DOM identity rejects two source id sinks (null, null)
+ok 276 - native DOM identity rejects two source id sinks (null, null)
+  ---
+  duration_ms: 0.883933
+  type: 'test'
+  ...
+# Subtest: nested native repeats retain the complete typed parent-key scope and structural declarations
+ok 277 - nested native repeats retain the complete typed parent-key scope and structural declarations
+  ---
+  duration_ms: 5.788664
+  type: 'test'
+  ...
+# Subtest: native readsets include selectors, all conditional branches, keys and transitive State reads
+ok 278 - native readsets include selectors, all conditional branches, keys and transitive State reads
+  ---
+  duration_ms: 6.035308
+  type: 'test'
+  ...
+# Subtest: canonical lowering rejects forged scope markers and foreign Model symbols
+ok 279 - canonical lowering rejects forged scope markers and foreign Model symbols
+  ---
+  duration_ms: 1.954568
+  type: 'test'
+  ...
+# Subtest: Source5 rejects unqualified HTML before producing runtime artifacts
+ok 280 - Source5 rejects unqualified HTML before producing runtime artifacts
+  ---
+  duration_ms: 0.7309
+  type: 'test'
+  ...
+# Subtest: Source5 rejects free JSX expression before producing runtime artifacts
+ok 281 - Source5 rejects free JSX expression before producing runtime artifacts
+  ---
+  duration_ms: 0.72594
+  type: 'test'
+  ...
+# Subtest: Source5 rejects raw native text before producing runtime artifacts
+ok 282 - Source5 rejects raw native text before producing runtime artifacts
+  ---
+  duration_ms: 1.470561
+  type: 'test'
+  ...
+# Subtest: Source5 rejects event handler child before producing runtime artifacts
+ok 283 - Source5 rejects event handler child before producing runtime artifacts
+  ---
+  duration_ms: 0.73446
+  type: 'test'
+  ...
+# Subtest: Source5 rejects provider child before producing runtime artifacts
+ok 284 - Source5 rejects provider child before producing runtime artifacts
+  ---
+  duration_ms: 0.786951
+  type: 'test'
+  ...
+# Subtest: Source5 rejects Surface child before producing runtime artifacts
+ok 285 - Source5 rejects Surface child before producing runtime artifacts
+  ---
+  duration_ms: 0.654359
+  type: 'test'
+  ...
+# Subtest: Source5 rejects unknown View field before producing runtime artifacts
+ok 286 - Source5 rejects unknown View field before producing runtime artifacts
+  ---
+  duration_ms: 0.71141
+  type: 'test'
+  ...
+# Subtest: Source5 rejects duplicate View before producing runtime artifacts
+ok 287 - Source5 rejects duplicate View before producing runtime artifacts
+  ---
+  duration_ms: 0.557128
+  type: 'test'
+  ...
+# Subtest: Source5 rejects View outside Surface before producing runtime artifacts
+ok 288 - Source5 rejects View outside Surface before producing runtime artifacts
+  ---
+  duration_ms: 0.623799
+  type: 'test'
+  ...
+# Subtest: Source5 rejects View on repeated host before producing runtime artifacts
+ok 289 - Source5 rejects View on repeated host before producing runtime artifacts
+  ---
+  duration_ms: 0.65346
+  type: 'test'
+  ...
+# Subtest: Source5 rejects View on provider host before producing runtime artifacts
+ok 290 - Source5 rejects View on provider host before producing runtime artifacts
+  ---
+  duration_ms: 0.628879
+  type: 'test'
+  ...
+# Subtest: Source5 rejects View on conditional host before producing runtime artifacts
+ok 291 - Source5 rejects View on conditional host before producing runtime artifacts
+  ---
+  duration_ms: 0.625129
+  type: 'test'
+  ...
+# Subtest: Source5 rejects unsafe Surface kind before producing runtime artifacts
+ok 292 - Source5 rejects unsafe Surface kind before producing runtime artifacts
+  ---
+  duration_ms: 0.516457
+  type: 'test'
+  ...
+# Subtest: Source5 rejects unsafe Surface wrapper style before producing runtime artifacts
+ok 293 - Source5 rejects unsafe Surface wrapper style before producing runtime artifacts
+  ---
+  duration_ms: 0.845152
+  type: 'test'
+  ...
+# Subtest: Source5 rejects unsafe Surface wrapper script before producing runtime artifacts
+ok 294 - Source5 rejects unsafe Surface wrapper script before producing runtime artifacts
+  ---
+  duration_ms: 0.516488
+  type: 'test'
+  ...
+# Subtest: Source5 rejects unsafe Surface wrapper svg before producing runtime artifacts
+ok 295 - Source5 rejects unsafe Surface wrapper svg before producing runtime artifacts
+  ---
+  duration_ms: 0.498108
+  type: 'test'
+  ...
+# Subtest: Source5 rejects unsafe Surface wrapper template before producing runtime artifacts
+ok 296 - Source5 rejects unsafe Surface wrapper template before producing runtime artifacts
+  ---
+  duration_ms: 0.600859
+  type: 'test'
+  ...
+# Subtest: Source5 rejects unsafe Surface wrapper iframe before producing runtime artifacts
+ok 297 - Source5 rejects unsafe Surface wrapper iframe before producing runtime artifacts
+  ---
+  duration_ms: 0.652439
+  type: 'test'
+  ...
+# Subtest: Source5 rejects unsafe Surface wrapper unknown before producing runtime artifacts
+ok 298 - Source5 rejects unsafe Surface wrapper unknown before producing runtime artifacts
+  ---
+  duration_ms: 0.73745
+  type: 'test'
+  ...
+# Subtest: Source5 rejects unsafe Surface wrapper x-custom before producing runtime artifacts
+ok 299 - Source5 rejects unsafe Surface wrapper x-custom before producing runtime artifacts
+  ---
+  duration_ms: 0.625609
+  type: 'test'
+  ...
+# Subtest: Source5 rejects script before producing runtime artifacts
+ok 300 - Source5 rejects script before producing runtime artifacts
+  ---
+  duration_ms: 0.549088
+  type: 'test'
+  ...
+# Subtest: Source5 rejects style before producing runtime artifacts
+ok 301 - Source5 rejects style before producing runtime artifacts
+  ---
+  duration_ms: 0.531108
+  type: 'test'
+  ...
+# Subtest: Source5 rejects custom unregistered element before producing runtime artifacts
+ok 302 - Source5 rejects custom unregistered element before producing runtime artifacts
+  ---
+  duration_ms: 0.68316
+  type: 'test'
+  ...
+# Subtest: Source5 rejects void children before producing runtime artifacts
+ok 303 - Source5 rejects void children before producing runtime artifacts
+  ---
+  duration_ms: 0.595619
+  type: 'test'
+  ...
+# Subtest: Source5 rejects unknown native property before producing runtime artifacts
+ok 304 - Source5 rejects unknown native property before producing runtime artifacts
+  ---
+  duration_ms: 0.63224
+  type: 'test'
+  ...
+# Subtest: Source5 rejects event attribute before producing runtime artifacts
+ok 305 - Source5 rejects event attribute before producing runtime artifacts
+  ---
+  duration_ms: 0.652
+  type: 'test'
+  ...
+# Subtest: Source5 rejects inline style before producing runtime artifacts
+ok 306 - Source5 rejects inline style before producing runtime artifacts
+  ---
+  duration_ms: 0.650909
+  type: 'test'
+  ...
+# Subtest: Source5 rejects internal identity attribute before producing runtime artifacts
+ok 307 - Source5 rejects internal identity attribute before producing runtime artifacts
+  ---
+  duration_ms: 0.600749
+  type: 'test'
+  ...
+# Subtest: Source5 rejects internal transition attribute before producing runtime artifacts
+ok 308 - Source5 rejects internal transition attribute before producing runtime artifacts
+  ---
+  duration_ms: 0.560458
+  type: 'test'
+  ...
+# Subtest: Source5 rejects dynamic attributes object before producing runtime artifacts
+ok 309 - Source5 rejects dynamic attributes object before producing runtime artifacts
+  ---
+  duration_ms: 0.511787
+  type: 'test'
+  ...
+# Subtest: Source5 rejects object text before producing runtime artifacts
+ok 310 - Source5 rejects object text before producing runtime artifacts
+  ---
+  duration_ms: 0.72536
+  type: 'test'
+  ...
+# Subtest: Source5 rejects array property before producing runtime artifacts
+ok 311 - Source5 rejects array property before producing runtime artifacts
+  ---
+  duration_ms: 0.935283
+  type: 'test'
+  ...
+# Subtest: Source5 rejects numeric condition before producing runtime artifacts
+ok 312 - Source5 rejects numeric condition before producing runtime artifacts
+  ---
+  duration_ms: 0.642249
+  type: 'test'
+  ...
+# Subtest: Source5 rejects missing item scope before producing runtime artifacts
+ok 313 - Source5 rejects missing item scope before producing runtime artifacts
+  ---
+  duration_ms: 0.494878
+  type: 'test'
+  ...
+# Subtest: Source5 rejects unknown Model before producing runtime artifacts
+ok 314 - Source5 rejects unknown Model before producing runtime artifacts
+  ---
+  duration_ms: 0.522028
+  type: 'test'
+  ...
+# Subtest: Source5 rejects computed path before producing runtime artifacts
+ok 315 - Source5 rejects computed path before producing runtime artifacts
+  ---
+  duration_ms: 0.867703
+  type: 'test'
+  ...
+# Subtest: Source5 rejects optional path before producing runtime artifacts
+ok 316 - Source5 rejects optional path before producing runtime artifacts
+  ---
+  duration_ms: 0.67074
+  type: 'test'
+  ...
+# Subtest: Source5 rejects call expression before producing runtime artifacts
+ok 317 - Source5 rejects call expression before producing runtime artifacts
+  ---
+  duration_ms: 1.189028
+  type: 'test'
+  ...
+# Subtest: Source5 rejects spread map before producing runtime artifacts
+ok 318 - Source5 rejects spread map before producing runtime artifacts
+  ---
+  duration_ms: 0.68119
+  type: 'test'
+  ...
+# Subtest: Source5 rejects missing native key before producing runtime artifacts
+ok 319 - Source5 rejects missing native key before producing runtime artifacts
+  ---
+  duration_ms: 0.67465
+  type: 'test'
+  ...
+# Subtest: Source5 rejects empty native Repeat before producing runtime artifacts
+ok 320 - Source5 rejects empty native Repeat before producing runtime artifacts
+  ---
+  duration_ms: 0.645289
+  type: 'test'
+  ...
+# Subtest: Source5 rejects repeated DOM id before producing runtime artifacts
+ok 321 - Source5 rejects repeated DOM id before producing runtime artifacts
+  ---
+  duration_ms: 0.850412
+  type: 'test'
+  ...
+# Subtest: Source5 rejects dynamic DOM id before producing runtime artifacts
+ok 322 - Source5 rejects dynamic DOM id before producing runtime artifacts
+  ---
+  duration_ms: 2.236753
+  type: 'test'
+  ...
+# Subtest: Source5 rejects unsafe DOM id punctuation before producing runtime artifacts
+ok 323 - Source5 rejects unsafe DOM id punctuation before producing runtime artifacts
+  ---
+  duration_ms: 0.776042
+  type: 'test'
+  ...
+# Subtest: Source5 rejects native tags in host Repeat before producing runtime artifacts
+ok 324 - Source5 rejects native tags in host Repeat before producing runtime artifacts
+  ---
+  duration_ms: 0.607889
+  type: 'test'
+  ...
+# Subtest: closed native expressions cannot execute source code
+ok 325 - closed native expressions cannot execute source code
+  ---
+  duration_ms: 1.450342
+  type: 'test'
+  ...
+# Subtest: provider composition remains on the existing typed materializer in Source5
+ok 326 - provider composition remains on the existing typed materializer in Source5
+  ---
+  duration_ms: 31.014603
+  type: 'test'
+  ...
+# Subtest: default v1 contract retains exactly the original operators, imports and expression scopes
+ok 327 - default v1 contract retains exactly the original operators, imports and expression scopes
+  ---
+  duration_ms: 1.252958
+  type: 'test'
+  ...
+# Subtest: v2 declares selector admission, field rules and strict boolean semantics independently of v1
+ok 328 - v2 declares selector admission, field rules and strict boolean semantics independently of v1
+  ---
+  duration_ms: 0.278474
+  type: 'test'
+  ...
+# Subtest: new profile capability preserves exact v1 and v2 wire contracts
+ok 329 - new profile capability preserves exact v1 and v2 wire contracts
+  ---
+  duration_ms: 0.521198
+  type: 'test'
+  ...
+# Subtest: v3 closes host repeat, boolean presence and event conditions without enabling native repeat or Mount conditions
+ok 330 - v3 closes host repeat, boolean presence and event conditions without enabling native repeat or Mount conditions
+  ---
+  duration_ms: 0.317694
+  type: 'test'
+  ...
+# Subtest: profile records are immutable plain data and mutable clones cannot alter compiler contracts
+ok 331 - profile records are immutable plain data and mutable clones cannot alter compiler contracts
+  ---
+  duration_ms: 9.974916
+  type: 'test'
+  ...
+# Subtest: unsupported versions fail without coercing or executing supplied metadata
+ok 332 - unsupported versions fail without coercing or executing supplied metadata
+  ---
+  duration_ms: 0.426796
+  type: 'test'
+  ...
+# Subtest: catalog references remain coherent and do not claim dynamic tracking or runtime source execution
+ok 333 - catalog references remain coherent and do not claim dynamic tracking or runtime source execution
+  ---
+  duration_ms: 0.464417
+  type: 'test'
+  ...
+# Subtest: authoring names follow the v7 catalog and all operator/helper calls require compilation
+ok 334 - authoring names follow the v7 catalog and all operator/helper calls require compilation
+  ---
+  duration_ms: 0.761631
+  type: 'test'
+  ...
+# Subtest: strict authoring types reject unknown attributes and enums while preserving the named legacy type
+ok 335 - strict authoring types reject unknown attributes and enums while preserving the named legacy type
+  ---
+  duration_ms: 1221.94785
+  type: 'test'
+  ...
+# Subtest: profile4 publishes separate source, input, orchestration and event contracts
+ok 336 - profile4 publishes separate source, input, orchestration and event contracts
+  ---
+  duration_ms: 1354.893696
+  type: 'test'
+  ...
+# Subtest: the source4 ingress derives input rules from actual source rather than caller reports
+ok 337 - the source4 ingress derives input rules from actual source rather than caller reports
+  ---
+  duration_ms: 41.950342
+  type: 'test'
+  ...
+# Subtest: source4 factories preserve their default for undefined overrides and omit only optional Event inputs
+ok 338 - source4 factories preserve their default for undefined overrides and omit only optional Event inputs
+  ---
+  duration_ms: 13.790741
+  type: 'test'
+  ...
+# Subtest: closed reducer templates and source action helpers lower into the existing shared backend
+ok 339 - closed reducer templates and source action helpers lower into the existing shared backend
+  ---
+  duration_ms: 6.482225
+  type: 'test'
+  ...
+# Subtest: typed native ingress validates before DOM governance, Action execution and Model mutation
+ok 340 - typed native ingress validates before DOM governance, Action execution and Model mutation
+  ---
+  duration_ms: 614.990963
+  type: 'test'
+  ...
+# Subtest: closed action templates are executed by the real Model transaction path
+ok 341 - closed action templates are executed by the real Model transaction path
+  ---
+  duration_ms: 43.589416
+  type: 'test'
+  ...
+# Subtest: source4 dollar identifiers remain consistent across values, templates, handlers and the managed runtime
+ok 342 - source4 dollar identifiers remain consistent across values, templates, handlers and the managed runtime
+  ---
+  duration_ms: 46.504648
+  type: 'test'
+  ...
+# Subtest: source profile3 is additive without altering established Core, plan or factory ports
+ok 343 - source profile3 is additive without altering established Core, plan or factory ports
+  ---
+  duration_ms: 44.204105
+  type: 'test'
+  ...
+# Subtest: profile3 preserves strict plain metadata validation without running accessors
+ok 344 - profile3 preserves strict plain metadata validation without running accessors
+  ---
+  duration_ms: 3.877106
+  type: 'test'
+  ...
+# Subtest: profile3 emits a distinct dependency contract while profile2 retains its complete v1 data
+ok 345 - profile3 emits a distinct dependency contract while profile2 retains its complete v1 data
+  ---
+  duration_ms: 6.8811
+  type: 'test'
+  ...
+# Subtest: profile3 dependency reports retain empty programs, validation failures and metadata precedence
+ok 346 - profile3 dependency reports retain empty programs, validation failures and metadata precedence
+  ---
+  duration_ms: 4.657668
+  type: 'test'
+  ...
+# Subtest: unchanged compiled event guards read live Model values and fail closed for unavailable paths
+ok 347 - unchanged compiled event guards read live Model values and fail closed for unavailable paths
+  ---
+  duration_ms: 24.977154
+  type: 'test'
+  ...
+# Subtest: new backend/dependency types discriminate profile3 without widening legacy interfaces
+ok 348 - new backend/dependency types discriminate profile3 without widening legacy interfaces
+  ---
+  duration_ms: 1133.58541
+  type: 'test'
+  ...
+# Subtest: the new source profile is additive and retains both existing factory forms
+ok 349 - the new source profile is additive and retains both existing factory forms
+  ---
+  duration_ms: 17.241901
+  type: 'test'
+  ...
+# Subtest: only explicit source versions are accepted without executing profile accessors
+ok 350 - only explicit source versions are accepted without executing profile accessors
+  ---
+  duration_ms: 1.094346
+  type: 'test'
+  ...
+# Subtest: dependency owners come from semantic facts and use the longest declared symbol prefix
+ok 351 - dependency owners come from semantic facts and use the longest declared symbol prefix
+  ---
+  duration_ms: 21.055177
+  type: 'test'
+  ...
+# Subtest: all static branches are included while literal reference-looking strings are excluded
+ok 352 - all static branches are included while literal reference-looking strings are excluded
+  ---
+  duration_ms: 10.192178
+  type: 'test'
+  ...
+# Subtest: the actual compiled plan determines topological order and transitive State reads
+ok 353 - the actual compiled plan determines topological order and transitive State reads
+  ---
+  duration_ms: 5.124235
+  type: 'test'
+  ...
+# Subtest: whole row and whole parameter reads retain an empty segment list
+ok 354 - whole row and whole parameter reads retain an empty segment list
+  ---
+  duration_ms: 1.202287
+  type: 'test'
+  ...
+# Subtest: parameter metadata does not pretend that runtime arguments flow to dependent selectors
+ok 355 - parameter metadata does not pretend that runtime arguments flow to dependent selectors
+  ---
+  duration_ms: 5.906896
+  type: 'test'
+  ...
+# Subtest: dependency summaries are deterministic and frozen without changing compile results
+ok 356 - dependency summaries are deterministic and frozen without changing compile results
+  ---
+  duration_ms: 4.986893
+  type: 'test'
+  ...
+# Subtest: invalid or incomplete results never become a successful dependency report
+ok 357 - invalid or incomplete results never become a successful dependency report
+  ---
+  duration_ms: 4.954333
+  type: 'test'
+  ...
+# Subtest: an empty successful profile has an empty dependency order
+ok 358 - an empty successful profile has an empty dependency order
+  ---
+  duration_ms: 1.698814
+  type: 'test'
+  ...
+# Subtest: legacy source-profile option types remain v1 while separate overloads accept v2
+ok 359 - legacy source-profile option types remain v1 while separate overloads accept v2
+  ---
+  duration_ms: 605.632047
+  type: 'test'
+  ...
+# Subtest: RMTX public types retain default v1 results and discriminate explicit v2 results and factories
+ok 360 - RMTX public types retain default v1 results and discriminate explicit v2 results and factories
+  ---
+  duration_ms: 267.61227
+  type: 'test'
+  ...
+# Subtest: v2 is explicit and produces separate parser/compiler contracts while default and v1 remain unchanged
+ok 361 - v2 is explicit and produces separate parser/compiler contracts while default and v1 remain unchanged
+  ---
+  duration_ms: 27.228257
+  type: 'test'
+  ...
+# Subtest: RMTX selector fixture has the same effective executable state/selector/reducer plans as Classic
+ok 362 - RMTX selector fixture has the same effective executable state/selector/reducer plans as Classic
+  ---
+  duration_ms: 46.69067
+  type: 'test'
+  ...
+# Subtest: static readsets include all branches, row/parameter paths and transitive selector sources
+ok 363 - static readsets include all branches, row/parameter paths and transitive selector sources
+  ---
+  duration_ms: 5.150325
+  type: 'test'
+  ...
+# Subtest: longest declared symbol resolution stays consistent in dependency facts and actual Model reads
+ok 364 - longest declared symbol resolution stays consistent in dependency facts and actual Model reads
+  ---
+  duration_ms: 2.433185
+  type: 'test'
+  ...
+# Subtest: bare row values and strict equality preserve zero, false and empty-string Find results
+ok 365 - bare row values and strict equality preserve zero, false and empty-string Find results
+  ---
+  duration_ms: 3.067575
+  type: 'test'
+  ...
+# Subtest: contains follows existing case-sensitive String conversion rather than Array membership
+ok 366 - contains follows existing case-sensitive String conversion rather than Array membership
+  ---
+  duration_ms: 2.897922
+  type: 'test'
+  ...
+# Subtest: parameters apply to the requested selector and are not silently forwarded through selector dependencies
+ok 367 - parameters apply to the requested selector and are not silently forwarded through selector dependencies
+  ---
+  duration_ms: 2.219432
+  type: 'test'
+  ...
+# Subtest: canonical import aliases bind selectors, item, params and contains without executing source imports
+ok 368 - canonical import aliases bind selectors, item, params and contains without executing source imports
+  ---
+  duration_ms: 1.703755
+  type: 'test'
+  ...
+# Subtest: v2 rejects bare item truthiness without executable artifacts
+ok 369 - v2 rejects bare item truthiness without executable artifacts
+  ---
+  duration_ms: 0.784201
+  type: 'test'
+  ...
+# Subtest: v2 rejects numeric truthiness without executable artifacts
+ok 370 - v2 rejects numeric truthiness without executable artifacts
+  ---
+  duration_ms: 1.231068
+  type: 'test'
+  ...
+# Subtest: v2 rejects truthy logical operand without executable artifacts
+ok 371 - v2 rejects truthy logical operand without executable artifacts
+  ---
+  duration_ms: 0.645429
+  type: 'test'
+  ...
+# Subtest: v2 rejects unparenthesized negation without executable artifacts
+ok 372 - v2 rejects unparenthesized negation without executable artifacts
+  ---
+  duration_ms: 0.600208
+  type: 'test'
+  ...
+# Subtest: v2 rejects negation/comparison precedence without executable artifacts
+ok 373 - v2 rejects negation/comparison precedence without executable artifacts
+  ---
+  duration_ms: 0.568418
+  type: 'test'
+  ...
+# Subtest: v2 rejects loose equality without executable artifacts
+ok 374 - v2 rejects loose equality without executable artifacts
+  ---
+  duration_ms: 0.573798
+  type: 'test'
+  ...
+# Subtest: v2 rejects loose inequality without executable artifacts
+ok 375 - v2 rejects loose inequality without executable artifacts
+  ---
+  duration_ms: 0.581638
+  type: 'test'
+  ...
+# Subtest: v2 rejects arithmetic without executable artifacts
+ok 376 - v2 rejects arithmetic without executable artifacts
+  ---
+  duration_ms: 0.531408
+  type: 'test'
+  ...
+# Subtest: v2 rejects comparison chain without executable artifacts
+ok 377 - v2 rejects comparison chain without executable artifacts
+  ---
+  duration_ms: 0.877082
+  type: 'test'
+  ...
+# Subtest: v2 rejects conditional expression without executable artifacts
+ok 378 - v2 rejects conditional expression without executable artifacts
+  ---
+  duration_ms: 0.617709
+  type: 'test'
+  ...
+# Subtest: v2 rejects method call without executable artifacts
+ok 379 - v2 rejects method call without executable artifacts
+  ---
+  duration_ms: 0.521718
+  type: 'test'
+  ...
+# Subtest: v2 rejects unbound helper without executable artifacts
+ok 380 - v2 rejects unbound helper without executable artifacts
+  ---
+  duration_ms: 0.468987
+  type: 'test'
+  ...
+# Subtest: v2 rejects helper arity without executable artifacts
+ok 381 - v2 rejects helper arity without executable artifacts
+  ---
+  duration_ms: 0.505298
+  type: 'test'
+  ...
+# Subtest: v2 rejects helper type arguments without executable artifacts
+ok 382 - v2 rejects helper type arguments without executable artifacts
+  ---
+  duration_ms: 0.68311
+  type: 'test'
+  ...
+# Subtest: v2 rejects nested arbitrary calls without executable artifacts
+ok 383 - v2 rejects nested arbitrary calls without executable artifacts
+  ---
+  duration_ms: 0.601978
+  type: 'test'
+  ...
+# Subtest: v2 rejects computed path without executable artifacts
+ok 384 - v2 rejects computed path without executable artifacts
+  ---
+  duration_ms: 0.67186
+  type: 'test'
+  ...
+# Subtest: v2 rejects optional path without executable artifacts
+ok 385 - v2 rejects optional path without executable artifacts
+  ---
+  duration_ms: 0.582188
+  type: 'test'
+  ...
+# Subtest: v2 rejects action input in selector without executable artifacts
+ok 386 - v2 rejects action input in selector without executable artifacts
+  ---
+  duration_ms: 0.502387
+  type: 'test'
+  ...
+# Subtest: v2 rejects prototype path without executable artifacts
+ok 387 - v2 rejects prototype path without executable artifacts
+  ---
+  duration_ms: 0.506907
+  type: 'test'
+  ...
+# Subtest: v2 rejects unknown model reference even in skipped branch without executable artifacts
+ok 388 - v2 rejects unknown model reference even in skipped branch without executable artifacts
+  ---
+  duration_ms: 1.069206
+  type: 'test'
+  ...
+# Subtest: v2 rejects unknown attribute without executable artifacts
+ok 389 - v2 rejects unknown attribute without executable artifacts
+  ---
+  duration_ms: 0.541118
+  type: 'test'
+  ...
+# Subtest: v2 rejects invalid sort direction without executable artifacts
+ok 390 - v2 rejects invalid sort direction without executable artifacts
+  ---
+  duration_ms: 0.503897
+  type: 'test'
+  ...
+# Subtest: v2 rejects sort model scope without executable artifacts
+ok 391 - v2 rejects sort model scope without executable artifacts
+  ---
+  duration_ms: 0.422156
+  type: 'test'
+  ...
+# Subtest: v2 rejects sort bare row without executable artifacts
+ok 392 - v2 rejects sort bare row without executable artifacts
+  ---
+  duration_ms: 0.443837
+  type: 'test'
+  ...
+# Subtest: v2 rejects unsafe sort field without executable artifacts
+ok 393 - v2 rejects unsafe sort field without executable artifacts
+  ---
+  duration_ms: 0.469487
+  type: 'test'
+  ...
+# Subtest: v2 rejects multiple Find without executable artifacts
+ok 394 - v2 rejects multiple Find without executable artifacts
+  ---
+  duration_ms: 0.872113
+  type: 'test'
+  ...
+# Subtest: v2 rejects multiple Sort without executable artifacts
+ok 395 - v2 rejects multiple Sort without executable artifacts
+  ---
+  duration_ms: 1.026665
+  type: 'test'
+  ...
+# Subtest: v2 rejects multiple Output without executable artifacts
+ok 396 - v2 rejects multiple Output without executable artifacts
+  ---
+  duration_ms: 0.939023
+  type: 'test'
+  ...
+# Subtest: Selector source must be a whole declared symbol; item and params cannot escape their contexts
+ok 397 - Selector source must be a whole declared symbol; item and params cannot escape their contexts
+  ---
+  duration_ms: 1.621524
+  type: 'test'
+  ...
+# Subtest: selector cycles and unknown dependencies are rejected by the common semantic backend
+ok 398 - selector cycles and unknown dependencies are rejected by the common semantic backend
+  ---
+  duration_ms: 1.683304
+  type: 'test'
+  ...
+# Subtest: all static branches count as dependencies while reference-looking literals do not
+ok 399 - all static branches count as dependencies while reference-looking literals do not
+  ---
+  duration_ms: 2.336224
+  type: 'test'
+  ...
+# Subtest: predicate diagnostics retain original URI and exact offending equality operator range
+ok 400 - predicate diagnostics retain original URI and exact offending equality operator range
+  ---
+  duration_ms: 0.486467
+  type: 'test'
+  ...
+1..400
+# tests 400
+# suites 0
+# pass 400
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 76597.310773

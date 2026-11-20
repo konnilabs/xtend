@@ -1,6 +1,6 @@
 {
   "schema": "xtend.mcp.knowledge-manifest.v1",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "generatedAt": "static-local",
   "sourceOfTruth": {
     "docs": [
@@ -21,7 +21,7 @@
     "menuEntries": 178,
     "menuSha256": "ae78a16612a0ae11dc25e6bfd9e19c906e665234164fffe37c40b6aab8b6a433",
     "artifact": "docs.jsonl",
-    "artifactSha256": "902209e6f0f1b5f4fbf6b9a17a2676a270878ecc097827aee4cea545cbb97ea1",
+    "artifactSha256": "09c91d279cce5584b2579f92e401e5b5631a9264ea4716cb35a300eff0ddff16",
     "missingMenuDocs": []
   },
   "rmtKit": {
@@ -42,8 +42,8 @@
         "bytes": 1187
       },
       "rmt-ai-kit.manifest.json": {
-        "sha256": "1b7c35d86da71b1a469ca42756322453615d693fae0922b3144ea2c987f0fab8",
-        "bytes": 9765
+        "sha256": "3b1200cd384de1a198de7d49ff8bf65e91ab9fede12086b06599b9f5664d6b17",
+        "bytes": 9766
       },
       "rmt-ai-kit.prompts.md": {
         "sha256": "14f60458d667022de268c6129fd9fde2bd9f22c488ef754644d7828fbf7d7c9c",

@@ -1,0 +1,7 @@
+// A06.5 links Classic service declarations into the RMTX application's program.
+template app.services {
+  datasource app.health from host app.health {
+    mode invoke
+    contract "xtend.maraca.health.v1"
+  }
+}

@@ -44,7 +44,7 @@ const pkg = JSON.parse(fs.readFileSync(path.join(stagedMcpRoot, 'package.json'),
 const manifestBytes = fs.readFileSync(path.join(stagedMcpRoot, 'generated', 'knowledge-manifest.json'));
 const manifest = JSON.parse(manifestBytes.toString('utf8'));
 const docsBytes = fs.readFileSync(path.join(stagedMcpRoot, 'generated', manifest.docs.artifact));
-assert.equal(pkg.version, '0.1.0');
+assert.equal(pkg.version, '0.2.0');
 assert.equal(manifest.version, pkg.version);
 assert.equal(sha256(docsBytes), manifest.docs.artifactSha256);
 

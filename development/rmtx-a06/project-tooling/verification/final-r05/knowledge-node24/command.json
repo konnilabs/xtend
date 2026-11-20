@@ -1,0 +1,26 @@
+{
+  "format": 1,
+  "step": "knowledge-node24",
+  "command": [
+    "/home/konni/.local/share/xtend-local-llm/runtime/node_modules/node/bin/node",
+    "--max-old-space-size=512",
+    "products/xtend-mcp/scripts/build-knowledge.mjs",
+    "--check"
+  ],
+  "workingDirectory": "/home/konni/Downloads/xtend-dev/xtend",
+  "node": "v24.22.2",
+  "environment": {
+    "XTENSIONS_TEST_PEERS": "/tmp/xtend-a065/setup/runtime-peers-node24",
+    "XTEND_A065_TEST_PEERS": "/tmp/xtend-a065/setup/runtime-peers-node24",
+    "NODE_PATH": "/tmp/xtend-a065/setup/runtime-peers-node24/node_modules:/tmp/xtend-a065/node_modules",
+    "NODE_OPTIONS": "--max-old-space-size=512",
+    "PATH": "/tmp/xtend-a065/setup/bin-node24:/home/konni/.local/share/xtend-local-llm/runtime/node_modules/node/bin:/tmp/xtend-a065/node_modules/.bin:/home/konni/.local/bin:/home/konni/.codex/tmp/arg0-linux/codex-arg0h92Tn6:/home/konni/.local/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/home/konni/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/home/konni/.vscode/extensions/openai.chatgpt-26.1111.21308-linux-x64/bin/linux-x86_64",
+    "npm_config_offline": "true",
+    "CHROME_BIN": "/home/konni/.cache/ms-playwright/chromium-1248/chrome-linux64/chrome"
+  },
+  "beforeSourceSha256": "28254433c2b014b937ecdcac79263897cdecb984c6cacf53fc2c4cb2038b6d95",
+  "wholeCurrentSourceMembershipPinnedExceptOwnVerificationOutputs": true,
+  "heapMiB": 512,
+  "timeoutSeconds": 300,
+  "releaseAcceptancePerformed": false
+}

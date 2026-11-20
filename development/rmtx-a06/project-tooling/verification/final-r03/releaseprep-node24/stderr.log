@@ -1,0 +1,15 @@
+/home/konni/Downloads/xtend-dev/xtend/development/rmtx-a06/frontend/inspect.cjs:52
+  else if (!fs.existsSync(output) || fs.readFileSync(output,'utf8')!==bytes) throw Error('RMTX frontend evidence is stale; execute inspect.cjs --write after review.');
+                                                                             ^
+
+Error: RMTX frontend evidence is stale; execute inspect.cjs --write after review.
+    at Object.<anonymous> (/home/konni/Downloads/xtend-dev/xtend/development/rmtx-a06/frontend/inspect.cjs:52:84)
+    at Module._compile (node:internal/modules/cjs/loader:1929:14)
+    at Object..js (node:internal/modules/cjs/loader:2060:10)
+    at Module.load (node:internal/modules/cjs/loader:1651:32)
+    at Module._load (node:internal/modules/cjs/loader:1443:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+Node.js v24.22.2

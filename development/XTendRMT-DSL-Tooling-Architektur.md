@@ -12,6 +12,18 @@
 
 ## Zweck
 
+### Erweiterung durch A06.5 (20. November 2026)
+
+Der aktuelle Sprachserver verwendet `xtend.rmt.language-server.v2` und
+`xtend.rmt.language-server-report.v2`. Der bestehende Classic-Pfad bleibt
+erhalten. `.rmtx` erhält einen eigenen semantischen Sprachservice mit virtuellen
+TSX-Dateien, Typprüfung und Navigation auf ursprüngliche Quellranges. Der
+Projektvertrag1 verbindet `.rmt`- und `.rmtx`-Importe für Compiler, CLI, Watch,
+Maraca, Hydrangea und MCP. Normale `.tsx`-Provider sind keine deklarativen
+Projektmodule. Die folgenden WP-E14-Abschnitte dokumentieren weiterhin ihre
+historischen Vertragsstände; den aktuellen Umfang beschreibt
+[A06.5](rmtx-a06/project-tooling/implementation.md).
+
 Dieses Dokument friert die Architektur fuer den nativen RMT-Linter und den spaeteren RMT Language Server ein. Es definiert die Paketgrenzen, das Diagnosemodell, die ersten Regeln und die Reihenfolge, in der der Sprachkern aufgebaut wird.
 
 Das Tooling macht RMT fuer Menschen, IDEs und AI-Agenten schreibbar. Es fuehrt aber keine XTend-Komponenten aus und erweitert nicht den RMT Kernel.

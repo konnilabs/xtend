@@ -63,17 +63,36 @@ function validateSourceChoice(input = {}) {
   return { hasSource, hasPath };
 }
 
+function sourceProfileInput(input, filePath) {
+  const extension = path.extname(filePath || '').toLowerCase();
+  const projectRequested = input.project === true || input.sourceSyntax !== undefined || input.rmtxSyntaxVersion !== undefined || input.rmtxProvidersFile !== undefined || extension === '.rmtx';
+  if (filePath && (/^\.[cm]?[jt]sx?$/u.test(extension) || projectRequested && !['.rmt', '.rmtx'].includes(extension))) throw new Error('Project tooling sources must use .rmt or .rmtx; provider TSX is not a declarative template.');
+  const inferred = extension === '.rmtx' ? 'rmtx' : 'rmt-vnext';
+  const selected = input.sourceSyntax || inferred;
+  if (!['rmt-vnext', 'rmtx'].includes(selected)) throw new Error('sourceSyntax must be rmt-vnext or rmtx.');
+  if (filePath && input.sourceSyntax && selected !== inferred) throw new Error('sourceSyntax does not match the template file extension.');
+  if (input.rmtxSyntaxVersion !== undefined && !/^[1-8]\.0\.0$/u.test(input.rmtxSyntaxVersion)) throw new Error('Unsupported RMTX syntax version.');
+  if (input.rmtxProvidersFile !== undefined && (typeof input.rmtxProvidersFile !== 'string' || !input.rmtxProvidersFile || path.isAbsolute(input.rmtxProvidersFile) || input.rmtxProvidersFile.includes('\u0000'))) throw new Error('rmtxProvidersFile must be a nonempty workspace-relative path.');
+  const project = projectRequested || selected === 'rmtx';
+  return project ? { sourceSyntax: selected, rmtxSyntaxVersion: input.rmtxSyntaxVersion || '8.0.0', project: true,
+    ...(input.rmtxProvidersFile !== undefined ? { rmtxProvidersFile: input.rmtxProvidersFile } : {}) } : {};
+}
+
 export function resolveSourceInput(input = {}, options = {}) {
   const { hasSource } = validateSourceChoice(input);
   const roots = normalizeWorkspaceRoots(options.workspaceRoots || []);
   if (hasSource) {
+    const profile = sourceProfileInput(input, null);
+    if (profile.project && roots.length === 0) throw new Error('A workspace root is required for project/RMTX tooling.');
+    const suffix = profile.sourceSyntax === 'rmtx' ? 'rmtx' : 'rmt';
     return {
       source: String(input.source),
-      filePath: 'inline.rmt',
+      filePath: `inline.${suffix}`,
       relativePath: null,
       rootDir: roots[0] || process.cwd(),
       absolutePath: null,
-      uri: 'untitled:xtend-mcp-inline.rmt'
+      uri: `untitled:xtend-mcp-inline.${suffix}`,
+      ...profile
     };
   }
   if (path.isAbsolute(input.path) || input.path.includes('\u0000')) {
@@ -91,57 +110,94 @@ export function resolveSourceInput(input = {}, options = {}) {
   if (matches.length === 0) throw new Error(`RMT path was not found inside an allowed workspace: ${input.path}`);
   if (matches.length > 1) throw new Error(`RMT path is ambiguous across workspace roots: ${input.path}`);
   const match = matches[0];
+  const profile = sourceProfileInput(input, match.real);
   return {
     source: fs.readFileSync(match.real, 'utf8'),
     filePath: path.relative(match.root, match.real).split(path.sep).join('/'),
     relativePath: path.relative(match.root, match.real).split(path.sep).join('/'),
     rootDir: match.root,
     absolutePath: match.real,
-    uri: pathToFileURL(match.real).href
+    uri: pathToFileURL(match.real).href,
+    ...profile
   };
 }
 
-function sanitize(value, roots = [], depth = 0) {
+function workspaceLocation(value, roots) {
+  if (typeof value?.uri === 'string' && value.uri.startsWith('untitled:')) return null;
+  let file;
+  if (typeof value?.uri === 'string') {
+    const relative = /^(?:xtend-workspace:\/\/\/|file:\/\/\[(?:repo|workspace)\]\/)(.*)$/u.exec(value.uri);
+    if (relative) { try { file = path.resolve(roots[0], decodeURIComponent(relative[1])); } catch (_) {} }
+  }
+  if (!file && typeof value?.uri === 'string' && value.uri.startsWith('file:')) {
+    try { file = fileURLToPath(value.uri); } catch (_) {}
+  }
+  if (!file && typeof (value?.filePath || value?.file) === 'string') {
+    const name = (value.filePath || value.file).replace(/^\[(?:workspace|repo)\]\//u, '');
+    file = path.isAbsolute(name) ? name : path.resolve(roots[0], name);
+  }
+  if (!file) return null;
+  const root = roots.find(candidate => isInside(file, candidate));
+  if (!root) return null;
+  const workspacePath = path.relative(root, file).split(path.sep).join('/');
+  return { workspacePath, filePath: workspacePath, uri: `xtend-workspace:///${workspacePath.split('/').map(encodeURIComponent).join('/')}` };
+}
+
+function sanitize(value, roots = [], depth = 0, project = false) {
   if (depth > 40) return '[depth-limit]';
-  if (Array.isArray(value)) return value.map((entry) => sanitize(entry, roots, depth + 1));
+  if (Array.isArray(value)) return value.map((entry) => sanitize(entry, roots, depth + 1, project));
   if (!value || typeof value !== 'object') {
     if (typeof value !== 'string') return value;
+    if (project && value.startsWith('file:')) {
+      const location = workspaceLocation({ uri: value }, roots);
+      if (location) return location.uri;
+    }
     let output = value;
     for (const root of roots) output = output.split(root).join('[workspace]');
     return output.split(repoRoot).join('[xtend]');
   }
-  return Object.fromEntries(Object.entries(value).map(([key, entry]) => {
+  const result = Object.fromEntries(Object.entries(value).map(([key, entry]) => {
     if (/password|secret|token/iu.test(key)) return [key, '[redacted]'];
-    return [key, sanitize(entry, roots, depth + 1)];
+    return [key, sanitize(entry, roots, depth + 1, project)];
   }));
+  // Preserve source navigation without publishing the physical workspace root.
+  // v1 keeps its existing redaction contract; v2 uses a documented URI scheme.
+  if (project && typeof value.code === 'string' && typeof value.message === 'string') {
+    const location = workspaceLocation(value, roots);
+    if (location) Object.assign(result, location);
+  }
+  return result;
 }
 
 async function runBridge(operation, descriptor, options = {}) {
   const bridge = loadToolingBridge();
   const response = await bridge.executeToolingBridgeOperation({
-    schema: bridge.TOOLING_BRIDGE_SCHEMA,
+    schema: descriptor.project ? bridge.TOOLING_BRIDGE_SCHEMA_V2 : bridge.TOOLING_BRIDGE_SCHEMA,
     requestId: `xtend-mcp-${crypto.randomUUID()}`,
     operation,
     payload: {
       source: descriptor.source,
       filePath: descriptor.filePath,
       uri: descriptor.uri,
+      ...(descriptor.project ? { sourceSyntax: descriptor.sourceSyntax, rmtxSyntaxVersion: descriptor.rmtxSyntaxVersion,
+        ...(descriptor.rmtxProvidersFile ? { rmtxProvidersFile: descriptor.rmtxProvidersFile } : {}), project: true } : {}),
       options: options.toolOptions || {}
     }
   }, { rootDir: descriptor.rootDir });
-  return sanitize(response, [descriptor.rootDir]);
+  return sanitize(response, [descriptor.rootDir], 0, descriptor.project === true);
 }
 
 export async function runRmtDiagnostics(input = {}, options = {}) {
   const descriptor = resolveSourceInput(input, options);
   const response = await runBridge('language-diagnostics', descriptor, options);
   return {
-    schema: 'xtend.mcp.rmt-diagnostics.v1',
+    schema: descriptor.project ? 'xtend.mcp.rmt-diagnostics.v2' : 'xtend.mcp.rmt-diagnostics.v1',
     sourceHash: sha256(descriptor.source),
     path: descriptor.relativePath,
     ok: response.ok,
     status: response.status,
-    diagnostics: response.diagnostics || response.result?.diagnostics || []
+    diagnostics: response.diagnostics || response.result?.diagnostics || [],
+    ...(descriptor.project ? { sourceProfile: response.result?.project?.effectiveSourceProfile || null, project: response.result?.project || null } : {})
   };
 }
 
@@ -150,12 +206,13 @@ export async function runRmtCompileCheck(input = {}, options = {}) {
   const response = await runBridge('compile', descriptor, options);
   const result = response.result || {};
   return {
-    schema: 'xtend.mcp.rmt-compile-check.v1',
+    schema: descriptor.project ? 'xtend.mcp.rmt-compile-check.v2' : 'xtend.mcp.rmt-compile-check.v1',
     sourceHash: sha256(descriptor.source),
     path: descriptor.relativePath,
     ok: response.ok,
     status: response.status,
     diagnostics: response.diagnostics || [],
+    ...(descriptor.project ? { sourceProfile: result.sourceProfile || result.project?.effectiveSourceProfile || null, project: result.project || null } : {}),
     summary: {
       schema: result.schema || null,
       mode: result.mode || result.languageMode || null,
@@ -169,7 +226,7 @@ export async function runMaracaPlan(input = {}, options = {}) {
   const descriptor = resolveSourceInput(input, options);
   const response = await runBridge('maraca-plan', descriptor, options);
   return {
-    schema: 'xtend.mcp.maraca-plan.v1',
+    schema: descriptor.project ? 'xtend.mcp.maraca-plan.v2' : 'xtend.mcp.maraca-plan.v1',
     sourceHash: sha256(descriptor.source),
     path: descriptor.relativePath,
     ok: response.ok,
@@ -295,6 +352,7 @@ function normalizeRepairReport(report, descriptor, sourceHash) {
 
 export function createRmtRepairPlan(input = {}, options = {}) {
   const descriptor = resolveSourceInput(input, options);
+  if (descriptor.sourceSyntax === 'rmtx') throw new Error('Classic safe-repair rules are not applicable to RMTX. Use RMTX semantic diagnostics.');
   const reporter = loadRepairReporter();
   const sourceHash = sha256(descriptor.source);
   const report = reporter.createRmtAgentRepairReport({

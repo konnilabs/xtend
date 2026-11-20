@@ -1,0 +1,22 @@
+import { RMT, model } from '@ccslabs/xtend/rmt-language/rmtx';
+export default <RMT.Program id="app.scaffold">
+  <RMT.State id="status" type="object" preserve initial={{ text: 'Ready.', tone: 'neutral' }} />
+  <RMT.Import path="./service-demands.rmt" />
+  <RMT.Action id="app.runCheck">
+    <RMT.Input name="label" type="string" />
+    <RMT.Effect kind="fetch" sourceKind="datasource" source="app.health" />
+    <RMT.Reduce state="status" path="text" value="Check passed." />
+    <RMT.Reduce state="status" path="tone" value="success" />
+  </RMT.Action>
+  <RMT.Portal id="app.root" root="#app" layer="surface" />
+  <RMT.Surface id="app" component="main" portal="app.root">
+    <RMT.Lane name="visible"><RMT.Mount target="app" /><RMT.Hydrate target="app" /></RMT.Lane>
+    <RMT.View>
+      <RMT.Element tag="h1"><RMT.Text value={{{appTitleRmtxJson}}}/></RMT.Element>
+      <RMT.Component tag="x-status" ref="status" attributes={{ message: model.status.text, type: model.status.tone }} />
+      <RMT.Component tag="x-button" ref="runCheck" attributes={{ label: 'Run check' }}>
+        <RMT.On event="button-interaction" action="app.runCheck" payload={{label:'detail.type'}} />
+      </RMT.Component>
+    </RMT.View>
+  </RMT.Surface>
+</RMT.Program>;

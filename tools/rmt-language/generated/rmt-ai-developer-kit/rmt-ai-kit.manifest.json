@@ -241,8 +241,8 @@
     },
     {
       "path": "tools/rmt-language/classic-compiler.d.ts",
-      "sha256": "f22eeb7f5a0e4f1db541f18f62bf8ecb02ad849cdc1ba2409b0821c03677ae4e",
-      "bytes": 6384
+      "sha256": "964abe83eea301b40ebb1e1c4e8458535e687c2edd5ab366bb4a7942ee45b435",
+      "bytes": 6970
     },
     {
       "path": "tools/rmt-language/classic-parser.d.ts",
@@ -266,8 +266,8 @@
     },
     {
       "path": "tools/rmt-language/vnext-compiler.d.ts",
-      "sha256": "3206ae8e0f9cba4df860835bf59b9351bdc38863c11465be45bd0120f5534268",
-      "bytes": 9035
+      "sha256": "aaeb02549ba52984b0131ba633238deb917162b2a622e0df14d24bbbb7770212",
+      "bytes": 10224
     },
     {
       "path": "tools/rmt-linter/reporter.d.ts",
@@ -286,8 +286,8 @@
     },
     {
       "path": "xtend-maraca/index.d.ts",
-      "sha256": "5d3dee936a41cb68da36eb5a35c57f26dd62958cb042d7b04662be2c6f2baf73",
-      "bytes": 64039
+      "sha256": "3f3756ca963dc9be0e6e8f7ad5b2f13492e329c54ce44ae46b86b70326a1ef75",
+      "bytes": 70544
     }
   ],
   "rootDir": ""

@@ -5,7 +5,7 @@ const { pathToFileURL } = require('url');
 
 const RMT_VSCODE_BRIDGE_SCHEMA = 'xtend.rmt.editor.vscode-bridge.v1';
 const RMT_VSCODE_PRIMITIVE_AUTHORING_EXPERIENCE_SCHEMA = 'xtend.rmt.editor.vscode-primitive-authoring-experience.v1';
-const RMT_VSCODE_DX_SCHEMA = 'xtend.rmt.editor.vscode-dx.v1';
+const RMT_VSCODE_DX_SCHEMA = 'xtend.rmt.editor.vscode-dx.v2';
 const RMT_VSCODE_TASKS_SCHEMA = 'xtend.rmt.editor.vscode-tasks.v1';
 const RMT_VSCODE_LAUNCH_SCHEMA = 'xtend.rmt.editor.vscode-launch.v1';
 const RMT_VSCODE_BRIDGE_WORKPACKAGE = 'WP-E14-12';
@@ -118,7 +118,7 @@ function createXtendMcpServerDefinitionConfig(vscodeApi, context = {}, options =
     args,
     env,
     cwd,
-    version: '0.1.0',
+    version: '0.2.0',
     workspaceRoots: roots,
     workspaceWrites: allowWorkspaceWrite,
     sourceOfTruth: '@ccslabs/xtend-mcp'
@@ -209,21 +209,26 @@ function createVsCodeLanguageClientConfig(context = {}, options = {}) {
     schema: RMT_VSCODE_DX_SCHEMA,
     workpackage: RMT_VSCODE_DX_WORKPACKAGE,
     clientId: 'xtendRmtLanguageServer',
-    clientName: 'XTendRMT Language Server',
+    clientName: 'XTend RMT Classic & RMTX Language Server',
     languageId: 'rmt',
+    languageIds: ['rmt', 'rmtx'],
     serverOptions: {
       command: serverCommand.command,
       args: toArray(options.args || serverCommand.args),
-      transport: 'stdio'
+      transport: 'stdio',
+      useBundledNode: options.useBundledNode === true
     },
     clientOptions: {
       documentSelector: [
         { scheme: 'file', language: 'rmt' },
-        { scheme: 'untitled', language: 'rmt' }
+        { scheme: 'untitled', language: 'rmt' },
+        { scheme: 'file', language: 'rmtx' },
+        { scheme: 'untitled', language: 'rmtx' }
       ],
       synchronize: {
         configurationSection: 'xtendRmt'
-      }
+      },
+      initializationOptions: { rmtxSyntaxVersion: options.rmtxSyntaxVersion || '8.0.0', ...(options.rmtxProvidersFile ? { rmtxProvidersFile: options.rmtxProvidersFile } : {}) }
     },
     sourceOfTruth: serverCommand.sourceOfTruth,
     networkRequired: false,
@@ -233,6 +238,11 @@ function createVsCodeLanguageClientConfig(context = {}, options = {}) {
 
 function createRuntimeLanguageClientServerOptions(languageClientModule = {}, serverOptions = {}) {
   const runtimeOptions = { ...serverOptions };
+  if (runtimeOptions.useBundledNode) {
+    runtimeOptions.command = process.execPath;
+    runtimeOptions.options = { ...runtimeOptions.options, env: { ...process.env, ...runtimeOptions.options?.env, ELECTRON_RUN_AS_NODE: '1' } };
+  }
+  delete runtimeOptions.useBundledNode;
 
   if (runtimeOptions.transport === 'stdio') {
     if (
@@ -769,6 +779,20 @@ function isActiveRmtFile(activeFile, document = {}) {
   return typeof activeFile === 'string' && activeFile.toLowerCase().endsWith('.rmt');
 }
 
+function rmtxProjectOptions(vscodeApi, options = {}) {
+  return { ...options, rmtxSyntaxVersion: options.rmtxSyntaxVersion || getConfigurationValue(vscodeApi, 'rmtx.syntaxVersion', '8.0.0'),
+    rmtxProvidersFile: options.rmtxProvidersFile || getConfigurationValue(vscodeApi, 'rmtxProvidersFile', '') };
+}
+
+function rmtxBuildArgs(taskId, activeFile, document = {}, options = {}) {
+  if (!isRmtxDocument(activeFile, document)) return null;
+  const flags = ['--project', '--source-syntax', 'rmtx', '--rmtx-syntax-version', options.rmtxSyntaxVersion || '8.0.0'];
+  if (options.rmtxProvidersFile) flags.push('--rmtx-providers-file', options.rmtxProvidersFile);
+  if (taskId === 'rmt-build-check') return ['rmt', 'check', '${file}', ...flags, '--json'];
+  if (taskId === 'rmt-build-write') return ['maraca', 'build', '${file}', ...flags, '--out', 'dist', '--json'];
+  return null;
+}
+
 function createCliCandidate(input = {}, workspace = {}, options = {}) {
   const command = substituteVariables(input.command || 'node', workspace.variables || {});
   const args = substituteVariables(toArray(input.args), workspace.variables || {});
@@ -939,6 +963,7 @@ function resolveLanguageServerInvocation(vscodeApi, context = {}, options = {}) 
     workpackage: RMT_VSCODE_DX_WORKPACKAGE,
     command,
     args: resolvedArgs,
+    useBundledNode: command === 'node' && resolvedArgs[0] === fallbackServerPath,
     serverSource: resolvedArgs[0] === fallbackServerPath ? 'extension-fallback' : 'workspace-or-configured',
     workspaceFolder,
     workspaceFolderPath,
@@ -1008,9 +1033,11 @@ function showDxProblem(vscodeApi, output, result = {}) {
 
 function toVsCodeTask(vscodeApi, context = {}, definition = {}, options = {}) {
   const active = getWorkspaceContext(vscodeApi, options);
-  if (definition.requiresFile && isRmtxDocument(active.activeFile, active.document || {})) {
+  const rmtxArgs = rmtxBuildArgs(definition.id, active.activeFile, active.document || {}, rmtxProjectOptions(vscodeApi, options));
+  if (definition.requiresFile && isRmtxDocument(active.activeFile, active.document || {}) && !rmtxArgs) {
     return createActiveFileUnavailableResult({ taskId: definition.id });
   }
+  if (rmtxArgs) definition = { ...definition, label: definition.label.replace('RMT build', 'RMTX project build'), args: createXtendCliArgs(rmtxArgs) };
   if (!vscodeApi || !vscodeApi.Task || !vscodeApi.ShellExecution) {
     return {
       schema: RMT_VSCODE_TASKS_SCHEMA,
@@ -1088,7 +1115,7 @@ function runXtendRmtTask(vscodeApi, context = {}, taskId, options = {}) {
 
   const activeDocument = activeRmtTextDocument(vscodeApi, options) || {};
   const activeFile = normalizeDocumentFilePath(activeDocument) || options.file || '';
-  if (vscodeApi && definition.requiresFile && !isActiveRmtFile(activeFile, activeDocument)) {
+  if (vscodeApi && definition.requiresFile && !isActiveRmtFile(activeFile, activeDocument) && !rmtxBuildArgs(definition.id, activeFile, activeDocument)) {
     const activeResult = createActiveFileUnavailableResult({ taskId: definition.id });
     return showDxProblem(vscodeApi, options.output, activeResult);
   }
@@ -1164,7 +1191,7 @@ function openXtendCliTerminal(vscodeApi, context = {}, options = {}) {
 
 function runXtendCliInTerminal(vscodeApi, context = {}, workflowId, options = {}) {
   const failOn = options.failOn || getConfigurationValue(vscodeApi, 'tasks.defaultFailOn', 'warning');
-  const workflow = createXtendCliWorkflowDefinitions({ failOn }).find((entry) => entry.id === workflowId);
+  let workflow = createXtendCliWorkflowDefinitions({ failOn }).find((entry) => entry.id === workflowId);
 
   if (!workflow) {
     return {
@@ -1181,9 +1208,11 @@ function runXtendCliInTerminal(vscodeApi, context = {}, workflowId, options = {}
     return showDxProblem(vscodeApi, options.output, createCliUnavailableResult(cli));
   }
 
-  if (workflow.requiresFile && !isActiveRmtFile(cli.activeFile, cli.document || {})) {
+  const rmtxArgs = rmtxBuildArgs(workflow.id, cli.activeFile, cli.document || {}, rmtxProjectOptions(vscodeApi, options));
+  if (workflow.requiresFile && !isActiveRmtFile(cli.activeFile, cli.document || {}) && !rmtxArgs) {
     return showDxProblem(vscodeApi, options.output, createActiveFileUnavailableResult({ taskId: workflow.id }));
   }
+  if (rmtxArgs) workflow = { ...workflow, args: rmtxArgs };
 
   if (!vscodeApi || !vscodeApi.window || typeof vscodeApi.window.createTerminal !== 'function') {
     return {
@@ -1399,6 +1428,7 @@ function openVsCodeTemplate(vscodeApi, context = {}, relativePath) {
 }
 
 function startLanguageClient(vscodeApi, context = {}, output = null, options = {}) {
+  options = rmtxProjectOptions(vscodeApi, options);
   const config = createVsCodeLanguageClientConfig(context, options);
   let languageClientModule = options.languageClientModule || null;
 
@@ -1420,6 +1450,9 @@ function startLanguageClient(vscodeApi, context = {}, output = null, options = {
     }
   }
 
+  const watchers = typeof vscodeApi?.workspace?.createFileSystemWatcher === 'function'
+    ? [vscodeApi.workspace.createFileSystemWatcher('**/*.{rmt,rmtx,json,js,mjs,cjs,ts,tsx}')] : [];
+  if (watchers.length) config.clientOptions.synchronize.fileEvents = watchers;
   const serverOptions = createRuntimeLanguageClientServerOptions(languageClientModule, config.serverOptions);
   const client = new languageClientModule.LanguageClient(
     config.clientId,
@@ -1447,14 +1480,16 @@ function startLanguageClient(vscodeApi, context = {}, output = null, options = {
     ok: true,
     client,
     started,
+    watchers,
     config: {
       ...config,
-      serverOptions
+      serverOptions: config.serverOptions
     }
   };
 }
 
 function stopLanguageClientState(state = null, output = null) {
+  for (const watcher of state?.watchers || []) watcher.dispose();
   const client = state && state.client ? state.client : null;
   if (!client) {
     return {

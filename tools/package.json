@@ -254,6 +254,18 @@
     "./rmt-language/rmtx-native-component-bindings": {
       "types": "./rmt-language/rmtx-native-component-bindings.d.ts",
       "default": "./rmt-language/rmtx-native-component-bindings.js"
+    },
+    "./rmt-language/rmt-project": {
+      "types": "./rmt-language/rmt-project.d.ts",
+      "default": "./rmt-language/rmt-project.js"
+    },
+    "./rmt-language/rmtx-language-service": {
+      "types": "./rmt-language/rmtx-language-service.d.ts",
+      "default": "./rmt-language/rmtx-language-service.js"
+    },
+    "./rmt-language/project-watch": {
+      "types": "./rmt-language/project-watch.d.ts",
+      "default": "./rmt-language/project-watch.js"
     }
   },
   "publishConfig": {

@@ -1,0 +1,7 @@
+template project.shared {
+  state title type string initial "first"
+  action rename {
+    input value string
+    reduce state.title = input.value
+  }
+}

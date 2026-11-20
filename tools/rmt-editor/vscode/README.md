@@ -1,14 +1,14 @@
 # XTend RMT Classic and RMTX VS Code DX
 
 - Schema: `xtend.rmt.editor.vscode-bridge.v1`
-- DX Schema: `xtend.rmt.editor.vscode-dx.v1`
+- DX Schema: `xtend.rmt.editor.vscode-dx.v2`
 - Tasks Schema: `xtend.rmt.editor.vscode-tasks.v1`
 - Launch Schema: `xtend.rmt.editor.vscode-launch.v1`
 - Workpackage: `WP-E14-12`
 - Language IDs: `rmt` (Classic), `rmtx` (declarative TSX syntax)
 - File extensions: `.rmt` (Classic), `.rmtx` (RMTX)
 
-Version **0.2.3** contributes the native `.rmt` and `.rmtx` language IDs, RMT Classic-aware TextMate grammar, snippets, a real `vscode-languageclient` wrapper, XTend CLI tasks, a VS Code problem matcher, Debug Console launch templates, and the bundled XTend MCP 0.1 server.
+Version **0.3.0** contributes the native `.rmt` and `.rmtx` language IDs, semantic RMTX project tooling, Classic-aware TextMate grammar, snippets, a real `vscode-languageclient` wrapper, XTend CLI tasks, a VS Code problem matcher, Debug Console launch templates, and the bundled XTend MCP 0.2 server.
 
 For **RMT Classic**, the RMT Language Server remains the only source of truth for diagnostics, completion, hover, symbols, definitions and code actions. The extension does not implement RMT analysis and does not import XTend UI runtime modules.
 
@@ -18,7 +18,13 @@ RMTX uses `.rmtx` with TSX grammar and qualified operators such as `<RMT.Surface
 
 The `rmtx` language reuses VS Code’s built-in TypeScriptReact TextMate grammar (`source.tsx`) for TypeScript expressions, JSX attributes, strings, comments and nested tags. A scoped injection highlights `RMT.<Operator>` names. The built-in `vscode.typescript` extension is an explicit dependency. RMTX has its own comment/bracket configuration and three syntax snippets: `rmtx-operator`, `rmtx-paired`, `rmtx-expression`. Classic retains its existing grammar and snippets.
 
-This version provides **syntax highlighting and language configuration** for RMTX. It does not claim RMTX semantic diagnostics, TypeScript project integration, rename, hover, completion or a production RMTX compiler. The Classic LanguageClient selects only `rmt`; direct Classic code-action and active-file CLI operations reject `.rmtx` as well, including a `.rmtx` file manually relabeled as `rmt`. No RMTX source is sent to the Classic parser.
+The shared LanguageClient selects `rmt` and `rmtx`. The server dispatches RMTX to its project compiler and an in-memory TypeScript adapter. Compiler and type diagnostics, completion, hover, definitions, references and rename use original source locations, including imported Classic state definitions. Incomplete JSX can retain import discovery for completion; compilation still requires valid source. Ordinary `.tsx` provider files retain their TypeScript language service.
+
+Model types come from declared State types and literal initial shapes. Selector rows, nested repeated items and each Action's declared inputs retain their own contexts. Empty or undeclared object and array shapes remain unknown. This does not add TypeScript imports, arbitrary source execution or application business types to the closed RMTX source grammar. Native component properties use the catalog types; provider properties use captured interface metadata. Rename covers mapped model fields and declared RMT references, with edits on real `.rmtx`/`.rmt` files.
+
+`xtendRmt.rmtx.syntaxVersion` explicitly selects the project source profile (default `8.0.0`); the standalone parser retains its Source1 default. Provider metadata uses the shared project option `rmtxProvidersFile`, exposed as `xtendRmt.rmtxProvidersFile`, or the optional workspace-root `rmtx.providers.json`. Providers are not executed to discover types. Restart the server after changing these settings. File watchers invalidate project inputs and metadata; unsaved RMT/RMTX buffers overlay disk contents.
+
+Classic primitive code actions, lint and debugger workflows keep their existing guards. RMTX build commands use the project CLI: `xt rmt check file.rmtx --project --source-syntax rmtx --rmtx-syntax-version 8.0.0 --json` and `xt maraca build file.rmtx --project --source-syntax rmtx --rmtx-syntax-version 8.0.0 --out dist --json`. The product remains in release preparation; this editor integration does not establish SSR or release readiness.
 
 Run the standalone TextMate probe with the installed VS Code runtime (or provide ordinary `vscode-textmate`/`vscode-oniguruma` test dependencies):
 
@@ -39,7 +45,7 @@ Build locally with:
 npm run build:rmt-editor:vscode
 ```
 
-The local builder uses the already vendored dependency tree from the previous VSIX and does not download packages from the registry.
+The local builder uses the already vendored LanguageClient dependency tree from the previous VSIX and stages the installed TypeScript compiler and the compiler's required local files. Missing dependencies fail the build. The generated package does not require the author's `NODE_PATH`. The builder does not download packages from the registry.
 
 The VSIX build also stages exactly the publishable `@ccslabs/xtend-mcp` files plus its installed production dependency closure. It verifies the MCP package version, knowledge-manifest version, and documentation artifact hash before creating the VSIX.
 
@@ -57,7 +63,7 @@ Workspace writes remain unavailable unless the last setting is enabled. Even the
 
 ## Language Server
 
-The packaged extension starts the Language Server through `vscode-languageclient`:
+The packaged extension starts the Language Server through `vscode-languageclient` using VS Code's Node runtime (`process.execPath` with `ELECTRON_RUN_AS_NODE=1`). This avoids depending on a system `node` of a different version. Trusted custom server invocations can override the command and arguments. The equivalent standalone invocation is:
 
 ```json
 {

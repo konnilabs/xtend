@@ -1,0 +1,22 @@
+✔ legacy compilation session retains exact counters and readonly facts (14.57386ms)
+✔ project cache rechecks transitive contents and language/version identity (1016.930619ms)
+✔ content watcher observes unchanged graphs, edits, missing files and renames (659.240328ms)
+✔ bridge v1 remains legacy and v2 runs typed project compilation (222.243848ms)
+✔ bridge diagnostics and compile share original semantic errors without a disable bypass (455.475749ms)
+✔ MCP selects explicit RMTX, rejects provider TSX and preserves dependency locations (9.010603ms)
+✔ inline MCP project tooling requires an explicit workspace instead of reading the process CWD (222.639633ms)
+✔ RMTX scaffold writes an explicit native project config and actually compiles (293.214199ms)
+✔ Maraca project plans preserve the native wire contract and used imported declarations (1487.975582ms)
+✔ explicit inline RMTX uses the same synthetic identity for graph and actual native compilation (475.922901ms)
+✔ Maraca project plans share genuine same-root session facts and reject foreign callbacks (246.740221ms)
+✔ CLI project check and watch-once return the same source-bound graph (1553.742062ms)
+✔ CLI and MCP report identical imported compiler codes and original ranges (304.440306ms)
+✔ CLI, MCP and Maraca share the selected provider registry without executing provider code (2556.144179ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9844.185368

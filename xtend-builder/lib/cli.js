@@ -31,6 +31,9 @@ const {
   buildMaracaBundle,
   buildMaracaBundleAsync,
   createMaracaBuildPlan,
+  createMaracaProjectBuildPlan,
+  buildMaracaProjectBundle,
+  buildMaracaProjectBundleAsync,
   tuneMaracaBuild
 } = requireLocalOrScoped(
   __filename,
@@ -154,6 +157,9 @@ function buildHelpText() {
     '  xt maraca tune app.rmt --config maraca.config.json --out dist --write --json',
     '  xt rmt build app.rmt --bundle maraca --orchestration strict --kernel strict --hydration strict --validation strict --transitions strict --out dist --json',
     '  xt rmt lint app.rmt --json',
+    '  xt rmt check app.rmtx --project --source-syntax rmtx --rmtx-syntax-version 8.0.0 --json',
+    '  xt rmt watch app.rmtx --project --json',
+    '  xt maraca build app.rmtx --project --source-syntax rmtx --out dist --json',
     '  xt rmt ai-kit export --profile compact --format md --json',
     '  xt rmt ai-kit export --profile full --format jsonl --out tools/rmt-language/generated/rmt-ai-developer-kit --json',
     '  xt kernel-lab analyze --json',
@@ -324,6 +330,54 @@ function normalizeRmtBuildFlags(rest) {
   return flags;
 }
 
+function usesProjectBuild(flags) {
+  if (flags.project === true || flags.project === 'true' || flags.sourceSyntax || flags['source-syntax'] || flags.rmtxProvidersFile || flags['rmtx-providers-file'] || /\.rmtx$/iu.test(flags.source || '')) return true;
+  const configPath = flags.config || flags.configPath || flags['build-config'];
+  if (configPath) {
+    try { return JSON.parse(require('node:fs').readFileSync(require('node:path').resolve(process.cwd(), configPath), 'utf8')).schema === 'xtend.maraca.project-config.v1'; }
+    catch (_) { return false; }
+  }
+  return false;
+}
+function projectSettings(flags) {
+  const sourceSyntax = flags.sourceSyntax || flags['source-syntax'];
+  return { ...(sourceSyntax ? { sourceSyntax: sourceSyntax === 'rmt' ? 'rmt-vnext' : sourceSyntax } : {}),
+    ...(flags.rmtxProvidersFile || flags['rmtx-providers-file'] ? { rmtxProvidersFile: flags.rmtxProvidersFile || flags['rmtx-providers-file'] } : {}),
+    rmtxSyntaxVersion: flags.rmtxSyntaxVersion || flags['rmtx-syntax-version'] || '8.0.0', semanticCheck: true };
+}
+function runProjectCheck(flags, stdout, stderr) {
+  const path = require('node:path');
+  const { compileRmtProjectSource } = requireLocalOrScoped(__filename, '../../tools/rmt-language/rmt-project', '@ccslabs/xtend-compiler/rmt-language/rmt-project');
+  const rootDir = path.resolve(flags.rootDir || flags['root-dir'] || process.cwd());
+  const filePath = path.resolve(rootDir, flags.source || flags._?.[0] || 'app.rmt');
+  const result = compileRmtProjectSource({ filePath }, { ...projectSettings(flags), rootDir });
+  const report = { schema: 'xtend.rmt.project-check.v1', apiVersion: '1.0.0', ok: result.ok, status: result.status, project: result.project, diagnostics: result.diagnostics };
+  if (flags.json) writeLine(stdout, JSON.stringify(report, null, 2));
+  else {
+    for (const diagnostic of report.diagnostics || []) {
+      const position = diagnostic.range?.start || { line: 0, character: 0 };
+      writeLine(stderr, `${diagnostic.severity || 'error'} ${diagnostic.code} ${diagnostic.filePath || diagnostic.file || filePath}:${position.line + 1}:${position.character + 1} ${diagnostic.message}`);
+    }
+    if (report.ok) writeLine(stdout, `XTend project checked: ${report.project.entryFile}`);
+  }
+  return report.ok ? 0 : 1;
+}
+async function runProjectWatch(flags, stdout, stderr) {
+  const { createRmtProjectWatcher } = requireLocalOrScoped(__filename, '../../tools/rmt-language/project-watch', '@ccslabs/xtend-compiler/rmt-language/project-watch');
+  let result;
+  const watcher = createRmtProjectWatcher({ ...projectSettings(flags), rootDir: flags.rootDir || flags['root-dir'] || process.cwd(),
+    entryFile: flags.source || flags._?.[0] || 'app.rmt', intervalMs: flags.interval ? Number(flags.interval) : 200,
+    onResult(value) { result = value; const report = { schema: 'xtend.rmt.project-check.v1', apiVersion: '1.0.0', ok: value.ok, status: value.status, project: value.project, diagnostics: value.diagnostics };
+      if (flags.json) writeLine(stdout, JSON.stringify(report)); else if (value.ok) writeLine(stdout, `XTend project checked: ${value.project.entryFile}`); else printMaracaDiagnostics(stderr, report); }
+  });
+  if (flags.once === true || flags.once === 'true') { try { watcher.poll(); return result.ok ? 0 : 1; } finally { watcher.dispose(); } }
+  return new Promise((resolve, reject) => {
+    const close = () => { watcher.dispose(); process.removeListener('SIGINT', close); process.removeListener('SIGTERM', close); resolve(0); };
+    process.once('SIGINT', close); process.once('SIGTERM', close);
+    try { watcher.start(); } catch (error) { watcher.dispose(); process.removeListener('SIGINT', close); process.removeListener('SIGTERM', close); reject(error); }
+  });
+}
+
 function buildConfigSummary() {
   return {
     schema: CLI_SCHEMA,
@@ -412,6 +466,7 @@ function runCli(args = process.argv.slice(2), io = {}) {
         '',
         'Usage:',
         '  xt create app --runtime maraca --design-kit none --server both --out rmt-app --write --json',
+        '  xt create app --runtime maraca --design-kit none --source-syntax rmtx --out rmtx-app --write --json',
         '  xt create app --runtime maraca --design-kit material --server both --out material-app --write --json',
         '  xt create app --runtime maraca --design-kit material --server none --out material-app --check --json',
         '',
@@ -437,6 +492,11 @@ function runCli(args = process.argv.slice(2), io = {}) {
     flags.json = options.json || flags.json;
     flags.rootDir = process.cwd();
     const designKit = String(flags['design-kit'] || flags.designKit || 'none').toLowerCase();
+    if ((designKit === 'material' || designKit === 'xtm') && (flags.sourceSyntax === 'rmtx' || flags['source-syntax'] === 'rmtx')) {
+      const report = { schema: 'xtend.scaffold.app-preset.rmt-report.v2', ok: false, status: 'blocked', errors: ['The RMTX scaffold uses the provider-neutral native preset; Material templates remain a separate Classic preset.'] };
+      if (flags.json) writeLine(stdout, JSON.stringify(report)); else report.errors.forEach(error => writeLine(stderr, error));
+      return 1;
+    }
     const generator = designKit === 'material' || designKit === 'xtm' ? 'material-app' : 'rmt-app';
     const result = runGenerator(generator, flags);
     if (flags.json || options.json) {
@@ -666,14 +726,16 @@ function runCli(args = process.argv.slice(2), io = {}) {
     flags.json = options.json || flags.json;
 
     if (subcommand === 'plan') {
-      const result = createMaracaBuildPlan(flags, { rootDir: process.cwd() });
+      const modern = usesProjectBuild(flags);
+      const result = (modern ? createMaracaProjectBuildPlan : createMaracaBuildPlan)(flags, { rootDir: process.cwd() });
+      const plan = modern ? result.plan : result;
       if (flags.json || options.json) {
         writeLine(stdout, JSON.stringify(result, null, 2));
       } else if (result.ok) {
         writeLine(stdout, `XTend Maraca Plan: ${result.status}`);
-        writeLine(stdout, `Source: ${result.source}`);
-        writeLine(stdout, `Components: ${result.components.requiredTags.join(', ') || 'none'}`);
-        writeLine(stdout, `Output: ${result.outputDir}`);
+        writeLine(stdout, `Source: ${plan.source}`);
+        writeLine(stdout, `Components: ${plan.components.requiredTags.join(', ') || 'none'}`);
+        writeLine(stdout, `Output: ${plan.outputDir}`);
       } else {
         printMaracaDiagnostics(stderr, result);
       }
@@ -681,15 +743,17 @@ function runCli(args = process.argv.slice(2), io = {}) {
     }
 
     if (subcommand === 'build') {
-      const result = buildMaracaBundle(flags, { rootDir: process.cwd() });
+      const modern = usesProjectBuild(flags);
+      const result = (modern ? buildMaracaProjectBundle : buildMaracaBundle)(flags, { rootDir: process.cwd() });
+      const build = modern ? result.build : result;
       if (flags.json || options.json) {
         writeLine(stdout, JSON.stringify(result, null, 2));
       } else if (result.ok) {
         writeLine(stdout, `XTend Maraca Build: ${result.status}`);
-        writeLine(stdout, `Entry: ${result.bundleReport.entry}`);
-        writeLine(stdout, `Host: ${result.plan.outputs.host}`);
-        writeLine(stdout, `Serve: xt serve --root ${result.bundleReport.outputDir}`);
-        writeLine(stdout, `Bundle bytes: ${result.bundleReport.bytes}`);
+        writeLine(stdout, `Entry: ${build.bundleReport.entry}`);
+        writeLine(stdout, `Host: ${build.plan.outputs.host}`);
+        writeLine(stdout, `Serve: xt serve --root ${build.bundleReport.outputDir}`);
+        writeLine(stdout, `Bundle bytes: ${build.bundleReport.bytes}`);
       } else {
         printMaracaDiagnostics(stderr, result);
       }
@@ -795,6 +859,11 @@ function runCli(args = process.argv.slice(2), io = {}) {
   if (command === 'rmt') {
     const subcommand = options.rest[0] || 'help';
 
+    if (subcommand === 'check') {
+      const flags = normalizeRmtBuildFlags(options.rest.slice(1)); flags.json = options.json || flags.json;
+      return runProjectCheck(flags, stdout, stderr);
+    }
+
     if (subcommand === 'kernel-lab') {
       const kernelLabSubcommand = options.rest[1] || 'help';
       return runKernelLabCli(kernelLabSubcommand, options.rest.slice(2), options, stdout, stderr);
@@ -804,15 +873,17 @@ function runCli(args = process.argv.slice(2), io = {}) {
       const flags = normalizeRmtBuildFlags(options.rest.slice(1));
       flags.json = options.json || flags.json;
 
-      if (flags.bundle === 'maraca' || flags.maraca === true) {
-        const result = buildMaracaBundle(flags, { rootDir: process.cwd() });
+      if (flags.bundle === 'maraca' || flags.maraca === true || usesProjectBuild(flags)) {
+        const modern = usesProjectBuild(flags);
+        const result = (modern ? buildMaracaProjectBundle : buildMaracaBundle)(flags, { rootDir: process.cwd() });
+        const build = modern ? result.build : result;
         if (flags.json || options.json) {
           writeLine(stdout, JSON.stringify(result, null, 2));
         } else if (result.ok) {
           writeLine(stdout, `XTend RMT Maraca Build: ${result.status}`);
-          writeLine(stdout, `Entry: ${result.bundleReport.entry}`);
-          writeLine(stdout, `Host: ${result.plan.outputs.host}`);
-          writeLine(stdout, `Serve: xt serve --root ${result.bundleReport.outputDir}`);
+          writeLine(stdout, `Entry: ${build.bundleReport.entry}`);
+          writeLine(stdout, `Host: ${build.plan.outputs.host}`);
+          writeLine(stdout, `Serve: xt serve --root ${build.bundleReport.outputDir}`);
         } else {
           printMaracaDiagnostics(stderr, result);
         }
@@ -987,15 +1058,17 @@ async function runCliAsync(args = process.argv.slice(2), io = {}) {
     flags.json = options.json || flags.json;
 
     if (subcommand === 'build') {
-      const result = await buildMaracaBundleAsync(flags, { rootDir: process.cwd() });
+      const modern = usesProjectBuild(flags);
+      const result = await (modern ? buildMaracaProjectBundleAsync : buildMaracaBundleAsync)(flags, { rootDir: process.cwd() });
+      const build = modern ? result.build : result;
       if (flags.json || options.json) {
         writeLine(stdout, JSON.stringify(result, null, 2));
       } else if (result.ok) {
         writeLine(stdout, `XTend Maraca Build: ${result.status}`);
-        writeLine(stdout, `Entry: ${result.bundleReport.entry}`);
-        writeLine(stdout, `Host: ${result.plan.outputs.host}`);
-        writeLine(stdout, `Serve: xt serve --root ${result.bundleReport.outputDir}`);
-        writeLine(stdout, `Bundle bytes: ${result.bundleReport.bytes}`);
+        writeLine(stdout, `Entry: ${build.bundleReport.entry}`);
+        writeLine(stdout, `Host: ${build.plan.outputs.host}`);
+        writeLine(stdout, `Serve: xt serve --root ${build.bundleReport.outputDir}`);
+        writeLine(stdout, `Bundle bytes: ${build.bundleReport.bytes}`);
       } else {
         printMaracaDiagnostics(stderr, result);
       }
@@ -1003,6 +1076,12 @@ async function runCliAsync(args = process.argv.slice(2), io = {}) {
     }
 
     if (subcommand === 'tune') {
+      if (usesProjectBuild(flags)) {
+        const result = { schema: 'xtend.maraca.project-build-result.v1', apiVersion: '1.0.0', ok: false, status: 'project_tune_unavailable', project: null, build: null,
+          diagnostics: [{ code: 'xtend.maraca.project.tune_unavailable', severity: 'error', message: 'Project builds require their explicit project configuration; legacy single-source tune does not lock transitive project inputs.' }] };
+        if (flags.json) writeLine(stdout, JSON.stringify(result)); else printMaracaDiagnostics(stderr, result);
+        return 1;
+      }
       const result = await tuneMaracaBuild(flags, { rootDir: process.cwd() });
       if (flags.json || options.json) {
         writeLine(stdout, JSON.stringify(result, null, 2));
@@ -1020,19 +1099,26 @@ async function runCliAsync(args = process.argv.slice(2), io = {}) {
   if (command === 'rmt') {
     const subcommand = options.rest[0] || 'help';
 
+    if (subcommand === 'watch') {
+      const flags = normalizeRmtBuildFlags(options.rest.slice(1)); flags.json = options.json || flags.json;
+      return runProjectWatch(flags, stdout, stderr);
+    }
+
     if (subcommand === 'build') {
       const flags = normalizeRmtBuildFlags(options.rest.slice(1));
       flags.json = options.json || flags.json;
 
-      if (flags.bundle === 'maraca' || flags.maraca === true) {
-        const result = await buildMaracaBundleAsync(flags, { rootDir: process.cwd() });
+      if (flags.bundle === 'maraca' || flags.maraca === true || usesProjectBuild(flags)) {
+        const modern = usesProjectBuild(flags);
+        const result = await (modern ? buildMaracaProjectBundleAsync : buildMaracaBundleAsync)(flags, { rootDir: process.cwd() });
+        const build = modern ? result.build : result;
         if (flags.json || options.json) {
           writeLine(stdout, JSON.stringify(result, null, 2));
         } else if (result.ok) {
           writeLine(stdout, `XTend RMT Maraca Build: ${result.status}`);
-          writeLine(stdout, `Entry: ${result.bundleReport.entry}`);
-          writeLine(stdout, `Host: ${result.plan.outputs.host}`);
-          writeLine(stdout, `Serve: xt serve --root ${result.bundleReport.outputDir}`);
+          writeLine(stdout, `Entry: ${build.bundleReport.entry}`);
+          writeLine(stdout, `Host: ${build.plan.outputs.host}`);
+          writeLine(stdout, `Serve: xt serve --root ${build.bundleReport.outputDir}`);
         } else {
           printMaracaDiagnostics(stderr, result);
         }

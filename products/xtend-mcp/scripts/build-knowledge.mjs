@@ -165,7 +165,7 @@ function writeBundle(outputRoot) {
   }
   const manifest = {
     schema: 'xtend.mcp.knowledge-manifest.v1',
-    version: '0.1.0',
+    version: readJson(path.join(packageRoot, 'package.json')).version,
     generatedAt: 'static-local',
     sourceOfTruth: {
       docs: ['docs/de', 'docs/en', 'docs/menu.json'],

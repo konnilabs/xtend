@@ -108,6 +108,7 @@
   },
   "files": [
     "index.js",
+    "project-build.js",
     "html-security.js",
     "index.d.ts",
     "runtime.js",

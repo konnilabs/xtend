@@ -95,6 +95,19 @@ node xtend-builder/scaffold.js rmt-app-platform \
 
 The generic `rmt-build` command emits core JSON, an XTend custom element, an app module, an HTTP host, a browser-smoke fixture, and a scaffold report. `rmt-app-platform` adds App Platform diagnostics and source maps.
 
+#### Check, watch and build an RMTX project
+
+```sh
+xt rmt check src/app.rmtx --project --source-syntax rmtx --rmtx-syntax-version 8.0.0 --json
+xt rmt watch src/app.rmtx --project --json
+xt maraca build src/app.rmtx --project --source-syntax rmtx --out dist --json
+xt create app --runtime maraca --design-kit none --source-syntax rmtx --out rmtx-app --write --json
+```
+
+Project checking uses the same semantic compiler as MCP. Watch observes transitive content, missing imports and renames; Ctrl+C disposes its session. A Classic entry can import RMTX when selected with `--project`; its effective native profile follows the linked program. Project builds return their own versioned wrapper around the retained native plan and runtime. The provider-neutral RMTX scaffold contains a native `.rmtx` view and an explicitly imported Classic host-service declaration. Its `check`, `watch`, `plan` and `build` scripts use these actual project paths. The Material preset remains a separate Classic preset. Project builds do not imply Source8 SSR/adoption acceptance; legacy single-source `tune` does not lock project dependencies.
+
+Provider projects may select the existing pinned registry with `--rmtx-providers-file rmtx.providers.json`; a root `rmtx.providers.json` is discovered automatically. Registry, interface and provider-module edits invalidate the same project graph used by check, watch and Maraca.
+
 #### Create an XTend Material Maraca app
 
 ```bash

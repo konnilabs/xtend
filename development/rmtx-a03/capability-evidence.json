@@ -40,7 +40,7 @@
     "tools/xtensions/vue-runtime-adapter.d.ts": "f441bed2550894206df776eec5d3cbfece18adb92c1432060494b38bc80d699f",
     "tools/xtensions/state-binding.js": "6c2db5ef127540d95b2ba99bdd64e353f54ce25e40752df7edd39c2d312ad34b",
     "tools/xtensions/state-binding.d.ts": "c107f80208183fced3c5031c3a9a9c9d4dc2ab95ee5b27070de88454d1b48810",
-    "tools/package.json": "0db41679b10630820326cebe98a81062599e54172de4b88caefd1ea365ae2bc8",
+    "tools/package.json": "b74c11a4250e6df52ebab577eba0f7ceccca55c92ca1090f5e7cd82eb989f674",
     "xtend-maraca/plan-runtime.d.ts": "85fa3bc56032ab6ce3e13e151bf1b41f5f79cfaf66c3167e9bf374e41223fb57",
     "tests/xtensions/capability-negotiation-acceptance.js": "9652752c186e6aae55a400ac3587060a9c7588f979f6d66521e2bf0f6408caaf",
     "tests/xtensions/capability-negotiation-maraca-acceptance.js": "3a42e8a9fe380882ac6c5a42c7ea854f5ebbc44473c1b757fbe65c1d973f150c",
