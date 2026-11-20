@@ -49,6 +49,8 @@ export interface XModalOverlayInteractionSnapshot {
 }
 
 export interface XModalElement extends HTMLElement {
+  actions: Array<{ label: string; action: string; primary?: boolean; close?: boolean }>;
+
   open(): void;
   close(options?: { source?: XModalCloseSource }): void;
   snapshot(): XModalOverlayInteractionSnapshot;

@@ -28,9 +28,9 @@ function scopeChain(value) {
     if (scope.path.some(part => typeof part !== 'string')) fail('Native repeat sources require direct property paths.');
   });
 }
-function expression(value, scopes, symbols, reads) {
+function expression(value, scopes, symbols, reads, structured = false) {
   visitProjection(value, node => {
-    if (node.kind === 'object' || node.kind === 'array') fail('Native text, attributes, properties and conditions use scalar projections only.');
+    if (!structured && (node.kind === 'object' || node.kind === 'array')) fail('Native text, attributes, properties and conditions use scalar projections only.');
     if (node.kind === 'literal') {
       if (node.value !== null && !['string', 'number', 'boolean'].includes(typeof node.value)) fail('Native literals must be finite JSON scalars.');
       return;
@@ -54,18 +54,19 @@ function wrap(value) {
 }
 function validateNativeViewContract(contract, appPlatform = null) { return validateNativeViewProfile(contract, appPlatform, false); }
 function validateRmtxNativeOrchestrationViewContract(contract, appPlatform = null, context = {}) { return validateNativeViewProfile(contract, appPlatform, true, context); }
-function validateNativeViewProfile(contract, appPlatform, orchestration, context = {}) {
-  data(contract); fields(contract, orchestration ? ['schema','sourceProfile','documentId','views','components','scopes','eventKeys'] : ['schema', 'sourceProfile', 'documentId', 'views'], 'Native view source contract');
+function validateRmtxManagedNativeViewContract(contract, appPlatform = null, context = {}) {return validateNativeViewProfile(contract,appPlatform,true,context,true);}
+function validateNativeViewProfile(contract, appPlatform, orchestration, context = {}, managed = false) {
+  data(contract); fields(contract, managed ? ['schema','sourceProfile','documentId','views','components','scopes','eventKeys','bindings','events','commands'] : orchestration ? ['schema','sourceProfile','documentId','views','components','scopes','eventKeys'] : ['schema', 'sourceProfile', 'documentId', 'views'], 'Native view source contract');
   fields(contract.sourceProfile, ['syntax', 'version'], 'Native view source profile');
-  if (contract.schema !== (orchestration ? RMTX_NATIVE_ORCHESTRATION_VIEW_SCHEMA : RMTX_NATIVE_VIEW_SCHEMA) || contract.sourceProfile.syntax !== 'rmtx' || contract.sourceProfile.version !== (orchestration ? '7.0.0' : '5.0.0')) fail('Native views require the explicit RMTX5 source contract.');
+  if (contract.schema !== (managed ? 'xtend.rmtx.native-view.v3' : orchestration ? RMTX_NATIVE_ORCHESTRATION_VIEW_SCHEMA : RMTX_NATIVE_VIEW_SCHEMA) || contract.sourceProfile.syntax !== 'rmtx' || contract.sourceProfile.version !== (managed ? '8.0.0' : orchestration ? '7.0.0' : '5.0.0')) fail('Native views require the explicit RMTX5 source contract.');
   name(contract.documentId);
   if (!Array.isArray(contract.views) || contract.views.length > 256) fail('Native views require a bounded views array.');
   const symbols = appPlatform ? { states: new Set((appPlatform.state || []).map(value => value.id)), selectors: new Set((appPlatform.selectors || []).map(value => value.id)) } : null;
   const surfaces = appPlatform ? new Map((appPlatform.surfaces || []).map(value => [value.id, value])) : null;
   const seenSurfaces = new Set(), seenNodes = new Set(), dependencies = [], compiled = new Map();
   const { NATIVE_VIEW_TAG_NAMES, NATIVE_VIEW_VOID_TAG_NAMES, assertNativeAttributeName, assertNativePropertyName, assertNativeDomId } = guards();
-  const componentContract = orchestration ? require('../xtensions/native-component-contract') : null;
-  const componentRecords = orchestration ? require('./rmtx-native-components').validateRmtxNativeComponents(contract.components) : [];
+  const componentContract = managed ? require('../xtensions/native-component-contract-v2') : orchestration ? require('../xtensions/native-component-contract') : null;
+  const componentRecords = managed ? require('./rmtx-native-components-v2').validateRmtxNativeComponentsV2(contract.components) : orchestration ? require('./rmtx-native-components').validateRmtxNativeComponents(contract.components) : [];
   const publicComponents = new Map(componentRecords.map(record => [record.tag, record]));
   const scoped = new Map();
   if (orchestration) {
@@ -93,7 +94,7 @@ function validateNativeViewProfile(contract, appPlatform, orchestration, context
     if (!Array.isArray(nodes) || depth > 64) fail('Native children must be a bounded descriptor array.');
     return nodes.map(node => {
       if (++count > 50000) fail('Native views exceed the node budget.');
-      fields(node, orchestration && node.type === 'native-component' ? ['type','tag','attributes','properties','slots','nativeDeclarationId'] : node.type === 'element' ? ['type', 'tag', 'attributes', 'properties', 'children', 'nativeDeclarationId']
+      fields(node, orchestration && node.type === 'native-component' ? (managed ? ['type','tag','attributes','properties','slots','nativeDeclarationId','ref','events'] : ['type','tag','attributes','properties','slots','nativeDeclarationId']) : node.type === 'element' ? ['type', 'tag', 'attributes', 'properties', 'children', 'nativeDeclarationId',...(managed?['ref']:[])]
         : node.type === 'text' ? ['type', 'value', 'nativeDeclarationId']
           : node.type === 'native-repeat' ? ['type', 'repeat', 'children', 'nativeDeclarationId']
             : node.type === 'native-when' ? ['type', 'test', 'children', 'nativeDeclarationId'] : [], 'Native node');
@@ -103,15 +104,15 @@ function validateNativeViewProfile(contract, appPlatform, orchestration, context
       if (orchestration && node.type === 'native-component') {
         const metadata=publicComponents.get(node.tag);
         if(!metadata)fail('Public component tag is absent from the captured shipped metadata.');
-        const output={type:'native-component',tag:node.tag,nativeDeclarationId:node.nativeDeclarationId};
+        const output={type:'native-component',tag:node.tag,nativeDeclarationId:node.nativeDeclarationId,...(managed?{ref:node.ref,events:clone(node.events||[])}:{})};
         if(Object.hasOwn(node.attributes||{},'id')&&Object.hasOwn(node.properties||{},'id'))fail('A component DOM id uses exactly one source sink.');
         for(const field of ['attributes','properties']){
           fields(node[field]||{},Object.keys(node[field]||{}),'Public component scalar sinks');const values={};
           if(Object.keys(node[field]||{}).length>64)fail('Native component sinks exceed the bounded field map.');
           for(const [key,value]of Object.entries(node[field]||{})){
-            if(!componentContract.nativeComponentSinkAllowed(metadata,key,field==='attributes'?'attribute':'property'))fail('Unknown or unsafe component field.');
+            if(!(managed?componentContract.nativeComponentSinkAllowedV2:componentContract.nativeComponentSinkAllowed)(metadata,key,field==='attributes'?'attribute':'property'))fail('Unknown or unsafe component field.');
             if(key==='id'){if(scopes.length||value.kind!=='literal')fail('Component DOM ids require an unscoped static literal.');assertNativeDomId(value.value);}
-            expression(value,scopes,symbols,reads);values[key]=wrap(value);
+            expression(value,scopes,symbols,reads,managed&&field==='properties');values[key]=wrap(value);
           }
           if(Object.keys(values).length)output[field]=values;
         }
@@ -150,7 +151,7 @@ function validateNativeViewProfile(contract, appPlatform, orchestration, context
       if (node.type !== 'element' || !NATIVE_VIEW_TAG_NAMES.includes(node.tag)) fail('Native Element requires an allowed HTML tag.');
       if (Object.hasOwn(node.attributes || {}, 'id') && Object.hasOwn(node.properties || {}, 'id'))
         fail('Native Element must declare a DOM id through exactly one source sink.');
-      const output = { type: 'element', tag: node.tag, nativeDeclarationId: node.nativeDeclarationId };
+      const output = { type: 'element', tag: node.tag, nativeDeclarationId: node.nativeDeclarationId,...(managed&&node.ref?{ref:node.ref}:{}) };
       for (const field of ['attributes', 'properties']) {
         fields(node[field] || {}, Object.keys(node[field] || {}), 'Native element fields');
         if (Object.keys(node[field] || {}).length > 64) fail('Native elements accept at most 64 fields per sink.');
@@ -198,9 +199,9 @@ function validateNativeViewProfile(contract, appPlatform, orchestration, context
     compiled.set(view.surface, children(view.children, repeat, reads, 0));
     dependencies.push({ surface: view.surface, reads: [...reads.values()].sort((a, b) => JSON.stringify(a) < JSON.stringify(b) ? -1 : JSON.stringify(a) > JSON.stringify(b) ? 1 : 0), allSyntacticBranches: true });
   }
-  return { surfaces: compiled, contract: freeze({ schema: orchestration ? RMT_NATIVE_ORCHESTRATION_VIEW_SCHEMA : RMT_NATIVE_VIEW_SCHEMA, documentId: contract.documentId, surfaces: [...compiled.keys()],
-      ...(orchestration ? {components:clone(componentRecords),scopes:clone(contract.scopes),eventKeys:context.core ? lowerRmtxNativeEventKeys(contract,context.core,context.events,context.inputContract) : []} : {}) }),
-    dependencies: freeze({ schema: orchestration ? RMTX_NATIVE_ORCHESTRATION_VIEW_DEPENDENCIES_SCHEMA : RMTX_NATIVE_VIEW_DEPENDENCIES_SCHEMA, sourceProfile: clone(contract.sourceProfile), surfaces: dependencies,
+  return { surfaces: compiled, contract: freeze({ schema: managed ? 'xtend.rmt.native-view.v3' : orchestration ? RMT_NATIVE_ORCHESTRATION_VIEW_SCHEMA : RMT_NATIVE_VIEW_SCHEMA, documentId: contract.documentId, surfaces: [...compiled.keys()],
+      ...(orchestration ? {components:clone(componentRecords),scopes:clone(contract.scopes),eventKeys:context.core ? lowerRmtxNativeEventKeys(contract,context.core,context.events,context.inputContract) : [],...(managed?require('./rmtx-native-component-bindings').lowerNativeComponentBindings(contract,context):{})} : {}) }),
+    dependencies: freeze({ schema: managed ? 'xtend.rmtx.native-view-dependencies.v3' : orchestration ? RMTX_NATIVE_ORCHESTRATION_VIEW_DEPENDENCIES_SCHEMA : RMTX_NATIVE_VIEW_DEPENDENCIES_SCHEMA, sourceProfile: clone(contract.sourceProfile), surfaces: dependencies,
       runtimeTracking: false, runtimeSubscriptionsChanged: false }) };
 }
 function lowerRmtxNativeViews(contract, appPlatform) {
@@ -222,6 +223,7 @@ function lowerRmtxNativeEventKeys(contract, core, events, inputContract) {
     return {event:event.id,surface:declaration.surface,astPointer:declaration.astPointer,fields:clone(declaration.fields)};
   });
 }
-module.exports = { RMTX_NATIVE_VIEW_API_VERSION, RMTX_NATIVE_VIEW_SCHEMA, RMT_NATIVE_VIEW_SCHEMA, RMTX_NATIVE_VIEW_DEPENDENCIES_SCHEMA,
+function lowerRmtxManagedNativeViews(contract, appPlatform, context={}) {try{return validateRmtxManagedNativeViewContract(contract,appPlatform,context);}catch(error){if(error.code==='rmtx.native-view.invalid')throw error;fail(error.message);}}
+module.exports = { validateRmtxManagedNativeViewContract, lowerRmtxManagedNativeViews, RMTX_NATIVE_VIEW_API_VERSION, RMTX_NATIVE_VIEW_SCHEMA, RMT_NATIVE_VIEW_SCHEMA, RMTX_NATIVE_VIEW_DEPENDENCIES_SCHEMA,
   validateNativeViewContract, lowerRmtxNativeViews, RMTX_NATIVE_ORCHESTRATION_VIEW_API_VERSION, RMTX_NATIVE_ORCHESTRATION_VIEW_SCHEMA, RMT_NATIVE_ORCHESTRATION_VIEW_SCHEMA, RMTX_NATIVE_ORCHESTRATION_VIEW_DEPENDENCIES_SCHEMA,
   validateRmtxNativeOrchestrationViewContract, lowerRmtxNativeOrchestrationViews, lowerRmtxNativeEventKeys };

@@ -54,7 +54,7 @@ test('v2 declares selector admission, field rules and strict boolean semantics i
 });
 
 test('new profile capability preserves exact v1 and v2 wire contracts', () => {
-  assert.equal(profiles.RMTX_OPERATOR_PROFILE_API_VERSION,'6.0.0');
+  assert.equal(profiles.RMTX_OPERATOR_PROFILE_API_VERSION,'7.0.0');
   const expected={
     '1.0.0':'d40079c970f88ee4c66e547f81d1d35052643a86c3d79712b79d4e8cc4aff4ec',
     '2.0.0':'27f9d25ba4e730b0db9812a451af631d14bb1fa11cd16abd9ef35d19002f55c1'
@@ -146,7 +146,7 @@ test('catalog references remain coherent and do not claim dynamic tracking or ru
 });
 
 test('authoring names follow the v7 catalog and all operator/helper calls require compilation', () => {
-  assert.equal(authoring.RMTX_AUTHORING_API_VERSION,'7.0.0');
+  assert.equal(authoring.RMTX_AUTHORING_API_VERSION,'8.0.0');
   assert.deepEqual(Object.keys(authoring.RMT),Object.keys(profiles.getRmtxOperatorProfile('7.0.0').operators));
   assert(Object.isFrozen(authoring));assert(Object.isFrozen(authoring.RMT));
   let touched=false;
@@ -162,7 +162,7 @@ test('strict authoring types reject unknown attributes and enums while preservin
     const file=path.join(temporary,'consumer.cts');
     const authoringModule=path.resolve(__dirname,'../../tools/rmt-language/rmtx').replaceAll('\\','/');
     const profileModule=path.resolve(__dirname,'../../tools/rmt-language/rmtx-operator-profiles').replaceAll('\\','/');
-    fs.writeFileSync(file,`import {RMT,model,item,contains,type RmtxLegacyAuthoringNamespace,type RmtxAuthoringNamespaceV2,type RmtxAuthoringNamespaceV3} from '${authoringModule}';
+    fs.writeFileSync(file,`import {RMT,model,item,contains,type RmtxLegacyAuthoringNamespace,type RmtxLegacyReferenceNamespace,type RmtxAuthoringNamespaceV2,type RmtxAuthoringNamespaceV3} from '${authoringModule}';
 import {getRmtxOperatorProfile} from '${profileModule}';
 const legacy = {} as RmtxLegacyAuthoringNamespace;
 legacy.Program({legacyField:true});
@@ -192,8 +192,11 @@ RMT.Sort({by:item.name,direction:'sideways'});
 RMT.Output({type:'object[]',children:'native'});
 // @ts-expect-error State initial data cannot contain executable values.
 RMT.State({id:'bad',type:'object',initial:{run:()=>0}});
-// @ts-expect-error Model field inference is intentionally unavailable in this stage.
-const unsupported = model.product.name;
+// @ts-expect-error The explicitly named legacy marker retains unknown field values.
+const unsupported = ({} as RmtxLegacyReferenceNamespace).product.name;
+// Source8 dynamic markers permit paths without claiming generated Model types.
+type IsAny<T> = 0 extends (1 & T) ? true : false;
+const untypedDynamicMarker: IsAny<typeof model.product.name> = true;
 // @ts-expect-error A repeat always declares an explicit stable item key.
 RMT.Repeat({from:model.groups});
 // @ts-expect-error Repeat attributes stay closed.

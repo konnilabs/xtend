@@ -24,7 +24,7 @@ async function companion() {
 test.after(() => fs.rmSync(temporary, { recursive: true, force: true }));
 test('actual Source5 compilation builds captured native manifest9/artifact10 through the existing provider graph', async () => {
   const { plan, report } = await companion(), contract = await import('../../xtend-maraca/xtension-composition-contract.mjs');
-  assert.equal(require('../../xtend-maraca/xtension-composition').XTENSION_COMPOSITION_BUILD_API_VERSION, '16.0.0');
+  assert.equal(require('../../xtend-maraca/xtension-composition').XTENSION_COMPOSITION_BUILD_API_VERSION, '17.0.0');
   assert.equal(report.schema, 'xtend.maraca.xtension-composition-build-report.v10'); assert.equal(report.apiVersion, '10.0.0');
   assert.equal(report.artifact.schema, 'xtend.maraca.xtension-composition-artifact.v10');
   assert.equal(report.artifact.plan.schema, 'xtend.maraca.build-plan.v9'); assert.equal(report.artifact.plan.program.schema, 'xtend.rmt.app-orchestration.v3');
@@ -51,7 +51,7 @@ test('native port7 uses the captured provider interface and rejects SSR before c
   const installedPlan = { ...plan, xtensionComposition: report.artifact }, actualCompanion = await import(pathToFileURL(report.entryPath).href);
   const options = { plan: installedPlan, companion: actualCompanion, bindingsRuntime, componentInterfaceRuntime: require('../../tools/xtensions/component-interface'),
     adapters: {}, loadPeerGroup() { throw new Error('Contract creation must not load peers.'); }, grants: Object.fromEntries(report.artifact.manifest.hosts.map(host => [host.declarationId, {}])) };
-  assert.equal(runtime.XTENSION_COMPOSITION_API_VERSION, '13.0.0');
+  assert.equal(runtime.XTENSION_COMPOSITION_API_VERSION, '14.0.0');
   assert.throws(() => runtime.createMaracaXTensionCompositionPort({ ...options, ssr: {} }), /Source5.*SSR/);
   const port = runtime.createMaracaXTensionCompositionPort(options); assert.equal(port.schema, 'xtend.maraca.xtension-composition-port.v7'); assert(Object.isFrozen(port));
   const forged = copy(report.artifact); forged.manifest.hosts[0].intents.unknown = {};

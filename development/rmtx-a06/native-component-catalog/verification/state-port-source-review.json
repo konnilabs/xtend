@@ -1,0 +1,91 @@
+{
+  "format": 1,
+  "kind": "post-preparation-state-port-source-review",
+  "baseHead": "39907c7f0221f9d8b469d59006331c3649272268",
+  "passed": true,
+  "acceptedForRelease": false,
+  "previousCompletePreparation": {
+    "report": "preparation-final/index.json",
+    "sha256": "ce32cc9f5653cf53d26adef5ed374306f8a84d109959ca53cb39d826ad7f8515",
+    "commands": 94
+  },
+  "earlierBoundInputs": 2833,
+  "unchangedEarlierInputs": 2829,
+  "changes": [
+    {
+      "path": "components/native-services.d.ts",
+      "beforeSha256": "d3b22f71e6f43373599d36071e82fccc7cb07f1a93513a308c46ebdfa6565870",
+      "afterSha256": "8ffb4cd75c0447b5ffd887ba92e22156eff4a94d5e6991369e88368f9329d4a9",
+      "kind": "state-port-schema-correction"
+    },
+    {
+      "path": "components/native-services.js",
+      "beforeSha256": "90ca51b518343df0706c26012d1ee9ce5d40cea8075a04cf9fb5bba5fc6de20b",
+      "afterSha256": "93f9e0e2f54d253cdfd6d0e4f39537fb3c5b28c1219cea6d4369b9d2a0e4f79d",
+      "kind": "state-port-schema-correction"
+    },
+    {
+      "path": "development/rmtx-a06/native-component-catalog/matrix.v2.json",
+      "beforeSha256": "4cede5fb91ba7bec3cf333ecb3fcee7c80386e0cfc724ffdeddaadffb16fc42a",
+      "afterSha256": "9c8cfbd75409cfbc12a97252d6650cf3648377527846d1b370ddff129133c981",
+      "kind": "evidence-reference-only"
+    },
+    {
+      "path": "tests/components/native-platform-services.test.mjs",
+      "beforeSha256": "a2dc557c89556724cb5520271df7b00728e4de95f9c5fadca0c84c5e375bad2e",
+      "afterSha256": "eb13cc3fec78fccbcd5f142cc9b988049df70b9154c767def53ba84357a4e8df",
+      "kind": "state-port-schema-correction"
+    }
+  ],
+  "targetedCurrentVerification": {
+    "report": "state-port-fix/index.json",
+    "sha256": "a2317aa76332d7bc4e752bd75603473db1428885f651559a6c408ca0e103786b",
+    "casesPerNode": 134,
+    "browserCases": 86
+  },
+  "currentSdk": {
+    "24": {
+      "report": "sdk-node24-state-port.json",
+      "sha256": "27d470a54202353d8742dc5701978dabbf2e9a8e58acb575d246ed56139a271b",
+      "checks": 1452
+    },
+    "26": {
+      "report": "sdk-node26-state-port.json",
+      "sha256": "20c8b707d7d3e6025f7abbc2966f9e3536199dbf605fd7d39fdbb7b50e18e9b2",
+      "checks": 1452
+    }
+  },
+  "currentUnchangedProductionScopes": [
+    {
+      "report": "native-managed-chromium-r03.json",
+      "sha256": "3c9bdc32b8d055068b2ab21b27cbaca7ce2b9423d5222aebc1a6b88bb04ec296",
+      "unchangedRecordedSourcePins": 563
+    },
+    {
+      "report": "native-managed-node24-r03.json",
+      "sha256": "ede14ebd141c4a6f6d5c06b406b3d3c488386f51c82ee33aaca3dedfe29d7350",
+      "unchangedRecordedSourcePins": 563
+    },
+    {
+      "report": "native-managed-node26-r03.json",
+      "sha256": "df0a6f594cf0acfc3f4b1bf17bec6c8f4c9e16b1384f7576f68fa1b03e3a49ed",
+      "unchangedRecordedSourcePins": 563
+    },
+    {
+      "report": "source7-retention-chromium-r02.json",
+      "sha256": "6beb2606acfd80b1084f2a8bb1695331dcc87481314238516ab351f556b4a832",
+      "unchangedRecordedSourcePins": 576
+    },
+    {
+      "report": "source7-retention-node24-r02.json",
+      "sha256": "b379ea458199d8adb67b3381462cb12f7388698944be1ceaf0c3c5b4ff51b6bb",
+      "unchangedRecordedSourcePins": 576
+    },
+    {
+      "report": "source7-retention-node26-r02.json",
+      "sha256": "c57840a9b82b88eea6a368ef3ae7799a6e7a8ab117d5779421a3c927f8724f51",
+      "unchangedRecordedSourcePins": 576
+    }
+  ],
+  "scope": "Three-file live-service contract marker correction plus a matrix evidence reference update. Earlier complete gates remain immutable earlier-stage evidence; affected groups, browser and full SDK suites were rerun. No earlier source pins were rewritten."
+}

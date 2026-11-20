@@ -121,11 +121,11 @@ function extendedExpression(expression, repeat, symbols) {
   if (expression.kind === 'literal' && typeof expression.value !== 'boolean') fail('A literal lifecycle guard must be Boolean.');
   return [...reads.values()].sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
 }
-function validateRmtxExtendedLifecycleContract(contract) {
+function validateExtendedLifecycleProfile(contract, managed) {
   assertNativeCanonicalData(contract); data(contract);
   fields(contract, ['schema', 'documentId', 'sourceProfile', 'viewProfile', 'actionProfile', 'operations'], 'Extended lifecycle source');
-  if (contract.schema !== RMTX_EXTENDED_LIFECYCLE_SCHEMA) fail('Expected the explicit Source7 lifecycle source contract.');
-  name(contract.documentId); extendedProfile(contract.sourceProfile, '7.0.0'); extendedProfile(contract.viewProfile, '7.0.0'); extendedProfile(contract.actionProfile, '4.0.0');
+  if (contract.schema !== (managed?'xtend.rmtx.native-lifecycle.v3':RMTX_EXTENDED_LIFECYCLE_SCHEMA)) fail('Expected the explicit Source7 lifecycle source contract.');
+  name(contract.documentId); extendedProfile(contract.sourceProfile, managed?'8.0.0':'7.0.0'); extendedProfile(contract.viewProfile, managed?'8.0.0':'7.0.0'); extendedProfile(contract.actionProfile, managed?'8.0.0':'4.0.0');
   if (!Array.isArray(contract.operations) || contract.operations.length > 256) fail('Lifecycle declarations require a bounded operation array.');
   const pointers = new Set(), operations = new Set();
   for (const operation of contract.operations) {
@@ -139,8 +139,8 @@ function validateRmtxExtendedLifecycleContract(contract) {
   }
   return freeze(clone(contract));
 }
-function validateRmtxExtendedLifecycleAst(contract, ast) {
-  const source = validateRmtxExtendedLifecycleContract(contract);
+function validateExtendedLifecycleAstProfile(contract, ast, managed) {
+  const source = validateExtendedLifecycleProfile(contract, managed);
   for (const operation of source.operations) {
     let current = ast; const ancestors = [];
     for (const part of operation.astPointer.slice(1).split('/')) { ancestors.push(current); current = current?.[part]; }
@@ -153,9 +153,9 @@ function validateRmtxExtendedLifecycleAst(contract, ast) {
   }
   return source;
 }
-function lowerRmtxExtendedLifecycle(contract, core, nativeViewContract) {
-  const source = validateRmtxExtendedLifecycleContract(contract);
-  if (core?.manifest?.documentId !== source.documentId || nativeViewContract?.documentId !== source.documentId || nativeViewContract.schema !== 'xtend.rmtx.native-view.v2') fail('Source7 lifecycle and Native View documents differ.');
+function lowerExtendedLifecycleProfile(contract, core, nativeViewContract, managed) {
+  const source = validateExtendedLifecycleProfile(contract, managed);
+  if (core?.manifest?.documentId !== source.documentId || nativeViewContract?.documentId !== source.documentId || nativeViewContract.schema !== (managed?'xtend.rmtx.native-view.v3':'xtend.rmtx.native-view.v2')) fail('Source7 lifecycle and Native View documents differ.');
   if ((core.operations || []).some(operation => operation.condition)) fail('Source7 uses closed lifecycle scalar guards, not Classic condition strings.');
   const symbols = { states: new Set((core.appPlatform?.state || []).map(value => value.id)), selectors: new Set((core.appPlatform?.selectors || []).map(value => value.id)) };
   const surfaces = new Map((core.surfaces || []).map(surface => [surface.id, surface]));
@@ -188,10 +188,16 @@ function lowerRmtxExtendedLifecycle(contract, core, nativeViewContract) {
     return { id: operation.id, astPointer: declaration.astPointer, ownerSurface: declaration.ownerSurface, target: declaration.target,
       op: declaration.op, lane: declaration.lane, when: clone(declaration.when), ...(declaration.repeat ? { repeat: clone(declaration.repeat) } : {}) };
   });
-  return freeze({ plan: { schema: 'xtend.rmt.native-lifecycle-plan.v2', documentId: source.documentId, sourceProfile: { syntax: 'rmtx', version: '7.0.0' }, viewProfile: { syntax: 'rmtx', version: '7.0.0' }, actionProfile: ACTION, operations },
-    dependencies: { schema: RMTX_EXTENDED_LIFECYCLE_DEPENDENCIES_SCHEMA, sourceProfile: { syntax: 'rmtx', version: '7.0.0' }, operations: dependencies, runtimeTracking: false, runtimeSubscriptionsChanged: false } });
+  return freeze({ plan: { schema: managed?'xtend.rmt.native-lifecycle-plan.v3':'xtend.rmt.native-lifecycle-plan.v2', documentId: source.documentId, sourceProfile: { syntax: 'rmtx', version: managed?'8.0.0':'7.0.0' }, viewProfile: { syntax: 'rmtx', version: managed?'8.0.0':'7.0.0' }, actionProfile: managed?{syntax:'rmtx',version:'8.0.0'}:ACTION, operations },
+    dependencies: { schema: managed?'xtend.rmtx.lifecycle-dependencies.v3':RMTX_EXTENDED_LIFECYCLE_DEPENDENCIES_SCHEMA, sourceProfile: { syntax: 'rmtx', version: managed?'8.0.0':'7.0.0' }, operations: dependencies, runtimeTracking: false, runtimeSubscriptionsChanged: false } });
 }
-module.exports = { RMTX_NATIVE_LIFECYCLE_API_VERSION, RMTX_NATIVE_LIFECYCLE_SCHEMA, RMTX_LIFECYCLE_DEPENDENCIES_SCHEMA,
+function validateRmtxExtendedLifecycleContract(contract){return validateExtendedLifecycleProfile(contract,false);}
+function validateRmtxExtendedLifecycleAst(contract,ast){return validateExtendedLifecycleAstProfile(contract,ast,false);}
+function lowerRmtxExtendedLifecycle(contract,core,view){return lowerExtendedLifecycleProfile(contract,core,view,false);}
+function validateRmtxManagedNativeLifecycleContract(contract){return validateExtendedLifecycleProfile(contract,true);}
+function validateRmtxManagedNativeLifecycleAst(contract,ast){return validateExtendedLifecycleAstProfile(contract,ast,true);}
+function lowerRmtxManagedNativeLifecycle(contract,core,view){return lowerExtendedLifecycleProfile(contract,core,view,true);}
+module.exports = { validateRmtxManagedNativeLifecycleContract,validateRmtxManagedNativeLifecycleAst,lowerRmtxManagedNativeLifecycle,RMTX_NATIVE_LIFECYCLE_API_VERSION, RMTX_NATIVE_LIFECYCLE_SCHEMA, RMTX_LIFECYCLE_DEPENDENCIES_SCHEMA,
   validateRmtxNativeLifecycleContract, validateRmtxNativeLifecycleAst, lowerRmtxNativeLifecycle,
   RMTX_EXTENDED_LIFECYCLE_API_VERSION, RMTX_EXTENDED_LIFECYCLE_SCHEMA, RMTX_EXTENDED_LIFECYCLE_DEPENDENCIES_SCHEMA,
   validateRmtxExtendedLifecycleContract, validateRmtxExtendedLifecycleAst, lowerRmtxExtendedLifecycle,

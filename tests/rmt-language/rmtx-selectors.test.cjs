@@ -20,7 +20,7 @@ function effectiveState(state) { return {...state,selectors:state.selectors.map(
 test('v2 is explicit and produces separate parser/compiler contracts while default and v1 remain unchanged',()=>{
  const old=`import{RMT}from'@ccslabs/xtend/rmt-language/rmtx';export default <RMT.Program id="old"/>;`;
  const a=compileRmtxSource(old),b=compileRmtxSource(old,{syntaxVersion:'1.0.0'});
- assert.equal(RMTX_COMPILER_API_VERSION,'7.0.0');assert.equal(a.schema,'xtend.rmtx.compile-result.v1');assert.equal(a.apiVersion,'1.0.0');
+ assert.equal(RMTX_COMPILER_API_VERSION,'8.0.0');assert.equal(a.schema,'xtend.rmtx.compile-result.v1');assert.equal(a.apiVersion,'1.0.0');
  assert.deepEqual(JSON.parse(JSON.stringify(a)),JSON.parse(JSON.stringify(b)));assert.equal(Object.hasOwn(a,'selectorDependencies'),false);
  const c=compile(old);assert.equal(c.ok,true);assert.equal(c.apiVersion,'2.0.0');assert.equal(c.schema,'xtend.rmtx.compile-result.v2');
  assert.equal(c.parserResult.schema,'xtend.rmtx.parser-result.v2');assert.deepEqual(c.selectorDependencies.topologicalOrder,[]);

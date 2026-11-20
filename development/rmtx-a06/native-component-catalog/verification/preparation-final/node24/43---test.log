@@ -1,0 +1,24 @@
+✔ component manifest v6 keeps declared owner and render target distinct without changing binding v2 (1328.58297ms)
+✔ component tune/config roundtrip requires v6 and cannot reinterpret a v5 configuration (57.967712ms)
+✔ manifest rejects missing owner (26.653061ms)
+✔ manifest rejects wrong render target (17.797848ms)
+✔ manifest rejects missing interface pin (25.986885ms)
+✔ manifest rejects duplicate interface provider (16.865498ms)
+✔ manifest rejects changed interface reference (21.336805ms)
+✔ manifest rejects caller grant (23.69964ms)
+✔ manifest rejects legacy reinterpretation (26.880393ms)
+✔ build rejects untrusted sidecar pin before output mutation (20.989031ms)
+✔ build rejects caller-added prop before output mutation (29.804455ms)
+✔ build rejects unknown raw payload field before output mutation (27.795544ms)
+✔ build rejects forged provider metadata before output mutation (30.074857ms)
+✔ captured component artifact v7 binds source files, mapping and native delivery; v6 data keeps its own semantics (35.617506ms)
+✔ ESM bridge distinguishes metadata property names from unresolved CommonJS operations (1.394075ms)
+✔ new interfaces typecheck through public compiler/Maraca ports without widening Legacy profile types (652.129752ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2491.980949

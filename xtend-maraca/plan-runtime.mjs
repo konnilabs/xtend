@@ -10,6 +10,7 @@ const COMPONENT_SSR_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v12';
 const RMTX_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v13';
 const NATIVE_RMTX_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v14';
 const LIFECYCLE_RMTX_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v15';
+const MANAGED_RMTX_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v17';
 const ORCHESTRATED_RMTX_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v16';
 const COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v10';
 const XTENSION_PLAN_RUNTIME_SCHEMA = 'xtend.maraca.plan-runtime.v8';
@@ -243,21 +244,22 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   const rawPlan = asRecord(options.plan);
   const schemaDescriptor = Object.getOwnPropertyDescriptor(rawPlan, 'schema');
   if (schemaDescriptor && !hasOwn(schemaDescriptor, 'value')) throw new TypeError('A Maraca plan schema must be an own data field.');
-  const orchestrationInput = schemaDescriptor?.value === 'xtend.maraca.build-plan.v11';
+  const managedInput = schemaDescriptor?.value === 'xtend.maraca.build-plan.v12';
+  const orchestrationInput = managedInput || schemaDescriptor?.value === 'xtend.maraca.build-plan.v11';
   const lifecycleInput = orchestrationInput || schemaDescriptor?.value === 'xtend.maraca.build-plan.v10';
   const lifecyclePort = options.nativeLifecycleRuntimePort;
-  if (lifecycleInput && (lifecyclePort?.NATIVE_LIFECYCLE_RUNTIME_API_VERSION !== (orchestrationInput ? '2.0.0' : '1.0.0') || typeof lifecyclePort.createNativeLifecycleIntegration !== 'function'))
+  if (lifecycleInput && (lifecyclePort?.NATIVE_LIFECYCLE_RUNTIME_API_VERSION !== (managedInput ? '3.0.0' : orchestrationInput ? '2.0.0' : '1.0.0') || typeof lifecyclePort.createNativeLifecycleIntegration !== 'function'))
     throw new TypeError('Source6 requires the explicit Native lifecycle runtime entry.');
   const nativeInput = lifecycleInput || schemaDescriptor?.value === 'xtend.maraca.build-plan.v9';
   if (nativeInput) {
-    if (nativePort?.NATIVE_VIEW_PROJECTION_API_VERSION !== (orchestrationInput ? '3.0.0' : lifecycleInput ? '2.0.0' : '1.0.0')
+    if (nativePort?.NATIVE_VIEW_PROJECTION_API_VERSION !== (managedInput ? '4.0.0' : orchestrationInput ? '3.0.0' : lifecycleInput ? '2.0.0' : '1.0.0')
         || ['assertNativeCanonicalData', 'validateNativeViewProgram', 'materializeNativeView'].some(method => typeof nativePort[method] !== 'function'))
       throw new TypeError('Native RMTX requires its complete Native View projection port v1.');
     checkNativeData(options.plan, true);
     if (options.initialState !== undefined) checkNativeData(options.initialState);
   }
   const plan = immutableClone(rawPlan, {});
-  if (['xtend.maraca.build-plan.v9', 'xtend.maraca.build-plan.v10', 'xtend.maraca.build-plan.v11'].includes(plan.schema) && !nativeInput) throw new TypeError('Native plans require an explicit own schema field before normalization.');
+  if (['xtend.maraca.build-plan.v9', 'xtend.maraca.build-plan.v10', 'xtend.maraca.build-plan.v11', 'xtend.maraca.build-plan.v12'].includes(plan.schema) && !nativeInput) throw new TypeError('Native plans require an explicit own schema field before normalization.');
   const normalizedInitialState = immutableClone(asRecord(options.initialState || plan.state), {});
   const normalizedStreamLifecycleActions = immutableClone(asRecord(options.streamLifecycleActions), {});
   const root = options.root;
@@ -271,14 +273,15 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   const ssrSession = ['xtend.maraca.xtension-composition-port.v2','xtend.maraca.xtension-composition-port.v5'].includes(compositionPort?.schema) ? compositionPort.ssrSession : null;
   if (compositionPort?.schema === 'xtend.maraca.xtension-composition-port.v5' && !ssrSession) throw new TypeError('The component SSR port requires its v2 session.');
   if (ssrSession && (ssrSession.schema !== (compositionPort.schema === 'xtend.maraca.xtension-composition-port.v5' ? 'xtend.maraca.xtension-ssr-session.v2' : 'xtend.maraca.xtension-ssr-session.v1') || compositionPort.resumeBindingsRuntime?.XTENSION_RESUME_STATE_BINDING_API_VERSION !== '3.0.0')) throw new TypeError('SSR requires the prepared v1 session and resume binding API 3.');
-  const isOrchestrated = plan.schema === 'xtend.maraca.build-plan.v11';
+  const isManaged = plan.schema === 'xtend.maraca.build-plan.v12';
+  const isOrchestrated = isManaged || plan.schema === 'xtend.maraca.build-plan.v11';
   const lifecycleProfile = isOrchestrated ? lifecyclePort.profile : null;
   const isLifecycle = isOrchestrated || plan.schema === 'xtend.maraca.build-plan.v10';
   const isNative = isLifecycle || plan.schema === 'xtend.maraca.build-plan.v9';
   const typedProfile = isNative || plan.schema === 'xtend.maraca.build-plan.v8';
   const inlineProfile = plan.xtensionComposition?.schema === (lifecycleProfile?.compositionArtifactSchema || (isLifecycle ? 'xtend.maraca.xtension-composition-artifact.v11' : isNative ? 'xtend.maraca.xtension-composition-artifact.v10' : 'xtend.maraca.xtension-composition-artifact.v9'));
-  if (typedProfile && (artifact.schema !== (lifecycleProfile?.programSchema || (isLifecycle ? 'xtend.rmt.app-orchestration.v4' : isNative ? 'xtend.rmt.app-orchestration.v3' : 'xtend.rmt.app-orchestration.v2')) || artifact.actions?.schema !== 'xtend.rmt.action-plan.v2'
-      || artifact.actions?.inputContract?.schema !== 'xtend.rmt.action-input-contract.v1') || !typedProfile && ['xtend.rmt.app-orchestration.v2','xtend.rmt.app-orchestration.v3','xtend.rmt.app-orchestration.v4','xtend.rmt.app-orchestration.v5'].includes(artifact.schema))
+  if (typedProfile && (artifact.schema !== (lifecycleProfile?.programSchema || (isLifecycle ? 'xtend.rmt.app-orchestration.v4' : isNative ? 'xtend.rmt.app-orchestration.v3' : 'xtend.rmt.app-orchestration.v2')) || artifact.actions?.schema !== (isManaged ? 'xtend.rmt.action-plan.v3' : 'xtend.rmt.action-plan.v2')
+      || artifact.actions?.inputContract?.schema !== 'xtend.rmt.action-input-contract.v1') || !typedProfile && ['xtend.rmt.app-orchestration.v2','xtend.rmt.app-orchestration.v3','xtend.rmt.app-orchestration.v4','xtend.rmt.app-orchestration.v5','xtend.rmt.app-orchestration.v6'].includes(artifact.schema))
     throw new TypeError('Typed RMTX orchestration requires its matching v8 plan and input contract.');
   if (typedProfile && (ssrSession || options.adoptExisting === true)) throw new TypeError('RMTX orchestration profile4 currently requires the CSR runtime; SSR adoption is an A06.6 target.');
   const scoped = plan.xtensionComposition?.schema === 'xtend.maraca.xtension-composition-artifact.v8', componentProfile = scoped || plan.xtensionComposition?.schema === 'xtend.maraca.xtension-composition-artifact.v7';
@@ -507,7 +510,70 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
   const shellClosedSurfaces = new Set();
   let currentSurfaceLifecycleSnapshot = null;
   let shellEpoch = 0;
+  const nativeOwnerBoundaries = new Map();
+  let nativePlatformHost = null;
+  let nativeEventConditionEvaluator = null;
+  const nativeRuntimeHost = isManaged ? Object.freeze({
+    resolve(binding) {
+      const id = String(binding.surfaceId || '');
+      const read = () => runtimes?.surfaceController?.readSnapshot({ includeDestroyed: true }).surfaces.find(row => row.id === id);
+      const authority = read();
+      if (!authority || !Number.isSafeInteger(authority.generation) || ['destroyed','destroying'].includes(authority.status)) throw new TypeError('Native component requires its actual live Surface Controller generation');
+      let owned = nativeOwnerBoundaries.get(id);
+      if (!owned || owned.generation !== authority.generation || owned.boundary.disposed) {
+        owned?.boundary.dispose();
+        owned = { generation: authority.generation, boundary: createMaracaAbortBoundary({ id: `native-owner:${id}`, parent: presentationBoundary }) };
+        nativeOwnerBoundaries.set(id, owned);
+      }
+      const boundary = owned.boundary, token = boundary.capture(), epoch = shellEpoch;
+      const current = () => phase !== 'disposed' && epoch === shellEpoch && boundary.isCurrent(token) && read()?.generation === authority.generation && !['destroyed','destroying'].includes(read()?.status);
+      return Object.freeze({ owner: Object.freeze({ documentId: artifact.render.nativeView.documentId, surfaceId: id, controllerId: String(runtimes.surfaceController.managerId || options.surfaceControllerId || 'xtend.maraca.surface-controller'), generation: authority.generation }), signal: boundary.signal, isCurrent: current, isActive: () => current() && getSurfaceBoundary(id).active && read()?.status === 'open' && !read()?.minimized && !read()?.collapsed,
+        ports: Object.freeze({
+          verifyNativeTerminalReceipt: (command,result,lease) => nativePlatformHost?.verifyNativeTerminalReceipt(command,result,lease) === true,
+          isNativeEventEnabled(eventId,lease) {
+            if (!current() || !lease.isCurrent()) return false;
+            const sources = artifact.render.nativeView.events.filter(row => row.eventId === eventId && row.component === binding.declarationId && row.ref === binding.ref);
+            const events = asArray(artifact.events).filter(row => row.id === eventId && row.component === binding.declarationId);
+            if (sources.length !== 1 || events.length !== 1 || typeof nativeEventConditionEvaluator !== 'function') throw new TypeError('Native event requires its exact compiled component condition and live Model reader');
+            const enabled = nativeEventConditionEvaluator(events[0].condition,{modelReader:runtimes.state.modelReader || runtimes.state.model});
+            if (typeof enabled !== 'boolean') throw new TypeError('Native event condition must return a strict Boolean');
+            return enabled;
+          },
+          dispatchValidatedIntent: (action,payload,lease) => dispatchCommand(action,payload,{ source:'native-component', nativeRef:lease.ref, surfaceId:id },lease),
+          dispatchComponentCommand: (capability,request,lease) => {
+            if (typeof options.nativeComponentPorts?.dispatchComponentCommand !== 'function') throw new TypeError('Native commands require their compiled Kernel operation authority');
+            return options.nativeComponentPorts.dispatchComponentCommand(capability,request,lease);
+          },
+          dispatch: (capability,args,lease) => {
+            if (['router.bind','surface.bind','surface.manager.bind','surface.portal.bind'].includes(capability)) {
+              if (!nativePlatformHost) throw new TypeError('Native platform requires its actual Controller/Graph adapter');
+              return nativePlatformHost.dispatch(capability,args,lease);
+            }
+            if (capability === 'focus.request') {
+              if (typeof runtimes.renderer?.focusNativeComponent !== 'function') throw new TypeError('Native focus requires the actual shared renderer focus port');
+              return runtimes.renderer.focusNativeComponent(lease.element,args,{ isCurrent: lease.isCurrent, signal: lease.signal });
+            }
+            if (capability === 'layout.bind') {
+              if (typeof runtimes.renderer?.createNativeSlotPresentationLease !== 'function') throw new TypeError('Native layout requires the actual shared renderer presentation lease');
+              return runtimes.renderer.createNativeSlotPresentationLease(lease.element,args,{ isCurrent: lease.isCurrent, signal: lease.signal });
+            }
+            if (capability === 'overlay.acquire') {
+              if (typeof runtimes.renderer?.createNativeOverlayLease !== 'function') throw new TypeError('Native overlays require the actual shared renderer overlay lease');
+              return runtimes.renderer.createNativeOverlayLease(lease.element,args,{ root,owner:lease.owner,isCurrent:()=>lease.isCurrent()&&lease.isActive(),isActive:lease.isActive,signal:lease.signal });
+            }
+            const port = options.nativeComponentPorts || options.nativeServices;
+            if (typeof port?.dispatch !== 'function') throw new TypeError('Native component capability requires an injected owner-scoped service port: '+capability);
+            return port.dispatch(capability,args,lease);
+          },
+          onError: error => recordDiagnostic('maraca.native-component','error',error.message)
+        })
+      });
+    }
+  }) : null;
+  if (isManaged && options.installNativeRuntimeHost) options.installNativeRuntimeHost(nativeRuntimeHost);
   const nativeLifecycle = isLifecycle ? lifecyclePort.createNativeLifecycleIntegration(artifact, {
+    nativeRuntimeHost,
+    installNativePlatformHost(host) { nativePlatformHost = host; },
     readAuthority: () => runtimes?.surfaceController?.readSnapshot({ includeDestroyed: true }), boundary: getSurfaceBoundary,
     contentExists: id => { const node = viewProjectionPort?.resolveSurface(id); return !!node && root.contains(node); },
     shellEpoch: () => shellEpoch, snapshot: () => runtimes.state.snapshot(),
@@ -602,6 +668,8 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       const admitted = visible && !modelHidden && (!shellClosedSurfaces.has(id) || previous && !previous.visible);
       let boundary = getSurfaceBoundary(id);
       const destroyed = ['destroyed', 'destroying'].includes(record.status);
+      const nativeOwner = nativeOwnerBoundaries.get(id);
+      if (nativeOwner && (destroyed || nativeOwner.generation !== record.generation)) { nativeOwner.boundary.dispose(); nativeOwnerBoundaries.delete(id); }
       const wasDestroyed = previous && ['destroyed', 'destroying'].includes(previous.status);
       const authorizedRecreation = !wasDestroyed || Number.isSafeInteger(record.generation)
         && Number.isSafeInteger(previous.generation) && record.generation > previous.generation;
@@ -1436,6 +1504,33 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
       if (typeof context.isCurrent === 'function' && !context.isCurrent()) break;
       const effect = immutableClone(entry.value.effect || { id: entry.id, kind: entry.kind }, {});
       const declaredContext = asRecord(entry.value.context);
+      if (effect.kind === 'component-command') {
+        if (!isManaged) throw new TypeError('Native component commands require the explicit Source8 runtime');
+        const rows = artifact.render?.nativeView?.commands;
+        const matches = Array.isArray(rows) ? rows.filter(row => row.id === effect.id && row.action === context.action) : [];
+        if (matches.length !== 1) throw new TypeError('Native component command requires its exact compiled Header3 sidecar');
+        const command = matches[0];
+        if (typeof nativePort.resolveNativeCommand !== 'function' || typeof nativePort.dispatchNativeComponentCommand !== 'function') throw new TypeError('Native component command evaluation/dispatch capability is missing');
+        const evaluation = { snapshot: context.modelSnapshot || runtimes.state.snapshot(), input: context.payload || declaredContext.payload || {} };
+        const resolved = nativePort.resolveNativeCommand(nativeProgram, effect.id, evaluation.snapshot, evaluation.input);
+        const { surfaceId } = resolved;
+        const lifetime = nativeRuntimeHost.resolve({ surfaceId, ref: resolved.ref, keys: resolved.keys });
+        const fibers = asArray(plan.kernel?.artifact?.scheduler?.fibers).filter(row => row.operation === command.id);
+        if (fibers.length !== 1) throw new TypeError('Native component command requires its exact compiled Kernel operation');
+        const fiber = fibers[0];
+        const result = await nativePort.dispatchNativeComponentCommand({ owner: lifetime.owner, target: resolved.target, command: resolved.command, args: resolved.args, keys: resolved.keys }, {
+          dispatchComponentCommand(capability, request, lease) {
+            if (!lifetime.isCurrent() || !lifetime.isActive() || !lease.isCurrent() || context.signal?.aborted || typeof context.isCurrent === 'function' && !context.isCurrent()) throw new TypeError('Native component command lifetime is stale');
+            return scheduleWork('component-command', () => {
+              if (!lifetime.isCurrent() || !lifetime.isActive() || !lease.isCurrent() || context.signal?.aborted || typeof context.isCurrent === 'function' && !context.isCurrent()) throw new TypeError('Native component command lifetime was revoked before Kernel admission');
+              return request.invoke();
+            }, { operation: command.id, sourceRef: command.sourceRef, fiberId: fiber.id, lane: fiber.lane, scope: surfaceId, surfaceId, capability, source: 'rmtx-component-command' });
+          }
+        });
+        try { entry.value.result = result; entry.value.deferred = false; } catch (_) {}
+        results.push({ id: entry.id, kind: entry.kind, result });
+        continue;
+      }
       if (effect.kind === 'emit') {
         const eventName = String(effect.event || '').trim();
         if (!eventName) throw new TypeError('A compiled event publication requires a static event name.');
@@ -3035,6 +3130,7 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
         viewProjectionValidated = true;
       }
       const api = await resolveModules();
+      if (isManaged) nativeEventConditionEvaluator = api.events?.evaluateRmtEventCondition;
       assertCurrentBoot();
       const viewProjectionFactory = runtimeFactory(
         api.viewProjection || api.view || api.hostView,
@@ -3848,6 +3944,8 @@ export function createMaracaPlanRuntime(inputOptions = {}) {
     urlViewSnapshot = null;
     generation += 1;
     presentationBoundary.dispose();
+    for (const owned of nativeOwnerBoundaries.values()) owned.boundary.dispose();
+    nativeOwnerBoundaries.clear();
     fastPass.dispose();
     surfaceBoundaries.clear();
     surfaceTargets.clear();
@@ -3923,5 +4021,5 @@ export async function bootMaracaPlan(options = {}) {
   return runtime;
 }
 
-export { ORCHESTRATED_RMTX_PLAN_RUNTIME_SCHEMA, LIFECYCLE_RMTX_PLAN_RUNTIME_SCHEMA, NATIVE_RMTX_PLAN_RUNTIME_SCHEMA, RMTX_PLAN_RUNTIME_SCHEMA, SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA, COMPONENT_SSR_PLAN_RUNTIME_SCHEMA, COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA, SSR_XTENSION_PLAN_RUNTIME_SCHEMA, PLAN_RUNTIME_SCHEMA, XTENSION_PLAN_RUNTIME_SCHEMA, LEGACY_PLAN_RUNTIME_SCHEMA };
-export default Object.freeze({ ORCHESTRATED_RMTX_PLAN_RUNTIME_SCHEMA, LIFECYCLE_RMTX_PLAN_RUNTIME_SCHEMA, NATIVE_RMTX_PLAN_RUNTIME_SCHEMA, RMTX_PLAN_RUNTIME_SCHEMA, SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA, COMPONENT_SSR_PLAN_RUNTIME_SCHEMA, COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA, SSR_XTENSION_PLAN_RUNTIME_SCHEMA, PLAN_RUNTIME_SCHEMA, XTENSION_PLAN_RUNTIME_SCHEMA, LEGACY_PLAN_RUNTIME_SCHEMA, createMaracaPlanRuntime, bootMaracaPlan });
+export { MANAGED_RMTX_PLAN_RUNTIME_SCHEMA, ORCHESTRATED_RMTX_PLAN_RUNTIME_SCHEMA, LIFECYCLE_RMTX_PLAN_RUNTIME_SCHEMA, NATIVE_RMTX_PLAN_RUNTIME_SCHEMA, RMTX_PLAN_RUNTIME_SCHEMA, SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA, COMPONENT_SSR_PLAN_RUNTIME_SCHEMA, COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA, SSR_XTENSION_PLAN_RUNTIME_SCHEMA, PLAN_RUNTIME_SCHEMA, XTENSION_PLAN_RUNTIME_SCHEMA, LEGACY_PLAN_RUNTIME_SCHEMA };
+export default Object.freeze({ MANAGED_RMTX_PLAN_RUNTIME_SCHEMA, ORCHESTRATED_RMTX_PLAN_RUNTIME_SCHEMA, LIFECYCLE_RMTX_PLAN_RUNTIME_SCHEMA, NATIVE_RMTX_PLAN_RUNTIME_SCHEMA, RMTX_PLAN_RUNTIME_SCHEMA, SCOPED_COMPONENT_PLAN_RUNTIME_SCHEMA, COMPONENT_SSR_PLAN_RUNTIME_SCHEMA, COMPONENT_XTENSION_PLAN_RUNTIME_SCHEMA, SSR_XTENSION_PLAN_RUNTIME_SCHEMA, PLAN_RUNTIME_SCHEMA, XTENSION_PLAN_RUNTIME_SCHEMA, LEGACY_PLAN_RUNTIME_SCHEMA, createMaracaPlanRuntime, bootMaracaPlan });

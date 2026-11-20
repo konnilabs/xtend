@@ -1,5 +1,7 @@
+import { componentState, markManagedComponentClass } from '../../../components/native-managed.js';
+import { managedProfile } from '../../../components/native-ui-profiles.js';
 import { createComponentStyle, componentNode } from '../../../components/component-dom.js';
-import { xtendState } from '../../../components/xtend-state.js';
+import { xtendState } from '../../../components/xtend-state.definition.js';
 import type { XtendCustomEventMap, XtendFormControlUxProfile, XtendPublicEventContract } from '../../../components/xtend-public-types';
 
 export type XToggleAttributeName = 'name' | 'value' | 'checked' | 'disabled' | 'required' | 'label' | 'busy' | 'invalid' | 'density';
@@ -515,7 +517,7 @@ componentNode(this.ownerDocument, "span", {"id": "state-status", "part": "status
     this.control.addEventListener('keydown', this.handleKeydown);
     this.syncControl();
     this.publishState('attribute');
-    this.unsubscribeState = xtendState.subscribe((key, value) => {
+    this.unsubscribeState = componentState(this, xtendState).subscribe((key, value) => {
       if (key === this.stateKey && typeof value === 'boolean' && value !== this.checked) {
         this.setChecked(value, { emit: false, source: 'property' });
       }
@@ -743,15 +745,14 @@ componentNode(this.ownerDocument, "span", {"id": "state-status", "part": "status
       value: this.value,
       source
     };
-    xtendState.set(this.stateKey, this.checked);
-    xtendState.set(`xtoggle-state-${this.id}`, state);
+    componentState(this, xtendState).set(this.stateKey, this.checked);
+    componentState(this, xtendState).set(`xtoggle-state-${this.id}`, state);
     this.stateText.textContent = this.checked ? 'On' : 'Off';
   }
 }
 
-if (!customElements.get('x-toggle')) {
-  customElements.define('x-toggle', XToggle);
-}
+markManagedComponentClass(XToggle, 'x-toggle', managedProfile<XToggle>('x-toggle'));
+export const nativeDependencies: readonly (readonly [string, CustomElementConstructor])[] = Object.freeze([]);
 
 export { XToggle };
 export default XToggle;

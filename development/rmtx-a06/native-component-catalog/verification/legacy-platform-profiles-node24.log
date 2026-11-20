@@ -1,0 +1,13 @@
+✔ legacy manifest profiles expose no projection capability and capture only its fail-closed guard (1306.555107ms)
+✔ legacy platform still materializes typed nested binding3 hosts and rejects Source4 projection data (1627.949132ms)
+✔ only manifest8 captures the real evaluator and materializes actual Source4 selector projections (212.668559ms)
+✔ Source7 retains its actual orchestrated binding runtime instead of a legacy guard (211.979891ms)
+✔ Source8 retains its explicit managed binding runtime and excludes the legacy guard (213.503828ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3673.494595

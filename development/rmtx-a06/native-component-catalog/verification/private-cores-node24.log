@@ -1,0 +1,11 @@
+✔ Source8 data printer preserves complete JSON values and owns no decoder requirement (6.739357ms)
+✔ data printer retains own prototype-named JSON fields and rejects cycles (1.066392ms)
+✔ Source7 public native modules preserve their versioned baseline export sets (1.135473ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 79.876697

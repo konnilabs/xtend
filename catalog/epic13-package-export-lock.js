@@ -267,7 +267,20 @@ const EXPECTED_EXPORT_KEYS = Object.freeze([
   "./xtensions/native-surface-projection",
   "./xtensions/native-orchestration-lifecycle",
   "./maraca/native-orchestration-runtime",
-  "./maraca/native-surface-graph"
+  "./maraca/native-surface-graph",
+  "./xtensions/native-managed-view-projection",
+  "./xtensions/native-managed-surface-scopes",
+  "./xtensions/native-managed-orchestration-lifecycle",
+  "./xtensions/native-managed-lifecycle",
+  "./xtensions/native-component-contract-v2",
+  "./xtensions/native-component-managed",
+  "./xtensions/native-component-bindings",
+  "./xtensions/state-binding-managed",
+  "./xtensions/url-state-managed",
+  "./rmt-language/rmtx-native-components-v2",
+  "./rmt-language/rmtx-native-component-bindings",
+  "./maraca/native-managed-runtime",
+  "./components/native-services"
 ]);
 
 const REQUIRED_PACK_ROOTS = Object.freeze([

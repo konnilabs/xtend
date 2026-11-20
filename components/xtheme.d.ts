@@ -1,4 +1,4 @@
-import type { XtendCustomEventMap, XtendPublicEventContract } from './xtend-public-types';
+import type { XtendCustomEventMap, XtendPublicEventContract } from './xtend-public-types.js';
 
 export type XThemeEventName = 'theme-initialized' | 'theme-changed' | 'theme-variable-changed' | 'theme-preference-changed' | 'theme-a11y-announcement' | 'theme-density-changed' | 'theme-context-changed' | 'theme-performance-measured';
 export type XThemeTokenMap = Record<string, string>;

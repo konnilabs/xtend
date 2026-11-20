@@ -30,8 +30,8 @@ test('source profile3 is additive without altering established Core, plan or fac
       assert.deepEqual(Object.keys(result), Object.keys(versions[0]));
     }
   }
-  assert.equal(classic.RMT_CLASSIC_COMPILER_API_VERSION, '4.8.0');
-  assert.equal(backend.RMT_VNEXT_COMPILER_API_VERSION, '1.9.0');
+  assert.equal(classic.RMT_CLASSIC_COMPILER_API_VERSION, '4.9.0');
+  assert.equal(backend.RMT_VNEXT_COMPILER_API_VERSION, '1.10.0');
   for (const factory of [classic.createRmtClassicCompiler, backend.createRmtVNextCompiler]) {
     const original = factory(), selected = factory({ sourceProfile: profile('3.0.0') });
     assert.deepEqual(Object.keys(selected), Object.keys(original));
@@ -84,7 +84,7 @@ test('profile3 dependency reports retain empty programs, validation failures and
   assert.deepEqual(dependencies.createRmtxSelectorDependencyReport(viaParser), dependencies.createRmtxSelectorDependencyReport(result));
   assert.equal(dependencies.createRmtxSelectorDependencyReport({ ...viaParser, sourceProfile: profile('2.0.0') }).schema,
     dependencies.RMTX_SELECTOR_DEPENDENCIES_SCHEMA);
-  for (const candidate of [{ ...result, ok: false }, { ...result, sourceProfile: profile('8.0.0') },
+  for (const candidate of [{ ...result, ok: false }, { ...result, sourceProfile: profile('9.0.0') },
     { ...result, primitiveSemanticGraph: null }, { ...result, orchestrationArtifacts: null }])
     assert.throws(() => dependencies.createRmtxSelectorDependencyReport(candidate), { code: 'rmtx.selector-dependencies.invalid' });
 });
@@ -149,7 +149,7 @@ const notLegacy:RmtxSelectorDependencyReport=newReport;
 // @ts-expect-error new report is immutable
 newReport.selectors.push({});
 // @ts-expect-error unknown future versions are rejected
-compileRmtClassicAstResult(ast,{sourceProfile:{syntax:'rmtx',version:'8.0.0'}});
+compileRmtClassicAstResult(ast,{sourceProfile:{syntax:'rmtx',version:'9.0.0'}});
 void [bad1,bad2,badOptions,legacyReport,newReport,parserReport,withMetadata,metadataWins,notLegacy];
 `);
     const ts = require('typescript'), program = ts.createProgram([file], { noEmit: true, strict: true, skipLibCheck: false, types: [],

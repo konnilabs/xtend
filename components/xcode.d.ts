@@ -49,6 +49,8 @@ export type XCodeEventMap = XtendCustomEventMap<XCodeEventDetailMap>;
 export type XCodePublicEventContract = XtendPublicEventContract<XCodeEventName, XCodeSnapshot>;
 
 export interface XCodeElement extends HTMLElement {
+  code: string;
+
   hydrate(): XCodeSnapshot;
   snapshot(): XCodeSnapshot;
   addEventListener<K extends keyof XCodeEventMap>(type: K, listener: (event: XCodeEventMap[K]) => void, options?: boolean | AddEventListenerOptions): void;

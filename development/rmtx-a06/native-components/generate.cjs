@@ -14,7 +14,13 @@ const array=value=>Array.isArray(value)?value.filter(x=>typeof x==='string'):[];
 function capture(tag,module){
  const contract=reviewed[tag];
  if(!contract||contract.module!==module)throw Error('A native tag requires its exact reviewed local module.');
- const source=fs.readFileSync(path.join(root,module),'utf8');
+ const {captureNativeDefinitionClosure}=require('../../../tools/xtensions/native-component-source');
+ const closure=captureNativeDefinitionClosure(root,module),entryFile=path.join(root,module);
+ let entry=fs.readFileSync(entryFile,'utf8');
+ const receipt='// Native shared-definition closure sha256: '+closure.sha256;
+ const expected=entry.replace(/^\/\/ Native shared-definition closure sha256: [a-f0-9]{64}\n/u,'');
+ if(entry!==receipt+'\n'+expected){if(process.argv.includes('--check'))throw Error('Reviewed Source7 shared definition closure drift.');entry=receipt+'\n'+expected;fs.writeFileSync(entryFile,entry);}
+ const source=fs.readFileSync(path.join(root,closure.definition),'utf8');
  if(!source.includes('.attachShadow('))throw Error('Reviewed native tags must retain their shipped Shadow DOM implementation.');
  const file=ts.createSourceFile(module,source,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS),variables=new Map(),getters=new Map(),props=new Set(),slots=new Set();
  function walk(node){
@@ -52,7 +58,7 @@ function capture(tag,module){
  for(const name of contract.properties)if(!props.has(name))throw Error('A reviewed native property is absent from the shipped declarations: '+tag+'.'+name);
  for(const name of contract.inheritedProperties)if(name!=='title'||props.has(name))throw Error('Only the reviewed inherited HTMLElement.title sink is admitted without an own setter.');
  for(const name of contract.slots)if(!slots.has(name))throw Error('A reviewed native slot is absent from the shipped declarations: '+tag+'.'+name);
- return validateNativeComponentMetadata({tag,module,sha256:crypto.createHash('sha256').update(source).digest('hex'),ownership:'shadow',attributes:[...contract.attributes].sort(),properties:[...contract.properties,...contract.inheritedProperties].sort(),slots:[...contract.slots].sort()});
+ return validateNativeComponentMetadata({tag,module,sha256:crypto.createHash('sha256').update(entry).digest('hex'),ownership:'shadow',attributes:[...contract.attributes].sort(),properties:[...contract.properties,...contract.inheritedProperties].sort(),slots:[...contract.slots].sort()});
 }
 const components=Object.keys(reviewed).map(tag=>{const module=manifest[tag];if(typeof module!=='string')throw Error('A reviewed native tag is absent from the shipped manifest: '+tag);return capture(tag,'components/'+module.replace(/^\.\//,''));}).sort((a,b)=>a.tag.localeCompare(b.tag));
 const output={schema:'xtend.rmtx.native-components.v1',source:'components/manifest.json',components},text=JSON.stringify(output,null,2)+'\n',target=path.join(root,'tools/rmt-language/rmtx-native-components.v1.json');

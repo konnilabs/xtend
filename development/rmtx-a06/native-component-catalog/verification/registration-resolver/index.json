@@ -1,0 +1,49 @@
+{
+  "format": 1,
+  "scope": "Focused registration source-witness regression tests; this is not a runtime rerun or release acceptance.",
+  "lanes": {
+    "node24": {
+      "passed": 35,
+      "failed": 0,
+      "skipped": 0
+    },
+    "node26": {
+      "passed": 35,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "artifacts": [
+    {
+      "path": "focused-test-index.json",
+      "sha256": "67ec117d41753ce3e5acd196486b68f0f002ee5a2ad3e4b3362f4efa1279befd"
+    },
+    {
+      "path": "node24.tap",
+      "sha256": "686be3540ef825532d2e03996cf5571991095fd4d7ccb313fb26e83b335ee33c",
+      "kind": "tap",
+      "node": "24"
+    },
+    {
+      "path": "node24.resources.txt",
+      "sha256": "9f3395b637c85de5098459df778073aadca16bfa0dd67a7c5116248527b632dd",
+      "kind": "resources",
+      "node": "24"
+    },
+    {
+      "path": "node26.tap",
+      "sha256": "f676b6f5d0533ad39207d8999e7bc27515366982946ff55c2e86dfa3090766a5",
+      "kind": "tap",
+      "node": "26"
+    },
+    {
+      "path": "node26.resources.txt",
+      "sha256": "15af8edc7f6477d3929deedc1b796252e8ce59930851804f9d2e5d9dea515577",
+      "kind": "resources",
+      "node": "26"
+    }
+  ],
+  "originalArtifactsPreservedByteExact": true,
+  "originalReportContainsBeforeAndAfterSourceBindings": true,
+  "packageOrFeatureReleaseApproved": false
+}

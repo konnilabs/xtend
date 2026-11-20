@@ -1,0 +1,2085 @@
+{
+  "schema": "xtend.rmtx.native-catalog-browser-acceptance.v1",
+  "generatedAt": "2026-11-19T23:14:40.962Z",
+  "node": "v24.22.2",
+  "browser": "/home/konni/.cache/ms-playwright/chromium-1248/chrome-linux64/chrome",
+  "browserVersion": "156.0.8078.4",
+  "pageErrors": [],
+  "acceptedForRelease": false,
+  "ssrAcceptancePerformed": false,
+  "timezone": "Europe/Berlin",
+  "actualBrowserAPIs": true,
+  "nodeCompileBoundary": "exact captured source/options/environment to actual orchestrationArtifacts; unknown pairs fail",
+  "injectedPorts": "Existing UI tests inject scoped IO and command ports. Renderer suites use the actual Renderer layout/focus/overlay implementations. This standalone harness does not establish the productive sealed Maraca/React/Vue acceptance.",
+  "sourceManifest": {
+    "schema": "xtend.native-ui-browser-inputs.v1",
+    "generatedAt": "2026-11-19T23:14:34.444Z",
+    "node": "v24.22.2",
+    "esbuild": "0.28.2",
+    "playwright": "1.56.0",
+    "suites": [
+      {
+        "id": "ui",
+        "test": "tests/components/native-managed-ui.test.mjs",
+        "compilerRecords": 5,
+        "compilerCaptureSha256": "97072c5990df4e88a1a2daed119f13874deb64aec004e0b9ecf4464ecb555053",
+        "testSha256": "e27f376528ddd30115e85741c64a8e82fd6452c6f6b03b9e6d2f590be366e75b",
+        "bundleSha256": "a2369ecff363142680ce4c9c2b8e0eb1eb54f4a783b05917424136e63e696fdd",
+        "domPurifyParserLine": 7295,
+        "sources": [
+          {
+            "file": "components/component-dom.js",
+            "sha256": "ab905c7c19492a4a4203331e2fe2a061e4bd4155c307fc82e43e9f474577e9f5"
+          },
+          {
+            "file": "components/icon-dom.js",
+            "sha256": "7b5b0025e08d776af50c25b31e6773eee0ae7fb2f2cb1640a652bed4e0c29149"
+          },
+          {
+            "file": "components/icon-packs/core.js",
+            "sha256": "7c34c0cf60198f93608f9d550b7932ab24964da9671b457d2ac8193c00ba81ec"
+          },
+          {
+            "file": "components/icon-packs/lucide.js",
+            "sha256": "3ef36c7b10dcba9b519063934d59cb0bbc07d313c487abb379e5b80346777995"
+          },
+          {
+            "file": "components/native-collection-layout.js",
+            "sha256": "faacdb651aeb07bbcb0ecde02428fdcf519532c0326f5ba4ce6637f8f112ca6d"
+          },
+          {
+            "file": "components/native-dialog-presentation.js",
+            "sha256": "ae124166e585d8d066172ea97f99ec3ec8d88ed4db59414c9688ee2a7b0059c9"
+          },
+          {
+            "file": "components/native-hero-presentation.js",
+            "sha256": "fec16143cbd69efb3854471db296b69cb2a844b423fe453bab55b3ab3e75c22c"
+          },
+          {
+            "file": "components/native-highlighting.js",
+            "sha256": "f31fe4432fc9fef4d9fa00047da6f77a8c18f16915bc72f46f4b43b78740d428"
+          },
+          {
+            "file": "components/native-html.js",
+            "sha256": "361f18783a1d84b561b3be9b2ef453df41879f6984260964c5f391e7eb67dc97"
+          },
+          {
+            "file": "components/native-managed.js",
+            "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          },
+          {
+            "file": "components/native-style-values.js",
+            "sha256": "064c0f44460bd182ebc2105620a79956db683d2c64eb14b2da69e16eeb7c6175"
+          },
+          {
+            "file": "components/native-ui-profiles.js",
+            "sha256": "7bf6ddca2dc14be58191f64e55158fcd7e2a225c5649b3d9d41ab480216eb3cc"
+          },
+          {
+            "file": "components/overlay-focus.js",
+            "sha256": "e483510d8e0f75ea7354e2aa36abac378651a2bfcaf1a430e8bfeb71418e10de"
+          },
+          {
+            "file": "components/rmt-command.js",
+            "sha256": "bf0ea1b024a2648c87ee37cdc80af2c0892f688d057650500990fd55138c21a5"
+          },
+          {
+            "file": "components/style-nonce.js",
+            "sha256": "f12c1b45cb4f613f24ff952c7ad47b73e330a087f5010c39c6193992787e708b"
+          },
+          {
+            "file": "components/xalert.definition.js",
+            "sha256": "9ea1ff5b1f394f99db15eb00fba49193433e138ab223456a4c23648fef96cb60"
+          },
+          {
+            "file": "components/xalert.js",
+            "sha256": "429258387e76bc029935ab546e7442f4d272c2a2974d70d4ae2752e6cb593b35"
+          },
+          {
+            "file": "components/xbutton.definition.js",
+            "sha256": "0633684f75621cff1f580f9ffce4c957429dcc99fce10b671a5d0676ab620cdc"
+          },
+          {
+            "file": "components/xbutton.js",
+            "sha256": "363b22fd65decd6e4265c331a8025a708db6927927b7de799166b73dc64ed759"
+          },
+          {
+            "file": "components/xcalendar.definition.js",
+            "sha256": "98501fc2c25b1016af160677463f640a377368727408f2dc7536e78e415970f9"
+          },
+          {
+            "file": "components/xcalendar.js",
+            "sha256": "fc9d46e34ef192001749ead030320c7eddba89398283f0b36ef50eb00393b632"
+          },
+          {
+            "file": "components/xcards.definition.js",
+            "sha256": "a939febd71f452bc5886ffcadb05690bddfdcc1353ee44ae3c798614ed341807"
+          },
+          {
+            "file": "components/xcards.js",
+            "sha256": "0405df9a8b0528f39634d16d578f1847f4cc9bf4c806c26beb53d965ccb246ef"
+          },
+          {
+            "file": "components/xcheckbox.definition.js",
+            "sha256": "3121f2772a855a8d1098b44eb35b493d9eed7f325f235825bd3462b8c6911e60"
+          },
+          {
+            "file": "components/xcheckbox.js",
+            "sha256": "0b978c486463a60830743542acf58c4d57373555b5a7ed2512a0e5dd4d01d965"
+          },
+          {
+            "file": "components/xcode.definition.js",
+            "sha256": "3c8d64d4e833cd9d393c0f937fa3d42ee832036aba0add0427d973e800b85bb4"
+          },
+          {
+            "file": "components/xcode.js",
+            "sha256": "5e441036d950d3f2b444cc44c2d1513d7995c0dd686e931a40a5f352e5a679ac"
+          },
+          {
+            "file": "components/xdialog.definition.js",
+            "sha256": "e9a16ee648ba04d256039a18a5a1111badb4cea44a0214287f733ac81f61e7e2"
+          },
+          {
+            "file": "components/xdialog.js",
+            "sha256": "c3cb045ae907057d51fbef5f2df0b2059f2c9213086f0a27d922b077f501c89c"
+          },
+          {
+            "file": "components/xdrawer.definition.js",
+            "sha256": "7d583e50c4c78b69ea0d5d0a47c4cb9c6c96fdc137f678326c33b2ef3479d15f"
+          },
+          {
+            "file": "components/xdrawer.js",
+            "sha256": "dc6032a24f28bbdf0a4c14e89aa1410b33ecbc270f02bd5884739d8e55ebacd9"
+          },
+          {
+            "file": "components/xfooter.definition.js",
+            "sha256": "fda6a4866cd1ec27a360270af18c70a9f849d89379d42acd0e20803c0c4d5c8f"
+          },
+          {
+            "file": "components/xfooter.js",
+            "sha256": "f4b6be8fd1d9ab579142ee697a1ec4e83b55af8e21bcba3e9fa90212c620636f"
+          },
+          {
+            "file": "components/xform.definition.js",
+            "sha256": "2b572fc0daabe8260e939e23fa56949468a6a57a00fe22e4b2f69fc83bbcd876"
+          },
+          {
+            "file": "components/xform.js",
+            "sha256": "1faebc32ba1b8b640355c8ca84d322aa984816b7a4726faf6d9a473c6304d8c5"
+          },
+          {
+            "file": "components/xheader.definition.js",
+            "sha256": "f2a058aff2dbc8426a374c3c67e04f4228c4c09465e8d98ac7b43a5c9e9c7031"
+          },
+          {
+            "file": "components/xheader.js",
+            "sha256": "9b25d3ca7287a7b4c6b158bac87da369867ccc69cf466c9341e0de292211b8e2"
+          },
+          {
+            "file": "components/xhero.definition.js",
+            "sha256": "91f11e08cae32ce05b92f6a3d73f265938a1a68b0e86f3668eec5ab5c31d1f16"
+          },
+          {
+            "file": "components/xhero.js",
+            "sha256": "459c730c9508db2f76aa0e40f63e16f2f981cbd552cb42b62e91b0759464b53d"
+          },
+          {
+            "file": "components/xicon.definition.js",
+            "sha256": "96ec3dce87ba947ecc673fd3c9480c3ec7fbfecab1b098402af65fbdf0fbcd49"
+          },
+          {
+            "file": "components/xicon.js",
+            "sha256": "57b4a0c0973e396749b71109aed9c3066deeb5351d2e7444ce8bf689504cc0f9"
+          },
+          {
+            "file": "components/xinput.definition.js",
+            "sha256": "cf1af4b97903a8bfd285af362e7559c6786623c0407160b2181e5f65397d8dcc"
+          },
+          {
+            "file": "components/xinput.js",
+            "sha256": "07e749da6b960819132c416ed1efbdeee43fcdfa897f4002ad8669a68a0247d2"
+          },
+          {
+            "file": "components/xkeymap.definition.js",
+            "sha256": "97abb970179dae86792978bb2b4bbc7f6d088b287c05dbd7d271d6e723be42e3"
+          },
+          {
+            "file": "components/xkeymap.js",
+            "sha256": "36f4f99535c040b1cec9d0d0166b16a795fd89d5de4d09f88c98e24ba9f18bcb"
+          },
+          {
+            "file": "components/xlightbox.definition.js",
+            "sha256": "9ca9a1bd17aa19bf2d850eb89facc9fe44772222c4998df53bd543d08af284f2"
+          },
+          {
+            "file": "components/xlightbox.js",
+            "sha256": "30f5d83c09527e51fd578687b970a9253307cf1c0580783073d724da96a1a1b2"
+          },
+          {
+            "file": "components/xlink.definition.js",
+            "sha256": "1d3a137b7af812f8c29a9acc79db0da6485f3feae7b0eb8ad1006ef41715c2db"
+          },
+          {
+            "file": "components/xlink.js",
+            "sha256": "765e8e8a8aa722c962c9db6fa04ff382814a31fb023a2b7c02a2eeff65f92e48"
+          },
+          {
+            "file": "components/xmasonry.definition.js",
+            "sha256": "ffd35018a428a76d548354b62b8c61cfb00ab0db64d4cb82147f45c93d4f55aa"
+          },
+          {
+            "file": "components/xmasonry.js",
+            "sha256": "225453a57d6cdc6b14b4307d2f1cce0af9680f01824d8ed390d8daedc9fa22df"
+          },
+          {
+            "file": "components/xmenu.definition.js",
+            "sha256": "13fa4f39ca17584d03e0fb07a9f39302ccc0d614fd843d057d071ab2310060c6"
+          },
+          {
+            "file": "components/xmenu.js",
+            "sha256": "716e73e745e1b1d8bd1e8d81439279ef8b7b7c6ad9741e771b1972c1f605dc1a"
+          },
+          {
+            "file": "components/xmodal.definition.js",
+            "sha256": "75328ace24addfe2ec9b4a8351333120ae87249ca79fe56d4dfe279fedf2676d"
+          },
+          {
+            "file": "components/xmodal.js",
+            "sha256": "32afa7e2cfd0c4ea86d9bfb5fe48964cd1ee886e34f5cd1072aac3ade8127eab"
+          },
+          {
+            "file": "components/xplayer.definition.js",
+            "sha256": "f8820ce68d15685ed117db38aa9fac42ca5884facd24341b1ced967dfa680a0b"
+          },
+          {
+            "file": "components/xplayer.js",
+            "sha256": "09eb4c6c8166ab37b60551bc09652de8e8cff461b17354119d2d4301f687aacb"
+          },
+          {
+            "file": "components/xpopover.definition.js",
+            "sha256": "1c96b01a44a6345c11d8ccc77516b542466a75d1fb4b5eeefc2ddfce70e5075c"
+          },
+          {
+            "file": "components/xpopover.js",
+            "sha256": "ece0fb3b8a5ceec86192fad41a33de10cada866a49c18787fc0e0e9161946180"
+          },
+          {
+            "file": "components/xprogress.definition.js",
+            "sha256": "a418c3a898b3d1743666b7a94e2eff73dc971b9c9095054115616bf6a5940b87"
+          },
+          {
+            "file": "components/xprogress.js",
+            "sha256": "4a2dcfbfccbbb347e394169b1b66ece4e7e473d8221f9f5bc0c82a9ddfc494bc"
+          },
+          {
+            "file": "components/xradio.definition.js",
+            "sha256": "c1f8c2beb2a7d2f01d297edea59aae87c33dcf7685da42faa5afeaf0c7b72d5a"
+          },
+          {
+            "file": "components/xradio.js",
+            "sha256": "5d4e766e4b7f07db8a550fa8e4bfe80b10bf708d1f0b28e3ad29e7f6ec46a548"
+          },
+          {
+            "file": "components/xsection.definition.js",
+            "sha256": "e95e170460d48f68e50a405c63c4402c715abe0ca95e15abe42de596f99be347"
+          },
+          {
+            "file": "components/xsection.js",
+            "sha256": "55535e62e130080a18d61950caad292cfeab96486d9ae7e9bf5e923c0645bd67"
+          },
+          {
+            "file": "components/xselect.definition.js",
+            "sha256": "8b4382eff830eaaba51a1642df6b807d3fcdb8b949e507216be80316eaca0933"
+          },
+          {
+            "file": "components/xselect.js",
+            "sha256": "22862331bc69e4c6fc0e1cef989cc33d1fffb5083dca39f0744fdaccc55543a5"
+          },
+          {
+            "file": "components/xspinner.definition.js",
+            "sha256": "60b5a2223cb2e1739ba08797967cd085f6a0e737b08c661c511b10d6896de4ec"
+          },
+          {
+            "file": "components/xspinner.js",
+            "sha256": "949be036b8cf0ba24b7ba994b6848e63e9b562f1dea5061b922ea36d1d61cb07"
+          },
+          {
+            "file": "components/xstatus.definition.js",
+            "sha256": "c64e03a4fa9e201e8d30e95f91e0a0a511bbeda302201627eb8b32bed87e7dd5"
+          },
+          {
+            "file": "components/xstatus.js",
+            "sha256": "7aa1b76b17835234119eddeed1d722df7ecbf1f94c139bb6cd63df9ce108bbbe"
+          },
+          {
+            "file": "components/xsummary.definition.js",
+            "sha256": "a4b1fa67f59df4a3790a8f96fd09a0a481bf91f56e4b2dee0c7b27cd1931e8ea"
+          },
+          {
+            "file": "components/xsummary.js",
+            "sha256": "02a40b898b201cc663ca033767af6717d9f6561d0c36c6e2b5d6347cf95a681f"
+          },
+          {
+            "file": "components/xtabs.definition.js",
+            "sha256": "47c0387a4131c24ca8a0c28bac407893c3cd059b4018caae6b0ab04743006bb5"
+          },
+          {
+            "file": "components/xtabs.js",
+            "sha256": "d739d86e734dcbf7d73f419e90450876d537c65f5264c255254416f0b9d5b979"
+          },
+          {
+            "file": "components/xtend-state.definition.js",
+            "sha256": "e49f9e574ac9b432eb1d3be805486d1876bf3b6b0b0e1eca73ab76c16c177c01"
+          },
+          {
+            "file": "components/xtend-state.js",
+            "sha256": "b91d95f88d980db00dffb3eb68018a186076e26278a163a5223e69dbeadd222f"
+          },
+          {
+            "file": "components/xtextarea.definition.js",
+            "sha256": "e9328c53cc0caa8b0f3903c237e1550872f590506f28c0e4ca3ce212b71774bb"
+          },
+          {
+            "file": "components/xtextarea.js",
+            "sha256": "3287843a4f6b2463ef681a9a0ecea6df858c0ed539bfe3d4b894f6322e0e42a1"
+          },
+          {
+            "file": "components/xtoast.definition.js",
+            "sha256": "2aad31f06eae06a748415b0ce21c598dee786ad0d4f9e6c9bd842b1449873e4d"
+          },
+          {
+            "file": "components/xtoast.js",
+            "sha256": "39a51338adf26dc2d26b1cf1420715fce169f42007404b3d31e58ca775a47218"
+          },
+          {
+            "file": "components/xtoggle.definition.js",
+            "sha256": "c647514fd001d4a950925da9a78063402bb2037023485a504255041cc2afa835"
+          },
+          {
+            "file": "components/xtoggle.js",
+            "sha256": "65b625f35ae28a088948fd5561d07e8db8784eb4ee1747249bb087233bc34d38"
+          },
+          {
+            "file": "components/xtooltip.definition.js",
+            "sha256": "8561af9def87e2a15a47edbfa2033367706b382f751d16ac8a1808b049402ae3"
+          },
+          {
+            "file": "components/xtooltip.js",
+            "sha256": "aec7c8701d812fd18ca2e9e0d30f5a028b661bcb304c2c3f95c08a2e5d5bea04"
+          },
+          {
+            "file": "components/xtype.definition.js",
+            "sha256": "66510b2e9232b7a1f8bf88edec0242781f44dadc8e38333a170ecd8015bbdd88"
+          },
+          {
+            "file": "components/xtype.js",
+            "sha256": "96ece5efa38450d1258d48935d34f247b37708ab6c367ed57714935b44bf06ea"
+          },
+          {
+            "file": "components/xwriter.definition.js",
+            "sha256": "cb22f455e2f62d5fd7e0fe889b0ea5c78081bfd027063d13c27241a4df7a1125"
+          },
+          {
+            "file": "components/xwriter.js",
+            "sha256": "f06291cf0fa84adfe7dd9891528d4bee4215af2c2d4bdb070c25863c5e400fbf"
+          },
+          {
+            "file": "development/rmtx-a06/native-component-catalog/browser-suite-transform.cjs",
+            "sha256": "224225f369c260a800f8dc0f8859f0448512cb2c2a421fbbe7e5d481172ee8a7"
+          },
+          {
+            "file": "development/rmtx-a06/native-component-catalog/ui-browser-test.cjs",
+            "sha256": "f99c39d055ab0b6806cbdc1ffe251a2f9ec4f4b0ac98ccf66cfce9a96aacd21d"
+          },
+          {
+            "file": "tests/components/native-managed-ui.test.mjs",
+            "sha256": "e27f376528ddd30115e85741c64a8e82fd6452c6f6b03b9e6d2f590be366e75b"
+          },
+          {
+            "file": "tools/rmt-language/rmtx-compiler.js",
+            "sha256": "0a53430dd7c70d36ec1b36c6ba1f3f10a2470bc33e853d27e54edf40c61db3c9"
+          },
+          {
+            "file": "tools/xtensions/native-component-bindings.js",
+            "sha256": "cfc47bf0af1079f58c54763e8cba1b6d8d47d07a1226d0171377c634e2b54ec7"
+          },
+          {
+            "file": "tools/xtensions/native-component-catalog-v2.js",
+            "sha256": "27a25ad2578fbf2fcb0df9b9c98f4fc6c7698355e6a108d40afcef825d6193b6"
+          },
+          {
+            "file": "tools/xtensions/native-component-contract-v2.js",
+            "sha256": "41564661296d9131cdf37beb3f8a0b3340aa0eca7e075672c3f9688d3930cb1a"
+          },
+          {
+            "file": "tools/xtensions/native-component-managed.js",
+            "sha256": "e382bc79eeeaf9cc1e5216d19dc1e0f16044dfe9392545f413972c95ddfc1a34"
+          },
+          {
+            "file": "tools/xtensions/native-data.js",
+            "sha256": "3fbd1e9f29e1b133f3042106a46eaaede2107f38fc71851c566a998f0b397684"
+          },
+          {
+            "file": "tools/xtensions/native-lifecycle.js",
+            "sha256": "b1d3419d077ab63b8add830a735f16b6c70b53ca92afe46a7c50ab9f0c6e7562"
+          },
+          {
+            "file": "tools/xtensions/native-managed-component-registry.js",
+            "sha256": "8e0a978d82fe2bae4482543961c4a135301936e82a96eed34fead9d3225ba274"
+          },
+          {
+            "file": "tools/xtensions/native-managed-orchestration-lifecycle.js",
+            "sha256": "a2cefd6726bf652478f9a4001ae286817d44e0d9c0ef603ec8fa27384bb5a41f"
+          },
+          {
+            "file": "tools/xtensions/native-managed-surface-scopes.js",
+            "sha256": "f5a1e1e5bf7881a8914f1024f22ca00918396213fde8a5666987700438cbde1c"
+          },
+          {
+            "file": "tools/xtensions/native-managed-view-projection.js",
+            "sha256": "2381cd9314a6ec8e503fed6ac33e5466bed5eaaa95faf139d0e151005570b323"
+          },
+          {
+            "file": "tools/xtensions/native-orchestration-lifecycle-core.js",
+            "sha256": "7e141e9efd03c786145a12d65181270a86f2971481a5f7adbaec06e857cf4827"
+          },
+          {
+            "file": "tools/xtensions/native-sink-contract.js",
+            "sha256": "59089b6fce9afb48785ecb98c243a66086fed31bf5a7e09083714b3c993ea3cd"
+          },
+          {
+            "file": "tools/xtensions/native-surface-projection-core.js",
+            "sha256": "ca5dc9a1430cf309bb973a601ebf1c49183e7ae4ca727b62f7cacfa539a5f7e5"
+          },
+          {
+            "file": "tools/xtensions/native-surface-scopes-core.js",
+            "sha256": "a0fbb0d5aac3e7d2e1c583cdbf32bfdf48d0c3ee956d25194bf17e27c980a97c"
+          },
+          {
+            "file": "tools/xtensions/native-surface-validation-core.js",
+            "sha256": "0f663176a1c592060becec416e2aed210bb6ecab2d725d17dc9c015f302885bd"
+          },
+          {
+            "file": "tools/xtensions/repeat-scopes.js",
+            "sha256": "52a2860132aacc6da0ed95cac68128193180ebaeff91794d77a1a8b8764599d4"
+          },
+          {
+            "file": "tools/xtensions/state-binding-contract.js",
+            "sha256": "857867ed26115ea9aa966b7c3e74099675c890f5bb3bbc4c890dfa5d581af2b6"
+          },
+          {
+            "file": "tools/xtensions/state-binding-projection.js",
+            "sha256": "62d116bb6a8fcdeccdd0426d5c6a21537d3e01c952393b4cc82f1f88b0aea739"
+          },
+          {
+            "file": "xtendrmt/html-sanitizer.mjs",
+            "sha256": "89b4e15c6d5d85e1687c117356487d69f529a1e245ad360b33f7fea45a2f458c"
+          },
+          {
+            "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
+            "sha256": "cb9d0c144b2454431533ac989a826697c295b68f89c2527c6cff357d3e78615f"
+          },
+          {
+            "file": "xtendrmt/rmt-event-routing-runtime.js",
+            "sha256": "0e629eeee2ab8e5b5bdecaea5ccfb2ded0201d7756dd189cdd7c628d1bbd6f66"
+          }
+        ]
+      },
+      {
+        "id": "renderer",
+        "test": "tests/rmt-language/native-managed-renderer.test.mjs",
+        "compilerRecords": 8,
+        "compilerCaptureSha256": "e84a0dd6261f81167a881cd8ee7aa2381aee2fb66fe1bbfa773bd8db46e8c662",
+        "testSha256": "4bd6d4b4c525274aacc3ecb7421e67d9b3cc962d8529af611bcafdea98172b91",
+        "bundleSha256": "ba800e5adda9441dfd8b8d46c5c62c29b1d8c374016dc72295021743d5764eb5",
+        "domPurifyParserLine": 8740,
+        "sources": [
+          {
+            "file": "components/icon-dom.js",
+            "sha256": "7b5b0025e08d776af50c25b31e6773eee0ae7fb2f2cb1640a652bed4e0c29149"
+          },
+          {
+            "file": "components/icon-packs/core.js",
+            "sha256": "7c34c0cf60198f93608f9d550b7932ab24964da9671b457d2ac8193c00ba81ec"
+          },
+          {
+            "file": "components/icon-packs/lucide.js",
+            "sha256": "3ef36c7b10dcba9b519063934d59cb0bbc07d313c487abb379e5b80346777995"
+          },
+          {
+            "file": "components/native-collection-layout.js",
+            "sha256": "faacdb651aeb07bbcb0ecde02428fdcf519532c0326f5ba4ce6637f8f112ca6d"
+          },
+          {
+            "file": "components/native-dialog-presentation.js",
+            "sha256": "ae124166e585d8d066172ea97f99ec3ec8d88ed4db59414c9688ee2a7b0059c9"
+          },
+          {
+            "file": "components/native-hero-presentation.js",
+            "sha256": "fec16143cbd69efb3854471db296b69cb2a844b423fe453bab55b3ab3e75c22c"
+          },
+          {
+            "file": "components/native-html.js",
+            "sha256": "361f18783a1d84b561b3be9b2ef453df41879f6984260964c5f391e7eb67dc97"
+          },
+          {
+            "file": "components/native-managed.js",
+            "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          },
+          {
+            "file": "components/native-style-values.js",
+            "sha256": "064c0f44460bd182ebc2105620a79956db683d2c64eb14b2da69e16eeb7c6175"
+          },
+          {
+            "file": "components/native-ui-profiles.js",
+            "sha256": "7bf6ddca2dc14be58191f64e55158fcd7e2a225c5649b3d9d41ab480216eb3cc"
+          },
+          {
+            "file": "components/rmt-command.js",
+            "sha256": "bf0ea1b024a2648c87ee37cdc80af2c0892f688d057650500990fd55138c21a5"
+          },
+          {
+            "file": "components/style-nonce.js",
+            "sha256": "f12c1b45cb4f613f24ff952c7ad47b73e330a087f5010c39c6193992787e708b"
+          },
+          {
+            "file": "components/xhero.definition.js",
+            "sha256": "91f11e08cae32ce05b92f6a3d73f265938a1a68b0e86f3668eec5ab5c31d1f16"
+          },
+          {
+            "file": "components/xicon.definition.js",
+            "sha256": "96ec3dce87ba947ecc673fd3c9480c3ec7fbfecab1b098402af65fbdf0fbcd49"
+          },
+          {
+            "file": "components/xinput.definition.js",
+            "sha256": "cf1af4b97903a8bfd285af362e7559c6786623c0407160b2181e5f65397d8dcc"
+          },
+          {
+            "file": "components/xmasonry.definition.js",
+            "sha256": "ffd35018a428a76d548354b62b8c61cfb00ab0db64d4cb82147f45c93d4f55aa"
+          },
+          {
+            "file": "components/xmenu.definition.js",
+            "sha256": "13fa4f39ca17584d03e0fb07a9f39302ccc0d614fd843d057d071ab2310060c6"
+          },
+          {
+            "file": "components/xmodal.definition.js",
+            "sha256": "75328ace24addfe2ec9b4a8351333120ae87249ca79fe56d4dfe279fedf2676d"
+          },
+          {
+            "file": "components/xtabs.definition.js",
+            "sha256": "47c0387a4131c24ca8a0c28bac407893c3cd059b4018caae6b0ab04743006bb5"
+          },
+          {
+            "file": "components/xtend-state.definition.js",
+            "sha256": "e49f9e574ac9b432eb1d3be805486d1876bf3b6b0b0e1eca73ab76c16c177c01"
+          },
+          {
+            "file": "components/xtooltip.definition.js",
+            "sha256": "8561af9def87e2a15a47edbfa2033367706b382f751d16ac8a1808b049402ae3"
+          },
+          {
+            "file": "development/rmtx-a06/native-component-catalog/browser-suite-transform.cjs",
+            "sha256": "224225f369c260a800f8dc0f8859f0448512cb2c2a421fbbe7e5d481172ee8a7"
+          },
+          {
+            "file": "development/rmtx-a06/native-component-catalog/ui-browser-test.cjs",
+            "sha256": "f99c39d055ab0b6806cbdc1ffe251a2f9ec4f4b0ac98ccf66cfce9a96aacd21d"
+          },
+          {
+            "file": "tests/rmt-language/native-managed-renderer.test.mjs",
+            "sha256": "4bd6d4b4c525274aacc3ecb7421e67d9b3cc962d8529af611bcafdea98172b91"
+          },
+          {
+            "file": "tools/rmt-language/rmtx-compiler.js",
+            "sha256": "0a53430dd7c70d36ec1b36c6ba1f3f10a2470bc33e853d27e54edf40c61db3c9"
+          },
+          {
+            "file": "tools/xtensions/native-component-bindings.js",
+            "sha256": "cfc47bf0af1079f58c54763e8cba1b6d8d47d07a1226d0171377c634e2b54ec7"
+          },
+          {
+            "file": "tools/xtensions/native-component-catalog-v2.js",
+            "sha256": "27a25ad2578fbf2fcb0df9b9c98f4fc6c7698355e6a108d40afcef825d6193b6"
+          },
+          {
+            "file": "tools/xtensions/native-component-contract-v2.js",
+            "sha256": "41564661296d9131cdf37beb3f8a0b3340aa0eca7e075672c3f9688d3930cb1a"
+          },
+          {
+            "file": "tools/xtensions/native-component-managed.js",
+            "sha256": "e382bc79eeeaf9cc1e5216d19dc1e0f16044dfe9392545f413972c95ddfc1a34"
+          },
+          {
+            "file": "tools/xtensions/native-data.js",
+            "sha256": "3fbd1e9f29e1b133f3042106a46eaaede2107f38fc71851c566a998f0b397684"
+          },
+          {
+            "file": "tools/xtensions/native-lifecycle.js",
+            "sha256": "b1d3419d077ab63b8add830a735f16b6c70b53ca92afe46a7c50ab9f0c6e7562"
+          },
+          {
+            "file": "tools/xtensions/native-managed-component-registry.js",
+            "sha256": "8e0a978d82fe2bae4482543961c4a135301936e82a96eed34fead9d3225ba274"
+          },
+          {
+            "file": "tools/xtensions/native-managed-orchestration-lifecycle.js",
+            "sha256": "a2cefd6726bf652478f9a4001ae286817d44e0d9c0ef603ec8fa27384bb5a41f"
+          },
+          {
+            "file": "tools/xtensions/native-managed-surface-scopes.js",
+            "sha256": "f5a1e1e5bf7881a8914f1024f22ca00918396213fde8a5666987700438cbde1c"
+          },
+          {
+            "file": "tools/xtensions/native-managed-view-projection.js",
+            "sha256": "2381cd9314a6ec8e503fed6ac33e5466bed5eaaa95faf139d0e151005570b323"
+          },
+          {
+            "file": "tools/xtensions/native-orchestration-lifecycle-core.js",
+            "sha256": "7e141e9efd03c786145a12d65181270a86f2971481a5f7adbaec06e857cf4827"
+          },
+          {
+            "file": "tools/xtensions/native-sink-contract.js",
+            "sha256": "59089b6fce9afb48785ecb98c243a66086fed31bf5a7e09083714b3c993ea3cd"
+          },
+          {
+            "file": "tools/xtensions/native-surface-projection-core.js",
+            "sha256": "ca5dc9a1430cf309bb973a601ebf1c49183e7ae4ca727b62f7cacfa539a5f7e5"
+          },
+          {
+            "file": "tools/xtensions/native-surface-scopes-core.js",
+            "sha256": "a0fbb0d5aac3e7d2e1c583cdbf32bfdf48d0c3ee956d25194bf17e27c980a97c"
+          },
+          {
+            "file": "tools/xtensions/native-surface-validation-core.js",
+            "sha256": "0f663176a1c592060becec416e2aed210bb6ecab2d725d17dc9c015f302885bd"
+          },
+          {
+            "file": "tools/xtensions/repeat-scopes.js",
+            "sha256": "52a2860132aacc6da0ed95cac68128193180ebaeff91794d77a1a8b8764599d4"
+          },
+          {
+            "file": "tools/xtensions/state-binding-contract.js",
+            "sha256": "857867ed26115ea9aa966b7c3e74099675c890f5bb3bbc4c890dfa5d581af2b6"
+          },
+          {
+            "file": "tools/xtensions/state-binding-projection.js",
+            "sha256": "62d116bb6a8fcdeccdd0426d5c6a21537d3e01c952393b4cc82f1f88b0aea739"
+          },
+          {
+            "file": "xtendrmt/html-sanitizer.mjs",
+            "sha256": "89b4e15c6d5d85e1687c117356487d69f529a1e245ad360b33f7fea45a2f458c"
+          },
+          {
+            "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
+            "sha256": "cb9d0c144b2454431533ac989a826697c295b68f89c2527c6cff357d3e78615f"
+          },
+          {
+            "file": "xtendrmt/rmt-event-routing-runtime.js",
+            "sha256": "0e629eeee2ab8e5b5bdecaea5ccfb2ded0201d7756dd189cdd7c628d1bbd6f66"
+          }
+        ]
+      },
+      {
+        "id": "demo",
+        "test": "tests/components/native-demo-reference.test.mjs",
+        "compilerRecords": 0,
+        "compilerCaptureSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "testSha256": "4d40eabf643793f04ce94c55518ac37dbebc9ea3d19e3a67e96c033ee1f6782e",
+        "bundleSha256": "412b3d324fad37a82578b45084510109390a9fabe9796f674911c4c674af3c88",
+        "domPurifyParserLine": null,
+        "sources": [
+          {
+            "file": "components/x-rmt-lifecycle-demo-build.js",
+            "sha256": "f1dcf376b2c6a7b12e21326f53a185a6760e19c3e3998f514a10cb37316ffaba"
+          },
+          {
+            "file": "development/rmtx-a06/native-component-catalog/browser-suite-transform.cjs",
+            "sha256": "224225f369c260a800f8dc0f8859f0448512cb2c2a421fbbe7e5d481172ee8a7"
+          },
+          {
+            "file": "development/rmtx-a06/native-component-catalog/ui-browser-test.cjs",
+            "sha256": "f99c39d055ab0b6806cbdc1ffe251a2f9ec4f4b0ac98ccf66cfce9a96aacd21d"
+          },
+          {
+            "file": "tests/components/native-demo-reference.test.mjs",
+            "sha256": "4d40eabf643793f04ce94c55518ac37dbebc9ea3d19e3a67e96c033ee1f6782e"
+          },
+          {
+            "file": "tools/rmt-language/rmtx-native-components-v2.js",
+            "sha256": "1eee9f704cf87b3e9737c18fabff8058490bbcbe5c20a8cbfec7356b5aa92c5d"
+          },
+          {
+            "file": "tools/rmt-language/rmtx-native-components-v2.json",
+            "sha256": "b4529fecd6b24569e12dbd1a121da6622aaa58dd9a4e3fbb08e9b76bb0059019"
+          },
+          {
+            "file": "tools/xtensions/native-component-catalog-v2.js",
+            "sha256": "27a25ad2578fbf2fcb0df9b9c98f4fc6c7698355e6a108d40afcef825d6193b6"
+          },
+          {
+            "file": "tools/xtensions/native-component-contract-v2.js",
+            "sha256": "41564661296d9131cdf37beb3f8a0b3340aa0eca7e075672c3f9688d3930cb1a"
+          },
+          {
+            "file": "tools/xtensions/state-binding-contract.js",
+            "sha256": "857867ed26115ea9aa966b7c3e74099675c890f5bb3bbc4c890dfa5d581af2b6"
+          },
+          {
+            "file": "tools/xtensions/state-binding-projection.js",
+            "sha256": "62d116bb6a8fcdeccdd0426d5c6a21537d3e01c952393b4cc82f1f88b0aea739"
+          }
+        ]
+      },
+      {
+        "id": "platform",
+        "test": "tests/maraca/native-platform-managed.test.mjs",
+        "compilerRecords": 27,
+        "compilerCaptureSha256": "2032865c33d110761f1fe6747a6ab3eb1944390926fbb8d05bbc8f1b3f11baa3",
+        "testSha256": "05b79f31384ad11fc0bcb0f2733908c8771b32f9d6248a4e2d6bfc110025922a",
+        "bundleSha256": "15e3f8c5cedf9f3cecdb87270f9921aaa835b82831ab0cc2181bcc740be62708",
+        "domPurifyParserLine": 58114,
+        "sources": [
+          {
+            "file": "components/icon-dom.js",
+            "sha256": "7b5b0025e08d776af50c25b31e6773eee0ae7fb2f2cb1640a652bed4e0c29149"
+          },
+          {
+            "file": "components/icon-packs/core.js",
+            "sha256": "7c34c0cf60198f93608f9d550b7932ab24964da9671b457d2ac8193c00ba81ec"
+          },
+          {
+            "file": "components/icon-packs/lucide.js",
+            "sha256": "3ef36c7b10dcba9b519063934d59cb0bbc07d313c487abb379e5b80346777995"
+          },
+          {
+            "file": "components/native-collection-layout.js",
+            "sha256": "faacdb651aeb07bbcb0ecde02428fdcf519532c0326f5ba4ce6637f8f112ca6d"
+          },
+          {
+            "file": "components/native-managed.js",
+            "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          },
+          {
+            "file": "components/native-platform.js",
+            "sha256": "4182605f2486b9a2b89fa589d87bf6637e4925bee6c69f17cb626e0c1f736ab9"
+          },
+          {
+            "file": "components/native-ui-profiles.js",
+            "sha256": "7bf6ddca2dc14be58191f64e55158fcd7e2a225c5649b3d9d41ab480216eb3cc"
+          },
+          {
+            "file": "components/style-nonce.js",
+            "sha256": "f12c1b45cb4f613f24ff952c7ad47b73e330a087f5010c39c6193992787e708b"
+          },
+          {
+            "file": "components/xicon.definition.js",
+            "sha256": "96ec3dce87ba947ecc673fd3c9480c3ec7fbfecab1b098402af65fbdf0fbcd49"
+          },
+          {
+            "file": "components/xrouter-url-state.js",
+            "sha256": "60baa9404481e9117e0914f445bbaf0be66e31d52a4a202d9786c4e5a09f7c08"
+          },
+          {
+            "file": "components/xrouter.definition.js",
+            "sha256": "4e72822c2d14e225e7ce6e9611d1f8a19043435a04fdb7958b16540f9be6d7a2"
+          },
+          {
+            "file": "components/xsidepanel.definition.js",
+            "sha256": "597f93286283fdb774b95d2a7cc2a24b6f72331510b8dcc9b0a1ae615499e51c"
+          },
+          {
+            "file": "components/xsurfacemanager-controller.js",
+            "sha256": "a747e5a4bd9d4c1205dc464d046eb5bc65531acc74d083d78e10d5c614afa7a5"
+          },
+          {
+            "file": "components/xsurfacemanager.definition.js",
+            "sha256": "41873745b7c3636c0ee6dab1fee658faa298389a3f62dc4a2be0746fa52e29c1"
+          },
+          {
+            "file": "components/xsurfaceoverlay-bridge.js",
+            "sha256": "85fc4a4f0ac9d58495bf2bbfadad4cb58142c850c928d3d368c111c0c93450fc"
+          },
+          {
+            "file": "components/xsurfaceportal.definition.js",
+            "sha256": "c0d802b30481c0d81cda2dfc10831b7774fd741a9bf1baa0ceffe731d164f157"
+          },
+          {
+            "file": "components/xsurfaceregion.definition.js",
+            "sha256": "039f63fbef83764bc24fe1ac98b430f216eae6733884f18e20e63f3507e8dd64"
+          },
+          {
+            "file": "components/xsurfacewindow.definition.js",
+            "sha256": "bdb862f9f8e977d882a08368e7afc6d42f26b79be154d01972f72a99c9b544d4"
+          },
+          {
+            "file": "components/xtend-state.definition.js",
+            "sha256": "e49f9e574ac9b432eb1d3be805486d1876bf3b6b0b0e1eca73ab76c16c177c01"
+          },
+          {
+            "file": "development/rmtx-a06/native-component-catalog/browser-suite-transform.cjs",
+            "sha256": "224225f369c260a800f8dc0f8859f0448512cb2c2a421fbbe7e5d481172ee8a7"
+          },
+          {
+            "file": "development/rmtx-a06/native-component-catalog/ui-browser-test.cjs",
+            "sha256": "f99c39d055ab0b6806cbdc1ffe251a2f9ec4f4b0ac98ccf66cfce9a96aacd21d"
+          },
+          {
+            "file": "fabric/xtend-fabric.js",
+            "sha256": "ea7fa64431048e724a336ecd3117c90c6bb8a0ab2871e1ba618d8381ed3f822d"
+          },
+          {
+            "file": "tests/maraca/native-platform-managed.test.mjs",
+            "sha256": "05b79f31384ad11fc0bcb0f2733908c8771b32f9d6248a4e2d6bfc110025922a"
+          },
+          {
+            "file": "tools/xtensions/native-component-bindings.js",
+            "sha256": "cfc47bf0af1079f58c54763e8cba1b6d8d47d07a1226d0171377c634e2b54ec7"
+          },
+          {
+            "file": "tools/xtensions/native-component-catalog-v2.js",
+            "sha256": "27a25ad2578fbf2fcb0df9b9c98f4fc6c7698355e6a108d40afcef825d6193b6"
+          },
+          {
+            "file": "tools/xtensions/native-component-contract-v2.js",
+            "sha256": "41564661296d9131cdf37beb3f8a0b3340aa0eca7e075672c3f9688d3930cb1a"
+          },
+          {
+            "file": "tools/xtensions/native-component-managed.js",
+            "sha256": "e382bc79eeeaf9cc1e5216d19dc1e0f16044dfe9392545f413972c95ddfc1a34"
+          },
+          {
+            "file": "tools/xtensions/native-data.js",
+            "sha256": "3fbd1e9f29e1b133f3042106a46eaaede2107f38fc71851c566a998f0b397684"
+          },
+          {
+            "file": "tools/xtensions/native-lifecycle.js",
+            "sha256": "b1d3419d077ab63b8add830a735f16b6c70b53ca92afe46a7c50ab9f0c6e7562"
+          },
+          {
+            "file": "tools/xtensions/native-managed-component-registry.js",
+            "sha256": "8e0a978d82fe2bae4482543961c4a135301936e82a96eed34fead9d3225ba274"
+          },
+          {
+            "file": "tools/xtensions/native-managed-lifecycle.js",
+            "sha256": "0c5bcf91e870b066bf5a055c78b904b3be1f87b5a53db245291abea28141a6dc"
+          },
+          {
+            "file": "tools/xtensions/native-managed-orchestration-lifecycle.js",
+            "sha256": "a2cefd6726bf652478f9a4001ae286817d44e0d9c0ef603ec8fa27384bb5a41f"
+          },
+          {
+            "file": "tools/xtensions/native-managed-surface-scopes.js",
+            "sha256": "f5a1e1e5bf7881a8914f1024f22ca00918396213fde8a5666987700438cbde1c"
+          },
+          {
+            "file": "tools/xtensions/native-managed-view-projection.js",
+            "sha256": "2381cd9314a6ec8e503fed6ac33e5466bed5eaaa95faf139d0e151005570b323"
+          },
+          {
+            "file": "tools/xtensions/native-orchestration-lifecycle-core.js",
+            "sha256": "7e141e9efd03c786145a12d65181270a86f2971481a5f7adbaec06e857cf4827"
+          },
+          {
+            "file": "tools/xtensions/native-sink-contract.js",
+            "sha256": "59089b6fce9afb48785ecb98c243a66086fed31bf5a7e09083714b3c993ea3cd"
+          },
+          {
+            "file": "tools/xtensions/native-surface-projection-core.js",
+            "sha256": "ca5dc9a1430cf309bb973a601ebf1c49183e7ae4ca727b62f7cacfa539a5f7e5"
+          },
+          {
+            "file": "tools/xtensions/native-surface-scopes-core.js",
+            "sha256": "a0fbb0d5aac3e7d2e1c583cdbf32bfdf48d0c3ee956d25194bf17e27c980a97c"
+          },
+          {
+            "file": "tools/xtensions/native-surface-validation-core.js",
+            "sha256": "0f663176a1c592060becec416e2aed210bb6ecab2d725d17dc9c015f302885bd"
+          },
+          {
+            "file": "tools/xtensions/repeat-scopes.js",
+            "sha256": "52a2860132aacc6da0ed95cac68128193180ebaeff91794d77a1a8b8764599d4"
+          },
+          {
+            "file": "tools/xtensions/state-binding-contract.js",
+            "sha256": "857867ed26115ea9aa966b7c3e74099675c890f5bb3bbc4c890dfa5d581af2b6"
+          },
+          {
+            "file": "tools/xtensions/state-binding-projection.js",
+            "sha256": "62d116bb6a8fcdeccdd0426d5c6a21537d3e01c952393b4cc82f1f88b0aea739"
+          },
+          {
+            "file": "xtend-maraca/abort-boundary.mjs",
+            "sha256": "bbedb71080e7e1aff6787171773ef457810f7396bdc3f96b63ceac50d7a86ae7"
+          },
+          {
+            "file": "xtend-maraca/fastpass-contract.js",
+            "sha256": "af8e26104243deea58ccf3a334d67ecb3286617146257074a29eeb7866a3b1a3"
+          },
+          {
+            "file": "xtend-maraca/fastpass.mjs",
+            "sha256": "e641e82b8671f0c4057a7c4de300ccded5eb955009576121ab1c3ddccca3a6ad"
+          },
+          {
+            "file": "xtend-maraca/index.js",
+            "sha256": "b39c38bd6e20d5f959bdb18f2df894560b4cc71269dfa37a7b9bf57d8876e85a"
+          },
+          {
+            "file": "xtend-maraca/native-managed-runtime.mjs",
+            "sha256": "f8f43553fc0096af64f1bfdb648389ca3db9b13acb53113806953d577ef5388a"
+          },
+          {
+            "file": "xtend-maraca/native-orchestration-core.mjs",
+            "sha256": "fd4c098818eb74c6195d91cd525e1fac7880b26318a13a37bc5028d142c85393"
+          },
+          {
+            "file": "xtend-maraca/native-platform-host.mjs",
+            "sha256": "e1223d2f6a828019c256b1e557b0a9737895ab796e227eee79c06efb07adad7d"
+          },
+          {
+            "file": "xtend-maraca/native-surface-graph-core.mjs",
+            "sha256": "8db4a33569da1f7cfc41cce7e488837e4ff832f17d63bedeeaf97a09d92d5166"
+          },
+          {
+            "file": "xtend-maraca/plan-runtime.mjs",
+            "sha256": "a719d3de35d3ea58a065a71e2b193e8fa10a3bb81db76d766ca0507314057b5c"
+          },
+          {
+            "file": "xtendrmt/rmt-action-effect-runtime.js",
+            "sha256": "455995d274cf2d12e92be4d1567b154769fc5369b4fb3f7b7886075b2839a4d9"
+          },
+          {
+            "file": "xtendrmt/rmt-app-runtime.js",
+            "sha256": "3d20461b92e62ac73af1317e855bd2426337f3886f51c91d23297f92c90fdceb"
+          },
+          {
+            "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
+            "sha256": "cb9d0c144b2454431533ac989a826697c295b68f89c2527c6cff357d3e78615f"
+          },
+          {
+            "file": "xtendrmt/rmt-event-routing-runtime.js",
+            "sha256": "0e629eeee2ab8e5b5bdecaea5ccfb2ded0201d7756dd189cdd7c628d1bbd6f66"
+          },
+          {
+            "file": "xtendrmt/rmt-kernel-orchestration-controller.js",
+            "sha256": "b4ce03f075831a483f388cec00e4b1ff458b84dc640645a04e44fb904954af10"
+          },
+          {
+            "file": "xtendrmt/rmt-kernel-scheduler.js",
+            "sha256": "cb6968fa9b5a784f93e6c941e4a634bdd527525247a1f4653f9c7b204829e766"
+          },
+          {
+            "file": "xtendrmt/rmt-maraca-view-projection-adapter.js",
+            "sha256": "ee09855bee0e3973cfd8ec521c6b661256c3f1be7e4e8b6e782dd323ffb313be"
+          },
+          {
+            "file": "xtendrmt/rmt-presentation-effect-adapter.js",
+            "sha256": "87c7d4a3e886bfd45d98b7b5dd385ce06a578dc408a3ceb0a6122f5010f9cd0f"
+          },
+          {
+            "file": "xtendrmt/rmt-resume-capture-adapter.js",
+            "sha256": "8536cb95233a4823c9a649aba6eb60ef5029ab24386216c96f21258cd66a8b3f"
+          },
+          {
+            "file": "xtendrmt/rmt-resume-command-adapter.js",
+            "sha256": "188c073aa37ef260f37682e65cf29651e3f6b4a37b6737da7a28a64007f3c896"
+          },
+          {
+            "file": "xtendrmt/rmt-resume-command-controller.js",
+            "sha256": "c12f618a4dd04090499ded4f27b5825d7da136775639be86016ab2e1846b2f3d"
+          },
+          {
+            "file": "xtendrmt/rmt-resume-host-adapter.js",
+            "sha256": "33d981e5028a48feaeec60c98dba59555375561f123d6721d9b4dec60701ef5f"
+          },
+          {
+            "file": "xtendrmt/rmt-resume-protocol.js",
+            "sha256": "efc18ddc7e240c5640fbc9153ce83f95c35844d24282b23d8b8897d2eb618477"
+          },
+          {
+            "file": "xtendrmt/rmt-resume-runtime.js",
+            "sha256": "34fa4effde845c60a49f859d3728e1f83c3ec56555b9e8939cbad1e4e1098a57"
+          },
+          {
+            "file": "xtendrmt/rmt-runtime.esm.js",
+            "sha256": "effa5d3a25352e7500c0177dada54fb4b30ca2a9c9176cf1e1b496860cc40716"
+          },
+          {
+            "file": "xtendrmt/rmt-state-selector-runtime.js",
+            "sha256": "150f5ae1a279cf7457be54fc7a466afeb1a2a026a911ab1cb1d16ae5da2a669d"
+          },
+          {
+            "file": "xtendrmt/rmt-surface-resource-graph-runtime.js",
+            "sha256": "9344b64339e1e08d4bd64933fabe5c14a12fadd24cd546b787cf727de469f446"
+          }
+        ]
+      },
+      {
+        "id": "services",
+        "test": "tests/components/native-platform-services.test.mjs",
+        "compilerRecords": 0,
+        "compilerCaptureSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "testSha256": "a2dc557c89556724cb5520271df7b00728e4de95f9c5fadca0c84c5e375bad2e",
+        "bundleSha256": "75c4be72d3803cf1dd305860e282fe30fd9bfad032b5fa4b7df6851ff7bf5f72",
+        "domPurifyParserLine": 7271,
+        "sources": [
+          {
+            "file": "components/component-dom.js",
+            "sha256": "ab905c7c19492a4a4203331e2fe2a061e4bd4155c307fc82e43e9f474577e9f5"
+          },
+          {
+            "file": "components/icon-dom.js",
+            "sha256": "7b5b0025e08d776af50c25b31e6773eee0ae7fb2f2cb1640a652bed4e0c29149"
+          },
+          {
+            "file": "components/icon-packs/core.js",
+            "sha256": "7c34c0cf60198f93608f9d550b7932ab24964da9671b457d2ac8193c00ba81ec"
+          },
+          {
+            "file": "components/icon-packs/lucide.js",
+            "sha256": "3ef36c7b10dcba9b519063934d59cb0bbc07d313c487abb379e5b80346777995"
+          },
+          {
+            "file": "components/native-collection-layout.js",
+            "sha256": "faacdb651aeb07bbcb0ecde02428fdcf519532c0326f5ba4ce6637f8f112ca6d"
+          },
+          {
+            "file": "components/native-dialog-presentation.js",
+            "sha256": "ae124166e585d8d066172ea97f99ec3ec8d88ed4db59414c9688ee2a7b0059c9"
+          },
+          {
+            "file": "components/native-hero-presentation.js",
+            "sha256": "fec16143cbd69efb3854471db296b69cb2a844b423fe453bab55b3ab3e75c22c"
+          },
+          {
+            "file": "components/native-highlighting.js",
+            "sha256": "f31fe4432fc9fef4d9fa00047da6f77a8c18f16915bc72f46f4b43b78740d428"
+          },
+          {
+            "file": "components/native-html.js",
+            "sha256": "361f18783a1d84b561b3be9b2ef453df41879f6984260964c5f391e7eb67dc97"
+          },
+          {
+            "file": "components/native-managed.js",
+            "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          },
+          {
+            "file": "components/native-platform.js",
+            "sha256": "4182605f2486b9a2b89fa589d87bf6637e4925bee6c69f17cb626e0c1f736ab9"
+          },
+          {
+            "file": "components/native-services.js",
+            "sha256": "90ca51b518343df0706c26012d1ee9ce5d40cea8075a04cf9fb5bba5fc6de20b"
+          },
+          {
+            "file": "components/native-style-values.js",
+            "sha256": "064c0f44460bd182ebc2105620a79956db683d2c64eb14b2da69e16eeb7c6175"
+          },
+          {
+            "file": "components/native-ui-profiles.js",
+            "sha256": "7bf6ddca2dc14be58191f64e55158fcd7e2a225c5649b3d9d41ab480216eb3cc"
+          },
+          {
+            "file": "components/overlay-focus.js",
+            "sha256": "e483510d8e0f75ea7354e2aa36abac378651a2bfcaf1a430e8bfeb71418e10de"
+          },
+          {
+            "file": "components/rmt-command.js",
+            "sha256": "bf0ea1b024a2648c87ee37cdc80af2c0892f688d057650500990fd55138c21a5"
+          },
+          {
+            "file": "components/style-nonce.js",
+            "sha256": "f12c1b45cb4f613f24ff952c7ad47b73e330a087f5010c39c6193992787e708b"
+          },
+          {
+            "file": "components/xalert.definition.js",
+            "sha256": "9ea1ff5b1f394f99db15eb00fba49193433e138ab223456a4c23648fef96cb60"
+          },
+          {
+            "file": "components/xbutton.definition.js",
+            "sha256": "0633684f75621cff1f580f9ffce4c957429dcc99fce10b671a5d0676ab620cdc"
+          },
+          {
+            "file": "components/xcalendar.definition.js",
+            "sha256": "98501fc2c25b1016af160677463f640a377368727408f2dc7536e78e415970f9"
+          },
+          {
+            "file": "components/xcards.definition.js",
+            "sha256": "a939febd71f452bc5886ffcadb05690bddfdcc1353ee44ae3c798614ed341807"
+          },
+          {
+            "file": "components/xcheckbox.definition.js",
+            "sha256": "3121f2772a855a8d1098b44eb35b493d9eed7f325f235825bd3462b8c6911e60"
+          },
+          {
+            "file": "components/xcode.definition.js",
+            "sha256": "3c8d64d4e833cd9d393c0f937fa3d42ee832036aba0add0427d973e800b85bb4"
+          },
+          {
+            "file": "components/xdialog.definition.js",
+            "sha256": "e9a16ee648ba04d256039a18a5a1111badb4cea44a0214287f733ac81f61e7e2"
+          },
+          {
+            "file": "components/xdrawer.definition.js",
+            "sha256": "7d583e50c4c78b69ea0d5d0a47c4cb9c6c96fdc137f678326c33b2ef3479d15f"
+          },
+          {
+            "file": "components/xfooter.definition.js",
+            "sha256": "fda6a4866cd1ec27a360270af18c70a9f849d89379d42acd0e20803c0c4d5c8f"
+          },
+          {
+            "file": "components/xform.definition.js",
+            "sha256": "2b572fc0daabe8260e939e23fa56949468a6a57a00fe22e4b2f69fc83bbcd876"
+          },
+          {
+            "file": "components/xheader.definition.js",
+            "sha256": "f2a058aff2dbc8426a374c3c67e04f4228c4c09465e8d98ac7b43a5c9e9c7031"
+          },
+          {
+            "file": "components/xhero.definition.js",
+            "sha256": "91f11e08cae32ce05b92f6a3d73f265938a1a68b0e86f3668eec5ab5c31d1f16"
+          },
+          {
+            "file": "components/xicon.definition.js",
+            "sha256": "96ec3dce87ba947ecc673fd3c9480c3ec7fbfecab1b098402af65fbdf0fbcd49"
+          },
+          {
+            "file": "components/xinput.definition.js",
+            "sha256": "cf1af4b97903a8bfd285af362e7559c6786623c0407160b2181e5f65397d8dcc"
+          },
+          {
+            "file": "components/xkeymap.definition.js",
+            "sha256": "97abb970179dae86792978bb2b4bbc7f6d088b287c05dbd7d271d6e723be42e3"
+          },
+          {
+            "file": "components/xlightbox.definition.js",
+            "sha256": "9ca9a1bd17aa19bf2d850eb89facc9fe44772222c4998df53bd543d08af284f2"
+          },
+          {
+            "file": "components/xlink.definition.js",
+            "sha256": "1d3a137b7af812f8c29a9acc79db0da6485f3feae7b0eb8ad1006ef41715c2db"
+          },
+          {
+            "file": "components/xmasonry.definition.js",
+            "sha256": "ffd35018a428a76d548354b62b8c61cfb00ab0db64d4cb82147f45c93d4f55aa"
+          },
+          {
+            "file": "components/xmenu.definition.js",
+            "sha256": "13fa4f39ca17584d03e0fb07a9f39302ccc0d614fd843d057d071ab2310060c6"
+          },
+          {
+            "file": "components/xmodal.definition.js",
+            "sha256": "75328ace24addfe2ec9b4a8351333120ae87249ca79fe56d4dfe279fedf2676d"
+          },
+          {
+            "file": "components/xplayer.definition.js",
+            "sha256": "f8820ce68d15685ed117db38aa9fac42ca5884facd24341b1ced967dfa680a0b"
+          },
+          {
+            "file": "components/xpopover.definition.js",
+            "sha256": "1c96b01a44a6345c11d8ccc77516b542466a75d1fb4b5eeefc2ddfce70e5075c"
+          },
+          {
+            "file": "components/xprogress.definition.js",
+            "sha256": "a418c3a898b3d1743666b7a94e2eff73dc971b9c9095054115616bf6a5940b87"
+          },
+          {
+            "file": "components/xradio.definition.js",
+            "sha256": "c1f8c2beb2a7d2f01d297edea59aae87c33dcf7685da42faa5afeaf0c7b72d5a"
+          },
+          {
+            "file": "components/xrouter-url-state.js",
+            "sha256": "60baa9404481e9117e0914f445bbaf0be66e31d52a4a202d9786c4e5a09f7c08"
+          },
+          {
+            "file": "components/xrouter.definition.js",
+            "sha256": "4e72822c2d14e225e7ce6e9611d1f8a19043435a04fdb7958b16540f9be6d7a2"
+          },
+          {
+            "file": "components/xsection.definition.js",
+            "sha256": "e95e170460d48f68e50a405c63c4402c715abe0ca95e15abe42de596f99be347"
+          },
+          {
+            "file": "components/xselect.definition.js",
+            "sha256": "8b4382eff830eaaba51a1642df6b807d3fcdb8b949e507216be80316eaca0933"
+          },
+          {
+            "file": "components/xsidepanel.definition.js",
+            "sha256": "597f93286283fdb774b95d2a7cc2a24b6f72331510b8dcc9b0a1ae615499e51c"
+          },
+          {
+            "file": "components/xspinner.definition.js",
+            "sha256": "60b5a2223cb2e1739ba08797967cd085f6a0e737b08c661c511b10d6896de4ec"
+          },
+          {
+            "file": "components/xstatus.definition.js",
+            "sha256": "c64e03a4fa9e201e8d30e95f91e0a0a511bbeda302201627eb8b32bed87e7dd5"
+          },
+          {
+            "file": "components/xsummary.definition.js",
+            "sha256": "a4b1fa67f59df4a3790a8f96fd09a0a481bf91f56e4b2dee0c7b27cd1931e8ea"
+          },
+          {
+            "file": "components/xsurfacemanager-controller.js",
+            "sha256": "a747e5a4bd9d4c1205dc464d046eb5bc65531acc74d083d78e10d5c614afa7a5"
+          },
+          {
+            "file": "components/xsurfacemanager.definition.js",
+            "sha256": "41873745b7c3636c0ee6dab1fee658faa298389a3f62dc4a2be0746fa52e29c1"
+          },
+          {
+            "file": "components/xsurfaceoverlay-bridge.js",
+            "sha256": "85fc4a4f0ac9d58495bf2bbfadad4cb58142c850c928d3d368c111c0c93450fc"
+          },
+          {
+            "file": "components/xsurfaceportal.definition.js",
+            "sha256": "c0d802b30481c0d81cda2dfc10831b7774fd741a9bf1baa0ceffe731d164f157"
+          },
+          {
+            "file": "components/xsurfaceregion.definition.js",
+            "sha256": "039f63fbef83764bc24fe1ac98b430f216eae6733884f18e20e63f3507e8dd64"
+          },
+          {
+            "file": "components/xsurfacewindow.definition.js",
+            "sha256": "bdb862f9f8e977d882a08368e7afc6d42f26b79be154d01972f72a99c9b544d4"
+          },
+          {
+            "file": "components/xtabs.definition.js",
+            "sha256": "47c0387a4131c24ca8a0c28bac407893c3cd059b4018caae6b0ab04743006bb5"
+          },
+          {
+            "file": "components/xtend-i18n.definition.js",
+            "sha256": "031661a4642c94a3b7556a57f38ac2fee7ad0917f2d16ae64fe49ed681b65546"
+          },
+          {
+            "file": "components/xtend-state.definition.js",
+            "sha256": "e49f9e574ac9b432eb1d3be805486d1876bf3b6b0b0e1eca73ab76c16c177c01"
+          },
+          {
+            "file": "components/xtextarea.definition.js",
+            "sha256": "e9328c53cc0caa8b0f3903c237e1550872f590506f28c0e4ca3ce212b71774bb"
+          },
+          {
+            "file": "components/xtheme.definition.js",
+            "sha256": "e8ac344a041283ad9fea922dafb1b83f6da2cfc9e354b8e0ab1b0443a9255fe6"
+          },
+          {
+            "file": "components/xtoast.definition.js",
+            "sha256": "2aad31f06eae06a748415b0ce21c598dee786ad0d4f9e6c9bd842b1449873e4d"
+          },
+          {
+            "file": "components/xtoggle.definition.js",
+            "sha256": "c647514fd001d4a950925da9a78063402bb2037023485a504255041cc2afa835"
+          },
+          {
+            "file": "components/xtooltip.definition.js",
+            "sha256": "8561af9def87e2a15a47edbfa2033367706b382f751d16ac8a1808b049402ae3"
+          },
+          {
+            "file": "components/xtype.definition.js",
+            "sha256": "66510b2e9232b7a1f8bf88edec0242781f44dadc8e38333a170ecd8015bbdd88"
+          },
+          {
+            "file": "components/xutils.definition.js",
+            "sha256": "3bb6c47212647e1723d9fb9b0287ee6b7f9b8e86b3af8ef6ab54268d7f9d47f1"
+          },
+          {
+            "file": "components/xwriter.definition.js",
+            "sha256": "cb22f455e2f62d5fd7e0fe889b0ea5c78081bfd027063d13c27241a4df7a1125"
+          },
+          {
+            "file": "development/rmtx-a06/native-component-catalog/browser-suite-transform.cjs",
+            "sha256": "224225f369c260a800f8dc0f8859f0448512cb2c2a421fbbe7e5d481172ee8a7"
+          },
+          {
+            "file": "development/rmtx-a06/native-component-catalog/ui-browser-test.cjs",
+            "sha256": "f99c39d055ab0b6806cbdc1ffe251a2f9ec4f4b0ac98ccf66cfce9a96aacd21d"
+          },
+          {
+            "file": "tests/components/native-platform-services.test.mjs",
+            "sha256": "a2dc557c89556724cb5520271df7b00728e4de95f9c5fadca0c84c5e375bad2e"
+          },
+          {
+            "file": "tools/rmt-language/rmtx-native-components-v2.js",
+            "sha256": "1eee9f704cf87b3e9737c18fabff8058490bbcbe5c20a8cbfec7356b5aa92c5d"
+          },
+          {
+            "file": "tools/rmt-language/rmtx-native-components-v2.json",
+            "sha256": "b4529fecd6b24569e12dbd1a121da6622aaa58dd9a4e3fbb08e9b76bb0059019"
+          },
+          {
+            "file": "tools/xtensions/native-component-catalog-v2.js",
+            "sha256": "27a25ad2578fbf2fcb0df9b9c98f4fc6c7698355e6a108d40afcef825d6193b6"
+          },
+          {
+            "file": "tools/xtensions/native-component-contract-v2.js",
+            "sha256": "41564661296d9131cdf37beb3f8a0b3340aa0eca7e075672c3f9688d3930cb1a"
+          },
+          {
+            "file": "tools/xtensions/native-component-managed.js",
+            "sha256": "e382bc79eeeaf9cc1e5216d19dc1e0f16044dfe9392545f413972c95ddfc1a34"
+          },
+          {
+            "file": "tools/xtensions/state-binding-contract.js",
+            "sha256": "857867ed26115ea9aa966b7c3e74099675c890f5bb3bbc4c890dfa5d581af2b6"
+          },
+          {
+            "file": "tools/xtensions/state-binding-projection.js",
+            "sha256": "62d116bb6a8fcdeccdd0426d5c6a21537d3e01c952393b4cc82f1f88b0aea739"
+          },
+          {
+            "file": "xtendrmt/html-sanitizer.mjs",
+            "sha256": "89b4e15c6d5d85e1687c117356487d69f529a1e245ad360b33f7fea45a2f458c"
+          },
+          {
+            "file": "xtendrmt/rmt-dom-descriptor-renderer.js",
+            "sha256": "cb9d0c144b2454431533ac989a826697c295b68f89c2527c6cff357d3e78615f"
+          },
+          {
+            "file": "xtendrmt/rmt-surface-transition-runtime.js",
+            "sha256": "03d0245ea17603a4b9fd17ddac0dd13c9b240edf1acf21ebdb89901d24ff221b"
+          }
+        ]
+      }
+    ]
+  },
+  "suites": [
+    {
+      "id": "ui",
+      "cases": [
+        {
+          "name": "all 36 UI imports are pure and export the exact managed-compatible shared class",
+          "passed": true,
+          "milliseconds": 0.5
+        },
+        {
+          "name": "every UI class mounts and releases without writing the Classic store or moving its host",
+          "passed": true,
+          "milliseconds": 77.5
+        },
+        {
+          "name": "input property updates are silent; input gestures deliver one normalized intent and reconnect releases listeners",
+          "passed": true,
+          "milliseconds": 1.2999999970197678
+        },
+        {
+          "name": "radio changes never uncheck another managed or Classic instance",
+          "passed": true,
+          "milliseconds": 1.2000000029802322
+        },
+        {
+          "name": "code, hero, masonry, menu and tabs preserve author element identity and attributes",
+          "passed": true,
+          "milliseconds": 3.699999999254942
+        },
+        {
+          "name": "managed dismissals request state transitions while retaining the host",
+          "passed": true,
+          "milliseconds": 1.300000000745058
+        },
+        {
+          "name": "writer sanitizes model HTML and delegates saving/export to the injected owner ports",
+          "passed": true,
+          "milliseconds": 6.5
+        },
+        {
+          "name": "managed Modal title stays text and cannot create executable or resource-bearing markup",
+          "passed": true,
+          "milliseconds": 1
+        },
+        {
+          "name": "Dialog dimensions reject stylesheet injection before the first write and preserve valid updates atomically",
+          "passed": true,
+          "milliseconds": 3
+        },
+        {
+          "name": "typed multiple selection and date constraints survive Model projection",
+          "passed": true,
+          "milliseconds": 32.099999997764826
+        },
+        {
+          "name": "controlled commands require a Model Action and never mutate the projected value themselves",
+          "passed": true,
+          "milliseconds": 2.400000002235174
+        },
+        {
+          "name": "Model-owned overlay open and checkbox checked remain authoritative after gestures",
+          "passed": true,
+          "milliseconds": 1.7999999970197678
+        },
+        {
+          "name": "file DTOs contain scoped opaque handles; arbitrary File-like objects are rejected",
+          "passed": true,
+          "milliseconds": 1.7000000029802322
+        },
+        {
+          "name": "sanitized modal HTML and declarative actions never execute callback fields",
+          "passed": true,
+          "milliseconds": 2.899999998509884
+        },
+        {
+          "name": "functional profile x-alert: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 3.600000001490116
+        },
+        {
+          "name": "functional profile x-button: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 10.5
+        },
+        {
+          "name": "functional profile x-calendar: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 35.399999998509884
+        },
+        {
+          "name": "functional profile x-cards: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 1.6000000014901161
+        },
+        {
+          "name": "functional profile x-checkbox: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 4.899999998509884
+        },
+        {
+          "name": "functional profile x-code: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 1.5
+        },
+        {
+          "name": "functional profile x-dialog: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 5.600000001490116
+        },
+        {
+          "name": "functional profile x-drawer: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 6
+        },
+        {
+          "name": "functional profile x-footer: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 5.199999999254942
+        },
+        {
+          "name": "functional profile x-form: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 5.300000000745058
+        },
+        {
+          "name": "functional profile x-header: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 8.799999997019768
+        },
+        {
+          "name": "functional profile x-hero: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 5.400000002235174
+        },
+        {
+          "name": "functional profile x-icon: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 5.300000000745058
+        },
+        {
+          "name": "functional profile x-input: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 5.199999999254942
+        },
+        {
+          "name": "functional profile x-keymap: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 5.800000000745058
+        },
+        {
+          "name": "functional profile x-lightbox: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 4.899999998509884
+        },
+        {
+          "name": "functional profile x-link: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 5
+        },
+        {
+          "name": "functional profile x-masonry: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 4.899999998509884
+        },
+        {
+          "name": "functional profile x-menu: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 5
+        },
+        {
+          "name": "functional profile x-modal: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 8.300000000745058
+        },
+        {
+          "name": "functional profile x-player: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 8.600000001490116
+        },
+        {
+          "name": "functional profile x-popover: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 5.5
+        },
+        {
+          "name": "functional profile x-progress: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 5.099999997764826
+        },
+        {
+          "name": "functional profile x-radio: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 5.100000001490116
+        },
+        {
+          "name": "functional profile x-section: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 4.800000000745058
+        },
+        {
+          "name": "functional profile x-select: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 5.599999997764826
+        },
+        {
+          "name": "functional profile x-spinner: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 5.100000001490116
+        },
+        {
+          "name": "functional profile x-status: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 7.5
+        },
+        {
+          "name": "functional profile x-summary: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 5.399999998509884
+        },
+        {
+          "name": "functional profile x-tabs: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 5.5
+        },
+        {
+          "name": "functional profile x-textarea: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 8.100000001490116
+        },
+        {
+          "name": "functional profile x-toast: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 6.100000001490116
+        },
+        {
+          "name": "functional profile x-toggle: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 5.799999997019768
+        },
+        {
+          "name": "functional profile x-tooltip: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 6.100000001490116
+        },
+        {
+          "name": "functional profile x-type: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 5.600000001490116
+        },
+        {
+          "name": "functional profile x-writer: projection, event, command, lifecycle and shared Classic class",
+          "passed": true,
+          "milliseconds": 12.699999999254942
+        },
+        {
+          "name": "tabs use original Renderer refs, typed key intents, registered selection command and suspension leases",
+          "passed": true,
+          "milliseconds": 119.30000000074506
+        },
+        {
+          "name": "masonry collapse and reorder controls emit typed Model requests while Renderer owns all originals",
+          "passed": true,
+          "milliseconds": 44.599999997764826
+        },
+        {
+          "name": "calendar civil days, localized labels and controlled viewports are independent of the process time zone",
+          "passed": true,
+          "milliseconds": 14.800000000745058
+        },
+        {
+          "name": "removing optional collection controls restores default presentation without undefined author data",
+          "passed": true,
+          "milliseconds": 90.80000000074506
+        },
+        {
+          "name": "calendar keyboard focus stays local while Enter/Space emit bounded civil-date intents, including RTL",
+          "passed": true,
+          "milliseconds": 76.09999999776483
+        },
+        {
+          "name": "native menu arrows focus actual Renderer-owned enabled items and preserve authored roles",
+          "passed": true,
+          "milliseconds": 29.800000000745058
+        },
+        {
+          "name": "managed modal admission retains one actual lease, releases on Suspend, and reacquires unchanged Model open on Resume",
+          "passed": true,
+          "milliseconds": 1.199999999254942
+        },
+        {
+          "name": "Model-open header, keymap and lightbox admit their exact owner focus capabilities",
+          "passed": true,
+          "milliseconds": 3.5
+        },
+        {
+          "name": "managed dialog and modal use a modal owner lease independently of the visual backdrop",
+          "passed": true,
+          "milliseconds": 1.6000000014901161
+        },
+        {
+          "name": "managed Hero style values reject markup and alternate URL forms before setters and admit one actual image URL before writes",
+          "passed": true,
+          "milliseconds": 5.5
+        },
+        {
+          "name": "managed Section and Spinner colors reject image functions atomically and consume variable tokens only as colors",
+          "passed": true,
+          "milliseconds": 1.8999999985098839
+        }
+      ],
+      "passed": true,
+      "cspReports": [
+        {
+          "sourceFile": "http://127.0.0.1:39797/ui.mjs",
+          "line": 7295,
+          "column": 35,
+          "sample": "evil()",
+          "blockedURI": "inline",
+          "effectiveDirective": "script-src-attr"
+        },
+        {
+          "sourceFile": "http://127.0.0.1:39797/ui.mjs",
+          "line": 7295,
+          "column": 35,
+          "sample": "evil()",
+          "blockedURI": "inline",
+          "effectiveDirective": "script-src-attr"
+        },
+        {
+          "sourceFile": "http://127.0.0.1:39797/ui.mjs",
+          "line": 7295,
+          "column": 35,
+          "sample": "evil()",
+          "blockedURI": "inline",
+          "effectiveDirective": "script-src-attr"
+        }
+      ],
+      "attackExecutions": 0,
+      "expectedAttackReports": [
+        {
+          "sourceFile": "http://127.0.0.1:39797/ui.mjs",
+          "line": 7295,
+          "column": 35,
+          "sample": "evil()",
+          "blockedURI": "inline",
+          "effectiveDirective": "script-src-attr"
+        },
+        {
+          "sourceFile": "http://127.0.0.1:39797/ui.mjs",
+          "line": 7295,
+          "column": 35,
+          "sample": "evil()",
+          "blockedURI": "inline",
+          "effectiveDirective": "script-src-attr"
+        },
+        {
+          "sourceFile": "http://127.0.0.1:39797/ui.mjs",
+          "line": 7295,
+          "column": 35,
+          "sample": "evil()",
+          "blockedURI": "inline",
+          "effectiveDirective": "script-src-attr"
+        }
+      ],
+      "unexpectedCspReports": [],
+      "expectedAttackConsoleMessages": [
+        {
+          "text": "Executing inline event handler violates the following Content Security Policy directive 'script-src 'self' 'report-sample''. Either the 'unsafe-inline' keyword, a hash ('sha256-...'), or a nonce ('nonce-...') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the 'unsafe-hashes' keyword is present. The action has been blocked.",
+          "location": {
+            "url": "http://127.0.0.1:39797/ui.mjs",
+            "lineNumber": 7294,
+            "columnNumber": 0
+          }
+        },
+        {
+          "text": "Executing inline event handler violates the following Content Security Policy directive 'script-src 'self' 'report-sample''. Either the 'unsafe-inline' keyword, a hash ('sha256-...'), or a nonce ('nonce-...') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the 'unsafe-hashes' keyword is present. The action has been blocked.",
+          "location": {
+            "url": "http://127.0.0.1:39797/ui.mjs",
+            "lineNumber": 7294,
+            "columnNumber": 0
+          }
+        },
+        {
+          "text": "Executing inline event handler violates the following Content Security Policy directive 'script-src 'self' 'report-sample''. Either the 'unsafe-inline' keyword, a hash ('sha256-...'), or a nonce ('nonce-...') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the 'unsafe-hashes' keyword is present. The action has been blocked.",
+          "location": {
+            "url": "http://127.0.0.1:39797/ui.mjs",
+            "lineNumber": 7294,
+            "columnNumber": 0
+          }
+        }
+      ],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "network": [
+        {
+          "url": "http://127.0.0.1:39797/ui.html",
+          "type": "document"
+        },
+        {
+          "url": "http://127.0.0.1:39797/ui.mjs",
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:39797/x",
+          "type": "image"
+        }
+      ]
+    },
+    {
+      "id": "renderer",
+      "cases": [
+        {
+          "name": "the actual renderer prepares before attributes, routes a single lexical intent and silently patches controlled props",
+          "passed": true,
+          "milliseconds": 98.19999999925494
+        },
+        {
+          "name": "Renderer-owned tabs project exact original children and restore authored visibility on release",
+          "passed": true,
+          "milliseconds": 44.80000000074506
+        },
+        {
+          "name": "Renderer-owned masonry reorders originals by typed keys and rejects foreign or missing refs atomically",
+          "passed": true,
+          "milliseconds": 43.69999999925494
+        },
+        {
+          "name": "lexical native On conditions read the live Model and cannot fall through a Surface delegate",
+          "passed": true,
+          "milliseconds": 41
+        },
+        {
+          "name": "owned Hero scroll and Menu keyboard navigation use real Renderer ports",
+          "passed": true,
+          "milliseconds": 34.20000000298023
+        },
+        {
+          "name": "owned Tooltip anchor leases preserve other descriptions and release callbacks on Suspend",
+          "passed": true,
+          "milliseconds": 28.599999997764826
+        },
+        {
+          "name": "actual modal leases inert only owned app siblings, trap focus, track Model changes and release on Suspend",
+          "passed": true,
+          "milliseconds": 62.5
+        },
+        {
+          "name": "conditional Tooltip anchors retire their listeners and rebind the same ref to its new owned lifetime",
+          "passed": true,
+          "milliseconds": 54.30000000074506
+        }
+      ],
+      "passed": true,
+      "cspReports": [],
+      "attackExecutions": 0,
+      "expectedAttackReports": [],
+      "unexpectedCspReports": [],
+      "expectedAttackConsoleMessages": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "network": [
+        {
+          "url": "http://127.0.0.1:39797/renderer.html",
+          "type": "document"
+        },
+        {
+          "url": "http://127.0.0.1:39797/renderer.mjs",
+          "type": "script"
+        }
+      ]
+    },
+    {
+      "id": "demo",
+      "cases": [
+        {
+          "name": "the demo remains an actual Classic CSR lifecycle and author-slot reference, not a productive native grant",
+          "passed": true,
+          "milliseconds": 23.900000002235174
+        }
+      ],
+      "passed": true,
+      "cspReports": [],
+      "attackExecutions": 0,
+      "expectedAttackReports": [],
+      "unexpectedCspReports": [],
+      "expectedAttackConsoleMessages": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "network": [
+        {
+          "url": "http://127.0.0.1:39797/demo.html",
+          "type": "document"
+        },
+        {
+          "url": "http://127.0.0.1:39797/demo.mjs",
+          "type": "script"
+        }
+      ]
+    },
+    {
+      "id": "platform",
+      "cases": [
+        {
+          "name": "all six platform tags bind to actual Controller/Graph and command fibers rather than local managers",
+          "passed": true,
+          "milliseconds": 670.1000000014901
+        },
+        {
+          "name": "real platform UI flags project false to true to false without changing Controller authority",
+          "passed": true,
+          "milliseconds": 374.6000000014901
+        },
+        {
+          "name": "all six released platform bindings stay revoked after Suspend and a fresh activation",
+          "passed": true,
+          "milliseconds": 856.7999999970198
+        },
+        {
+          "name": "Surface platform gestures commit bounds and state through the real graph and preserve foreign records",
+          "passed": true,
+          "milliseconds": 500.1000000014901
+        },
+        {
+          "name": "a genuine component-command Effect invokes the actual scoped platform handler inside its exact Kernel job",
+          "passed": true,
+          "milliseconds": 142.5
+        },
+        {
+          "name": "close, minimize and collapse return only genuine Controller receipts after their own scope deactivation",
+          "passed": true,
+          "milliseconds": 422.3999999985099
+        },
+        {
+          "name": "native Router delegates the captured local destination to the injected History host and publishes its Model intent",
+          "passed": true,
+          "milliseconds": 129
+        },
+        {
+          "name": "Portal projection retains the exact declared existing Portal and rejects policy replacement",
+          "passed": true,
+          "milliseconds": 75.39999999850988
+        },
+        {
+          "name": "forged authority-valued platform attributes and route data fail before managed host mutation",
+          "passed": true,
+          "milliseconds": 171
+        }
+      ],
+      "passed": true,
+      "cspReports": [],
+      "attackExecutions": 0,
+      "expectedAttackReports": [],
+      "unexpectedCspReports": [],
+      "expectedAttackConsoleMessages": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "network": [
+        {
+          "url": "http://127.0.0.1:39797/platform.html",
+          "type": "document"
+        },
+        {
+          "url": "http://127.0.0.1:39797/platform.mjs",
+          "type": "script"
+        }
+      ]
+    },
+    {
+      "id": "services",
+      "cases": [
+        {
+          "name": "pure native imports do not bootstrap globals, CE registration, listeners or i18n patches",
+          "passed": true,
+          "milliseconds": 0.09999999776482582
+        },
+        {
+          "name": "managed State reuses the existing adapter with isolated keys and owned cleanup",
+          "passed": true,
+          "milliseconds": 1.1000000014901161
+        },
+        {
+          "name": "managed i18n labels stay data, preserve Light DOM and reject foreign roots",
+          "passed": true,
+          "milliseconds": 4
+        },
+        {
+          "name": "scoped Theme uses the shared manager, restores owned values and preserves host writes",
+          "passed": true,
+          "milliseconds": 4.699999999254942
+        },
+        {
+          "name": "borrowed services are not disposed, missing transition/platform capabilities fail",
+          "passed": true,
+          "milliseconds": 7.699999999254942
+        },
+        {
+          "name": "owned Utils effects complete through the actual transition Renderer port and disposal revokes held or late work",
+          "passed": true,
+          "milliseconds": 34.80000000074506
+        },
+        {
+          "name": "managed Surface region delegates to the real controller and releases once without ancestor writes",
+          "passed": true,
+          "milliseconds": 4.699999999254942
+        }
+      ],
+      "passed": true,
+      "cspReports": [],
+      "attackExecutions": 0,
+      "expectedAttackReports": [],
+      "unexpectedCspReports": [],
+      "expectedAttackConsoleMessages": [],
+      "consoleErrors": [],
+      "pageErrors": [],
+      "network": [
+        {
+          "url": "http://127.0.0.1:39797/services.html",
+          "type": "document"
+        },
+        {
+          "url": "http://127.0.0.1:39797/services.mjs",
+          "type": "script"
+        }
+      ]
+    }
+  ],
+  "parserControl": {
+    "inert": true,
+    "attackRetainedOnlyInInertInput": true,
+    "sanitizedOutput": "<p>safe</p><img src=\"/x\">",
+    "handlerAndScriptRemoved": true,
+    "removed": [
+      {
+        "type": "element",
+        "name": "body"
+      },
+      {
+        "type": "attribute",
+        "name": "onerror"
+      },
+      {
+        "type": "element",
+        "name": "script"
+      }
+    ],
+    "emptyTrustedHtml": {
+      "brand": "[object TrustedHTML]",
+      "text": ""
+    },
+    "deniedImageSanitized": "<img src=\"https://xtend-parser-probe.invalid/denied-before-admission.png\">",
+    "resourceAdmissions": 0,
+    "cspReports": [
+      {
+        "sourceFile": "http://127.0.0.1:39797/parser-control.mjs",
+        "line": 3,
+        "column": 38,
+        "sample": "evil()",
+        "blockedURI": "inline",
+        "effectiveDirective": "script-src-attr"
+      },
+      {
+        "sourceFile": "http://127.0.0.1:39797/parser-control-sanitizer.mjs",
+        "line": 1843,
+        "column": 26,
+        "sample": "evil()",
+        "blockedURI": "inline",
+        "effectiveDirective": "script-src-attr"
+      }
+    ],
+    "attackExecutions": 0,
+    "expectedAttackReports": [
+      {
+        "sourceFile": "http://127.0.0.1:39797/parser-control.mjs",
+        "line": 3,
+        "column": 38,
+        "sample": "evil()",
+        "blockedURI": "inline",
+        "effectiveDirective": "script-src-attr"
+      },
+      {
+        "sourceFile": "http://127.0.0.1:39797/parser-control-sanitizer.mjs",
+        "line": 1843,
+        "column": 26,
+        "sample": "evil()",
+        "blockedURI": "inline",
+        "effectiveDirective": "script-src-attr"
+      }
+    ],
+    "unexpectedCspReports": [],
+    "expectedAttackConsoleMessages": [
+      {
+        "text": "Executing inline event handler violates the following Content Security Policy directive 'script-src 'self' 'report-sample''. Either the 'unsafe-inline' keyword, a hash ('sha256-...'), or a nonce ('nonce-...') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the 'unsafe-hashes' keyword is present. The action has been blocked.",
+        "location": {
+          "url": "http://127.0.0.1:39797/parser-control.mjs",
+          "lineNumber": 2,
+          "columnNumber": 0
+        }
+      },
+      {
+        "text": "Executing inline event handler violates the following Content Security Policy directive 'script-src 'self' 'report-sample''. Either the 'unsafe-inline' keyword, a hash ('sha256-...'), or a nonce ('nonce-...') is required to enable inline execution. Note that hashes do not apply to event handlers, style attributes and javascript: navigations unless the 'unsafe-hashes' keyword is present. The action has been blocked.",
+        "location": {
+          "url": "http://127.0.0.1:39797/parser-control-sanitizer.mjs",
+          "lineNumber": 1842,
+          "columnNumber": 0
+        }
+      }
+    ],
+    "consoleErrors": [],
+    "controlSourceSha256": "3ea3c0cb4e154a32a7d025215f585db4d5bbb813c2c1ad956b24d95e2022f55d",
+    "sanitizerSourceSha256": "89b4e15c6d5d85e1687c117356487d69f529a1e245ad360b33f7fea45a2f458c",
+    "deniedImageRequests": [],
+    "pageErrors": [],
+    "passed": true
+  },
+  "unexpectedRequests": [],
+  "requests": [
+    "/ui.html",
+    "/ui.mjs",
+    "/x",
+    "/favicon.ico",
+    "/renderer.html",
+    "/renderer.mjs",
+    "/favicon.ico",
+    "/demo.html",
+    "/demo.mjs",
+    "/favicon.ico",
+    "/platform.html",
+    "/platform.mjs",
+    "/favicon.ico",
+    "/favicon.ico",
+    "/favicon.ico",
+    "/services.html",
+    "/services.mjs",
+    "/favicon.ico",
+    "/parser-control.html",
+    "/parser-control.mjs",
+    "/parser-control-sanitizer.mjs"
+  ],
+  "passed": true
+}

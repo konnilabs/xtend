@@ -70,7 +70,10 @@
     "xtensions/state-binding-orchestrated.js",
     "rmt-language/rmtx-native-components.*",
     "xtensions/native-sink-contract.js",
-    "xtensions/native-component-catalog.js"
+    "xtensions/native-component-catalog.js",
+    "xtensions/native-*.js",
+    "xtensions/native-*.d.ts",
+    "xtensions/url-state-managed.*"
   ],
   "exports": {
     ".": {
@@ -207,6 +210,50 @@
     "./xtensions/native-orchestration-lifecycle": {
       "types": "./xtensions/native-orchestration-lifecycle.d.ts",
       "default": "./xtensions/native-orchestration-lifecycle.js"
+    },
+    "./xtensions/native-managed-view-projection": {
+      "types": "./xtensions/native-managed-view-projection.d.ts",
+      "default": "./xtensions/native-managed-view-projection.js"
+    },
+    "./xtensions/native-managed-surface-scopes": {
+      "types": "./xtensions/native-managed-surface-scopes.d.ts",
+      "default": "./xtensions/native-managed-surface-scopes.js"
+    },
+    "./xtensions/native-managed-orchestration-lifecycle": {
+      "types": "./xtensions/native-managed-orchestration-lifecycle.d.ts",
+      "default": "./xtensions/native-managed-orchestration-lifecycle.js"
+    },
+    "./xtensions/native-managed-lifecycle": {
+      "types": "./xtensions/native-managed-lifecycle.d.ts",
+      "default": "./xtensions/native-managed-lifecycle.js"
+    },
+    "./xtensions/native-component-contract-v2": {
+      "types": "./xtensions/native-component-contract-v2.d.ts",
+      "default": "./xtensions/native-component-contract-v2.js"
+    },
+    "./xtensions/native-component-managed": {
+      "types": "./xtensions/native-component-managed.d.ts",
+      "default": "./xtensions/native-component-managed.js"
+    },
+    "./xtensions/native-component-bindings": {
+      "types": "./xtensions/native-component-bindings.d.ts",
+      "default": "./xtensions/native-component-bindings.js"
+    },
+    "./xtensions/state-binding-managed": {
+      "types": "./xtensions/state-binding-managed.d.ts",
+      "default": "./xtensions/state-binding-managed.js"
+    },
+    "./xtensions/url-state-managed": {
+      "types": "./xtensions/url-state-managed.d.ts",
+      "default": "./xtensions/url-state-managed.js"
+    },
+    "./rmt-language/rmtx-native-components-v2": {
+      "types": "./rmt-language/rmtx-native-components-v2.d.ts",
+      "default": "./rmt-language/rmtx-native-components-v2.js"
+    },
+    "./rmt-language/rmtx-native-component-bindings": {
+      "types": "./rmt-language/rmtx-native-component-bindings.d.ts",
+      "default": "./rmt-language/rmtx-native-component-bindings.js"
     }
   },
   "publishConfig": {

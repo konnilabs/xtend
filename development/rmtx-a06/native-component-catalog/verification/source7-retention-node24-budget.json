@@ -1,0 +1,486 @@
+{
+  "files": [
+    {
+      "fileName": "xtend.maraca.mjs",
+      "bytes": 565605,
+      "sha256": "b10168cd19b983074556afda6330e53bd4754e96c2f601e4e71e470a7fa0213b"
+    },
+    {
+      "fileName": "chunks/x-header-DfHmWoZ5.mjs",
+      "bytes": 71748,
+      "sha256": "8037b78ca95de155cac776b382b2a22b04d0253d042ff4aff4facd87f9953600"
+    },
+    {
+      "fileName": "runtime/xtendrmt-kernel-orchestration-controller.mjs",
+      "bytes": 27152,
+      "sha256": "71d1db96ed3474ae703fd9324a624c498ab807b928ca440f8805bc727e5957ab"
+    },
+    {
+      "fileName": "runtime/rmt-kernel-scheduler.mjs",
+      "bytes": 16197,
+      "sha256": "fe7637837b2ea45ee4213f5237326936b8eb3d4893f61ccfdb3194db8c33ca5c"
+    },
+    {
+      "fileName": "runtime/xtendrmt-runtime.esm.mjs",
+      "bytes": 732975,
+      "sha256": "4e3df5dd3f5a932e6bcfbb61b0804bada8f1e274cd3eb651e4aaf2dd0f0e6fe9"
+    },
+    {
+      "fileName": "runtime/rmt-resume-runtime.mjs",
+      "bytes": 1740,
+      "sha256": "4db0820a9aea68cca814d083942c65fb326cd3127d7cddf49798e46037c9dcdf"
+    },
+    {
+      "fileName": "runtime/rmt-resume-protocol.mjs",
+      "bytes": 2108,
+      "sha256": "283c2578597ddb465c1cb90c40d796fecd1bd01ab1bb9ec26a57cb5f6c840b2e"
+    },
+    {
+      "fileName": "runtime/rmt-resume-capture-adapter.mjs",
+      "bytes": 2677,
+      "sha256": "73088affb779c27cf1cb703962a2fce04652f9f43e165ce634f22a8548fbc599"
+    },
+    {
+      "fileName": "runtime/rmt-resume-host-adapter.mjs",
+      "bytes": 2369,
+      "sha256": "5ea89df91ed22ad37b1bf214d7ed3ab2b64ea4c81c7f3e02cab0c7abbb3edc55"
+    },
+    {
+      "fileName": "runtime/rmt-resume-command-adapter.mjs",
+      "bytes": 2638,
+      "sha256": "acd75a4bed72793860f7a323c0305fb40b02b11c096f5b007f49a0c8bd88a474"
+    },
+    {
+      "fileName": "runtime/rmt-resume-command-controller.mjs",
+      "bytes": 8429,
+      "sha256": "a0920801647a7a0ba52bcf96189b5a9e3fa8786f84ad2307836777e6d5b07e40"
+    },
+    {
+      "fileName": "runtime/xtend-maraca-plan-runtime.mjs",
+      "bytes": 118783,
+      "sha256": "510e7d0661b0e825390f44a6d20dc566bf56b48521aa8271694004b13e75d8ea"
+    },
+    {
+      "fileName": "runtime/xtend-maraca-native-view.mjs",
+      "bytes": 128977,
+      "sha256": "c71af971fcea139f2614df8a4fbecbebf03ca35e030809dd8e1b7cd6ffcb0ca9"
+    },
+    {
+      "fileName": "runtime/xtend-maraca-native-orchestration-runtime.mjs",
+      "bytes": 60145,
+      "sha256": "2c10d1862b5e50eddac11c9c4c9db42f74c41ad8af44b8b5b22bf506fd9a65bc"
+    },
+    {
+      "fileName": "runtime/abort-boundary.mjs",
+      "bytes": 1936,
+      "sha256": "676d94fd767f77d1c003a9da408fda0c038cb98d669067689647fdc4f1907110"
+    },
+    {
+      "fileName": "runtime/fastpass-contract.js",
+      "bytes": 2819,
+      "sha256": "10fab6fcca35ba722b11257e4a3955cd38ae1afca9e64507653c7c1e203a1256"
+    },
+    {
+      "fileName": "runtime/fastpass.mjs",
+      "bytes": 2635,
+      "sha256": "d0992116a1020103de44cd2239dbff44e1800ccd082631d68439b2ec16715b7e"
+    },
+    {
+      "fileName": "runtime/fastpass.schema.json",
+      "bytes": 2395,
+      "sha256": "69c49eda370805216edfd5acaf795b4c2c7f39300c3429b551e458f3ebd91946"
+    },
+    {
+      "fileName": "runtime/xtend-maraca-browser-composition-runtime.mjs",
+      "bytes": 31854,
+      "sha256": "59094055c68464de7e693eeb43bf09d62f838b7502d0ef462653e7032d3347c7"
+    },
+    {
+      "fileName": "runtime/browser-host-adapter.mjs",
+      "bytes": 19291,
+      "sha256": "959b7eed1f5a8917745723ad77c8b80633331b39c9d2f66500f8c91244cddc07"
+    },
+    {
+      "fileName": "providers/modules/development/rmtx-a06/providers/react-gallery.mjs-9846140e741d787f0feef302fb3ca3ef75e7519dd54a7fc1f0fd9448cb07df37.mjs",
+      "bytes": 849,
+      "sha256": "9846140e741d787f0feef302fb3ca3ef75e7519dd54a7fc1f0fd9448cb07df37"
+    },
+    {
+      "fileName": "providers/modules/development/rmtx-a06/providers/vue-reviews.mjs-71e48dfdb1e797493aba0748e9777b9cb3afdbee6faf90c217df3f88aa239db8.mjs",
+      "bytes": 883,
+      "sha256": "71e48dfdb1e797493aba0748e9777b9cb3afdbee6faf90c217df3f88aa239db8"
+    },
+    {
+      "fileName": "interfaces/react-product-gallery-65c45087e78ef676c76068060cb85b6fedbe6b97e3791a37d1485b91a72d58a7.json",
+      "bytes": 1382,
+      "sha256": "65c45087e78ef676c76068060cb85b6fedbe6b97e3791a37d1485b91a72d58a7"
+    },
+    {
+      "fileName": "interfaces/vue-product-reviews-30de14608052cdd250f1f56b06fa0b5c7df8dda73803d5d5daa96355e5a6f1e4.json",
+      "bytes": 835,
+      "sha256": "30de14608052cdd250f1f56b06fa0b5c7df8dda73803d5d5daa96355e5a6f1e4"
+    },
+    {
+      "fileName": "xtend.xtensions-226065106b44961003d90173da9dbb541b3437d25b9417cc3ffd75d3962fd81e.mjs",
+      "bytes": 103252,
+      "sha256": "2ffb4aa5af27b232040f55d6884afe9d55d50a18ca817c4a531bf66662ac611c"
+    },
+    {
+      "fileName": "xtend.xtensions.delivery-ba0a519c75caa1bd0984fc490f384b6c2311dc3a2445e3209a476a7ed70b27c4.json",
+      "bytes": 1567,
+      "sha256": "ba0a519c75caa1bd0984fc490f384b6c2311dc3a2445e3209a476a7ed70b27c4"
+    },
+    {
+      "fileName": "runtime/xtension-platform.mjs",
+      "bytes": 207474,
+      "sha256": "5ead7e30e452b252cc838a66f99dd7f0412caf96c5cc3f7221759e0603fb4ac2"
+    },
+    {
+      "fileName": "xtend.xtensions.report.json",
+      "bytes": 199151,
+      "sha256": "7859a2a5926c595a236162b378fa9f21ae81251b3990068a5eeb82faf66de04d"
+    },
+    {
+      "fileName": "index.html",
+      "bytes": 453,
+      "sha256": "88667e77d737422a3b5e10b12c49fe1c951e0e1573e85965d530327433364d7d"
+    }
+  ],
+  "frameworkBytes": 2302122,
+  "componentRuntimeBytes": 316242,
+  "nativeViewRuntimeBytes": 128977,
+  "ceilings": {
+    "frameworkBytes": 2200000,
+    "componentRuntimeBytes": 280000,
+    "nativeViewRuntimeBytes": 240000
+  },
+  "within": {
+    "framework": false,
+    "componentRuntime": false,
+    "nativeViewRuntime": true
+  },
+  "scope": "Actual listed regular-build files; componentRuntime is the unchanged composition runtime-file membership, NativeView is its separate emitted asset.",
+  "limitProvenance": "Explicit current retention requirements. The historical Source7 runtime runner did not assert these fixed ceilings; historical Legacy-Delivery/SSR runtime240000 remains a separate scope.",
+  "historicalLegacyDeliveryRuntimeBytes": 240000,
+  "xtensions": {
+    "enforced": true,
+    "withinBudget": true,
+    "baselineBytes": 484540,
+    "sourceBytes": 381988,
+    "contractBytes": 102552,
+    "runtimeBytes": 316242,
+    "runtimeGzipBytes": 70280,
+    "buildEvidenceBytes": 199151,
+    "sourceFingerprint": "f5de0088510eaf473197bb59e79b50645125fa5c0ef1b4d45c88804896457fc0",
+    "contractSha256": "2ba49af864611b8401d9521f00dd27a4109a20238c55bc52a2de5df9f22b692c",
+    "sourceFiles": [
+      {
+        "source": "compiler/rmt-language/scheduler-lanes.js",
+        "bytes": 2995,
+        "sha256": "a0d76615b3cfbe2639a96af01179f987407554040acce54aa9b4dd99516f9b76",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/component-interface.js",
+        "bytes": 14707,
+        "sha256": "9c0b45fdea6f8dc98563144a9bc000c997800a2f0f57f433b9e352539cdbcae2",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/cooperative-resource-scope.js",
+        "bytes": 5205,
+        "sha256": "ba8f05d9f5ce605512c95d45b3b563c6184e88a2dab5874ffdcee2c1836174ab",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/framework-ssr.js",
+        "bytes": 7701,
+        "sha256": "6b4c457f2ac54762afcfda78314e788ea9e119e939e93ed9d63355991e31a700",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/host-capability-negotiation.js",
+        "bytes": 4848,
+        "sha256": "762751a35c6e99eccb66cbad3b0d885098dbd949ed4b5a774a3671a5bac02373",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/host-controller-contract.js",
+        "bytes": 19086,
+        "sha256": "fc168ff8cec8a95375942f9ef2871ed3cdbf74cede192c708dd374efc14278b7",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/host-resource-cleanup-record.js",
+        "bytes": 3610,
+        "sha256": "631ba35928b8e8a990dd05b245cd61333984197b866f4c46e0821221404a4a6e",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/kernel-work-scope.js",
+        "bytes": 9082,
+        "sha256": "2bc544e13567898f8c4eefd973c66e62c29f616477c103e21b28a0f39a716dc8",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/native-component-catalog.js",
+        "bytes": 879,
+        "sha256": "5a9ec040fe98e17fc75fdd9081976f2f8b7ff7c825e8318dbb67c52d995e6936",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/native-component-contract.js",
+        "bytes": 3294,
+        "sha256": "757d4ff5cbe02ee63bd2ba32bb2bdf5bab24c0dc377d949465baca0a23af835b",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/native-data.js",
+        "bytes": 2669,
+        "sha256": "3fbd1e9f29e1b133f3042106a46eaaede2107f38fc71851c566a998f0b397684",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/native-lifecycle.js",
+        "bytes": 8209,
+        "sha256": "b1d3419d077ab63b8add830a735f16b6c70b53ca92afe46a7c50ab9f0c6e7562",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/native-orchestration-lifecycle-core.js",
+        "bytes": 8847,
+        "sha256": "7e141e9efd03c786145a12d65181270a86f2971481a5f7adbaec06e857cf4827",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/native-orchestration-lifecycle.js",
+        "bytes": 991,
+        "sha256": "99378013ad40a3f48b1cc51a0aeceac4279f5d5cf2cd363f61605491178c72d7",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/native-sink-contract.js",
+        "bytes": 2186,
+        "sha256": "59089b6fce9afb48785ecb98c243a66086fed31bf5a7e09083714b3c993ea3cd",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/native-surface-projection-core.js",
+        "bytes": 11698,
+        "sha256": "ca5dc9a1430cf309bb973a601ebf1c49183e7ae4ca727b62f7cacfa539a5f7e5",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/native-surface-projection.js",
+        "bytes": 1259,
+        "sha256": "24d81d71027d3c30919a08b8d3ce35a19eb73660b2e0048ac3cb4f17dd3c1945",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/native-surface-scopes-core.js",
+        "bytes": 20007,
+        "sha256": "a0fbb0d5aac3e7d2e1c583cdbf32bfdf48d0c3ee956d25194bf17e27c980a97c",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/native-surface-scopes.js",
+        "bytes": 1350,
+        "sha256": "83fcfc57293036530d7ae3f4d911d0769655bfed433221171815eaa9cb3cf3d2",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/native-surface-validation-core.js",
+        "bytes": 15085,
+        "sha256": "0f663176a1c592060becec416e2aed210bb6ecab2d725d17dc9c015f302885bd",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/react-payload-boundary.js",
+        "bytes": 3372,
+        "sha256": "a63f4bdc1d39813d81f07623316e5e1814ff44e5cc29f93a17145683385ddb5c",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/react-runtime-adapter.js",
+        "bytes": 4631,
+        "sha256": "e780ccdfcc00ca7d75bec3b2bdebb383e3caa2fc40d3bfdaf4bfe85995a0308a",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/react-runtime-boundary.js",
+        "bytes": 6501,
+        "sha256": "647575e8da3f01a63df9ee6cefe1d0dfd61f056633972fbe46e9ceed5d617596",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/repeat-scopes.js",
+        "bytes": 2800,
+        "sha256": "52a2860132aacc6da0ed95cac68128193180ebaeff91794d77a1a8b8764599d4",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/resource-graph-binding.js",
+        "bytes": 5834,
+        "sha256": "0488d4da2eed0c8689d4ec7c49860665873cfcbc433bf52f458575384edf67e2",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/runtime-host-controller.js",
+        "bytes": 31112,
+        "sha256": "9627d38ad20200c2c846a7eb057dec28f93cc012f63b76fa0c5a86de785a4574",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/signal-bridge-contract.js",
+        "bytes": 30187,
+        "sha256": "63d56f44011907554c7b7e6b336daf115bee90f29847debf6e088a5a03f60e1e",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/state-binding-artifact.js",
+        "bytes": 18962,
+        "sha256": "fd4435ffb4b1034adb76cda66a2dea7cfb439cd76ad947a128fa698d6735f907",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/state-binding-contract.js",
+        "bytes": 9135,
+        "sha256": "857867ed26115ea9aa966b7c3e74099675c890f5bb3bbc4c890dfa5d581af2b6",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/state-binding-orchestrated.js",
+        "bytes": 4009,
+        "sha256": "25576e92eb149ad9bcad2f32dd63d3ae98c8f619873f4ce7765d00fa636a617a",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/state-binding-projection.js",
+        "bytes": 6407,
+        "sha256": "62d116bb6a8fcdeccdd0426d5c6a21537d3e01c952393b4cc82f1f88b0aea739",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/state-binding-registry-core.js",
+        "bytes": 13795,
+        "sha256": "d33a69f98cb9b4d5d2b4eaf375f23add41e94ec466dfd122250906cf3aed77d0",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/state-binding.js",
+        "bytes": 3650,
+        "sha256": "6c2db5ef127540d95b2ba99bdd64e353f54ce25e40752df7edd39c2d312ad34b",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/vue-payload-boundary.js",
+        "bytes": 3568,
+        "sha256": "e5b7b619251e63bf1937b42ffe346d33b742843e24ef267c680f264dac54e80c",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/vue-runtime-adapter.js",
+        "bytes": 2786,
+        "sha256": "d68a72b9782be8c3d705d10af40ca4a6576c3cc0e3a9884c8db02073c8b9745c",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/vue-runtime-boundary.js",
+        "bytes": 6203,
+        "sha256": "f1b28462c543f0e8b0d8a8ee59e48b15e1c213cf8381e100677b02e59f03aeed",
+        "additional": true
+      },
+      {
+        "source": "compiler/xtensions/work-budget-policy.js",
+        "bytes": 4987,
+        "sha256": "e3223e4e46ee792259b321a6fe6c82086c420c239316a04fd8bf77bdbc896779",
+        "additional": true
+      },
+      {
+        "source": "interface/react-product-gallery",
+        "bytes": 1382,
+        "sha256": "65c45087e78ef676c76068060cb85b6fedbe6b97e3791a37d1485b91a72d58a7",
+        "additional": true
+      },
+      {
+        "source": "interface/vue-product-reviews",
+        "bytes": 835,
+        "sha256": "30de14608052cdd250f1f56b06fa0b5c7df8dda73803d5d5daa96355e5a6f1e4",
+        "additional": true
+      },
+      {
+        "source": "maraca/xtension-component-binding.mjs",
+        "bytes": 4483,
+        "sha256": "ff33ba2d928a632e9924a1ffa669dd0e2be84d0cf72a43b1790820f231d728fa",
+        "additional": true
+      },
+      {
+        "source": "maraca/xtension-composition-contract.mjs",
+        "bytes": 30724,
+        "sha256": "362f901e3ab0a1bf783fe76426d3f6db31b06678a865db1e976c82c6a938f918",
+        "additional": true
+      },
+      {
+        "source": "maraca/xtension-composition-runtime.mjs",
+        "bytes": 22141,
+        "sha256": "ea55a429902a52c785016d50aa1c120e8da105e5b6b70d83e684746106a44863",
+        "additional": true
+      },
+      {
+        "source": "maraca/xtension-ssr-runtime.mjs",
+        "bytes": 19044,
+        "sha256": "d664adbba38f003040335926e2dbb07a9993d03f80a40cb8935de936bfd09a36",
+        "additional": true
+      },
+      {
+        "source": "provider/development/rmtx-a06/providers/react-gallery.mjs",
+        "bytes": 849,
+        "sha256": "9846140e741d787f0feef302fb3ca3ef75e7519dd54a7fc1f0fd9448cb07df37",
+        "additional": true
+      },
+      {
+        "source": "provider/development/rmtx-a06/providers/vue-reviews.mjs",
+        "bytes": 883,
+        "sha256": "71e48dfdb1e797493aba0748e9777b9cb3afdbee6faf90c217df3f88aa239db8",
+        "additional": true
+      }
+    ],
+    "runtimeFiles": [
+      {
+        "fileName": "interfaces/react-product-gallery-65c45087e78ef676c76068060cb85b6fedbe6b97e3791a37d1485b91a72d58a7.json",
+        "bytes": 1382,
+        "sha256": "65c45087e78ef676c76068060cb85b6fedbe6b97e3791a37d1485b91a72d58a7"
+      },
+      {
+        "fileName": "interfaces/vue-product-reviews-30de14608052cdd250f1f56b06fa0b5c7df8dda73803d5d5daa96355e5a6f1e4.json",
+        "bytes": 835,
+        "sha256": "30de14608052cdd250f1f56b06fa0b5c7df8dda73803d5d5daa96355e5a6f1e4"
+      },
+      {
+        "fileName": "providers/modules/development/rmtx-a06/providers/react-gallery.mjs-9846140e741d787f0feef302fb3ca3ef75e7519dd54a7fc1f0fd9448cb07df37.mjs",
+        "bytes": 849,
+        "sha256": "9846140e741d787f0feef302fb3ca3ef75e7519dd54a7fc1f0fd9448cb07df37"
+      },
+      {
+        "fileName": "providers/modules/development/rmtx-a06/providers/vue-reviews.mjs-71e48dfdb1e797493aba0748e9777b9cb3afdbee6faf90c217df3f88aa239db8.mjs",
+        "bytes": 883,
+        "sha256": "71e48dfdb1e797493aba0748e9777b9cb3afdbee6faf90c217df3f88aa239db8"
+      },
+      {
+        "fileName": "runtime/xtension-platform.mjs",
+        "bytes": 207474,
+        "sha256": "5ead7e30e452b252cc838a66f99dd7f0412caf96c5cc3f7221759e0603fb4ac2"
+      },
+      {
+        "fileName": "xtend.xtensions-226065106b44961003d90173da9dbb541b3437d25b9417cc3ffd75d3962fd81e.mjs",
+        "bytes": 103252,
+        "sha256": "2ffb4aa5af27b232040f55d6884afe9d55d50a18ca817c4a531bf66662ac611c"
+      },
+      {
+        "fileName": "xtend.xtensions.delivery-ba0a519c75caa1bd0984fc490f384b6c2311dc3a2445e3209a476a7ed70b27c4.json",
+        "bytes": 1567,
+        "sha256": "ba0a519c75caa1bd0984fc490f384b6c2311dc3a2445e3209a476a7ed70b27c4"
+      }
+    ]
+  }
+}

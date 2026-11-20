@@ -4,7 +4,7 @@ import type {
 } from '@ccslabs/xtend-compiler/xtensions/react-runtime-adapter';
 import type { XTensionBindingHostContext, XTensionStateBindingArtifact } from '@ccslabs/xtend-compiler/xtensions/state-binding';
 import type { MaracaBuildPlan } from './index';
-export const XTENSION_COMPOSITION_API_VERSION: '13.0.0';
+export const XTENSION_COMPOSITION_API_VERSION: '14.0.0';
 export type XTensionCompositionProvider = {
   readonly id: string;
   readonly version: string;
@@ -427,3 +427,11 @@ export type OrchestratedComponentPortOptions = Omit<OrchestratedComponentHostOpt
 };
 export function createMaracaXTensionHostFactory(options: OrchestratedComponentHostOptions): OrchestratedComponentHostFactory;
 export function createMaracaXTensionCompositionPort(options: OrchestratedComponentPortOptions): OrchestratedComponentPort;
+
+/** Explicit Source8 provider composition. Native UI components remain separate. */
+export interface ManagedComponentManifest extends Omit<OrchestratedComponentManifest, 'schema'> { readonly schema: 'xtend.maraca.xtension-composition-manifest.v12' }
+export interface ManagedComponentArtifact extends Omit<OrchestratedComponentArtifact, 'schema' | 'apiVersion' | 'manifest' | 'plan'> {
+  readonly schema: 'xtend.maraca.xtension-composition-artifact.v13'; readonly apiVersion: '13.0.0'; readonly manifest: ManagedComponentManifest;
+  readonly plan: { readonly schema: 'xtend.maraca.build-plan.v12'; readonly sourceHash: string; readonly program: import('@ccslabs/xtend/xtensions/native-managed-view-projection').NativeManagedViewProgram; readonly bindings: import('@ccslabs/xtend/xtensions/state-binding-managed').XTensionManagedStateBindingArtifact; readonly compositionManifest: ManagedComponentManifest };
+}
+export interface ManagedComponentPort extends Omit<OrchestratedComponentPort, 'schema' | 'bindingsRuntime'> { readonly schema: 'xtend.maraca.xtension-composition-port.v10'; readonly bindingsRuntime: typeof import('@ccslabs/xtend/xtensions/state-binding-managed').MANAGED_STATE_BINDING_RUNTIME }

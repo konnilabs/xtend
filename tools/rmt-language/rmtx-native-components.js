@@ -35,6 +35,8 @@ function verifyNativeComponentSources(values, {rootDir} = {}) {
     const file=fs.realpathSync(path.join(root,row.module)),relative=path.relative(root,file);
     if(relative.startsWith('..')||path.isAbsolute(relative)||crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex')!==row.sha256)
       throw new TypeError('Captured public component module bytes differ from the shipped metadata.');
+    const closure=require('../xtensions/native-component-source').captureNativeDefinitionClosure(root,row.module);
+    if(!fs.readFileSync(file,'utf8').startsWith('// Native shared-definition closure sha256: '+closure.sha256+'\n'))throw new TypeError('Captured Source7 shared native definition closure differs. Rebuild the artifact against reviewed source.');
   }
   return selected;
 }

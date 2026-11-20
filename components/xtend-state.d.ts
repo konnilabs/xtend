@@ -1,4 +1,4 @@
-import type { XtendCustomEventMap, XtendPublicEventContract } from './xtend-public-types';
+import type { XtendCustomEventMap, XtendPublicEventContract } from './xtend-public-types.js';
 
 export type XTendStateKey = string;
 export type XTendStateStorageType = 'local' | 'session';

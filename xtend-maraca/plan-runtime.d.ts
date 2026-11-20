@@ -571,3 +571,41 @@ export type OrchestratedRmtxRuntimeOptions16 = OrchestratedRmtxRuntimeBaseOption
   | { plan: import('./index').OrchestratedRmtxOnlyBuildPlan11; xtensionCompositionPort?: never }
   | { plan: import('./index').OrchestratedRmtxBuildPlan11; xtensionCompositionPort: import('./xtension-composition-runtime').OrchestratedComponentPort }
 );
+
+/** Source8: scoped native Surface instances and explicit content commands. */
+export const MANAGED_RMTX_PLAN_RUNTIME_SCHEMA: 'xtend.maraca.plan-runtime.v17';
+export interface ManagedNativeRouteHost {
+  readonly currentPath?: string;
+  navigate(href: string, options?: Readonly<{ state?: unknown; replace?: boolean; source?: string; owner?: Readonly<Record<string, unknown>> }>): unknown | Promise<unknown>;
+  canNavigate?(href: string): boolean | Readonly<{ capable: boolean }>;
+  snapshot?(): Readonly<{ currentPath?: string; current?: Readonly<{ path?: string }> }>;
+  addEventListener?: EventTarget['addEventListener'];
+  removeEventListener?: EventTarget['removeEventListener'];
+}
+export interface ManagedRmtxPlanSnapshot17 extends Omit<LifecycleRmtxPlanSnapshot, 'schema'> {
+  readonly schema: typeof MANAGED_RMTX_PLAN_RUNTIME_SCHEMA;
+  readonly nativeLifecycle: Readonly<{
+    schema: 'xtend.rmt.native-orchestration-runtime-state.v1';
+    surfaces: readonly Readonly<{id: string; suspended: boolean; detached: boolean; disposed: boolean; hydrated: boolean}>[];
+    operations: readonly Readonly<{operationId: string; surfaceId: string; op: import('@ccslabs/xtend/xtensions/native-orchestration-lifecycle').NativeOrchestrationLifecycleOperation; lane: string; status: 'completed'}>[];
+  }>;
+}
+export interface ManagedRmtxPlanRuntime17 extends Omit<LifecycleRmtxPlanRuntime, 'schema' | 'boot' | 'snapshot' | 'subscribe'> {
+  readonly schema: typeof MANAGED_RMTX_PLAN_RUNTIME_SCHEMA;
+  boot(): Promise<ManagedRmtxPlanSnapshot17>;
+  snapshot(): ManagedRmtxPlanSnapshot17;
+  subscribe(listener: (snapshot: ManagedRmtxPlanSnapshot17) => void): () => void;
+}
+export interface ManagedRmtxRuntimeBaseOptions17 extends Omit<NativeRmtxRuntimeBaseOptions14, 'nativeViewRuntimePort'> {
+  nativeViewRuntimePort: typeof import('@ccslabs/xtend-compiler/xtensions/native-managed-view-projection').NATIVE_MANAGED_VIEW_RUNTIME;
+  nativeServices?: import('@ccslabs/xtend/components/native-services', {with: {'resolution-mode': 'import'}}).ManagedNativeServices;
+  nativeComponentPorts?: import('@ccslabs/xtend/xtensions/native-component-managed').ManagedNativePorts;
+  routerHost?: ManagedNativeRouteHost;
+}
+export type ManagedRmtxRuntimeOptions17 = ManagedRmtxRuntimeBaseOptions17 & (
+  | { urlStatePolicy?: undefined; urlStateRuntime?: typeof import('@ccslabs/xtend/xtensions/url-state-managed').MANAGED_URL_STATE_RUNTIME }
+  | { urlStatePolicy: URLState.PolicyV2; urlStateRuntime: typeof import('@ccslabs/xtend/xtensions/url-state-managed').MANAGED_URL_STATE_RUNTIME }
+) & (
+  | { plan: import('./index').ManagedRmtxOnlyBuildPlan12; xtensionCompositionPort?: never }
+  | { plan: import('./index').ManagedRmtxBuildPlan12; xtensionCompositionPort: import('./xtension-composition-runtime').ManagedComponentPort }
+);

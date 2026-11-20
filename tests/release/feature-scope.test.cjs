@@ -29,3 +29,13 @@ test('a smaller scope or a ready flag without evidence cannot satisfy the releas
     assert.throws(() => assertReleaseFeatureReadiness(temporary), /evidence/);
   } finally { fs.rmSync(temporary, { recursive: true, force: true }); }
 });
+test('0.9 cannot omit productive native catalog entries, tooling or the joint target acceptance', () => {
+  const plan = JSON.parse(fs.readFileSync(path.join(root,'scripts/release/feature-scope.json')));
+  assert.equal(plan.schema,'xtend.release.feature-scope.v2');
+  assert.equal(plan.nativeCatalog.productiveEntries,46);assert.equal(plan.nativeCatalog.demoEntries,1);
+  assert.deepEqual(plan.milestones.map(row=>row.id),['A06.5','A06.6']);
+  const report=evaluateFeatureScope(root);
+  assert.ok(report.blockers.some(row=>row.includes('complete native functional acceptance')));
+  assert.ok(report.blockers.some(row=>row.startsWith('A06.5:')));
+  assert.ok(report.blockers.some(row=>row.startsWith('A06.6:')));
+});

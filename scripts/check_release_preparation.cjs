@@ -24,6 +24,9 @@ const CHECKS = Object.freeze([
   ['--test', '--test-concurrency=1', 'tests/rmt-language/rmtx-native-orchestration.test.cjs', 'tests/xtensions/native-orchestrated-contracts.test.cjs', 'tests/xtensions/native-orchestrated-prewarm.test.cjs', 'tests/xtensions/native-surface-projection.test.cjs', 'tests/maraca/rmtx-surface-graph.test.mjs', 'tests/maraca/rmtx-orchestration.test.mjs'],
   ['development/rmtx-a06/native-components/generate.cjs', '--check'],
   ['development/rmtx-a06/native-orchestration-profile/inspect.cjs', '--check'],
+  ['development/rmtx-a06/native-component-catalog/generate.cjs', '--check'],
+  ['--test', '--test-concurrency=1', 'tests/rmt-language/native-component-catalog-v2.test.cjs', 'tests/rmt-language/native-component-catalog-projection.test.cjs', 'tests/rmt-language/native-component-catalog-types.test.cjs', 'tests/rmt-language/native-managed-renderer.test.mjs'],
+  ['--test', '--test-concurrency=1', 'tests/components/native-managed-ui.test.mjs', 'tests/components/native-platform-services.test.mjs', 'tests/components/component-source.test.cjs', 'tests/components/native-demo-reference.test.mjs', 'tests/maraca/rmtx-managed.test.mjs', 'tests/maraca/native-platform-managed.test.mjs', 'tests/maraca/native-private-cores.test.mjs', 'tests/maraca/native-data-literal.test.cjs'],
   ['development/rmtx-a01/inspect.cjs', '--check'],
   ['development/rmtx-a02/inspect.cjs', '--check'],
   ['development/rmtx-a02/url-history/inspect.cjs', '--check'],
@@ -54,7 +57,9 @@ const CHECKS = Object.freeze([
 
 function runReleasePreparationChecks({ rootDir = path.resolve(__dirname, '..'), execute = spawnSync } = {}) {
   for (const command of CHECKS) {
-    const result = execute(process.execPath, command, { cwd: rootDir, stdio: 'inherit' });
+    const bounded = command[0] === '--test' && !command.some(value => value.startsWith('--test-concurrency='))
+      ? ['--test-concurrency=1', ...command] : command;
+    const result = execute(process.execPath, ['--max-old-space-size=1024', ...bounded], { cwd: rootDir, stdio: 'inherit', timeout:240000 });
     if (result.error) throw result.error;
     if (result.status !== 0) return result.status || 1;
   }

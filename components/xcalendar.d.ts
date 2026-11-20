@@ -22,6 +22,8 @@ export type XCalendarFormControlUxProfile = XtendFormControlUxProfile<'x-calenda
 export type XCalendarPublicEventContract = XtendPublicEventContract<XCalendarEventName, XCalendarDateSelectEventDetail>;
 
 export interface XCalendarElement extends HTMLElement {
+  /** Controlled civil calendar viewport; absent means local ephemeral browsing. */
+  viewDate?: string;
   value: string;
   checkValidity(): boolean;
   reportValidity(): boolean;

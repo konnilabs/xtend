@@ -181,7 +181,7 @@ test('the compiler tarball alone carries the complete opt-in Source4 frontend an
     assert(entry.report.files.some(item => item.path === file), file);
   const parser = require(path.join(isolated, 'rmt-language/rmtx-parser.js'));
   const compiler = require(path.join(isolated, 'rmt-language/rmtx-compiler.js'));
-  assert.equal(parser.RMTX_PARSER_API_VERSION, '7.0.0');
+  assert.equal(parser.RMTX_PARSER_API_VERSION, '8.0.0');
   assert.equal(Object.keys(parser.getRmtxOperatorProfile('4.0.0').operators).length, 110);
   const selected = compiler.createRmtxCompiler({ syntaxVersion: '4.0.0' });
   const parsed = parser.parseRmtxSource({ text: source4, filePath: 'packed.rmtx' }, { syntaxVersion: '4.0.0' });

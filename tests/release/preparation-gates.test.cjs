@@ -28,6 +28,9 @@ test('development checks validate Classic drift, observations, versions and scop
   ['--test', '--test-concurrency=1', 'tests/rmt-language/rmtx-native-orchestration.test.cjs', 'tests/xtensions/native-orchestrated-contracts.test.cjs', 'tests/xtensions/native-orchestrated-prewarm.test.cjs', 'tests/xtensions/native-surface-projection.test.cjs', 'tests/maraca/rmtx-surface-graph.test.mjs', 'tests/maraca/rmtx-orchestration.test.mjs'],
   ['development/rmtx-a06/native-components/generate.cjs', '--check'],
   ['development/rmtx-a06/native-orchestration-profile/inspect.cjs', '--check'],
+  ['development/rmtx-a06/native-component-catalog/generate.cjs', '--check'],
+  ['--test', '--test-concurrency=1', 'tests/rmt-language/native-component-catalog-v2.test.cjs', 'tests/rmt-language/native-component-catalog-projection.test.cjs', 'tests/rmt-language/native-component-catalog-types.test.cjs', 'tests/rmt-language/native-managed-renderer.test.mjs'],
+  ['--test', '--test-concurrency=1', 'tests/components/native-managed-ui.test.mjs', 'tests/components/native-platform-services.test.mjs', 'tests/components/component-source.test.cjs', 'tests/components/native-demo-reference.test.mjs', 'tests/maraca/rmtx-managed.test.mjs', 'tests/maraca/native-platform-managed.test.mjs', 'tests/maraca/native-private-cores.test.mjs', 'tests/maraca/native-data-literal.test.cjs'],
     ['development/rmtx-a01/inspect.cjs', '--check'],
     ['development/rmtx-a02/inspect.cjs', '--check'],
     ['development/rmtx-a02/url-history/inspect.cjs', '--check'],
@@ -57,10 +60,10 @@ test('development checks validate Classic drift, observations, versions and scop
   ]);
   const calls = [];
   assert.equal(runReleasePreparationChecks({ rootDir: root, execute: (binary, command, options) => {
-    assert.equal(binary, process.execPath); assert.equal(options.cwd, root);
+    assert.equal(binary, process.execPath); assert.equal(options.cwd, root);assert.equal(options.timeout,240000);
     calls.push(command); return { status: 0 };
   } }), 0);
-  assert.deepEqual(calls, CHECKS);
+  assert.deepEqual(calls, CHECKS.map(command => ['--max-old-space-size=1024', ...(command[0]==='--test'&&!command.some(value=>value.startsWith('--test-concurrency='))?['--test-concurrency=1']:[]), ...command]));
 });
 test('a failed or interrupted preparation check blocks following commands', () => {
   for (const status of [1, 17, null]) {
@@ -90,6 +93,17 @@ test('GitHub development owners and nightly execute the same blocking preparatio
     for (const source of [normal,migration,nightly]) assert(source.includes(artifact));
     assert(catalog.ci['ci-nightly'].artifacts.some(row=>row.path===artifact && row.expectedSchema==='xtend.rmtx.native-orchestration-runtime-acceptance.v1'));
   }
+  for (const mode of ['node','browser']) {
+    const artifact = `.xtend-test-results/xtend-rmtx-native-managed-runtime-${mode}-report.json`;
+    for (const source of [normal,migration,nightly]) assert(source.includes(artifact));
+    assert(catalog.ci['ci-nightly'].artifacts.some(row=>row.path===artifact && row.expectedSchema==='xtend.rmtx.native-managed-runtime-acceptance.v1'));
+  }
+  const catalogBrowserArtifact='.xtend-test-results/xtend-rmtx-native-catalog-browser-report.json';
+  for(const source of [normal,migration,nightly]) assert(source.includes(catalogBrowserArtifact));
+  assert(catalog.ci['ci-nightly'].artifacts.some(row=>row.path===catalogBrowserArtifact && row.expectedSchema==='xtend.rmtx.native-catalog-browser-acceptance.v1'));
+  const coldArtifact='.xtend-test-results/xtend-rmtx-native-cold-registry-browser-report.json';
+  for(const source of [normal,migration,nightly]) assert(source.includes(coldArtifact));
+  assert(catalog.ci['ci-nightly'].artifacts.some(row=>row.path===coldArtifact&&row.expectedSchema==='xtend.rmtx.native-cold-registry-browser-acceptance.v1'));
   for (const [source, id] of [[normal, 'pr-fast-gates'], [normal, 'full-release-gates'], [migration, 'pr-fast-gates']]) {
     const start = source.indexOf('\n  ' + id + ':');
     assert(start >= 0, id);

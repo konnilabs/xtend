@@ -1,0 +1,72 @@
+{
+  "format": 1,
+  "stage": "A04.3.4-native-esm-delivery",
+  "status": "implemented",
+  "manifestVersion": 5,
+  "artifactVersion": 6,
+  "buildReportVersion": 6,
+  "apiVersion": "6.0.0",
+  "loadPlanVersion": 2,
+  "deliveryPolicyVersion": 1,
+  "deliveryPlanVersion": 1,
+  "browserCases": 12,
+  "productionByteIntegrityEnforced": false,
+  "runtimeExecutionVerified": false,
+  "acceptedForRelease": false,
+  "checks": 18,
+  "names": [
+    "v5 manifest builds API6 artifact/report with explicit delivery inventory",
+    "reject missing policy before output",
+    "reject unversioned policy before output",
+    "reject unknown version before output",
+    "reject remote policy before output",
+    "reject inline policy before output",
+    "reject extra CSP authority before output",
+    "reject extra runtime proof before output",
+    "reject legacy manifest accepts no delivery field before output",
+    "reject downgraded artifact before runtime ports",
+    "reject wrong API before runtime ports",
+    "reject mutated mode before runtime ports",
+    "reject injected proof before runtime ports",
+    "legacy shared composition retains API5 and emits no new delivery inventory",
+    "react: strict regular build binds delivery files to unchanged ceilings",
+    "vue: strict regular build binds delivery files to unchanged ceilings",
+    "mixed: strict regular build binds delivery files to unchanged ceilings",
+    "real CLI config v5 emits versioned external-script delivery headers"
+  ],
+  "sizes": {
+    "react": {
+      "frameworkBytes": 1689092,
+      "xtensionRuntimeBytes": 178287
+    },
+    "vue": {
+      "frameworkBytes": 1687506,
+      "xtensionRuntimeBytes": 177043
+    },
+    "mixed": {
+      "frameworkBytes": 1735127,
+      "xtensionRuntimeBytes": 197758
+    }
+  },
+  "sources": {
+    "xtend-maraca/xtension-composition.js": "0ca7a6821c8c12f0ce6973d79deb92ad2a8896482688d4315845d267551cf42f",
+    "xtend-maraca/xtension-composition-contract.mjs": "362f901e3ab0a1bf783fe76426d3f6db31b06678a865db1e976c82c6a938f918",
+    "xtend-maraca/xtension-composition-runtime.mjs": "ea55a429902a52c785016d50aa1c120e8da105e5b6b70d83e684746106a44863",
+    "xtend-maraca/xtension-provider-graph.js": "d8357cf34d0e1d616c8890f36765d7b19f45b1fff824045746474c9ca90afcdf",
+    "xtend-maraca/xtension-composition.d.ts": "96e17c6feba12a9f1a725e11df78bb5d6bde2c0ec6035df54b5981d83fc3fd2a",
+    "xtend-maraca/xtension-composition-runtime.d.ts": "81edafd48804f25e60403e2b5516ae31b3f8d03150fb158428fe837a64b71d08",
+    "xtend-maraca/xtension-size-budget.js": "61f22885757a9015fc9c74e5de6a4dc4b7763770b9d29a454604b35ed1992767",
+    "xtend-maraca/browser-composition-runtime.mjs": "9b6a88f4d84b0e4dc00ed3d4fe7befea2a186b22a2eed0a66b1a30b489292807",
+    "xtend-maraca/browser-composition-runtime.d.ts": "e47b296411bba05c52b29d6a590410100434717b459e083fd1e896b7c0cb8071",
+    "xtend-maraca/plan-runtime.mjs": "a719d3de35d3ea58a065a71e2b193e8fa10a3bb81db76d766ca0507314057b5c",
+    "xtend-maraca/plan-runtime.d.ts": "3c043d308408b948fc835bfe852dcb14fac13306cd806d896191a3697cc75b11",
+    "development/rmtx-a04/integration-reference.cjs": "58ff4d03422edf792c84ba9166830de20c412b12aabe802b223f346c1f4773a8",
+    "development/rmtx-a04/delivery-inspect.cjs": "e3508c4e0269c1b986b3aea6dc4227561391066317ffad176b3085a8376787d6",
+    "scripts/test_xtensions_delivery.cjs": "aed5dec01d8d70885155d480bd27844f03faff81a154e60aee34873f104e10e4",
+    "tests/xtensions/xtensions_runtime_gate_suite.js": "4083b31fc89e74839aede69a795f05fa71bf9e04ab481bfa315fd719058c0163",
+    "tests/xtensions/xtensions_consumer_package_suite.js": "9178bce6c10bdf3321c0de88ed3ea6426124c76205d50e8b830c4434c94397e6",
+    "tests/types/xtensions_integrated_composition.mts": "0e7de34ce7c4324143fabf822ac6c83aba229f90f9368ac5b65250311bd2b601",
+    "scripts/check_release_preparation.cjs": "9b878537c9ce954f02e38d6dde0a8788321a79fad6a7c2d4d13b90ddcadbfbe1",
+    "tests/release/preparation-gates.test.cjs": "6c8718b489e83389d8b393962bd9c859c8a6e3b2689e8dd033d4f71960711099"
+  }
+}

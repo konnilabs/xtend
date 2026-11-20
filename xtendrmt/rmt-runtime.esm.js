@@ -8657,7 +8657,7 @@ const __XTENDRMT_CANONICAL_SOURCE_MODULES__ = Object.freeze(["modules/rmt-engine
 (function registerRmtDomDescriptorRendererModule(global) {
     const appModules = global.AppModules || (global.AppModules = {});
     (function attachRmtDomDescriptorRenderer(globalTarget) {
-      const RMT_DOM_DESCRIPTOR_RENDERER_API_VERSION = '2.3.0';
+      const RMT_DOM_DESCRIPTOR_RENDERER_API_VERSION = '2.4.0';
       const RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA = 'xtend.epic18.rmt-dom-descriptor-renderer.v2';
       const RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA = 'xtend.epic18.rmt-dom-descriptor-renderer.v1';
       const RMT_DOM_DESCRIPTOR_RENDERER_DIAGNOSTIC_SCHEMA = 'xtend.epic18.rmt-dom-renderer-diagnostic.v2';
@@ -10658,6 +10658,7 @@ const __XTENDRMT_CANONICAL_SOURCE_MODULES__ = Object.freeze(["modules/rmt-engine
             throw createRendererError('rmt.dom.property.url-unsafe', `Unsichere URL fuer Property ${normalizedName}`, descriptor, context);
           }
         });
+        if (descriptor.nativeBinding) managedComponentRegistry(descriptor,context).validateNativeComponentDescriptor(descriptor,context,nativeComponentValues(descriptor,context));
         normalizeClassTokens([
           descriptor.class,
           descriptor.className,
@@ -10851,6 +10852,47 @@ const __XTENDRMT_CANONICAL_SOURCE_MODULES__ = Object.freeze(["modules/rmt-engine
         });
       }
 
+      function nativeComponentValues(descriptor, context) {
+          return {
+              attributes: Object.fromEntries(Object.entries(objectRecord(descriptor.attributes)).map(([name, value]) => [name, resolveAttributeValue(value, context, context.item)])),
+              properties: Object.fromEntries(Object.entries(objectRecord(descriptor.properties || descriptor.props)).map(([name, value]) => [name, resolveValue(value, context, context.item)]))
+          };
+      }
+
+      function managedComponentRegistry(descriptor, context) {
+          const registry = context.componentRegistry;
+          if (!registry || ['prepareNativeComponent', 'updateNativeComponent', 'validateNativeComponentDescriptor', 'bindComponentInstance'].some(name => typeof registry[name] !== 'function')) {
+              throw createRendererError('rmt.dom.component.managed-port-missing', 'Managed native components require the captured preparation, validation and update port.', descriptor, context);
+          }
+          return registry;
+      }
+
+      function rememberNativeRef(element, descriptor, context) {
+          const binding = descriptor.nativeBinding || descriptor.nativeRef;
+          if (!binding)
+              return;
+          const state = context.rendererState;
+          if (!state || typeof binding.surfaceId !== 'string' || !/^[A-Za-z][A-Za-z0-9_-]*$/.test(binding.ref) || !Array.isArray(binding.keys) || binding.keys.some(key => !(typeof key === 'string' && key.length && !['__proto__', 'constructor', 'prototype'].includes(key) || typeof key === 'number' && Number.isSafeInteger(key) && key >= 0 && !Object.is(key, -0))))
+              throw createRendererError('rmt.dom.native-ref.invalid', 'Native refs require a complete typed owning address.', descriptor, context);
+          const key = JSON.stringify([binding.surfaceId, binding.ref, binding.keys]);
+          const previous = state.nativeRefKeys.get(element), occupied = state.nativeRefs.get(key);
+          if (occupied && occupied !== element || previous && previous !== key)
+              throw createRendererError('rmt.dom.native-ref.duplicate', 'A native ref must name exactly one stable owned node.', descriptor, context);
+          state.nativeRefs.set(key, element);
+          state.nativeRefKeys.set(element, key);
+      }
+
+      function applyElementValues(element, descriptor, context) {
+          if (descriptor.nativeBinding) {
+              managedComponentRegistry(descriptor, context).updateNativeComponent(element, descriptor, context, nativeComponentValues(descriptor, context));
+              markChanged(context);
+          }
+          else {
+              applyAttributes(element, descriptor.attributes || {}, descriptor, context);
+              applyProperties(element, descriptor.properties || descriptor.props || {}, descriptor, context);
+          }
+      }
+
       function renderElement(descriptor, context) {
         const tag = clampString(descriptor.tag, 'div');
         if (!SAFE_TAG_NAME.test(tag) || BLOCKED_TAG_NAMES.has(tag.toLowerCase())) {
@@ -10862,10 +10904,15 @@ const __XTENDRMT_CANONICAL_SOURCE_MODULES__ = Object.freeze(["modules/rmt-engine
           : context.documentTarget.createElement(tag);
         markChanged(context, true);
         if (context.rendererState) context.rendererState.trackedNodes.add(element);
+        if (descriptor.nativeBinding) {
+          const handle = managedComponentRegistry(descriptor,context).prepareNativeComponent(element,{tag},descriptor,context);
+          if (!handle || typeof handle.dispose !== 'function') throw createRendererError('rmt.dom.component.preparation-invalid','Managed preparation must return a disposable handle.',descriptor,context);
+          context.rendererState.preparedComponents.set(element,handle);
+        }
         if (descriptor.id) setAttributeSafe(element, 'data-rmt-node', descriptor.id, descriptor, context);
         if (descriptor.key) setAttributeSafe(element, 'data-rmt-key', resolveValue(descriptor.key, context, context.item), descriptor, context);
-        applyAttributes(element, descriptor.attributes || {}, descriptor, context);
-        applyProperties(element, descriptor.properties || descriptor.props || {}, descriptor, context);
+        rememberNativeRef(element,descriptor,context);
+        applyElementValues(element,descriptor,context);
         applyClassPrimitive(element, descriptor, context);
         applyPartPrimitive(element, descriptor, context);
         applyStyleTokens(element, descriptor, context);
@@ -10951,16 +10998,12 @@ const __XTENDRMT_CANONICAL_SOURCE_MODULES__ = Object.freeze(["modules/rmt-engine
         }
         if (previous && rendererState) rendererState.componentBindings.delete(element);
         if (previous) disposeHandle(previous.handle, rendererState, element);
-        const handle = registry.bindComponentInstance(element, {
-          tag: component.tag,
-          events: [],
-          bindEvents: false,
-          stateBridge: context.stateBridge
-        }, {
-          ...objectRecord(context.componentBindingOptions),
-          domRenderer: rendererState && rendererState.renderer,
-          bindEvents: false
-        });
+        const binding = {tag:component.tag,events:[],bindEvents:false,stateBridge:context.stateBridge};
+        const bindingOptions = {...objectRecord(context.componentBindingOptions),domRenderer:rendererState && rendererState.renderer,bindEvents:false};
+        const handle = descriptor.nativeBinding
+          ? registry.bindComponentInstance(element,binding,descriptor,{...context,...bindingOptions})
+          : registry.bindComponentInstance(element,binding,bindingOptions);
+        if (rendererState) rendererState.preparedComponents.delete(element);
         if (rendererState) {
           rendererState.componentBindings.set(element, {
             handle,
@@ -11498,7 +11541,7 @@ const __XTENDRMT_CANONICAL_SOURCE_MODULES__ = Object.freeze(["modules/rmt-engine
             type: 'element',
             tag: component.tag,
             attributes: {
-              'data-rmt-component': component.id,
+              ...(descriptor.nativeBinding ? {} : {'data-rmt-component': component.id}),
               ...component.attributes,
               ...objectRecord(descriptor.attributes)
             },
@@ -11637,7 +11680,7 @@ const __XTENDRMT_CANONICAL_SOURCE_MODULES__ = Object.freeze(["modules/rmt-engine
         const next = ownedFieldsFor(nextDescriptor, context);
         previous.attributes.forEach((name) => {
           const domain = ownedAttributeDomain(name);
-          if (next.attributes.has(name) || !domainAllowed(context, domain)) return;
+          if (next.attributes.has(name) || !domainAllowed(context, domain) || nextDescriptor.nativeBinding && domain === 'attributes') return;
           if (shouldPreserveActiveInputDraft(element, name, context)) return;
           if (domain === 'class' || domain === 'part' || domain === 'styleTokens') {
             if (attributeValue(element, name) !== null && typeof element.removeAttribute === 'function') {
@@ -11652,7 +11695,7 @@ const __XTENDRMT_CANONICAL_SOURCE_MODULES__ = Object.freeze(["modules/rmt-engine
           if (!next.styles.has(name) && domainAllowed(context, styleDomain(name))) removeStyleValue(element, name, context);
         });
         previous.properties.forEach((name) => {
-          if (next.properties.has(name) || !domainAllowed(context, 'properties')) return;
+          if (nextDescriptor.nativeBinding || next.properties.has(name) || !domainAllowed(context, 'properties')) return;
           if (shouldPreserveActiveInputDraft(element, name, context)) return;
           const baselines = rendererState.propertyBaselines.get(element);
           const baseline = baselines && baselines.has(name)
@@ -11690,9 +11733,18 @@ const __XTENDRMT_CANONICAL_SOURCE_MODULES__ = Object.freeze(["modules/rmt-engine
           () => getChildren(childContainerFor(node))
         ) || [];
         children.forEach((child) => cleanupNode(child, rendererState));
+        for (const lease of [...(rendererState.nativeAnchorTargetLeases.get(node) || [])]) runCleanupStep(rendererState,node,'native-anchor-target',()=>lease.release());
+        const overlay=rendererState.nativeOverlayLeases.get(node);if(overlay)runCleanupStep(rendererState,node,'native-overlay',()=>overlay.release());
+        const presentation = rendererState.presentationLeases.get(node);
+        if (presentation) {rendererState.presentationLeases.delete(node);runCleanupStep(rendererState,node,'native-presentation',()=>presentation.release());}
+        rendererState.nativeFocusBaselines.delete(node);
+        const nativeRefKey=rendererState.nativeRefKeys.get(node);
+        if (nativeRefKey) {if(rendererState.nativeRefs.get(nativeRefKey)===node)rendererState.nativeRefs.delete(nativeRefKey);rendererState.nativeRefKeys.delete(node);}
         rendererState.applicationBindings.delete(node);
         rendererState.visibilityBindings.delete(node);
         rendererState.bindingIds.delete(node);
+        const preparedComponent = rendererState.preparedComponents.get(node);
+        if (preparedComponent) {rendererState.preparedComponents.delete(node);disposeHandle(preparedComponent,rendererState,node,'native-preparation');}
         const componentBinding = rendererState.componentBindings.get(node);
         if (componentBinding) {
           rendererState.componentBindings.delete(node);
@@ -11742,8 +11794,8 @@ const __XTENDRMT_CANONICAL_SOURCE_MODULES__ = Object.freeze(["modules/rmt-engine
         if (context.reconcileMode) clearStaleOwnedFields(element, next, context);
         if (next.id) setAttributeSafe(element, 'data-rmt-node', next.id, next, context);
         if (next.key) setAttributeSafe(element, 'data-rmt-key', resolveValue(next.key, context, context.item), next, context);
-        applyAttributes(element, next.attributes || {}, next, context);
-        applyProperties(element, next.properties || next.props || {}, next, context);
+        rememberNativeRef(element,next,context);
+        if (!next.nativeBinding) applyElementValues(element,next,context);
         applyClassPrimitive(element, next, context);
         applyPartPrimitive(element, next, context);
         applyStyleTokens(element, next, context);
@@ -11767,6 +11819,7 @@ const __XTENDRMT_CANONICAL_SOURCE_MODULES__ = Object.freeze(["modules/rmt-engine
         } else if (Object.prototype.hasOwnProperty.call(next, 'children') && domainAllowed(context, 'structure')) {
           materializeChildren(element, next.children, context, context.item);
         }
+        if (next.nativeBinding) applyElementValues(element,next,context);
         if (effective.component) {
           applyComponentBinding(element, effective.component, descriptor, context);
         } else if (context.reconcileMode && context.rendererState) {
@@ -12050,6 +12103,17 @@ const __XTENDRMT_CANONICAL_SOURCE_MODULES__ = Object.freeze(["modules/rmt-engine
           bindingSequence: 0,
           bindingScopeSequence: 0,
           componentBindings: new WeakMap(),
+          preparedComponents: new WeakMap(),
+          nativeRefs: new Map(),
+          nativeRefKeys: new WeakMap(),
+          presentationLeases: new Map(),
+          nativeFocusBaselines:new WeakMap(),
+          nativeAnchorDescriptions:new WeakMap(),
+          nativeAnchorTargetLeases:new WeakMap(),
+          presentationSequence:0,
+          pendingRoots:new Set(),
+          nativeOverlayLeases:new Map(),
+          nativeOverlayRoots:new Map(),
           defaultRefs: new Map(),
           disposedHandles: new WeakSet(),
           rendererInstanceId: ++rendererInstanceSequence,
@@ -12065,6 +12129,643 @@ const __XTENDRMT_CANONICAL_SOURCE_MODULES__ = Object.freeze(["modules/rmt-engine
           publishDiagnostic: diagnosticsRecorder.publish,
           renderer: null
         };
+
+        function focusNativeComponent(element, request, options = {}) {
+            const ownerKey = rendererState.nativeRefKeys.get(element);
+            if (!ownerKey || !rendererState.trackedNodes.has(element) || typeof options.isCurrent !== 'function' || !options.isCurrent() || options.signal?.aborted)
+                throw new TypeError('Native focus requires its active actual renderer owner.');
+            if (!request || typeof request !== 'object' || Object.keys(request).some(key => !['part', 'restore', 'ref', 'keys', 'operation', 'slot', 'item', 'describedBy', 'allowMissing'].includes(key)))
+                throw new TypeError('Native focus accepts only declared owned targets.');
+            const [surfaceId, , keys] = JSON.parse(ownerKey);
+            let target;
+            if (request.operation === 'scroll-past') {
+                if (element.localName !== 'x-hero' || Object.keys(request).length !== 1 || typeof element.scrollIntoView !== 'function')
+                    throw new TypeError('Native scroll requires the exact owned Hero and browser scroll capability.');
+                element.scrollIntoView({ block: 'end', behavior: 'smooth' });
+                return null;
+            }
+            if (request.operation === 'tooltip-anchor')
+                return createNativeAnchorLease(element, request, options, ownerKey);
+            if (request.operation !== undefined)
+                throw new TypeError('Unknown native presentation operation.');
+            if (request.slot !== undefined) {
+                if (element.localName !== 'x-menu' || request.slot !== 'default' || !Number.isSafeInteger(request.item) || request.item < 0 || Object.keys(request).some(key => !['slot', 'item'].includes(key)))
+                    throw new TypeError('Menu focus requires an explicit ephemeral position in its owned default slot.');
+                const items = Array.from(element.querySelectorAll('a,button,x-link,[role="menuitem"]')).filter(node => rendererState.trackedNodes.has(node));
+                target = items[request.item];
+                if (!target || typeof target.focus !== 'function')
+                    throw new TypeError('Menu focus item is absent from its owned slot.');
+                target.focus();
+                return null;
+            }
+            if (request.restore) {
+                target = rendererState.nativeFocusBaselines.get(element);
+                rendererState.nativeFocusBaselines.delete(element);
+                if (!target || !rendererState.trackedNodes.has(target) || !target.isConnected)
+                    return null;
+            }
+            else if (request.ref) {
+                target = rendererState.nativeRefs.get(JSON.stringify([surfaceId, request.ref, request.keys === undefined ? keys : request.keys]));
+            }
+            else {
+                const selectors = { input: 'input,textarea,select', control: 'button,input,select,textarea,[tabindex]', surface: '[part~="surface"],[role="dialog"]', close: '[part~="close"],[part~="close-button"],button', menu: '[part~="menu"],nav,[role="menu"]' };
+                if (request.part === 'root')
+                    target = element;
+                else if (Object.hasOwn(selectors, request.part))
+                    target = element.shadowRoot?.querySelector(selectors[request.part]);
+            }
+            if (!target || typeof target.focus !== 'function')
+                throw new TypeError('Native focus target is absent from the captured component or owned refs.');
+            if (!request.restore && !rendererState.nativeFocusBaselines.has(element)) {
+                const previous = documentTarget.activeElement;
+                if (previous && rendererState.trackedNodes.has(previous))
+                    rendererState.nativeFocusBaselines.set(element, previous);
+            }
+            target.focus();
+            return null;
+        }
+
+        function createNativeAnchorLease(element, request, options, ownerKey) {
+            if (element.localName !== 'x-tooltip' || Object.keys(request).some(key => !['operation', 'ref', 'keys', 'describedBy', 'allowMissing'].includes(key)) || !/^[A-Za-z][A-Za-z0-9_-]*$/.test(request.ref) || request.allowMissing !== undefined && typeof request.allowMissing !== 'boolean')
+                throw new TypeError('Tooltip anchors require an explicit local authored ref.');
+            const [surfaceId, , keys] = JSON.parse(ownerKey), target = rendererState.nativeRefs.get(JSON.stringify([surfaceId, request.ref, request.keys === undefined ? keys : request.keys]));
+            if (!target && request.allowMissing === true)
+                return null;
+            if (!target || target === element || !rendererState.trackedNodes.has(target))
+                throw new TypeError('Tooltip anchor must belong to the same exact owning Surface and typed keys.');
+            const tooltip = request.describedBy ? Array.from(element.shadowRoot?.querySelectorAll('[id]') || []).find(node => node.id === request.describedBy) : element.shadowRoot?.querySelector('[role="tooltip"]');
+            if (!tooltip)
+                throw new TypeError('Tooltip description must belong to its original Shadow DOM.');
+            let released = false;
+            const removers = new Set(), hostFields = new Map();
+            const hostSet = (name, value) => {
+                if (!hostFields.has(name))
+                    hostFields.set(name, { before: attributeValue(element, name), after: null });
+                const row = hostFields.get(name);
+                if (value === null)
+                    element.removeAttribute(name);
+                else
+                    element.setAttribute(name, value);
+                row.after = value;
+            };
+            const tooltipId = element.id || 'rmt-native-tooltip-' + rendererState.rendererInstanceId + '-' + (++rendererState.presentationSequence);
+            if (!element.id)
+                hostSet('id', tooltipId);
+            hostSet('role', 'tooltip');
+            const tokens = String(attributeValue(target, 'aria-describedby') || '').split(/\s+/).filter(Boolean), ownsToken = !tokens.includes(tooltipId);
+            if (ownsToken)
+                target.setAttribute('aria-describedby', [...tokens, tooltipId].join(' '));
+            const valid = () => !released && !options.signal?.aborted && options.isCurrent() && rendererState.nativeRefKeys.get(element) === ownerKey && rendererState.trackedNodes.has(target) && (target.isConnected || rendererState.pendingRoots.size > 0) && rendererState.nativeRefs.get(JSON.stringify([surfaceId, request.ref, request.keys === undefined ? keys : request.keys])) === target;
+            const current = () => {
+                if (!valid())
+                    throw new TypeError('Tooltip anchor lease is stale.');
+            };
+            let description = rendererState.nativeAnchorDescriptions.get(target);
+            if (!description) {
+                description = { before: attributeValue(target, 'aria-description'), last: attributeValue(target, 'aria-description'), leases: new Map() };
+                rendererState.nativeAnchorDescriptions.set(target, description);
+            }
+            const writeDescription = () => {
+                if (attributeValue(target, 'aria-description') !== description.last)
+                    return;
+                const text = [description.before, ...description.leases.values()].filter(Boolean).join(' ');
+                if (text)
+                    target.setAttribute('aria-description', text);
+                else
+                    target.removeAttribute('aria-description');
+                description.last = text || null;
+            };
+            const lease = {
+                isCurrent: valid,
+                measure() { current(); const rect = target.getBoundingClientRect(), view = documentTarget.defaultView; return Object.freeze({ x: rect.x, y: rect.y, left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom, width: rect.width, height: rect.height, viewportWidth: view?.innerWidth || 0, viewportHeight: view?.innerHeight || 0 }); },
+                describe(text) {
+                    current();
+                    if (typeof text !== 'string' || text.length > 16384)
+                        throw new TypeError('Tooltip descriptions require bounded text.');
+                    description.leases.set(lease, text);
+                    hostSet('aria-label', text);
+                    writeDescription();
+                    return null;
+                },
+                subscribe(handlers) {
+                    current();
+                    if (!handlers || typeof handlers !== 'object' || Object.entries(handlers).some(([name, callback]) => !['enter', 'leave', 'mouseenter', 'mouseleave', 'focus', 'blur', 'reposition'].includes(name) || typeof callback !== 'function'))
+                        throw new TypeError('Tooltip subscriptions require declared private callbacks.');
+                    const cleanups = [];
+                    for (const [name, callback] of Object.entries(handlers)) {
+                        const listener = () => {
+                            if (!valid()) {
+                                lease.release();
+                                return;
+                            }
+                            callback(Object.freeze({ source: name }));
+                        };
+                        if (name === 'reposition') {
+                            for (const type of ['resize', 'scroll']) {
+                                documentTarget.defaultView?.addEventListener(type, listener, { passive: true, capture: true });
+                                cleanups.push(() => documentTarget.defaultView?.removeEventListener(type, listener, { capture: true }));
+                            }
+                        }
+                        else {
+                            const type = name === 'enter' ? 'mouseenter' : name === 'leave' ? 'mouseleave' : name;
+                            target.addEventListener(type, listener, true);
+                            cleanups.push(() => target.removeEventListener(type, listener, true));
+                        }
+                    }
+                    let active = true;
+                    const remove = () => {
+                        if (!active)
+                            return;
+                        active = false;
+                        removers.delete(remove);
+                        cleanups.forEach(cleanup => cleanup());
+                    };
+                    removers.add(remove);
+                    return remove;
+                },
+                release() {
+                    if (released)
+                        return false;
+                    released = true;
+                    targetLeases.delete(lease);
+                    if (!targetLeases.size)
+                        rendererState.nativeAnchorTargetLeases.delete(target);
+                    options.signal?.removeEventListener('abort', abort);
+                    for (const remove of [...removers])
+                        remove();
+                    description.leases.delete(lease);
+                    writeDescription();
+                    if (ownsToken) {
+                        const retained = String(attributeValue(target, 'aria-describedby') || '').split(/\s+/).filter(token => token && token !== tooltipId);
+                        if (retained.length)
+                            target.setAttribute('aria-describedby', retained.join(' '));
+                        else
+                            target.removeAttribute('aria-describedby');
+                    }
+                    for (const [name, row] of hostFields) {
+                        if (attributeValue(element, name) !== row.after)
+                            continue;
+                        if (row.before === null)
+                            element.removeAttribute(name);
+                        else
+                            element.setAttribute(name, row.before);
+                    }
+                    if (!description.leases.size)
+                        rendererState.nativeAnchorDescriptions.delete(target);
+                    return true;
+                }
+            };
+            const targetLeases = rendererState.nativeAnchorTargetLeases.get(target) || new Set();
+            targetLeases.add(lease);
+            rendererState.nativeAnchorTargetLeases.set(target, targetLeases);
+            function abort() { lease.release(); }
+            options.signal?.addEventListener('abort', abort, { once: true });
+            try {
+                lease.describe(tooltip.getAttribute('aria-label') || tooltip.textContent || element.textContent || '');
+            }
+            catch (error) {
+                lease.release();
+                throw error;
+            }
+            return Object.freeze({ ...lease, getRect: lease.measure });
+        }
+
+        function createNativeOverlayLease(element, request, options = {}) {
+            const ownerKey = rendererState.nativeRefKeys.get(element), root = options.root;
+            if (!ownerKey || !rendererState.trackedNodes.has(element) || typeof options.isCurrent !== 'function' || !options.isCurrent() || options.signal?.aborted || !root || !root.contains(element) || !(rendererState.roots.has(root) || rendererState.pendingRoots.has(root) || rendererState.trackedNodes.has(root)))
+                throw new TypeError('Native overlays require an active exact renderer-owned app root.');
+            const [surfaceId] = JSON.parse(ownerKey);
+            if (options.owner?.surfaceId !== surfaceId || !request || typeof request.open !== 'boolean' || typeof request.modal !== 'boolean' || Object.keys(request).some(key => !['open', 'modal'].includes(key)))
+                throw new TypeError('Native overlay admission requires its exact Surface owner and Boolean presentation DTO.');
+            rendererState.nativeOverlayLeases.get(element)?.release();
+            if (!request.open)
+                return Object.freeze({ release: () => false });
+            let scope = rendererState.nativeOverlayRoots.get(root);
+            if (!scope) {
+                scope = { root, entries: [], inert: new Map(), overflow: null, top: null, refreshing: false };
+                rendererState.nativeOverlayRoots.set(root, scope);
+            }
+            let released = false;
+            let beforeFocus = documentTarget.activeElement;
+            while (beforeFocus?.shadowRoot?.activeElement)
+                beforeFocus = beforeFocus.shadowRoot.activeElement;
+            const focusHost = node => {
+                let host = node;
+                while (host?.getRootNode?.()?.host)
+                    host = host.getRootNode().host;
+                return host;
+            };
+            const focusOwned = node => {
+                let current = node;
+                while (current) {
+                    if (rendererState.trackedNodes.has(current))
+                        return true;
+                    current = current.getRootNode?.()?.host;
+                }
+                return false;
+            };
+            const zIndex = { before: element.style.getPropertyValue('z-index'), priority: element.style.getPropertyPriority('z-index'), after: '' };
+            const entry = { element, modal: request.modal, active: () => !released && !options.signal?.aborted && options.isCurrent() && rendererState.nativeRefKeys.get(element) === ownerKey && element.isConnected };
+            const focusables = () => {
+                const nodes = [], seen = new Set();
+                const visit = node => {
+                    if (!node || seen.has(node))
+                        return;
+                    seen.add(node);
+                    if (node.nodeType === 1) {
+                        if (node !== element && !rendererState.trackedNodes.has(node) && node.getRootNode() === element.getRootNode())
+                            return;
+                        const style = documentTarget.defaultView?.getComputedStyle(node);
+                        if (node.hasAttribute('hidden') || node.hasAttribute('inert') || node.getAttribute('aria-hidden') === 'true' || style?.display === 'none' || ['hidden', 'collapse'].includes(style?.visibility))
+                            return;
+                        if (node.matches('button,input,select,textarea,a[href],[tabindex],[contenteditable=true]') && !node.matches(':disabled') && node.tabIndex >= 0)
+                            nodes.push(node);
+                        // Follow the rendered tree once: unmatched light DOM is not a focus target.
+                        const assigned = node.localName === 'slot' ? node.assignedElements({ flatten: true }) : null;
+                        const children = node.shadowRoot ? node.shadowRoot.children : assigned?.length ? assigned : node.children;
+                        for (const child of children || [])
+                            visit(child);
+                        return;
+                    }
+                    for (const child of node.childNodes || [])
+                        visit(child);
+                };
+                visit(element);
+                return nodes.sort((a, b) => (a.tabIndex > 0 ? a.tabIndex : Number.MAX_SAFE_INTEGER) - (b.tabIndex > 0 ? b.tabIndex : Number.MAX_SAFE_INTEGER));
+            };
+            const focusFirst = () => {
+                const nodes = focusables();
+                if (nodes.length)
+                    nodes[0].focus();
+                else {
+                    if (!entry.tabindex)
+                        entry.tabindex = { before: attributeValue(element, 'tabindex'), after: '-1' };
+                    element.setAttribute('tabindex', '-1');
+                    element.focus();
+                }
+            };
+            const onKey = event => {
+                if (scope.top !== entry || !entry.active() || event.key !== 'Tab')
+                    return;
+                const nodes = focusables(), path = event.composedPath?.() || [], index = nodes.findIndex(node => path.includes(node));
+                if (!nodes.length) {
+                    event.preventDefault();
+                    focusFirst();
+                }
+                else if (event.shiftKey && index <= 0) {
+                    event.preventDefault();
+                    nodes.at(-1).focus();
+                }
+                else if (!event.shiftKey && (index < 0 || index === nodes.length - 1)) {
+                    event.preventDefault();
+                    nodes[0].focus();
+                }
+            };
+            const onFocus = event => {
+                if (scope.top !== entry || !entry.active())
+                    return;
+                const path = event.composedPath?.() || [];
+                if (path.includes(element) || element.contains(event.target))
+                    return;
+                if (path.some(node => rendererState.trackedNodes.has(node)))
+                    focusFirst();
+            };
+            root.addEventListener('keydown', onKey, true);
+            root.addEventListener('focusin', onFocus, true);
+            const lease = { release() {
+                    if (released)
+                        return false;
+                    released = true;
+                    options.signal?.removeEventListener('abort', abort);
+                    root.removeEventListener('keydown', onKey, true);
+                    root.removeEventListener('focusin', onFocus, true);
+                    scope.entries = scope.entries.filter(row => row !== entry);
+                    if (rendererState.nativeOverlayLeases.get(element) === lease)
+                        rendererState.nativeOverlayLeases.delete(element);
+                    if (element.style.getPropertyValue('z-index') === zIndex.after) {
+                        if (zIndex.before)
+                            element.style.setProperty('z-index', zIndex.before, zIndex.priority);
+                        else
+                            element.style.removeProperty('z-index');
+                    }
+                    if (entry.tabindex && attributeValue(element, 'tabindex') === entry.tabindex.after) {
+                        if (entry.tabindex.before === null)
+                            element.removeAttribute('tabindex');
+                        else
+                            element.setAttribute('tabindex', entry.tabindex.before);
+                    }
+                    refreshNativeOverlayScope(scope);
+                    if (beforeFocus && focusOwned(beforeFocus) && beforeFocus.isConnected && root.contains(focusHost(beforeFocus)) && (!documentTarget.activeElement || documentTarget.activeElement === documentTarget.body || documentTarget.activeElement === element || element.contains(documentTarget.activeElement))) {
+                        try {
+                            beforeFocus.focus();
+                        }
+                        catch (error) {
+                            publishCleanupFailure(rendererState, element, 'native-overlay-focus', error);
+                        }
+                    }
+                    return true;
+                } };
+            entry.lease = lease;
+            entry.focusFirst = focusFirst;
+            entry.zIndex = zIndex;
+            scope.entries.push(entry);
+            rendererState.nativeOverlayLeases.set(element, lease);
+            options.signal?.addEventListener('abort', abort, { once: true });
+            function abort() { lease.release(); }
+            refreshNativeOverlayScope(scope);
+            if (request.modal && scope.top === entry)
+                focusFirst();
+            return Object.freeze(lease);
+        }
+
+        function refreshNativeOverlayScope(scope) {
+            if (scope.refreshing)
+                return;
+            scope.refreshing = true;
+            try {
+                for (const entry of [...scope.entries])
+                    if (!entry.active())
+                        entry.lease.release();
+                const active = scope.entries.filter(entry => entry.active());
+                scope.top = active.filter(entry => entry.modal).at(-1) || null;
+                active.forEach((entry, index) => { entry.zIndex.after = String(1000 + index * 10); entry.element.style.setProperty('z-index', entry.zIndex.after); });
+                const required = new Set();
+                if (scope.top) {
+                    let branch = scope.top.element;
+                    while (branch && branch !== scope.root) {
+                        const parent = branch.parentElement;
+                        if (!parent)
+                            break;
+                        for (const sibling of parent.children)
+                            if (sibling !== branch && rendererState.trackedNodes.has(sibling))
+                                required.add(sibling);
+                        branch = parent;
+                    }
+                }
+                for (const [node, fields] of [...scope.inert])
+                    if (!required.has(node)) {
+                        for (const [name, row] of fields) {
+                            if (attributeValue(node, name) !== row.after)
+                                continue;
+                            if (row.before === null)
+                                node.removeAttribute(name);
+                            else
+                                node.setAttribute(name, row.before);
+                        }
+                        scope.inert.delete(node);
+                    }
+                for (const node of required) {
+                    let fields = scope.inert.get(node);
+                    if (!fields) {
+                        fields = new Map();
+                        scope.inert.set(node, fields);
+                    }
+                    for (const [name, value] of [['inert', ''], ['aria-hidden', 'true']]) {
+                        let row = fields.get(name);
+                        const current = attributeValue(node, name);
+                        if (!row) {
+                            row = { before: current, after: value };
+                            fields.set(name, row);
+                        }
+                        else if (current !== row.after)
+                            row.before = current;
+                        node.setAttribute(name, value);
+                        row.after = value;
+                    }
+                }
+                if (scope.top) {
+                    const current = scope.root.style.getPropertyValue('overflow');
+                    if (!scope.overflow)
+                        scope.overflow = { before: current, priority: scope.root.style.getPropertyPriority('overflow'), after: 'hidden' };
+                    else if (current !== scope.overflow.after) {
+                        scope.overflow.before = current;
+                        scope.overflow.priority = scope.root.style.getPropertyPriority('overflow');
+                    }
+                    scope.root.style.setProperty('overflow', 'hidden');
+                }
+                else if (scope.overflow) {
+                    if (scope.root.style.getPropertyValue('overflow') === scope.overflow.after) {
+                        if (scope.overflow.before)
+                            scope.root.style.setProperty('overflow', scope.overflow.before, scope.overflow.priority);
+                        else
+                            scope.root.style.removeProperty('overflow');
+                    }
+                    scope.overflow = null;
+                }
+                if (!scope.entries.length)
+                    rendererState.nativeOverlayRoots.delete(scope.root);
+            }
+            finally {
+                scope.refreshing = false;
+            }
+        }
+
+        function createNativeSlotPresentationLease(element, request, options = {}) {
+            const ownerKey = rendererState.nativeRefKeys.get(element);
+            if (!ownerKey || !rendererState.trackedNodes.has(element) || typeof options.isCurrent !== 'function' || !options.isCurrent())
+                throw new TypeError('Native presentation requires the actual live renderer-owned component.');
+            const [surfaceId, , ownerKeys] = JSON.parse(ownerKey);
+            if (!request || !['tabs', 'masonry'].includes(request.kind) || !Array.isArray(request.items) || request.items.length > 10000)
+                throw new TypeError('Native presentation requires a bounded explicit profile and item list.');
+            if (rendererState.presentationLeases.has(element))
+                throw new TypeError('An owned component has one active presentation lease.');
+            let released = false;
+            const baselines = new Map(), last = new Map(), original = getChildren(element).slice(), rows = new Map(), links = new Map(), panelIds = new Map();
+            const token = key => JSON.stringify(key);
+            const current = () => {
+                if (released || options.signal?.aborted || !options.isCurrent() || !rendererState.trackedNodes.has(element) || rendererState.nativeRefKeys.get(element) !== ownerKey)
+                    throw new TypeError('Native presentation belongs to a stale component lifetime.');
+            };
+            const validateItems = items => {
+                if (!Array.isArray(items) || items.length > 10000)
+                    throw new TypeError('Native presentation items must be bounded.');
+                const result = new Map(), nodes = new Set();
+                for (const item of items) {
+                    if (!item || typeof item !== 'object' || Object.keys(item).some(key => !['key', 'ref', 'keys', 'title', 'disabled', 'collapsed'].includes(key)) || !(typeof item.key === 'string' && item.key.length || typeof item.key === 'number' && Number.isSafeInteger(item.key) && item.key >= 0 && !Object.is(item.key, -0)) || !/^[A-Za-z][A-Za-z0-9_-]*$/.test(item.ref))
+                        throw new TypeError('Presentation items require stable typed keys and explicit authored refs.');
+                    const keys = item.keys === undefined ? ownerKeys : item.keys;
+                    if (!Array.isArray(keys) || keys.some(key => !(typeof key === 'string' && key.length || typeof key === 'number' && Number.isSafeInteger(key) && key >= 0 && !Object.is(key, -0))))
+                        throw new TypeError('Presentation item keys require complete typed tuples.');
+                    const node = rendererState.nativeRefs.get(JSON.stringify([surfaceId, item.ref, keys]));
+                    if (!node || node.parentNode !== element || !rendererState.trackedNodes.has(node) || result.has(token(item.key)) || nodes.has(node))
+                        throw new TypeError('Presentation refs must name distinct original direct children owned by this renderer and Surface.');
+                    if (item.disabled !== undefined && typeof item.disabled !== 'boolean' || item.collapsed !== undefined && typeof item.collapsed !== 'boolean' || item.title !== undefined && typeof item.title !== 'string')
+                        throw new TypeError('Presentation flags must be typed.');
+                    result.set(token(item.key), { item, node });
+                    nodes.add(node);
+                }
+                return result;
+            };
+            const set = (node, name, value) => {
+                if (!baselines.has(node))
+                    baselines.set(node, new Map());
+                if (!last.has(node))
+                    last.set(node, new Map());
+                const before = attributeValue(node, name);
+                if (!baselines.get(node).has(name))
+                    baselines.get(node).set(name, before);
+                const next = value === null ? null : String(value);
+                if (next === null)
+                    node.removeAttribute(name);
+                else
+                    node.setAttribute(name, next);
+                last.get(node).set(name, next);
+            };
+            const lease = {
+                project(dto) {
+                    current();
+                    if (!dto || typeof dto !== 'object' || Object.keys(dto).some(key => !['kind', 'items', 'selectedKey', 'order', 'collapsed'].includes(key)) || dto.kind !== undefined && dto.kind !== request.kind)
+                        throw new TypeError('Native presentation accepts only its captured profile DTO.');
+                    const next = validateItems(dto.items === undefined ? request.items : dto.items);
+                    const order = dto.order === undefined ? [...next.values()].map(row => row.item.key) : dto.order;
+                    if (!Array.isArray(order) || order.length !== next.size || new Set(order.map(token)).size !== next.size || order.some(key => !next.has(token(key))))
+                        throw new TypeError('Presentation order must be an exact typed item permutation.');
+                    const selected = dto.selectedKey === undefined ? request.selectedKey : dto.selectedKey;
+                    if (request.kind === 'tabs' && selected !== undefined && selected !== null && !next.has(token(selected)))
+                        throw new TypeError('Tab selection must name one declared typed item key.');
+                    const collapsed = dto.collapsed === undefined ? (request.collapsed || [...next.values()].filter(row => row.item.collapsed).map(row => row.item.key)) : dto.collapsed;
+                    if (!Array.isArray(collapsed) || new Set(collapsed.map(token)).size !== collapsed.length || collapsed.some(key => !next.has(token(key))))
+                        throw new TypeError('Collapsed items must name distinct captured typed item keys.');
+                    // Validate the entire transaction before the first visible write.
+                    for (const row of rows.values())
+                        if (![...next.values()].some(nextRow => nextRow.node === row.node))
+                            restore(row.node);
+                    for (const [key, link] of [...links])
+                        if (!next.has(key)) {
+                            restore(link.control);
+                            restore(link.panel);
+                            restore(link.slot);
+                            links.delete(key);
+                            panelIds.delete(key);
+                        }
+                    rows.clear();
+                    next.forEach((row, key) => rows.set(key, row));
+                    for (const row of rows.values()) {
+                        if (request.kind === 'tabs') {
+                            const active = selected === undefined ? row === [...rows.values()].find(candidate => !candidate.item.disabled) : token(row.item.key) === token(selected);
+                            set(row.node, 'hidden', active ? null : '');
+                            set(row.node, 'role', links.has(token(row.item.key)) ? (baselines.get(row.node)?.get('role') || null) : 'tabpanel');
+                            set(row.node, 'aria-hidden', active ? 'false' : 'true');
+                            set(row.node, 'tabindex', links.has(token(row.item.key)) ? (baselines.get(row.node)?.get('tabindex') || null) : (active ? '0' : '-1'));
+                            const linked = links.get(token(row.item.key));
+                            if (linked) {
+                                set(linked.panel, 'hidden', active ? null : '');
+                                set(linked.panel, 'tabindex', active ? '0' : '-1');
+                            }
+                        }
+                        else
+                            set(row.node, 'hidden', collapsed.some(key => token(key) === token(row.item.key)) ? '' : null);
+                    }
+                    if (request.kind === 'masonry') {
+                        // Reorder captured originals only. No clone, selector or positional identity.
+                        const slots = getChildren(element).filter(node => [...rows.values()].some(row => row.node === node));
+                        const anchor = documentTarget.createComment('rmt-native-presentation');
+                        if (slots.length) {
+                            element.insertBefore(anchor, slots[0]);
+                            for (const key of order)
+                                element.insertBefore(rows.get(token(key)).node, anchor);
+                            element.removeChild(anchor);
+                        }
+                    }
+                    return Object.freeze({ count: rows.size });
+                },
+                linkControl(key, control, panel, slot) {
+                    current();
+                    const row = rows.get(token(key));
+                    if (request.kind !== 'tabs' || !row || !element.shadowRoot || [control, panel, slot].some(node => !node || node.getRootNode() !== element.shadowRoot) || slot.localName !== 'slot' || !panel.contains(slot))
+                        throw new TypeError('Tab controls and panels must be original local Shadow DOM nodes linked to an exact captured item.');
+                    const previous = links.get(token(key));
+                    if (previous && previous.control !== control) {
+                        restore(previous.control);
+                        restore(previous.panel);
+                        restore(previous.slot);
+                    }
+                    if (!panelIds.has(token(key)))
+                        panelIds.set(token(key), 'rmt-native-panel-' + rendererState.rendererInstanceId + '-' + (++rendererState.presentationSequence));
+                    const id = panelIds.get(token(key)), controlId = id + '-control';
+                    if ((documentTarget.getElementById(id) && documentTarget.getElementById(id) !== panel) || (documentTarget.getElementById(controlId) && documentTarget.getElementById(controlId) !== control))
+                        throw new TypeError('Generated tab identity conflicts with an existing author node.');
+                    set(control, 'id', controlId);
+                    set(panel, 'id', id);
+                    set(control, 'aria-controls', id);
+                    set(panel, 'aria-labelledby', controlId);
+                    set(panel, 'role', 'tabpanel');
+                    set(panel, 'hidden', row.node.hasAttribute('hidden') ? '' : null);
+                    set(panel, 'tabindex', row.node.hasAttribute('hidden') ? '-1' : '0');
+                    set(slot, 'name', id);
+                    set(row.node, 'slot', id);
+                    set(row.node, 'role', baselines.get(row.node)?.get('role') || null);
+                    set(row.node, 'tabindex', baselines.get(row.node)?.get('tabindex') || null);
+                    links.set(token(key), { control, panel, slot });
+                    return Object.freeze({ controlId, panelId: id, slot: id });
+                },
+                measure(ref, keys = ownerKeys) {
+                    current();
+                    const node = rendererState.nativeRefs.get(JSON.stringify([surfaceId, ref, keys]));
+                    if (!node || ![...rows.values()].some(row => row.node === node))
+                        throw new TypeError('Measurement requires a captured presentation item.');
+                    const rect = node.getBoundingClientRect();
+                    return Object.freeze({ x: rect.x, y: rect.y, width: rect.width, height: rect.height });
+                },
+                focus(ref, keys = ownerKeys) {
+                    current();
+                    const node = rendererState.nativeRefs.get(JSON.stringify([surfaceId, ref, keys]));
+                    if (!node || ![...rows.values()].some(row => row.node === node))
+                        throw new TypeError('Focus requires a captured presentation item.');
+                    node.focus();
+                    return null;
+                },
+                release() {
+                    if (released)
+                        return false;
+                    released = true;
+                    options.signal?.removeEventListener('abort', abort);
+                    for (const node of baselines.keys())
+                        restore(node);
+                    const retained = original.filter(node => node.parentNode === element);
+                    if (retained.length && request.kind === 'masonry') {
+                        const anchor = documentTarget.createComment('rmt-native-presentation-release');
+                        element.insertBefore(anchor, retained[0]);
+                        for (const node of retained)
+                            element.insertBefore(node, anchor);
+                        element.removeChild(anchor);
+                    }
+                    if (rendererState.presentationLeases.get(element) === lease)
+                        rendererState.presentationLeases.delete(element);
+                    return true;
+                }
+            };
+            function restore(node) {
+                const values = baselines.get(node);
+                if (!values)
+                    return;
+                for (const [name, before] of values) {
+                    if (attributeValue(node, name) !== last.get(node)?.get(name))
+                        continue;
+                    if (before === null)
+                        node.removeAttribute(name);
+                    else
+                        node.setAttribute(name, before);
+                }
+                baselines.delete(node);
+                last.delete(node);
+            }
+            function abort() { lease.release(); }
+            rendererState.presentationLeases.set(element, lease);
+            if (options.signal?.aborted) {
+                lease.release();
+                throw new TypeError('Native presentation activity is aborted.');
+            }
+            options.signal?.addEventListener('abort', abort, { once: true });
+            try {
+                lease.project(request);
+            }
+            catch (error) {
+                lease.release();
+                throw error;
+            }
+            return Object.freeze(lease);
+        }
 
         function runWithDiagnostics(fn) {
           try {
@@ -12247,6 +12948,7 @@ const __XTENDRMT_CANONICAL_SOURCE_MODULES__ = Object.freeze(["modules/rmt-engine
             const diagnosticsStart = diagnosticsRecorder.diagnostics.length;
             const { context, tracker } = prepareDescriptor(request, operation);
             let nodes = [];
+            if(request.target)rendererState.pendingRoots.add(request.target);
             try {
               const operationOwnsStructure = (
                 operation === 'create-node'
@@ -12302,6 +13004,7 @@ const __XTENDRMT_CANONICAL_SOURCE_MODULES__ = Object.freeze(["modules/rmt-engine
                 );
               }
             } catch (error) {
+              if(request.target)rendererState.pendingRoots.delete(request.target);
               cleanupFailedCommitNodes(trackedBefore, request, rendererState);
               if (error && error.diagnostic) throw error;
               const diagnostic = createDiagnostic(
@@ -12320,6 +13023,8 @@ const __XTENDRMT_CANONICAL_SOURCE_MODULES__ = Object.freeze(["modules/rmt-engine
               wrappedError.diagnostic = diagnostic;
               throw wrappedError;
             }
+            if(request.target)rendererState.pendingRoots.delete(request.target);
+            for(const scope of rendererState.nativeOverlayRoots.values())refreshNativeOverlayScope(scope);
             const bindingState = createBindingCommitState(operation, request, nodes, previousBindings);
             return {
               schema: RMT_DOM_COMMIT_RESULT_SCHEMA,
@@ -12374,6 +13079,9 @@ const __XTENDRMT_CANONICAL_SOURCE_MODULES__ = Object.freeze(["modules/rmt-engine
         }
 
         const renderer = {
+          createNativeSlotPresentationLease,
+          focusNativeComponent,
+          createNativeOverlayLease,
           schema: rendererSchema,
           trustedDomBoundary: TRUSTED_DOM_BOUNDARY,
           commit,

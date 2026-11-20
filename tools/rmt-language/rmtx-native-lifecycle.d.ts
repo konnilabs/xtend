@@ -78,3 +78,11 @@ export function lowerRmtxExtendedLifecycle(contract: RmtxExtendedLifecycleSource
 export { validateRmtxExtendedLifecycleContract as validateRmtxNativeOrchestrationLifecycleContract,
   validateRmtxExtendedLifecycleAst as validateRmtxNativeOrchestrationLifecycleAst,
   lowerRmtxExtendedLifecycle as lowerRmtxNativeOrchestrationLifecycle };
+
+export interface RmtxManagedNativeLifecycleProfiles {readonly sourceProfile:Readonly<{syntax:'rmtx';version:'8.0.0'}>;readonly viewProfile:Readonly<{syntax:'rmtx';version:'8.0.0'}>;readonly actionProfile:Readonly<{syntax:'rmtx';version:'8.0.0'}>}
+export interface RmtxManagedNativeLifecycleSourceContract extends RmtxManagedNativeLifecycleProfiles {readonly schema:'xtend.rmtx.native-lifecycle.v3';readonly documentId:string;readonly operations:readonly RmtxExtendedLifecycleSourceOperation[]}
+export interface RmtManagedNativeLifecyclePlan extends RmtxManagedNativeLifecycleProfiles {readonly schema:'xtend.rmt.native-lifecycle-plan.v3';readonly documentId:string;readonly operations:readonly (Omit<RmtxExtendedLifecycleSourceOperation,'range'>&{readonly id:string})[]}
+export interface RmtxManagedNativeLifecycleDependencyReport extends Omit<RmtxLifecycleDependencyReport,'schema'|'sourceProfile'>{readonly schema:'xtend.rmtx.lifecycle-dependencies.v3';readonly sourceProfile:RmtxManagedNativeLifecycleProfiles['sourceProfile']}
+export function validateRmtxManagedNativeLifecycleContract(contract:RmtxManagedNativeLifecycleSourceContract):RmtxManagedNativeLifecycleSourceContract;
+export function validateRmtxManagedNativeLifecycleAst(contract:RmtxManagedNativeLifecycleSourceContract,ast:import('./classic-ast-types').RmtClassicAst):RmtxManagedNativeLifecycleSourceContract;
+export function lowerRmtxManagedNativeLifecycle(contract:RmtxManagedNativeLifecycleSourceContract,core:RmtVNextCoreDocument,nativeViewContract:unknown):Readonly<{plan:RmtManagedNativeLifecyclePlan;dependencies:RmtxManagedNativeLifecycleDependencyReport}>;

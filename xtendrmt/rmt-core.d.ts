@@ -4381,7 +4381,7 @@ declare global {
 }
 
 // <kernel-lab:rmt-dom-descriptor-renderer-types>
-export const RMT_DOM_DESCRIPTOR_RENDERER_API_VERSION: '2.3.0';
+export const RMT_DOM_DESCRIPTOR_RENDERER_API_VERSION: '2.4.0';
 export const RMT_DOM_DESCRIPTOR_RENDERER_DIAGNOSTIC_SCHEMA: 'xtend.epic18.rmt-dom-renderer-diagnostic.v2';
 export const RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA: 'xtend.epic18.rmt-dom-descriptor-renderer.v2';
 export const RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA: 'xtend.epic18.rmt-dom-descriptor-renderer.v1';
@@ -4433,8 +4433,11 @@ export interface RmtDomDescriptorRendererOptions {
 
 export interface RmtComponentRegistryLike {
   resolveComponentCapability?(tag: string): unknown;
+  validateNativeComponentDescriptor?(descriptor:unknown,context:unknown,values:{attributes:Record<string,unknown>;properties:Record<string,unknown>}):unknown;
+  prepareNativeComponent?(element:Element,component:{tag:string},descriptor:unknown,context:unknown):{dispose():unknown};
+  updateNativeComponent?(element:Element,descriptor:unknown,context:unknown,values:{attributes:Record<string,unknown>;properties:Record<string,unknown>}):unknown;
   buildComponentDescriptor?(input: Record<string, unknown>, options?: Record<string, unknown>): unknown;
-  bindComponentInstance?(element: Element, binding?: Record<string, unknown>, options?: Record<string, unknown>): unknown;
+  bindComponentInstance?(element: Element, binding?: Record<string, unknown>, options?: Record<string, unknown>, context?:unknown): unknown;
 }
 
 export interface RmtDomDescriptorRenderOptions {
@@ -4667,7 +4670,14 @@ export interface RmtNoManualHtmlGate {
   scanFiles(files: Record<string, string>): RmtDomDescriptorDiagnostic[];
 }
 
+export interface NativeSlotPresentationItem {readonly key:string|number;readonly ref:string;readonly keys?:readonly (string|number)[];readonly title?:string;readonly disabled?:boolean;readonly collapsed?:boolean}
+export interface NativeSlotPresentation {readonly kind:'tabs'|'masonry';readonly items:readonly NativeSlotPresentationItem[];readonly selectedKey?:string|number|null;readonly order?:readonly (string|number)[];readonly collapsed?:readonly (string|number)[]}
+export interface NativeTooltipAnchorLease {isCurrent():boolean;measure():Readonly<{x:number;y:number;left:number;right:number;top:number;bottom:number;width:number;height:number;viewportWidth:number;viewportHeight:number}>;getRect():ReturnType<NativeTooltipAnchorLease['measure']>;describe(text:string):null;subscribe(handlers:Partial<Record<'enter'|'leave'|'mouseenter'|'mouseleave'|'focus'|'blur'|'reposition',(event:{source:string})=>void>>):()=>void;release():boolean}
+export interface NativeSlotPresentationLease {linkControl(key:string|number,button:HTMLElement,panel:HTMLElement,slot:HTMLSlotElement):Readonly<{controlId:string;panelId:string;slot:string}>;project(dto:Partial<NativeSlotPresentation>):Readonly<{count:number}>;measure(ref:string,keys?:readonly (string|number)[]):Readonly<{x:number;y:number;width:number;height:number}>;focus(ref:string,keys?:readonly (string|number)[]):null;release():boolean}
 export interface RmtDomDescriptorRenderer {
+  createNativeOverlayLease(element:Element,request:{open:boolean;modal:boolean},options:{root:Element;owner:{surfaceId:string};isCurrent():boolean;signal?:AbortSignal}):{release():boolean};
+  focusNativeComponent(element:Element,request:{part?:'root'|'input'|'control'|'surface'|'close'|'menu';restore?:boolean;ref?:string;keys?:readonly (string|number)[];operation?:'scroll-past'|'tooltip-anchor';slot?:'default';item?:number;describedBy?:string;allowMissing?:boolean},options:{isCurrent():boolean;signal?:AbortSignal}):null|NativeTooltipAnchorLease;
+  createNativeSlotPresentationLease(element:Element,request:NativeSlotPresentation,options:{isCurrent():boolean;signal?:AbortSignal}):NativeSlotPresentationLease;
   schema: typeof RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA;
   trustedDomBoundary: typeof TRUSTED_DOM_BOUNDARY;
   commit(request: RmtDomCommitRequest): RmtDomCommitResult;

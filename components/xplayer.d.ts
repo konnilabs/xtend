@@ -94,6 +94,11 @@ export interface XPlayerRmtCommand {
 }
 
 export interface XPlayerElement extends HTMLElement {
+  playing: boolean;
+  currentTime: number;
+  volume: number;
+  muted: boolean;
+
   snapshot(): XPlayerSnapshot;
   getRmtPlayerContract(): XPlayerRmtPlayerContract;
   applyRmtPlayerCommand(command: XPlayerRmtCommandName | XPlayerRmtCommand, payload?: Record<string, unknown>): Promise<XPlayerSnapshot> | XPlayerStateEventDetail | { schema: 'xtend.mm-rmt.player-theme-report.v1'; tokenCount: number };

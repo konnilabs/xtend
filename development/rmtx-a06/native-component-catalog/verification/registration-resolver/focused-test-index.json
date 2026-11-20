@@ -1,0 +1,104 @@
+{
+  "format": 1,
+  "scope": "Focused source-registration regression only; original TAP/time-v preserved, no Strict26 or runtime rerun.",
+  "lanes": [
+    {
+      "node": "24",
+      "startedUtc": "2026-11-20T02:00:01.737283+00:00",
+      "finishedUtc": "2026-11-20T02:00:02.102151+00:00",
+      "command": [
+        "/usr/bin/time",
+        "-v",
+        "-o",
+        "/tmp/native-catalog-v2/governance/registration-resolver-r03/node24.resources.txt",
+        "timeout",
+        "120",
+        "env",
+        "NODE_PATH=/tmp/xtend-rmtx-a0642/locked-tools/node_modules",
+        "/home/konni/.local/share/xtend-local-llm/runtime/node_modules/node/bin/node",
+        "--max-old-space-size=1024",
+        "--test",
+        "--test-reporter=tap",
+        "tests/components/component-source.test.cjs"
+      ],
+      "exitCode": 0,
+      "cases": 35,
+      "passed": 35,
+      "failed": 0,
+      "skipped": 0,
+      "sourceSha256Before": {
+        "tests/schemas/custom-element-registration.cjs": "3d6fe900ee0b7516965625447dcfd2e15bc1a12d7c56fccfd26309207ceba6e9",
+        "tests/schemas/schema_inventory_suite.js": "80d188fe84d8b72117d7fbcc32448bb4335f91b7ae00d3e280e893f738c90c73",
+        "tests/components/component-source.test.cjs": "9faf7522f8d3cea0cc72734583b6173a7de34c12f398f28a5e3730b76009953f",
+        "components/xkeymap.js": "36f4f99535c040b1cec9d0d0166b16a795fd89d5de4d09f88c98e24ba9f18bcb",
+        "components/xkeymap.definition.js": "97abb970179dae86792978bb2b4bbc7f6d088b287c05dbd7d271d6e723be42e3",
+        "components/native-managed.js": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+      },
+      "sourceSha256After": {
+        "tests/schemas/custom-element-registration.cjs": "3d6fe900ee0b7516965625447dcfd2e15bc1a12d7c56fccfd26309207ceba6e9",
+        "tests/schemas/schema_inventory_suite.js": "80d188fe84d8b72117d7fbcc32448bb4335f91b7ae00d3e280e893f738c90c73",
+        "tests/components/component-source.test.cjs": "9faf7522f8d3cea0cc72734583b6173a7de34c12f398f28a5e3730b76009953f",
+        "components/xkeymap.js": "36f4f99535c040b1cec9d0d0166b16a795fd89d5de4d09f88c98e24ba9f18bcb",
+        "components/xkeymap.definition.js": "97abb970179dae86792978bb2b4bbc7f6d088b287c05dbd7d271d6e723be42e3",
+        "components/native-managed.js": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+      },
+      "tap": {
+        "path": "/tmp/native-catalog-v2/governance/registration-resolver-r03/node24.tap",
+        "sha256": "686be3540ef825532d2e03996cf5571991095fd4d7ccb313fb26e83b335ee33c"
+      },
+      "resources": {
+        "path": "/tmp/native-catalog-v2/governance/registration-resolver-r03/node24.resources.txt",
+        "sha256": "9f3395b637c85de5098459df778073aadca16bfa0dd67a7c5116248527b632dd"
+      }
+    },
+    {
+      "node": "26",
+      "startedUtc": "2026-11-20T02:00:02.102601+00:00",
+      "finishedUtc": "2026-11-20T02:00:02.467444+00:00",
+      "command": [
+        "/usr/bin/time",
+        "-v",
+        "-o",
+        "/tmp/native-catalog-v2/governance/registration-resolver-r03/node26.resources.txt",
+        "timeout",
+        "120",
+        "env",
+        "NODE_PATH=/tmp/xtend-rmtx-a0642/locked-tools/node_modules",
+        "/tmp/xtend-rmtx-a0642/toolchain/node_modules/node-linux-x64/bin/node",
+        "--max-old-space-size=1024",
+        "--test",
+        "--test-reporter=tap",
+        "tests/components/component-source.test.cjs"
+      ],
+      "exitCode": 0,
+      "cases": 35,
+      "passed": 35,
+      "failed": 0,
+      "skipped": 0,
+      "sourceSha256Before": {
+        "tests/schemas/custom-element-registration.cjs": "3d6fe900ee0b7516965625447dcfd2e15bc1a12d7c56fccfd26309207ceba6e9",
+        "tests/schemas/schema_inventory_suite.js": "80d188fe84d8b72117d7fbcc32448bb4335f91b7ae00d3e280e893f738c90c73",
+        "tests/components/component-source.test.cjs": "9faf7522f8d3cea0cc72734583b6173a7de34c12f398f28a5e3730b76009953f",
+        "components/xkeymap.js": "36f4f99535c040b1cec9d0d0166b16a795fd89d5de4d09f88c98e24ba9f18bcb",
+        "components/xkeymap.definition.js": "97abb970179dae86792978bb2b4bbc7f6d088b287c05dbd7d271d6e723be42e3",
+        "components/native-managed.js": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+      },
+      "sourceSha256After": {
+        "tests/schemas/custom-element-registration.cjs": "3d6fe900ee0b7516965625447dcfd2e15bc1a12d7c56fccfd26309207ceba6e9",
+        "tests/schemas/schema_inventory_suite.js": "80d188fe84d8b72117d7fbcc32448bb4335f91b7ae00d3e280e893f738c90c73",
+        "tests/components/component-source.test.cjs": "9faf7522f8d3cea0cc72734583b6173a7de34c12f398f28a5e3730b76009953f",
+        "components/xkeymap.js": "36f4f99535c040b1cec9d0d0166b16a795fd89d5de4d09f88c98e24ba9f18bcb",
+        "components/xkeymap.definition.js": "97abb970179dae86792978bb2b4bbc7f6d088b287c05dbd7d271d6e723be42e3",
+        "components/native-managed.js": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+      },
+      "tap": {
+        "path": "/tmp/native-catalog-v2/governance/registration-resolver-r03/node26.tap",
+        "sha256": "f676b6f5d0533ad39207d8999e7bc27515366982946ff55c2e86dfa3090766a5"
+      },
+      "resources": {
+        "path": "/tmp/native-catalog-v2/governance/registration-resolver-r03/node26.resources.txt",
+        "sha256": "15af8edc7f6477d3929deedc1b796252e8ce59930851804f9d2e5d9dea515577"
+      }
+    }
+  ]
+}

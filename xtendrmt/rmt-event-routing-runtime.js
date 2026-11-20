@@ -1,5 +1,5 @@
 function createRmtEventRoutingRuntimeModule() {
-  const RMT_EVENT_ROUTING_API_VERSION = '4.0.0';
+  const RMT_EVENT_ROUTING_API_VERSION = '4.1.0';
   const RMT_EVENT_ROUTING_RUNTIME_SCHEMA = 'xtend.epic18.rmt-event-routing-runtime.v2';
   const RMT_EVENT_ROUTING_RUNTIME_SCHEMA_V3 = 'xtend.epic18.rmt-event-routing-runtime.v3';
   const RMT_NATIVE_EVENT_BINDING_SCHEMA_V2 = 'xtend.rmt.native-event-binding.v2';
@@ -1454,6 +1454,7 @@ function createRmtEventRoutingRuntimeModule() {
     RMT_EVENT_ROUTING_RUNTIME_SCHEMA_V3,
     RMT_NATIVE_EVENT_BINDING_SCHEMA_V2,
     RMT_COMMAND_SCHEMA,
+    evaluateRmtEventCondition: evaluateCondition,
     createRmtEventRoutingRuntime
   };
 
@@ -1469,5 +1470,6 @@ export const RMT_EVENT_ROUTING_RUNTIME_SCHEMA_V3 = __XTEND_RMT_EVENT_ROUTING_RUN
 export const RMT_NATIVE_EVENT_BINDING_SCHEMA_V2 = __XTEND_RMT_EVENT_ROUTING_RUNTIME_API__.RMT_NATIVE_EVENT_BINDING_SCHEMA_V2;
 export const RMT_COMMAND_SCHEMA = __XTEND_RMT_EVENT_ROUTING_RUNTIME_API__.RMT_COMMAND_SCHEMA;
 export const createRmtEventRoutingRuntime = __XTEND_RMT_EVENT_ROUTING_RUNTIME_API__.createRmtEventRoutingRuntime;
+export const evaluateRmtEventCondition = __XTEND_RMT_EVENT_ROUTING_RUNTIME_API__.evaluateRmtEventCondition;
 
 export default __XTEND_RMT_EVENT_ROUTING_RUNTIME_API__;

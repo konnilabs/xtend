@@ -3,7 +3,9 @@
 const ts = require('typescript');
 const { createRmtSourceModel } = require('./source-model');
 const { getRmtxOperatorProfile, RMTX_OPERATOR_PROFILE_SCHEMA, RMTX_OPERATOR_PROFILE_SCHEMA_V2, RMTX_OPERATOR_PROFILE_SCHEMA_V3, RMTX_OPERATOR_PROFILE_SCHEMA_V4, RMTX_OPERATOR_PROFILE_SCHEMA_V5, RMTX_OPERATOR_PROFILE_SCHEMA_V6 } = require('./rmtx-operator-profiles');
-const RMTX_PARSER_API_VERSION = '7.0.0';
+const RMTX_PARSER_API_VERSION = '8.0.0';
+const RMTX_PARSER_SCHEMA_V8 = 'xtend.rmtx.parser-result.v8';
+const RMTX_MANAGED_NATIVE_SOURCE_PROFILE = Object.freeze({syntax:'rmtx',version:'8.0.0'});
 const RMTX_PARSER_SCHEMA = 'xtend.rmtx.parser-result.v1';
 const RMTX_PARSER_SCHEMA_V2 = 'xtend.rmtx.parser-result.v2';
 const RMTX_PARSER_SCHEMA_V3 = 'xtend.rmtx.parser-result.v3';
@@ -37,31 +39,32 @@ class SourceError extends Error {
 /** Parse a closed declarative TSX profile. No source imports or expressions execute. */
 function parseRmtxSource(input = {}, options = {}) {
   input = typeof input === 'string' ? { text: input } : input && typeof input === 'object' ? input : {};
-  const selectedVersion = ['2.0.0', '3.0.0', '4.0.0', '5.0.0', '6.0.0', '7.0.0'].includes(options.syntaxVersion) ? options.syntaxVersion : RMTX_SYNTAX_VERSION;
-  const orchestration = selectedVersion === '7.0.0';
+  const selectedVersion = ['2.0.0', '3.0.0', '4.0.0', '5.0.0', '6.0.0', '7.0.0', '8.0.0'].includes(options.syntaxVersion) ? options.syntaxVersion : RMTX_SYNTAX_VERSION;
+  const managed = selectedVersion === '8.0.0';
+  const orchestration = managed || selectedVersion === '7.0.0';
   const lifecycle = orchestration || selectedVersion === '6.0.0';
   const native = lifecycle || selectedVersion === '5.0.0';
   const extended = native || selectedVersion === '4.0.0';
   const profile = getRmtxOperatorProfile(selectedVersion);
-  const sourceProfile = orchestration ? RMTX_NATIVE_ORCHESTRATION_SOURCE_PROFILE : lifecycle ? RMTX_LIFECYCLE_SOURCE_PROFILE : native ? RMTX_NATIVE_SOURCE_PROFILE : extended ? RMTX_ORCHESTRATION_SOURCE_PROFILE : selectedVersion === '3.0.0' ? RMTX_KEYED_SOURCE_PROFILE : selectedVersion === '2.0.0' ? RMTX_SELECTOR_SOURCE_PROFILE : RMTX_SOURCE_PROFILE;
-  const viewProfile = orchestration ? RMTX_NATIVE_ORCHESTRATION_SOURCE_PROFILE : lifecycle ? RMTX_NATIVE_SOURCE_PROFILE : sourceProfile;
+  const sourceProfile = managed ? RMTX_MANAGED_NATIVE_SOURCE_PROFILE : orchestration ? RMTX_NATIVE_ORCHESTRATION_SOURCE_PROFILE : lifecycle ? RMTX_LIFECYCLE_SOURCE_PROFILE : native ? RMTX_NATIVE_SOURCE_PROFILE : extended ? RMTX_ORCHESTRATION_SOURCE_PROFILE : selectedVersion === '3.0.0' ? RMTX_KEYED_SOURCE_PROFILE : selectedVersion === '2.0.0' ? RMTX_SELECTOR_SOURCE_PROFILE : RMTX_SOURCE_PROFILE;
+  const viewProfile = managed ? RMTX_MANAGED_NATIVE_SOURCE_PROFILE : orchestration ? RMTX_NATIVE_ORCHESTRATION_SOURCE_PROFILE : lifecycle ? RMTX_NATIVE_SOURCE_PROFILE : sourceProfile;
   const sourceModel = createRmtSourceModel({ ...input, languageId: 'rmtx', uri: input.uri || (input.filePath ? undefined : 'untitled:rmtx-document') });
   const diagnostics = [];
   let hostScopes = null;
   let components = null, actionInputRules = null, nativeView = null, nativeLifecycle = null;
-  const result = (ast = null, phase = 'syntax') => ({ schema: orchestration ? RMTX_PARSER_SCHEMA_V7 : lifecycle ? RMTX_PARSER_SCHEMA_V6 : native ? RMTX_PARSER_SCHEMA_V5 : extended ? RMTX_PARSER_SCHEMA_V4 : selectedVersion === '3.0.0' ? RMTX_PARSER_SCHEMA_V3 : selectedVersion === '2.0.0' ? RMTX_PARSER_SCHEMA_V2 : RMTX_PARSER_SCHEMA,
+  const result = (ast = null, phase = 'syntax') => ({ schema: managed ? RMTX_PARSER_SCHEMA_V8 : orchestration ? RMTX_PARSER_SCHEMA_V7 : lifecycle ? RMTX_PARSER_SCHEMA_V6 : native ? RMTX_PARSER_SCHEMA_V5 : extended ? RMTX_PARSER_SCHEMA_V4 : selectedVersion === '3.0.0' ? RMTX_PARSER_SCHEMA_V3 : selectedVersion === '2.0.0' ? RMTX_PARSER_SCHEMA_V2 : RMTX_PARSER_SCHEMA,
     apiVersion: selectedVersion, sourceProfile, ok: diagnostics.length === 0, phase,
     status: diagnostics.length ? 'invalid' : 'parsed', sourceModel, ast, diagnostics,
-    ...(['3.0.0', '4.0.0', '5.0.0', '6.0.0', '7.0.0'].includes(selectedVersion) ? { hostScopes: ast ? hostScopes : null } : {}),
+    ...(['3.0.0', '4.0.0', '5.0.0', '6.0.0', '7.0.0', '8.0.0'].includes(selectedVersion) ? { hostScopes: ast ? hostScopes : null } : {}),
     ...(extended ? { components: ast ? components : null, actionInputRules: ast ? actionInputRules : null } : {}),
-    ...(native ? { nativeView: ast ? nativeView : null, actionProfile: RMTX_ORCHESTRATION_SOURCE_PROFILE } : {}),
+    ...(native ? { nativeView: ast ? nativeView : null, actionProfile: managed ? RMTX_MANAGED_NATIVE_SOURCE_PROFILE : RMTX_ORCHESTRATION_SOURCE_PROFILE } : {}),
     ...(lifecycle ? { viewProfile, nativeLifecycle: ast ? nativeLifecycle : null } : {}) });
   const diagnostic = (code, message, node, start, end) => diagnostics.push(sourceModel.createDiagnostic({
     code, message, severity: 'error', source: 'rmtx',
     range: sourceModel.rangeForOffsets(start ?? node?.getStart(file) ?? 0, end ?? node?.end ?? 1)
   }));
   let file;
-  if (options.syntaxVersion !== undefined && !['1.0.0', '2.0.0', '3.0.0', '4.0.0', '5.0.0', '6.0.0', '7.0.0'].includes(options.syntaxVersion)) {
+  if (options.syntaxVersion !== undefined && !['1.0.0', '2.0.0', '3.0.0', '4.0.0', '5.0.0', '6.0.0', '7.0.0', '8.0.0'].includes(options.syntaxVersion)) {
     diagnostic('rmtx.syntax.version.unsupported', `Unsupported RMTX syntax version ${String(options.syntaxVersion)}.`);
     return result(null, 'profile');
   }
@@ -80,8 +83,8 @@ function parseRmtxSource(input = {}, options = {}) {
       entry.start ?? 0, (entry.start ?? 0) + (entry.length ?? 1));
     if (diagnostics.length) return result();
     const bindings = new Map();
-    const scopeDeclarations = [], conditionReads = [], eventDeclarations = [], componentDeclarations = [], nativeDeclarations = [], inputRules = new Map(), lifecycleDeclarations = new Map(), nativeComponents = new Map(), nativeEventKeys = new Map();
-    let program = null;
+    const scopeDeclarations = [], conditionReads = [], eventDeclarations = [], componentDeclarations = [], nativeDeclarations = [], inputRules = new Map(), lifecycleDeclarations = new Map(), nativeComponents = new Map(), nativeEventKeys = new Map(), nativeComponentEvents = [], nativeCommands = [], nativeRefs = new Map(), nativeElementRefs = new Set(), nativeStatements = new Map();
+    let program = null, commandContext = false, nativeOnContext = null, actionContext = null;
     const fail = (code, message, node) => { throw new SourceError(code, message, node); };
     const safe = (key, node) => { if (UNSAFE.has(key)) fail('rmtx.path.unsafe', `Unsafe field ${key}.`, node); return key; };
     const range = node => sourceModel.rangeForOffsets(node.getStart(file), node.end);
@@ -229,7 +232,7 @@ function parseRmtxSource(input = {}, options = {}) {
       node = unparen(node);
       if (depth > profile.limits.expressionDepth) fail('rmtx.source.limit', 'Props projection exceeds the expression depth limit.', node);
       if (ts.isPropertyAccessExpression(node) || ts.isIdentifier(node) && bindings.has(node.text)) {
-        const source = scopedPath(node, ['model', 'selectors', 'item'], true);
+        const source = scopedPath(node, commandContext ? ['model','selectors','input'] : ['model', 'selectors', 'item'], true);
         return { kind: 'unresolved-path', binding: source.binding, path: source.path, node };
       }
       if (ts.isArrayLiteralExpression(node)) return { kind: 'array', items: node.elements.map(child => projection(child, depth + 1)) };
@@ -349,7 +352,7 @@ function parseRmtxSource(input = {}, options = {}) {
           return false;
         }
         return !(ts.isJsxExpression(child) && !child.expression && !child.dotDotDotToken);
-      }).map((child, index) => nativeElement(child, surface, repeats, [...path, index], depth + 1, slotOwner));
+      }).map((child, index) => nativeElement(child, surface, repeats, [...path, index], depth + 1, slotOwner)).filter(Boolean);
     }
     function nativeElement(node, surface, repeats, path, depth, slotOwner = null) {
       if (depth > profile.limits.operatorDepth) fail('rmtx.source.limit', 'Native operator nesting exceeds 64 levels.', node);
@@ -359,7 +362,7 @@ function parseRmtxSource(input = {}, options = {}) {
       if (opening.typeArguments?.length || !ts.isPropertyAccessExpression(tag) || !ts.isIdentifier(tag.expression) || bindings.get(tag.expression.text) !== 'RMT')
         fail('rmtx.native.operator', 'Native children must resolve to qualified RMT operators without type arguments.', opening);
       const op = tag.name.text;
-      if (!(orchestration ? ['Element', 'Text', 'Repeat', 'When', 'Component', 'Slot'] : ['Element', 'Text', 'Repeat', 'When']).includes(op)) fail('rmtx.native.context', 'Native views allow Element, Text, Repeat and When only.', tag);
+      if (!(managed && slotOwner ? ['Element','Text','Repeat','When','Component','Slot','On'] : orchestration ? ['Element', 'Text', 'Repeat', 'When', 'Component', 'Slot'] : ['Element', 'Text', 'Repeat', 'When']).includes(op)) fail('rmtx.native.context', 'Native views allow Element, Text, Repeat and When only.', tag);
       const fields = attrs(opening, Object.keys(profile.operators[op].attributes));
       const sourceChildren = ts.isJsxElement(node) ? node.children : [];
       const nativeDeclarationId = `native:${surface}:${path.join('.')}`;
@@ -372,6 +375,15 @@ function parseRmtxSource(input = {}, options = {}) {
           ? projection(expressionNode.expression) : { kind: 'literal', value: value(fields, key, true).value };
         return { expression: projected, repeats };
       };
+      if (managed && op === 'On') {
+        if (!slotOwner?._binding) fail('rmtx.native.event-context','Native On must be a direct Component child.',node);
+        const binding=slotOwner._binding,previous=nativeOnContext;
+        nativeOnContext=binding;
+        let statement;try{statement=element(node,['On'],depth+1,repeats,surface);}finally{nativeOnContext=previous;}
+        const list=nativeStatements.get(surface)||[];list.push(statement);nativeStatements.set(surface,list);
+        nativeComponentEvents.push({statement,surface,declarationId:nativeDeclarationId.replace(/\.[^.]+$/u,''),component:binding.declarationId,ref:binding.ref,event:statement.event,repeat:repeats,metadata:slotOwner});
+        return null;
+      }
       if (op === 'Slot') {
         if (!slotOwner) fail('rmtx.native.slot-context', 'Slot must be a direct child of a captured public Component.', node);
         output.name = text(fields, 'name', true);
@@ -382,22 +394,29 @@ function parseRmtxSource(input = {}, options = {}) {
       if (op === 'Component') {
         output.tag = text(fields, 'tag', true);
         let metadata;
-        try { metadata = require('./rmtx-native-components').getRmtxNativeComponent(output.tag); }
+        try { metadata = managed ? require('./rmtx-native-components-v2').getRmtxNativeComponentV2(output.tag) : require('./rmtx-native-components').getRmtxNativeComponent(output.tag); }
         catch (error) { fail('rmtx.native.component', error.message, fields.tag); }
         nativeComponents.set(output.tag, metadata);
-        const guard = require('../xtensions/native-component-contract');
+        const guard = managed ? require('../xtensions/native-component-contract-v2') : require('../xtensions/native-component-contract');
+        if(managed){
+          output.ref=fields.ref?text(fields,'ref',true,true):'native_'+path.join('_');
+          if(!/^[A-Za-z][A-Za-z0-9_-]*$/u.test(output.ref))fail('rmtx.native.ref','Component refs require one source symbol.',fields.ref||node);
+          const id=surface+'.'+output.ref;if(nativeRefs.has(id)||nativeElementRefs.has(id))fail('rmtx.native.ref','Component refs must be unique within their owning Surface.',node);
+          nativeRefs.set(id,{surface,ref:output.ref,declarationId:nativeDeclarationId,repeats,tag:output.tag,metadata,node});
+        }
         for (const field of ['attributes', 'properties']) {
           if (!fields[field]) continue;
           const map = projection(expressionField(fields, field));
           if (map.kind !== 'object') fail('rmtx.native.fields', `${field} requires a static scalar field map.`, fields[field]);
           for (const name of Object.keys(map.fields)) {
-            if (!guard.nativeComponentSinkAllowed(metadata, name, field === 'attributes' ? 'attribute' : 'property'))
+            if (!(managed ? guard.nativeComponentSinkAllowedV2 : guard.nativeComponentSinkAllowed)(metadata, name, field === 'attributes' ? 'attribute' : 'property'))
               fail('rmtx.native.component-sink', 'Unknown or unsafe public component field.', fields[field]);
             if (name === 'id' && repeats.length) fail('rmtx.native.id', 'Repeated component nodes cannot declare DOM ids.', fields[field]);
           }
           output[field] = Object.fromEntries(Object.entries(map.fields).map(([name, expression]) => [name, { expression, repeats }]));
         }
-        const children = nativeChildren(sourceChildren, surface, repeats, path, depth, metadata), slots = children.filter(child => child.type === 'native-slot');
+        const childOwner=managed?{...metadata,_binding:nativeRefs.get(surface+'.'+output.ref)}:metadata;
+        const children = nativeChildren(sourceChildren, surface, repeats, path, depth, childOwner), slots = children.filter(child => child.type === 'native-slot');
         const defaults = children.filter(child => child.type !== 'native-slot');
         if (defaults.length) {
           if (!metadata.slots.includes('default')) fail('rmtx.native.slot-name', 'This component has no default slot; use its declared named slots.', node);
@@ -410,6 +429,12 @@ function parseRmtxSource(input = {}, options = {}) {
       if (op === 'Text') {
         if (sourceChildren.some(child => !ts.isJsxText(child) || child.text.trim())) fail('rmtx.native.text', 'RMT.Text cannot have children.', node);
         output.value = expression('value'); return output;
+      }
+      if (managed && op === 'Element' && fields.ref) {
+        output.ref=text(fields,'ref',true,true);
+        const id=surface+'.'+output.ref;
+        if(!/^[A-Za-z][A-Za-z0-9_-]*$/u.test(output.ref)||nativeRefs.has(id)||nativeElementRefs.has(id))fail('rmtx.native.ref','Element refs require one unique local symbol within their owning Surface.',fields.ref);
+        nativeElementRefs.add(id);
       }
       if (op === 'When') output.test = expression('test');
       if (op === 'Repeat') {
@@ -484,6 +509,17 @@ function parseRmtxSource(input = {}, options = {}) {
         lifecycleDeclarations.set(statement, { when: projection(expressionField(fields, 'when')), range: range(node), node });
         return statement;
       }
+      if(managed && op==='Effect' && text(fields,'kind',true)==='component-command'){
+        leaf();if(!actionContext)fail('rmtx.native.command-context','Native commands belong to an Action.',node);
+        for(const key of ['sourceKind','source','path'])if(fields[key])fail('rmtx.native.command-fields','Native commands use target/command/args/keys exclusively.',fields[key]);
+        const target=text(fields,'target',true,true),command=text(fields,'command',true,true),dot=target.lastIndexOf('.');
+        if(dot<1)fail('rmtx.native.command-target','Use a qualified owningSurface.componentRef target.',fields.target);
+        const previous=commandContext;commandContext=true;let args,keys;
+        try{args=fields.args?projection(expressionField(fields,'args')):{kind:'object',fields:{}};keys=fields.keys?projection(expressionField(fields,'keys')):{kind:'array',items:[]};}finally{commandContext=previous;}
+        const statement=make('RmtEffectStatement',node,{effectKind:'component-command',source:{kind:'surface',value:target.slice(0,dot)},componentCommand:null});
+        nativeCommands.push({statement,target,command,args,keys,action:actionContext,node});return statement;
+      }
+      if(managed && op==='Effect' && ['target','command','args','keys'].some(key=>fields[key]))fail('rmtx.native.command-fields','Native command fields require component-command.',node);
       if (extended) {
         const lowered = require('./rmtx-extended-operators').lowerExtendedOperator(op,
           { ts, file, make, fail, identifier, attrs, value, text, expressionField, scopedPath, predicate, literal,
@@ -501,8 +537,10 @@ function parseRmtxSource(input = {}, options = {}) {
           return make('RmtStateDeclaration', node, { name: text(fields, 'id', true, true), dataType: make('RmtTypeReference', fields.type || node, { value: text(fields, 'type', true) }),
             initial: value(fields, 'initial', true), preserve: preserve ? preserve.value : false, body: [] });
         }
-        case 'Action':
-          return make('RmtActionDeclaration', node, { name: text(fields, 'id', true, true), body: lowerChildren() });
+        case 'Action': {
+          const name=text(fields,'id',true,true),previous=actionContext;actionContext=name;let body;try{body=lowerChildren();}finally{actionContext=previous;}
+          return make('RmtActionDeclaration',node,{name,body});
+        }
         case 'Input': {
           if (!extended) leaf();
           const name = text(fields, 'name', true, true), type = text(fields, 'type', true);
@@ -562,6 +600,7 @@ function parseRmtxSource(input = {}, options = {}) {
             { keyword: key, value: make('RmtPrimitiveValue', fields[key] || node, { kind: 'literal', value: fields[key] ? text(fields, key, true) : key === 'kind' ? 'region' : 'div' }) }));
           const body = fields.portal ? [make('RmtSurfacePortalClause', fields.portal, { keyword: 'portal', path: text(fields, 'portal', true, true) })] : [];
           const lowered = lowerChildren(scopeStack, name);
+          if(managed)lowered.push(...(nativeStatements.get(name)||[]));
           if (native && nativeDeclarations.some(entry => entry.surface === name) && componentDeclarations.some(entry => entry.surface === name))
             fail('rmtx.native.owner', 'Native views and provider-owned children cannot share a host Surface.', node);
           if (orchestration && componentDeclarations.some(entry => entry.surface === name) && scopeDeclarations.some(entry => entry.parent === name && entry.placement === 'nested'))
@@ -643,8 +682,10 @@ function parseRmtxSource(input = {}, options = {}) {
               keyFields[field.key] = field.value.value;
             }
           }
+          if(managed && nativeOnContext && !nativeOnContext.metadata.events[event])fail('rmtx.native.event','Event is absent from the captured component contract.',fields.event);
           const mappings = payload.fields.map(field => {
             const path = field.value;
+            if(managed&&nativeOnContext&&(typeof path.value!=='string'||!path.value.startsWith('detail.')))fail('rmtx.native.event-payload','Component events map canonical detail DTOs only.',fields.payload);
             if (!/^[A-Za-z_$][\w$-]*$/u.test(field.key) || path.kind !== 'literal' || typeof path.value !== 'string'
                 || !/^(?:detail|target)(?:\.[A-Za-z_$][\w$-]*)+$/u.test(path.value))
               fail('rmtx.event.payload', 'Payload values must be explicit direct detail/target path strings.', fields.payload);
@@ -658,6 +699,7 @@ function parseRmtxSource(input = {}, options = {}) {
           if (extended && fields.preventDefault) {
             const option = value(fields, 'preventDefault');
             if (option.kind !== 'literal' || typeof option.value !== 'boolean') fail('rmtx.event.option', 'preventDefault requires a boolean literal.', fields.preventDefault);
+            if(managed&&nativeOnContext&&option.value)fail('rmtx.native.event-governance','Canonical component intents have no browser default action. Use component behavior or a Surface event for browser cancellation.',fields.preventDefault);
             mappings.push(make('RmtEventOptionClause', fields.preventDefault, { keyword: 'preventDefault', value: option }));
           }
           const statement = make('RmtEventBinding', node, { event, action,
@@ -665,7 +707,7 @@ function parseRmtxSource(input = {}, options = {}) {
             condition: fields.when ? make('RmtConditionClause', fields.when,
               { expression: predicate(expressionField(fields, 'when'), 0, true) }) : null,
             policy: make('RmtEventPayloadBlock', fields.payload, { body: mappings }) });
-          if(Object.keys(keyFields).length)nativeEventKeys.set(statement,{surface:surfaceTarget,fields:keyFields});
+          if(!nativeOnContext&&Object.keys(keyFields).length)nativeEventKeys.set(statement,{surface:surfaceTarget,fields:keyFields});
           return statement;
         }
         case 'XTension': {
@@ -729,7 +771,7 @@ function parseRmtxSource(input = {}, options = {}) {
         if ((!extended && inputs.length !== declaration.fields.length) || declaration.fields.some(name => !inputs.includes(name)) || required.some(name => !declaration.fields.includes(name)))
           fail('rmtx.event.payload.inputs', 'On payload fields must exactly match the declared Action inputs.', declaration.node);
       }
-      hostScopes = { schema: orchestration ? RMTX_HOST_SCOPES_SCHEMA_V4 : native ? RMTX_HOST_SCOPES_SCHEMA_V3 : extended ? RMTX_HOST_SCOPES_SCHEMA_V2 : RMTX_HOST_SCOPES_SCHEMA, sourceProfile: viewProfile,
+      hostScopes = { schema: managed ? 'xtend.rmtx.host-scopes.v5' : orchestration ? RMTX_HOST_SCOPES_SCHEMA_V4 : native ? RMTX_HOST_SCOPES_SCHEMA_V3 : extended ? RMTX_HOST_SCOPES_SCHEMA_V2 : RMTX_HOST_SCOPES_SCHEMA, sourceProfile: viewProfile,
         hosts: scopeDeclarations.map(declaration => {
           const repeat = declaration.repeats.map((scope, index) => ({
             ...(index === 0 ? modelPath(scope.source.path, scope.node) : { path: scope.source.path.slice(1) }), key: scope.key
@@ -749,6 +791,7 @@ function parseRmtxSource(input = {}, options = {}) {
         const selectorNames = template.body.filter(node => node.type === 'RmtSelectorDeclaration').map(node => node.name).sort((a, b) => b.length - a.length);
         const resolveProjection = (expression, host) => {
           if (expression.kind === 'unresolved-path') {
+            if(managed&&expression.binding==='input')return {kind:'input',path:expression.path.slice(1)};
             if (expression.binding === 'model') return { kind: 'path', root: 'state', symbol: modelPath(expression.path, expression.node).state,
               path: modelPath(expression.path, expression.node).path };
             if (expression.binding === 'selectors') {
@@ -771,7 +814,7 @@ function parseRmtxSource(input = {}, options = {}) {
           const repeat=(declaration.repeats || []).map((scope,index)=>({...(!index?modelPath(scope.source.path,scope.node):{path:scope.source.path.slice(1)}),key:scope.key}));
           declaration.repeat=repeat; declaration.resolvedWhen = resolveProjection(declaration.when, {repeat});
         }
-        components = { schema: orchestration ? RMTX_COMPONENTS_SCHEMA_V3 : native ? RMTX_COMPONENTS_SCHEMA_V2 : RMTX_COMPONENTS_SCHEMA, sourceProfile: viewProfile, documentId: template.name,
+        components = { schema: managed ? 'xtend.rmtx.components.v4' : orchestration ? RMTX_COMPONENTS_SCHEMA_V3 : native ? RMTX_COMPONENTS_SCHEMA_V2 : RMTX_COMPONENTS_SCHEMA, sourceProfile: viewProfile, documentId: template.name,
           hosts: componentDeclarations.map(declaration => {
             const scope = hostScopes.hosts.find(host => host.surface === declaration.surface) || {};
             return { ...declaration, ...(scope.repeat ? { repeat: scope.repeat } : {}), ...(scope.presence ? { presence: scope.presence } : {}),
@@ -785,6 +828,7 @@ function parseRmtxSource(input = {}, options = {}) {
             const output = { type: node.type, nativeDeclarationId: node.nativeDeclarationId };
             if (node.tag) output.tag = node.tag;
             if (node.name) output.name = node.name;
+            if (node.ref) {output.ref = node.ref;if(managed&&node.type==='native-component')output.events=[];}
             for (const field of ['value', 'test']) if (node[field]) output[field] = resolveProjection(node[field].expression, { repeat: canonicalScopes(node[field].repeats) });
             for (const field of ['attributes', 'properties']) if (node[field]) output[field] = Object.fromEntries(Object.entries(node[field])
               .map(([key, value]) => [key, resolveProjection(value.expression, { repeat: canonicalScopes(value.repeats) })]));
@@ -793,10 +837,11 @@ function parseRmtxSource(input = {}, options = {}) {
             if (node.slots) output.slots = node.slots.map(resolveNative);
             return output;
           }
-          nativeView = { schema: orchestration ? 'xtend.rmtx.native-view.v2' : 'xtend.rmtx.native-view.v1', sourceProfile: viewProfile, documentId: template.name,
+          nativeView = { schema: managed ? 'xtend.rmtx.native-view.v3' : orchestration ? 'xtend.rmtx.native-view.v2' : 'xtend.rmtx.native-view.v1', sourceProfile: viewProfile, documentId: template.name,
             ...(orchestration ? {eventKeys:[],components:[...nativeComponents.values()].sort((a,b)=>a.tag.localeCompare(b.tag)),scopes:hostScopes.hosts.map(({surface,repeat,presence,parent,placement})=>({surface,...(repeat?{repeat}:{}),...(presence?{presence}:{}),...(parent?{parent}:{}),...(placement?{placement}:{})}))} : {}),
             views: nativeDeclarations.map(view => ({ surface: view.surface, ...(view.repeats?{repeat:canonicalScopes(view.repeats)}:{}), children: view.children.map(resolveNative) })) };
-          try { (orchestration ? require('./rmtx-native-view').validateRmtxNativeOrchestrationViewContract : require('./rmtx-native-view').validateNativeViewContract)(nativeView); }
+          if(managed){nativeView.bindings=[...nativeRefs.values()].map(row=>({declarationId:row.declarationId,surface:row.surface,ref:row.ref,tag:row.tag,repeat:canonicalScopes(row.repeats)}));nativeView.events=[];nativeView.commands=[];}
+          try { (managed ? require('./rmtx-native-view').validateRmtxManagedNativeViewContract : orchestration ? require('./rmtx-native-view').validateRmtxNativeOrchestrationViewContract : require('./rmtx-native-view').validateNativeViewContract)(nativeView); }
           catch (error) { fail('rmtx.native.contract', error.message, program); }
         }
         for (const scope of hostScopes.hosts) if (!orchestration && !components.hosts.some(host => host.surface === scope.surface))
@@ -813,6 +858,34 @@ function parseRmtxSource(input = {}, options = {}) {
       }
     }
     pointers(ast);
+    if(managed){
+      nativeView.events=nativeComponentEvents.map(row=>({astPointer:row.statement.astPointer,surface:row.surface,component:row.component,ref:row.ref,event:row.event}));
+      const attachEvents=node=>{if(node.type==='native-component')node.events=nativeView.events.filter(event=>event.component===node.nativeDeclarationId);for(const child of node.children||[])attachEvents(child);for(const slot of node.slots||[])attachEvents(slot);};nativeView.views.forEach(view=>view.children.forEach(attachEvents));
+      const resolveCommand=(value,action)=>{
+        if(value.kind==='unresolved-path'){
+          if(value.binding==='input'){
+            if(!action.body.some(field=>field.type==='RmtActionInputClause'&&field.name===value.path[1]))fail('rmtx.native.command-input','Unknown Action input in native command.',value.node);
+            return{kind:'input',path:value.path.slice(1)};
+          }
+          const reference=value.path.slice(1).join('.'),nodes=template.body.filter(node=>node.type===(value.binding==='model'?'RmtStateDeclaration':'RmtSelectorDeclaration')).map(node=>node.name).sort((a,b)=>b.length-a.length),symbol=nodes.find(name=>reference===name||reference.startsWith(name+'.'));
+          if(!symbol)fail('rmtx.native.command-source','Unknown command Model/selector reference.',value.node);
+          return{kind:'path',root:value.binding==='model'?'state':'selector',symbol,path:reference===symbol?[]:reference.slice(symbol.length+1).split('.')};
+        }
+        if(value.kind==='object')return{kind:'object',fields:Object.fromEntries(Object.entries(value.fields).map(([key,child])=>[key,resolveCommand(child,action)]))};
+        if(value.kind==='array')return{kind:'array',items:value.items.map(child=>resolveCommand(child,action))};
+        if(value.kind==='unary')return{kind:'unary',op:value.op,value:resolveCommand(value.value,action)};
+        if(value.kind==='binary')return{kind:'binary',op:value.op,left:resolveCommand(value.left,action),right:resolveCommand(value.right,action)};
+        if(value.kind==='conditional')return{kind:'conditional',test:resolveCommand(value.test,action),then:resolveCommand(value.then,action),else:resolveCommand(value.else,action)};
+        return value;
+      };
+      nativeView.commands=nativeCommands.map(row=>{
+        const target=nativeRefs.get(row.target),action=template.body.find(value=>value.type==='RmtActionDeclaration'&&value.name===row.action);
+        if(!target||!target.metadata.commands[row.command])fail('rmtx.native.command','Unknown component target or command.',row.node);
+        const keys=resolveCommand(row.keys,action);
+        if(keys.kind!=='array'||keys.items.length!==target.repeats.length)fail('rmtx.native.command-keys','Commands require the exact complete typed key tuple.',row.node);
+        return{astPointer:row.statement.astPointer,action:row.action,surface:target.surface,component:target.declarationId,ref:target.ref,command:row.command,args:resolveCommand(row.args,action),keys};
+      });
+    }
     if(orchestration)nativeView.eventKeys=[...nativeEventKeys].map(([statement,record])=>({astPointer:statement.astPointer,...record}));
     if (lifecycle) {
       const operations = [], matched = new Set();
@@ -835,11 +908,12 @@ function parseRmtxSource(input = {}, options = {}) {
         }
       }
       if (matched.size !== lifecycleDeclarations.size) fail('rmtx.lifecycle.scope', 'Guarded Mount declarations must be direct children of an owning Surface Lane.', program);
-      nativeLifecycle = { schema: orchestration ? 'xtend.rmtx.native-lifecycle.v2' : 'xtend.rmtx.native-lifecycle.v1', documentId: template.name, sourceProfile,
-        viewProfile, actionProfile: RMTX_ORCHESTRATION_SOURCE_PROFILE, operations };
-      try { (orchestration ? require('./rmtx-native-lifecycle').validateRmtxNativeOrchestrationLifecycleContract : require('./rmtx-native-lifecycle').validateRmtxNativeLifecycleContract)(nativeLifecycle); }
+      nativeLifecycle = { schema: managed ? 'xtend.rmtx.native-lifecycle.v3' : orchestration ? 'xtend.rmtx.native-lifecycle.v2' : 'xtend.rmtx.native-lifecycle.v1', documentId: template.name, sourceProfile,
+        viewProfile, actionProfile: managed?RMTX_MANAGED_NATIVE_SOURCE_PROFILE:RMTX_ORCHESTRATION_SOURCE_PROFILE, operations };
+      try { (managed ? require('./rmtx-native-lifecycle').validateRmtxManagedNativeLifecycleContract : orchestration ? require('./rmtx-native-lifecycle').validateRmtxNativeOrchestrationLifecycleContract : require('./rmtx-native-lifecycle').validateRmtxNativeLifecycleContract)(nativeLifecycle); }
       catch (error) { fail(error.code || 'rmtx.lifecycle.invalid', error.message, program); }
     }
+    if(managed){try{require('./rmtx-native-view').validateRmtxManagedNativeViewContract(nativeView,null,{ast});}catch(error){fail(error.code||'rmtx.native.contract',error.message,program);}}
     return result(ast, 'parse');
   } catch (error) {
     if (!(error instanceof SourceError) && !(error instanceof RangeError)) throw error;
@@ -848,7 +922,7 @@ function parseRmtxSource(input = {}, options = {}) {
   }
 }
 
-module.exports = { RMTX_PARSER_API_VERSION, RMTX_PARSER_SCHEMA, RMTX_PARSER_SCHEMA_V2, RMTX_PARSER_SCHEMA_V3, RMTX_PARSER_SCHEMA_V4, RMTX_PARSER_SCHEMA_V5, RMTX_PARSER_SCHEMA_V6, RMTX_PARSER_SCHEMA_V7,
+module.exports = { RMTX_PARSER_SCHEMA_V8, RMTX_MANAGED_NATIVE_SOURCE_PROFILE, RMTX_PARSER_API_VERSION, RMTX_PARSER_SCHEMA, RMTX_PARSER_SCHEMA_V2, RMTX_PARSER_SCHEMA_V3, RMTX_PARSER_SCHEMA_V4, RMTX_PARSER_SCHEMA_V5, RMTX_PARSER_SCHEMA_V6, RMTX_PARSER_SCHEMA_V7,
   RMTX_HOST_SCOPES_SCHEMA, RMTX_HOST_SCOPES_SCHEMA_V2, RMTX_HOST_SCOPES_SCHEMA_V3, RMTX_HOST_SCOPES_SCHEMA_V4, RMTX_COMPONENTS_SCHEMA, RMTX_COMPONENTS_SCHEMA_V2, RMTX_COMPONENTS_SCHEMA_V3, RMTX_SYNTAX_VERSION,
   RMTX_SOURCE_PROFILE, RMTX_SELECTOR_SOURCE_PROFILE, RMTX_KEYED_SOURCE_PROFILE, RMTX_ORCHESTRATION_SOURCE_PROFILE, RMTX_NATIVE_SOURCE_PROFILE, RMTX_LIFECYCLE_SOURCE_PROFILE, RMTX_NATIVE_ORCHESTRATION_SOURCE_PROFILE,
   RMTX_OPERATOR_PROFILE_SCHEMA, RMTX_OPERATOR_PROFILE_SCHEMA_V2, RMTX_OPERATOR_PROFILE_SCHEMA_V3, RMTX_OPERATOR_PROFILE_SCHEMA_V4, RMTX_OPERATOR_PROFILE_SCHEMA_V5, RMTX_OPERATOR_PROFILE_SCHEMA_V6, getRmtxOperatorProfile, parseRmtxSource };

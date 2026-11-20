@@ -1,10 +1,12 @@
 // Explicit URL/History owner for a single route and Model session.
 // x-router delegates its existing navigation notifications with listen:false.
+export const XROUTER_MANAGED_URL_STATE_API_VERSION = '6.0.0';
 export const XROUTER_URL_STATE_API_VERSION = '1.0.0';
 export const XROUTER_PROJECTION_URL_STATE_API_VERSION = '2.0.0';
 export const XROUTER_NATIVE_URL_STATE_API_VERSION = '3.0.0';
 export const XROUTER_ORCHESTRATED_URL_STATE_API_VERSION = '5.0.0';
 export const XROUTER_LIFECYCLE_URL_STATE_API_VERSION = '4.0.0';
+export function createXRouterManagedURLStateHost(options) { return createURLStateHost(options, XROUTER_MANAGED_URL_STATE_API_VERSION, 'xtend.router.url-state-host.v6'); }
 export function createXRouterURLStateHost(options) { return createURLStateHost(options, XROUTER_URL_STATE_API_VERSION, 'xtend.router.url-state-host.v1'); }
 export function createXRouterProjectionURLStateHost(options) { return createURLStateHost(options, XROUTER_PROJECTION_URL_STATE_API_VERSION, 'xtend.router.url-state-host.v2'); }
 export function createXRouterNativeURLStateHost(options) { return createURLStateHost(options, XROUTER_NATIVE_URL_STATE_API_VERSION, 'xtend.router.url-state-host.v3'); }

@@ -1,3 +1,4 @@
+const { readComponentSource } = require('./helpers/component-source.cjs');
 const path = require('path');
 const {
   createSuiteContext,
@@ -75,7 +76,7 @@ function runComponentContractSuite(config, options = {}) {
   });
 
   const manifest = readJson('components/manifest.json', rootDir);
-  const source = readText(config.sourcePath, rootDir);
+  const source = readComponentSource(config.sourcePath, rootDir);
   const fixture = readText(config.fixturePath, rootDir);
   const docs = readText(localizeDocsPath(config.docPath, 'de'), rootDir);
   const englishDocs = readText(localizeDocsPath(config.docPath, 'en'), rootDir);

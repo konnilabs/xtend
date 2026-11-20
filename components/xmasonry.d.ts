@@ -22,6 +22,10 @@ export type XMasonryEventMap = XtendCustomEventMap<XMasonryEventDetailMap>;
 export type XMasonryPublicEventContract = XtendPublicEventContract<XMasonryEventName, XMasonrySnapshot>;
 
 export interface XMasonryElement extends HTMLElement {
+  items: Array<{ key: string | number; ref: string; keys?: Array<string | number>; title?: string; disabled?: boolean; collapsed?: boolean }>;
+  order?: Array<string | number>;
+  collapsed?: Array<string | number>;
+
   snapshot(): XMasonrySnapshot;
   addEventListener<K extends keyof XMasonryEventMap>(type: K, listener: (event: XMasonryEventMap[K]) => void, options?: boolean | AddEventListenerOptions): void;
 }

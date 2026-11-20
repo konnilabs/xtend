@@ -3,7 +3,7 @@
   "source": "development/rmtx-a02/controlled-filters.rmt",
   "sourceSha256": "cc69a50496dd16930a3a22da98e913c5f19878ae7830627e68f96778c0a4103a",
   "astContractVersion": "1.0.0",
-  "compilerApiVersion": "4.8.0",
+  "compilerApiVersion": "4.9.0",
   "compileResultSchema": "xtend.rmt.classic.compile-result.v4",
   "maracaBuildPlanSchema": "xtend.maraca.build-plan.v4",
   "bindingSchema": "xtend.xtensions.state-binding-artifact.v1",

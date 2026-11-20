@@ -174,7 +174,7 @@ test('guard AST accessors and plain event-data getters are never invoked', async
 
 test('invalid or failing Model ports cannot grant an event and module API declares the new behavior', async () => {
   const api = await routerModule;
-  assert.equal(api.RMT_EVENT_ROUTING_API_VERSION, '4.0.0');
+  assert.equal(api.RMT_EVENT_ROUTING_API_VERSION, '4.1.0');
   assert.throws(() => api.createRmtEventRoutingRuntime({ modelReader: {} }), /snapshot port/);
   for (const modelReader of [undefined, { snapshot() { throw Error('unavailable'); } }]) {
     const { router, commands } = await runtime({ kind: 'path', path: ['app', 'ready'] }, { modelReader });

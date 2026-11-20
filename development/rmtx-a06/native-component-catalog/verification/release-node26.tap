@@ -1,0 +1,14 @@
+✔ 0.9 plan includes both mandatory features and blocks preparation until they are ready (30.405812ms)
+✔ a smaller scope or a ready flag without evidence cannot satisfy the release contract (1.127193ms)
+✔ 0.9 cannot omit productive native catalog entries, tooling or the joint target acceptance (4.682112ms)
+✔ development checks validate Classic drift, observations, versions and scope without requiring implemented features (1.573878ms)
+✔ a failed or interrupted preparation check blocks following commands (0.464405ms)
+✔ GitHub development owners and nightly execute the same blocking preparation check (1.232344ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 158.576768

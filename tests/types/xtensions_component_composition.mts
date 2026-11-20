@@ -7,7 +7,7 @@ import {createMaracaSizeBudgetReport} from '../../xtend-maraca/index.js';
 import type { MaracaComponentBuildPlan } from '../../xtend-maraca/index.js';
 import * as interfaces from '../../tools/xtensions/component-interface.js';
 declare const manifest:ComponentXTensionCompositionManifest,plan:MaracaComponentBuildPlan,bindingsRuntime:import('../../xtend-maraca/xtension-composition-runtime.js').XTensionCompositionBindingRuntime;
-const version:'16.0.0'=XTENSION_COMPOSITION_BUILD_API_VERSION;
+const version:'17.0.0'=XTENSION_COMPOSITION_BUILD_API_VERSION;
 const result=await buildMaracaXTensionComposition({plan,manifest,bindingsRuntime,rootDir:'/project',outputDir:'/build'});
 const artifact:ComponentXTensionCompositionArtifact=result.artifact;
 const app=createMaracaBrowserCompositionRoot({schema:'xtend.maraca.browser-composition-root.v8',buildPlanSchema:'xtend.maraca.build-plan.v6',xtensionComposition:artifact});

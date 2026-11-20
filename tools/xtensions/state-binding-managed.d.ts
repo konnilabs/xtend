@@ -1,0 +1,21 @@
+import type { XTensionManagedStateBindingArtifact } from './state-binding-artifact';
+import type { createXTensionStateRegistry as createLegacyStateRegistry, createXTensionProjectionStateRegistry, materializeOrchestratedStateBindingArtifact } from './state-binding';
+export declare const XTENSION_STATE_BINDING_API_VERSION: '2.4.0';
+export declare const XTENSION_MANAGED_STATE_BINDING_API_VERSION: '7.0.0';
+export declare const MANAGED_STATE_BINDING_ARTIFACT_SCHEMA: 'xtend.xtensions.state-binding-artifact.v8';
+export type { XTensionManagedStateBindingArtifact } from './state-binding-artifact';
+export declare function validateManagedStateBindingArtifact(input: unknown, program: unknown): XTensionManagedStateBindingArtifact;
+export declare function materializeManagedStateBindingArtifact(artifact: XTensionManagedStateBindingArtifact, snapshot: Parameters<typeof materializeOrchestratedStateBindingArtifact>[1], admission?: Readonly<Record<string, boolean>>): ReturnType<typeof materializeOrchestratedStateBindingArtifact>;
+export declare function createXTensionManagedStateRegistry(options: Parameters<typeof createLegacyStateRegistry>[0]): Omit<ReturnType<typeof createXTensionProjectionStateRegistry>, 'apiVersion'> & { readonly apiVersion: '7.0.0' };
+export { validateManagedStateBindingArtifact as validateStateBindingArtifact, materializeManagedStateBindingArtifact as materializeStateBindingArtifact, createXTensionManagedStateRegistry as createXTensionStateRegistry };
+export declare const MANAGED_STATE_BINDING_RUNTIME: Readonly<{
+  XTENSION_STATE_BINDING_API_VERSION: typeof XTENSION_STATE_BINDING_API_VERSION;
+  XTENSION_MANAGED_STATE_BINDING_API_VERSION: typeof XTENSION_MANAGED_STATE_BINDING_API_VERSION;
+  MANAGED_STATE_BINDING_ARTIFACT_SCHEMA: typeof MANAGED_STATE_BINDING_ARTIFACT_SCHEMA;
+  validateStateBindingArtifact: typeof validateManagedStateBindingArtifact;
+  validateManagedStateBindingArtifact: typeof validateManagedStateBindingArtifact;
+  materializeStateBindingArtifact: typeof materializeManagedStateBindingArtifact;
+  materializeManagedStateBindingArtifact: typeof materializeManagedStateBindingArtifact;
+  createXTensionStateRegistry: typeof createXTensionManagedStateRegistry;
+  createXTensionManagedStateRegistry: typeof createXTensionManagedStateRegistry;
+}>;

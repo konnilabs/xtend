@@ -93,7 +93,7 @@
     "only explicit reset clears malformed or duplicate state parameters after defaults commit"
   ],
   "tokenSha256": "4e25dd2fe0691b8bff6cc312ef77b2f09d2ee9ac9eed1fef15dbfb447a123d6c",
-  "programEvidenceSha256": "eae577b4d837a527bd401bf09894a861d6ab8795c5b565c3f0e3af472ca9458d",
+  "programEvidenceSha256": "32b15f9ed903af110d21b0341d1927565de09f45e8c7ba9594277190ec104c3a",
   "routerOwner": "x-router-or-trusted-route-host",
   "modelOwner": "RMT Model",
   "automaticHistoryWrites": false

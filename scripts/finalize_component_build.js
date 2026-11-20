@@ -7,7 +7,7 @@ const rootDir = path.resolve(__dirname, '..');
 const artifacts = [
   {
     source: '.xtend-build/components-ts/x-toggle/x-toggle.js',
-    target: 'components/xtoggle.js',
+    target: 'components/xtoggle.definition.js',
     transform(content) {
       return content.replace(/from '\.\.\/\.\.\/\.\.\/components\//g, "from './");
     }
@@ -18,7 +18,8 @@ const artifacts = [
     transform(content) {
       return content
         .replace("from '../../../components/xtend-state.js'", "from './xtend-state.js'")
-        .replace("from '../../../components/xtend-public-types'", "from './xtend-public-types'");
+        .replace("from '../../../components/xtend-public-types'", "from './xtend-public-types'")
+        .replace(/from '\.\.\/\.\.\/\.\.\/components\//g, "from './");
     }
   },
   {
@@ -63,8 +64,14 @@ function copyArtifact(record) {
 }
 
 const copied = artifacts.map(copyArtifact);
+// The generated TypeScript class is the same pure definition consumed by RMT.
+// Keep Classic registration in a separate, stable wrapper rather than replacing
+// that wrapper with a second class implementation on the next build.
+const bootstrap = "// Classic bootstrap. Native RMT loads the shared pure definition directly.\nimport './xtend-state.js';\nimport { defineManagedComponent } from './native-managed.js';\nimport { XToggle } from \"./xtoggle.definition.js\";\nexport * from \"./xtoggle.definition.js\";\ndefineManagedComponent(\"x-toggle\", XToggle);\n\nexport { default } from \"./xtoggle.definition.js\";\n";
+fs.writeFileSync(path.join(rootDir,'components/xtoggle.js'),bootstrap);
+copied.push({source:'shared-definition-classic-bootstrap',target:'components/xtoggle.js',bytes:Buffer.byteLength(bootstrap)});
 console.log(JSON.stringify({
-  schema: 'xtend.typescript.component-build-finalizer.v1',
+  schema: 'xtend.typescript.component-build-finalizer.v2',
   ok: true,
   copied
 }, null, 2));

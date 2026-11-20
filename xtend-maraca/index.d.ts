@@ -1216,6 +1216,59 @@ export function buildMaracaBundleAsync(input: OrchestratedRmtxBuildInput, option
 }>;
 export function createMaracaTuneConfig(input: Record<string, unknown> & { options: OrchestratedRmtxBuildInput }): OrchestratedRmtxBuildConfig11;
 
+/** Explicit native source8 frontend. Older v11 inputs never infer this contract. */
+export const MARACA_RMTX_MANAGED_API_VERSION: '1.0.0';
+export const MARACA_RMTX_MANAGED_BUILD_PLAN_SCHEMA: 'xtend.maraca.build-plan.v12';
+export const MARACA_RMTX_MANAGED_BUILD_CONFIG_SCHEMA: 'xtend.maraca.build-config.v12';
+export interface ManagedRmtxBuildInput extends MaracaRmtxBuildInput { rmtxSyntaxVersion: '8.0.0' }
+export interface ManagedRmtxOnlyBuildInput extends Omit<ManagedRmtxBuildInput, 'rmtxProviders' | 'config' | 'configPath' | 'build-config'> {
+  rmtxProviders?: never; config?: never; configPath?: never; 'build-config'?: never;
+}
+export interface ManagedRmtxInlineBuildInput extends ManagedRmtxBuildInput { rmtxProviders: MaracaRmtxProviderPins }
+export interface ManagedRmtxRunOptions extends Omit<MaracaRunOptions, 'compileSource'> {
+  compileSource?: import('@ccslabs/xtend/rmt-language/rmtx-compiler').RmtxCompilerV8['compileSource'];
+}
+export interface ManagedRmtxBuildPlan12 extends Omit<MaracaBuildPlan, 'schema' | 'xtensionBindings' | 'orchestration'> {
+  schema: typeof MARACA_RMTX_MANAGED_BUILD_PLAN_SCHEMA;
+  xtensionBindings?: import('@ccslabs/xtend/xtensions/state-binding-managed').XTensionManagedStateBindingArtifact;
+  xtensionComposition?: import('./xtension-composition-runtime').ManagedComponentManifest;
+  orchestration?: Omit<NonNullable<MaracaBuildPlan['orchestration']>, 'artifact'> & {
+    artifact?: ReturnType<typeof import('@ccslabs/xtend/xtensions/native-managed-view-projection').validateNativeManagedViewProgram>;
+  };
+}
+export type ManagedRmtxBuildPlan = ManagedRmtxBuildPlan12;
+export interface ManagedRmtxOnlyBuildPlan12 extends Omit<ManagedRmtxBuildPlan12, 'xtensionBindings' | 'xtensionComposition'> {
+  xtensionBindings?: never; xtensionComposition?: never;
+}
+export interface ManagedRmtxInlineBuildPlan12 extends ManagedRmtxBuildPlan12 {
+  xtensionBindings: import('@ccslabs/xtend/xtensions/state-binding-managed').XTensionManagedStateBindingArtifact;
+  xtensionComposition: import('./xtension-composition-runtime').ManagedComponentManifest;
+}
+export interface ManagedRmtxBuildConfig12 extends Omit<MaracaBuildConfig, 'schema' | 'options'> {
+  schema: typeof MARACA_RMTX_MANAGED_BUILD_CONFIG_SCHEMA; options: ManagedRmtxBuildInput;
+}
+export function createMaracaBuildPlan(input: ManagedRmtxInlineBuildInput, options?: ManagedRmtxRunOptions): ManagedRmtxInlineBuildPlan12;
+export function createMaracaBuildPlan(input: ManagedRmtxOnlyBuildInput, options?: ManagedRmtxRunOptions): ManagedRmtxOnlyBuildPlan12;
+export function createMaracaBuildPlan(input: ManagedRmtxBuildInput, options?: ManagedRmtxRunOptions): ManagedRmtxBuildPlan12;
+export function createMaracaBuildPlan(input: MaracaRmtxBuildInput, options: ManagedRmtxRunOptions & { compileSource: import('@ccslabs/xtend/rmt-language/rmtx-compiler').RmtxCompilerV8['compileSource'] }): ManagedRmtxBuildPlan12;
+export function buildMaracaBundle(input: ManagedRmtxOnlyBuildInput, options?: ManagedRmtxRunOptions): {
+  schema: typeof MARACA_BUNDLE_REPORT_SCHEMA; ok: boolean; status: string; plan: ManagedRmtxOnlyBuildPlan12;
+  bundleReport: MaracaBundleReport | null; sizeBudgetReport: MaracaSizeBudgetReport | null;
+};
+export function buildMaracaBundleAsync(input: ManagedRmtxInlineBuildInput, options?: ManagedRmtxRunOptions): Promise<{
+  schema: typeof MARACA_BUNDLE_REPORT_SCHEMA; ok: boolean; status: string; plan: ManagedRmtxInlineBuildPlan12;
+  bundleReport: MaracaBundleReport | null; sizeBudgetReport: MaracaXTensionSizeBudgetReport | null;
+}>;
+export function buildMaracaBundleAsync(input: ManagedRmtxOnlyBuildInput, options?: ManagedRmtxRunOptions): Promise<{
+  schema: typeof MARACA_BUNDLE_REPORT_SCHEMA; ok: boolean; status: string; plan: ManagedRmtxOnlyBuildPlan12;
+  bundleReport: MaracaBundleReport | null; sizeBudgetReport: MaracaSizeBudgetReport | null;
+}>;
+export function buildMaracaBundleAsync(input: ManagedRmtxBuildInput, options?: ManagedRmtxRunOptions): Promise<{
+  schema: typeof MARACA_BUNDLE_REPORT_SCHEMA; ok: boolean; status: string; plan: ManagedRmtxBuildPlan12;
+  bundleReport: MaracaBundleReport | null; sizeBudgetReport: MaracaSizeBudgetReport | MaracaXTensionSizeBudgetReport | null;
+}>;
+export function createMaracaTuneConfig(input: Record<string, unknown> & { options: ManagedRmtxBuildInput }): ManagedRmtxBuildConfig12;
+
 /** Explicit native source6 frontend. Older v9 inputs never infer this contract. */
 export const MARACA_RMTX_LIFECYCLE_API_VERSION: '1.0.0';
 export const MARACA_RMTX_LIFECYCLE_BUILD_PLAN_SCHEMA: 'xtend.maraca.build-plan.v10';
@@ -1401,7 +1454,7 @@ export function buildMaracaBundleAsync(input: MaracaComposedBuildInput, options?
   bundleReport: MaracaBundleReport | null; sizeBudgetReport: MaracaXTensionSizeBudgetReport | null;
 }>;
 export function buildMaracaBundleAsync(input: MaracaBuildInput & { config: string }, options?: MaracaRunOptions): Promise<{
-  schema: typeof MARACA_BUNDLE_REPORT_SCHEMA; ok: boolean; status: string; plan: MaracaBuildPlan | MaracaComposedBuildPlan | MaracaComponentBuildPlan | MaracaScopedComponentBuildPlan | MaracaRmtxBuildPlan | NativeRmtxBuildPlan9 | LifecycleRmtxBuildPlan10 | OrchestratedRmtxBuildPlan11;
+  schema: typeof MARACA_BUNDLE_REPORT_SCHEMA; ok: boolean; status: string; plan: MaracaBuildPlan | MaracaComposedBuildPlan | MaracaComponentBuildPlan | MaracaScopedComponentBuildPlan | MaracaRmtxBuildPlan | NativeRmtxBuildPlan9 | LifecycleRmtxBuildPlan10 | OrchestratedRmtxBuildPlan11 | ManagedRmtxBuildPlan12;
   bundleReport: MaracaBundleReport | null; sizeBudgetReport: MaracaSizeBudgetReport | MaracaXTensionSizeBudgetReport | null;
 }>;
 export function buildMaracaBundleAsync(input?: string | MaracaBuildInput, options?: MaracaRunOptions): Promise<{

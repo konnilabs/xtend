@@ -1,0 +1,220 @@
+TAP version 13
+# Subtest: source inspection follows actual shared definitions and deduplicates reexports
+ok 1 - source inspection follows actual shared definitions and deduplicates reexports
+  ---
+  duration_ms: 3.356395
+  type: 'test'
+  ...
+# Subtest: source inspection follows an explicit dynamic Theme definition import
+ok 2 - source inspection follows an explicit dynamic Theme definition import
+  ---
+  duration_ms: 0.311044
+  type: 'test'
+  ...
+# Subtest: source inspection rejects paths outside component sources
+ok 3 - source inspection rejects paths outside component sources
+  ---
+  duration_ms: 0.342034
+  type: 'test'
+  ...
+# Subtest: custom-element reference keeps the established direct registration witness
+ok 4 - custom-element reference keeps the established direct registration witness
+  ---
+  duration_ms: 1.182505
+  type: 'test'
+  ...
+# Subtest: managed registration resolves a real named constructor and authenticates all three sources
+ok 5 - managed registration resolves a real named constructor and authenticates all three sources
+  ---
+  duration_ms: 8.161338
+  type: 'test'
+  ...
+# Subtest: managed registration follows explicit registrar aliases and default class exports
+ok 6 - managed registration follows explicit registrar aliases and default class exports
+  ---
+  duration_ms: 1.654972
+  type: 'test'
+  ...
+# Subtest: managed registration resolves the actual public XKeymap bootstrap and shared class
+ok 7 - managed registration resolves the actual public XKeymap bootstrap and shared class
+  ---
+  duration_ms: 23.352958
+  type: 'test'
+  ...
+# Subtest: managed registration rejects same-named local fake
+ok 8 - managed registration rejects same-named local fake
+  ---
+  duration_ms: 0.807561
+  type: 'test'
+  ...
+# Subtest: managed registration rejects foreign registrar import
+ok 9 - managed registration rejects foreign registrar import
+  ---
+  duration_ms: 0.543307
+  type: 'test'
+  ...
+# Subtest: managed registration rejects type-only registrar import
+ok 10 - managed registration rejects type-only registrar import
+  ---
+  duration_ms: 0.597788
+  type: 'test'
+  ...
+# Subtest: managed registration rejects foreign explicit registry argument
+ok 11 - managed registration rejects foreign explicit registry argument
+  ---
+  duration_ms: 0.525067
+  type: 'test'
+  ...
+# Subtest: managed registration rejects uninvoked function body
+ok 12 - managed registration rejects uninvoked function body
+  ---
+  duration_ms: 0.506837
+  type: 'test'
+  ...
+# Subtest: managed registration rejects unreachable conditional call
+ok 13 - managed registration rejects unreachable conditional call
+  ---
+  duration_ms: 0.502417
+  type: 'test'
+  ...
+# Subtest: managed registration rejects call after unconditional throw
+ok 14 - managed registration rejects call after unconditional throw
+  ---
+  duration_ms: 0.514197
+  type: 'test'
+  ...
+# Subtest: managed registration rejects mere comment and string tokens
+ok 15 - managed registration rejects mere comment and string tokens
+  ---
+  duration_ms: 0.448956
+  type: 'test'
+  ...
+# Subtest: managed registration rejects wrong literal tag
+ok 16 - managed registration rejects wrong literal tag
+  ---
+  duration_ms: 0.536767
+  type: 'test'
+  ...
+# Subtest: managed registration rejects nonliteral tag
+ok 17 - managed registration rejects nonliteral tag
+  ---
+  duration_ms: 0.496097
+  type: 'test'
+  ...
+# Subtest: managed registration rejects local constructor instead of imported shared class
+ok 18 - managed registration rejects local constructor instead of imported shared class
+  ---
+  duration_ms: 0.491007
+  type: 'test'
+  ...
+# Subtest: managed registration rejects different definition import
+ok 19 - managed registration rejects different definition import
+  ---
+  duration_ms: 0.472086
+  type: 'test'
+  ...
+# Subtest: managed registration rejects function exported as constructor
+ok 20 - managed registration rejects function exported as constructor
+  ---
+  duration_ms: 0.540887
+  type: 'test'
+  ...
+# Subtest: managed registration rejects unexported constructor
+ok 21 - managed registration rejects unexported constructor
+  ---
+  duration_ms: 0.540257
+  type: 'test'
+  ...
+# Subtest: managed registration rejects class marked with a different tag
+ok 22 - managed registration rejects class marked with a different tag
+  ---
+  duration_ms: 0.587317
+  type: 'test'
+  ...
+# Subtest: managed registration rejects foreign marker import
+ok 23 - managed registration rejects foreign marker import
+  ---
+  duration_ms: 0.584337
+  type: 'test'
+  ...
+# Subtest: managed registration rejects uninvoked marker body
+ok 24 - managed registration rejects uninvoked marker body
+  ---
+  duration_ms: 0.590008
+  type: 'test'
+  ...
+# Subtest: managed registration rejects duplicate registrar binding
+ok 25 - managed registration rejects duplicate registrar binding
+  ---
+  duration_ms: 0.455256
+  type: 'test'
+  ...
+# Subtest: managed registration rejects reassigned registrar import
+ok 26 - managed registration rejects reassigned registrar import
+  ---
+  duration_ms: 0.444406
+  type: 'test'
+  ...
+# Subtest: managed registration rejects reassigned constructor import
+ok 27 - managed registration rejects reassigned constructor import
+  ---
+  duration_ms: 0.522647
+  type: 'test'
+  ...
+# Subtest: managed registration rejects reassigned exported class
+ok 28 - managed registration rejects reassigned exported class
+  ---
+  duration_ms: 0.603188
+  type: 'test'
+  ...
+# Subtest: managed registration rejects destructuring replacement of exported class
+ok 29 - managed registration rejects destructuring replacement of exported class
+  ---
+  duration_ms: 2.443433
+  type: 'test'
+  ...
+# Subtest: managed registration rejects reassigned marker import
+ok 30 - managed registration rejects reassigned marker import
+  ---
+  duration_ms: 0.567177
+  type: 'test'
+  ...
+# Subtest: managed registration rejects updated exported class
+ok 31 - managed registration rejects updated exported class
+  ---
+  duration_ms: 0.610088
+  type: 'test'
+  ...
+# Subtest: managed registration rejects marker before class initialization
+ok 32 - managed registration rejects marker before class initialization
+  ---
+  duration_ms: 0.502957
+  type: 'test'
+  ...
+# Subtest: managed registration rejects evaluated default export before class initialization
+ok 33 - managed registration rejects evaluated default export before class initialization
+  ---
+  duration_ms: 0.471106
+  type: 'test'
+  ...
+# Subtest: managed registration rejects missing actual trusted helper export
+ok 34 - managed registration rejects missing actual trusted helper export
+  ---
+  duration_ms: 0.576387
+  type: 'test'
+  ...
+# Subtest: managed registration propagates provider read failures instead of falling back
+ok 35 - managed registration propagates provider read failures instead of falling back
+  ---
+  duration_ms: 0.901392
+  type: 'test'
+  ...
+1..35
+# tests 35
+# suites 0
+# pass 35
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 308.710656

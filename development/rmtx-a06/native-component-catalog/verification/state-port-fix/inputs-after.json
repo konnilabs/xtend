@@ -1,0 +1,20 @@
+{
+  "schema": "xtend.local.native-state-port-fix-binding.v1",
+  "before": {
+    "components/native-services.js": "93f9e0e2f54d253cdfd6d0e4f39537fb3c5b28c1219cea6d4369b9d2a0e4f79d",
+    "components/native-services.d.ts": "8ffb4cd75c0447b5ffd887ba92e22156eff4a94d5e6991369e88368f9329d4a9",
+    "tests/components/native-platform-services.test.mjs": "eb13cc3fec78fccbcd5f142cc9b988049df70b9154c767def53ba84357a4e8df"
+  },
+  "after": {
+    "components/native-services.js": "93f9e0e2f54d253cdfd6d0e4f39537fb3c5b28c1219cea6d4369b9d2a0e4f79d",
+    "components/native-services.d.ts": "8ffb4cd75c0447b5ffd887ba92e22156eff4a94d5e6991369e88368f9329d4a9",
+    "tests/components/native-platform-services.test.mjs": "eb13cc3fec78fccbcd5f142cc9b988049df70b9154c767def53ba84357a4e8df"
+  },
+  "unchanged": true,
+  "runnerUnchanged": true,
+  "gateProcedureUnchanged": true,
+  "coldBoundEntries": 1196,
+  "coldChanged": [],
+  "browserBoundEntries": 317,
+  "browserChanged": []
+}

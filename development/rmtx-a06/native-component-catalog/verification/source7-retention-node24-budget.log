@@ -1,0 +1,11 @@
+AssertionError [ERR_ASSERTION]: Source7 actual framework exceeds fixed2200000 bytes
+    at reference.build (/tmp/xtend-native-catalog-v2/source7-retention-runtime.cjs:67:3)
+    at async Object.run (/home/konni/Downloads/xtend-dev/xtend/development/rmtx-a06/native-orchestration-profile/runtime-test.cjs:14:61)
+    at async /tmp/xtend-native-catalog-v2/source7-retention-runtime.cjs:76:18 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}

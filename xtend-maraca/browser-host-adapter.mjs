@@ -28,7 +28,11 @@ function diagnostic(code, error) {
 
 export function createMaracaBrowserHostAdapter(configuration = {}, dependencies = {}) {
   const config = freeze(clone(configuration) || {});
-  const orchestrated = config.schema === 'xtend.maraca.browser-composition-root.v13';
+  const managed = config.schema === 'xtend.maraca.browser-composition-root.v14';
+  const orchestrated = managed || config.schema === 'xtend.maraca.browser-composition-root.v13';
+  let managedRuntimeHost = null;
+  let managedRendererRegistry = null;
+  const nativeRuntimeHostProxy = Object.freeze({ resolve(...args) { if (!managedRuntimeHost) throw new TypeError('Managed native owner host is not installed'); return managedRuntimeHost.resolve(...args); } });
   const lifecycle = orchestrated || config.schema === 'xtend.maraca.browser-composition-root.v12';
   const native = lifecycle || config.schema === 'xtend.maraca.browser-composition-root.v11';
   const globalTarget = dependencies.platformTarget || dependencies.globalTarget || globalThis;
@@ -47,6 +51,7 @@ export function createMaracaBrowserHostAdapter(configuration = {}, dependencies 
 
   function runtimeApi(name) {
     if (Object.prototype.hasOwnProperty.call(runtimeApis, name)) return runtimeApis[name];
+    if (managed) return null;
     return globalTarget && globalTarget[name] || null;
   }
 
@@ -92,10 +97,31 @@ export function createMaracaBrowserHostAdapter(configuration = {}, dependencies 
     // Independently built compositions share the browser's element registry.
     // Reuse an already registered XTend control rather than evaluating its
     // side-effectful registration module for every remote surface.
-    if (windowTarget.customElements?.get(tag)) return tag;
+    if (!managed && windowTarget.customElements?.get(tag)) return tag;
     const load = importers[tag];
     if (typeof load !== 'function') throw new Error(`XTend Maraca has no component registry entry for ${tag}.`);
-    await load();
+    const loaded = await load();
+    if (managed) {
+      const descriptor = config.orchestration?.artifact?.render?.nativeView?.components?.find(row => row.tag === tag);
+      if (!descriptor || !descriptor.managedModule) throw new TypeError('Managed loading requires the exact compiled native definition');
+      const marker = Symbol.for('xtend.native-component.class.v2');
+      const constructors = [...new Set(Object.values(loaded || {}).filter(value => typeof value === 'function' && Object.getOwnPropertyDescriptor(value, marker)?.value?.tag === tag))];
+      if (constructors.length !== 1) throw new TypeError('Managed module must export exactly one matching reviewed constructor');
+      const constructor = constructors[0], brand = Object.getOwnPropertyDescriptor(constructor, marker);
+      if (brand.value.apiVersion !== '2.0.0' || brand.writable || brand.configurable) throw new TypeError('Managed constructor version differs from its capture');
+      const registry = windowTarget.customElements;
+      if (!registry) throw new TypeError('Managed definitions require a CustomElementRegistry');
+      const existing = registry.get(tag);
+      if (existing && existing !== constructor) throw new TypeError('Incompatible existing native CustomElement: '+tag);
+      const dependencies = loaded.nativeDependencies || [];
+      if (!Array.isArray(dependencies)) throw new TypeError('Managed definition dependencies must be explicit constructor tuples');
+      for (const [dependencyTag, dependencyConstructor] of dependencies) {
+        const dependencyBrand = Object.getOwnPropertyDescriptor(dependencyConstructor, marker);
+        if (dependencyBrand?.value?.apiVersion !== '2.0.0' || dependencyBrand.value.tag !== dependencyTag || dependencyBrand.writable || dependencyBrand.configurable || registry.get(dependencyTag) && registry.get(dependencyTag) !== dependencyConstructor) throw new TypeError('Incompatible managed dependency definition: '+dependencyTag);
+      }
+      for (const [dependencyTag, dependencyConstructor] of dependencies) if (!registry.get(dependencyTag)) registry.define(dependencyTag, dependencyConstructor);
+      if (!existing) registry.define(tag, constructor);
+    }
     return tag;
   }
 
@@ -137,7 +163,7 @@ export function createMaracaBrowserHostAdapter(configuration = {}, dependencies 
     if (!orchestrated) return supplied || null;
     const create = dependencies.nativeViewRuntimePort?.createComponentRegistry;
     if (typeof create !== 'function') throw new TypeError('Source7 native properties require their captured Component registry capability port.');
-    return create(config.orchestration.artifact, supplied || null);
+    return create(config.orchestration.artifact, managed ? { ...(supplied || {}), nativeRuntimeHost: nativeRuntimeHostProxy } : supplied || null);
   }
 
   function createRenderer(options = {}) {
@@ -146,9 +172,11 @@ export function createMaracaBrowserHostAdapter(configuration = {}, dependencies 
     if (!api || typeof api.createRmtDomDescriptorRenderer !== 'function') {
       throw new Error('XTend Maraca requires the official RMT DOM descriptor renderer.');
     }
+    const componentRegistry = rendererComponentRegistry(options.componentRegistry);
+    if (managed) managedRendererRegistry = componentRegistry;
     return api.createRmtDomDescriptorRenderer({
       documentTarget,
-      componentRegistry: rendererComponentRegistry(options.componentRegistry),
+      componentRegistry,
       trustedDomRenderer: options.trustedDomRenderer,
       trustedDom: options.trustedDom
     });
@@ -292,6 +320,17 @@ export function createMaracaBrowserHostAdapter(configuration = {}, dependencies 
       },
       dispose() { if (!observer) return false; observer.disconnect(); observer = null; return true; }
     });
+    if (managed) {
+      const registry = managedRendererRegistry || rendererComponentRegistry(port);
+      return freeze({ ...port,
+        resolveComponentCapability: registry.resolveComponentCapability,
+        validateNativeComponentDescriptor: registry.validateNativeComponentDescriptor,
+        prepareNativeComponent: registry.prepareNativeComponent,
+        updateNativeComponent: registry.updateNativeComponent,
+        bindComponentInstance: registry.bindComponentInstance,
+        synchronizeNativeComponents: registry.synchronizeNativeComponents
+      });
+    }
     return orchestrated ? freeze({ ...port, resolveComponentCapability: rendererComponentRegistry(port).resolveComponentCapability }) : port;
   }
 
@@ -400,7 +439,7 @@ export function createMaracaBrowserHostAdapter(configuration = {}, dependencies 
   }
 
   return freeze({
-    schema: orchestrated ? 'xtend.maraca.browser-host-adapter.v5' : lifecycle ? 'xtend.maraca.browser-host-adapter.v4' : native ? 'xtend.maraca.browser-host-adapter.v3' : 'xtend.maraca.browser-host-adapter.v2', ...(native ? { inspectServerShell } : {}), config, publish, runtimeApi, readModelSnapshot, snapshotHandle: readOnlySnapshotHandle, installPublicFacades, clearPublicFacades,
+    schema: managed ? 'xtend.maraca.browser-host-adapter.v6' : orchestrated ? 'xtend.maraca.browser-host-adapter.v5' : lifecycle ? 'xtend.maraca.browser-host-adapter.v4' : native ? 'xtend.maraca.browser-host-adapter.v3' : 'xtend.maraca.browser-host-adapter.v2', ...(native ? { inspectServerShell } : {}), config, ...(managed ? { installNativeRuntimeHost(host) { if (!host || typeof host.resolve !== 'function') throw new TypeError('An actual managed native owner resolver is required'); managedRuntimeHost = host; }, synchronizeNativeComponents() { return managedRendererRegistry?.synchronizeNativeComponents(); } } : {}), publish, runtimeApi, readModelSnapshot, snapshotHandle: readOnlySnapshotHandle, installPublicFacades, clearPublicFacades,
     attachCss, resolveRoot, elementById, createRenderer,
     commitRootMetadata, renderCompatibility, readResumePayload, adoptServerShell, ensureComponent, ensureComponents,
     invokeComponentCommand, focusSurface, createHydrationPort, createKernelController, registerTemplateArtifacts, registerPwa, createTelemetryPort,

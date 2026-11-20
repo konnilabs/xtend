@@ -178,6 +178,54 @@ function runXTensionsRuntimeGate({ rootDir, browser = false } = {}) {
       && orchestrated.realReactVueProviders === true && orchestrated.kernelFabricVerified === true && orchestrated.stableTypedAddressesVerified === true && orchestrated.slotsVerified === true
       && orchestrated.staleProviderIntentVerified === true && orchestrated.acceptedForRelease === false && orchestrated.ssrAcceptancePerformed === false,
       'Source7 must execute actual typed native owners, slots and retained framework lifetimes through Kernel/Fabric without changing release acceptance');
+    const managedArtifact = path.join(rootDir, '.xtend-test-results', `xtend-rmtx-native-managed-runtime-${browser ? 'browser' : 'node'}-report.json`);
+    fs.rmSync(managedArtifact, {force:true});
+    const managedExecution = spawnSync(process.execPath, ['--max-old-space-size=1024', 'development/rmtx-a06/native-component-catalog/runtime-test.cjs', ...(browser ? ['--browser'] : []), '--output', managedArtifact], {
+      cwd:rootDir, env, encoding:'utf8', timeout:300000, maxBuffer:16*1024*1024
+    });
+    context.assert(!managedExecution.error && managedExecution.status === 0, `Actual Source8 managed catalog acceptance passes: ${managedExecution.stderr || managedExecution.stdout || managedExecution.error || ''}`);
+    const managed = JSON.parse(fs.readFileSync(managedArtifact, 'utf8'));
+    context.assert(managed.schema === 'xtend.rmtx.native-managed-runtime-acceptance.v1' && managed.passed && managed.node === process.version && managed.cases === 12
+      && managed.mode === (browser ? 'chromium-sealed-native-esm' : 'jsdom-native-esm') && (!browser || Boolean(managed.browserVersion) && managed.pageErrors.length === 0)
+      && managed.compileChecks?.passed === true && managed.compileChecks.checks === 10
+      && managed.compiler?.schema === 'xtend.rmtx.compile-result.v8' && managed.compiler.sourceProfile?.version === '8.0.0'
+      && managed.compiler.programSchema === 'xtend.rmt.app-orchestration.v6' && managed.compiler.buildPlanSchema === 'xtend.maraca.build-plan.v12'
+      && managed.compiler.compositionArtifactSchema === 'xtend.maraca.xtension-composition-artifact.v13'
+      && managed.delivery?.frameworkBytes <= 2200000 && managed.delivery.xtensions.runtimeBytes <= 280000
+      && managed.delivery.files.some(file => file.fileName === 'runtime/xtend-maraca-native-view.mjs' && file.bytes <= 240000)
+      && managed.kernelFabricVerified === true && managed.realReactVueProviders === true
+      && managed.acceptedForRelease === false && managed.ssrAcceptancePerformed === false,
+      'Source8 must execute genuine mixed compiled ownership, Model actions, typed commands, retained lifetimes and unchanged delivery ceilings');
+    if (browser) {
+      const uiArtifact = path.join(rootDir, '.xtend-test-results', 'xtend-rmtx-native-catalog-browser-report.json');
+      fs.rmSync(uiArtifact, {force:true});
+      const uiExecution = spawnSync(process.execPath, ['--max-old-space-size=1024', 'development/rmtx-a06/native-component-catalog/ui-browser-test.cjs', '--output', uiArtifact], {
+        cwd:rootDir, env, encoding:'utf8', timeout:300000, maxBuffer:16*1024*1024
+      });
+      context.assert(!uiExecution.error && uiExecution.status === 0, `Actual catalog Chromium functional cases pass: ${uiExecution.stderr || uiExecution.stdout || uiExecution.error || ''}`);
+      const ui = JSON.parse(fs.readFileSync(uiArtifact, 'utf8'));
+      context.assert(ui.schema === 'xtend.rmtx.native-catalog-browser-acceptance.v1' && ui.passed === true && ui.node === process.version
+        && Boolean(ui.browserVersion) && ui.pageErrors.length === 0 && ui.acceptedForRelease === false
+        && Object.entries({ui:61,renderer:8,demo:1,platform:9,services:7}).every(([id,count]) => {
+          const suite=ui.suites.find(row=>row.id===id);
+          return suite && suite.passed && suite.cases.length >= count && suite.cases.every(row=>row.passed);
+        }),
+        'The actual catalog browser harness must pass under the executing lane without promoting release acceptance');
+      const coldArtifact=path.join(rootDir,'.xtend-test-results','xtend-rmtx-native-cold-registry-browser-report.json');
+      fs.rmSync(coldArtifact,{force:true});
+      const coldExecution=spawnSync(process.execPath,['--max-old-space-size=1024','tests/components/native-cold-registry-browser.cjs','--output',coldArtifact],{
+        cwd:rootDir,env,encoding:'utf8',timeout:300000,maxBuffer:16*1024*1024
+      });
+      context.assert(!coldExecution.error&&coldExecution.status===0,`Actual cold catalog constructors pass: ${coldExecution.stderr||coldExecution.stdout||coldExecution.error||''}`);
+      const cold=JSON.parse(fs.readFileSync(coldArtifact,'utf8'));
+      const uiTags=JSON.parse(fs.readFileSync(path.join(rootDir,'tools/rmt-language/rmtx-native-components-v2.json'),'utf8')).components.filter(row=>row.role==='ui').map(row=>row.tag).sort();
+      context.assert(cold.schema==='xtend.rmtx.native-cold-registry-browser-acceptance.v1'&&cold.passed&&cold.node===process.version&&Boolean(cold.browserVersion)
+        &&cold.pageErrors.length===0&&cold.unexpectedRequests.length===0&&cold.sourceHashesStable===true&&cold.acceptedForRelease===false
+        &&JSON.stringify([...cold.tags].sort())===JSON.stringify(uiTags)&&cold.cases.length===36
+        &&cold.cases.every(row=>row.passed&&row.initialDefined.length===0&&row.onlyActualDefinitionAndStaticDependencies===true&&row.importedDefinitionsScoped===true)
+        &&cold.cases.reduce((sum,row)=>sum+row.cases.length,0)>=38,
+        'All 36 UI definitions must execute genuine functional cases in independent cold registries with their exact static constructor dependencies');
+    }
     if(browser){
       const componentSSRArtifact=path.join(rootDir,'.xtend-test-results','xtend-component-ssr-report.json');fs.rmSync(componentSSRArtifact,{force:true});
       const execution=spawnSync(process.execPath,['development/rmtx-a06/scoped-ssr-test.cjs','--output',componentSSRArtifact],{cwd:rootDir,env,encoding:'utf8',timeout:180000,maxBuffer:16*1024*1024});

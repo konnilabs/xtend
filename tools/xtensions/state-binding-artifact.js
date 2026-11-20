@@ -5,6 +5,7 @@ const { validateStateBinding, addressKey, propsFrom, data, record, fields, name,
 const XTENSION_STATE_BINDING_ARTIFACT_SCHEMA = 'xtend.xtensions.state-binding-artifact.v3';
 const PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA = 'xtend.xtensions.state-binding-artifact.v4';
 const NATIVE_STATE_BINDING_ARTIFACT_SCHEMA = 'xtend.xtensions.state-binding-artifact.v5';
+const MANAGED_STATE_BINDING_ARTIFACT_SCHEMA = 'xtend.xtensions.state-binding-artifact.v8';
 const ORCHESTRATED_STATE_BINDING_ARTIFACT_SCHEMA = 'xtend.xtensions.state-binding-artifact.v7';
 const LIFECYCLE_STATE_BINDING_ARTIFACT_SCHEMA = 'xtend.xtensions.state-binding-artifact.v6';
 const { validateRepeat, templatePath, expandRepeatScopes } = require('./repeat-scopes');
@@ -40,24 +41,25 @@ function validateLifecycleStateBindingArtifact(input, program) {
   try { assertNativeCanonicalData(input); } catch (error) { invalid(error.message); }
   return validateArtifactProfile(input, program, validateNativeLifecyclePlan);
 }
-function validateArtifactProfile(input, program, lifecycleValidator, orchestrated = false) {
+function validateArtifactProfile(input, program, lifecycleValidator, orchestrated = false, managed = false) {
+  if (managed && !orchestrated) invalid('Managed bindings require the explicit orchestrated profile');
   try { data(input); fields(input, ['schema', 'documentId', 'bindings'], 'XTension binding artifact'); name(input.documentId); }
   catch (error) { invalid(error.message); }
   const lifecycle = typeof lifecycleValidator === 'function';
-  if (lifecycle ? input.schema !== (orchestrated ? ORCHESTRATED_STATE_BINDING_ARTIFACT_SCHEMA : LIFECYCLE_STATE_BINDING_ARTIFACT_SCHEMA) : ![XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, CONDITIONAL_ARTIFACT_SCHEMA, LEGACY_ARTIFACT_SCHEMA, PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA, NATIVE_STATE_BINDING_ARTIFACT_SCHEMA].includes(input.schema)) invalid('Unsupported XTension binding artifact version.', '/schema');
+  if (lifecycle ? input.schema !== (managed ? MANAGED_STATE_BINDING_ARTIFACT_SCHEMA : orchestrated ? ORCHESTRATED_STATE_BINDING_ARTIFACT_SCHEMA : LIFECYCLE_STATE_BINDING_ARTIFACT_SCHEMA) : ![XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, CONDITIONAL_ARTIFACT_SCHEMA, LEGACY_ARTIFACT_SCHEMA, PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA, NATIVE_STATE_BINDING_ARTIFACT_SCHEMA].includes(input.schema)) invalid('Unsupported XTension binding artifact version.', '/schema');
   const native = lifecycle || input.schema === NATIVE_STATE_BINDING_ARTIFACT_SCHEMA;
   const projected = native || input.schema === PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA;
   if (!Array.isArray(input.bindings)) invalid('Binding artifact requires a bindings array.', '/bindings');
   try { data(program, new Set(), true); } catch (error) { invalid(error.message); }
-  if (!program || program.schema !== (orchestrated ? 'xtend.rmt.app-orchestration.v5' : lifecycle ? 'xtend.rmt.app-orchestration.v4' : native ? 'xtend.rmt.app-orchestration.v3' : projected ? 'xtend.rmt.app-orchestration.v2' : 'xtend.rmt.app-orchestration.v1')) invalid(lifecycle ? 'Lifecycle XTension bindings require compiled RMT orchestration artifact v4.' : native ? 'Native XTension bindings require compiled RMT orchestration artifact v3.' : projected ? 'XTension bindings require compiled RMT orchestration artifact v2.' : 'XTension bindings require the supported compiled RMT orchestration artifact.');
+  if (!program || program.schema !== (managed ? 'xtend.rmt.app-orchestration.v6' : orchestrated ? 'xtend.rmt.app-orchestration.v5' : lifecycle ? 'xtend.rmt.app-orchestration.v4' : native ? 'xtend.rmt.app-orchestration.v3' : projected ? 'xtend.rmt.app-orchestration.v2' : 'xtend.rmt.app-orchestration.v1')) invalid(lifecycle ? 'Lifecycle XTension bindings require compiled RMT orchestration artifact v4.' : native ? 'Native XTension bindings require compiled RMT orchestration artifact v3.' : projected ? 'XTension bindings require compiled RMT orchestration artifact v2.' : 'XTension bindings require the supported compiled RMT orchestration artifact.');
   if (lifecycle) {
     try { lifecycleValidator(program); } catch (error) { invalid(error.message); }
   }
   if (native) {
     try {
       const header = program.render?.nativeView;
-      fields(header, orchestrated ? ['schema', 'documentId', 'surfaces', 'scopes', 'components', 'eventKeys'] : ['schema', 'documentId', 'surfaces'], 'Native View header'); name(header.documentId);
-      if (header.schema !== (orchestrated ? 'xtend.rmt.native-view.v2' : 'xtend.rmt.native-view.v1') || header.documentId !== input.documentId || !Array.isArray(header.surfaces)
+      fields(header, managed ? ['schema', 'documentId', 'surfaces', 'scopes', 'components', 'eventKeys', 'bindings', 'events', 'commands'] : orchestrated ? ['schema', 'documentId', 'surfaces', 'scopes', 'components', 'eventKeys'] : ['schema', 'documentId', 'surfaces'], 'Native View header'); name(header.documentId);
+      if (header.schema !== (managed ? 'xtend.rmt.native-view.v3' : orchestrated ? 'xtend.rmt.native-view.v2' : 'xtend.rmt.native-view.v1') || header.documentId !== input.documentId || !Array.isArray(header.surfaces)
           || new Set(header.surfaces).size !== header.surfaces.length) throw new TypeError('Native bindings require their matching compiled Native View header.');
       header.surfaces.forEach(name);
     } catch (error) { invalid(error.message); }
@@ -85,7 +87,7 @@ function validateArtifactProfile(input, program, lifecycleValidator, orchestrate
     const pointer = `/bindings/${index}`;
     let binding;
     try {
-      fields(entry, ['surface', 'binding', ...(orchestrated ? ['ownerSurface'] : []), ...(input.schema !== LEGACY_ARTIFACT_SCHEMA ? ['presence'] : []), ...([XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA, NATIVE_STATE_BINDING_ARTIFACT_SCHEMA, LIFECYCLE_STATE_BINDING_ARTIFACT_SCHEMA, ORCHESTRATED_STATE_BINDING_ARTIFACT_SCHEMA].includes(input.schema) ? ['repeat'] : [])], 'XTension binding entry');
+      fields(entry, ['surface', 'binding', ...(orchestrated ? ['ownerSurface'] : []), ...(input.schema !== LEGACY_ARTIFACT_SCHEMA ? ['presence'] : []), ...([XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA, NATIVE_STATE_BINDING_ARTIFACT_SCHEMA, LIFECYCLE_STATE_BINDING_ARTIFACT_SCHEMA, ORCHESTRATED_STATE_BINDING_ARTIFACT_SCHEMA, MANAGED_STATE_BINDING_ARTIFACT_SCHEMA].includes(input.schema) ? ['repeat'] : [])], 'XTension binding entry');
       name(entry.surface); validateRepeat(entry.repeat);
       if (projected ? entry.binding?.schema !== 'xtend.xtensions.state-binding.v3' : input.schema !== XTENSION_STATE_BINDING_ARTIFACT_SCHEMA && entry.binding?.schema !== 'xtend.xtensions.state-binding.v1') throw new TypeError('Binding schema does not match its versioned artifact.');
       const keys = (entry.repeat || []).map((_, i) => Object.values(entry.binding.intents || {}).some(intent => Object.values(intent.keyFields || {}).some(field => field.index === entry.binding.address.keys.length + i && field.type === 'number')) ? 0 : 'template-key');
@@ -206,7 +208,7 @@ function expand(artifact, snapshot, initial = false, admission = null) {
 /** The artifact must first be validated against its compiled program in this runtime. */
 function materializeStateBindingArtifact(artifact, snapshot, admission) {
   if (!validated.has(artifact)) throw new TypeError('Materialization requires a validated binding artifact.');
-  if (artifact.schema === ORCHESTRATED_STATE_BINDING_ARTIFACT_SCHEMA) throw new TypeError('Artifact7 requires its explicit orchestrated materialization port.');
+  if ([ORCHESTRATED_STATE_BINDING_ARTIFACT_SCHEMA, MANAGED_STATE_BINDING_ARTIFACT_SCHEMA].includes(artifact.schema)) throw new TypeError('Artifact7 requires its explicit orchestrated materialization port.');
   try {
     if (admission !== undefined) {
       if (artifact.schema !== LIFECYCLE_STATE_BINDING_ARTIFACT_SCHEMA) throw new TypeError('Lifecycle admission requires binding artifact6.');
@@ -224,4 +226,4 @@ function materializeStateBindingArtifact(artifact, snapshot, admission) {
   catch (error) { invalid(error.message); }
 }
 
-module.exports = { _validateArtifactProfile: validateArtifactProfile, _concreteBinding: concreteBinding, ORCHESTRATED_STATE_BINDING_ARTIFACT_SCHEMA, validateLifecycleStateBindingArtifact, LIFECYCLE_STATE_BINDING_ARTIFACT_SCHEMA, XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA, NATIVE_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBindingArtifact, materializeStateBindingArtifact };
+module.exports = { MANAGED_STATE_BINDING_ARTIFACT_SCHEMA, _validateArtifactProfile: validateArtifactProfile, _concreteBinding: concreteBinding, ORCHESTRATED_STATE_BINDING_ARTIFACT_SCHEMA, validateLifecycleStateBindingArtifact, LIFECYCLE_STATE_BINDING_ARTIFACT_SCHEMA, XTENSION_STATE_BINDING_ARTIFACT_SCHEMA, PROJECTION_STATE_BINDING_ARTIFACT_SCHEMA, NATIVE_STATE_BINDING_ARTIFACT_SCHEMA, validateStateBindingArtifact, materializeStateBindingArtifact };

@@ -1,0 +1,1 @@
+A04.3.2: 25 deferred-load/build/contract checks; actual native imports have a separate mandatory runtime gate.

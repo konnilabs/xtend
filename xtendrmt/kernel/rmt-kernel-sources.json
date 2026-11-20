@@ -2202,6 +2202,37 @@
       ]
     },
     {
+      "id": "xtend-maraca-native-platform-host",
+      "sourcePath": "xtend-maraca/native-platform-host.mjs",
+      "sourceMode": "canonical",
+      "mvcRole": "adapter",
+      "adapterDirection": "host",
+      "provides": [
+        "createMaracaNativePlatformHost"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "ports": [
+        "RmtSurfaceLifecyclePort",
+        "RmtDomCommitPort",
+        "RmtModelReader",
+        "MaracaNativeComponentCommandPort",
+        "MaracaRouterHostPort"
+      ],
+      "capabilities": [
+        "dom.read",
+        "dom.write",
+        "state.read",
+        "event.listen"
+      ],
+      "ownershipDomains": [
+        "host.maraca-native-platform"
+      ],
+      "targets": [
+        "maraca"
+      ]
+    },
+    {
       "id": "xtend-maraca-browser-host-adapter",
       "sourcePath": "xtend-maraca/browser-host-adapter.mjs",
       "sourceMode": "canonical",

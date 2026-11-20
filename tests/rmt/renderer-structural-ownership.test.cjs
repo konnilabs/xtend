@@ -27,7 +27,7 @@ function changedProtectedRoot(records, node) {
 test('parent reconciliation retains a trusted owner root, its focused subtree and DOM identity', async () => {
   const f = await fixture();
   try {
-    assert.equal(f.api.RMT_DOM_DESCRIPTOR_RENDERER_API_VERSION, '2.3.0');
+    assert.equal(f.api.RMT_DOM_DESCRIPTOR_RENDERER_API_VERSION, '2.4.0');
     f.renderer.commit({ operation: 'reconcile-children', target: f.root, descriptors: [{ type: 'element', tag: 'section', key: 'view', text: 'before' }] });
     const portal = graphRoot(f.renderer); f.root.appendChild(portal);
     const input = portal.querySelector('input'); input.focus();

@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 function createSuite(coreContext = null) {
 const sourceProvider = coreContext?.provider;
+const { sourceRegistersCustomElement } = require('./custom-element-registration.cjs');
 const schemaInventoryScanner = coreContext?.scanner || require('../../scripts/scan_schema_inventory');
 const { INVENTORY_PATH } = schemaInventoryScanner;
 // The existing public validator owns released-fingerprint acceptance, including
@@ -554,8 +555,11 @@ function createInterfaceResolver(rootDir) {
         return issues;
       }
       const sources = sourcePaths.map((sourcePath) => readSourceText(sourcePath, rootDir, sourceCache)).filter(isNonEmptyString);
-      const definitionPattern = new RegExp(`customElements\\.define\\(\\s*['\"]${reference.name.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&')}['\"]`, 'u');
-      if (!sources.some((source) => definitionPattern.test(source))) {
+      if (!sourcePaths.some((sourcePath) => sourceRegistersCustomElement({
+        typescript: coreContext?.typescript || require('typescript'), sourcePath,
+        source: readSourceText(sourcePath, rootDir, sourceCache), tag: reference.name,
+        readSource: (file) => readSourceText(file, rootDir, sourceCache)
+      }))) {
         issues.push(`${label} cannot resolve custom element ${reference.name}`);
       }
       const members = Array.isArray(reference.member) ? reference.member : isNonEmptyString(reference.member) ? [reference.member] : [];

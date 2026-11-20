@@ -29,6 +29,12 @@ export interface MaracaLifecycleBrowserHostAdapter extends Omit<MaracaNativeBrow
   readonly schema: 'xtend.maraca.browser-host-adapter.v4';
 }
 export interface MaracaOrchestratedBrowserHostAdapter extends Omit<MaracaNativeBrowserHostAdapter, 'schema'> { readonly schema: 'xtend.maraca.browser-host-adapter.v5' }
+export interface MaracaManagedBrowserHostAdapter extends Omit<MaracaNativeBrowserHostAdapter, 'schema'> {
+  readonly schema: 'xtend.maraca.browser-host-adapter.v6';
+  installNativeRuntimeHost(host: import('../tools/xtensions/native-managed-view-projection').NativeManagedRuntimeHost): void;
+  synchronizeNativeComponents(): number | undefined;
+}
+export function createMaracaBrowserHostAdapter(configuration: Readonly<Record<string, unknown>> & { readonly schema: 'xtend.maraca.browser-composition-root.v14' }, dependencies?: Readonly<Record<string, unknown>>): MaracaManagedBrowserHostAdapter;
 export function createMaracaBrowserHostAdapter(configuration: Readonly<Record<string, unknown>> & { readonly schema: 'xtend.maraca.browser-composition-root.v13' }, dependencies?: Readonly<Record<string, unknown>>): MaracaOrchestratedBrowserHostAdapter;
 export function createMaracaBrowserHostAdapter(
   configuration: Readonly<Record<string, unknown>> & { readonly schema: 'xtend.maraca.browser-composition-root.v12' },

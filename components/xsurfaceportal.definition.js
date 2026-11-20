@@ -1,0 +1,140 @@
+import { getManagedContext, markManagedComponentClass } from './native-managed.js';
+import { connectManagedPlatform, managedPlatformBinding, managedPlatformCommand, managedPlatformProfile, releaseManagedPlatform, managedBoundsScope } from './native-platform.js';
+class XSurfacePortal extends HTMLElement {
+  static get observedAttributes() {
+    return ['portal-id', 'policy', 'layer', 'for', 'z-index-start', 'z-step'];
+  }
+
+  static get xtendComponentContract() {
+    return {
+      schema: 'xtend.component.contract.v2',
+      tag: 'x-surface-portal',
+      maturity: 'experimental',
+      source: {
+        strategy: 'xtend.legacy-esm.component-source',
+        state: 'js-runtime',
+        sourcePath: 'components/xsurfaceportal.js'
+      },
+      runtime: {
+        format: 'esm',
+        artifact: 'components/xsurfaceportal.js',
+        declaration: 'components/xsurfaceportal.d.ts',
+        localOnly: true,
+        cdnAllowed: false
+      },
+      rmt: {
+        adapter: 'xtend.component',
+        surfaceContract: 'xtend.surface.type-capability-matrix.v1',
+        kernelBoundary: 'no-rmt-kernel-import-of-xtend-types'
+      }
+    };
+  }
+
+  static get xtendRmtMetadata() {
+    return {
+      schema: 'xtend.rmt.component-contract.v1',
+      adapter: 'xtend.component',
+      tag: 'x-surface-portal',
+      componentRecordKind: 'custom_element',
+      templateMode: 'dom_descriptor',
+      portalPolicies: ['stacked', 'modal', 'nonmodal', 'toast-region', 'clipping-escape'],
+      kernelBoundary: 'no-rmt-kernel-import-of-xtend-types'
+    };
+  }
+
+  static get xtendScaffoldA11yProfile() {
+    return {
+      schema: 'xtend.a11y.component-profile.v1',
+      role: 'none',
+      policy: 'portal-policy-announced-by-managed-surface',
+      keyboardModel: 'delegated-to-surface-manager',
+      aria: ['aria-hidden']
+    };
+  }
+
+  static get xtendScaffoldPerformanceProfile() {
+    return {
+      schema: 'xtend.performance.component-profile.v1',
+      budgetClass: 'surface-orchestration',
+      lane: 'surface.portal.policy',
+      hydrationPolicy: 'policy-only',
+      measurements: ['policy-dispatch', 'stack-reflow']
+    };
+  }
+
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    this.shadowRoot.innerHTML = `
+      <style>
+        :host {
+          display: contents;
+        }
+      </style>
+      <slot></slot>
+    `;
+  }
+
+  connectedCallback() {
+    const managed = connectManagedPlatform(this);
+    if (managed) {
+      const policy = managed.policySnapshot();
+      this._applyingSnapshot = true;
+      try { for (const [name,value] of Object.entries({'portal-id':policy.id,policy:policy.policy,layer:policy.layer,for:policy.target,'z-index-start':policy.zIndexStart,'z-step':policy.zStep})) if(value!==undefined&&value!==null)this.setAttribute(name,String(value)); }
+      finally { this._applyingSnapshot = false; }
+      this._emitPolicy(); return;
+    }
+    if (!this.hasAttribute('portal-id') && this.id) this.setAttribute('portal-id', this.id);
+    if (!this.hasAttribute('policy')) this.setAttribute('policy', 'stacked');
+    if (!this.hasAttribute('aria-hidden')) this.setAttribute('aria-hidden', 'true');
+    this._emitPolicy();
+  }
+
+  attributeChangedCallback() {
+    if (this._applyingSnapshot) return;
+    if (this.isConnected) this._emitPolicy();
+  }
+
+  get portalId() {
+    return this.getAttribute('portal-id') || this.id || 'portal.app';
+  }
+
+  get policy() {
+    return this.getAttribute('policy') || 'stacked';
+  }
+
+  toPortalPolicy() {
+    return {
+      schema: 'xtend.surface.portal-policy.v1',
+      id: this.portalId,
+      policy: this.policy,
+      layer: this.getAttribute('layer') || this.portalId,
+      target: this.getAttribute('for') || '',
+      zIndexStart: Number(this.getAttribute('z-index-start') || 1000),
+      zStep: Number(this.getAttribute('z-step') || 10),
+      component: 'x-surface-portal',
+      kernelBoundary: 'no-rmt-kernel-import-of-xtend-types'
+    };
+  }
+
+  disconnectedCallback() { releaseManagedPlatform(this); }
+
+  _emitPolicy() {
+    const managed = managedPlatformBinding(this);
+    if (managed) {
+      if (typeof managed.update !== 'function') throw new Error('Native portal policy port is missing');
+      return managed.update(this.toPortalPolicy());
+    }
+    this.dispatchEvent(new CustomEvent('surface-portal-policy', {
+      bubbles: true,
+      composed: true,
+      detail: this.toPortalPolicy()
+    }));
+  }
+}
+
+markManagedComponentClass(XSurfacePortal, 'x-surface-portal', managedPlatformProfile('x-surface-portal'));
+
+export { XSurfacePortal };
+
+export default XSurfacePortal;

@@ -109,3 +109,27 @@ export interface RmtxNativeOrchestrationViewLowering {
 export function validateRmtxNativeOrchestrationViewContract(contract:RmtxNativeOrchestrationViewSourceContract,appPlatform?:Parameters<typeof validateNativeViewContract>[1],context?:Readonly<{core?:import('./vnext-compiler').RmtVNextCoreDocument;events?:readonly unknown[];inputContract?:unknown}>):RmtxNativeOrchestrationViewLowering;
 export function lowerRmtxNativeOrchestrationViews(contract:RmtxNativeOrchestrationViewSourceContract,appPlatform:Parameters<typeof lowerRmtxNativeViews>[1],context?:Parameters<typeof validateRmtxNativeOrchestrationViewContract>[2]):RmtxNativeOrchestrationViewLowering;
 export function lowerRmtxNativeEventKeys(contract:RmtxNativeOrchestrationViewSourceContract,core:import('./vnext-compiler').RmtVNextCoreDocument,events:readonly unknown[],inputContract:unknown):RmtNativeOrchestrationViewContract['eventKeys'];
+
+/** Source8 adds closed typed JSON component props, refs and genuine Action sidecars. */
+export type RmtxManagedNativeProjection = RmtxNativeProjection
+ | Readonly<{kind:'literal';value:import('./rmt-tooling-public-types').RmtJsonValue}>
+ | Readonly<{kind:'object';fields:Readonly<Record<string,RmtxManagedNativeProjection>>}>
+ | Readonly<{kind:'array';items:readonly RmtxManagedNativeProjection[]}>
+ | Readonly<{kind:'conditional';test:RmtxNativeProjection;then:RmtxManagedNativeProjection;else:RmtxManagedNativeProjection}>;
+export interface RmtxManagedNativeEvent {readonly astPointer:string;readonly surface:string;readonly component:string;readonly ref:string;readonly event:string}
+export interface RmtxManagedNativeBinding {readonly declarationId:string;readonly surface:string;readonly ref:string;readonly tag:string;readonly repeat:RmtxNativeRepeatScopes|readonly []}
+export interface RmtxManagedNativeCommand {readonly astPointer:string;readonly action:string;readonly surface:string;readonly component:string;readonly ref:string;readonly command:string;readonly args:import('./rmtx-native-component-bindings').RmtxNativeCommandExpression;readonly keys:Readonly<{kind:'array';items:readonly import('./rmtx-native-component-bindings').RmtxNativeCommandExpression[]}>}
+export type RmtxManagedNativeSourceNode = Extract<RmtxNativeSourceNode,{type:'text'}>
+ | (Omit<Extract<RmtxNativeSourceNode,{type:'element'}>,'children'>&{readonly ref?:string;readonly children:readonly RmtxManagedNativeSourceNode[]})
+ | Readonly<{type:'native-repeat';nativeDeclarationId:string;repeat:RmtxNativeRepeatScopes;children:readonly RmtxManagedNativeSourceNode[]}>
+ | Readonly<{type:'native-when';nativeDeclarationId:string;test:RmtxNativeProjection;children:readonly RmtxManagedNativeSourceNode[]}>
+ | Readonly<{type:'native-component';nativeDeclarationId:string;tag:string;ref:string;events:readonly RmtxManagedNativeEvent[];attributes?:Readonly<Record<string,RmtxNativeProjection>>;properties?:Readonly<Record<string,RmtxManagedNativeProjection>>;slots:readonly Readonly<{type:'native-slot';name:string;nativeDeclarationId:string;children:readonly RmtxManagedNativeSourceNode[]}>[]}>;
+export interface RmtxManagedNativeViewSourceContract extends Omit<RmtxNativeOrchestrationViewSourceContract,'schema'|'sourceProfile'|'components'|'views'>{
+ readonly schema:'xtend.rmtx.native-view.v3';readonly sourceProfile:Readonly<{syntax:'rmtx';version:'8.0.0'}>;readonly components:readonly import('../xtensions/native-component-contract-v2').NativeComponentMetadataV2[];
+ readonly views:readonly Readonly<{surface:string;repeat?:RmtxNativeRepeatScopes;children:readonly RmtxManagedNativeSourceNode[]}>[];readonly bindings:readonly RmtxManagedNativeBinding[];readonly events:readonly RmtxManagedNativeEvent[];readonly commands:readonly RmtxManagedNativeCommand[];
+}
+export interface RmtxManagedNativeDependencyReport extends Omit<RmtxNativeViewDependencyReport,'schema'|'sourceProfile'>{readonly schema:'xtend.rmtx.native-view-dependencies.v3';readonly sourceProfile:RmtxManagedNativeViewSourceContract['sourceProfile']}
+export interface RmtManagedNativeViewContract extends Omit<import('../xtensions/native-managed-view-projection').NativeManagedViewHeader,'events'|'commands'>{readonly events:readonly (RmtxManagedNativeEvent|import('../xtensions/native-managed-view-projection').NativeManagedComponentEvent)[];readonly commands:readonly (RmtxManagedNativeCommand|import('../xtensions/native-managed-view-projection').NativeManagedComponentCommand)[]}
+export interface RmtxManagedNativeViewLowering {readonly surfaces:Map<string,readonly unknown[]>;readonly contract:RmtManagedNativeViewContract;readonly dependencies:RmtxManagedNativeDependencyReport}
+export function validateRmtxManagedNativeViewContract(contract:RmtxManagedNativeViewSourceContract,appPlatform?:Parameters<typeof validateNativeViewContract>[1],context?:Readonly<{ast?:import('./classic-ast-types').RmtClassicAst;core?:import('./vnext-compiler').RmtVNextCoreDocument;events?:unknown[];inputContract?:unknown}>):RmtxManagedNativeViewLowering;
+export function lowerRmtxManagedNativeViews(contract:RmtxManagedNativeViewSourceContract,appPlatform?:Parameters<typeof validateNativeViewContract>[1],context?:Parameters<typeof validateRmtxManagedNativeViewContract>[2]):RmtxManagedNativeViewLowering;

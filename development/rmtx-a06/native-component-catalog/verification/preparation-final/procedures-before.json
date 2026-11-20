@@ -1,0 +1,9 @@
+{
+  "schema": "xtend.local.preparation-procedure-binding.v1",
+  "procedures": {
+    "final-preparation.py": "54bb3fb54a7b3e30e6db3fad787099e97bb99f53e9d73cd76b55e77d95e6ad4a",
+    "gates.py": "2a296b42493af81ce577f8264e19fc448d86535ef49a6c1d522159e991a17f2e",
+    "bind-preparation-final.py": "55256a35abca33bbf3915f8003d3b1c3cb102987b909d5823178e48ba6021125",
+    "collect-final-preparation.py": "b7bbfee17224c0ca1c93c84038e3812014ca130a5c2d7e0ad7384f137019429b"
+  }
+}

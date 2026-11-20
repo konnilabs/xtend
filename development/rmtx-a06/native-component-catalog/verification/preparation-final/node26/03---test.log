@@ -1,0 +1,38 @@
+✔ native close/commit/resume preserves identity, current Model and unrelated roots (1525.442443ms)
+✔ direct Destroy from open synchronously fences the old command before Model writes (32.703026ms)
+✔ unscoped commands after Destroy update Model without resurrecting its native view (35.181221ms)
+✔ explicit recreation authorizes a new native generation and never revives old tokens (29.728594ms)
+✔ a recreated native key retains evaluation of the original structured Model expression (50.12437ms)
+✔ model hidden state survives a close/resume lifecycle overlay and subsequent Model updates (36.96419ms)
+✔ legacy v1 ViewProjectionPort remains accepted while complete lifecycle authority fences tokens (25.792833ms)
+✔ a claimed v2 View port missing lifecycle projection is rejected before boot (25.972175ms)
+✔ a failed native Model commit restores the closed lifecycle overlay in finally (31.934168ms)
+✔ deep foreign roots survive native Destroy and do not become a recreated owner view (109.183274ms)
+✔ atomic multi-Surface Destroy revokes scopes whose tombstones were evicted before publication (34.08245ms)
+✔ trimmed owner disappearance retires its registry binding before later Model delivery (33.210991ms)
+✔ v2 is explicit and opt-in v1 retains its original port and schema (73.240214ms)
+✔ close, minimized and collapsed hide only the native owner and preserve nodes on resume (24.746502ms)
+✔ original visibility and ARIA survive close/resume including inline style priority (12.499352ms)
+✔ prepare/project phases retain Model visibility changes made while closed (11.38823ms)
+✔ restore does not overwrite an intervening presentation writer (11.247649ms)
+✔ destroy cleans native subtree and index without touching a sibling or external root (11.056277ms)
+✔ destroy preserves privately reserved foreign roots and their wrappers until owner disposal (90.720439ms)
+✔ native descendants of a retained retired owner are excluded from lifecycle lookup (11.526522ms)
+✔ old generation cannot resurrect a destroyed view while a new generation can index a new view (10.644572ms)
+✔ an application root remains a shell and can host a new authoritative surface generation (10.946595ms)
+✔ bad batches and missing renderer authority fail before any lifecycle mutation (10.312279ms)
+✔ disposed adapter rejects lifecycle and cannot touch retained nodes (9.979815ms)
+✔ managed materialization preserves a destroyed lifetime and its tombstone while retaining live siblings (13.150689ms)
+✔ the legacy standalone default still rematerializes a destroyed surface (1.869919ms)
+✔ an explicit trusted recreate permits a new lifetime without reviving the old generation (1.723288ms)
+✔ preserving destroyed keyed instances does not freeze their live siblings (0.93266ms)
+✔ invalid preserveDestroyed values fail before lifecycle mutation (0.371454ms)
+✔ compacted tombstones remain revoked and explicit recreation advances the cached authoritative generation (0.91732ms)
+ℹ tests 30
+ℹ suites 0
+ℹ pass 30
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3337.753749

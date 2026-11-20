@@ -1,0 +1,17 @@
+✔ all six platform tags bind to actual Controller/Graph and command fibers rather than local managers (2949.748159ms)
+✔ real platform UI flags project false to true to false without changing Controller authority (727.874684ms)
+✔ all six released platform bindings stay revoked after Suspend and a fresh activation (1670.627286ms)
+✔ Surface platform gestures commit bounds and state through the real graph and preserve foreign records (975.076764ms)
+✔ a genuine component-command Effect invokes the actual scoped platform handler inside its exact Kernel job (262.133529ms)
+✔ close, minimize and collapse return only genuine Controller receipts after their own scope deactivation (836.756266ms)
+✔ native Router delegates the captured local destination to the injected History host and publishes its Model intent (236.063954ms)
+✔ Portal projection retains the exact declared existing Portal and rejects policy replacement (155.746942ms)
+✔ forged authority-valued platform attributes and route data fail before managed host mutation (622.29633ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9011.157763

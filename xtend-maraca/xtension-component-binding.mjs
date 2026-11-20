@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
-import { canonical, SCOPED_COMPONENT_ARTIFACT_SCHEMA, PROJECTION_COMPONENT_ARTIFACT_SCHEMA, NATIVE_COMPONENT_ARTIFACT_SCHEMA, LIFECYCLE_COMPONENT_ARTIFACT_SCHEMA, ORCHESTRATED_COMPONENT_ARTIFACT_SCHEMA } from './xtension-composition-contract.mjs';
+import { canonical, SCOPED_COMPONENT_ARTIFACT_SCHEMA, PROJECTION_COMPONENT_ARTIFACT_SCHEMA, NATIVE_COMPONENT_ARTIFACT_SCHEMA, LIFECYCLE_COMPONENT_ARTIFACT_SCHEMA, ORCHESTRATED_COMPONENT_ARTIFACT_SCHEMA, MANAGED_COMPONENT_ARTIFACT_SCHEMA, MANAGED_COMPONENT_MANIFEST_SCHEMA } from './xtension-composition-contract.mjs';
 /** Re-derive controlled data from the independently captured provider contract.
  * Compiled/captured artifacts are trusted host inputs, not arbitrary JSON grants. */
 export function validateComponentBindings(artifact, api) {
-  const projected = [PROJECTION_COMPONENT_ARTIFACT_SCHEMA,NATIVE_COMPONENT_ARTIFACT_SCHEMA,LIFECYCLE_COMPONENT_ARTIFACT_SCHEMA, ORCHESTRATED_COMPONENT_ARTIFACT_SCHEMA].includes(artifact.schema);
+  const projected = [PROJECTION_COMPONENT_ARTIFACT_SCHEMA,NATIVE_COMPONENT_ARTIFACT_SCHEMA,LIFECYCLE_COMPONENT_ARTIFACT_SCHEMA, ORCHESTRATED_COMPONENT_ARTIFACT_SCHEMA, MANAGED_COMPONENT_ARTIFACT_SCHEMA].includes(artifact.schema);
   if (projected ? api?.COMPONENT_INTERFACE_API_VERSION !== '2.0.0' : !['1.0.0','2.0.0'].includes(api?.COMPONENT_INTERFACE_API_VERSION)) throw new TypeError('A matching component interface runtime API is required.');
   const catalog = api.createComponentInterfaceCatalog(artifact.componentInterfaces.map(({ definition, interfaceSha256, moduleSha256 }) => ({ definition, interfaceSha256, moduleSha256 })));
   const bindings = new Map();
@@ -12,7 +12,7 @@ export function validateComponentBindings(artifact, api) {
     const { definition } = catalog.resolve({ providerId: host.providerId, interfaceVersion: host.interfaceVersion, interfaceSha256: host.interfaceSha256, componentVersion: provider.version });
     if (canonical({ framework: definition.framework, entry: { module: definition.entry.module, exportName: definition.entry.exportName }, peers: definition.peers, sha256: definition.entry.sha256 }) !== canonical({ framework: provider.framework, entry: provider.entry, peers: provider.peers, sha256: provider.integrity.sha256 })) throw new TypeError('Provider metadata differs from its captured component interface.');
     const entry = artifact.plan.bindings.bindings.find(row => row.binding.address.declarationId === host.declarationId);
-    if (artifact.schema === ORCHESTRATED_COMPONENT_ARTIFACT_SCHEMA && entry.ownerSurface !== host.ownerSurface) throw new TypeError('Orchestrated binding owner differs from its captured provider declaration.');
+    if ([ORCHESTRATED_COMPONENT_ARTIFACT_SCHEMA,MANAGED_COMPONENT_ARTIFACT_SCHEMA].includes(artifact.schema) && entry.ownerSurface !== host.ownerSurface) throw new TypeError('Orchestrated binding owner differs from its captured provider declaration.');
     if (projected) {
       const resolved = api.resolveProjectedComponentBinding(definition, { address: entry.binding.address,
         props: Object.fromEntries(Object.entries(entry.binding.props).map(([key, value]) => [key, value.projection])),

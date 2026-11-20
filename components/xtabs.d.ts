@@ -59,6 +59,9 @@ export interface XTabElement extends HTMLElement {
 }
 
 export interface XTabsElement extends HTMLElement {
+  items: Array<{ key: string | number; ref: string; keys?: Array<string | number>; title?: string; disabled?: boolean }>;
+  selectedKey?: string | number | null;
+
   orientation?: XTabsOrientation;
   selectTab(index: number): void;
   getPerformanceBudget(): Record<XTabsPerformanceBudgetKey, number>;

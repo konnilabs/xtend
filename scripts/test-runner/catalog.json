@@ -13818,6 +13818,32 @@
           "producer": "full_release",
           "expectedSchema": "xtend.rmtx.native-orchestration-runtime-acceptance.v1",
           "expectedMode": "chromium-sealed-native-esm"
+        },
+        {
+          "path": ".xtend-test-results/xtend-rmtx-native-managed-runtime-node-report.json",
+          "kind": "outcome",
+          "producer": "full_release",
+          "expectedSchema": "xtend.rmtx.native-managed-runtime-acceptance.v1",
+          "expectedMode": "jsdom-native-esm"
+        },
+        {
+          "path": ".xtend-test-results/xtend-rmtx-native-managed-runtime-browser-report.json",
+          "kind": "outcome",
+          "producer": "full_release",
+          "expectedSchema": "xtend.rmtx.native-managed-runtime-acceptance.v1",
+          "expectedMode": "chromium-sealed-native-esm"
+        },
+        {
+          "path": ".xtend-test-results/xtend-rmtx-native-catalog-browser-report.json",
+          "kind": "outcome",
+          "producer": "full_release",
+          "expectedSchema": "xtend.rmtx.native-catalog-browser-acceptance.v1"
+        },
+        {
+          "path": ".xtend-test-results/xtend-rmtx-native-cold-registry-browser-report.json",
+          "kind": "outcome",
+          "producer": "full_release",
+          "expectedSchema": "xtend.rmtx.native-cold-registry-browser-acceptance.v1"
         }
       ]
     },

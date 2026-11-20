@@ -1,0 +1,56 @@
+// SPDX-License-Identifier: Apache-2.0
+'use strict';
+// Manually reviewed runtime request paths. This is a regression checklist, not
+// an input to generation or a rule for automatically granting capabilities.
+const runtimeRequests = Object.freeze({
+  'x-alert': ['overlay.acquire'],
+  'x-button': ['focus.request', 'resource.icon'],
+  'x-calendar': ['focus.request'],
+  'x-cards': [],
+  'x-checkbox': ['focus.request'],
+  'x-code': ['resource.highlight', 'clipboard.write'],
+  'x-dialog': ['overlay.acquire'],
+  'x-drawer': ['overlay.acquire'],
+  'x-footer': ['resource.image'],
+  'x-form': ['file.read'],
+  'x-header': ['overlay.acquire', 'focus.request', 'resource.image'],
+  'x-hero': ['focus.request', 'resource.image'],
+  'x-icon': ['resource.icon'],
+  'x-input': ['focus.request', 'file.read'],
+  'x-keymap': ['overlay.acquire', 'focus.request'],
+  'x-lightbox': ['overlay.acquire', 'focus.request', 'resource.image'],
+  'x-link': ['focus.request'],
+  'x-masonry': ['layout.bind'],
+  'x-menu': ['focus.request'],
+  'x-modal': ['overlay.acquire', 'resource.image'],
+  'x-player': ['media.request'],
+  'x-popover': ['overlay.acquire'],
+  'x-progress': [],
+  'x-radio': ['focus.request'],
+  'x-section': [],
+  'x-select': ['focus.request'],
+  'x-spinner': ['overlay.acquire'],
+  'x-status': [],
+  'x-summary': [],
+  'x-tabs': ['layout.bind'],
+  'x-textarea': ['focus.request', 'resource.highlight'],
+  'x-toast': ['overlay.acquire'],
+  'x-toggle': ['focus.request'],
+  'x-tooltip': ['focus.request'],
+  'x-type': [],
+  'x-writer': ['focus.request', 'writer.markdown', 'writer.save', 'writer.export', 'resource.image'],
+  'x-router': ['router.bind'],
+  'x-side-panel': ['surface.bind'],
+  'x-surface-manager': ['surface.manager.bind'],
+  'x-surface-portal': ['surface.portal.bind'],
+  'x-surface-region': ['surface.bind'],
+  'x-surface-window': ['surface.bind'],
+  // These manifest roles are not prepared native CustomElements.
+  'x-theme': [],
+  'x-utils': [],
+  'xtend-i18n': [],
+  'xtend-state': [],
+  'x-rmt-lifecycle-demo-build': []
+});
+
+module.exports = {runtimeRequests};

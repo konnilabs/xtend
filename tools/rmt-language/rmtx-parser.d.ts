@@ -2,7 +2,7 @@ import type { RmtClassicAst } from './classic-ast-types';
 import type { RmtTextDocument, RmtRange, RmtToolingDiagnostic } from './rmt-tooling-public-types';
 export { getRmtxOperatorProfile, RMTX_OPERATOR_PROFILE_SCHEMA, RMTX_OPERATOR_PROFILE_SCHEMA_V2, RMTX_OPERATOR_PROFILE_SCHEMA_V3, RMTX_OPERATOR_PROFILE_SCHEMA_V4, RMTX_OPERATOR_PROFILE_SCHEMA_V5, RMTX_OPERATOR_PROFILE_SCHEMA_V6 } from './rmtx-operator-profiles';
 /** Module capability API; individual profiles retain their own result version. */
-export declare const RMTX_PARSER_API_VERSION: '7.0.0';
+export declare const RMTX_PARSER_API_VERSION: '8.0.0';
 export declare const RMTX_PARSER_SCHEMA: 'xtend.rmtx.parser-result.v1';
 export declare const RMTX_PARSER_SCHEMA_V2: 'xtend.rmtx.parser-result.v2';
 export declare const RMTX_PARSER_SCHEMA_V3: 'xtend.rmtx.parser-result.v3';
@@ -126,3 +126,15 @@ export interface RmtxParseResultV7 extends Omit<RmtxParseResultV6,'schema'|'apiV
 }
 export function parseRmtxSource(input:Partial<RmtTextDocument>|string|undefined,options:RmtxParserOptionsV7):RmtxParseResultV7;
 export function parseRmtxSource(input:Partial<RmtTextDocument>|string|undefined,options:RmtxParserOptions|RmtxParserOptionsV2|RmtxParserOptionsV3|RmtxParserOptionsV4|RmtxParserOptionsV5|RmtxParserOptionsV6|RmtxParserOptionsV7):RmtxParseResult|RmtxParseResultV2|RmtxParseResultV3|RmtxParseResultV4|RmtxParseResultV5|RmtxParseResultV6|RmtxParseResultV7;
+
+export const RMTX_PARSER_SCHEMA_V8:'xtend.rmtx.parser-result.v8';
+export const RMTX_MANAGED_NATIVE_SOURCE_PROFILE:Readonly<{syntax:'rmtx';version:'8.0.0'}>;
+export interface RmtxParserOptionsV8 extends Record<string,unknown>{syntaxVersion:'8.0.0'}
+export interface RmtxHostScopeSourceContractV5 extends Omit<RmtxHostScopeSourceContractV4,'schema'|'sourceProfile'>{readonly schema:'xtend.rmtx.host-scopes.v5';readonly sourceProfile:typeof RMTX_MANAGED_NATIVE_SOURCE_PROFILE}
+export interface RmtxParseResultV8 extends Omit<RmtxParseResultV7,'schema'|'apiVersion'|'sourceProfile'|'viewProfile'|'actionProfile'|'hostScopes'|'components'|'nativeView'|'nativeLifecycle'>{
+ schema:typeof RMTX_PARSER_SCHEMA_V8;apiVersion:'8.0.0';sourceProfile:typeof RMTX_MANAGED_NATIVE_SOURCE_PROFILE;viewProfile:typeof RMTX_MANAGED_NATIVE_SOURCE_PROFILE;actionProfile:typeof RMTX_MANAGED_NATIVE_SOURCE_PROFILE;
+ hostScopes:RmtxHostScopeSourceContractV5|null;components:import('./rmtx-component-bindings').RmtxComponentSourceContractV4|null;
+ nativeView:import('./rmtx-native-view').RmtxManagedNativeViewSourceContract|null;nativeLifecycle:import('./rmtx-native-lifecycle').RmtxManagedNativeLifecycleSourceContract|null;
+}
+export function parseRmtxSource(input:Partial<RmtTextDocument>|string|undefined,options:RmtxParserOptionsV8):RmtxParseResultV8;
+export function parseRmtxSource(input:Partial<RmtTextDocument>|string|undefined,options:RmtxParserOptions|RmtxParserOptionsV2|RmtxParserOptionsV3|RmtxParserOptionsV4|RmtxParserOptionsV5|RmtxParserOptionsV6|RmtxParserOptionsV7|RmtxParserOptionsV8):RmtxParseResult|RmtxParseResultV2|RmtxParseResultV3|RmtxParseResultV4|RmtxParseResultV5|RmtxParseResultV6|RmtxParseResultV7|RmtxParseResultV8;

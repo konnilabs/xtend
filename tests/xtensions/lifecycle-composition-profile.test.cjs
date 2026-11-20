@@ -28,7 +28,7 @@ test.after(() => fs.rmSync(temporary, { recursive: true, force: true }));
 
 test('actual Source6 compiles and captures exact Manifest10/Artifact11 with unchanged provider contracts', async () => {
   const { plan, report } = await companion(), api = await import('../../xtend-maraca/xtension-composition-contract.mjs');
-  assert.equal(require('../../xtend-maraca/xtension-composition').XTENSION_COMPOSITION_BUILD_API_VERSION, '16.0.0');
+  assert.equal(require('../../xtend-maraca/xtension-composition').XTENSION_COMPOSITION_BUILD_API_VERSION, '17.0.0');
   assert.equal(report.schema, 'xtend.maraca.xtension-composition-build-report.v11'); assert.equal(report.apiVersion, '11.0.0');
   assert.equal(report.artifact.schema, 'xtend.maraca.xtension-composition-artifact.v11');
   assert.equal(report.artifact.plan.schema, 'xtend.maraca.build-plan.v10');

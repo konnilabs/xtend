@@ -1080,6 +1080,58 @@
     "./maraca/native-surface-graph": {
       "types": "./xtend-maraca/native-surface-graph.d.ts",
       "default": "./xtend-maraca/native-surface-graph.mjs"
+    },
+    "./xtensions/native-managed-view-projection": {
+      "types": "./tools/xtensions/native-managed-view-projection.d.ts",
+      "default": "./tools/xtensions/native-managed-view-projection.js"
+    },
+    "./xtensions/native-managed-surface-scopes": {
+      "types": "./tools/xtensions/native-managed-surface-scopes.d.ts",
+      "default": "./tools/xtensions/native-managed-surface-scopes.js"
+    },
+    "./xtensions/native-managed-orchestration-lifecycle": {
+      "types": "./tools/xtensions/native-managed-orchestration-lifecycle.d.ts",
+      "default": "./tools/xtensions/native-managed-orchestration-lifecycle.js"
+    },
+    "./xtensions/native-managed-lifecycle": {
+      "types": "./tools/xtensions/native-managed-lifecycle.d.ts",
+      "default": "./tools/xtensions/native-managed-lifecycle.js"
+    },
+    "./xtensions/native-component-contract-v2": {
+      "types": "./tools/xtensions/native-component-contract-v2.d.ts",
+      "default": "./tools/xtensions/native-component-contract-v2.js"
+    },
+    "./xtensions/native-component-managed": {
+      "types": "./tools/xtensions/native-component-managed.d.ts",
+      "default": "./tools/xtensions/native-component-managed.js"
+    },
+    "./xtensions/native-component-bindings": {
+      "types": "./tools/xtensions/native-component-bindings.d.ts",
+      "default": "./tools/xtensions/native-component-bindings.js"
+    },
+    "./xtensions/state-binding-managed": {
+      "types": "./tools/xtensions/state-binding-managed.d.ts",
+      "default": "./tools/xtensions/state-binding-managed.js"
+    },
+    "./xtensions/url-state-managed": {
+      "types": "./tools/xtensions/url-state-managed.d.ts",
+      "default": "./tools/xtensions/url-state-managed.js"
+    },
+    "./rmt-language/rmtx-native-components-v2": {
+      "types": "./tools/rmt-language/rmtx-native-components-v2.d.ts",
+      "default": "./tools/rmt-language/rmtx-native-components-v2.js"
+    },
+    "./rmt-language/rmtx-native-component-bindings": {
+      "types": "./tools/rmt-language/rmtx-native-component-bindings.d.ts",
+      "default": "./tools/rmt-language/rmtx-native-component-bindings.js"
+    },
+    "./maraca/native-managed-runtime": {
+      "types": "./xtend-maraca/native-managed-runtime.d.ts",
+      "default": "./xtend-maraca/native-managed-runtime.mjs"
+    },
+    "./components/native-services": {
+      "types": "./components/native-services.d.ts",
+      "default": "./components/native-services.js"
     }
   },
   "publishConfig": {
@@ -15688,7 +15740,7 @@
       "packageDryRunArtifact": ".xtend-test-results/xtend-pack-dry-run.json",
       "packageExportSurfaceArtifact": ".xtend-test-results/xtend-package-export-surface-lock.json",
       "packageExportLockReportArtifact": ".xtend-test-results/xtend-package-export-lock-report.json",
-      "expectedExportCount": 225,
+      "expectedExportCount": 238,
       "localGateRequiresNpmPackExecution": false,
       "artifactRequiredForRc1": true,
       "nextWorkpackage": "WP-E13-13",
@@ -15713,8 +15765,8 @@
       "localGate": "node scripts/run_xtend_tests.js type-exports --json",
       "packageScript": "npm run test:type-exports",
       "reportArtifact": ".xtend-test-results/xtend-type-exports-report.json",
-      "expectedExportCount": 225,
-      "lockedExportFingerprint": "cf8ee7699ab8864b428b8cc1296e28d7031b0d6c241939cac2d64ab0c934fed2",
+      "expectedExportCount": 238,
+      "lockedExportFingerprint": "bd25c6c527c1ccb1009157b0b3b8ccce81a1228bf7f57cc55df898c727eccf81",
       "p0Exports": [
         ".",
         "./loader",
@@ -17826,7 +17878,7 @@
       ]
     },
     "typescriptComponentsBuild": {
-      "schema": "xtend.typescript.components-build.v1",
+      "schema": "xtend.typescript.components-build.v2",
       "status": "accepted-productive-component-compiler",
       "source": "src/components/x-toggle/x-toggle.ts",
       "tsconfig": "tsconfig.components.json",

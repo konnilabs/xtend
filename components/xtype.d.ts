@@ -27,6 +27,8 @@ export type XTypeEventMap = XtendCustomEventMap<XTypeEventDetailMap>;
 export type XTypePublicEventContract = XtendPublicEventContract<XTypeEventName, XTypeTextEventDetail | Record<string, never>>;
 
 export interface XTypeElement extends HTMLElement {
+  texts: string[];
+
   pause(): void;
   resume(): void;
   snapshot(): XTypeSnapshot;

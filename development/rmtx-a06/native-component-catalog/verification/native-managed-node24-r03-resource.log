@@ -1,0 +1,23 @@
+	Command being timed: "timeout 300s /home/konni/.local/share/xtend-local-llm/runtime/node_modules/node/bin/node --max-old-space-size=1024 development/rmtx-a06/native-component-catalog/runtime-test.cjs --output /tmp/xtend-native-catalog-v2/source8-runtime-node24-final-rebind-r03.json --retain-build /tmp/xtend-native-catalog-v2/source8-build-node24-final-rebind-r03"
+	User time (seconds): 23.57
+	System time (seconds): 0.70
+	Percent of CPU this job got: 146%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:16.58
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 612340
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 186788
+	Voluntary context switches: 11483
+	Involuntary context switches: 209
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

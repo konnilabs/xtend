@@ -1,6 +1,6 @@
-import type { XtendCustomEventMap, XtendPublicEventContract } from './xtend-public-types';
-import type { XTendStateRuntime } from './xtend-state';
-import type { XRouterElement } from './xrouter';
+import type { XtendCustomEventMap, XtendPublicEventContract } from './xtend-public-types.js';
+import type { XTendStateRuntime } from './xtend-state.js';
+import type { XRouterElement } from './xrouter.js';
 
 export type XtendI18nLocale = string;
 export type XtendI18nLocaleEventName =

@@ -15,7 +15,7 @@ const compile = body => compileRmtClassicSource(`
 `);
 
 test('compiler API versions identify the restored Action/Event semantics without changing the input AST', () => {
-  assert.equal(RMT_CLASSIC_COMPILER_API_VERSION, '4.8.0'); assert.equal(RMT_VNEXT_COMPILER_API_VERSION, '1.9.0');
+  assert.equal(RMT_CLASSIC_COMPILER_API_VERSION, '4.9.0'); assert.equal(RMT_VNEXT_COMPILER_API_VERSION, '1.10.0');
   assert.equal(compile('reduce state.flags.saved = true').parserResult.ast.schema, 'xtend.rmt.vnext.ast.v1');
 });
 test('all result phases survive lowering as closed execution data, including overlay options', () => {

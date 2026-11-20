@@ -217,3 +217,33 @@ export function createMaracaBrowserCompositionRoot(configuration: Readonly<Recor
   readonly nativeViewRuntimePort: typeof import('@ccslabs/xtend/xtensions/native-surface-projection').NATIVE_ORCHESTRATION_VIEW_RUNTIME;
   readonly createOrchestratedPlanRuntime: typeof import('./native-orchestration-runtime').createMaracaNativeOrchestrationRuntime;
 }): BrowserOrchestratedComponentRoot;
+
+export const MARACA_MANAGED_BROWSER_API_VERSION: '14.0.0';
+/** Source8 uses a distinct factory and View API4; its lifecycle integration stays private. */
+export interface ManagedComponentBootOptions extends Omit<NativeComponentBootOptions, 'nativeViewRuntimePort' | 'urlStateRuntime'> {
+  readonly nativeViewRuntimePort?: typeof import('@ccslabs/xtend/xtensions/native-managed-view-projection').NATIVE_MANAGED_VIEW_RUNTIME;
+  readonly urlStateRuntime?: typeof import('@ccslabs/xtend/xtensions/url-state-managed').MANAGED_URL_STATE_RUNTIME;
+  readonly nativeServices?: import('@ccslabs/xtend/components/native-services', {with: {'resolution-mode': 'import'}}).ManagedNativeServices;
+  readonly nativeComponentPorts?: import('@ccslabs/xtend/xtensions/native-component-managed').ManagedNativePorts;
+  readonly routerHost?: import('./plan-runtime').ManagedNativeRouteHost;
+}
+export interface ManagedComponentBrowserFacade extends Omit<NativeComponentBrowserFacade, 'apiVersion' | 'orchestration' | 'snapshot' | 'subscribe' | 'boot' | 'restoreURLState' | 'publishURLState'> {
+  readonly apiVersion: '14.0.0'; readonly orchestration: ManagedComponentBrowserFacade;
+  snapshot(): import('./plan-runtime').ManagedRmtxPlanSnapshot17;
+  subscribe(listener: (snapshot: import('./plan-runtime').ManagedRmtxPlanSnapshot17) => void): () => void;
+  boot(options: ManagedComponentBootOptions): Promise<Readonly<Record<string, unknown>>>;
+  restoreURLState: import('./plan-runtime').ManagedRmtxPlanRuntime17['restoreURLState'];
+  publishURLState: import('./plan-runtime').ManagedRmtxPlanRuntime17['publishURLState'];
+}
+export interface BrowserManagedComponentRoot extends Omit<BrowserNativeComponentRoot, 'schema' | 'apiVersion' | 'facade' | 'boot'> {
+  readonly schema: 'xtend.maraca.browser-composition-root.v14'; readonly apiVersion: '14.0.0';
+  readonly facade: ManagedComponentBrowserFacade;
+  boot(options: ManagedComponentBootOptions): ReturnType<ManagedComponentBrowserFacade['boot']>;
+}
+export function createMaracaBrowserCompositionRoot(configuration: Readonly<Record<string, unknown>> & {
+  readonly schema: 'xtend.maraca.browser-composition-root.v14'; readonly buildPlanSchema: 'xtend.maraca.build-plan.v12';
+  readonly xtensionComposition?: import('./xtension-composition-runtime').ManagedComponentArtifact;
+}, dependencies: Readonly<Record<string, unknown>> & {
+  readonly nativeViewRuntimePort: typeof import('@ccslabs/xtend/xtensions/native-managed-view-projection').NATIVE_MANAGED_VIEW_RUNTIME;
+  readonly createManagedPlanRuntime: typeof import('./native-managed-runtime').createMaracaNativeManagedRuntime;
+}): BrowserManagedComponentRoot;

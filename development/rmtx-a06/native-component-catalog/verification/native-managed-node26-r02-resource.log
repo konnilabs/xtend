@@ -1,0 +1,23 @@
+	Command being timed: "timeout 300s /tmp/xtend-rmtx-a0642/toolchain/node_modules/node-linux-x64/bin/node --max-old-space-size=1024 development/rmtx-a06/native-component-catalog/runtime-test.cjs --output /tmp/xtend-native-catalog-v2/source8-runtime-node26-final-rebind-r02.json --retain-build /tmp/xtend-native-catalog-v2/source8-build-node26-final-rebind-r02"
+	User time (seconds): 23.46
+	System time (seconds): 0.62
+	Percent of CPU this job got: 145%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:16.61
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 500644
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 152025
+	Voluntary context switches: 12351
+	Involuntary context switches: 196
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

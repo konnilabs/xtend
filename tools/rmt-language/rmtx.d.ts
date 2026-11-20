@@ -1,6 +1,6 @@
 import type { RmtJsonValue } from './rmt-tooling-public-types';
 /** Static markers. Model/item fields are compiler-checked; no model type SDK is implied. */
-export declare const RMTX_AUTHORING_API_VERSION: '7.0.0';
+export declare const RMTX_AUTHORING_API_VERSION: '8.0.0';
 export type RmtxLegacyOperator = 'Program' | 'State' | 'Action' | 'Input' | 'Reduce' | 'Portal' | 'Surface' | 'Lane' | 'Mount';
 /** Complete original v1 authoring namespace type, retained for compatibility consumers. */
 export type RmtxLegacyAuthoringNamespace = Readonly<Record<RmtxLegacyOperator, (attributes: Readonly<Record<string, unknown>>) => null>>;
@@ -288,11 +288,21 @@ export interface RmtxAuthoringNamespaceV7 extends Omit<RmtxAuthoringNamespaceV6,
  readonly Component:(attributes:RmtxPublicComponentAttributes)=>null;readonly Slot:(attributes:RmtxSlotAttributes)=>null;
  readonly On:(attributes:RmtxOnAttributesV4&{keys?:Readonly<Record<string,number>>})=>null;
 }
-export declare const RMT: Readonly<RmtxAuthoringNamespaceV7>;
-export declare const model: RmtxLegacyReferenceNamespace;
-export declare const input: RmtxLegacyReferenceNamespace;
-export declare const selectors: Readonly<Record<string, unknown>>;
-export declare const item: Readonly<Record<string, unknown>>;
+export interface RmtxPublicComponentAttributesV8<Tag extends import('./rmtx-native-components-v2.generated').RmtxNativeComponentTagV2=import('./rmtx-native-components-v2.generated').RmtxNativeComponentTagV2> {
+ tag:Tag;ref?:string;children?:unknown;
+ attributes?:Partial<import('./rmtx-native-components-v2.generated').RmtxNativeComponentTypeMapV2[NoInfer<Tag>]['attributes']>;
+ properties?:Partial<import('./rmtx-native-components-v2.generated').RmtxNativeComponentTypeMapV2[NoInfer<Tag>]['properties']>;
+}
+export interface RmtxElementAttributesV8 extends RmtxElementAttributes {ref?:string}
+export interface RmtxNativeCommandEffectAttributes {kind:'component-command';target:string;command:string;args?:unknown;keys?:readonly unknown[];children?:never}
+export interface RmtxAuthoringNamespaceV8 extends Omit<RmtxAuthoringNamespaceV7,'Component'|'Element'|'Effect'>{readonly Component:<Tag extends import('./rmtx-native-components-v2.generated').RmtxNativeComponentTagV2>(attributes:RmtxPublicComponentAttributesV8<Tag>)=>null;readonly Element:(attributes:RmtxElementAttributesV8)=>null;readonly Effect:(attributes:RmtxEffectAttributes|RmtxNativeCommandEffectAttributes)=>null}
+export declare const RMT: Readonly<RmtxAuthoringNamespaceV8>;
+/** Dynamic reference paths have no Model SDK. Literal component props remain checked by the captured type map; the compiler validates all dynamic references. */
+export type RmtxDynamicReferenceNamespace=Readonly<Record<string,any>>;
+export declare const model: RmtxDynamicReferenceNamespace;
+export declare const input: RmtxDynamicReferenceNamespace;
+export declare const selectors: RmtxDynamicReferenceNamespace;
+export declare const item: RmtxDynamicReferenceNamespace;
 export declare const params: Readonly<Record<string, unknown>>;
 export declare const result: Readonly<Record<string, unknown>>;
 export declare const error: Readonly<Record<string, unknown>>;

@@ -79,3 +79,7 @@ export function projectRmtxOrchestratedComponents(input: { readonly contract: Rm
  readonly xtensionComposition: Readonly<Record<string, unknown>> & { readonly schema: 'xtend.maraca.xtension-composition-manifest.v11' };
  readonly dependencies: RmtxComponentDependencyReportV4;
 };
+export const RMTX_MANAGED_COMPONENT_BINDINGS_API_VERSION:'5.0.0';
+export interface RmtxComponentSourceContractV4 extends Omit<RmtxComponentSourceContract,'schema'|'sourceProfile'>{readonly schema:'xtend.rmtx.components.v4';readonly sourceProfile:{readonly syntax:'rmtx';readonly version:'8.0.0'}}
+export interface RmtxComponentDependencyReportV5 extends Omit<RmtxComponentDependencyReport,'schema'|'sourceProfile'>{readonly schema:'xtend.rmtx.component-dependencies.v5';readonly sourceProfile:RmtxComponentSourceContractV4['sourceProfile'];readonly viewProfile:RmtxComponentSourceContractV4['sourceProfile']}
+export function projectRmtxManagedComponents(input:{readonly contract:RmtxComponentSourceContractV4;readonly catalog:RmtxComponentCatalog;readonly program:unknown}):{readonly xtensionBindings:import('../xtensions/state-binding-artifact').XTensionManagedStateBindingArtifact;readonly xtensionComposition:Readonly<Record<string,unknown>>&{readonly schema:'xtend.maraca.xtension-composition-manifest.v12'};readonly dependencies:RmtxComponentDependencyReportV5};

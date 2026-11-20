@@ -64,3 +64,5 @@ export const RMTX_SELECTOR_DEPENDENCIES_SCHEMA_V6:'xtend.rmtx.selector-dependenc
 export interface RmtxSelectorDependencyReportV6 extends Omit<RmtxSelectorDependencyReportV5,'schema'|'sourceProfile'>{readonly schema:typeof RMTX_SELECTOR_DEPENDENCIES_SCHEMA_V6;readonly sourceProfile:Readonly<{syntax:'rmtx';version:'7.0.0'}>}
 
 export declare function createRmtxSelectorDependencyReport(result:{sourceProfile:Readonly<{syntax:'rmtx';version:'7.0.0'}>;[metadata:string]:unknown}):RmtxSelectorDependencyReportV6;
+export interface RmtxSelectorDependencyReportV7 extends Omit<RmtxSelectorDependencyReport,'schema'|'sourceProfile'>{readonly schema:'xtend.rmtx.selector-dependencies.v7';readonly sourceProfile:Readonly<{syntax:'rmtx';version:'8.0.0'}>}
+export function createRmtxSelectorDependencyReport(result:{sourceProfile:Readonly<{syntax:'rmtx';version:'8.0.0'}>;[metadata:string]:unknown}):RmtxSelectorDependencyReportV7;

@@ -19,12 +19,14 @@ async function runXTensionsConsumerPackageSuite({ rootDir } = {}) {
   try {
     const peers=prepareXTensionsTestPeers({rootDir});
     fs.writeFileSync(path.join(temp,'package.json'),JSON.stringify({name:'isolated-xtend-consumer',private:true}));
+    const packedPackages=[];
     for(const directory of [rootDir,path.join(rootDir,'tools')]){
       const [pack]=JSON.parse(npmCommand(['pack','--json','--ignore-scripts','--pack-destination',temp],{cwd:directory,encoding:'utf8',timeout:90000,maxBuffer:16*1024*1024}));
       assert(!pack.files.some(file=>/node_modules\/(react|react-dom|vue)(\/|$)|runtime-peers/.test(file.path)),'Packed package must not contain test peers or framework runtimes');
       const target=path.join(temp,'node_modules',pack.name);fs.mkdirSync(target,{recursive:true});
       command('tar',['-xzf',path.join(temp,pack.filename),'-C',target,'--strip-components=1']);
       const manifest=JSON.parse(fs.readFileSync(path.join(target,'package.json')));
+      packedPackages.push({name:manifest.name,target,source:directory});
       for(const section of ['dependencies','optionalDependencies','peerDependencies'])for(const name of ['react','react-dom','vue'])assert(!manifest[section]?.[name],`${pack.name} must not install framework ${name} for all consumers`);
       for(const framework of ['react','vue']){
         const entry=manifest.exports[`./xtensions/${framework}-runtime-adapter`];
@@ -42,6 +44,7 @@ async function runXTensionsConsumerPackageSuite({ rootDir } = {}) {
       const target = path.join(temp, 'node_modules', pack.name); fs.mkdirSync(target, { recursive: true });
       command('tar', ['-xzf', path.join(temp, pack.filename), '-C', target, '--strip-components=1']);
       const manifest = JSON.parse(fs.readFileSync(path.join(target, 'package.json')));
+      packedPackages.push({name:manifest.name,target,source:path.join(rootDir,'xtend-maraca')});
       for (const subpath of ['xtension-composition', 'xtension-composition-runtime']) for (const condition of ['types', 'default']) assert(fs.existsSync(path.join(target, manifest.exports['./' + subpath][condition])));
       assert(fs.existsSync(path.join(target, 'xtension-composition-contract.mjs')));
       assert(fs.existsSync(path.join(target, 'xtension-platform-build.js')));
@@ -52,6 +55,18 @@ async function runXTensionsConsumerPackageSuite({ rootDir } = {}) {
       assert(fs.existsSync(path.join(target, 'xtension-deployment-lifecycle.js')));assert(fs.existsSync(path.join(target, 'xtension-deployment-lifecycle-client.d.ts')));
       context.pass('Packed Maraca contains both versioned A04 APIs and their private data contract');
     }
+    // Repository tooling can be symlinked into a separate installed toolchain.
+    // Trust that physical install only through the compiler's exact declared TS.
+    const typeScriptManifest=fs.realpathSync(require.resolve('typescript/package.json'));
+    const compilerManifest=JSON.parse(fs.readFileSync(path.join(temp,'node_modules/@ccslabs/xtend-compiler/package.json')));
+    assert.equal(JSON.parse(fs.readFileSync(typeScriptManifest)).version,compilerManifest.dependencies.typescript);
+    const trustedToolModules=path.dirname(path.dirname(typeScriptManifest));
+    const dependencies=require('../utils/packed-dependencies.cjs').materializePackedDependencies({
+      consumerRoot:temp,packages:packedPackages,sourceRoots:[rootDir,peers.peerRoot,trustedToolModules]
+    });
+    assert(dependencies.edges.some(row=>row.from==='@ccslabs/xtend-maraca'&&row.name==='rollup'));
+    assert(dependencies.edges.some(row=>row.from==='rollup'&&row.name.startsWith('@rollup/rollup-')),'The actual platform-compatible Rollup native package must be installed');
+    context.pass(`The three actual tarball manifests materialize ${dependencies.packages.length-3} declared dependency packages without implicit framework peers`);
     const fixture=path.join(temp,'consumer.cjs');
     fs.writeFileSync(fixture, `
 'use strict';
@@ -60,6 +75,8 @@ const {createRequire}=require('node:module');
 const peers=createRequire(process.env.XTENSIONS_TEST_PEERS+'/package.json');
 (async()=>{
  for(const name of ['react','react-dom','vue'])assert.throws(()=>require.resolve(name),{code:'MODULE_NOT_FOUND'});
+ assert.throws(()=>require.resolve('esbuild'),{code:'MODULE_NOT_FOUND'},'Source8 builds require a separately provisioned explicit toolchain');
+ assert.equal(require('rollup/parseAst').parseAst('export const packedDependency=1').type,'Program');
  const nativeCompiler = require('@ccslabs/xtend-compiler/rmt-language/rmtx-compiler');
  const nativeSource = "import {RMT} from '@ccslabs/xtend/rmt-language/rmtx';export default <RMT.Program id='packed'><RMT.Surface id='owner'><RMT.View><RMT.Component tag='x-button'><RMT.Text value='Packed'/></RMT.Component></RMT.View></RMT.Surface></RMT.Program>";
  const nativeCompiled = nativeCompiler.createRmtxCompiler({syntaxVersion:'7.0.0'}).compileSource({text:nativeSource,filePath:'packed.rmtx'});
@@ -68,6 +85,21 @@ const peers=createRequire(process.env.XTENSIONS_TEST_PEERS+'/package.json');
  require('@ccslabs/xtend-compiler/xtensions/native-surface-projection').NATIVE_ORCHESTRATION_VIEW_RUNTIME.validateNativeViewProgram(nativeCompiled.orchestrationArtifacts);
  const packedNativePlan = require('@ccslabs/xtend/maraca').createMaracaBuildPlan({sourceText:nativeSource,filePath:'packed.rmtx',rmtxSyntaxVersion:'7.0.0',orchestration:'strict',kernel:'strict'},{rootDir:process.cwd(),inspectToolchain:false});
  assert.equal(packedNativePlan.ok,true,JSON.stringify(packedNativePlan.diagnostics));assert.equal(packedNativePlan.schema,'xtend.maraca.build-plan.v11');
+ const managedSource = "import {RMT,model,input} from '@ccslabs/xtend/rmt-language/rmtx';export default <RMT.Program id='packed.managed'><RMT.State id='form' type='object' initial={{value:'initial'}}/><RMT.Action id='changed'><RMT.Input name='value' type='string'/><RMT.Reduce state='form' path='value' value={input.value}/></RMT.Action><RMT.Action id='focus'><RMT.Effect kind='component-command' target='owner.email' command='focus' args={{}}/></RMT.Action><RMT.Surface id='owner'><RMT.View><RMT.Component tag='x-input' ref='email' properties={{value:model.form.value}}><RMT.On event='input-changed' action='changed' payload={{value:'detail.value'}}/></RMT.Component></RMT.View></RMT.Surface></RMT.Program>";
+ const managedCompiled = nativeCompiler.createRmtxCompiler({syntaxVersion:'8.0.0'}).compileSource({text:managedSource,filePath:'packed-managed.rmtx'});
+ assert.equal(managedCompiled.ok,true,JSON.stringify(managedCompiled.diagnostics));assert.equal(managedCompiled.schema,'xtend.rmtx.compile-result.v8');
+ const managedProgram=managedCompiled.orchestrationArtifacts;
+ for(const pkg of ['@ccslabs/xtend','@ccslabs/xtend-compiler']) {
+  const managedPort=require(pkg+'/xtensions/native-managed-view-projection');
+  assert.equal(managedPort.NATIVE_SURFACE_VIEW_API_VERSION,'4.0.0');managedPort.validateNativeManagedViewProgram(managedProgram);
+  require(pkg+'/xtensions/native-component-bindings').validateNativeComponentBindings(managedProgram);
+  assert.equal(require(pkg+'/xtensions/native-component-contract-v2').NATIVE_COMPONENT_METADATA_SCHEMA_V2,'xtend.rmt.native-component-metadata.v2');
+  assert.equal(require(pkg+'/xtensions/state-binding-managed').XTENSION_MANAGED_STATE_BINDING_API_VERSION,'7.0.0');
+  assert.equal(require(pkg+'/xtensions/url-state-managed').MANAGED_URL_STATE_API_VERSION,'6.0.0');
+  assert.throws(()=>require(pkg+'/xtensions/native-surface-projection').NATIVE_ORCHESTRATION_VIEW_RUNTIME.validateNativeViewProgram(managedProgram));
+ }
+ assert.equal((await import('@ccslabs/xtend/maraca/native-managed-runtime')).NATIVE_MANAGED_RUNTIME_API_VERSION,'3.0.0');
+ assert.equal((await import('@ccslabs/xtend-maraca/native-managed-runtime')).NATIVE_MANAGED_RUNTIME_API_VERSION,'3.0.0');
  await import('@ccslabs/xtend');
  const {createRmtStateSelectorRuntime}=await import('@ccslabs/xtend/rmt/state-selector-runtime');
  const {createRmtKernelScheduler}=await import('@ccslabs/xtend/rmt/kernel-scheduler');
@@ -75,7 +107,7 @@ const peers=createRequire(process.env.XTENSIONS_TEST_PEERS+'/package.json');
  const {createRmtSurfaceResourceGraphRuntime}=await import('@ccslabs/xtend/rmt/surface-resource-graph-runtime');
  const {createSurfaceController}=await import('@ccslabs/xtend/components/xsurfacemanager-controller.js');
  const {createXtendFabric}=require('@ccslabs/xtend/fabric');
- const {JSDOM}=peers('jsdom');const dom=new JSDOM('<!doctype html><body></body>',{pretendToBeVisual:true,url:'http://xtend.test/packed'});
+ const {JSDOM}=require('jsdom');const dom=new JSDOM('<!doctype html><body></body>',{pretendToBeVisual:true,url:'http://xtend.test/packed'});
  for(const key of ['window','document','Node','Element','HTMLElement','SVGElement','navigator','MutationObserver','Event','CustomEvent'])Object.defineProperty(globalThis,key,{configurable:true,value:dom.window[key]});
  const React=peers('react'),ReactDOM={...peers('react-dom/client'),version:peers('react-dom').version},Vue=peers('vue');
  try{
@@ -145,8 +177,8 @@ const peers=createRequire(process.env.XTENSIONS_TEST_PEERS+'/package.json');
   const fs = require('node:fs'), path = require('node:path'), {createHash} = require('node:crypto');
   const compositionRuntime = await import('@ccslabs/xtend/maraca/xtension-composition-runtime');
   const maracaRuntime = await import('@ccslabs/xtend-maraca/xtension-composition-runtime');
-  assert.equal(maracaRuntime.XTENSION_COMPOSITION_API_VERSION, '13.0.0');
-  assert.equal(require('@ccslabs/xtend-maraca/xtension-composition').XTENSION_COMPOSITION_BUILD_API_VERSION, '16.0.0');
+  assert.equal(maracaRuntime.XTENSION_COMPOSITION_API_VERSION, '14.0.0');
+  assert.equal(require('@ccslabs/xtend-maraca/xtension-composition').XTENSION_COMPOSITION_BUILD_API_VERSION, '17.0.0');
   const compositionPlan = ${JSON.stringify(require('../../development/rmtx-a04/reference.cjs').createPlan())};
   const sources = ${JSON.stringify(Object.fromEntries(['react', 'vue'].map(framework => [framework, fs.readFileSync(path.join(rootDir, 'development/rmtx-a04/providers', framework + '-panel.mjs'), 'utf8')])))};
   const manifests = ${JSON.stringify(Object.fromEntries(['react', 'vue'].map(framework => [framework, require('../../development/rmtx-a04/reference.cjs').createManifest(framework)])))};
@@ -234,7 +266,8 @@ const peers=createRequire(process.env.XTENSIONS_TEST_PEERS+'/package.json');
  console.log('Packed root/compiler factories render with explicitly injected external peers; missing peers and unsafe payloads are rejected.');
 })().catch(error=>{console.error(error);process.exitCode=1;});
 `);
-    console.log(command(process.execPath,[fixture],{cwd:temp,env:{...process.env,XTENSIONS_TEST_PEERS:peers.peerRoot}}));
+    // Test-only compiler tool lookup must not leak peer frameworks into the neutral SDK consumer.
+    console.log(command(process.execPath,[fixture],{cwd:temp,env:{...process.env,NODE_PATH:'',XTENSIONS_TEST_PEERS:peers.peerRoot}}));
     context.pass('Isolated packed root/compiler Node consumer resolves all Runtime APIs, renders with injected peers, rejects missing peers and payload leaks');
     const typing=path.join(temp,'binding-consumer.mts');
     fs.writeFileSync(typing,`import { createReactKernelRuntimeAdapter } from '@ccslabs/xtend/xtensions/react-runtime-adapter';
@@ -247,6 +280,16 @@ const same: typeof root = compiler; void same; void compileRmtClassicAstWithBind
 import {createMaracaXTensionHostFactory} from '@ccslabs/xtend/maraca/xtension-composition-runtime';
 import {createMaracaXTensionHostFactory as workspace} from '@ccslabs/xtend-maraca/xtension-composition-runtime';
 const composition: typeof workspace = createMaracaXTensionHostFactory; void composition; void buildMaracaXTensionComposition;\n`);
+    fs.appendFileSync(typing, `import {createRmtxCompiler} from '@ccslabs/xtend-compiler/rmt-language/rmtx-compiler';
+import {createRmtxCompiler as rootCompiler} from '@ccslabs/xtend/rmt-language/rmtx-compiler';
+import {NATIVE_MANAGED_VIEW_RUNTIME} from '@ccslabs/xtend/xtensions/native-managed-view-projection';
+import {NATIVE_MANAGED_VIEW_RUNTIME as compilerPort} from '@ccslabs/xtend-compiler/xtensions/native-managed-view-projection';
+import {createMaracaNativeManagedRuntime} from '@ccslabs/xtend/maraca/native-managed-runtime';
+import {createMaracaNativeManagedRuntime as managedWorkspace} from '@ccslabs/xtend-maraca/native-managed-runtime';
+import type {RmtxNativeComponentTypeMapV2} from '@ccslabs/xtend/rmt-language/rmtx-native-components-v2';
+const inputProps:Partial<RmtxNativeComponentTypeMapV2['x-input']['properties']>={value:'typed'};
+const newCompiler=rootCompiler({syntaxVersion:'8.0.0'});const compiledType=createRmtxCompiler({syntaxVersion:'8.0.0'});const sameCompiler:typeof newCompiler=compiledType;void sameCompiler;
+const port:typeof compilerPort=NATIVE_MANAGED_VIEW_RUNTIME;const runtime:typeof managedWorkspace=createMaracaNativeManagedRuntime;void inputProps;void newCompiler;void port;void runtime;\n`);
     const integratedTyping=path.join(temp,'integrated-consumer.mts');
     fs.copyFileSync(path.join(rootDir,'tests/types/xtensions_integrated_composition.mts'),integratedTyping);
     const ssrTyping=path.join(temp,'xtensions_ssr.mts');fs.copyFileSync(path.join(rootDir,'tests/types/xtensions_ssr.mts'),ssrTyping);
@@ -254,7 +297,7 @@ const composition: typeof workspace = createMaracaXTensionHostFactory; void comp
     command(process.execPath,[path.join(rootDir,'node_modules/typescript/bin/tsc'),'--strict','--noEmit','--lib','es2022,dom','--module','node16','--moduleResolution','node16',typing,integratedTyping,ssrTyping,orchestrationTyping],{cwd:temp});
     context.pass('Packed root/compiler state binding declarations resolve strictly without source-tree RMT imports');
     const { build } = require('esbuild');
-    const bundle=await build({stdin:{contents:"import * as XTend from '@ccslabs/xtend'; import * as ReactAdapter from '@ccslabs/xtend/xtensions/react-runtime-adapter'; import * as VueAdapter from '@ccslabs/xtend/xtensions/vue-runtime-adapter'; import * as StateBinding from '@ccslabs/xtend/xtensions/state-binding'; import * as Composition from '@ccslabs/xtend/maraca/xtension-composition-runtime'; globalThis.consumer={XTend,ReactAdapter,VueAdapter,StateBinding,Composition};",resolveDir:temp},absWorkingDir:temp,bundle:true,platform:'browser',write:false,metafile:true});
+    const bundle=await build({stdin:{contents:"import * as XTend from '@ccslabs/xtend'; import * as ReactAdapter from '@ccslabs/xtend/xtensions/react-runtime-adapter'; import * as VueAdapter from '@ccslabs/xtend/xtensions/vue-runtime-adapter'; import * as StateBinding from '@ccslabs/xtend/xtensions/state-binding'; import * as Managed from '@ccslabs/xtend/maraca/native-managed-runtime'; import * as ManagedView from '@ccslabs/xtend/xtensions/native-managed-view-projection'; import * as Composition from '@ccslabs/xtend/maraca/xtension-composition-runtime'; globalThis.consumer={XTend,ReactAdapter,VueAdapter,StateBinding,Composition,Managed,ManagedView};",resolveDir:temp},absWorkingDir:temp,bundle:true,platform:'browser',write:false,metafile:true});
     assert(Object.keys(bundle.metafile.inputs).some(input=>input.endsWith('/xtend.js')),'Neutral Core must actually be included, not tree-shaken out of the consumer test');
     assert(!Object.keys(bundle.metafile.inputs).some(input=>/node_modules[\\/](react|react-dom|vue|@vue)[\\/]/.test(input)),'Neutral core and adapter bundle must not include peer runtimes');
     context.pass('Actual packed browser consumer bundles neutral Core and Runtime factories without React/Vue');

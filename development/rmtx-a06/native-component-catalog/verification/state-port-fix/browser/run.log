@@ -1,0 +1,113 @@
+▲ [WARNING] The CommonJS "module" variable is treated as a global variable in an ECMAScript module and may not work as expected [commonjs-variable-in-esm]
+
+    components/xtend-state.js:13:2:
+      13 │   module.exports = { xtendState };
+         ╵   ~~~~~~
+
+  This file is considered to be an ECMAScript module because of the "export" keyword here:
+
+    components/xtend-state.js:3:0:
+      3 │ export * from './xtend-state.definition.js';
+        ╵ ~~~~~~
+
+▲ [WARNING] The CommonJS "module" variable is treated as a global variable in an ECMAScript module and may not work as expected [commonjs-variable-in-esm]
+
+    xtendrmt/rmt-dom-descriptor-renderer.js:4546:4:
+      4546 │     module.exports = api;
+           ╵     ~~~~~~
+
+  This file is considered to be an ECMAScript module because of the "export" keyword here:
+
+    xtendrmt/rmt-dom-descriptor-renderer.js:4566:0:
+      4566 │ export default __XTEND_RMT_DOM_DESCRIPTOR_RENDERER_API__;
+           ╵ ~~~~~~
+
+▲ [WARNING] The CommonJS "module" variable is treated as a global variable in an ECMAScript module and may not work as expected [commonjs-variable-in-esm]
+
+    xtendrmt/rmt-dom-descriptor-renderer.js:4546:4:
+      4546 │     module.exports = api;
+           ╵     ~~~~~~
+
+  This file is considered to be an ECMAScript module because of the "export" keyword here:
+
+    xtendrmt/rmt-dom-descriptor-renderer.js:4566:0:
+      4566 │ export default __XTEND_RMT_DOM_DESCRIPTOR_RENDERER_API__;
+           ╵ ~~~~~~
+
+▲ [WARNING] The CommonJS "module" variable is treated as a global variable in an ECMAScript module and may not work as expected [commonjs-variable-in-esm]
+
+    xtendrmt/rmt-maraca-view-projection-adapter.js:432:55:
+      432 │ ...f module !== 'undefined' && module.exports) module.exports = api;
+          ╵                                                ~~~~~~
+
+  This file is considered to be an ECMAScript module because of the "export" keyword here:
+
+    xtendrmt/rmt-maraca-view-projection-adapter.js:445:0:
+      445 │ export default __XTEND_RMT_MARACA_VIEW_PROJECTION_ADAPTER_API__;
+          ╵ ~~~~~~
+
+▲ [WARNING] The CommonJS "module" variable is treated as a global variable in an ECMAScript module and may not work as expected [commonjs-variable-in-esm]
+
+    xtendrmt/rmt-presentation-effect-adapter.js:595:55:
+      595 │ ...f module !== 'undefined' && module.exports) module.exports = api;
+          ╵                                                ~~~~~~
+
+  This file is considered to be an ECMAScript module because of the "export" keyword here:
+
+    xtendrmt/rmt-presentation-effect-adapter.js:605:0:
+      605 │ export default __XTEND_RMT_PRESENTATION_EFFECT_ADAPTER_API__;
+          ╵ ~~~~~~
+
+▲ [WARNING] The CommonJS "module" variable is treated as a global variable in an ECMAScript module and may not work as expected [commonjs-variable-in-esm]
+
+    xtendrmt/rmt-surface-resource-graph-runtime.js:1785:4:
+      1785 │     module.exports = api;
+           ╵     ~~~~~~
+
+  This file is considered to be an ECMAScript module because of the "export" keyword here:
+
+    xtendrmt/rmt-surface-resource-graph-runtime.js:1799:0:
+      1799 │ export default __XTEND_RMT_SURFACE_RESOURCE_GRAPH_RUNTIME_API__;
+           ╵ ~~~~~~
+
+▲ [WARNING] The CommonJS "module" variable is treated as a global variable in an ECMAScript module and may not work as expected [commonjs-variable-in-esm]
+
+    xtendrmt/rmt-dom-descriptor-renderer.js:4546:4:
+      4546 │     module.exports = api;
+           ╵     ~~~~~~
+
+  This file is considered to be an ECMAScript module because of the "export" keyword here:
+
+    xtendrmt/rmt-dom-descriptor-renderer.js:4566:0:
+      4566 │ export default __XTEND_RMT_DOM_DESCRIPTOR_RENDERER_API__;
+           ╵ ~~~~~~
+
+▲ [WARNING] The CommonJS "module" variable is treated as a global variable in an ECMAScript module and may not work as expected [commonjs-variable-in-esm]
+
+    xtendrmt/rmt-surface-transition-runtime.js:775:4:
+      775 │     module.exports = api;
+          ╵     ~~~~~~
+
+  This file is considered to be an ECMAScript module because of the "export" keyword here:
+
+    xtendrmt/rmt-surface-transition-runtime.js:788:0:
+      788 │ export default __XTEND_RMT_SURFACE_TRANSITION_RUNTIME_API__;
+          ╵ ~~~~~~
+
+▲ [WARNING] The CommonJS "module" variable is treated as a global variable in an ECMAScript module and may not work as expected [commonjs-variable-in-esm]
+
+    xtendrmt/rmt-dom-descriptor-renderer.js:4546:4:
+      4546 │     module.exports = api;
+           ╵     ~~~~~~
+
+  This file is considered to be an ECMAScript module because of the "export" keyword here:
+
+    xtendrmt/rmt-dom-descriptor-renderer.js:4566:0:
+      4566 │ export default __XTEND_RMT_DOM_DESCRIPTOR_RENDERER_API__;
+           ╵ ~~~~~~
+
+ui: 61/61; pageerrors 0
+renderer: 8/8; pageerrors 0
+demo: 1/1; pageerrors 0
+platform: 9/9; pageerrors 0
+services: 7/7; pageerrors 0

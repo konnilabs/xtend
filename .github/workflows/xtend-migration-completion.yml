@@ -428,6 +428,10 @@ jobs:
             .xtend-test-results/xtend-rmtx-native-view-runtime-browser-report.json
             .xtend-test-results/xtend-rmtx-native-lifecycle-runtime-browser-report.json
             .xtend-test-results/xtend-rmtx-native-orchestration-runtime-browser-report.json
+            .xtend-test-results/xtend-rmtx-native-managed-runtime-node-report.json
+            .xtend-test-results/xtend-rmtx-native-managed-runtime-browser-report.json
+            .xtend-test-results/xtend-rmtx-native-catalog-browser-report.json
+            .xtend-test-results/xtend-rmtx-native-cold-registry-browser-report.json
             .xtend-test-results/xtend-xtensions-consumer-package-report.json
             .xtend-test-results/xtend-xtensions-runtime-gate-report.json
             .xtend-test-results/xtend-dev-surface-report.json

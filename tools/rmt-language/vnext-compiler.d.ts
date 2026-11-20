@@ -80,7 +80,7 @@ export declare const RMT_VNEXT_COMPILER_MODULE_PATH: RmtToolingConstant;
 export declare const RMT_VNEXT_COMPILER_PACKAGE_SCRIPT: RmtToolingConstant;
 export declare const RMT_VNEXT_COMPILER_REPORT_SCHEMA: RmtToolingConstant;
 export declare const RMT_VNEXT_COMPILER_SCHEMA: RmtToolingConstant;
-export declare const RMT_VNEXT_COMPILER_API_VERSION: '1.9.0';
+export declare const RMT_VNEXT_COMPILER_API_VERSION: '1.10.0';
 export declare const RMT_VNEXT_COMPILER_SUITE_PATH: RmtToolingConstant;
 export declare const RMT_VNEXT_COMPILER_WORKPACKAGE: RmtToolingConstant;
 export declare const RMT_VNEXT_CORE_SCHEMA: RmtToolingConstant;
@@ -106,3 +106,9 @@ export declare const RMT_APP_ORCHESTRATION_SCHEMA_V5:'xtend.rmt.app-orchestratio
 export declare function compileRmtVNextAstResult(ast:RmtJsonValue,options:RmtVNextAstResultOptionsV7):RmtVNextAstCompileResult;
 export declare function compileRmtVNextAstResult(ast:RmtJsonValue,options:RmtVNextAstResultOptions|RmtVNextAstResultOptionsV2|RmtVNextAstResultOptionsV3|RmtVNextAstResultOptionsV4|RmtVNextAstResultOptionsV5|RmtVNextAstResultOptionsV6|RmtVNextAstResultOptionsV7):RmtVNextAstCompileResult;
 export declare function createRmtAppOrchestrationArtifacts(coreDocument:RmtVNextCoreDocument,options:RmtVNextAstResultOptionsV7):RmtJsonValue|null;
+export interface RmtCompilerSourceProfileV8 {readonly syntax:'rmtx';readonly version:'8.0.0'}
+export interface RmtVNextAstResultOptionsV8 extends Record<string,unknown>{sourceProfile:RmtCompilerSourceProfileV8;viewProfile:RmtCompilerSourceProfileV8;actionProfile:RmtCompilerSourceProfileV8;rmtxActionInputRules:import('./action-input-contract').RmtxActionInputRules;rmtxNativeView:import('./rmtx-native-view').RmtxManagedNativeViewSourceContract;rmtxNativeLifecycle:import('./rmtx-native-lifecycle').RmtxManagedNativeLifecycleSourceContract}
+export const RMT_APP_ORCHESTRATION_SCHEMA_V6:'xtend.rmt.app-orchestration.v6';
+export function compileRmtVNextAstResult(ast:RmtJsonValue,options:RmtVNextAstResultOptionsV8):RmtVNextAstCompileResult;
+export function compileRmtVNextAstResult(ast:RmtJsonValue,options:RmtVNextAstResultOptions|RmtVNextAstResultOptionsV2|RmtVNextAstResultOptionsV3|RmtVNextAstResultOptionsV4|RmtVNextAstResultOptionsV5|RmtVNextAstResultOptionsV6|RmtVNextAstResultOptionsV7|RmtVNextAstResultOptionsV8):RmtVNextAstCompileResult;
+export function createRmtAppOrchestrationArtifacts(coreDocument:RmtVNextCoreDocument,options:RmtVNextAstResultOptionsV8):RmtJsonValue|null;

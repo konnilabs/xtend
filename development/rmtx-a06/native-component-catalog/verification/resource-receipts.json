@@ -1,0 +1,75 @@
+{
+  "schema": "xtend.rmtx.native-managed-resource-receipts.v1",
+  "version": "1.0.0",
+  "provenance": "Values extracted from the unmodified runtime reports and external time-v receipts named in each row.",
+  "aggregatesChromiumProcessGroup": false,
+  "acceptedForRelease": false,
+  "runs": [
+    {
+      "report": "runtime-node24.json",
+      "reportSha256": "1f45444f7d4ba99ca4cbc71f526db036ef0707e61b22ba0ca975427d41d75a98",
+      "resourceReceipt": "runtime-node24-resource.log",
+      "resourceReceiptSha256": "81f254a8ae741efb21add632d89102153347eb2c37a5cf06c3364a9b32373269",
+      "node": "v24.22.2",
+      "browserVersion": null,
+      "passed": true,
+      "runtimeCases": 12,
+      "compilerNegativeCases": 10,
+      "capturedSourceFiles": 562,
+      "heapLimitMiB": 1024,
+      "timeoutSeconds": 300,
+      "elapsed": "0:17.82",
+      "maxResidentSetKiB": 608972,
+      "exitStatus": 0,
+      "sizes": {
+        "frameworkBytes": 2195739,
+        "componentRuntimeBytes": 270515,
+        "nativeViewRuntimeBytes": 178535
+      }
+    },
+    {
+      "report": "runtime-node26.json",
+      "reportSha256": "e9ff37dd7d8bffc35a71b2b9151c85faa525ec9825ae6c7c54f4505c54b21544",
+      "resourceReceipt": "runtime-node26-resource.log",
+      "resourceReceiptSha256": "6440c8238ffba841acf984aa6f5c8181134677c69d9d01d32fc77f1a17fd9e07",
+      "node": "v26.5.0",
+      "browserVersion": null,
+      "passed": true,
+      "runtimeCases": 12,
+      "compilerNegativeCases": 10,
+      "capturedSourceFiles": 562,
+      "heapLimitMiB": 1024,
+      "timeoutSeconds": 300,
+      "elapsed": "0:17.66",
+      "maxResidentSetKiB": 485724,
+      "exitStatus": 0,
+      "sizes": {
+        "frameworkBytes": 2195739,
+        "componentRuntimeBytes": 270515,
+        "nativeViewRuntimeBytes": 178535
+      }
+    },
+    {
+      "report": "runtime-browser.json",
+      "reportSha256": "25f39d1b3c3ee20402d967ce80d8d0b8c8f2a9b3792643e33f9d70d07e343770",
+      "resourceReceipt": "runtime-browser-resource.log",
+      "resourceReceiptSha256": "385ae88005d654361ce5e478e2b67cebc9f2f2235fb159f384d3163f8699e38b",
+      "node": "v24.22.2",
+      "browserVersion": "156.0.8078.4",
+      "passed": true,
+      "runtimeCases": 12,
+      "compilerNegativeCases": 10,
+      "capturedSourceFiles": 562,
+      "heapLimitMiB": 1024,
+      "timeoutSeconds": 300,
+      "elapsed": "0:15.07",
+      "maxResidentSetKiB": 643444,
+      "exitStatus": 0,
+      "sizes": {
+        "frameworkBytes": 2195739,
+        "componentRuntimeBytes": 270515,
+        "nativeViewRuntimeBytes": 178535
+      }
+    }
+  ]
+}

@@ -1,10 +1,11 @@
 'use strict';
-const { parseRmtxSource, RMTX_SOURCE_PROFILE, RMTX_SELECTOR_SOURCE_PROFILE, RMTX_KEYED_SOURCE_PROFILE, RMTX_ORCHESTRATION_SOURCE_PROFILE, RMTX_NATIVE_SOURCE_PROFILE, RMTX_LIFECYCLE_SOURCE_PROFILE, RMTX_NATIVE_ORCHESTRATION_SOURCE_PROFILE } = require('./rmtx-parser');
+const { parseRmtxSource, RMTX_SOURCE_PROFILE, RMTX_SELECTOR_SOURCE_PROFILE, RMTX_KEYED_SOURCE_PROFILE, RMTX_ORCHESTRATION_SOURCE_PROFILE, RMTX_NATIVE_SOURCE_PROFILE, RMTX_LIFECYCLE_SOURCE_PROFILE, RMTX_NATIVE_ORCHESTRATION_SOURCE_PROFILE, RMTX_MANAGED_NATIVE_SOURCE_PROFILE } = require('./rmtx-parser');
 const { projectRmtxHostScopes } = require('./rmtx-host-scopes');
 const { createRmtxSelectorDependencyReport } = require('./rmtx-selector-dependencies');
 const { compileRmtClassicAstResult } = require('./classic-compiler');
 const { validateStateBindingArtifact } = require('../xtensions/state-binding-artifact');
-const RMTX_COMPILER_API_VERSION = '7.0.0';
+const RMTX_COMPILER_API_VERSION = '8.0.0'
+const RMTX_COMPILE_RESULT_SCHEMA_V8 = 'xtend.rmtx.compile-result.v8';
 const RMTX_COMPILE_RESULT_SCHEMA = 'xtend.rmtx.compile-result.v1';
 const RMTX_COMPILE_RESULT_SCHEMA_V2 = 'xtend.rmtx.compile-result.v2';
 const RMTX_COMPILE_RESULT_SCHEMA_V3 = 'xtend.rmtx.compile-result.v3';
@@ -18,7 +19,8 @@ function compileRmtxSource(input = {}, options = {}) {
     compilerDiagnostics: [], coreDocument: null, coreJson: null, orchestrationArtifacts: null, appServiceDemands: null, primitiveArtifacts: null };
   if (parserResult.ok) {
     const { xtensionBindings: ignored, componentInterfaceCatalog, ...backendOptions } = options;
-    const orchestration=parserResult.sourceProfile.version==='7.0.0';
+    const managed=parserResult.sourceProfile.version==='8.0.0';
+    const orchestration=managed||parserResult.sourceProfile.version==='7.0.0';
     const lifecycle = orchestration || parserResult.sourceProfile.version === '6.0.0';
     const native = lifecycle || parserResult.sourceProfile.version === '5.0.0';
     const extended = native || parserResult.sourceProfile.version === '4.0.0';
@@ -31,7 +33,7 @@ function compileRmtxSource(input = {}, options = {}) {
         if (Object.hasOwn(options, 'xtensionBindings')) throw new TypeError(native ? 'RMTX 5 uses inline provider bindings; additional binding sidecars are not supported.' : 'RMTX 4 uses inline provider bindings; additional binding sidecars are not supported.');
         if (parserResult.components.hosts.length) {
           const bindings = require('./rmtx-component-bindings');
-          const projection = (orchestration ? bindings.projectRmtxOrchestratedComponents : lifecycle ? bindings.projectRmtxLifecycleComponents : bindings.projectRmtxComponents)({ contract: parserResult.components,
+          const projection = (managed ? bindings.projectRmtxManagedComponents : orchestration ? bindings.projectRmtxOrchestratedComponents : lifecycle ? bindings.projectRmtxLifecycleComponents : bindings.projectRmtxComponents)({ contract: parserResult.components,
             catalog: componentInterfaceCatalog, program: result.orchestrationArtifacts });
           result = { ...result, xtensionBindings: projection.xtensionBindings, xtensionComposition: projection.xtensionComposition,
             componentDependencies: projection.dependencies };
@@ -55,13 +57,14 @@ function compileRmtxSource(input = {}, options = {}) {
   }
   const v3 = parserResult.sourceProfile.version === '3.0.0';
   const v5 = parserResult.sourceProfile.version === '5.0.0';
+  const v8=parserResult.sourceProfile.version==='8.0.0';
   const v7 = parserResult.sourceProfile.version === '7.0.0';
   const v6 = parserResult.sourceProfile.version === '6.0.0';
   const v4 = parserResult.sourceProfile.version === '4.0.0';
-  const v2 = parserResult.sourceProfile.version === '2.0.0' || v3 || v4 || v5 || v6 || v7;
+  const v2 = parserResult.sourceProfile.version === '2.0.0' || v3 || v4 || v5 || v6 || v7 || v8;
   if (v2) result = { ...result, selectorDependencies: result.ok
     ? createRmtxSelectorDependencyReport({ ...result, sourceProfile: parserResult.sourceProfile }) : null };
-  if ((v4 || v5 || v6 || v7) && result.ok && result.componentDependencies) {
+  if ((v4 || v5 || v6 || v7 || v8) && result.ok && result.componentDependencies) {
     const selectors = new Map(result.selectorDependencies.selectors.map(selector => [selector.id, selector]));
     const declarations = result.componentDependencies.declarations.map(declaration => {
       const reads = new Map();
@@ -75,9 +78,9 @@ function compileRmtxSource(input = {}, options = {}) {
     const freeze = value => { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; };
     result = { ...result, componentDependencies: freeze({ ...result.componentDependencies, declarations }) };
   }
-  if (v5 || v6 || v7) {
+  if (v5 || v6 || v7 || v8) {
     if (result.ok) {
-      const report = (v7 ? require('./rmtx-native-view').lowerRmtxNativeOrchestrationViews : require('./rmtx-native-view').lowerRmtxNativeViews)(parserResult.nativeView, result.coreDocument.appPlatform).dependencies;
+      const report = (v8 ? require('./rmtx-native-view').lowerRmtxManagedNativeViews : v7 ? require('./rmtx-native-view').lowerRmtxNativeOrchestrationViews : require('./rmtx-native-view').lowerRmtxNativeViews)(parserResult.nativeView, result.coreDocument.appPlatform).dependencies;
       const selectors = new Map(result.selectorDependencies.selectors.map(selector => [selector.id, selector]));
       const surfaces = report.surfaces.map(surface => {
         const reads = new Map();
@@ -91,10 +94,10 @@ function compileRmtxSource(input = {}, options = {}) {
       result = { ...result, nativeDependencies: freeze({ ...report, surfaces }) };
     } else result = { ...result, nativeDependencies: null };
   }
-  if (v6 || v7) {
+  if (v6 || v7 || v8) {
     if (result.ok) {
-      const report = (v7 ? require('./rmtx-native-lifecycle').lowerRmtxNativeOrchestrationLifecycle : require('./rmtx-native-lifecycle').lowerRmtxNativeLifecycle)(parserResult.nativeLifecycle, result.coreDocument,
-        v7 ? parserResult.nativeView : result.orchestrationArtifacts?.render?.nativeView || { documentId: parserResult.nativeLifecycle.documentId, surfaces: [] }).dependencies;
+      const report = (v8 ? require('./rmtx-native-lifecycle').lowerRmtxManagedNativeLifecycle : v7 ? require('./rmtx-native-lifecycle').lowerRmtxNativeOrchestrationLifecycle : require('./rmtx-native-lifecycle').lowerRmtxNativeLifecycle)(parserResult.nativeLifecycle, result.coreDocument,
+        (v7||v8) ? parserResult.nativeView : result.orchestrationArtifacts?.render?.nativeView || { documentId: parserResult.nativeLifecycle.documentId, surfaces: [] }).dependencies;
       const selectors = new Map(result.selectorDependencies.selectors.map(selector => [selector.id, selector]));
       const operations = report.operations.map(operation => {
         const reads = new Map();
@@ -108,17 +111,17 @@ function compileRmtxSource(input = {}, options = {}) {
     } else result = { ...result, lifecycleDependencies: null };
   }
   if (!result.ok) result = { ...result, coreDocument: null, coreJson: null, orchestrationArtifacts: null, appServiceDemands: null, primitiveArtifacts: null, xtensionBindings: null,
-    ...((v4 || v5 || v6 || v7) ? { xtensionComposition: null, componentDependencies: null } : {}) };
-  return { ...result, schema: v7 ? RMTX_COMPILE_RESULT_SCHEMA_V7 : v6 ? RMTX_COMPILE_RESULT_SCHEMA_V6 : v5 ? RMTX_COMPILE_RESULT_SCHEMA_V5 : v4 ? RMTX_COMPILE_RESULT_SCHEMA_V4 : v3 ? RMTX_COMPILE_RESULT_SCHEMA_V3 : v2 ? RMTX_COMPILE_RESULT_SCHEMA_V2 : RMTX_COMPILE_RESULT_SCHEMA,
+    ...((v4 || v5 || v6 || v7 || v8) ? { xtensionComposition: null, componentDependencies: null } : {}) };
+  return { ...result, schema: v8 ? RMTX_COMPILE_RESULT_SCHEMA_V8 : v7 ? RMTX_COMPILE_RESULT_SCHEMA_V7 : v6 ? RMTX_COMPILE_RESULT_SCHEMA_V6 : v5 ? RMTX_COMPILE_RESULT_SCHEMA_V5 : v4 ? RMTX_COMPILE_RESULT_SCHEMA_V4 : v3 ? RMTX_COMPILE_RESULT_SCHEMA_V3 : v2 ? RMTX_COMPILE_RESULT_SCHEMA_V2 : RMTX_COMPILE_RESULT_SCHEMA,
     apiVersion: parserResult.sourceProfile.version, sourceProfile: parserResult.sourceProfile, parserResult,
     diagnostics: result.diagnostics.map(diagnostic => ({ ...diagnostic, source: 'rmtx' })),
     compilerDiagnostics: result.compilerDiagnostics.map(diagnostic => ({ ...diagnostic, source: 'rmtx' })) };
 }
 function createRmtxCompiler(defaultOptions = {}) {
-  const profile = defaultOptions.syntaxVersion === '7.0.0' ? RMTX_NATIVE_ORCHESTRATION_SOURCE_PROFILE : defaultOptions.syntaxVersion === '6.0.0' ? RMTX_LIFECYCLE_SOURCE_PROFILE : defaultOptions.syntaxVersion === '5.0.0' ? RMTX_NATIVE_SOURCE_PROFILE : defaultOptions.syntaxVersion === '4.0.0' ? RMTX_ORCHESTRATION_SOURCE_PROFILE : defaultOptions.syntaxVersion === '3.0.0' ? RMTX_KEYED_SOURCE_PROFILE : defaultOptions.syntaxVersion === '2.0.0' ? RMTX_SELECTOR_SOURCE_PROFILE : RMTX_SOURCE_PROFILE;
+  const profile = defaultOptions.syntaxVersion==='8.0.0'?RMTX_MANAGED_NATIVE_SOURCE_PROFILE:defaultOptions.syntaxVersion === '7.0.0' ? RMTX_NATIVE_ORCHESTRATION_SOURCE_PROFILE : defaultOptions.syntaxVersion === '6.0.0' ? RMTX_LIFECYCLE_SOURCE_PROFILE : defaultOptions.syntaxVersion === '5.0.0' ? RMTX_NATIVE_SOURCE_PROFILE : defaultOptions.syntaxVersion === '4.0.0' ? RMTX_ORCHESTRATION_SOURCE_PROFILE : defaultOptions.syntaxVersion === '3.0.0' ? RMTX_KEYED_SOURCE_PROFILE : defaultOptions.syntaxVersion === '2.0.0' ? RMTX_SELECTOR_SOURCE_PROFILE : RMTX_SOURCE_PROFILE;
   return Object.freeze({ name: 'RMTX', apiVersion: profile.version,
-    schema: profile.version === '7.0.0' ? RMTX_COMPILE_RESULT_SCHEMA_V7 : profile.version === '6.0.0' ? RMTX_COMPILE_RESULT_SCHEMA_V6 : profile.version === '5.0.0' ? RMTX_COMPILE_RESULT_SCHEMA_V5 : profile.version === '4.0.0' ? RMTX_COMPILE_RESULT_SCHEMA_V4 : profile.version === '3.0.0' ? RMTX_COMPILE_RESULT_SCHEMA_V3 : profile.version === '2.0.0' ? RMTX_COMPILE_RESULT_SCHEMA_V2 : RMTX_COMPILE_RESULT_SCHEMA, sourceProfile: profile,
+    schema: profile.version==='8.0.0'?RMTX_COMPILE_RESULT_SCHEMA_V8:profile.version === '7.0.0' ? RMTX_COMPILE_RESULT_SCHEMA_V7 : profile.version === '6.0.0' ? RMTX_COMPILE_RESULT_SCHEMA_V6 : profile.version === '5.0.0' ? RMTX_COMPILE_RESULT_SCHEMA_V5 : profile.version === '4.0.0' ? RMTX_COMPILE_RESULT_SCHEMA_V4 : profile.version === '3.0.0' ? RMTX_COMPILE_RESULT_SCHEMA_V3 : profile.version === '2.0.0' ? RMTX_COMPILE_RESULT_SCHEMA_V2 : RMTX_COMPILE_RESULT_SCHEMA, sourceProfile: profile,
     compileSource: (input = {}, options = {}) => compileRmtxSource(input, { ...defaultOptions, ...options,
-      ...(['4.0.0', '5.0.0', '6.0.0', '7.0.0'].includes(profile.version) && options.syntaxVersion === undefined ? { syntaxVersion: profile.version } : {}) }) });
+      ...(['4.0.0', '5.0.0', '6.0.0', '7.0.0', '8.0.0'].includes(profile.version) && options.syntaxVersion === undefined ? { syntaxVersion: profile.version } : {}) }) });
 }
-module.exports = { RMTX_COMPILER_API_VERSION, RMTX_COMPILE_RESULT_SCHEMA, RMTX_COMPILE_RESULT_SCHEMA_V2, RMTX_COMPILE_RESULT_SCHEMA_V3, RMTX_COMPILE_RESULT_SCHEMA_V4, RMTX_COMPILE_RESULT_SCHEMA_V5, RMTX_COMPILE_RESULT_SCHEMA_V6, RMTX_COMPILE_RESULT_SCHEMA_V7, compileRmtxSource, createRmtxCompiler };
+module.exports = { RMTX_COMPILE_RESULT_SCHEMA_V8,RMTX_COMPILER_API_VERSION, RMTX_COMPILE_RESULT_SCHEMA, RMTX_COMPILE_RESULT_SCHEMA_V2, RMTX_COMPILE_RESULT_SCHEMA_V3, RMTX_COMPILE_RESULT_SCHEMA_V4, RMTX_COMPILE_RESULT_SCHEMA_V5, RMTX_COMPILE_RESULT_SCHEMA_V6, RMTX_COMPILE_RESULT_SCHEMA_V7, compileRmtxSource, createRmtxCompiler };

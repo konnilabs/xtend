@@ -1,0 +1,420 @@
+{
+  "schema": "xtend.local.native-state-port-fix-verification.v1",
+  "passed": true,
+  "acceptedForRelease": false,
+  "ssrAcceptancePerformed": false,
+  "scope": "Targeted verification of the three-file State-port schema identifier correction. The completed earlier 94-check proof remains unchanged and is not relabelled as a current full rerun.",
+  "earlierCompletePreparation": {
+    "verificationFile": "preparation-final/index.json",
+    "sha256": "ce32cc9f5653cf53d26adef5ed374306f8a84d109959ca53cb39d826ad7f8515"
+  },
+  "canonicalBrowserReport": {
+    "verificationFile": "catalog-browser-state-port.json",
+    "sha256": "1f401b3674feea8a5c1973a980c47cb0374d48aca8b354b46d035f9892a54820"
+  },
+  "sourceFiles": {
+    "components/native-services.js": "93f9e0e2f54d253cdfd6d0e4f39537fb3c5b28c1219cea6d4369b9d2a0e4f79d",
+    "components/native-services.d.ts": "8ffb4cd75c0447b5ffd887ba92e22156eff4a94d5e6991369e88368f9329d4a9",
+    "tests/components/native-platform-services.test.mjs": "eb13cc3fec78fccbcd5f142cc9b988049df70b9154c767def53ba84357a4e8df"
+  },
+  "sourceConservation": {
+    "schema": "xtend.local.native-state-port-fix-binding.v1",
+    "before": {
+      "components/native-services.js": "93f9e0e2f54d253cdfd6d0e4f39537fb3c5b28c1219cea6d4369b9d2a0e4f79d",
+      "components/native-services.d.ts": "8ffb4cd75c0447b5ffd887ba92e22156eff4a94d5e6991369e88368f9329d4a9",
+      "tests/components/native-platform-services.test.mjs": "eb13cc3fec78fccbcd5f142cc9b988049df70b9154c767def53ba84357a4e8df"
+    },
+    "after": {
+      "components/native-services.js": "93f9e0e2f54d253cdfd6d0e4f39537fb3c5b28c1219cea6d4369b9d2a0e4f79d",
+      "components/native-services.d.ts": "8ffb4cd75c0447b5ffd887ba92e22156eff4a94d5e6991369e88368f9329d4a9",
+      "tests/components/native-platform-services.test.mjs": "eb13cc3fec78fccbcd5f142cc9b988049df70b9154c767def53ba84357a4e8df"
+    },
+    "unchanged": true,
+    "runnerUnchanged": true,
+    "gateProcedureUnchanged": true,
+    "coldBoundEntries": 1196,
+    "coldChanged": [],
+    "browserBoundEntries": 317,
+    "browserChanged": []
+  },
+  "browser": {
+    "node": "v24.22.2",
+    "browserVersion": "156.0.8078.4",
+    "cases": 86,
+    "pageErrors": [],
+    "unexpectedRequests": [],
+    "unexpectedCspReports": [],
+    "expectedAttackReports": {
+      "ui": 3,
+      "independentParserControl": 2
+    },
+    "attackExecutions": 0,
+    "unadmittedImageRequests": 0,
+    "boundEntries": 317,
+    "resources": {
+      "maximumResidentSetKiB": 399444,
+      "elapsed": "0:22.80",
+      "exitStatus": 0
+    }
+  },
+  "coldProof": {
+    "verificationFile": "catalog-cold-browser-final.json",
+    "sha256": "5055a7c958d289703ab26aa372cdbe655623e8e7ef6e67a43faee9da3e88b725",
+    "boundEntries": 1196,
+    "changedEntries": [],
+    "rerunPerformed": false
+  },
+  "runs": [
+    {
+      "lane": "24",
+      "heapLimitMiB": 1024,
+      "perCheckTimeoutSeconds": 240,
+      "rawReceipt": {
+        "file": "node24/receipt.json",
+        "sha256": "9343b8e5f17c9464952f8da0e927518fc33be476ea2d6545f7e101170852cf11",
+        "bytes": 1399
+      },
+      "checks": [
+        {
+          "index": 20,
+          "command": [
+            "--test",
+            "--test-concurrency=1",
+            "tests/rmt-language/native-component-catalog-v2.test.cjs",
+            "tests/rmt-language/native-component-catalog-projection.test.cjs",
+            "tests/rmt-language/native-component-catalog-types.test.cjs",
+            "tests/rmt-language/native-managed-renderer.test.mjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 4.272,
+          "testCounts": {
+            "tests": 44,
+            "pass": 44,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          },
+          "log": {
+            "file": "node24/20---test-concurrency_1.log",
+            "sha256": "a97255c0db84a912117e5ddf4e94b081a15b3bb02611e8e0b5a89209ad50b613",
+            "bytes": 4805
+          },
+          "resourceReceipt": {
+            "file": "node24/20---test-concurrency_1.time",
+            "sha256": "ffcaee91a0dcf76ce4010f838246c4546833727cd690e935165ac6f1758fc891",
+            "bytes": 1096
+          },
+          "resources": {
+            "maximumResidentSetKiB": 337484,
+            "elapsed": "0:04.26",
+            "exitStatus": 0
+          }
+        },
+        {
+          "index": 21,
+          "command": [
+            "--test",
+            "--test-concurrency=1",
+            "tests/components/native-managed-ui.test.mjs",
+            "tests/components/native-platform-services.test.mjs",
+            "tests/components/component-source.test.cjs",
+            "tests/components/native-demo-reference.test.mjs",
+            "tests/maraca/rmtx-managed.test.mjs",
+            "tests/maraca/native-platform-managed.test.mjs",
+            "tests/maraca/native-private-cores.test.mjs",
+            "tests/maraca/native-data-literal.test.cjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 20.501,
+          "testCounts": {
+            "tests": 90,
+            "pass": 90,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          },
+          "log": {
+            "file": "node24/21---test-concurrency_1.log",
+            "sha256": "d474599876c23df95d1ab257658097e10076769fc6ef2f99289b58577d01c5cb",
+            "bytes": 9897
+          },
+          "resourceReceipt": {
+            "file": "node24/21---test-concurrency_1.time",
+            "sha256": "c1c6c45e1ed6a9ca1627f64d74d6ddf9b658b70c8a72c32e672e9ae01421166c",
+            "bytes": 1220
+          },
+          "resources": {
+            "maximumResidentSetKiB": 416112,
+            "elapsed": "0:20.46",
+            "exitStatus": 0
+          }
+        }
+      ],
+      "testExecutions": 134
+    },
+    {
+      "lane": "26",
+      "heapLimitMiB": 1024,
+      "perCheckTimeoutSeconds": 240,
+      "rawReceipt": {
+        "file": "node26/receipt.json",
+        "sha256": "608398c0509cc59a56b30b01996ba30ce06891f60bbc6849822c52c9c0ec255e",
+        "bytes": 1397
+      },
+      "checks": [
+        {
+          "index": 20,
+          "command": [
+            "--test",
+            "--test-concurrency=1",
+            "tests/rmt-language/native-component-catalog-v2.test.cjs",
+            "tests/rmt-language/native-component-catalog-projection.test.cjs",
+            "tests/rmt-language/native-component-catalog-types.test.cjs",
+            "tests/rmt-language/native-managed-renderer.test.mjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 4.171,
+          "testCounts": {
+            "tests": 44,
+            "pass": 44,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          },
+          "log": {
+            "file": "node26/20---test-concurrency_1.log",
+            "sha256": "fb4dec162516b7bd261c6a64e8a7a3959f1e2cb5439d3d644579b4ede196180e",
+            "bytes": 4808
+          },
+          "resourceReceipt": {
+            "file": "node26/20---test-concurrency_1.time",
+            "sha256": "4304c656682f6803579a9563e80649c5c34152f9fe221a0d18fa73dad0432582",
+            "bytes": 1089
+          },
+          "resources": {
+            "maximumResidentSetKiB": 259672,
+            "elapsed": "0:04.16",
+            "exitStatus": 0
+          }
+        },
+        {
+          "index": 21,
+          "command": [
+            "--test",
+            "--test-concurrency=1",
+            "tests/components/native-managed-ui.test.mjs",
+            "tests/components/native-platform-services.test.mjs",
+            "tests/components/component-source.test.cjs",
+            "tests/components/native-demo-reference.test.mjs",
+            "tests/maraca/rmtx-managed.test.mjs",
+            "tests/maraca/native-platform-managed.test.mjs",
+            "tests/maraca/native-private-cores.test.mjs",
+            "tests/maraca/native-data-literal.test.cjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 19.8,
+          "testCounts": {
+            "tests": 90,
+            "pass": 90,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          },
+          "log": {
+            "file": "node26/21---test-concurrency_1.log",
+            "sha256": "7b349c559cf83b03e8ded4100f00495bc4731cd67ccd7bb634784415d2b5edd3",
+            "bytes": 9895
+          },
+          "resourceReceipt": {
+            "file": "node26/21---test-concurrency_1.time",
+            "sha256": "aa52e65f7b55dd19c822e19d8dcff22144a4ac6b493265fd8b2cd8a30611fad3",
+            "bytes": 1213
+          },
+          "resources": {
+            "maximumResidentSetKiB": 341880,
+            "elapsed": "0:19.78",
+            "exitStatus": 0
+          }
+        }
+      ],
+      "testExecutions": 134
+    }
+  ],
+  "rawArtifacts": [
+    {
+      "file": "inputs-before.json",
+      "sha256": "4ecb93959d4357f0754265d28403fb21235162a54db6f6ee22d76bf9b915b563",
+      "bytes": 875
+    },
+    {
+      "file": "inputs-after.json",
+      "sha256": "6a28879d13963fd8741ab95c9abb79ba12d21da148b1a4a04e6bf43226a6028c",
+      "bytes": 959
+    },
+    {
+      "file": "browser/report.json",
+      "sha256": "1f401b3674feea8a5c1973a980c47cb0374d48aca8b354b46d035f9892a54820",
+      "bytes": 85524
+    },
+    {
+      "file": "browser/run.log",
+      "sha256": "0b824eb54035e757d006df9d722647cec0514dd9f4b1fe016938f14391dd3181",
+      "bytes": 4964
+    },
+    {
+      "file": "browser/run.time",
+      "sha256": "d27931fdb863a3019fe9a368afac9f0625a5f6f397ee6da9ec71c96f1a2e0c46",
+      "bytes": 1034
+    },
+    {
+      "file": "browser/captures/ui.compile.json",
+      "sha256": "97072c5990df4e88a1a2daed119f13874deb64aec004e0b9ecf4464ecb555053",
+      "bytes": 374623
+    },
+    {
+      "file": "browser/captures/ui.capture.tap",
+      "sha256": "c41f3c87fa9d2b7a57c60c4036379f92d3795fe9c91daa18b83a8402a524d1f8",
+      "bytes": 6780
+    },
+    {
+      "file": "browser/captures/ui.capture.time",
+      "sha256": "092b88485476b8392470b42ffb10f536032956eff738e8a87e619c2209bf771f",
+      "bytes": 998
+    },
+    {
+      "file": "browser/captures/renderer.compile.json",
+      "sha256": "e84a0dd6261f81167a881cd8ee7aa2381aee2fb66fe1bbfa773bd8db46e8c662",
+      "bytes": 589600
+    },
+    {
+      "file": "browser/captures/renderer.capture.tap",
+      "sha256": "bd2a0feac51cd3196b546567d954b70372aa94bcbc98dbd2c987f18cd640e704",
+      "bytes": 1039
+    },
+    {
+      "file": "browser/captures/renderer.capture.time",
+      "sha256": "0ccf63164c037a3dd6fb63eb0e0623196b977fe4a404b4a6e4ef6b0e4d428d31",
+      "bytes": 1012
+    },
+    {
+      "file": "browser/captures/demo.compile.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3
+    },
+    {
+      "file": "browser/captures/demo.capture.tap",
+      "sha256": "a5eafa5661cb78fa4fcdff80735665253ef9dd8d3f6c149071922ea47730c8fb",
+      "bytes": 238
+    },
+    {
+      "file": "browser/captures/demo.capture.time",
+      "sha256": "157c6fee82e8f0e5cb42c386c6f1db5f99214564da7496b2aa78305a677417a9",
+      "bytes": 1002
+    },
+    {
+      "file": "browser/captures/platform.compile.json",
+      "sha256": "002623b500396f80297d06835be3c0fbe0411a27b6ee19c865a1e081474aa911",
+      "bytes": 7394085
+    },
+    {
+      "file": "browser/captures/platform.capture.tap",
+      "sha256": "892d138539b0a3762da4f6dbfaf4fdcdfa1957042a8d09927a17d2401ba3a9de",
+      "bytes": 1177
+    },
+    {
+      "file": "browser/captures/platform.capture.time",
+      "sha256": "71b1505da8fc7bef5f904621b742e964dd3633b60d6229964c1353fe65b8d96c",
+      "bytes": 1009
+    },
+    {
+      "file": "browser/captures/services.compile.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3
+    },
+    {
+      "file": "browser/captures/services.capture.tap",
+      "sha256": "8d1d7681e08ac944e3fd67ba239fd303bd172adca5de214b1fa53bab73db2097",
+      "bytes": 860
+    },
+    {
+      "file": "browser/captures/services.capture.time",
+      "sha256": "2070c544bc54e1347325f5426773df496ccb8e4c648ae9ac88fd3396bebc053a",
+      "bytes": 1010
+    },
+    {
+      "file": "node24/receipt.json",
+      "sha256": "9343b8e5f17c9464952f8da0e927518fc33be476ea2d6545f7e101170852cf11",
+      "bytes": 1399
+    },
+    {
+      "file": "node24/20---test-concurrency_1.log",
+      "sha256": "a97255c0db84a912117e5ddf4e94b081a15b3bb02611e8e0b5a89209ad50b613",
+      "bytes": 4805
+    },
+    {
+      "file": "node24/20---test-concurrency_1.time",
+      "sha256": "ffcaee91a0dcf76ce4010f838246c4546833727cd690e935165ac6f1758fc891",
+      "bytes": 1096
+    },
+    {
+      "file": "node24/21---test-concurrency_1.log",
+      "sha256": "d474599876c23df95d1ab257658097e10076769fc6ef2f99289b58577d01c5cb",
+      "bytes": 9897
+    },
+    {
+      "file": "node24/21---test-concurrency_1.time",
+      "sha256": "c1c6c45e1ed6a9ca1627f64d74d6ddf9b658b70c8a72c32e672e9ae01421166c",
+      "bytes": 1220
+    },
+    {
+      "file": "node24/run.log",
+      "sha256": "9974cc71fe5f0636fc2b7765fffbb36bed8ae21eb03e3e47ef83276c545f88be",
+      "bytes": 1226
+    },
+    {
+      "file": "node24/run.time",
+      "sha256": "8841ff11c90d93063b653af36f91a468cf78010807129fc1a5805acafaff4944",
+      "bytes": 834
+    },
+    {
+      "file": "node26/receipt.json",
+      "sha256": "608398c0509cc59a56b30b01996ba30ce06891f60bbc6849822c52c9c0ec255e",
+      "bytes": 1397
+    },
+    {
+      "file": "node26/20---test-concurrency_1.log",
+      "sha256": "fb4dec162516b7bd261c6a64e8a7a3959f1e2cb5439d3d644579b4ede196180e",
+      "bytes": 4808
+    },
+    {
+      "file": "node26/20---test-concurrency_1.time",
+      "sha256": "4304c656682f6803579a9563e80649c5c34152f9fe221a0d18fa73dad0432582",
+      "bytes": 1089
+    },
+    {
+      "file": "node26/21---test-concurrency_1.log",
+      "sha256": "7b349c559cf83b03e8ded4100f00495bc4731cd67ccd7bb634784415d2b5edd3",
+      "bytes": 9895
+    },
+    {
+      "file": "node26/21---test-concurrency_1.time",
+      "sha256": "aa52e65f7b55dd19c822e19d8dcff22144a4ac6b493265fd8b2cd8a30611fad3",
+      "bytes": 1213
+    },
+    {
+      "file": "node26/run.log",
+      "sha256": "c504ef2028fbd270ff9e71b853bb1c49fb60d0e7033ef699fb47f51aa3eb6015",
+      "bytes": 1224
+    },
+    {
+      "file": "node26/run.time",
+      "sha256": "d31dc8d9fc3eede03da4a35d62b671e14be6192424c0eeddaed0a6e9ad5236f8",
+      "bytes": 834
+    }
+  ],
+  "resourceScope": "Individual external time-v process RSS; not aggregate process-group or Chromium RSS."
+}

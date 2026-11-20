@@ -64,7 +64,7 @@ async function inspect({ write = false, check = false } = {}) {
       assert.equal(profile.semantics.operators.rawAstEscapeHatch, false); assert.equal(profile.semantics.operators.classicSourceStringEscapeHatch, false);
       assert.equal(profile.operators.Mount.attributes.when, undefined); assert.equal(profile.semantics.nativeUIChildren, false);
       // Global module capability; the explicit Source3/4 contracts above remain unchanged.
-      assert.equal(require('../../../tools/rmt-language/rmtx').RMTX_AUTHORING_API_VERSION, '7.0.0');
+      assert.equal(require('../../../tools/rmt-language/rmtx').RMTX_AUTHORING_API_VERSION, '8.0.0');
     });
     await verify('legacy source defaults and catalogue records1, 2 and 3 remain exactly available', () => {
       assert.equal(require('../../../tools/rmt-language/rmtx-compiler').createRmtxCompiler().apiVersion, '1.0.0');

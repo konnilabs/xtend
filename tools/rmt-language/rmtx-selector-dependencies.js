@@ -51,7 +51,7 @@ function createRmtxSelectorDependencyReport(result) {
   const plan = result?.orchestrationArtifacts === null && Array.isArray(result?.coreDocument?.selectors)
     && result.coreDocument.selectors.length === 0 ? [] : compiledPlan;
   const references = result?.primitiveSemanticGraph?.references?.records;
-  if (result?.ok !== true || profile?.syntax !== 'rmtx' || !['2.0.0', '3.0.0', '4.0.0', '5.0.0', '6.0.0', '7.0.0'].includes(profile.version)
+  if (result?.ok !== true || profile?.syntax !== 'rmtx' || !['2.0.0', '3.0.0', '4.0.0', '5.0.0', '6.0.0', '7.0.0', '8.0.0'].includes(profile.version)
       || result.coreDocument?.manifest?.sourceSyntax !== 'rmtx' || !Array.isArray(plan) || !Array.isArray(references)) {
     invalid('A successful RMTX 2.0.0 or 3.0.0 compilation with semantic facts and a compiled selector plan is required.');
   }
@@ -133,7 +133,7 @@ function createRmtxSelectorDependencyReport(result) {
     entries.push(entry); complete.set(selector.id, entry);
   }
   return freeze({
-    schema: profile.version === '7.0.0' ? RMTX_SELECTOR_DEPENDENCIES_SCHEMA_V6 : profile.version === '6.0.0' ? RMTX_SELECTOR_DEPENDENCIES_SCHEMA_V5 : profile.version === '5.0.0' ? RMTX_SELECTOR_DEPENDENCIES_SCHEMA_V4 : profile.version === '4.0.0' ? RMTX_SELECTOR_DEPENDENCIES_SCHEMA_V3 : profile.version === '3.0.0' ? RMTX_SELECTOR_DEPENDENCIES_SCHEMA_V2 : RMTX_SELECTOR_DEPENDENCIES_SCHEMA,
+    schema: profile.version==='8.0.0'?'xtend.rmtx.selector-dependencies.v7':profile.version === '7.0.0' ? RMTX_SELECTOR_DEPENDENCIES_SCHEMA_V6 : profile.version === '6.0.0' ? RMTX_SELECTOR_DEPENDENCIES_SCHEMA_V5 : profile.version === '5.0.0' ? RMTX_SELECTOR_DEPENDENCIES_SCHEMA_V4 : profile.version === '4.0.0' ? RMTX_SELECTOR_DEPENDENCIES_SCHEMA_V3 : profile.version === '3.0.0' ? RMTX_SELECTOR_DEPENDENCIES_SCHEMA_V2 : RMTX_SELECTOR_DEPENDENCIES_SCHEMA,
     sourceProfile: { syntax: 'rmtx', version: profile.version },
     topologicalOrder: entries.map(entry => entry.id), selectors: entries,
     incrementalRecomputation: false, runtimeTracking: false, parametersForwardedToDependencies: false

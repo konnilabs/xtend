@@ -11,6 +11,7 @@ test.after(() => { fs.rmSync(directory, { recursive: true, force: true }); });
 async function platform(version) {
   if (!platforms.has(version)) platforms.set(version, (async () => {
     const built = await buildXTensionPlatform({ rootDir: root, outputDir: path.join(directory, String(version)),
+      ...(version === 12 ? { orchestration: { artifact: { render: { nativeView: { components: [] } } } } } : {}),
       xtensionComposition: { schema: `xtend.maraca.xtension-composition-manifest.v${version}`, providers: [] } }, require('rollup'));
     return { built, api: (await import(pathToFileURL(built.path).href)).default };
   })());
@@ -24,6 +25,13 @@ test('legacy manifest profiles expose no projection capability and capture only 
     assert.equal(api.bindingsRuntime.createXTensionProjectionStateRegistry, undefined);
     assert.equal(built.sourceFiles.some(file => file.source === 'compiler/xtensions/state-binding-projection.js'), false);
     assert.equal(built.sourceFiles.some(file => file.source === 'compiler/xtensions/state-binding-projection-disabled.js'), true);
+    assert.equal(api.bindingsRuntime.XTENSION_ORCHESTRATED_STATE_BINDING_API_VERSION, undefined);
+    assert.equal(api.bindingsRuntime.validateOrchestratedStateBindingArtifact, undefined);
+    assert.equal(api.bindingsRuntime.materializeOrchestratedStateBindingArtifact, undefined);
+    assert.equal(api.bindingsRuntime.createXTensionOrchestratedStateRegistry, undefined);
+    assert.equal(built.sourceFiles.some(file => file.source === 'compiler/xtensions/state-binding-orchestrated.js'), false);
+    assert.equal(built.sourceFiles.some(file => file.source === 'compiler/xtensions/state-binding-orchestrated-disabled.js'), true);
+    assert.equal(built.sourceFiles.some(file => file.source === 'compiler/xtensions/native-surface-projection-core.js'), false);
     assert.equal(built.sourceFiles.some(file => file.source === 'maraca/xtension-component-binding.mjs'), version >= 6);
     assert.equal(built.sourceFiles.some(file => file.source === 'maraca/xtension-component-binding-disabled.mjs'), version <= 5);
   }
@@ -73,4 +81,26 @@ test('only manifest8 captures the real evaluator and materializes actual Source4
     suspend() { return { status: 'ok' }; }, resume() { return { status: 'ok' }; }, unmount() { return { status: 'ok' }; } }));
   try { await instance.mount({}); assert.deepEqual(props.images, ['front', 'back']); }
   finally { await registry.dispose(); }
+});
+
+test('Source7 retains its actual orchestrated binding runtime instead of a legacy guard', async () => {
+  const { built, api } = await platform(11);
+  assert.equal(api.bindingsRuntime.XTENSION_ORCHESTRATED_STATE_BINDING_API_VERSION, '6.0.0');
+  assert.equal(typeof api.bindingsRuntime.validateOrchestratedStateBindingArtifact, 'function');
+  assert.equal(typeof api.bindingsRuntime.materializeOrchestratedStateBindingArtifact, 'function');
+  assert.equal(built.sourceFiles.some(file => file.source === 'compiler/xtensions/state-binding-orchestrated.js'), true);
+  assert.equal(built.sourceFiles.some(file => file.source === 'compiler/xtensions/state-binding-orchestrated-disabled.js'), false);
+  assert.equal(built.sourceFiles.some(file => file.source === 'compiler/xtensions/native-surface-projection-core.js'), true);
+});
+
+test('Source8 retains its explicit managed binding runtime and excludes the legacy guard', async () => {
+  const { built, api } = await platform(12);
+  assert.equal(api.bindingsRuntime.XTENSION_MANAGED_STATE_BINDING_API_VERSION, '7.0.0');
+  assert.equal(typeof api.bindingsRuntime.validateManagedStateBindingArtifact, 'function');
+  assert.equal(typeof api.bindingsRuntime.materializeManagedStateBindingArtifact, 'function');
+  assert.equal(built.sourceFiles.some(file => file.source === 'compiler/xtensions/state-binding-managed.js'), true);
+  assert.equal(built.sourceFiles.some(file => file.source === 'compiler/xtensions/state-binding-orchestrated-disabled.js'), false);
+  assert.throws(() => api.bindingsRuntime.validateManagedStateBindingArtifact(
+    { schema: 'xtend.xtensions.state-binding-artifact.v7', documentId: 'legacy', bindings: [] },
+    { schema: 'xtend.rmt.app-orchestration.v5' }), /Unsupported|Managed|Source8/);
 });

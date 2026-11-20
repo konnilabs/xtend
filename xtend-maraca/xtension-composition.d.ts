@@ -1,7 +1,7 @@
 import type { MaracaBuildPlan } from './index';
 import type { XTensionCompositionManifest, XTensionCompositionArtifact, XTensionCompositionBindingRuntime } from './xtension-composition-runtime';
 export type { XTensionCompositionManifest, XTensionCompositionArtifact, XTensionCompositionProvider } from './xtension-composition-runtime';
-export const XTENSION_COMPOSITION_BUILD_API_VERSION: '16.0.0';
+export const XTENSION_COMPOSITION_BUILD_API_VERSION: '17.0.0';
 export interface XTensionCompositionBuildReport {
   readonly schema: 'xtend.maraca.xtension-composition-build-report.v1';
   readonly apiVersion: '1.0.0'; readonly ok: true;
@@ -237,3 +237,15 @@ export function buildMaracaXTensionComposition(options: {
   readonly bindingsRuntime: import('./xtension-composition-runtime').OrchestratedComponentBindingRuntime;
   readonly rootDir: string; readonly outputDir: string;
 }): Promise<OrchestratedComponentBuildReport>;
+
+/** Explicit Source8/Program6 composition. Retained Source1–7 reports stay closed. */
+export interface ManagedComponentBuildReport extends Omit<ProjectionComponentBuildReport, 'schema' | 'apiVersion' | 'artifact'> {
+  readonly schema: 'xtend.maraca.xtension-composition-build-report.v13'; readonly apiVersion: '13.0.0';
+  readonly artifact: import('./xtension-composition-runtime').ManagedComponentArtifact;
+}
+export function buildMaracaXTensionComposition(options: {
+  readonly plan: import('./index').ManagedRmtxBuildPlan12;
+  readonly manifest: import('./xtension-composition-runtime').ManagedComponentManifest;
+  readonly bindingsRuntime: typeof import('@ccslabs/xtend/xtensions/state-binding-managed').MANAGED_STATE_BINDING_RUNTIME;
+  readonly rootDir: string; readonly outputDir: string;
+}): Promise<ManagedComponentBuildReport>;

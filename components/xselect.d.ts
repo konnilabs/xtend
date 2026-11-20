@@ -27,7 +27,7 @@ export type XSelectPublicEventContract = XtendPublicEventContract<XSelectEventNa
 
 export interface XSelectElement extends HTMLElement {
   value: string;
-  readonly values: string[];
+  values: string[];
   multiple: boolean;
   checkValidity(): boolean;
   reportValidity(): boolean;

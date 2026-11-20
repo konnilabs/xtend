@@ -43,3 +43,13 @@ export interface XRouterOrchestratedURLStateHost extends Omit<XRouterURLStateHos
   reset(): ReturnType<OrchestratedRmtxPlanRuntime16['restoreURLState']>; retry(): ReturnType<OrchestratedRmtxPlanRuntime16['restoreURLState']>;
 }
 export function createXRouterOrchestratedURLStateHost(options: { runtime: Pick<OrchestratedRmtxPlanRuntime16,'restoreURLState' | 'publishURLState'>; codec: Codec.OrchestratedURLStateRuntime; windowTarget: Window; mode?: 'history' | 'hash'; listen?: boolean; isOwnerCurrent?(): boolean; onError?(error: unknown): void }): XRouterOrchestratedURLStateHost;
+
+import type { ManagedRmtxPlanRuntime17 } from '@ccslabs/xtend/maraca/plan-runtime';
+export const XROUTER_MANAGED_URL_STATE_API_VERSION: '6.0.0';
+export interface XRouterManagedURLStateHost extends Omit<XRouterURLStateHost, 'schema' | 'apiVersion' | 'navigate' | 'publish' | 'reset' | 'retry'> {
+  readonly schema: 'xtend.router.url-state-host.v6'; readonly apiVersion: '6.0.0';
+  navigate(cause?: 'initialize' | 'traverse' | 'reset', force?: boolean): ReturnType<ManagedRmtxPlanRuntime17['restoreURLState']>;
+  publish(cause?: 'commit' | 'checkpoint'): ReturnType<ManagedRmtxPlanRuntime17['publishURLState']>;
+  reset(): ReturnType<ManagedRmtxPlanRuntime17['restoreURLState']>; retry(): ReturnType<ManagedRmtxPlanRuntime17['restoreURLState']>;
+}
+export function createXRouterManagedURLStateHost(options: { runtime: Pick<ManagedRmtxPlanRuntime17,'restoreURLState' | 'publishURLState'>; codec: import('../tools/xtensions/url-state-managed.js').ManagedURLStateRuntime; windowTarget: Window; mode?: 'history' | 'hash'; listen?: boolean; isOwnerCurrent?(): boolean; onError?(error: unknown): void }): XRouterManagedURLStateHost;

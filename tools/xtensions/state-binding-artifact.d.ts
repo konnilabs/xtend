@@ -69,6 +69,8 @@ export function materializeStateBindingArtifact(artifact: XTensionLifecycleState
 
 /** Source7 owns concrete native Surface instances; its old materializer remains closed. */
 export const ORCHESTRATED_STATE_BINDING_ARTIFACT_SCHEMA: 'xtend.xtensions.state-binding-artifact.v7';
+export const MANAGED_STATE_BINDING_ARTIFACT_SCHEMA: 'xtend.xtensions.state-binding-artifact.v8';
+export interface XTensionManagedStateBindingArtifact extends Omit<XTensionOrchestratedStateBindingArtifact, 'schema'> { readonly schema: typeof MANAGED_STATE_BINDING_ARTIFACT_SCHEMA }
 export interface XTensionOrchestratedStateBindingArtifact extends Omit<XTensionProjectionStateBindingArtifact, 'schema' | 'bindings'> {
   readonly schema: typeof ORCHESTRATED_STATE_BINDING_ARTIFACT_SCHEMA;
   readonly bindings: readonly (XTensionProjectionStateBindingArtifact['bindings'][number] & { readonly ownerSurface: string })[];

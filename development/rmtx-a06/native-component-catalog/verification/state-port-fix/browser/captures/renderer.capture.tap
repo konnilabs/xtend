@@ -1,0 +1,16 @@
+✔ the actual renderer prepares before attributes, routes a single lexical intent and silently patches controlled props (218.000904ms)
+✔ Renderer-owned tabs project exact original children and restore authored visibility on release (107.924279ms)
+✔ Renderer-owned masonry reorders originals by typed keys and rejects foreign or missing refs atomically (90.550642ms)
+✔ lexical native On conditions read the live Model and cannot fall through a Surface delegate (86.684704ms)
+✔ owned Hero scroll and Menu keyboard navigation use real Renderer ports (164.199162ms)
+✔ owned Tooltip anchor leases preserve other descriptions and release callbacks on Suspend (67.975339ms)
+✔ actual modal leases inert only owned app siblings, trap focus, track Model changes and release on Suspend (239.698764ms)
+✔ conditional Tooltip anchors retire their listeners and rebind the same ref to its new owned lifetime (129.051822ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1798.986409

@@ -1,0 +1,4964 @@
+{
+  "schema": "xtend.local.release-preparation-verification.v1",
+  "baseHead": "39907c7f0221f9d8b469d59006331c3649272268",
+  "passed": true,
+  "acceptedForRelease": false,
+  "ssrAcceptancePerformed": false,
+  "scope": "27 reviewed static inspector refreshes on Node24 and 47 non-A01 preparation gates on each of Node24 and Node26; A01 is a separate governed decision.",
+  "executedNonA01Gates": 94,
+  "excludedChecks": [
+    {
+      "index": 22,
+      "command": [
+        "development/rmtx-a01/inspect.cjs",
+        "--check"
+      ],
+      "reason": "Explicit scope excludes governed A01 for this run."
+    }
+  ],
+  "boundInputs": 2833,
+  "changedBoundInputs": [],
+  "newInputs": [],
+  "inputConservationPassed": true,
+  "excludedGovernedFiles": [
+    "development/core-release-authority-decision.json",
+    "development/rmtx-a01/inventory.json",
+    "scripts/release/core-projection-policy.json",
+    "tests/schemas/core-release-inventory.json"
+  ],
+  "verificationOutputsExcluded": true,
+  "bindingReceipts": {
+    "before": {
+      "file": "inputs-before.json",
+      "sha256": "97bc670ecb639e5f4b67ee5fc6f1f8c335dcdaa0540b6cc38bf779e3aa83c79c",
+      "bytes": 347327
+    },
+    "conservation": {
+      "file": "input-conservation.json",
+      "sha256": "8ce660f480e48a41fc2e73828db3f2cb682014a1b134a737ae9a7425a8365ab7",
+      "bytes": 207
+    },
+    "procedures": {
+      "file": "procedures-before.json",
+      "sha256": "a490d0d9ff68a134cb763b8fe35d6007db54d5af7b2aeab72f02e5ee1f5eb016",
+      "bytes": 470
+    }
+  },
+  "runs": [
+    {
+      "mode": "refresh",
+      "lane": "24",
+      "node": "v24.22.2",
+      "heapLimitMiB": 1024,
+      "perCheckExternalTimeoutSeconds": 240,
+      "checkCount": 27,
+      "rawReceipt": {
+        "file": "refresh-node24/receipt.json",
+        "sha256": "e35084da72a1a1b8d08f5680b4dae90f0c00a8defb9827a8b6333971d11470b9",
+        "bytes": 11193
+      },
+      "checks": [
+        {
+          "index": 5,
+          "command": [
+            "development/rmtx-a06/frontend/inspect.cjs",
+            "--write"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.315,
+          "log": {
+            "file": "refresh-node24/05-development_rmtx-a06_frontend_inspect.cjs.log",
+            "sha256": "bb1c4746fa2e13091da7b1f53c7cea27671f5dcf376f0820b06294c90ab318d0",
+            "bytes": 117
+          },
+          "resourceReceipt": {
+            "file": "refresh-node24/05-development_rmtx-a06_frontend_inspect.cjs.time",
+            "sha256": "20a11db534b6591b81877864c86e8161624bfbcb3ed2d10b34a96edae1064c34",
+            "bytes": 885
+          },
+          "resources": {
+            "maximumResidentSetKiB": 114764,
+            "exitStatus": 0,
+            "elapsed": "0:00.28",
+            "userSeconds": 0.25,
+            "systemSeconds": 0.08
+          },
+          "testCounts": null
+        },
+        {
+          "index": 7,
+          "command": [
+            "development/rmtx-a06/selector-profile/inspect.cjs",
+            "--write"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.315,
+          "log": {
+            "file": "refresh-node24/07-development_rmtx-a06_selector-profile_inspect.cjs.log",
+            "sha256": "6dc82f190dabfe020fd5f9cd1a019d8363fa77392139401889f3cde9d418df35",
+            "bytes": 79
+          },
+          "resourceReceipt": {
+            "file": "refresh-node24/07-development_rmtx-a06_selector-profile_inspect.cjs.time",
+            "sha256": "a9c25eb13abe0ff147f4047c50e4b54a2a1b4860308f4ab483035f692061eaae",
+            "bytes": 893
+          },
+          "resources": {
+            "maximumResidentSetKiB": 118428,
+            "exitStatus": 0,
+            "elapsed": "0:00.27",
+            "userSeconds": 0.25,
+            "systemSeconds": 0.07
+          },
+          "testCounts": null
+        },
+        {
+          "index": 9,
+          "command": [
+            "development/rmtx-a06/keyed-profile/inspect.cjs",
+            "--write"
+          ],
+          "returncode": 0,
+          "durationSeconds": 6.926,
+          "log": {
+            "file": "refresh-node24/09-development_rmtx-a06_keyed-profile_inspect.cjs.log",
+            "sha256": "37bd063e2bdc53414a0aa0e9505107921376ef2da284551c2b52a4c0579e29c3",
+            "bytes": 73
+          },
+          "resourceReceipt": {
+            "file": "refresh-node24/09-development_rmtx-a06_keyed-profile_inspect.cjs.time",
+            "sha256": "b09b3e8eb625c30bc568a07993190635455bdf875093bf30273d40973f8b09fd",
+            "bytes": 895
+          },
+          "resources": {
+            "maximumResidentSetKiB": 567388,
+            "exitStatus": 0,
+            "elapsed": "0:06.90",
+            "userSeconds": 11.5,
+            "systemSeconds": 0.56
+          },
+          "testCounts": null
+        },
+        {
+          "index": 11,
+          "command": [
+            "development/rmtx-a06/orchestration-profile/inspect.cjs",
+            "--write"
+          ],
+          "returncode": 0,
+          "durationSeconds": 7.177,
+          "log": {
+            "file": "refresh-node24/11-development_rmtx-a06_orchestration-profile_inspect.cjs.log",
+            "sha256": "fbe363bd73208734e4850c2364be2fc05f10f3c244b3469f80483d8f7b9bc72c",
+            "bytes": 80
+          },
+          "resourceReceipt": {
+            "file": "refresh-node24/11-development_rmtx-a06_orchestration-profile_inspect.cjs.time",
+            "sha256": "206c9c38378686c54cc120ae90f46345d9548efb34b58742835e90e456f766c2",
+            "bytes": 903
+          },
+          "resources": {
+            "maximumResidentSetKiB": 568856,
+            "exitStatus": 0,
+            "elapsed": "0:07.15",
+            "userSeconds": 11.9,
+            "systemSeconds": 0.54
+          },
+          "testCounts": null
+        },
+        {
+          "index": 13,
+          "command": [
+            "development/rmtx-a06/native-view-profile/inspect.cjs",
+            "--write"
+          ],
+          "returncode": 0,
+          "durationSeconds": 11.836,
+          "log": {
+            "file": "refresh-node24/13-development_rmtx-a06_native-view-profile_inspect.cjs.log",
+            "sha256": "8839184b45dfdc0c33302cd5f1be3f0cc70a268dfad2b0bb4450e1295d6e0a04",
+            "bytes": 77
+          },
+          "resourceReceipt": {
+            "file": "refresh-node24/13-development_rmtx-a06_native-view-profile_inspect.cjs.time",
+            "sha256": "654f73d30196811df48baaa93a566ac068d5ce05c857c42af1ef41ab4c9ba90a",
+            "bytes": 902
+          },
+          "resources": {
+            "maximumResidentSetKiB": 621244,
+            "exitStatus": 0,
+            "elapsed": "0:11.80",
+            "userSeconds": 18.87,
+            "systemSeconds": 0.67
+          },
+          "testCounts": null
+        },
+        {
+          "index": 15,
+          "command": [
+            "development/rmtx-a06/lifecycle-profile/inspect.cjs",
+            "--write"
+          ],
+          "returncode": 0,
+          "durationSeconds": 11.584,
+          "log": {
+            "file": "refresh-node24/15-development_rmtx-a06_lifecycle-profile_inspect.cjs.log",
+            "sha256": "90dcf172e21af6d0077f4e074030c41ff4862fbed0b4e0d16a682f8702fb8ed3",
+            "bytes": 22757
+          },
+          "resourceReceipt": {
+            "file": "refresh-node24/15-development_rmtx-a06_lifecycle-profile_inspect.cjs.time",
+            "sha256": "2b61f1ef0c77f87a85dc6eaca85446d578d40e427b2c880149472eac7c5500cd",
+            "bytes": 900
+          },
+          "resources": {
+            "maximumResidentSetKiB": 634188,
+            "exitStatus": 0,
+            "elapsed": "0:11.54",
+            "userSeconds": 18.48,
+            "systemSeconds": 0.7
+          },
+          "testCounts": null
+        },
+        {
+          "index": 18,
+          "command": [
+            "development/rmtx-a06/native-orchestration-profile/inspect.cjs",
+            "--write"
+          ],
+          "returncode": 0,
+          "durationSeconds": 8.03,
+          "log": {
+            "file": "refresh-node24/18-development_rmtx-a06_native-orchestration-profile_inspect.cjs.log",
+            "sha256": "e9e47c7a30a60bfce62662040f9e7f95d8a154442a8a32a23e0d6bdb8f2a2cec",
+            "bytes": 26989
+          },
+          "resourceReceipt": {
+            "file": "refresh-node24/18-development_rmtx-a06_native-orchestration-profile_inspect.cjs.time",
+            "sha256": "67895ecacbf25b96a3538fb70bbf7dffe147213e83426753df5541e5dca5e9b3",
+            "bytes": 910
+          },
+          "resources": {
+            "maximumResidentSetKiB": 599376,
+            "exitStatus": 0,
+            "elapsed": "0:08.00",
+            "userSeconds": 13.33,
+            "systemSeconds": 0.65
+          },
+          "testCounts": null
+        },
+        {
+          "index": 23,
+          "command": [
+            "development/rmtx-a02/inspect.cjs",
+            "--write"
+          ],
+          "returncode": 0,
+          "durationSeconds": 1.567,
+          "log": {
+            "file": "refresh-node24/23-development_rmtx-a02_inspect.cjs.log",
+            "sha256": "b7bbdd01c0137893bc791a3f01b8d92c90a8b065d26381b45f5253d5f70e9ff4",
+            "bytes": 102
+          },
+          "resourceReceipt": {
+            "file": "refresh-node24/23-development_rmtx-a02_inspect.cjs.time",
+            "sha256": "ddc5ba84c77513181f2e3585cea999e0c1afbb282a01a3b3cc7def530bbb5cd4",
+            "bytes": 877
+          },
+          "resources": {
+            "maximumResidentSetKiB": 189164,
+            "exitStatus": 0,
+            "elapsed": "0:01.52",
+            "userSeconds": 1.66,
+            "systemSeconds": 0.14
+          },
+          "testCounts": null
+        },
+        {
+          "index": 24,
+          "command": [
+            "development/rmtx-a02/url-history/inspect.cjs",
+            "--write"
+          ],
+          "returncode": 0,
+          "durationSeconds": 1.567,
+          "log": {
+            "file": "refresh-node24/24-development_rmtx-a02_url-history_inspect.cjs.log",
+            "sha256": "fbb334a74c5fea2ebf0e149c303f288a19761669493769b56138d6a1b5fc3712",
+            "bytes": 84
+          },
+          "resourceReceipt": {
+            "file": "refresh-node24/24-development_rmtx-a02_url-history_inspect.cjs.time",
+            "sha256": "0092833ccfbbab17f6896383ddb47f4167916efd2caae638c820e4f29b482c1e",
+            "bytes": 889
+          },
+          "resources": {
+            "maximumResidentSetKiB": 188812,
+            "exitStatus": 0,
+            "elapsed": "0:01.55",
+            "userSeconds": 1.69,
+            "systemSeconds": 0.14
+          },
+          "testCounts": null
+        },
+        {
+          "index": 25,
+          "command": [
+            "development/rmtx-a02/url-history/integration-inspect.cjs",
+            "--write"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.064,
+          "log": {
+            "file": "refresh-node24/25-development_rmtx-a02_url-history_integration-inspect.cjs.log",
+            "sha256": "b52d96fba101d072ff6ed96961688d34a59d4894079da50a2c3eddf32508ebfc",
+            "bytes": 112
+          },
+          "resourceReceipt": {
+            "file": "refresh-node24/25-development_rmtx-a02_url-history_integration-inspect.cjs.time",
+            "sha256": "a6089fe91ee7afdbd101e3e279eb23f440bb05bd9a893c6e144d2dabc2c8e245",
+            "bytes": 896
+          },
+          "resources": {
+            "maximumResidentSetKiB": 55704,
+            "exitStatus": 0,
+            "elapsed": "0:00.06",
+            "userSeconds": 0.04,
+            "systemSeconds": 0.02
+          },
+          "testCounts": null
+        },
+        {
+          "index": 26,
+          "command": [
+            "development/rmtx-a03/inspect.cjs",
+            "--write"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.114,
+          "log": {
+            "file": "refresh-node24/26-development_rmtx-a03_inspect.cjs.log",
+            "sha256": "c568d2fcb06d4bde6d23eb3b37a864a8d938ae36258ef5b87db3ff9b71449024",
+            "bytes": 102
+          },
+          "resourceReceipt": {
+            "file": "refresh-node24/26-development_rmtx-a03_inspect.cjs.time",
+            "sha256": "4245785cc42cbfcbd8430d9250b1579ec09ea353379967bc89c34bc973ce5019",
+            "bytes": 873
+          },
+          "resources": {
+            "maximumResidentSetKiB": 57376,
+            "exitStatus": 0,
+            "elapsed": "0:00.06",
+            "userSeconds": 0.04,
+            "systemSeconds": 0.02
+          },
+          "testCounts": null
+        },
+        {
+          "index": 27,
+          "command": [
+            "development/rmtx-a03/graph-inspect.cjs",
+            "--write"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.114,
+          "log": {
+            "file": "refresh-node24/27-development_rmtx-a03_graph-inspect.cjs.log",
+            "sha256": "01202cbfb88d2ed5128a86510c5a6cf17b0e4fcc23dcde70ae3a52782f9d4a35",
+            "bytes": 110
+          },
+          "resourceReceipt": {
+            "file": "refresh-node24/27-development_rmtx-a03_graph-inspect.cjs.time",
+            "sha256": "8231bb5e5c95b9fb51530440900f1dac803ce5cab44411db321417c4c557ea3f",
+            "bytes": 878
+          },
+          "resources": {
+            "maximumResidentSetKiB": 59744,
+            "exitStatus": 0,
+            "elapsed": "0:00.09",
+            "userSeconds": 0.06,
+            "systemSeconds": 0.03
+          },
+          "testCounts": null
+        },
+        {
+          "index": 28,
+          "command": [
+            "development/rmtx-a03/budget-inspect.cjs",
+            "--write"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.064,
+          "log": {
+            "file": "refresh-node24/28-development_rmtx-a03_budget-inspect.cjs.log",
+            "sha256": "055055813fdadb9ac6d74620fe48635296baac4cd1d59d0a92468de57ef4d484",
+            "bytes": 99
+          },
+          "resourceReceipt": {
+            "file": "refresh-node24/28-development_rmtx-a03_budget-inspect.cjs.time",
+            "sha256": "b637253a206a8c0b22dac2804b6da00fe2d7f54f3d62c8713b237d35e8f47a17",
+            "bytes": 879
+          },
+          "resources": {
+            "maximumResidentSetKiB": 56972,
+            "exitStatus": 0,
+            "elapsed": "0:00.05",
+            "userSeconds": 0.04,
+            "systemSeconds": 0.02
+          },
+          "testCounts": null
+        },
+        {
+          "index": 29,
+          "command": [
+            "development/rmtx-a03/capability-inspect.cjs",
+            "--write"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.114,
+          "log": {
+            "file": "refresh-node24/29-development_rmtx-a03_capability-inspect.cjs.log",
+            "sha256": "c67401f18b0a657e6e2c928d0b520557107d05e83b1bc478f6404615118f79b8",
+            "bytes": 93
+          },
+          "resourceReceipt": {
+            "file": "refresh-node24/29-development_rmtx-a03_capability-inspect.cjs.time",
+            "sha256": "6dcce4ef55e646b88e7e560c1481545fa6495c2f2b53dfa08718966e6c547d81",
+            "bytes": 883
+          },
+          "resources": {
+            "maximumResidentSetKiB": 62572,
+            "exitStatus": 0,
+            "elapsed": "0:00.09",
+            "userSeconds": 0.06,
+            "systemSeconds": 0.03
+          },
+          "testCounts": null
+        },
+        {
+          "index": 30,
+          "command": [
+            "development/rmtx-a04/inspect.cjs",
+            "--write"
+          ],
+          "returncode": 0,
+          "durationSeconds": 1.467,
+          "log": {
+            "file": "refresh-node24/30-development_rmtx-a04_inspect.cjs.log",
+            "sha256": "e96367860a6f81acc5d890f3b79fb988f03f44e619b093c7c56cd2538a719b06",
+            "bytes": 108
+          },
+          "resourceReceipt": {
+            "file": "refresh-node24/30-development_rmtx-a04_inspect.cjs.time",
+            "sha256": "37d7ace0e7dd0ff8ce6f5e5058b03108e7928484367da41f45a0bdd325ed5eb7",
+            "bytes": 877
+          },
+          "resources": {
+            "maximumResidentSetKiB": 179244,
+            "exitStatus": 0,
+            "elapsed": "0:01.44",
+            "userSeconds": 1.56,
+            "systemSeconds": 0.13
+          },
+          "testCounts": null
+        },
+        {
+          "index": 31,
+          "command": [
+            "development/rmtx-a04/integration-inspect.cjs",
+            "--write"
+          ],
+          "returncode": 0,
+          "durationSeconds": 29.166,
+          "log": {
+            "file": "refresh-node24/31-development_rmtx-a04_integration-inspect.cjs.log",
+            "sha256": "f7f65703e8f5404beb24c1b63cc2e0727c4a8d94c57fffb5f4d230016c275467",
+            "bytes": 107
+          },
+          "resourceReceipt": {
+            "file": "refresh-node24/31-development_rmtx-a04_integration-inspect.cjs.time",
+            "sha256": "73e4c75e21194cd05961863f2d8ec8b782c9746ebb34831af0b2cdd78a1a1742",
+            "bytes": 894
+          },
+          "resources": {
+            "maximumResidentSetKiB": 612592,
+            "exitStatus": 0,
+            "elapsed": "0:29.14",
+            "userSeconds": 43.0,
+            "systemSeconds": 1.24
+          },
+          "testCounts": null
+        },
+        {
+          "index": 32,
+          "command": [
+            "development/rmtx-a04/graph-inspect.cjs",
+            "--write"
+          ],
+          "returncode": 0,
+          "durationSeconds": 16.746,
+          "log": {
+            "file": "refresh-node24/32-development_rmtx-a04_graph-inspect.cjs.log",
+            "sha256": "6c8647f8df336de8307d16b2a4fa35f40445d3f3e099147641eaa07a8506c109",
+            "bytes": 97
+          },
+          "resourceReceipt": {
+            "file": "refresh-node24/32-development_rmtx-a04_graph-inspect.cjs.time",
+            "sha256": "3da5b70eb1df21b32f7301aa098d970056fe98256f4433b42d4b7d1d6d70980b",
+            "bytes": 887
+          },
+          "resources": {
+            "maximumResidentSetKiB": 598400,
+            "exitStatus": 0,
+            "elapsed": "0:16.69",
+            "userSeconds": 25.89,
+            "systemSeconds": 0.78
+          },
+          "testCounts": null
+        },
+        {
+          "index": 33,
+          "command": [
+            "development/rmtx-a04/loading-inspect.cjs",
+            "--write"
+          ],
+          "returncode": 0,
+          "durationSeconds": 23.708,
+          "log": {
+            "file": "refresh-node24/33-development_rmtx-a04_loading-inspect.cjs.log",
+            "sha256": "185d30b4dd795b892bb72fb1d961686409674e4503cb0561d44d6d49b870acc2",
+            "bytes": 111
+          },
+          "resourceReceipt": {
+            "file": "refresh-node24/33-development_rmtx-a04_loading-inspect.cjs.time",
+            "sha256": "0081b6ede8bf711b9507eeda46b370349a32e8a6e589aa7f2684ab3bf913f0ff",
+            "bytes": 890
+          },
+          "resources": {
+            "maximumResidentSetKiB": 594708,
+            "exitStatus": 0,
+            "elapsed": "0:23.67",
+            "userSeconds": 37.72,
+            "systemSeconds": 1.25
+          },
+          "testCounts": null
+        },
+        {
+          "index": 34,
+          "command": [
+            "development/rmtx-a04/peer-inspect.cjs",
+            "--write"
+          ],
+          "returncode": 0,
+          "durationSeconds": 23.707,
+          "log": {
+            "file": "refresh-node24/34-development_rmtx-a04_peer-inspect.cjs.log",
+            "sha256": "3417d93288bbfc5c8fbcfb6dc167fe19b4b77080ba9cc029015e977c09f27e8f",
+            "bytes": 107
+          },
+          "resourceReceipt": {
+            "file": "refresh-node24/34-development_rmtx-a04_peer-inspect.cjs.time",
+            "sha256": "6b29e5503c24fcfee0fdcb4eab9d8c8a455acc62660185de8c87bb712b810e7e",
+            "bytes": 887
+          },
+          "resources": {
+            "maximumResidentSetKiB": 593904,
+            "exitStatus": 0,
+            "elapsed": "0:23.68",
+            "userSeconds": 37.3,
+            "systemSeconds": 1.22
+          },
+          "testCounts": null
+        },
+        {
+          "index": 35,
+          "command": [
+            "development/rmtx-a04/delivery-inspect.cjs",
+            "--write"
+          ],
+          "returncode": 0,
+          "durationSeconds": 23.506,
+          "log": {
+            "file": "refresh-node24/35-development_rmtx-a04_delivery-inspect.cjs.log",
+            "sha256": "57208d387803e9887d08ae28428019d84ccce9d84779562376093fe02ffccc39",
+            "bytes": 106
+          },
+          "resourceReceipt": {
+            "file": "refresh-node24/35-development_rmtx-a04_delivery-inspect.cjs.time",
+            "sha256": "48351cf847539c1170fcd20f2427ef912690e81ad7bf23c24b81c10758b58a0f",
+            "bytes": 890
+          },
+          "resources": {
+            "maximumResidentSetKiB": 612796,
+            "exitStatus": 0,
+            "elapsed": "0:23.50",
+            "userSeconds": 37.46,
+            "systemSeconds": 1.32
+          },
+          "testCounts": null
+        },
+        {
+          "index": 36,
+          "command": [
+            "development/rmtx-a04/integrity-inspect.cjs",
+            "--write"
+          ],
+          "returncode": 0,
+          "durationSeconds": 19.399,
+          "log": {
+            "file": "refresh-node24/36-development_rmtx-a04_integrity-inspect.cjs.log",
+            "sha256": "1a25e5c2d4498f7be358a9bc61d77ff3a7edfe6f00e21344cc6fb7dcb3651b55",
+            "bytes": 100
+          },
+          "resourceReceipt": {
+            "file": "refresh-node24/36-development_rmtx-a04_integrity-inspect.cjs.time",
+            "sha256": "3e0651344cf8041dbff65af6b7e1f638307e4105bee806cecc65e11ee7a31b4e",
+            "bytes": 892
+          },
+          "resources": {
+            "maximumResidentSetKiB": 720360,
+            "exitStatus": 0,
+            "elapsed": "0:19.35",
+            "userSeconds": 29.48,
+            "systemSeconds": 0.85
+          },
+          "testCounts": null
+        },
+        {
+          "index": 37,
+          "command": [
+            "development/rmtx-a04/runtime-inspect.cjs",
+            "--write"
+          ],
+          "returncode": 0,
+          "durationSeconds": 30.622,
+          "log": {
+            "file": "refresh-node24/37-development_rmtx-a04_runtime-inspect.cjs.log",
+            "sha256": "99d8e28287f010b5348edcf0fb5bb68eb7ef6240b0ebfce9f2e5fb74ff4d7ff9",
+            "bytes": 99
+          },
+          "resourceReceipt": {
+            "file": "refresh-node24/37-development_rmtx-a04_runtime-inspect.cjs.time",
+            "sha256": "f52d06702e2e4b1ac7e5286cd41ca8a04260bffeb5db3ff5a7843b75cc96aee0",
+            "bytes": 890
+          },
+          "resources": {
+            "maximumResidentSetKiB": 720324,
+            "exitStatus": 0,
+            "elapsed": "0:30.58",
+            "userSeconds": 46.26,
+            "systemSeconds": 1.13
+          },
+          "testCounts": null
+        },
+        {
+          "index": 38,
+          "command": [
+            "development/rmtx-a04/updates-inspect.cjs",
+            "--write"
+          ],
+          "returncode": 0,
+          "durationSeconds": 33.025,
+          "log": {
+            "file": "refresh-node24/38-development_rmtx-a04_updates-inspect.cjs.log",
+            "sha256": "fafcf765ee7c1bc7b9b2f85bd3878562782cff2832903f597f3e180dcffac8e9",
+            "bytes": 89
+          },
+          "resourceReceipt": {
+            "file": "refresh-node24/38-development_rmtx-a04_updates-inspect.cjs.time",
+            "sha256": "147562a701cb58603a410878a54c2b7c35667a3de34a7dc4add3ad54d48078b5",
+            "bytes": 890
+          },
+          "resources": {
+            "maximumResidentSetKiB": 723532,
+            "exitStatus": 0,
+            "elapsed": "0:32.98",
+            "userSeconds": 48.71,
+            "systemSeconds": 1.4
+          },
+          "testCounts": null
+        },
+        {
+          "index": 39,
+          "command": [
+            "development/rmtx-a05/inspect.cjs",
+            "--write"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.114,
+          "log": {
+            "file": "refresh-node24/39-development_rmtx-a05_inspect.cjs.log",
+            "sha256": "6a6fba010d5b18e347d0034d281b964d47f6d459ff9ac713e117a2fe17ace550",
+            "bytes": 78
+          },
+          "resourceReceipt": {
+            "file": "refresh-node24/39-development_rmtx-a05_inspect.cjs.time",
+            "sha256": "40e2bfb0134ad5c9ca818e116972da2f32420be1f81aa34ece766a9da8aaaf46",
+            "bytes": 873
+          },
+          "resources": {
+            "maximumResidentSetKiB": 68064,
+            "exitStatus": 0,
+            "elapsed": "0:00.07",
+            "userSeconds": 0.06,
+            "systemSeconds": 0.02
+          },
+          "testCounts": null
+        },
+        {
+          "index": 40,
+          "command": [
+            "development/rmtx-a06/two-host-inspect.cjs",
+            "--write"
+          ],
+          "returncode": 0,
+          "durationSeconds": 2.067,
+          "log": {
+            "file": "refresh-node24/40-development_rmtx-a06_two-host-inspect.cjs.log",
+            "sha256": "98ed1943d44a867215be38555d9da418dbdd8bf368ce39573831ddce95dfb4ba",
+            "bytes": 95
+          },
+          "resourceReceipt": {
+            "file": "refresh-node24/40-development_rmtx-a06_two-host-inspect.cjs.time",
+            "sha256": "09a9ddd260d63651023900e9962a83de0a48ddb5f82ca15b495b6a7bf8d2613e",
+            "bytes": 887
+          },
+          "resources": {
+            "maximumResidentSetKiB": 302204,
+            "exitStatus": 0,
+            "elapsed": "0:02.02",
+            "userSeconds": 2.9,
+            "systemSeconds": 0.24
+          },
+          "testCounts": null
+        },
+        {
+          "index": 42,
+          "command": [
+            "development/rmtx-a06/automatic-inspect.cjs",
+            "--write"
+          ],
+          "returncode": 0,
+          "durationSeconds": 6.927,
+          "log": {
+            "file": "refresh-node24/42-development_rmtx-a06_automatic-inspect.cjs.log",
+            "sha256": "9d243a0ba4b7ce31e03ed46dbb9b21a9dbea0aebd71ebe1248d1def1640a1cfb",
+            "bytes": 110
+          },
+          "resourceReceipt": {
+            "file": "refresh-node24/42-development_rmtx-a06_automatic-inspect.cjs.time",
+            "sha256": "d3551b2499c27565ecb513e7a4edad93ee46a6e35f1315c89852964d688aa919",
+            "bytes": 891
+          },
+          "resources": {
+            "maximumResidentSetKiB": 564816,
+            "exitStatus": 0,
+            "elapsed": "0:06.91",
+            "userSeconds": 11.36,
+            "systemSeconds": 0.54
+          },
+          "testCounts": null
+        },
+        {
+          "index": 44,
+          "command": [
+            "development/rmtx-a06/scoped-inspect.cjs",
+            "--write"
+          ],
+          "returncode": 0,
+          "durationSeconds": 6.976,
+          "log": {
+            "file": "refresh-node24/44-development_rmtx-a06_scoped-inspect.cjs.log",
+            "sha256": "a20839ec9d774a019808689887a4c42fec1b7ca05786b6cdd7ed7ad163dd5560",
+            "bytes": 108
+          },
+          "resourceReceipt": {
+            "file": "refresh-node24/44-development_rmtx-a06_scoped-inspect.cjs.time",
+            "sha256": "4c83c2cad684a4af99e91e1d730abbaab64cde6624fb31466c36cbb4c925df38",
+            "bytes": 887
+          },
+          "resources": {
+            "maximumResidentSetKiB": 565608,
+            "exitStatus": 0,
+            "elapsed": "0:06.97",
+            "userSeconds": 11.59,
+            "systemSeconds": 0.6
+          },
+          "testCounts": null
+        }
+      ],
+      "maximumIndividualProcessRssKiB": 723532
+    },
+    {
+      "mode": "check",
+      "lane": "24",
+      "node": "v24.22.2",
+      "heapLimitMiB": 1024,
+      "perCheckExternalTimeoutSeconds": 240,
+      "checkCount": 47,
+      "rawReceipt": {
+        "file": "node24/receipt.json",
+        "sha256": "87fcc65dac738968ed42dfb6d730fa6ca74836c997e9ebcd1058bd6f0f9ebd89",
+        "bytes": 21318
+      },
+      "checks": [
+        {
+          "index": 0,
+          "command": [
+            "scripts/generate_rmt_classic_contract.js",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.064,
+          "log": {
+            "file": "node24/00-scripts_generate_rmt_classic_contract.js.log",
+            "sha256": "a9bf9b145c7abba6b80816a24bf856b217ac446d84a7f96de6279fe71c74fb02",
+            "bytes": 132
+          },
+          "resourceReceipt": {
+            "file": "node24/00-scripts_generate_rmt_classic_contract.js.time",
+            "sha256": "44efe728b0784a1be3da04ff93c6ef95db743fd5c9a4213c6be7c55644a5a6b5",
+            "bytes": 879
+          },
+          "resources": {
+            "maximumResidentSetKiB": 50412,
+            "exitStatus": 0,
+            "elapsed": "0:00.03",
+            "userSeconds": 0.02,
+            "systemSeconds": 0.01
+          },
+          "testCounts": null
+        },
+        {
+          "index": 1,
+          "command": [
+            "scripts/sync_rmt_compiler_contracts.cjs",
+            "--check",
+            "--json"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.064,
+          "log": {
+            "file": "node24/01-scripts_sync_rmt_compiler_contracts.cjs.log",
+            "sha256": "a19adf302d8fa762b2c509c1e7de6690a735b3a7930368e500051d9c85ac0ffa",
+            "bytes": 450
+          },
+          "resourceReceipt": {
+            "file": "node24/01-scripts_sync_rmt_compiler_contracts.cjs.time",
+            "sha256": "80cf06cf1113fa055039a002ba54253a56ecbd0b51003c2a4a76f0279200dafd",
+            "bytes": 886
+          },
+          "resources": {
+            "maximumResidentSetKiB": 48448,
+            "exitStatus": 0,
+            "elapsed": "0:00.03",
+            "userSeconds": 0.02,
+            "systemSeconds": 0.01
+          },
+          "testCounts": null
+        },
+        {
+          "index": 2,
+          "command": [
+            "--test-concurrency=1",
+            "--test",
+            "tests/rmt-language/action-execution-lowering.test.cjs",
+            "tests/rmt-language/event-condition-guards.test.cjs",
+            "tests/rmt-language/action-backend-regressions.test.cjs",
+            "tests/rmt/renderer-structural-ownership.test.cjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 5.523,
+          "log": {
+            "file": "node24/02---test.log",
+            "sha256": "e024a6f6fe506c1ef83be8e26d0065fb40db28b1edda9fd9956382c8bbb98d0a",
+            "bytes": 6789
+          },
+          "resourceReceipt": {
+            "file": "node24/02---test.time",
+            "sha256": "9a31d205b9c106b49a3d950b62ae4495fa04f292f2bf37e355561665c7e76d0c",
+            "bytes": 1074
+          },
+          "resources": {
+            "maximumResidentSetKiB": 330968,
+            "exitStatus": 0,
+            "elapsed": "0:05.47",
+            "userSeconds": 6.53,
+            "systemSeconds": 0.69
+          },
+          "testCounts": {
+            "tests": 65,
+            "pass": 65,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          }
+        },
+        {
+          "index": 3,
+          "command": [
+            "--test-concurrency=1",
+            "--test",
+            "tests/rmt/surface-materialize-lifetime.test.cjs",
+            "tests/rmt/maraca-view-lifecycle.test.cjs",
+            "tests/maraca/native-surface-lifecycle.test.mjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 3.37,
+          "log": {
+            "file": "node24/03---test.log",
+            "sha256": "d3578520aba8c3112b549e36f75fc2c0969c8722bdb490c82500eab6ad89cf7f",
+            "bytes": 3120
+          },
+          "resourceReceipt": {
+            "file": "node24/03---test.time",
+            "sha256": "0888d9f9cb5250de9e9cf219cb3b23700a3f32ce6d4e96031f940cc380df14ad",
+            "bytes": 1001
+          },
+          "resources": {
+            "maximumResidentSetKiB": 330100,
+            "exitStatus": 0,
+            "elapsed": "0:03.32",
+            "userSeconds": 4.02,
+            "systemSeconds": 0.51
+          },
+          "testCounts": {
+            "tests": 30,
+            "pass": 30,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          }
+        },
+        {
+          "index": 4,
+          "command": [
+            "--test-concurrency=1",
+            "--test",
+            "tests/rmt-language/backend-ast-result.test.cjs",
+            "tests/rmt-language/rmtx-frontend.test.cjs",
+            "tests/rmt-language/rmtx-maraca-integration.test.cjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 56.967,
+          "log": {
+            "file": "node24/04---test.log",
+            "sha256": "a56a69ac91b3b97dcaeb6517bdce4c6e713a26a97fa2d0fd52f6017784fb0916",
+            "bytes": 5586
+          },
+          "resourceReceipt": {
+            "file": "node24/04---test.time",
+            "sha256": "6d8b794eb98bad54f7354467c7f3d05b3fbc88bac05df157ab9c3b2a987c074a",
+            "bytes": 1009
+          },
+          "resources": {
+            "maximumResidentSetKiB": 745256,
+            "exitStatus": 0,
+            "elapsed": "0:56.95",
+            "userSeconds": 64.67,
+            "systemSeconds": 2.87
+          },
+          "testCounts": {
+            "tests": 54,
+            "pass": 54,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          }
+        },
+        {
+          "index": 5,
+          "command": [
+            "development/rmtx-a06/frontend/inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.315,
+          "log": {
+            "file": "node24/05-development_rmtx-a06_frontend_inspect.cjs.log",
+            "sha256": "bb1c4746fa2e13091da7b1f53c7cea27671f5dcf376f0820b06294c90ab318d0",
+            "bytes": 117
+          },
+          "resourceReceipt": {
+            "file": "node24/05-development_rmtx-a06_frontend_inspect.cjs.time",
+            "sha256": "dbf666649a823605c1ffd7e364d4f39014c8e878335b9377818e6840518e1ea7",
+            "bytes": 884
+          },
+          "resources": {
+            "maximumResidentSetKiB": 114892,
+            "exitStatus": 0,
+            "elapsed": "0:00.27",
+            "userSeconds": 0.25,
+            "systemSeconds": 0.05
+          },
+          "testCounts": null
+        },
+        {
+          "index": 6,
+          "command": [
+            "--test-concurrency=1",
+            "--test",
+            "tests/rmt-language/rmtx-operator-profiles.test.cjs",
+            "tests/rmt-language/rmtx-selector-dependencies.test.cjs",
+            "tests/rmt-language/rmtx-selectors.test.cjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 2.769,
+          "log": {
+            "file": "node24/06---test.log",
+            "sha256": "e71d5bb0a9df908dacae19d4bb377d6136423e9ef9c5e233873483711e200933",
+            "bytes": 5682
+          },
+          "resourceReceipt": {
+            "file": "node24/06---test.time",
+            "sha256": "a3d0e88cf3865bc3fab84da068e354cf6b4fbdb9b12941fcf5cda9551521a288",
+            "bytes": 1014
+          },
+          "resources": {
+            "maximumResidentSetKiB": 348980,
+            "exitStatus": 0,
+            "elapsed": "0:02.73",
+            "userSeconds": 5.56,
+            "systemSeconds": 0.62
+          },
+          "testCounts": {
+            "tests": 61,
+            "pass": 61,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          }
+        },
+        {
+          "index": 7,
+          "command": [
+            "development/rmtx-a06/selector-profile/inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.315,
+          "log": {
+            "file": "node24/07-development_rmtx-a06_selector-profile_inspect.cjs.log",
+            "sha256": "6dc82f190dabfe020fd5f9cd1a019d8363fa77392139401889f3cde9d418df35",
+            "bytes": 79
+          },
+          "resourceReceipt": {
+            "file": "node24/07-development_rmtx-a06_selector-profile_inspect.cjs.time",
+            "sha256": "7e20053774c5b06bb56c45e4232cd2269846bcc1be0e0ce100f1fb7fd7e1745b",
+            "bytes": 892
+          },
+          "resources": {
+            "maximumResidentSetKiB": 119036,
+            "exitStatus": 0,
+            "elapsed": "0:00.27",
+            "userSeconds": 0.25,
+            "systemSeconds": 0.06
+          },
+          "testCounts": null
+        },
+        {
+          "index": 8,
+          "command": [
+            "--test-concurrency=1",
+            "--test",
+            "tests/rmt-language/rmtx-host-scopes.test.cjs",
+            "tests/rmt-language/rmtx-profile3-backend.test.cjs",
+            "tests/rmt-language/rmtx-maraca-host-scopes.test.cjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 5.074,
+          "log": {
+            "file": "node24/08---test.log",
+            "sha256": "1b3157b0d0aad36060a6ab0e738eb99cce5325d2b5fc3bcb7c3fac498c223ac0",
+            "bytes": 4948
+          },
+          "resourceReceipt": {
+            "file": "node24/08---test.time",
+            "sha256": "f4bd77edf657c67d8e7ab5a1cce9e1630b801527f2a39fd74716207a72bb23a1",
+            "bytes": 1012
+          },
+          "resources": {
+            "maximumResidentSetKiB": 357936,
+            "exitStatus": 0,
+            "elapsed": "0:05.02",
+            "userSeconds": 8.59,
+            "systemSeconds": 0.84
+          },
+          "testCounts": {
+            "tests": 56,
+            "pass": 56,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          }
+        },
+        {
+          "index": 9,
+          "command": [
+            "development/rmtx-a06/keyed-profile/inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 6.727,
+          "log": {
+            "file": "node24/09-development_rmtx-a06_keyed-profile_inspect.cjs.log",
+            "sha256": "37bd063e2bdc53414a0aa0e9505107921376ef2da284551c2b52a4c0579e29c3",
+            "bytes": 73
+          },
+          "resourceReceipt": {
+            "file": "node24/09-development_rmtx-a06_keyed-profile_inspect.cjs.time",
+            "sha256": "431233a5b1a5709e05a963b80190dccb481df4659f1a39266bfe6e35dd203d89",
+            "bytes": 894
+          },
+          "resources": {
+            "maximumResidentSetKiB": 562940,
+            "exitStatus": 0,
+            "elapsed": "0:06.71",
+            "userSeconds": 11.42,
+            "systemSeconds": 0.54
+          },
+          "testCounts": null
+        },
+        {
+          "index": 10,
+          "command": [
+            "--test-concurrency=1",
+            "--test",
+            "tests/rmt-language/rmtx-extended-operators.test.cjs",
+            "tests/rmt-language/rmtx-orchestration.test.cjs",
+            "tests/rmt-language/rmtx-inline-components.test.cjs",
+            "tests/rmt-language/action-input-contract.test.cjs",
+            "tests/xtensions/projected-state-binding.test.cjs",
+            "tests/xtensions/projected-url-state.test.cjs",
+            "tests/xtensions/platform-projection-profile.test.cjs",
+            "tests/xtensions/projected-xrouter-url-state.test.cjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 10.334,
+          "log": {
+            "file": "node24/10---test.log",
+            "sha256": "728be09e94743746b6c09ae4b23603d0da8d85cd8d860e17b9dfab2facbba3f7",
+            "bytes": 16666
+          },
+          "resourceReceipt": {
+            "file": "node24/10---test.time",
+            "sha256": "1a414ef5c4a5e79e3d28854c4b341e9e00f9eb02d45f2e816924b216191c4f73",
+            "bytes": 1268
+          },
+          "resources": {
+            "maximumResidentSetKiB": 357520,
+            "exitStatus": 0,
+            "elapsed": "0:10.30",
+            "userSeconds": 15.02,
+            "systemSeconds": 1.41
+          },
+          "testCounts": {
+            "tests": 171,
+            "pass": 171,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          }
+        },
+        {
+          "index": 11,
+          "command": [
+            "development/rmtx-a06/orchestration-profile/inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 7.228,
+          "log": {
+            "file": "node24/11-development_rmtx-a06_orchestration-profile_inspect.cjs.log",
+            "sha256": "fbe363bd73208734e4850c2364be2fc05f10f3c244b3469f80483d8f7b9bc72c",
+            "bytes": 80
+          },
+          "resourceReceipt": {
+            "file": "node24/11-development_rmtx-a06_orchestration-profile_inspect.cjs.time",
+            "sha256": "e7bc86b97315138b00b8d494bf11dd22283fe1c33a9fb02791a4252b6f45d69b",
+            "bytes": 901
+          },
+          "resources": {
+            "maximumResidentSetKiB": 570868,
+            "exitStatus": 0,
+            "elapsed": "0:07.20",
+            "userSeconds": 11.84,
+            "systemSeconds": 0.54
+          },
+          "testCounts": null
+        },
+        {
+          "index": 12,
+          "command": [
+            "--test-concurrency=1",
+            "--test",
+            "tests/rmt-language/rmtx-native-view.test.cjs",
+            "tests/xtensions/native-view-projection.test.cjs",
+            "tests/xtensions/native-state-binding.test.cjs",
+            "tests/xtensions/native-url-state.test.cjs",
+            "tests/xtensions/native-composition-profile.test.cjs",
+            "tests/rmt/renderer-preflight.test.cjs",
+            "tests/maraca/rmtx-native-boundaries.test.mjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 15.092,
+          "log": {
+            "file": "node24/12---test.log",
+            "sha256": "b2429d6cfb2cd960399c3fe2f84c023a9060f84415e853a3b0df48fda3e0ffe8",
+            "bytes": 13965
+          },
+          "resourceReceipt": {
+            "file": "node24/12---test.time",
+            "sha256": "122102cb27da5f299f1c5673c45efc0d750f3ab107f9eb357cb79290cbe84d1b",
+            "bytes": 1184
+          },
+          "resources": {
+            "maximumResidentSetKiB": 629356,
+            "exitStatus": 0,
+            "elapsed": "0:15.06",
+            "userSeconds": 21.12,
+            "systemSeconds": 1.62
+          },
+          "testCounts": {
+            "tests": 140,
+            "pass": 140,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          }
+        },
+        {
+          "index": 13,
+          "command": [
+            "development/rmtx-a06/native-view-profile/inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 11.837,
+          "log": {
+            "file": "node24/13-development_rmtx-a06_native-view-profile_inspect.cjs.log",
+            "sha256": "8839184b45dfdc0c33302cd5f1be3f0cc70a268dfad2b0bb4450e1295d6e0a04",
+            "bytes": 77
+          },
+          "resourceReceipt": {
+            "file": "node24/13-development_rmtx-a06_native-view-profile_inspect.cjs.time",
+            "sha256": "a86ea3878b1cb5329b0db6d74dfe4f9b9d447f23bbd1f40fe263b23560d3da99",
+            "bytes": 900
+          },
+          "resources": {
+            "maximumResidentSetKiB": 623232,
+            "exitStatus": 0,
+            "elapsed": "0:11.81",
+            "userSeconds": 18.95,
+            "systemSeconds": 0.68
+          },
+          "testCounts": null
+        },
+        {
+          "index": 14,
+          "command": [
+            "--test-concurrency=1",
+            "--test",
+            "tests/rmt-language/rmtx-lifecycle.test.cjs",
+            "tests/xtensions/native-lifecycle-protocol.test.cjs",
+            "tests/xtensions/lifecycle-composition-profile.test.cjs",
+            "tests/xtensions/lifecycle-browser-profile.test.cjs",
+            "tests/maraca/rmtx-lifecycle.test.mjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 5.424,
+          "log": {
+            "file": "node24/14---test.log",
+            "sha256": "276c0f23c966c75592fec060b9501607c3f4ac3809e3e08552c9cf832cf14e61",
+            "bytes": 5861
+          },
+          "resourceReceipt": {
+            "file": "node24/14---test.time",
+            "sha256": "e9aa61e1872a2c1d8635e8cc1388910b7c8f46ad5e896a72d4dde9bab7877db8",
+            "bytes": 1102
+          },
+          "resources": {
+            "maximumResidentSetKiB": 364748,
+            "exitStatus": 0,
+            "elapsed": "0:05.41",
+            "userSeconds": 6.47,
+            "systemSeconds": 0.81
+          },
+          "testCounts": {
+            "tests": 59,
+            "pass": 59,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          }
+        },
+        {
+          "index": 15,
+          "command": [
+            "development/rmtx-a06/lifecycle-profile/inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 12.087,
+          "log": {
+            "file": "node24/15-development_rmtx-a06_lifecycle-profile_inspect.cjs.log",
+            "sha256": "90dcf172e21af6d0077f4e074030c41ff4862fbed0b4e0d16a682f8702fb8ed3",
+            "bytes": 22757
+          },
+          "resourceReceipt": {
+            "file": "node24/15-development_rmtx-a06_lifecycle-profile_inspect.cjs.time",
+            "sha256": "ecec367a3e7cb2d05be6205d58dc055fb6883cf2648415ef369bbd9447f425ce",
+            "bytes": 898
+          },
+          "resources": {
+            "maximumResidentSetKiB": 622436,
+            "exitStatus": 0,
+            "elapsed": "0:12.07",
+            "userSeconds": 19.14,
+            "systemSeconds": 0.68
+          },
+          "testCounts": null
+        },
+        {
+          "index": 16,
+          "command": [
+            "--test",
+            "--test-concurrency=1",
+            "tests/rmt-language/rmtx-native-orchestration.test.cjs",
+            "tests/xtensions/native-orchestrated-contracts.test.cjs",
+            "tests/xtensions/native-orchestrated-prewarm.test.cjs",
+            "tests/xtensions/native-surface-projection.test.cjs",
+            "tests/maraca/rmtx-surface-graph.test.mjs",
+            "tests/maraca/rmtx-orchestration.test.mjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 22.055,
+          "log": {
+            "file": "node24/16---test-concurrency_1.log",
+            "sha256": "27a5e707c0660be0e3a6e31f698ac1b0a88ad0d2e5363cee10d8aae496039668",
+            "bytes": 7781
+          },
+          "resourceReceipt": {
+            "file": "node24/16---test-concurrency_1.time",
+            "sha256": "10f05e174ad19b8cf9a7657414cb2d9a6ac7a3db01b0e7a2c519ae74c81b2acf",
+            "bytes": 1163
+          },
+          "resources": {
+            "maximumResidentSetKiB": 418864,
+            "exitStatus": 0,
+            "elapsed": "0:22.02",
+            "userSeconds": 24.9,
+            "systemSeconds": 1.18
+          },
+          "testCounts": {
+            "tests": 70,
+            "pass": 70,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          }
+        },
+        {
+          "index": 17,
+          "command": [
+            "development/rmtx-a06/native-components/generate.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.265,
+          "log": {
+            "file": "node24/17-development_rmtx-a06_native-components_generate.cjs.log",
+            "sha256": "285b750286259b2f8ee4674069a3f7467491d47274ae70599d4ff8daa993fb41",
+            "bytes": 48
+          },
+          "resourceReceipt": {
+            "file": "node24/17-development_rmtx-a06_native-components_generate.cjs.time",
+            "sha256": "1620819e68578e0d6820606c6b5c7306c328c7ca5f475e659c352d37beeb7ce8",
+            "bytes": 894
+          },
+          "resources": {
+            "maximumResidentSetKiB": 123440,
+            "exitStatus": 0,
+            "elapsed": "0:00.25",
+            "userSeconds": 0.26,
+            "systemSeconds": 0.08
+          },
+          "testCounts": null
+        },
+        {
+          "index": 18,
+          "command": [
+            "development/rmtx-a06/native-orchestration-profile/inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 8.029,
+          "log": {
+            "file": "node24/18-development_rmtx-a06_native-orchestration-profile_inspect.cjs.log",
+            "sha256": "e9e47c7a30a60bfce62662040f9e7f95d8a154442a8a32a23e0d6bdb8f2a2cec",
+            "bytes": 26989
+          },
+          "resourceReceipt": {
+            "file": "node24/18-development_rmtx-a06_native-orchestration-profile_inspect.cjs.time",
+            "sha256": "705e9e7d866ab76ef6af2b14fc9b00bc9a49cba2e347dc0d5f2c6244babf76f1",
+            "bytes": 909
+          },
+          "resources": {
+            "maximumResidentSetKiB": 606628,
+            "exitStatus": 0,
+            "elapsed": "0:08.00",
+            "userSeconds": 13.12,
+            "systemSeconds": 0.69
+          },
+          "testCounts": null
+        },
+        {
+          "index": 19,
+          "command": [
+            "development/rmtx-a06/native-component-catalog/generate.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.164,
+          "log": {
+            "file": "node24/19-development_rmtx-a06_native-component-catalog_generate.cjs.log",
+            "sha256": "ba5239d1c28c1816841ecefb8a83e6b6c7747422a6b1937e4b8907bc7f46e072",
+            "bytes": 89
+          },
+          "resourceReceipt": {
+            "file": "node24/19-development_rmtx-a06_native-component-catalog_generate.cjs.time",
+            "sha256": "155f19120eef2c168b8085b6d75695d3d5a6b1428837fddfb7c57625b70c2adf",
+            "bytes": 899
+          },
+          "resources": {
+            "maximumResidentSetKiB": 67440,
+            "exitStatus": 0,
+            "elapsed": "0:00.13",
+            "userSeconds": 0.11,
+            "systemSeconds": 0.05
+          },
+          "testCounts": null
+        },
+        {
+          "index": 20,
+          "command": [
+            "--test",
+            "--test-concurrency=1",
+            "tests/rmt-language/native-component-catalog-v2.test.cjs",
+            "tests/rmt-language/native-component-catalog-projection.test.cjs",
+            "tests/rmt-language/native-component-catalog-types.test.cjs",
+            "tests/rmt-language/native-managed-renderer.test.mjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 4.323,
+          "log": {
+            "file": "node24/20---test-concurrency_1.log",
+            "sha256": "f617a844a75a1c1ea7085847392c574fd9300542d6d7e5106d16d47c794820e0",
+            "bytes": 4806
+          },
+          "resourceReceipt": {
+            "file": "node24/20---test-concurrency_1.time",
+            "sha256": "430c2654eadcf008dec0cc2bc30674ccd8f1e3bdc612191640cba8497f4a26c9",
+            "bytes": 1096
+          },
+          "resources": {
+            "maximumResidentSetKiB": 337088,
+            "exitStatus": 0,
+            "elapsed": "0:04.28",
+            "userSeconds": 6.77,
+            "systemSeconds": 0.67
+          },
+          "testCounts": {
+            "tests": 44,
+            "pass": 44,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          }
+        },
+        {
+          "index": 21,
+          "command": [
+            "--test",
+            "--test-concurrency=1",
+            "tests/components/native-managed-ui.test.mjs",
+            "tests/components/native-platform-services.test.mjs",
+            "tests/components/component-source.test.cjs",
+            "tests/components/native-demo-reference.test.mjs",
+            "tests/maraca/rmtx-managed.test.mjs",
+            "tests/maraca/native-platform-managed.test.mjs",
+            "tests/maraca/native-private-cores.test.mjs",
+            "tests/maraca/native-data-literal.test.cjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 20.451,
+          "log": {
+            "file": "node24/21---test-concurrency_1.log",
+            "sha256": "a103541c9e93fc7056fcd64f086720b34076e9611fab98076118c980e7762460",
+            "bytes": 9900
+          },
+          "resourceReceipt": {
+            "file": "node24/21---test-concurrency_1.time",
+            "sha256": "0aa05704b4e5f53ec43bad72559c213341357f993df1e1484e99cb63e781c7e4",
+            "bytes": 1220
+          },
+          "resources": {
+            "maximumResidentSetKiB": 396012,
+            "exitStatus": 0,
+            "elapsed": "0:20.41",
+            "userSeconds": 24.14,
+            "systemSeconds": 1.73
+          },
+          "testCounts": {
+            "tests": 90,
+            "pass": 90,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          }
+        },
+        {
+          "index": 23,
+          "command": [
+            "development/rmtx-a02/inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 1.466,
+          "log": {
+            "file": "node24/23-development_rmtx-a02_inspect.cjs.log",
+            "sha256": "b7bbdd01c0137893bc791a3f01b8d92c90a8b065d26381b45f5253d5f70e9ff4",
+            "bytes": 102
+          },
+          "resourceReceipt": {
+            "file": "node24/23-development_rmtx-a02_inspect.cjs.time",
+            "sha256": "c75ca85bd3db04acbc2ddc00223fed4ceae0fa77042b285f5b3acac2bfa117a4",
+            "bytes": 876
+          },
+          "resources": {
+            "maximumResidentSetKiB": 188120,
+            "exitStatus": 0,
+            "elapsed": "0:01.44",
+            "userSeconds": 1.6,
+            "systemSeconds": 0.14
+          },
+          "testCounts": null
+        },
+        {
+          "index": 24,
+          "command": [
+            "development/rmtx-a02/url-history/inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 1.567,
+          "log": {
+            "file": "node24/24-development_rmtx-a02_url-history_inspect.cjs.log",
+            "sha256": "fbb334a74c5fea2ebf0e149c303f288a19761669493769b56138d6a1b5fc3712",
+            "bytes": 84
+          },
+          "resourceReceipt": {
+            "file": "node24/24-development_rmtx-a02_url-history_inspect.cjs.time",
+            "sha256": "2e4e9c8c756f31bd70cc3ebf931f70ab20c5097b8cd4e059e9a834ca9beca78b",
+            "bytes": 887
+          },
+          "resources": {
+            "maximumResidentSetKiB": 181796,
+            "exitStatus": 0,
+            "elapsed": "0:01.53",
+            "userSeconds": 1.72,
+            "systemSeconds": 0.14
+          },
+          "testCounts": null
+        },
+        {
+          "index": 25,
+          "command": [
+            "development/rmtx-a02/url-history/integration-inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.064,
+          "log": {
+            "file": "node24/25-development_rmtx-a02_url-history_integration-inspect.cjs.log",
+            "sha256": "b52d96fba101d072ff6ed96961688d34a59d4894079da50a2c3eddf32508ebfc",
+            "bytes": 112
+          },
+          "resourceReceipt": {
+            "file": "node24/25-development_rmtx-a02_url-history_integration-inspect.cjs.time",
+            "sha256": "df072ffcd41113650e6d2f38803a2196eddc5587cb1f2b1e98e905e940bd6d42",
+            "bytes": 896
+          },
+          "resources": {
+            "maximumResidentSetKiB": 55248,
+            "exitStatus": 0,
+            "elapsed": "0:00.06",
+            "userSeconds": 0.04,
+            "systemSeconds": 0.02
+          },
+          "testCounts": null
+        },
+        {
+          "index": 26,
+          "command": [
+            "development/rmtx-a03/inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.114,
+          "log": {
+            "file": "node24/26-development_rmtx-a03_inspect.cjs.log",
+            "sha256": "c568d2fcb06d4bde6d23eb3b37a864a8d938ae36258ef5b87db3ff9b71449024",
+            "bytes": 102
+          },
+          "resourceReceipt": {
+            "file": "node24/26-development_rmtx-a03_inspect.cjs.time",
+            "sha256": "a272e0b0c10eb7ef4508cbacce172fd1c2a988e9a7ba387c6183c8a3135c5c13",
+            "bytes": 872
+          },
+          "resources": {
+            "maximumResidentSetKiB": 56940,
+            "exitStatus": 0,
+            "elapsed": "0:00.06",
+            "userSeconds": 0.04,
+            "systemSeconds": 0.02
+          },
+          "testCounts": null
+        },
+        {
+          "index": 27,
+          "command": [
+            "development/rmtx-a03/graph-inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.114,
+          "log": {
+            "file": "node24/27-development_rmtx-a03_graph-inspect.cjs.log",
+            "sha256": "01202cbfb88d2ed5128a86510c5a6cf17b0e4fcc23dcde70ae3a52782f9d4a35",
+            "bytes": 110
+          },
+          "resourceReceipt": {
+            "file": "node24/27-development_rmtx-a03_graph-inspect.cjs.time",
+            "sha256": "28aebd4e01fa279fe76cbb441289e910a96959a572b3af5a4de09e0d15a0dafa",
+            "bytes": 878
+          },
+          "resources": {
+            "maximumResidentSetKiB": 59900,
+            "exitStatus": 0,
+            "elapsed": "0:00.08",
+            "userSeconds": 0.06,
+            "systemSeconds": 0.02
+          },
+          "testCounts": null
+        },
+        {
+          "index": 28,
+          "command": [
+            "development/rmtx-a03/budget-inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.064,
+          "log": {
+            "file": "node24/28-development_rmtx-a03_budget-inspect.cjs.log",
+            "sha256": "055055813fdadb9ac6d74620fe48635296baac4cd1d59d0a92468de57ef4d484",
+            "bytes": 99
+          },
+          "resourceReceipt": {
+            "file": "node24/28-development_rmtx-a03_budget-inspect.cjs.time",
+            "sha256": "d4c41faaa6081ef59b11bf9256c56101f9779f0b7171694ff45e7836dcbec6f0",
+            "bytes": 879
+          },
+          "resources": {
+            "maximumResidentSetKiB": 56968,
+            "exitStatus": 0,
+            "elapsed": "0:00.05",
+            "userSeconds": 0.03,
+            "systemSeconds": 0.02
+          },
+          "testCounts": null
+        },
+        {
+          "index": 29,
+          "command": [
+            "development/rmtx-a03/capability-inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.114,
+          "log": {
+            "file": "node24/29-development_rmtx-a03_capability-inspect.cjs.log",
+            "sha256": "c67401f18b0a657e6e2c928d0b520557107d05e83b1bc478f6404615118f79b8",
+            "bytes": 93
+          },
+          "resourceReceipt": {
+            "file": "node24/29-development_rmtx-a03_capability-inspect.cjs.time",
+            "sha256": "9b28c3f4ff14845fc27cd047afd60b1a416e51c463f8a37a0beb84454f6957bf",
+            "bytes": 883
+          },
+          "resources": {
+            "maximumResidentSetKiB": 62764,
+            "exitStatus": 0,
+            "elapsed": "0:00.10",
+            "userSeconds": 0.08,
+            "systemSeconds": 0.02
+          },
+          "testCounts": null
+        },
+        {
+          "index": 30,
+          "command": [
+            "development/rmtx-a04/inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 1.467,
+          "log": {
+            "file": "node24/30-development_rmtx-a04_inspect.cjs.log",
+            "sha256": "e96367860a6f81acc5d890f3b79fb988f03f44e619b093c7c56cd2538a719b06",
+            "bytes": 108
+          },
+          "resourceReceipt": {
+            "file": "node24/30-development_rmtx-a04_inspect.cjs.time",
+            "sha256": "ee1e5e98bc3e579e085877b1cfda437d7c5ef5cdf20b5e01de1f5f75f6e99bd2",
+            "bytes": 876
+          },
+          "resources": {
+            "maximumResidentSetKiB": 177464,
+            "exitStatus": 0,
+            "elapsed": "0:01.46",
+            "userSeconds": 1.55,
+            "systemSeconds": 0.13
+          },
+          "testCounts": null
+        },
+        {
+          "index": 31,
+          "command": [
+            "development/rmtx-a04/integration-inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 28.618,
+          "log": {
+            "file": "node24/31-development_rmtx-a04_integration-inspect.cjs.log",
+            "sha256": "f7f65703e8f5404beb24c1b63cc2e0727c4a8d94c57fffb5f4d230016c275467",
+            "bytes": 107
+          },
+          "resourceReceipt": {
+            "file": "node24/31-development_rmtx-a04_integration-inspect.cjs.time",
+            "sha256": "9714aace901830d5af5b276fb76c620a417fbfe31f51feb638acd4834184b4dd",
+            "bytes": 893
+          },
+          "resources": {
+            "maximumResidentSetKiB": 615472,
+            "exitStatus": 0,
+            "elapsed": "0:28.60",
+            "userSeconds": 42.62,
+            "systemSeconds": 1.25
+          },
+          "testCounts": null
+        },
+        {
+          "index": 32,
+          "command": [
+            "development/rmtx-a04/graph-inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 16.895,
+          "log": {
+            "file": "node24/32-development_rmtx-a04_graph-inspect.cjs.log",
+            "sha256": "6c8647f8df336de8307d16b2a4fa35f40445d3f3e099147641eaa07a8506c109",
+            "bytes": 97
+          },
+          "resourceReceipt": {
+            "file": "node24/32-development_rmtx-a04_graph-inspect.cjs.time",
+            "sha256": "d813db7ff80590519801868e5977911b7fa413f9a10cbc4568ff8d67c0830061",
+            "bytes": 886
+          },
+          "resources": {
+            "maximumResidentSetKiB": 596996,
+            "exitStatus": 0,
+            "elapsed": "0:16.85",
+            "userSeconds": 26.43,
+            "systemSeconds": 0.72
+          },
+          "testCounts": null
+        },
+        {
+          "index": 33,
+          "command": [
+            "development/rmtx-a04/loading-inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 23.507,
+          "log": {
+            "file": "node24/33-development_rmtx-a04_loading-inspect.cjs.log",
+            "sha256": "185d30b4dd795b892bb72fb1d961686409674e4503cb0561d44d6d49b870acc2",
+            "bytes": 111
+          },
+          "resourceReceipt": {
+            "file": "node24/33-development_rmtx-a04_loading-inspect.cjs.time",
+            "sha256": "94f6ce4181c93046ad1b05d9ac99758ebd32ff979149ed9231662f36442dd60a",
+            "bytes": 889
+          },
+          "resources": {
+            "maximumResidentSetKiB": 594048,
+            "exitStatus": 0,
+            "elapsed": "0:23.45",
+            "userSeconds": 37.26,
+            "systemSeconds": 1.24
+          },
+          "testCounts": null
+        },
+        {
+          "index": 34,
+          "command": [
+            "development/rmtx-a04/peer-inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 23.812,
+          "log": {
+            "file": "node24/34-development_rmtx-a04_peer-inspect.cjs.log",
+            "sha256": "3417d93288bbfc5c8fbcfb6dc167fe19b4b77080ba9cc029015e977c09f27e8f",
+            "bytes": 107
+          },
+          "resourceReceipt": {
+            "file": "node24/34-development_rmtx-a04_peer-inspect.cjs.time",
+            "sha256": "83e943a50e210d9b769e26dea8c4712cf9b1f5d8e64e2f2a9fa91863548d3ac1",
+            "bytes": 886
+          },
+          "resources": {
+            "maximumResidentSetKiB": 617512,
+            "exitStatus": 0,
+            "elapsed": "0:23.77",
+            "userSeconds": 37.55,
+            "systemSeconds": 1.25
+          },
+          "testCounts": null
+        },
+        {
+          "index": 35,
+          "command": [
+            "development/rmtx-a04/delivery-inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 23.957,
+          "log": {
+            "file": "node24/35-development_rmtx-a04_delivery-inspect.cjs.log",
+            "sha256": "57208d387803e9887d08ae28428019d84ccce9d84779562376093fe02ffccc39",
+            "bytes": 106
+          },
+          "resourceReceipt": {
+            "file": "node24/35-development_rmtx-a04_delivery-inspect.cjs.time",
+            "sha256": "035092c5f3a95c9a79f2175aec64f667126fe3218fa82bf159245ee2d35b9f9e",
+            "bytes": 890
+          },
+          "resources": {
+            "maximumResidentSetKiB": 590048,
+            "exitStatus": 0,
+            "elapsed": "0:23.92",
+            "userSeconds": 37.66,
+            "systemSeconds": 1.27
+          },
+          "testCounts": null
+        },
+        {
+          "index": 36,
+          "command": [
+            "development/rmtx-a04/integrity-inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 19.4,
+          "log": {
+            "file": "node24/36-development_rmtx-a04_integrity-inspect.cjs.log",
+            "sha256": "1a25e5c2d4498f7be358a9bc61d77ff3a7edfe6f00e21344cc6fb7dcb3651b55",
+            "bytes": 100
+          },
+          "resourceReceipt": {
+            "file": "node24/36-development_rmtx-a04_integrity-inspect.cjs.time",
+            "sha256": "ed68777ee651c6e8ab92a93239916ac1570e2785b59f00786e7477e81bf8bed1",
+            "bytes": 890
+          },
+          "resources": {
+            "maximumResidentSetKiB": 726892,
+            "exitStatus": 0,
+            "elapsed": "0:19.36",
+            "userSeconds": 29.02,
+            "systemSeconds": 0.91
+          },
+          "testCounts": null
+        },
+        {
+          "index": 37,
+          "command": [
+            "development/rmtx-a04/runtime-inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 30.321,
+          "log": {
+            "file": "node24/37-development_rmtx-a04_runtime-inspect.cjs.log",
+            "sha256": "99d8e28287f010b5348edcf0fb5bb68eb7ef6240b0ebfce9f2e5fb74ff4d7ff9",
+            "bytes": 99
+          },
+          "resourceReceipt": {
+            "file": "node24/37-development_rmtx-a04_runtime-inspect.cjs.time",
+            "sha256": "ec86f61744beb43a71f232546b814823052d051215c1068903be420452aa7d27",
+            "bytes": 889
+          },
+          "resources": {
+            "maximumResidentSetKiB": 736560,
+            "exitStatus": 0,
+            "elapsed": "0:30.30",
+            "userSeconds": 46.23,
+            "systemSeconds": 1.11
+          },
+          "testCounts": null
+        },
+        {
+          "index": 38,
+          "command": [
+            "development/rmtx-a04/updates-inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 33.023,
+          "log": {
+            "file": "node24/38-development_rmtx-a04_updates-inspect.cjs.log",
+            "sha256": "fafcf765ee7c1bc7b9b2f85bd3878562782cff2832903f597f3e180dcffac8e9",
+            "bytes": 89
+          },
+          "resourceReceipt": {
+            "file": "node24/38-development_rmtx-a04_updates-inspect.cjs.time",
+            "sha256": "67078c09c8ba7ae29f081104cfbcbea3d75a821a85aacf5130aa0cc88f4d6920",
+            "bytes": 889
+          },
+          "resources": {
+            "maximumResidentSetKiB": 729388,
+            "exitStatus": 0,
+            "elapsed": "0:32.98",
+            "userSeconds": 48.85,
+            "systemSeconds": 1.42
+          },
+          "testCounts": null
+        },
+        {
+          "index": 39,
+          "command": [
+            "development/rmtx-a05/inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.114,
+          "log": {
+            "file": "node24/39-development_rmtx-a05_inspect.cjs.log",
+            "sha256": "6a6fba010d5b18e347d0034d281b964d47f6d459ff9ac713e117a2fe17ace550",
+            "bytes": 78
+          },
+          "resourceReceipt": {
+            "file": "node24/39-development_rmtx-a05_inspect.cjs.time",
+            "sha256": "bde4132f444d91f3d36e7041bb0e126279f159a358da0c842c9bbbf9d4e0a083",
+            "bytes": 872
+          },
+          "resources": {
+            "maximumResidentSetKiB": 68028,
+            "exitStatus": 0,
+            "elapsed": "0:00.07",
+            "userSeconds": 0.05,
+            "systemSeconds": 0.03
+          },
+          "testCounts": null
+        },
+        {
+          "index": 40,
+          "command": [
+            "development/rmtx-a06/two-host-inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 2.068,
+          "log": {
+            "file": "node24/40-development_rmtx-a06_two-host-inspect.cjs.log",
+            "sha256": "98ed1943d44a867215be38555d9da418dbdd8bf368ce39573831ddce95dfb4ba",
+            "bytes": 95
+          },
+          "resourceReceipt": {
+            "file": "node24/40-development_rmtx-a06_two-host-inspect.cjs.time",
+            "sha256": "fa2cf2f25b2f24d16fac73478cf6b5014d84a41e3a58a4c09258e5cd5a6255b2",
+            "bytes": 886
+          },
+          "resources": {
+            "maximumResidentSetKiB": 341676,
+            "exitStatus": 0,
+            "elapsed": "0:02.02",
+            "userSeconds": 2.81,
+            "systemSeconds": 0.28
+          },
+          "testCounts": null
+        },
+        {
+          "index": 41,
+          "command": [
+            "--test-concurrency=1",
+            "--test",
+            "tests/xtensions/component-interface.test.cjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 2.068,
+          "log": {
+            "file": "node24/41---test.log",
+            "sha256": "f1eaa4a62e4bdc5a2514609b7fe96a0079b6e23cdf59f6d6bb3088159f341219",
+            "bytes": 1873
+          },
+          "resourceReceipt": {
+            "file": "node24/41---test.time",
+            "sha256": "cb86bc1a0d766e688e4c4cf7d89dc5d7d963107704720b99d7459c1c255da601",
+            "bytes": 909
+          },
+          "resources": {
+            "maximumResidentSetKiB": 283016,
+            "exitStatus": 0,
+            "elapsed": "0:02.02",
+            "userSeconds": 2.88,
+            "systemSeconds": 0.26
+          },
+          "testCounts": {
+            "tests": 25,
+            "pass": 25,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          }
+        },
+        {
+          "index": 42,
+          "command": [
+            "development/rmtx-a06/automatic-inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 6.826,
+          "log": {
+            "file": "node24/42-development_rmtx-a06_automatic-inspect.cjs.log",
+            "sha256": "9d243a0ba4b7ce31e03ed46dbb9b21a9dbea0aebd71ebe1248d1def1640a1cfb",
+            "bytes": 110
+          },
+          "resourceReceipt": {
+            "file": "node24/42-development_rmtx-a06_automatic-inspect.cjs.time",
+            "sha256": "6c93eb530351b4d9f63c2db43e1d650a5ecda4068625817de5b438886493fbc6",
+            "bytes": 890
+          },
+          "resources": {
+            "maximumResidentSetKiB": 579360,
+            "exitStatus": 0,
+            "elapsed": "0:06.78",
+            "userSeconds": 11.22,
+            "systemSeconds": 0.58
+          },
+          "testCounts": null
+        },
+        {
+          "index": 43,
+          "command": [
+            "--test-concurrency=1",
+            "--test",
+            "tests/xtensions/component-composition.test.cjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 2.568,
+          "log": {
+            "file": "node24/43---test.log",
+            "sha256": "c640cea6eed9d956fe40106fc7ab0e1a62de8cd256b7e7ad393d877b5d4a3b4e",
+            "bytes": 1395
+          },
+          "resourceReceipt": {
+            "file": "node24/43---test.time",
+            "sha256": "9345afd9c6c51c78205226f2b6e9bfe88d4ef6ae9585c99873f3f72e20121e51",
+            "bytes": 911
+          },
+          "resources": {
+            "maximumResidentSetKiB": 332808,
+            "exitStatus": 0,
+            "elapsed": "0:02.53",
+            "userSeconds": 3.79,
+            "systemSeconds": 0.3
+          },
+          "testCounts": {
+            "tests": 16,
+            "pass": 16,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          }
+        },
+        {
+          "index": 44,
+          "command": [
+            "development/rmtx-a06/scoped-inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 6.978,
+          "log": {
+            "file": "node24/44-development_rmtx-a06_scoped-inspect.cjs.log",
+            "sha256": "a20839ec9d774a019808689887a4c42fec1b7ca05786b6cdd7ed7ad163dd5560",
+            "bytes": 108
+          },
+          "resourceReceipt": {
+            "file": "node24/44-development_rmtx-a06_scoped-inspect.cjs.time",
+            "sha256": "70f78183d941d7bf3be57afeccdf7b1f9dee77df9981d486bcee36aa46b8927d",
+            "bytes": 887
+          },
+          "resources": {
+            "maximumResidentSetKiB": 568732,
+            "exitStatus": 0,
+            "elapsed": "0:06.94",
+            "userSeconds": 11.38,
+            "systemSeconds": 0.54
+          },
+          "testCounts": null
+        },
+        {
+          "index": 45,
+          "command": [
+            "--test-concurrency=1",
+            "--test",
+            "tests/xtensions/scoped-components.test.cjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 2.318,
+          "log": {
+            "file": "node24/45---test.log",
+            "sha256": "dc42e4dc52a79967f5cb64106a692f49bf7d1c1e11363e1af73ab62136594ca4",
+            "bytes": 960
+          },
+          "resourceReceipt": {
+            "file": "node24/45---test.time",
+            "sha256": "0300be6747796227f21fdff3f6d72a2f93b7caf513133fa3a02303cf171792f6",
+            "bytes": 907
+          },
+          "resources": {
+            "maximumResidentSetKiB": 304464,
+            "exitStatus": 0,
+            "elapsed": "0:02.30",
+            "userSeconds": 3.42,
+            "systemSeconds": 0.3
+          },
+          "testCounts": {
+            "tests": 9,
+            "pass": 9,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          }
+        },
+        {
+          "index": 46,
+          "command": [
+            "scripts/sync_xtend_package_versions.js",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.064,
+          "log": {
+            "file": "node24/46-scripts_sync_xtend_package_versions.js.log",
+            "sha256": "89763b0f67e53b6eb84d3c7c08e6b7148b36a0a7de433744fb5f502b5ff84706",
+            "bytes": 48
+          },
+          "resourceReceipt": {
+            "file": "node24/46-scripts_sync_xtend_package_versions.js.time",
+            "sha256": "445f3a3158bcbac766515a35c15d22d638d3693aeaef4d190cd05db59ca870d8",
+            "bytes": 878
+          },
+          "resources": {
+            "maximumResidentSetKiB": 55392,
+            "exitStatus": 0,
+            "elapsed": "0:00.05",
+            "userSeconds": 0.04,
+            "systemSeconds": 0.02
+          },
+          "testCounts": null
+        },
+        {
+          "index": 47,
+          "command": [
+            "scripts/release/feature-scope.cjs",
+            "--check-plan"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.064,
+          "log": {
+            "file": "node24/47-scripts_release_feature-scope.cjs.log",
+            "sha256": "5fdc661954317c86540f703c3535989aaf3bdb913fc7da3e874dd8113afa792a",
+            "bytes": 4341
+          },
+          "resourceReceipt": {
+            "file": "node24/47-scripts_release_feature-scope.cjs.time",
+            "sha256": "d2a0235c70d33e9b1b6cb1b8fc5490cba7ca3758c098467b9cfb68157dcdd75c",
+            "bytes": 878
+          },
+          "resources": {
+            "maximumResidentSetKiB": 52408,
+            "exitStatus": 0,
+            "elapsed": "0:00.04",
+            "userSeconds": 0.02,
+            "systemSeconds": 0.01
+          },
+          "testCounts": null
+        }
+      ],
+      "maximumIndividualProcessRssKiB": 745256
+    },
+    {
+      "mode": "check",
+      "lane": "26",
+      "node": "v26.5.0",
+      "heapLimitMiB": 1024,
+      "perCheckExternalTimeoutSeconds": 240,
+      "checkCount": 47,
+      "rawReceipt": {
+        "file": "node26/receipt.json",
+        "sha256": "56a2c3f4f7bb441d2d1b228295a34f1de46f477ce5775d5f3333cb0b107bdb2b",
+        "bytes": 21321
+      },
+      "checks": [
+        {
+          "index": 0,
+          "command": [
+            "scripts/generate_rmt_classic_contract.js",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.064,
+          "log": {
+            "file": "node26/00-scripts_generate_rmt_classic_contract.js.log",
+            "sha256": "a9bf9b145c7abba6b80816a24bf856b217ac446d84a7f96de6279fe71c74fb02",
+            "bytes": 132
+          },
+          "resourceReceipt": {
+            "file": "node26/00-scripts_generate_rmt_classic_contract.js.time",
+            "sha256": "a6ae8b5d3271b9cac3e3819553ca5a76ea8adb273fb2b7688480c7d6e2374aa6",
+            "bytes": 873
+          },
+          "resources": {
+            "maximumResidentSetKiB": 42652,
+            "exitStatus": 0,
+            "elapsed": "0:00.03",
+            "userSeconds": 0.02,
+            "systemSeconds": 0.01
+          },
+          "testCounts": null
+        },
+        {
+          "index": 1,
+          "command": [
+            "scripts/sync_rmt_compiler_contracts.cjs",
+            "--check",
+            "--json"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.064,
+          "log": {
+            "file": "node26/01-scripts_sync_rmt_compiler_contracts.cjs.log",
+            "sha256": "a19adf302d8fa762b2c509c1e7de6690a735b3a7930368e500051d9c85ac0ffa",
+            "bytes": 450
+          },
+          "resourceReceipt": {
+            "file": "node26/01-scripts_sync_rmt_compiler_contracts.cjs.time",
+            "sha256": "ebac1c450dde271f76675107e16b27326c2176eda7a65ce90df260bd7dc136bf",
+            "bytes": 879
+          },
+          "resources": {
+            "maximumResidentSetKiB": 39236,
+            "exitStatus": 0,
+            "elapsed": "0:00.03",
+            "userSeconds": 0.01,
+            "systemSeconds": 0.01
+          },
+          "testCounts": null
+        },
+        {
+          "index": 2,
+          "command": [
+            "--test-concurrency=1",
+            "--test",
+            "tests/rmt-language/action-execution-lowering.test.cjs",
+            "tests/rmt-language/event-condition-guards.test.cjs",
+            "tests/rmt-language/action-backend-regressions.test.cjs",
+            "tests/rmt/renderer-structural-ownership.test.cjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 5.374,
+          "log": {
+            "file": "node26/02---test.log",
+            "sha256": "43ae3cef9c8a917b657e4b736dd5ac04fde0f309cbab98b920643c1becaeb95b",
+            "bytes": 6793
+          },
+          "resourceReceipt": {
+            "file": "node26/02---test.time",
+            "sha256": "a50781b2d79aa4f67982c41b77f26aae62780a140bd00ba8de8871dfafb038c7",
+            "bytes": 1067
+          },
+          "resources": {
+            "maximumResidentSetKiB": 274932,
+            "exitStatus": 0,
+            "elapsed": "0:05.35",
+            "userSeconds": 6.79,
+            "systemSeconds": 0.67
+          },
+          "testCounts": {
+            "tests": 65,
+            "pass": 65,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          }
+        },
+        {
+          "index": 3,
+          "command": [
+            "--test-concurrency=1",
+            "--test",
+            "tests/rmt/surface-materialize-lifetime.test.cjs",
+            "tests/rmt/maraca-view-lifecycle.test.cjs",
+            "tests/maraca/native-surface-lifecycle.test.mjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 3.421,
+          "log": {
+            "file": "node26/03---test.log",
+            "sha256": "5decc94f5807c3c22d14c354864334993499882920839be8d5a2ff804d9252c9",
+            "bytes": 3121
+          },
+          "resourceReceipt": {
+            "file": "node26/03---test.time",
+            "sha256": "5eb85019fe0b86392da04106440609255eac4344f768858e4333322d842db5ad",
+            "bytes": 994
+          },
+          "resources": {
+            "maximumResidentSetKiB": 263804,
+            "exitStatus": 0,
+            "elapsed": "0:03.37",
+            "userSeconds": 4.15,
+            "systemSeconds": 0.45
+          },
+          "testCounts": {
+            "tests": 30,
+            "pass": 30,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          }
+        },
+        {
+          "index": 4,
+          "command": [
+            "--test-concurrency=1",
+            "--test",
+            "tests/rmt-language/backend-ast-result.test.cjs",
+            "tests/rmt-language/rmtx-frontend.test.cjs",
+            "tests/rmt-language/rmtx-maraca-integration.test.cjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 55.516,
+          "log": {
+            "file": "node26/04---test.log",
+            "sha256": "99b02682a8de711eac017cc7034db10f53f8553b9c26423db7e6dd59ce2c273f",
+            "bytes": 5587
+          },
+          "resourceReceipt": {
+            "file": "node26/04---test.time",
+            "sha256": "072fc8c303ae2e2d25d0c6488de1279ec6fa10e7996dc41e8fd95c129d445e19",
+            "bytes": 1002
+          },
+          "resources": {
+            "maximumResidentSetKiB": 663340,
+            "exitStatus": 0,
+            "elapsed": "0:55.50",
+            "userSeconds": 62.45,
+            "systemSeconds": 2.6
+          },
+          "testCounts": {
+            "tests": 54,
+            "pass": 54,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          }
+        },
+        {
+          "index": 5,
+          "command": [
+            "development/rmtx-a06/frontend/inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.315,
+          "log": {
+            "file": "node26/05-development_rmtx-a06_frontend_inspect.cjs.log",
+            "sha256": "bb1c4746fa2e13091da7b1f53c7cea27671f5dcf376f0820b06294c90ab318d0",
+            "bytes": 117
+          },
+          "resourceReceipt": {
+            "file": "node26/05-development_rmtx-a06_frontend_inspect.cjs.time",
+            "sha256": "07997182a9c8c118d9e52bfc359da45c4fc10ca19d7b38ab1d0ce09d21424dae",
+            "bytes": 876
+          },
+          "resources": {
+            "maximumResidentSetKiB": 98676,
+            "exitStatus": 0,
+            "elapsed": "0:00.26",
+            "userSeconds": 0.27,
+            "systemSeconds": 0.07
+          },
+          "testCounts": null
+        },
+        {
+          "index": 6,
+          "command": [
+            "--test-concurrency=1",
+            "--test",
+            "tests/rmt-language/rmtx-operator-profiles.test.cjs",
+            "tests/rmt-language/rmtx-selector-dependencies.test.cjs",
+            "tests/rmt-language/rmtx-selectors.test.cjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 2.619,
+          "log": {
+            "file": "node26/06---test.log",
+            "sha256": "e5b8d6b68ac461fc0e30837df69567ac913cfd965786df05ce421c40bb39d46a",
+            "bytes": 5683
+          },
+          "resourceReceipt": {
+            "file": "node26/06---test.time",
+            "sha256": "34925457a5bcea5af8b11c941702f9ce4f75645b6d5dda96c2cbe6f5bc4930f4",
+            "bytes": 1007
+          },
+          "resources": {
+            "maximumResidentSetKiB": 274744,
+            "exitStatus": 0,
+            "elapsed": "0:02.60",
+            "userSeconds": 5.19,
+            "systemSeconds": 0.54
+          },
+          "testCounts": {
+            "tests": 61,
+            "pass": 61,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          }
+        },
+        {
+          "index": 7,
+          "command": [
+            "development/rmtx-a06/selector-profile/inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.315,
+          "log": {
+            "file": "node26/07-development_rmtx-a06_selector-profile_inspect.cjs.log",
+            "sha256": "6dc82f190dabfe020fd5f9cd1a019d8363fa77392139401889f3cde9d418df35",
+            "bytes": 79
+          },
+          "resourceReceipt": {
+            "file": "node26/07-development_rmtx-a06_selector-profile_inspect.cjs.time",
+            "sha256": "49a7c9bebe539c5cfcd4a10cbba146fb378d204da5f2948cf3ad10f14a35ab19",
+            "bytes": 885
+          },
+          "resources": {
+            "maximumResidentSetKiB": 101196,
+            "exitStatus": 0,
+            "elapsed": "0:00.28",
+            "userSeconds": 0.28,
+            "systemSeconds": 0.07
+          },
+          "testCounts": null
+        },
+        {
+          "index": 8,
+          "command": [
+            "--test-concurrency=1",
+            "--test",
+            "tests/rmt-language/rmtx-host-scopes.test.cjs",
+            "tests/rmt-language/rmtx-profile3-backend.test.cjs",
+            "tests/rmt-language/rmtx-maraca-host-scopes.test.cjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 4.973,
+          "log": {
+            "file": "node26/08---test.log",
+            "sha256": "e27c90e11c12b699b0cbec737b99871d6cbb82a182721ef441a5e9f664017268",
+            "bytes": 4949
+          },
+          "resourceReceipt": {
+            "file": "node26/08---test.time",
+            "sha256": "21bd4160c6615f1efacd0df8c5a7fdf2891941a876003d27ae9cf5df7130d5db",
+            "bytes": 1006
+          },
+          "resources": {
+            "maximumResidentSetKiB": 272044,
+            "exitStatus": 0,
+            "elapsed": "0:04.96",
+            "userSeconds": 8.28,
+            "systemSeconds": 0.71
+          },
+          "testCounts": {
+            "tests": 56,
+            "pass": 56,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          }
+        },
+        {
+          "index": 9,
+          "command": [
+            "development/rmtx-a06/keyed-profile/inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 6.931,
+          "log": {
+            "file": "node26/09-development_rmtx-a06_keyed-profile_inspect.cjs.log",
+            "sha256": "37bd063e2bdc53414a0aa0e9505107921376ef2da284551c2b52a4c0579e29c3",
+            "bytes": 73
+          },
+          "resourceReceipt": {
+            "file": "node26/09-development_rmtx-a06_keyed-profile_inspect.cjs.time",
+            "sha256": "c5f6dc9ac00c1ed801e684c093552143aa44bc3ce0cb13179c917b66f5df832f",
+            "bytes": 887
+          },
+          "resources": {
+            "maximumResidentSetKiB": 468104,
+            "exitStatus": 0,
+            "elapsed": "0:06.92",
+            "userSeconds": 11.61,
+            "systemSeconds": 0.44
+          },
+          "testCounts": null
+        },
+        {
+          "index": 10,
+          "command": [
+            "--test-concurrency=1",
+            "--test",
+            "tests/rmt-language/rmtx-extended-operators.test.cjs",
+            "tests/rmt-language/rmtx-orchestration.test.cjs",
+            "tests/rmt-language/rmtx-inline-components.test.cjs",
+            "tests/rmt-language/action-input-contract.test.cjs",
+            "tests/xtensions/projected-state-binding.test.cjs",
+            "tests/xtensions/projected-url-state.test.cjs",
+            "tests/xtensions/platform-projection-profile.test.cjs",
+            "tests/xtensions/projected-xrouter-url-state.test.cjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 10.434,
+          "log": {
+            "file": "node26/10---test.log",
+            "sha256": "2fe65b5899a07001c6a7676d8d4e89574b7e36c621d0c73164bc3eb78fadc34b",
+            "bytes": 16663
+          },
+          "resourceReceipt": {
+            "file": "node26/10---test.time",
+            "sha256": "02962a7ce4470935e44389c578006fdff1f57fdcba5d137b2be9e30e4bad4dac",
+            "bytes": 1261
+          },
+          "resources": {
+            "maximumResidentSetKiB": 286012,
+            "exitStatus": 0,
+            "elapsed": "0:10.38",
+            "userSeconds": 15.21,
+            "systemSeconds": 1.37
+          },
+          "testCounts": {
+            "tests": 171,
+            "pass": 171,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          }
+        },
+        {
+          "index": 11,
+          "command": [
+            "development/rmtx-a06/orchestration-profile/inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 7.128,
+          "log": {
+            "file": "node26/11-development_rmtx-a06_orchestration-profile_inspect.cjs.log",
+            "sha256": "fbe363bd73208734e4850c2364be2fc05f10f3c244b3469f80483d8f7b9bc72c",
+            "bytes": 80
+          },
+          "resourceReceipt": {
+            "file": "node26/11-development_rmtx-a06_orchestration-profile_inspect.cjs.time",
+            "sha256": "c74f050ae3a6b040c9694dcc7ec1cce6ae47f83c012719a293f86dbcdc139e12",
+            "bytes": 895
+          },
+          "resources": {
+            "maximumResidentSetKiB": 458836,
+            "exitStatus": 0,
+            "elapsed": "0:07.12",
+            "userSeconds": 11.79,
+            "systemSeconds": 0.48
+          },
+          "testCounts": null
+        },
+        {
+          "index": 12,
+          "command": [
+            "--test-concurrency=1",
+            "--test",
+            "tests/rmt-language/rmtx-native-view.test.cjs",
+            "tests/xtensions/native-view-projection.test.cjs",
+            "tests/xtensions/native-state-binding.test.cjs",
+            "tests/xtensions/native-url-state.test.cjs",
+            "tests/xtensions/native-composition-profile.test.cjs",
+            "tests/rmt/renderer-preflight.test.cjs",
+            "tests/maraca/rmtx-native-boundaries.test.mjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 15.093,
+          "log": {
+            "file": "node26/12---test.log",
+            "sha256": "c28149318a2f18d81895f86c1b52f064f8e1af96862d0606c8a0cb6e716f684f",
+            "bytes": 13966
+          },
+          "resourceReceipt": {
+            "file": "node26/12---test.time",
+            "sha256": "f9caf66d6b5d4e41b77add84da086bbcca8fff11a4be866417bbc87eca8986d9",
+            "bytes": 1177
+          },
+          "resources": {
+            "maximumResidentSetKiB": 553200,
+            "exitStatus": 0,
+            "elapsed": "0:15.05",
+            "userSeconds": 21.32,
+            "systemSeconds": 1.49
+          },
+          "testCounts": {
+            "tests": 140,
+            "pass": 140,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          }
+        },
+        {
+          "index": 13,
+          "command": [
+            "development/rmtx-a06/native-view-profile/inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 11.835,
+          "log": {
+            "file": "node26/13-development_rmtx-a06_native-view-profile_inspect.cjs.log",
+            "sha256": "8839184b45dfdc0c33302cd5f1be3f0cc70a268dfad2b0bb4450e1295d6e0a04",
+            "bytes": 77
+          },
+          "resourceReceipt": {
+            "file": "node26/13-development_rmtx-a06_native-view-profile_inspect.cjs.time",
+            "sha256": "6b5161aa6a5df1518585887e9e87c3233fcb0528826fb4c150d50c41d2f2e474",
+            "bytes": 894
+          },
+          "resources": {
+            "maximumResidentSetKiB": 506072,
+            "exitStatus": 0,
+            "elapsed": "0:11.82",
+            "userSeconds": 18.95,
+            "systemSeconds": 0.54
+          },
+          "testCounts": null
+        },
+        {
+          "index": 14,
+          "command": [
+            "--test-concurrency=1",
+            "--test",
+            "tests/rmt-language/rmtx-lifecycle.test.cjs",
+            "tests/xtensions/native-lifecycle-protocol.test.cjs",
+            "tests/xtensions/lifecycle-composition-profile.test.cjs",
+            "tests/xtensions/lifecycle-browser-profile.test.cjs",
+            "tests/maraca/rmtx-lifecycle.test.mjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 5.374,
+          "log": {
+            "file": "node26/14---test.log",
+            "sha256": "cdb9b2005ae496bc10dc21fe008fbb800e25b4fb771c780095a6299e1f7796b2",
+            "bytes": 5863
+          },
+          "resourceReceipt": {
+            "file": "node26/14---test.time",
+            "sha256": "34ddced40f82cd3154f46534d7cb49bb4e237cde4f4a38a89be816696f52e62e",
+            "bytes": 1095
+          },
+          "resources": {
+            "maximumResidentSetKiB": 301964,
+            "exitStatus": 0,
+            "elapsed": "0:05.33",
+            "userSeconds": 6.58,
+            "systemSeconds": 0.74
+          },
+          "testCounts": {
+            "tests": 59,
+            "pass": 59,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          }
+        },
+        {
+          "index": 15,
+          "command": [
+            "development/rmtx-a06/lifecycle-profile/inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 11.987,
+          "log": {
+            "file": "node26/15-development_rmtx-a06_lifecycle-profile_inspect.cjs.log",
+            "sha256": "90dcf172e21af6d0077f4e074030c41ff4862fbed0b4e0d16a682f8702fb8ed3",
+            "bytes": 22757
+          },
+          "resourceReceipt": {
+            "file": "node26/15-development_rmtx-a06_lifecycle-profile_inspect.cjs.time",
+            "sha256": "e25fd7246556ab2bbfc68763e060af898c3aa4b4cd0c144e0e21d0a913c23bf4",
+            "bytes": 891
+          },
+          "resources": {
+            "maximumResidentSetKiB": 506960,
+            "exitStatus": 0,
+            "elapsed": "0:11.96",
+            "userSeconds": 19.17,
+            "systemSeconds": 0.59
+          },
+          "testCounts": null
+        },
+        {
+          "index": 16,
+          "command": [
+            "--test",
+            "--test-concurrency=1",
+            "tests/rmt-language/rmtx-native-orchestration.test.cjs",
+            "tests/xtensions/native-orchestrated-contracts.test.cjs",
+            "tests/xtensions/native-orchestrated-prewarm.test.cjs",
+            "tests/xtensions/native-surface-projection.test.cjs",
+            "tests/maraca/rmtx-surface-graph.test.mjs",
+            "tests/maraca/rmtx-orchestration.test.mjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 21.805,
+          "log": {
+            "file": "node26/16---test-concurrency_1.log",
+            "sha256": "27ecc8887095a2cb18564cdb63cae054682e86a1062886fbff74782dd80acbdb",
+            "bytes": 7784
+          },
+          "resourceReceipt": {
+            "file": "node26/16---test-concurrency_1.time",
+            "sha256": "779d8925696c1dea974e0e4ea54d65af200c8f07aaa2aa864747d1ec42775d02",
+            "bytes": 1156
+          },
+          "resources": {
+            "maximumResidentSetKiB": 328672,
+            "exitStatus": 0,
+            "elapsed": "0:21.76",
+            "userSeconds": 24.78,
+            "systemSeconds": 1.13
+          },
+          "testCounts": {
+            "tests": 70,
+            "pass": 70,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          }
+        },
+        {
+          "index": 17,
+          "command": [
+            "development/rmtx-a06/native-components/generate.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.315,
+          "log": {
+            "file": "node26/17-development_rmtx-a06_native-components_generate.cjs.log",
+            "sha256": "285b750286259b2f8ee4674069a3f7467491d47274ae70599d4ff8daa993fb41",
+            "bytes": 48
+          },
+          "resourceReceipt": {
+            "file": "node26/17-development_rmtx-a06_native-components_generate.cjs.time",
+            "sha256": "bd87724fb45b6feb215577e5be458db90a370d6033334635104b94ecc6369bfc",
+            "bytes": 887
+          },
+          "resources": {
+            "maximumResidentSetKiB": 108796,
+            "exitStatus": 0,
+            "elapsed": "0:00.26",
+            "userSeconds": 0.3,
+            "systemSeconds": 0.07
+          },
+          "testCounts": null
+        },
+        {
+          "index": 18,
+          "command": [
+            "development/rmtx-a06/native-orchestration-profile/inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 8.079,
+          "log": {
+            "file": "node26/18-development_rmtx-a06_native-orchestration-profile_inspect.cjs.log",
+            "sha256": "e9e47c7a30a60bfce62662040f9e7f95d8a154442a8a32a23e0d6bdb8f2a2cec",
+            "bytes": 26989
+          },
+          "resourceReceipt": {
+            "file": "node26/18-development_rmtx-a06_native-orchestration-profile_inspect.cjs.time",
+            "sha256": "4fe060bca152a088561495b0aca889262bc1bedcfbfb81cad0871b374fc382ee",
+            "bytes": 902
+          },
+          "resources": {
+            "maximumResidentSetKiB": 522188,
+            "exitStatus": 0,
+            "elapsed": "0:08.06",
+            "userSeconds": 13.2,
+            "systemSeconds": 0.54
+          },
+          "testCounts": null
+        },
+        {
+          "index": 19,
+          "command": [
+            "development/rmtx-a06/native-component-catalog/generate.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.164,
+          "log": {
+            "file": "node26/19-development_rmtx-a06_native-component-catalog_generate.cjs.log",
+            "sha256": "ba5239d1c28c1816841ecefb8a83e6b6c7747422a6b1937e4b8907bc7f46e072",
+            "bytes": 89
+          },
+          "resourceReceipt": {
+            "file": "node26/19-development_rmtx-a06_native-component-catalog_generate.cjs.time",
+            "sha256": "a235cc549addd84193fe7f60c933304bc23f75f4a19ecef4e955bfab880c7397",
+            "bytes": 892
+          },
+          "resources": {
+            "maximumResidentSetKiB": 56800,
+            "exitStatus": 0,
+            "elapsed": "0:00.13",
+            "userSeconds": 0.12,
+            "systemSeconds": 0.04
+          },
+          "testCounts": null
+        },
+        {
+          "index": 20,
+          "command": [
+            "--test",
+            "--test-concurrency=1",
+            "tests/rmt-language/native-component-catalog-v2.test.cjs",
+            "tests/rmt-language/native-component-catalog-projection.test.cjs",
+            "tests/rmt-language/native-component-catalog-types.test.cjs",
+            "tests/rmt-language/native-managed-renderer.test.mjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 4.172,
+          "log": {
+            "file": "node26/20---test-concurrency_1.log",
+            "sha256": "d8913bca9cc0e57a5006be6e8307171d9db8f7fe94f13424e0b211beb73a4bd2",
+            "bytes": 4808
+          },
+          "resourceReceipt": {
+            "file": "node26/20---test-concurrency_1.time",
+            "sha256": "4034ef03116f80e0b830647af4b6de082c06187f019b262806078a649ad34e81",
+            "bytes": 1090
+          },
+          "resources": {
+            "maximumResidentSetKiB": 265528,
+            "exitStatus": 0,
+            "elapsed": "0:04.15",
+            "userSeconds": 6.68,
+            "systemSeconds": 0.64
+          },
+          "testCounts": {
+            "tests": 44,
+            "pass": 44,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          }
+        },
+        {
+          "index": 21,
+          "command": [
+            "--test",
+            "--test-concurrency=1",
+            "tests/components/native-managed-ui.test.mjs",
+            "tests/components/native-platform-services.test.mjs",
+            "tests/components/component-source.test.cjs",
+            "tests/components/native-demo-reference.test.mjs",
+            "tests/maraca/rmtx-managed.test.mjs",
+            "tests/maraca/native-platform-managed.test.mjs",
+            "tests/maraca/native-private-cores.test.mjs",
+            "tests/maraca/native-data-literal.test.cjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 20.099,
+          "log": {
+            "file": "node26/21---test-concurrency_1.log",
+            "sha256": "22e1d2731e191223b668c38cdbacf931e61fc066b66cdcf32dc94d2cba7cc153",
+            "bytes": 9889
+          },
+          "resourceReceipt": {
+            "file": "node26/21---test-concurrency_1.time",
+            "sha256": "573d3bdc76a9e76e53a65423ba64254914d7b5dd8bdc2c99e09db0cb35a039c0",
+            "bytes": 1213
+          },
+          "resources": {
+            "maximumResidentSetKiB": 344888,
+            "exitStatus": 0,
+            "elapsed": "0:20.07",
+            "userSeconds": 23.81,
+            "systemSeconds": 1.61
+          },
+          "testCounts": {
+            "tests": 90,
+            "pass": 90,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          }
+        },
+        {
+          "index": 23,
+          "command": [
+            "development/rmtx-a02/inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 1.517,
+          "log": {
+            "file": "node26/23-development_rmtx-a02_inspect.cjs.log",
+            "sha256": "b7bbdd01c0137893bc791a3f01b8d92c90a8b065d26381b45f5253d5f70e9ff4",
+            "bytes": 102
+          },
+          "resourceReceipt": {
+            "file": "node26/23-development_rmtx-a02_inspect.cjs.time",
+            "sha256": "01c4c6941156834a37fdb82c8a0784f513b41a19fb1f54df9ca69e30bd169c73",
+            "bytes": 869
+          },
+          "resources": {
+            "maximumResidentSetKiB": 190276,
+            "exitStatus": 0,
+            "elapsed": "0:01.49",
+            "userSeconds": 1.72,
+            "systemSeconds": 0.14
+          },
+          "testCounts": null
+        },
+        {
+          "index": 24,
+          "command": [
+            "development/rmtx-a02/url-history/inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 1.567,
+          "log": {
+            "file": "node26/24-development_rmtx-a02_url-history_inspect.cjs.log",
+            "sha256": "fbb334a74c5fea2ebf0e149c303f288a19761669493769b56138d6a1b5fc3712",
+            "bytes": 84
+          },
+          "resourceReceipt": {
+            "file": "node26/24-development_rmtx-a02_url-history_inspect.cjs.time",
+            "sha256": "1c00c7163a5df647f6f43cfff7484eb2fa51e2ae4ed16c68c7f0d9e6da079b06",
+            "bytes": 881
+          },
+          "resources": {
+            "maximumResidentSetKiB": 186080,
+            "exitStatus": 0,
+            "elapsed": "0:01.53",
+            "userSeconds": 1.81,
+            "systemSeconds": 0.14
+          },
+          "testCounts": null
+        },
+        {
+          "index": 25,
+          "command": [
+            "development/rmtx-a02/url-history/integration-inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.064,
+          "log": {
+            "file": "node26/25-development_rmtx-a02_url-history_integration-inspect.cjs.log",
+            "sha256": "b52d96fba101d072ff6ed96961688d34a59d4894079da50a2c3eddf32508ebfc",
+            "bytes": 112
+          },
+          "resourceReceipt": {
+            "file": "node26/25-development_rmtx-a02_url-history_integration-inspect.cjs.time",
+            "sha256": "25f84ea7b7791afdb5983673462075c4e71e497c7c91d126e23f4a3969afacd1",
+            "bytes": 889
+          },
+          "resources": {
+            "maximumResidentSetKiB": 47004,
+            "exitStatus": 0,
+            "elapsed": "0:00.05",
+            "userSeconds": 0.04,
+            "systemSeconds": 0.01
+          },
+          "testCounts": null
+        },
+        {
+          "index": 26,
+          "command": [
+            "development/rmtx-a03/inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.064,
+          "log": {
+            "file": "node26/26-development_rmtx-a03_inspect.cjs.log",
+            "sha256": "c568d2fcb06d4bde6d23eb3b37a864a8d938ae36258ef5b87db3ff9b71449024",
+            "bytes": 102
+          },
+          "resourceReceipt": {
+            "file": "node26/26-development_rmtx-a03_inspect.cjs.time",
+            "sha256": "ebfa7b0e6d02df263708390bf564b9377f90b0b46147dbf9c374c0c81c4a8c83",
+            "bytes": 865
+          },
+          "resources": {
+            "maximumResidentSetKiB": 47316,
+            "exitStatus": 0,
+            "elapsed": "0:00.06",
+            "userSeconds": 0.04,
+            "systemSeconds": 0.02
+          },
+          "testCounts": null
+        },
+        {
+          "index": 27,
+          "command": [
+            "development/rmtx-a03/graph-inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.114,
+          "log": {
+            "file": "node26/27-development_rmtx-a03_graph-inspect.cjs.log",
+            "sha256": "01202cbfb88d2ed5128a86510c5a6cf17b0e4fcc23dcde70ae3a52782f9d4a35",
+            "bytes": 110
+          },
+          "resourceReceipt": {
+            "file": "node26/27-development_rmtx-a03_graph-inspect.cjs.time",
+            "sha256": "6935d306e1895f5603bea87836de046bba162936b3f7bbf0148245735d25e711",
+            "bytes": 871
+          },
+          "resources": {
+            "maximumResidentSetKiB": 51312,
+            "exitStatus": 0,
+            "elapsed": "0:00.08",
+            "userSeconds": 0.06,
+            "systemSeconds": 0.02
+          },
+          "testCounts": null
+        },
+        {
+          "index": 28,
+          "command": [
+            "development/rmtx-a03/budget-inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.064,
+          "log": {
+            "file": "node26/28-development_rmtx-a03_budget-inspect.cjs.log",
+            "sha256": "055055813fdadb9ac6d74620fe48635296baac4cd1d59d0a92468de57ef4d484",
+            "bytes": 99
+          },
+          "resourceReceipt": {
+            "file": "node26/28-development_rmtx-a03_budget-inspect.cjs.time",
+            "sha256": "55a0df0ea27fb6bb61d913e54376eccce620d74088fe51097d5aac7ed719f5e9",
+            "bytes": 872
+          },
+          "resources": {
+            "maximumResidentSetKiB": 46532,
+            "exitStatus": 0,
+            "elapsed": "0:00.05",
+            "userSeconds": 0.04,
+            "systemSeconds": 0.02
+          },
+          "testCounts": null
+        },
+        {
+          "index": 29,
+          "command": [
+            "development/rmtx-a03/capability-inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.114,
+          "log": {
+            "file": "node26/29-development_rmtx-a03_capability-inspect.cjs.log",
+            "sha256": "c67401f18b0a657e6e2c928d0b520557107d05e83b1bc478f6404615118f79b8",
+            "bytes": 93
+          },
+          "resourceReceipt": {
+            "file": "node26/29-development_rmtx-a03_capability-inspect.cjs.time",
+            "sha256": "55413dfcfcc28097d9cf9937ed7aab9b6e51624fef3ef7387366d541b28b7605",
+            "bytes": 877
+          },
+          "resources": {
+            "maximumResidentSetKiB": 52792,
+            "exitStatus": 0,
+            "elapsed": "0:00.09",
+            "userSeconds": 0.07,
+            "systemSeconds": 0.02
+          },
+          "testCounts": null
+        },
+        {
+          "index": 30,
+          "command": [
+            "development/rmtx-a04/inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 1.467,
+          "log": {
+            "file": "node26/30-development_rmtx-a04_inspect.cjs.log",
+            "sha256": "e96367860a6f81acc5d890f3b79fb988f03f44e619b093c7c56cd2538a719b06",
+            "bytes": 108
+          },
+          "resourceReceipt": {
+            "file": "node26/30-development_rmtx-a04_inspect.cjs.time",
+            "sha256": "1e48f860c3a9f8b479d4f53c389586446e56c7ba01e34ecae025e73a17a610d3",
+            "bytes": 869
+          },
+          "resources": {
+            "maximumResidentSetKiB": 162500,
+            "exitStatus": 0,
+            "elapsed": "0:01.41",
+            "userSeconds": 1.65,
+            "systemSeconds": 0.11
+          },
+          "testCounts": null
+        },
+        {
+          "index": 31,
+          "command": [
+            "development/rmtx-a04/integration-inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 29.672,
+          "log": {
+            "file": "node26/31-development_rmtx-a04_integration-inspect.cjs.log",
+            "sha256": "f7f65703e8f5404beb24c1b63cc2e0727c4a8d94c57fffb5f4d230016c275467",
+            "bytes": 107
+          },
+          "resourceReceipt": {
+            "file": "node26/31-development_rmtx-a04_integration-inspect.cjs.time",
+            "sha256": "5530a5ed5a215171d6514222de1a44b579f6dd4296007a6827ecc05876d6063d",
+            "bytes": 886
+          },
+          "resources": {
+            "maximumResidentSetKiB": 526744,
+            "exitStatus": 0,
+            "elapsed": "0:29.63",
+            "userSeconds": 45.65,
+            "systemSeconds": 1.21
+          },
+          "testCounts": null
+        },
+        {
+          "index": 32,
+          "command": [
+            "development/rmtx-a04/graph-inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 17.197,
+          "log": {
+            "file": "node26/32-development_rmtx-a04_graph-inspect.cjs.log",
+            "sha256": "6c8647f8df336de8307d16b2a4fa35f40445d3f3e099147641eaa07a8506c109",
+            "bytes": 97
+          },
+          "resourceReceipt": {
+            "file": "node26/32-development_rmtx-a04_graph-inspect.cjs.time",
+            "sha256": "b8c4cd3897fd5b3dbe5f0e3f75a06a3f19be5f0dd3e0b0ab40cb7c75b829ffe0",
+            "bytes": 880
+          },
+          "resources": {
+            "maximumResidentSetKiB": 491016,
+            "exitStatus": 0,
+            "elapsed": "0:17.18",
+            "userSeconds": 27.28,
+            "systemSeconds": 0.76
+          },
+          "testCounts": null
+        },
+        {
+          "index": 33,
+          "command": [
+            "development/rmtx-a04/loading-inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 24.314,
+          "log": {
+            "file": "node26/33-development_rmtx-a04_loading-inspect.cjs.log",
+            "sha256": "185d30b4dd795b892bb72fb1d961686409674e4503cb0561d44d6d49b870acc2",
+            "bytes": 111
+          },
+          "resourceReceipt": {
+            "file": "node26/33-development_rmtx-a04_loading-inspect.cjs.time",
+            "sha256": "f1fd7c5287ada0fe8c579a20e71a0f06c42864a3ef51d5b40301838dcf8c2e05",
+            "bytes": 882
+          },
+          "resources": {
+            "maximumResidentSetKiB": 463388,
+            "exitStatus": 0,
+            "elapsed": "0:24.31",
+            "userSeconds": 38.32,
+            "systemSeconds": 1.25
+          },
+          "testCounts": null
+        },
+        {
+          "index": 34,
+          "command": [
+            "development/rmtx-a04/peer-inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 23.706,
+          "log": {
+            "file": "node26/34-development_rmtx-a04_peer-inspect.cjs.log",
+            "sha256": "3417d93288bbfc5c8fbcfb6dc167fe19b4b77080ba9cc029015e977c09f27e8f",
+            "bytes": 107
+          },
+          "resourceReceipt": {
+            "file": "node26/34-development_rmtx-a04_peer-inspect.cjs.time",
+            "sha256": "1292107f70b85371b94a402feae977315920bc685bc0d20fc4be23e71e964919",
+            "bytes": 879
+          },
+          "resources": {
+            "maximumResidentSetKiB": 485208,
+            "exitStatus": 0,
+            "elapsed": "0:23.66",
+            "userSeconds": 37.6,
+            "systemSeconds": 1.18
+          },
+          "testCounts": null
+        },
+        {
+          "index": 35,
+          "command": [
+            "development/rmtx-a04/delivery-inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 23.811,
+          "log": {
+            "file": "node26/35-development_rmtx-a04_delivery-inspect.cjs.log",
+            "sha256": "57208d387803e9887d08ae28428019d84ccce9d84779562376093fe02ffccc39",
+            "bytes": 106
+          },
+          "resourceReceipt": {
+            "file": "node26/35-development_rmtx-a04_delivery-inspect.cjs.time",
+            "sha256": "050fd4348e9c728cb9438f7f4331c8560e7c614a8a129ab0bd5f5c089cb9893c",
+            "bytes": 883
+          },
+          "resources": {
+            "maximumResidentSetKiB": 460584,
+            "exitStatus": 0,
+            "elapsed": "0:23.78",
+            "userSeconds": 37.83,
+            "systemSeconds": 1.18
+          },
+          "testCounts": null
+        },
+        {
+          "index": 36,
+          "command": [
+            "development/rmtx-a04/integrity-inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 19.451,
+          "log": {
+            "file": "node26/36-development_rmtx-a04_integrity-inspect.cjs.log",
+            "sha256": "1a25e5c2d4498f7be358a9bc61d77ff3a7edfe6f00e21344cc6fb7dcb3651b55",
+            "bytes": 100
+          },
+          "resourceReceipt": {
+            "file": "node26/36-development_rmtx-a04_integrity-inspect.cjs.time",
+            "sha256": "731fc057b0612a86e1ec17dbe993d3c2b3c7608d7e9222acbe4bafaf5ff466b1",
+            "bytes": 884
+          },
+          "resources": {
+            "maximumResidentSetKiB": 586796,
+            "exitStatus": 0,
+            "elapsed": "0:19.41",
+            "userSeconds": 29.55,
+            "systemSeconds": 0.82
+          },
+          "testCounts": null
+        },
+        {
+          "index": 37,
+          "command": [
+            "development/rmtx-a04/runtime-inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 31.119,
+          "log": {
+            "file": "node26/37-development_rmtx-a04_runtime-inspect.cjs.log",
+            "sha256": "99d8e28287f010b5348edcf0fb5bb68eb7ef6240b0ebfce9f2e5fb74ff4d7ff9",
+            "bytes": 99
+          },
+          "resourceReceipt": {
+            "file": "node26/37-development_rmtx-a04_runtime-inspect.cjs.time",
+            "sha256": "f67007bd8e0d4ae453e50af0f18685797492d3a3f35685a637210fa6a02ed0a0",
+            "bytes": 882
+          },
+          "resources": {
+            "maximumResidentSetKiB": 588420,
+            "exitStatus": 0,
+            "elapsed": "0:31.10",
+            "userSeconds": 47.94,
+            "systemSeconds": 1.1
+          },
+          "testCounts": null
+        },
+        {
+          "index": 38,
+          "command": [
+            "development/rmtx-a04/updates-inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 33.126,
+          "log": {
+            "file": "node26/38-development_rmtx-a04_updates-inspect.cjs.log",
+            "sha256": "fafcf765ee7c1bc7b9b2f85bd3878562782cff2832903f597f3e180dcffac8e9",
+            "bytes": 89
+          },
+          "resourceReceipt": {
+            "file": "node26/38-development_rmtx-a04_updates-inspect.cjs.time",
+            "sha256": "f128930cc6fd407a573cd44729d771da29f067a368adb075681b07841985bb06",
+            "bytes": 882
+          },
+          "resources": {
+            "maximumResidentSetKiB": 606568,
+            "exitStatus": 0,
+            "elapsed": "0:33.12",
+            "userSeconds": 49.95,
+            "systemSeconds": 1.47
+          },
+          "testCounts": null
+        },
+        {
+          "index": 39,
+          "command": [
+            "development/rmtx-a05/inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.114,
+          "log": {
+            "file": "node26/39-development_rmtx-a05_inspect.cjs.log",
+            "sha256": "6a6fba010d5b18e347d0034d281b964d47f6d459ff9ac713e117a2fe17ace550",
+            "bytes": 78
+          },
+          "resourceReceipt": {
+            "file": "node26/39-development_rmtx-a05_inspect.cjs.time",
+            "sha256": "2c56574fef448b616573b067a72639e26509caeeb0e8fe85f5765bc1650ed771",
+            "bytes": 865
+          },
+          "resources": {
+            "maximumResidentSetKiB": 52992,
+            "exitStatus": 0,
+            "elapsed": "0:00.07",
+            "userSeconds": 0.05,
+            "systemSeconds": 0.02
+          },
+          "testCounts": null
+        },
+        {
+          "index": 40,
+          "command": [
+            "development/rmtx-a06/two-host-inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 2.068,
+          "log": {
+            "file": "node26/40-development_rmtx-a06_two-host-inspect.cjs.log",
+            "sha256": "98ed1943d44a867215be38555d9da418dbdd8bf368ce39573831ddce95dfb4ba",
+            "bytes": 95
+          },
+          "resourceReceipt": {
+            "file": "node26/40-development_rmtx-a06_two-host-inspect.cjs.time",
+            "sha256": "3dae1a4ba1b9eb92bd092797113b1dab46ce525a96bf2bb802e484c5bd1925d2",
+            "bytes": 879
+          },
+          "resources": {
+            "maximumResidentSetKiB": 284128,
+            "exitStatus": 0,
+            "elapsed": "0:02.03",
+            "userSeconds": 2.97,
+            "systemSeconds": 0.22
+          },
+          "testCounts": null
+        },
+        {
+          "index": 41,
+          "command": [
+            "--test-concurrency=1",
+            "--test",
+            "tests/xtensions/component-interface.test.cjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 2.118,
+          "log": {
+            "file": "node26/41---test.log",
+            "sha256": "d16b3364ff3f3d206fa299555086f6707363f8658e6f7ef10e905d3a8aefff43",
+            "bytes": 1875
+          },
+          "resourceReceipt": {
+            "file": "node26/41---test.time",
+            "sha256": "f5ef72a9384995f574b0a8babdfe976eba3ae188f10287ad9538b4cfb58e1022",
+            "bytes": 902
+          },
+          "resources": {
+            "maximumResidentSetKiB": 225612,
+            "exitStatus": 0,
+            "elapsed": "0:02.07",
+            "userSeconds": 2.91,
+            "systemSeconds": 0.24
+          },
+          "testCounts": {
+            "tests": 25,
+            "pass": 25,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          }
+        },
+        {
+          "index": 42,
+          "command": [
+            "development/rmtx-a06/automatic-inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 6.928,
+          "log": {
+            "file": "node26/42-development_rmtx-a06_automatic-inspect.cjs.log",
+            "sha256": "9d243a0ba4b7ce31e03ed46dbb9b21a9dbea0aebd71ebe1248d1def1640a1cfb",
+            "bytes": 110
+          },
+          "resourceReceipt": {
+            "file": "node26/42-development_rmtx-a06_automatic-inspect.cjs.time",
+            "sha256": "0e02e8a059efb9dd67d1173d24c2743dece1f649949eed2fae989b58694313bd",
+            "bytes": 882
+          },
+          "resources": {
+            "maximumResidentSetKiB": 477672,
+            "exitStatus": 0,
+            "elapsed": "0:06.91",
+            "userSeconds": 11.2,
+            "systemSeconds": 0.49
+          },
+          "testCounts": null
+        },
+        {
+          "index": 43,
+          "command": [
+            "--test-concurrency=1",
+            "--test",
+            "tests/xtensions/component-composition.test.cjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 2.571,
+          "log": {
+            "file": "node26/43---test.log",
+            "sha256": "d9a18ab7c9a0077eca5fcf43e47b4645a08ec5d3564d75aef77ea8464b981013",
+            "bytes": 1395
+          },
+          "resourceReceipt": {
+            "file": "node26/43---test.time",
+            "sha256": "6ac698d51096a7ee65fd22b1f55a85ab0b6823d4734bbd575be004f768dda335",
+            "bytes": 904
+          },
+          "resources": {
+            "maximumResidentSetKiB": 268720,
+            "exitStatus": 0,
+            "elapsed": "0:02.53",
+            "userSeconds": 3.89,
+            "systemSeconds": 0.26
+          },
+          "testCounts": {
+            "tests": 16,
+            "pass": 16,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          }
+        },
+        {
+          "index": 44,
+          "command": [
+            "development/rmtx-a06/scoped-inspect.cjs",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 6.925,
+          "log": {
+            "file": "node26/44-development_rmtx-a06_scoped-inspect.cjs.log",
+            "sha256": "a20839ec9d774a019808689887a4c42fec1b7ca05786b6cdd7ed7ad163dd5560",
+            "bytes": 108
+          },
+          "resourceReceipt": {
+            "file": "node26/44-development_rmtx-a06_scoped-inspect.cjs.time",
+            "sha256": "dea4cf0131f81a2d360229e0b23900038ff907033586935207e99e56b34e924f",
+            "bytes": 879
+          },
+          "resources": {
+            "maximumResidentSetKiB": 462756,
+            "exitStatus": 0,
+            "elapsed": "0:06.90",
+            "userSeconds": 11.39,
+            "systemSeconds": 0.46
+          },
+          "testCounts": null
+        },
+        {
+          "index": 45,
+          "command": [
+            "--test-concurrency=1",
+            "--test",
+            "tests/xtensions/scoped-components.test.cjs"
+          ],
+          "returncode": 0,
+          "durationSeconds": 2.268,
+          "log": {
+            "file": "node26/45---test.log",
+            "sha256": "282075e9053d3c28cbabff63e65e91c5faad1c78954e7b744d29b1db3a5c900e",
+            "bytes": 956
+          },
+          "resourceReceipt": {
+            "file": "node26/45---test.time",
+            "sha256": "3d96a25c88c5d751ad909dcdce615370635d27d57060786e2c727c6db6d7dc34",
+            "bytes": 900
+          },
+          "resources": {
+            "maximumResidentSetKiB": 266256,
+            "exitStatus": 0,
+            "elapsed": "0:02.22",
+            "userSeconds": 3.44,
+            "systemSeconds": 0.27
+          },
+          "testCounts": {
+            "tests": 9,
+            "pass": 9,
+            "fail": 0,
+            "cancelled": 0,
+            "skipped": 0,
+            "todo": 0
+          }
+        },
+        {
+          "index": 46,
+          "command": [
+            "scripts/sync_xtend_package_versions.js",
+            "--check"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.064,
+          "log": {
+            "file": "node26/46-scripts_sync_xtend_package_versions.js.log",
+            "sha256": "89763b0f67e53b6eb84d3c7c08e6b7148b36a0a7de433744fb5f502b5ff84706",
+            "bytes": 48
+          },
+          "resourceReceipt": {
+            "file": "node26/46-scripts_sync_xtend_package_versions.js.time",
+            "sha256": "5e6fb327ea33d578e14fe9c41dd1c82e34b476ad87e50399e929821a73d130db",
+            "bytes": 871
+          },
+          "resources": {
+            "maximumResidentSetKiB": 47116,
+            "exitStatus": 0,
+            "elapsed": "0:00.04",
+            "userSeconds": 0.01,
+            "systemSeconds": 0.02
+          },
+          "testCounts": null
+        },
+        {
+          "index": 47,
+          "command": [
+            "scripts/release/feature-scope.cjs",
+            "--check-plan"
+          ],
+          "returncode": 0,
+          "durationSeconds": 0.064,
+          "log": {
+            "file": "node26/47-scripts_release_feature-scope.cjs.log",
+            "sha256": "5fdc661954317c86540f703c3535989aaf3bdb913fc7da3e874dd8113afa792a",
+            "bytes": 4341
+          },
+          "resourceReceipt": {
+            "file": "node26/47-scripts_release_feature-scope.cjs.time",
+            "sha256": "aa7bf7e68bb66cf7297cc60eb2b03430473b5615635c33076e0c10c5f6c66d7c",
+            "bytes": 871
+          },
+          "resources": {
+            "maximumResidentSetKiB": 44096,
+            "exitStatus": 0,
+            "elapsed": "0:00.04",
+            "userSeconds": 0.02,
+            "systemSeconds": 0.01
+          },
+          "testCounts": null
+        }
+      ],
+      "maximumIndividualProcessRssKiB": 663340
+    }
+  ],
+  "rawArtifacts": [
+    {
+      "file": "refresh-node24/receipt.json",
+      "sha256": "e35084da72a1a1b8d08f5680b4dae90f0c00a8defb9827a8b6333971d11470b9",
+      "bytes": 11193
+    },
+    {
+      "file": "refresh-node24/05-development_rmtx-a06_frontend_inspect.cjs.log",
+      "sha256": "bb1c4746fa2e13091da7b1f53c7cea27671f5dcf376f0820b06294c90ab318d0",
+      "bytes": 117
+    },
+    {
+      "file": "refresh-node24/05-development_rmtx-a06_frontend_inspect.cjs.time",
+      "sha256": "20a11db534b6591b81877864c86e8161624bfbcb3ed2d10b34a96edae1064c34",
+      "bytes": 885
+    },
+    {
+      "file": "refresh-node24/07-development_rmtx-a06_selector-profile_inspect.cjs.log",
+      "sha256": "6dc82f190dabfe020fd5f9cd1a019d8363fa77392139401889f3cde9d418df35",
+      "bytes": 79
+    },
+    {
+      "file": "refresh-node24/07-development_rmtx-a06_selector-profile_inspect.cjs.time",
+      "sha256": "a9c25eb13abe0ff147f4047c50e4b54a2a1b4860308f4ab483035f692061eaae",
+      "bytes": 893
+    },
+    {
+      "file": "refresh-node24/09-development_rmtx-a06_keyed-profile_inspect.cjs.log",
+      "sha256": "37bd063e2bdc53414a0aa0e9505107921376ef2da284551c2b52a4c0579e29c3",
+      "bytes": 73
+    },
+    {
+      "file": "refresh-node24/09-development_rmtx-a06_keyed-profile_inspect.cjs.time",
+      "sha256": "b09b3e8eb625c30bc568a07993190635455bdf875093bf30273d40973f8b09fd",
+      "bytes": 895
+    },
+    {
+      "file": "refresh-node24/11-development_rmtx-a06_orchestration-profile_inspect.cjs.log",
+      "sha256": "fbe363bd73208734e4850c2364be2fc05f10f3c244b3469f80483d8f7b9bc72c",
+      "bytes": 80
+    },
+    {
+      "file": "refresh-node24/11-development_rmtx-a06_orchestration-profile_inspect.cjs.time",
+      "sha256": "206c9c38378686c54cc120ae90f46345d9548efb34b58742835e90e456f766c2",
+      "bytes": 903
+    },
+    {
+      "file": "refresh-node24/13-development_rmtx-a06_native-view-profile_inspect.cjs.log",
+      "sha256": "8839184b45dfdc0c33302cd5f1be3f0cc70a268dfad2b0bb4450e1295d6e0a04",
+      "bytes": 77
+    },
+    {
+      "file": "refresh-node24/13-development_rmtx-a06_native-view-profile_inspect.cjs.time",
+      "sha256": "654f73d30196811df48baaa93a566ac068d5ce05c857c42af1ef41ab4c9ba90a",
+      "bytes": 902
+    },
+    {
+      "file": "refresh-node24/15-development_rmtx-a06_lifecycle-profile_inspect.cjs.log",
+      "sha256": "90dcf172e21af6d0077f4e074030c41ff4862fbed0b4e0d16a682f8702fb8ed3",
+      "bytes": 22757
+    },
+    {
+      "file": "refresh-node24/15-development_rmtx-a06_lifecycle-profile_inspect.cjs.time",
+      "sha256": "2b61f1ef0c77f87a85dc6eaca85446d578d40e427b2c880149472eac7c5500cd",
+      "bytes": 900
+    },
+    {
+      "file": "refresh-node24/18-development_rmtx-a06_native-orchestration-profile_inspect.cjs.log",
+      "sha256": "e9e47c7a30a60bfce62662040f9e7f95d8a154442a8a32a23e0d6bdb8f2a2cec",
+      "bytes": 26989
+    },
+    {
+      "file": "refresh-node24/18-development_rmtx-a06_native-orchestration-profile_inspect.cjs.time",
+      "sha256": "67895ecacbf25b96a3538fb70bbf7dffe147213e83426753df5541e5dca5e9b3",
+      "bytes": 910
+    },
+    {
+      "file": "refresh-node24/23-development_rmtx-a02_inspect.cjs.log",
+      "sha256": "b7bbdd01c0137893bc791a3f01b8d92c90a8b065d26381b45f5253d5f70e9ff4",
+      "bytes": 102
+    },
+    {
+      "file": "refresh-node24/23-development_rmtx-a02_inspect.cjs.time",
+      "sha256": "ddc5ba84c77513181f2e3585cea999e0c1afbb282a01a3b3cc7def530bbb5cd4",
+      "bytes": 877
+    },
+    {
+      "file": "refresh-node24/24-development_rmtx-a02_url-history_inspect.cjs.log",
+      "sha256": "fbb334a74c5fea2ebf0e149c303f288a19761669493769b56138d6a1b5fc3712",
+      "bytes": 84
+    },
+    {
+      "file": "refresh-node24/24-development_rmtx-a02_url-history_inspect.cjs.time",
+      "sha256": "0092833ccfbbab17f6896383ddb47f4167916efd2caae638c820e4f29b482c1e",
+      "bytes": 889
+    },
+    {
+      "file": "refresh-node24/25-development_rmtx-a02_url-history_integration-inspect.cjs.log",
+      "sha256": "b52d96fba101d072ff6ed96961688d34a59d4894079da50a2c3eddf32508ebfc",
+      "bytes": 112
+    },
+    {
+      "file": "refresh-node24/25-development_rmtx-a02_url-history_integration-inspect.cjs.time",
+      "sha256": "a6089fe91ee7afdbd101e3e279eb23f440bb05bd9a893c6e144d2dabc2c8e245",
+      "bytes": 896
+    },
+    {
+      "file": "refresh-node24/26-development_rmtx-a03_inspect.cjs.log",
+      "sha256": "c568d2fcb06d4bde6d23eb3b37a864a8d938ae36258ef5b87db3ff9b71449024",
+      "bytes": 102
+    },
+    {
+      "file": "refresh-node24/26-development_rmtx-a03_inspect.cjs.time",
+      "sha256": "4245785cc42cbfcbd8430d9250b1579ec09ea353379967bc89c34bc973ce5019",
+      "bytes": 873
+    },
+    {
+      "file": "refresh-node24/27-development_rmtx-a03_graph-inspect.cjs.log",
+      "sha256": "01202cbfb88d2ed5128a86510c5a6cf17b0e4fcc23dcde70ae3a52782f9d4a35",
+      "bytes": 110
+    },
+    {
+      "file": "refresh-node24/27-development_rmtx-a03_graph-inspect.cjs.time",
+      "sha256": "8231bb5e5c95b9fb51530440900f1dac803ce5cab44411db321417c4c557ea3f",
+      "bytes": 878
+    },
+    {
+      "file": "refresh-node24/28-development_rmtx-a03_budget-inspect.cjs.log",
+      "sha256": "055055813fdadb9ac6d74620fe48635296baac4cd1d59d0a92468de57ef4d484",
+      "bytes": 99
+    },
+    {
+      "file": "refresh-node24/28-development_rmtx-a03_budget-inspect.cjs.time",
+      "sha256": "b637253a206a8c0b22dac2804b6da00fe2d7f54f3d62c8713b237d35e8f47a17",
+      "bytes": 879
+    },
+    {
+      "file": "refresh-node24/29-development_rmtx-a03_capability-inspect.cjs.log",
+      "sha256": "c67401f18b0a657e6e2c928d0b520557107d05e83b1bc478f6404615118f79b8",
+      "bytes": 93
+    },
+    {
+      "file": "refresh-node24/29-development_rmtx-a03_capability-inspect.cjs.time",
+      "sha256": "6dcce4ef55e646b88e7e560c1481545fa6495c2f2b53dfa08718966e6c547d81",
+      "bytes": 883
+    },
+    {
+      "file": "refresh-node24/30-development_rmtx-a04_inspect.cjs.log",
+      "sha256": "e96367860a6f81acc5d890f3b79fb988f03f44e619b093c7c56cd2538a719b06",
+      "bytes": 108
+    },
+    {
+      "file": "refresh-node24/30-development_rmtx-a04_inspect.cjs.time",
+      "sha256": "37d7ace0e7dd0ff8ce6f5e5058b03108e7928484367da41f45a0bdd325ed5eb7",
+      "bytes": 877
+    },
+    {
+      "file": "refresh-node24/31-development_rmtx-a04_integration-inspect.cjs.log",
+      "sha256": "f7f65703e8f5404beb24c1b63cc2e0727c4a8d94c57fffb5f4d230016c275467",
+      "bytes": 107
+    },
+    {
+      "file": "refresh-node24/31-development_rmtx-a04_integration-inspect.cjs.time",
+      "sha256": "73e4c75e21194cd05961863f2d8ec8b782c9746ebb34831af0b2cdd78a1a1742",
+      "bytes": 894
+    },
+    {
+      "file": "refresh-node24/32-development_rmtx-a04_graph-inspect.cjs.log",
+      "sha256": "6c8647f8df336de8307d16b2a4fa35f40445d3f3e099147641eaa07a8506c109",
+      "bytes": 97
+    },
+    {
+      "file": "refresh-node24/32-development_rmtx-a04_graph-inspect.cjs.time",
+      "sha256": "3da5b70eb1df21b32f7301aa098d970056fe98256f4433b42d4b7d1d6d70980b",
+      "bytes": 887
+    },
+    {
+      "file": "refresh-node24/33-development_rmtx-a04_loading-inspect.cjs.log",
+      "sha256": "185d30b4dd795b892bb72fb1d961686409674e4503cb0561d44d6d49b870acc2",
+      "bytes": 111
+    },
+    {
+      "file": "refresh-node24/33-development_rmtx-a04_loading-inspect.cjs.time",
+      "sha256": "0081b6ede8bf711b9507eeda46b370349a32e8a6e589aa7f2684ab3bf913f0ff",
+      "bytes": 890
+    },
+    {
+      "file": "refresh-node24/34-development_rmtx-a04_peer-inspect.cjs.log",
+      "sha256": "3417d93288bbfc5c8fbcfb6dc167fe19b4b77080ba9cc029015e977c09f27e8f",
+      "bytes": 107
+    },
+    {
+      "file": "refresh-node24/34-development_rmtx-a04_peer-inspect.cjs.time",
+      "sha256": "6b29e5503c24fcfee0fdcb4eab9d8c8a455acc62660185de8c87bb712b810e7e",
+      "bytes": 887
+    },
+    {
+      "file": "refresh-node24/35-development_rmtx-a04_delivery-inspect.cjs.log",
+      "sha256": "57208d387803e9887d08ae28428019d84ccce9d84779562376093fe02ffccc39",
+      "bytes": 106
+    },
+    {
+      "file": "refresh-node24/35-development_rmtx-a04_delivery-inspect.cjs.time",
+      "sha256": "48351cf847539c1170fcd20f2427ef912690e81ad7bf23c24b81c10758b58a0f",
+      "bytes": 890
+    },
+    {
+      "file": "refresh-node24/36-development_rmtx-a04_integrity-inspect.cjs.log",
+      "sha256": "1a25e5c2d4498f7be358a9bc61d77ff3a7edfe6f00e21344cc6fb7dcb3651b55",
+      "bytes": 100
+    },
+    {
+      "file": "refresh-node24/36-development_rmtx-a04_integrity-inspect.cjs.time",
+      "sha256": "3e0651344cf8041dbff65af6b7e1f638307e4105bee806cecc65e11ee7a31b4e",
+      "bytes": 892
+    },
+    {
+      "file": "refresh-node24/37-development_rmtx-a04_runtime-inspect.cjs.log",
+      "sha256": "99d8e28287f010b5348edcf0fb5bb68eb7ef6240b0ebfce9f2e5fb74ff4d7ff9",
+      "bytes": 99
+    },
+    {
+      "file": "refresh-node24/37-development_rmtx-a04_runtime-inspect.cjs.time",
+      "sha256": "f52d06702e2e4b1ac7e5286cd41ca8a04260bffeb5db3ff5a7843b75cc96aee0",
+      "bytes": 890
+    },
+    {
+      "file": "refresh-node24/38-development_rmtx-a04_updates-inspect.cjs.log",
+      "sha256": "fafcf765ee7c1bc7b9b2f85bd3878562782cff2832903f597f3e180dcffac8e9",
+      "bytes": 89
+    },
+    {
+      "file": "refresh-node24/38-development_rmtx-a04_updates-inspect.cjs.time",
+      "sha256": "147562a701cb58603a410878a54c2b7c35667a3de34a7dc4add3ad54d48078b5",
+      "bytes": 890
+    },
+    {
+      "file": "refresh-node24/39-development_rmtx-a05_inspect.cjs.log",
+      "sha256": "6a6fba010d5b18e347d0034d281b964d47f6d459ff9ac713e117a2fe17ace550",
+      "bytes": 78
+    },
+    {
+      "file": "refresh-node24/39-development_rmtx-a05_inspect.cjs.time",
+      "sha256": "40e2bfb0134ad5c9ca818e116972da2f32420be1f81aa34ece766a9da8aaaf46",
+      "bytes": 873
+    },
+    {
+      "file": "refresh-node24/40-development_rmtx-a06_two-host-inspect.cjs.log",
+      "sha256": "98ed1943d44a867215be38555d9da418dbdd8bf368ce39573831ddce95dfb4ba",
+      "bytes": 95
+    },
+    {
+      "file": "refresh-node24/40-development_rmtx-a06_two-host-inspect.cjs.time",
+      "sha256": "09a9ddd260d63651023900e9962a83de0a48ddb5f82ca15b495b6a7bf8d2613e",
+      "bytes": 887
+    },
+    {
+      "file": "refresh-node24/42-development_rmtx-a06_automatic-inspect.cjs.log",
+      "sha256": "9d243a0ba4b7ce31e03ed46dbb9b21a9dbea0aebd71ebe1248d1def1640a1cfb",
+      "bytes": 110
+    },
+    {
+      "file": "refresh-node24/42-development_rmtx-a06_automatic-inspect.cjs.time",
+      "sha256": "d3551b2499c27565ecb513e7a4edad93ee46a6e35f1315c89852964d688aa919",
+      "bytes": 891
+    },
+    {
+      "file": "refresh-node24/44-development_rmtx-a06_scoped-inspect.cjs.log",
+      "sha256": "a20839ec9d774a019808689887a4c42fec1b7ca05786b6cdd7ed7ad163dd5560",
+      "bytes": 108
+    },
+    {
+      "file": "refresh-node24/44-development_rmtx-a06_scoped-inspect.cjs.time",
+      "sha256": "4c83c2cad684a4af99e91e1d730abbaab64cde6624fb31466c36cbb4c925df38",
+      "bytes": 887
+    },
+    {
+      "file": "node24/receipt.json",
+      "sha256": "87fcc65dac738968ed42dfb6d730fa6ca74836c997e9ebcd1058bd6f0f9ebd89",
+      "bytes": 21318
+    },
+    {
+      "file": "node24/00-scripts_generate_rmt_classic_contract.js.log",
+      "sha256": "a9bf9b145c7abba6b80816a24bf856b217ac446d84a7f96de6279fe71c74fb02",
+      "bytes": 132
+    },
+    {
+      "file": "node24/00-scripts_generate_rmt_classic_contract.js.time",
+      "sha256": "44efe728b0784a1be3da04ff93c6ef95db743fd5c9a4213c6be7c55644a5a6b5",
+      "bytes": 879
+    },
+    {
+      "file": "node24/01-scripts_sync_rmt_compiler_contracts.cjs.log",
+      "sha256": "a19adf302d8fa762b2c509c1e7de6690a735b3a7930368e500051d9c85ac0ffa",
+      "bytes": 450
+    },
+    {
+      "file": "node24/01-scripts_sync_rmt_compiler_contracts.cjs.time",
+      "sha256": "80cf06cf1113fa055039a002ba54253a56ecbd0b51003c2a4a76f0279200dafd",
+      "bytes": 886
+    },
+    {
+      "file": "node24/02---test.log",
+      "sha256": "e024a6f6fe506c1ef83be8e26d0065fb40db28b1edda9fd9956382c8bbb98d0a",
+      "bytes": 6789
+    },
+    {
+      "file": "node24/02---test.time",
+      "sha256": "9a31d205b9c106b49a3d950b62ae4495fa04f292f2bf37e355561665c7e76d0c",
+      "bytes": 1074
+    },
+    {
+      "file": "node24/03---test.log",
+      "sha256": "d3578520aba8c3112b549e36f75fc2c0969c8722bdb490c82500eab6ad89cf7f",
+      "bytes": 3120
+    },
+    {
+      "file": "node24/03---test.time",
+      "sha256": "0888d9f9cb5250de9e9cf219cb3b23700a3f32ce6d4e96031f940cc380df14ad",
+      "bytes": 1001
+    },
+    {
+      "file": "node24/04---test.log",
+      "sha256": "a56a69ac91b3b97dcaeb6517bdce4c6e713a26a97fa2d0fd52f6017784fb0916",
+      "bytes": 5586
+    },
+    {
+      "file": "node24/04---test.time",
+      "sha256": "6d8b794eb98bad54f7354467c7f3d05b3fbc88bac05df157ab9c3b2a987c074a",
+      "bytes": 1009
+    },
+    {
+      "file": "node24/05-development_rmtx-a06_frontend_inspect.cjs.log",
+      "sha256": "bb1c4746fa2e13091da7b1f53c7cea27671f5dcf376f0820b06294c90ab318d0",
+      "bytes": 117
+    },
+    {
+      "file": "node24/05-development_rmtx-a06_frontend_inspect.cjs.time",
+      "sha256": "dbf666649a823605c1ffd7e364d4f39014c8e878335b9377818e6840518e1ea7",
+      "bytes": 884
+    },
+    {
+      "file": "node24/06---test.log",
+      "sha256": "e71d5bb0a9df908dacae19d4bb377d6136423e9ef9c5e233873483711e200933",
+      "bytes": 5682
+    },
+    {
+      "file": "node24/06---test.time",
+      "sha256": "a3d0e88cf3865bc3fab84da068e354cf6b4fbdb9b12941fcf5cda9551521a288",
+      "bytes": 1014
+    },
+    {
+      "file": "node24/07-development_rmtx-a06_selector-profile_inspect.cjs.log",
+      "sha256": "6dc82f190dabfe020fd5f9cd1a019d8363fa77392139401889f3cde9d418df35",
+      "bytes": 79
+    },
+    {
+      "file": "node24/07-development_rmtx-a06_selector-profile_inspect.cjs.time",
+      "sha256": "7e20053774c5b06bb56c45e4232cd2269846bcc1be0e0ce100f1fb7fd7e1745b",
+      "bytes": 892
+    },
+    {
+      "file": "node24/08---test.log",
+      "sha256": "1b3157b0d0aad36060a6ab0e738eb99cce5325d2b5fc3bcb7c3fac498c223ac0",
+      "bytes": 4948
+    },
+    {
+      "file": "node24/08---test.time",
+      "sha256": "f4bd77edf657c67d8e7ab5a1cce9e1630b801527f2a39fd74716207a72bb23a1",
+      "bytes": 1012
+    },
+    {
+      "file": "node24/09-development_rmtx-a06_keyed-profile_inspect.cjs.log",
+      "sha256": "37bd063e2bdc53414a0aa0e9505107921376ef2da284551c2b52a4c0579e29c3",
+      "bytes": 73
+    },
+    {
+      "file": "node24/09-development_rmtx-a06_keyed-profile_inspect.cjs.time",
+      "sha256": "431233a5b1a5709e05a963b80190dccb481df4659f1a39266bfe6e35dd203d89",
+      "bytes": 894
+    },
+    {
+      "file": "node24/10---test.log",
+      "sha256": "728be09e94743746b6c09ae4b23603d0da8d85cd8d860e17b9dfab2facbba3f7",
+      "bytes": 16666
+    },
+    {
+      "file": "node24/10---test.time",
+      "sha256": "1a414ef5c4a5e79e3d28854c4b341e9e00f9eb02d45f2e816924b216191c4f73",
+      "bytes": 1268
+    },
+    {
+      "file": "node24/11-development_rmtx-a06_orchestration-profile_inspect.cjs.log",
+      "sha256": "fbe363bd73208734e4850c2364be2fc05f10f3c244b3469f80483d8f7b9bc72c",
+      "bytes": 80
+    },
+    {
+      "file": "node24/11-development_rmtx-a06_orchestration-profile_inspect.cjs.time",
+      "sha256": "e7bc86b97315138b00b8d494bf11dd22283fe1c33a9fb02791a4252b6f45d69b",
+      "bytes": 901
+    },
+    {
+      "file": "node24/12---test.log",
+      "sha256": "b2429d6cfb2cd960399c3fe2f84c023a9060f84415e853a3b0df48fda3e0ffe8",
+      "bytes": 13965
+    },
+    {
+      "file": "node24/12---test.time",
+      "sha256": "122102cb27da5f299f1c5673c45efc0d750f3ab107f9eb357cb79290cbe84d1b",
+      "bytes": 1184
+    },
+    {
+      "file": "node24/13-development_rmtx-a06_native-view-profile_inspect.cjs.log",
+      "sha256": "8839184b45dfdc0c33302cd5f1be3f0cc70a268dfad2b0bb4450e1295d6e0a04",
+      "bytes": 77
+    },
+    {
+      "file": "node24/13-development_rmtx-a06_native-view-profile_inspect.cjs.time",
+      "sha256": "a86ea3878b1cb5329b0db6d74dfe4f9b9d447f23bbd1f40fe263b23560d3da99",
+      "bytes": 900
+    },
+    {
+      "file": "node24/14---test.log",
+      "sha256": "276c0f23c966c75592fec060b9501607c3f4ac3809e3e08552c9cf832cf14e61",
+      "bytes": 5861
+    },
+    {
+      "file": "node24/14---test.time",
+      "sha256": "e9aa61e1872a2c1d8635e8cc1388910b7c8f46ad5e896a72d4dde9bab7877db8",
+      "bytes": 1102
+    },
+    {
+      "file": "node24/15-development_rmtx-a06_lifecycle-profile_inspect.cjs.log",
+      "sha256": "90dcf172e21af6d0077f4e074030c41ff4862fbed0b4e0d16a682f8702fb8ed3",
+      "bytes": 22757
+    },
+    {
+      "file": "node24/15-development_rmtx-a06_lifecycle-profile_inspect.cjs.time",
+      "sha256": "ecec367a3e7cb2d05be6205d58dc055fb6883cf2648415ef369bbd9447f425ce",
+      "bytes": 898
+    },
+    {
+      "file": "node24/16---test-concurrency_1.log",
+      "sha256": "27a5e707c0660be0e3a6e31f698ac1b0a88ad0d2e5363cee10d8aae496039668",
+      "bytes": 7781
+    },
+    {
+      "file": "node24/16---test-concurrency_1.time",
+      "sha256": "10f05e174ad19b8cf9a7657414cb2d9a6ac7a3db01b0e7a2c519ae74c81b2acf",
+      "bytes": 1163
+    },
+    {
+      "file": "node24/17-development_rmtx-a06_native-components_generate.cjs.log",
+      "sha256": "285b750286259b2f8ee4674069a3f7467491d47274ae70599d4ff8daa993fb41",
+      "bytes": 48
+    },
+    {
+      "file": "node24/17-development_rmtx-a06_native-components_generate.cjs.time",
+      "sha256": "1620819e68578e0d6820606c6b5c7306c328c7ca5f475e659c352d37beeb7ce8",
+      "bytes": 894
+    },
+    {
+      "file": "node24/18-development_rmtx-a06_native-orchestration-profile_inspect.cjs.log",
+      "sha256": "e9e47c7a30a60bfce62662040f9e7f95d8a154442a8a32a23e0d6bdb8f2a2cec",
+      "bytes": 26989
+    },
+    {
+      "file": "node24/18-development_rmtx-a06_native-orchestration-profile_inspect.cjs.time",
+      "sha256": "705e9e7d866ab76ef6af2b14fc9b00bc9a49cba2e347dc0d5f2c6244babf76f1",
+      "bytes": 909
+    },
+    {
+      "file": "node24/19-development_rmtx-a06_native-component-catalog_generate.cjs.log",
+      "sha256": "ba5239d1c28c1816841ecefb8a83e6b6c7747422a6b1937e4b8907bc7f46e072",
+      "bytes": 89
+    },
+    {
+      "file": "node24/19-development_rmtx-a06_native-component-catalog_generate.cjs.time",
+      "sha256": "155f19120eef2c168b8085b6d75695d3d5a6b1428837fddfb7c57625b70c2adf",
+      "bytes": 899
+    },
+    {
+      "file": "node24/20---test-concurrency_1.log",
+      "sha256": "f617a844a75a1c1ea7085847392c574fd9300542d6d7e5106d16d47c794820e0",
+      "bytes": 4806
+    },
+    {
+      "file": "node24/20---test-concurrency_1.time",
+      "sha256": "430c2654eadcf008dec0cc2bc30674ccd8f1e3bdc612191640cba8497f4a26c9",
+      "bytes": 1096
+    },
+    {
+      "file": "node24/21---test-concurrency_1.log",
+      "sha256": "a103541c9e93fc7056fcd64f086720b34076e9611fab98076118c980e7762460",
+      "bytes": 9900
+    },
+    {
+      "file": "node24/21---test-concurrency_1.time",
+      "sha256": "0aa05704b4e5f53ec43bad72559c213341357f993df1e1484e99cb63e781c7e4",
+      "bytes": 1220
+    },
+    {
+      "file": "node24/23-development_rmtx-a02_inspect.cjs.log",
+      "sha256": "b7bbdd01c0137893bc791a3f01b8d92c90a8b065d26381b45f5253d5f70e9ff4",
+      "bytes": 102
+    },
+    {
+      "file": "node24/23-development_rmtx-a02_inspect.cjs.time",
+      "sha256": "c75ca85bd3db04acbc2ddc00223fed4ceae0fa77042b285f5b3acac2bfa117a4",
+      "bytes": 876
+    },
+    {
+      "file": "node24/24-development_rmtx-a02_url-history_inspect.cjs.log",
+      "sha256": "fbb334a74c5fea2ebf0e149c303f288a19761669493769b56138d6a1b5fc3712",
+      "bytes": 84
+    },
+    {
+      "file": "node24/24-development_rmtx-a02_url-history_inspect.cjs.time",
+      "sha256": "2e4e9c8c756f31bd70cc3ebf931f70ab20c5097b8cd4e059e9a834ca9beca78b",
+      "bytes": 887
+    },
+    {
+      "file": "node24/25-development_rmtx-a02_url-history_integration-inspect.cjs.log",
+      "sha256": "b52d96fba101d072ff6ed96961688d34a59d4894079da50a2c3eddf32508ebfc",
+      "bytes": 112
+    },
+    {
+      "file": "node24/25-development_rmtx-a02_url-history_integration-inspect.cjs.time",
+      "sha256": "df072ffcd41113650e6d2f38803a2196eddc5587cb1f2b1e98e905e940bd6d42",
+      "bytes": 896
+    },
+    {
+      "file": "node24/26-development_rmtx-a03_inspect.cjs.log",
+      "sha256": "c568d2fcb06d4bde6d23eb3b37a864a8d938ae36258ef5b87db3ff9b71449024",
+      "bytes": 102
+    },
+    {
+      "file": "node24/26-development_rmtx-a03_inspect.cjs.time",
+      "sha256": "a272e0b0c10eb7ef4508cbacce172fd1c2a988e9a7ba387c6183c8a3135c5c13",
+      "bytes": 872
+    },
+    {
+      "file": "node24/27-development_rmtx-a03_graph-inspect.cjs.log",
+      "sha256": "01202cbfb88d2ed5128a86510c5a6cf17b0e4fcc23dcde70ae3a52782f9d4a35",
+      "bytes": 110
+    },
+    {
+      "file": "node24/27-development_rmtx-a03_graph-inspect.cjs.time",
+      "sha256": "28aebd4e01fa279fe76cbb441289e910a96959a572b3af5a4de09e0d15a0dafa",
+      "bytes": 878
+    },
+    {
+      "file": "node24/28-development_rmtx-a03_budget-inspect.cjs.log",
+      "sha256": "055055813fdadb9ac6d74620fe48635296baac4cd1d59d0a92468de57ef4d484",
+      "bytes": 99
+    },
+    {
+      "file": "node24/28-development_rmtx-a03_budget-inspect.cjs.time",
+      "sha256": "d4c41faaa6081ef59b11bf9256c56101f9779f0b7171694ff45e7836dcbec6f0",
+      "bytes": 879
+    },
+    {
+      "file": "node24/29-development_rmtx-a03_capability-inspect.cjs.log",
+      "sha256": "c67401f18b0a657e6e2c928d0b520557107d05e83b1bc478f6404615118f79b8",
+      "bytes": 93
+    },
+    {
+      "file": "node24/29-development_rmtx-a03_capability-inspect.cjs.time",
+      "sha256": "9b28c3f4ff14845fc27cd047afd60b1a416e51c463f8a37a0beb84454f6957bf",
+      "bytes": 883
+    },
+    {
+      "file": "node24/30-development_rmtx-a04_inspect.cjs.log",
+      "sha256": "e96367860a6f81acc5d890f3b79fb988f03f44e619b093c7c56cd2538a719b06",
+      "bytes": 108
+    },
+    {
+      "file": "node24/30-development_rmtx-a04_inspect.cjs.time",
+      "sha256": "ee1e5e98bc3e579e085877b1cfda437d7c5ef5cdf20b5e01de1f5f75f6e99bd2",
+      "bytes": 876
+    },
+    {
+      "file": "node24/31-development_rmtx-a04_integration-inspect.cjs.log",
+      "sha256": "f7f65703e8f5404beb24c1b63cc2e0727c4a8d94c57fffb5f4d230016c275467",
+      "bytes": 107
+    },
+    {
+      "file": "node24/31-development_rmtx-a04_integration-inspect.cjs.time",
+      "sha256": "9714aace901830d5af5b276fb76c620a417fbfe31f51feb638acd4834184b4dd",
+      "bytes": 893
+    },
+    {
+      "file": "node24/32-development_rmtx-a04_graph-inspect.cjs.log",
+      "sha256": "6c8647f8df336de8307d16b2a4fa35f40445d3f3e099147641eaa07a8506c109",
+      "bytes": 97
+    },
+    {
+      "file": "node24/32-development_rmtx-a04_graph-inspect.cjs.time",
+      "sha256": "d813db7ff80590519801868e5977911b7fa413f9a10cbc4568ff8d67c0830061",
+      "bytes": 886
+    },
+    {
+      "file": "node24/33-development_rmtx-a04_loading-inspect.cjs.log",
+      "sha256": "185d30b4dd795b892bb72fb1d961686409674e4503cb0561d44d6d49b870acc2",
+      "bytes": 111
+    },
+    {
+      "file": "node24/33-development_rmtx-a04_loading-inspect.cjs.time",
+      "sha256": "94f6ce4181c93046ad1b05d9ac99758ebd32ff979149ed9231662f36442dd60a",
+      "bytes": 889
+    },
+    {
+      "file": "node24/34-development_rmtx-a04_peer-inspect.cjs.log",
+      "sha256": "3417d93288bbfc5c8fbcfb6dc167fe19b4b77080ba9cc029015e977c09f27e8f",
+      "bytes": 107
+    },
+    {
+      "file": "node24/34-development_rmtx-a04_peer-inspect.cjs.time",
+      "sha256": "83e943a50e210d9b769e26dea8c4712cf9b1f5d8e64e2f2a9fa91863548d3ac1",
+      "bytes": 886
+    },
+    {
+      "file": "node24/35-development_rmtx-a04_delivery-inspect.cjs.log",
+      "sha256": "57208d387803e9887d08ae28428019d84ccce9d84779562376093fe02ffccc39",
+      "bytes": 106
+    },
+    {
+      "file": "node24/35-development_rmtx-a04_delivery-inspect.cjs.time",
+      "sha256": "035092c5f3a95c9a79f2175aec64f667126fe3218fa82bf159245ee2d35b9f9e",
+      "bytes": 890
+    },
+    {
+      "file": "node24/36-development_rmtx-a04_integrity-inspect.cjs.log",
+      "sha256": "1a25e5c2d4498f7be358a9bc61d77ff3a7edfe6f00e21344cc6fb7dcb3651b55",
+      "bytes": 100
+    },
+    {
+      "file": "node24/36-development_rmtx-a04_integrity-inspect.cjs.time",
+      "sha256": "ed68777ee651c6e8ab92a93239916ac1570e2785b59f00786e7477e81bf8bed1",
+      "bytes": 890
+    },
+    {
+      "file": "node24/37-development_rmtx-a04_runtime-inspect.cjs.log",
+      "sha256": "99d8e28287f010b5348edcf0fb5bb68eb7ef6240b0ebfce9f2e5fb74ff4d7ff9",
+      "bytes": 99
+    },
+    {
+      "file": "node24/37-development_rmtx-a04_runtime-inspect.cjs.time",
+      "sha256": "ec86f61744beb43a71f232546b814823052d051215c1068903be420452aa7d27",
+      "bytes": 889
+    },
+    {
+      "file": "node24/38-development_rmtx-a04_updates-inspect.cjs.log",
+      "sha256": "fafcf765ee7c1bc7b9b2f85bd3878562782cff2832903f597f3e180dcffac8e9",
+      "bytes": 89
+    },
+    {
+      "file": "node24/38-development_rmtx-a04_updates-inspect.cjs.time",
+      "sha256": "67078c09c8ba7ae29f081104cfbcbea3d75a821a85aacf5130aa0cc88f4d6920",
+      "bytes": 889
+    },
+    {
+      "file": "node24/39-development_rmtx-a05_inspect.cjs.log",
+      "sha256": "6a6fba010d5b18e347d0034d281b964d47f6d459ff9ac713e117a2fe17ace550",
+      "bytes": 78
+    },
+    {
+      "file": "node24/39-development_rmtx-a05_inspect.cjs.time",
+      "sha256": "bde4132f444d91f3d36e7041bb0e126279f159a358da0c842c9bbbf9d4e0a083",
+      "bytes": 872
+    },
+    {
+      "file": "node24/40-development_rmtx-a06_two-host-inspect.cjs.log",
+      "sha256": "98ed1943d44a867215be38555d9da418dbdd8bf368ce39573831ddce95dfb4ba",
+      "bytes": 95
+    },
+    {
+      "file": "node24/40-development_rmtx-a06_two-host-inspect.cjs.time",
+      "sha256": "fa2cf2f25b2f24d16fac73478cf6b5014d84a41e3a58a4c09258e5cd5a6255b2",
+      "bytes": 886
+    },
+    {
+      "file": "node24/41---test.log",
+      "sha256": "f1eaa4a62e4bdc5a2514609b7fe96a0079b6e23cdf59f6d6bb3088159f341219",
+      "bytes": 1873
+    },
+    {
+      "file": "node24/41---test.time",
+      "sha256": "cb86bc1a0d766e688e4c4cf7d89dc5d7d963107704720b99d7459c1c255da601",
+      "bytes": 909
+    },
+    {
+      "file": "node24/42-development_rmtx-a06_automatic-inspect.cjs.log",
+      "sha256": "9d243a0ba4b7ce31e03ed46dbb9b21a9dbea0aebd71ebe1248d1def1640a1cfb",
+      "bytes": 110
+    },
+    {
+      "file": "node24/42-development_rmtx-a06_automatic-inspect.cjs.time",
+      "sha256": "6c93eb530351b4d9f63c2db43e1d650a5ecda4068625817de5b438886493fbc6",
+      "bytes": 890
+    },
+    {
+      "file": "node24/43---test.log",
+      "sha256": "c640cea6eed9d956fe40106fc7ab0e1a62de8cd256b7e7ad393d877b5d4a3b4e",
+      "bytes": 1395
+    },
+    {
+      "file": "node24/43---test.time",
+      "sha256": "9345afd9c6c51c78205226f2b6e9bfe88d4ef6ae9585c99873f3f72e20121e51",
+      "bytes": 911
+    },
+    {
+      "file": "node24/44-development_rmtx-a06_scoped-inspect.cjs.log",
+      "sha256": "a20839ec9d774a019808689887a4c42fec1b7ca05786b6cdd7ed7ad163dd5560",
+      "bytes": 108
+    },
+    {
+      "file": "node24/44-development_rmtx-a06_scoped-inspect.cjs.time",
+      "sha256": "70f78183d941d7bf3be57afeccdf7b1f9dee77df9981d486bcee36aa46b8927d",
+      "bytes": 887
+    },
+    {
+      "file": "node24/45---test.log",
+      "sha256": "dc42e4dc52a79967f5cb64106a692f49bf7d1c1e11363e1af73ab62136594ca4",
+      "bytes": 960
+    },
+    {
+      "file": "node24/45---test.time",
+      "sha256": "0300be6747796227f21fdff3f6d72a2f93b7caf513133fa3a02303cf171792f6",
+      "bytes": 907
+    },
+    {
+      "file": "node24/46-scripts_sync_xtend_package_versions.js.log",
+      "sha256": "89763b0f67e53b6eb84d3c7c08e6b7148b36a0a7de433744fb5f502b5ff84706",
+      "bytes": 48
+    },
+    {
+      "file": "node24/46-scripts_sync_xtend_package_versions.js.time",
+      "sha256": "445f3a3158bcbac766515a35c15d22d638d3693aeaef4d190cd05db59ca870d8",
+      "bytes": 878
+    },
+    {
+      "file": "node24/47-scripts_release_feature-scope.cjs.log",
+      "sha256": "5fdc661954317c86540f703c3535989aaf3bdb913fc7da3e874dd8113afa792a",
+      "bytes": 4341
+    },
+    {
+      "file": "node24/47-scripts_release_feature-scope.cjs.time",
+      "sha256": "d2a0235c70d33e9b1b6cb1b8fc5490cba7ca3758c098467b9cfb68157dcdd75c",
+      "bytes": 878
+    },
+    {
+      "file": "node26/receipt.json",
+      "sha256": "56a2c3f4f7bb441d2d1b228295a34f1de46f477ce5775d5f3333cb0b107bdb2b",
+      "bytes": 21321
+    },
+    {
+      "file": "node26/00-scripts_generate_rmt_classic_contract.js.log",
+      "sha256": "a9bf9b145c7abba6b80816a24bf856b217ac446d84a7f96de6279fe71c74fb02",
+      "bytes": 132
+    },
+    {
+      "file": "node26/00-scripts_generate_rmt_classic_contract.js.time",
+      "sha256": "a6ae8b5d3271b9cac3e3819553ca5a76ea8adb273fb2b7688480c7d6e2374aa6",
+      "bytes": 873
+    },
+    {
+      "file": "node26/01-scripts_sync_rmt_compiler_contracts.cjs.log",
+      "sha256": "a19adf302d8fa762b2c509c1e7de6690a735b3a7930368e500051d9c85ac0ffa",
+      "bytes": 450
+    },
+    {
+      "file": "node26/01-scripts_sync_rmt_compiler_contracts.cjs.time",
+      "sha256": "ebac1c450dde271f76675107e16b27326c2176eda7a65ce90df260bd7dc136bf",
+      "bytes": 879
+    },
+    {
+      "file": "node26/02---test.log",
+      "sha256": "43ae3cef9c8a917b657e4b736dd5ac04fde0f309cbab98b920643c1becaeb95b",
+      "bytes": 6793
+    },
+    {
+      "file": "node26/02---test.time",
+      "sha256": "a50781b2d79aa4f67982c41b77f26aae62780a140bd00ba8de8871dfafb038c7",
+      "bytes": 1067
+    },
+    {
+      "file": "node26/03---test.log",
+      "sha256": "5decc94f5807c3c22d14c354864334993499882920839be8d5a2ff804d9252c9",
+      "bytes": 3121
+    },
+    {
+      "file": "node26/03---test.time",
+      "sha256": "5eb85019fe0b86392da04106440609255eac4344f768858e4333322d842db5ad",
+      "bytes": 994
+    },
+    {
+      "file": "node26/04---test.log",
+      "sha256": "99b02682a8de711eac017cc7034db10f53f8553b9c26423db7e6dd59ce2c273f",
+      "bytes": 5587
+    },
+    {
+      "file": "node26/04---test.time",
+      "sha256": "072fc8c303ae2e2d25d0c6488de1279ec6fa10e7996dc41e8fd95c129d445e19",
+      "bytes": 1002
+    },
+    {
+      "file": "node26/05-development_rmtx-a06_frontend_inspect.cjs.log",
+      "sha256": "bb1c4746fa2e13091da7b1f53c7cea27671f5dcf376f0820b06294c90ab318d0",
+      "bytes": 117
+    },
+    {
+      "file": "node26/05-development_rmtx-a06_frontend_inspect.cjs.time",
+      "sha256": "07997182a9c8c118d9e52bfc359da45c4fc10ca19d7b38ab1d0ce09d21424dae",
+      "bytes": 876
+    },
+    {
+      "file": "node26/06---test.log",
+      "sha256": "e5b8d6b68ac461fc0e30837df69567ac913cfd965786df05ce421c40bb39d46a",
+      "bytes": 5683
+    },
+    {
+      "file": "node26/06---test.time",
+      "sha256": "34925457a5bcea5af8b11c941702f9ce4f75645b6d5dda96c2cbe6f5bc4930f4",
+      "bytes": 1007
+    },
+    {
+      "file": "node26/07-development_rmtx-a06_selector-profile_inspect.cjs.log",
+      "sha256": "6dc82f190dabfe020fd5f9cd1a019d8363fa77392139401889f3cde9d418df35",
+      "bytes": 79
+    },
+    {
+      "file": "node26/07-development_rmtx-a06_selector-profile_inspect.cjs.time",
+      "sha256": "49a7c9bebe539c5cfcd4a10cbba146fb378d204da5f2948cf3ad10f14a35ab19",
+      "bytes": 885
+    },
+    {
+      "file": "node26/08---test.log",
+      "sha256": "e27c90e11c12b699b0cbec737b99871d6cbb82a182721ef441a5e9f664017268",
+      "bytes": 4949
+    },
+    {
+      "file": "node26/08---test.time",
+      "sha256": "21bd4160c6615f1efacd0df8c5a7fdf2891941a876003d27ae9cf5df7130d5db",
+      "bytes": 1006
+    },
+    {
+      "file": "node26/09-development_rmtx-a06_keyed-profile_inspect.cjs.log",
+      "sha256": "37bd063e2bdc53414a0aa0e9505107921376ef2da284551c2b52a4c0579e29c3",
+      "bytes": 73
+    },
+    {
+      "file": "node26/09-development_rmtx-a06_keyed-profile_inspect.cjs.time",
+      "sha256": "c5f6dc9ac00c1ed801e684c093552143aa44bc3ce0cb13179c917b66f5df832f",
+      "bytes": 887
+    },
+    {
+      "file": "node26/10---test.log",
+      "sha256": "2fe65b5899a07001c6a7676d8d4e89574b7e36c621d0c73164bc3eb78fadc34b",
+      "bytes": 16663
+    },
+    {
+      "file": "node26/10---test.time",
+      "sha256": "02962a7ce4470935e44389c578006fdff1f57fdcba5d137b2be9e30e4bad4dac",
+      "bytes": 1261
+    },
+    {
+      "file": "node26/11-development_rmtx-a06_orchestration-profile_inspect.cjs.log",
+      "sha256": "fbe363bd73208734e4850c2364be2fc05f10f3c244b3469f80483d8f7b9bc72c",
+      "bytes": 80
+    },
+    {
+      "file": "node26/11-development_rmtx-a06_orchestration-profile_inspect.cjs.time",
+      "sha256": "c74f050ae3a6b040c9694dcc7ec1cce6ae47f83c012719a293f86dbcdc139e12",
+      "bytes": 895
+    },
+    {
+      "file": "node26/12---test.log",
+      "sha256": "c28149318a2f18d81895f86c1b52f064f8e1af96862d0606c8a0cb6e716f684f",
+      "bytes": 13966
+    },
+    {
+      "file": "node26/12---test.time",
+      "sha256": "f9caf66d6b5d4e41b77add84da086bbcca8fff11a4be866417bbc87eca8986d9",
+      "bytes": 1177
+    },
+    {
+      "file": "node26/13-development_rmtx-a06_native-view-profile_inspect.cjs.log",
+      "sha256": "8839184b45dfdc0c33302cd5f1be3f0cc70a268dfad2b0bb4450e1295d6e0a04",
+      "bytes": 77
+    },
+    {
+      "file": "node26/13-development_rmtx-a06_native-view-profile_inspect.cjs.time",
+      "sha256": "6b5161aa6a5df1518585887e9e87c3233fcb0528826fb4c150d50c41d2f2e474",
+      "bytes": 894
+    },
+    {
+      "file": "node26/14---test.log",
+      "sha256": "cdb9b2005ae496bc10dc21fe008fbb800e25b4fb771c780095a6299e1f7796b2",
+      "bytes": 5863
+    },
+    {
+      "file": "node26/14---test.time",
+      "sha256": "34ddced40f82cd3154f46534d7cb49bb4e237cde4f4a38a89be816696f52e62e",
+      "bytes": 1095
+    },
+    {
+      "file": "node26/15-development_rmtx-a06_lifecycle-profile_inspect.cjs.log",
+      "sha256": "90dcf172e21af6d0077f4e074030c41ff4862fbed0b4e0d16a682f8702fb8ed3",
+      "bytes": 22757
+    },
+    {
+      "file": "node26/15-development_rmtx-a06_lifecycle-profile_inspect.cjs.time",
+      "sha256": "e25fd7246556ab2bbfc68763e060af898c3aa4b4cd0c144e0e21d0a913c23bf4",
+      "bytes": 891
+    },
+    {
+      "file": "node26/16---test-concurrency_1.log",
+      "sha256": "27ecc8887095a2cb18564cdb63cae054682e86a1062886fbff74782dd80acbdb",
+      "bytes": 7784
+    },
+    {
+      "file": "node26/16---test-concurrency_1.time",
+      "sha256": "779d8925696c1dea974e0e4ea54d65af200c8f07aaa2aa864747d1ec42775d02",
+      "bytes": 1156
+    },
+    {
+      "file": "node26/17-development_rmtx-a06_native-components_generate.cjs.log",
+      "sha256": "285b750286259b2f8ee4674069a3f7467491d47274ae70599d4ff8daa993fb41",
+      "bytes": 48
+    },
+    {
+      "file": "node26/17-development_rmtx-a06_native-components_generate.cjs.time",
+      "sha256": "bd87724fb45b6feb215577e5be458db90a370d6033334635104b94ecc6369bfc",
+      "bytes": 887
+    },
+    {
+      "file": "node26/18-development_rmtx-a06_native-orchestration-profile_inspect.cjs.log",
+      "sha256": "e9e47c7a30a60bfce62662040f9e7f95d8a154442a8a32a23e0d6bdb8f2a2cec",
+      "bytes": 26989
+    },
+    {
+      "file": "node26/18-development_rmtx-a06_native-orchestration-profile_inspect.cjs.time",
+      "sha256": "4fe060bca152a088561495b0aca889262bc1bedcfbfb81cad0871b374fc382ee",
+      "bytes": 902
+    },
+    {
+      "file": "node26/19-development_rmtx-a06_native-component-catalog_generate.cjs.log",
+      "sha256": "ba5239d1c28c1816841ecefb8a83e6b6c7747422a6b1937e4b8907bc7f46e072",
+      "bytes": 89
+    },
+    {
+      "file": "node26/19-development_rmtx-a06_native-component-catalog_generate.cjs.time",
+      "sha256": "a235cc549addd84193fe7f60c933304bc23f75f4a19ecef4e955bfab880c7397",
+      "bytes": 892
+    },
+    {
+      "file": "node26/20---test-concurrency_1.log",
+      "sha256": "d8913bca9cc0e57a5006be6e8307171d9db8f7fe94f13424e0b211beb73a4bd2",
+      "bytes": 4808
+    },
+    {
+      "file": "node26/20---test-concurrency_1.time",
+      "sha256": "4034ef03116f80e0b830647af4b6de082c06187f019b262806078a649ad34e81",
+      "bytes": 1090
+    },
+    {
+      "file": "node26/21---test-concurrency_1.log",
+      "sha256": "22e1d2731e191223b668c38cdbacf931e61fc066b66cdcf32dc94d2cba7cc153",
+      "bytes": 9889
+    },
+    {
+      "file": "node26/21---test-concurrency_1.time",
+      "sha256": "573d3bdc76a9e76e53a65423ba64254914d7b5dd8bdc2c99e09db0cb35a039c0",
+      "bytes": 1213
+    },
+    {
+      "file": "node26/23-development_rmtx-a02_inspect.cjs.log",
+      "sha256": "b7bbdd01c0137893bc791a3f01b8d92c90a8b065d26381b45f5253d5f70e9ff4",
+      "bytes": 102
+    },
+    {
+      "file": "node26/23-development_rmtx-a02_inspect.cjs.time",
+      "sha256": "01c4c6941156834a37fdb82c8a0784f513b41a19fb1f54df9ca69e30bd169c73",
+      "bytes": 869
+    },
+    {
+      "file": "node26/24-development_rmtx-a02_url-history_inspect.cjs.log",
+      "sha256": "fbb334a74c5fea2ebf0e149c303f288a19761669493769b56138d6a1b5fc3712",
+      "bytes": 84
+    },
+    {
+      "file": "node26/24-development_rmtx-a02_url-history_inspect.cjs.time",
+      "sha256": "1c00c7163a5df647f6f43cfff7484eb2fa51e2ae4ed16c68c7f0d9e6da079b06",
+      "bytes": 881
+    },
+    {
+      "file": "node26/25-development_rmtx-a02_url-history_integration-inspect.cjs.log",
+      "sha256": "b52d96fba101d072ff6ed96961688d34a59d4894079da50a2c3eddf32508ebfc",
+      "bytes": 112
+    },
+    {
+      "file": "node26/25-development_rmtx-a02_url-history_integration-inspect.cjs.time",
+      "sha256": "25f84ea7b7791afdb5983673462075c4e71e497c7c91d126e23f4a3969afacd1",
+      "bytes": 889
+    },
+    {
+      "file": "node26/26-development_rmtx-a03_inspect.cjs.log",
+      "sha256": "c568d2fcb06d4bde6d23eb3b37a864a8d938ae36258ef5b87db3ff9b71449024",
+      "bytes": 102
+    },
+    {
+      "file": "node26/26-development_rmtx-a03_inspect.cjs.time",
+      "sha256": "ebfa7b0e6d02df263708390bf564b9377f90b0b46147dbf9c374c0c81c4a8c83",
+      "bytes": 865
+    },
+    {
+      "file": "node26/27-development_rmtx-a03_graph-inspect.cjs.log",
+      "sha256": "01202cbfb88d2ed5128a86510c5a6cf17b0e4fcc23dcde70ae3a52782f9d4a35",
+      "bytes": 110
+    },
+    {
+      "file": "node26/27-development_rmtx-a03_graph-inspect.cjs.time",
+      "sha256": "6935d306e1895f5603bea87836de046bba162936b3f7bbf0148245735d25e711",
+      "bytes": 871
+    },
+    {
+      "file": "node26/28-development_rmtx-a03_budget-inspect.cjs.log",
+      "sha256": "055055813fdadb9ac6d74620fe48635296baac4cd1d59d0a92468de57ef4d484",
+      "bytes": 99
+    },
+    {
+      "file": "node26/28-development_rmtx-a03_budget-inspect.cjs.time",
+      "sha256": "55a0df0ea27fb6bb61d913e54376eccce620d74088fe51097d5aac7ed719f5e9",
+      "bytes": 872
+    },
+    {
+      "file": "node26/29-development_rmtx-a03_capability-inspect.cjs.log",
+      "sha256": "c67401f18b0a657e6e2c928d0b520557107d05e83b1bc478f6404615118f79b8",
+      "bytes": 93
+    },
+    {
+      "file": "node26/29-development_rmtx-a03_capability-inspect.cjs.time",
+      "sha256": "55413dfcfcc28097d9cf9937ed7aab9b6e51624fef3ef7387366d541b28b7605",
+      "bytes": 877
+    },
+    {
+      "file": "node26/30-development_rmtx-a04_inspect.cjs.log",
+      "sha256": "e96367860a6f81acc5d890f3b79fb988f03f44e619b093c7c56cd2538a719b06",
+      "bytes": 108
+    },
+    {
+      "file": "node26/30-development_rmtx-a04_inspect.cjs.time",
+      "sha256": "1e48f860c3a9f8b479d4f53c389586446e56c7ba01e34ecae025e73a17a610d3",
+      "bytes": 869
+    },
+    {
+      "file": "node26/31-development_rmtx-a04_integration-inspect.cjs.log",
+      "sha256": "f7f65703e8f5404beb24c1b63cc2e0727c4a8d94c57fffb5f4d230016c275467",
+      "bytes": 107
+    },
+    {
+      "file": "node26/31-development_rmtx-a04_integration-inspect.cjs.time",
+      "sha256": "5530a5ed5a215171d6514222de1a44b579f6dd4296007a6827ecc05876d6063d",
+      "bytes": 886
+    },
+    {
+      "file": "node26/32-development_rmtx-a04_graph-inspect.cjs.log",
+      "sha256": "6c8647f8df336de8307d16b2a4fa35f40445d3f3e099147641eaa07a8506c109",
+      "bytes": 97
+    },
+    {
+      "file": "node26/32-development_rmtx-a04_graph-inspect.cjs.time",
+      "sha256": "b8c4cd3897fd5b3dbe5f0e3f75a06a3f19be5f0dd3e0b0ab40cb7c75b829ffe0",
+      "bytes": 880
+    },
+    {
+      "file": "node26/33-development_rmtx-a04_loading-inspect.cjs.log",
+      "sha256": "185d30b4dd795b892bb72fb1d961686409674e4503cb0561d44d6d49b870acc2",
+      "bytes": 111
+    },
+    {
+      "file": "node26/33-development_rmtx-a04_loading-inspect.cjs.time",
+      "sha256": "f1fd7c5287ada0fe8c579a20e71a0f06c42864a3ef51d5b40301838dcf8c2e05",
+      "bytes": 882
+    },
+    {
+      "file": "node26/34-development_rmtx-a04_peer-inspect.cjs.log",
+      "sha256": "3417d93288bbfc5c8fbcfb6dc167fe19b4b77080ba9cc029015e977c09f27e8f",
+      "bytes": 107
+    },
+    {
+      "file": "node26/34-development_rmtx-a04_peer-inspect.cjs.time",
+      "sha256": "1292107f70b85371b94a402feae977315920bc685bc0d20fc4be23e71e964919",
+      "bytes": 879
+    },
+    {
+      "file": "node26/35-development_rmtx-a04_delivery-inspect.cjs.log",
+      "sha256": "57208d387803e9887d08ae28428019d84ccce9d84779562376093fe02ffccc39",
+      "bytes": 106
+    },
+    {
+      "file": "node26/35-development_rmtx-a04_delivery-inspect.cjs.time",
+      "sha256": "050fd4348e9c728cb9438f7f4331c8560e7c614a8a129ab0bd5f5c089cb9893c",
+      "bytes": 883
+    },
+    {
+      "file": "node26/36-development_rmtx-a04_integrity-inspect.cjs.log",
+      "sha256": "1a25e5c2d4498f7be358a9bc61d77ff3a7edfe6f00e21344cc6fb7dcb3651b55",
+      "bytes": 100
+    },
+    {
+      "file": "node26/36-development_rmtx-a04_integrity-inspect.cjs.time",
+      "sha256": "731fc057b0612a86e1ec17dbe993d3c2b3c7608d7e9222acbe4bafaf5ff466b1",
+      "bytes": 884
+    },
+    {
+      "file": "node26/37-development_rmtx-a04_runtime-inspect.cjs.log",
+      "sha256": "99d8e28287f010b5348edcf0fb5bb68eb7ef6240b0ebfce9f2e5fb74ff4d7ff9",
+      "bytes": 99
+    },
+    {
+      "file": "node26/37-development_rmtx-a04_runtime-inspect.cjs.time",
+      "sha256": "f67007bd8e0d4ae453e50af0f18685797492d3a3f35685a637210fa6a02ed0a0",
+      "bytes": 882
+    },
+    {
+      "file": "node26/38-development_rmtx-a04_updates-inspect.cjs.log",
+      "sha256": "fafcf765ee7c1bc7b9b2f85bd3878562782cff2832903f597f3e180dcffac8e9",
+      "bytes": 89
+    },
+    {
+      "file": "node26/38-development_rmtx-a04_updates-inspect.cjs.time",
+      "sha256": "f128930cc6fd407a573cd44729d771da29f067a368adb075681b07841985bb06",
+      "bytes": 882
+    },
+    {
+      "file": "node26/39-development_rmtx-a05_inspect.cjs.log",
+      "sha256": "6a6fba010d5b18e347d0034d281b964d47f6d459ff9ac713e117a2fe17ace550",
+      "bytes": 78
+    },
+    {
+      "file": "node26/39-development_rmtx-a05_inspect.cjs.time",
+      "sha256": "2c56574fef448b616573b067a72639e26509caeeb0e8fe85f5765bc1650ed771",
+      "bytes": 865
+    },
+    {
+      "file": "node26/40-development_rmtx-a06_two-host-inspect.cjs.log",
+      "sha256": "98ed1943d44a867215be38555d9da418dbdd8bf368ce39573831ddce95dfb4ba",
+      "bytes": 95
+    },
+    {
+      "file": "node26/40-development_rmtx-a06_two-host-inspect.cjs.time",
+      "sha256": "3dae1a4ba1b9eb92bd092797113b1dab46ce525a96bf2bb802e484c5bd1925d2",
+      "bytes": 879
+    },
+    {
+      "file": "node26/41---test.log",
+      "sha256": "d16b3364ff3f3d206fa299555086f6707363f8658e6f7ef10e905d3a8aefff43",
+      "bytes": 1875
+    },
+    {
+      "file": "node26/41---test.time",
+      "sha256": "f5ef72a9384995f574b0a8babdfe976eba3ae188f10287ad9538b4cfb58e1022",
+      "bytes": 902
+    },
+    {
+      "file": "node26/42-development_rmtx-a06_automatic-inspect.cjs.log",
+      "sha256": "9d243a0ba4b7ce31e03ed46dbb9b21a9dbea0aebd71ebe1248d1def1640a1cfb",
+      "bytes": 110
+    },
+    {
+      "file": "node26/42-development_rmtx-a06_automatic-inspect.cjs.time",
+      "sha256": "0e02e8a059efb9dd67d1173d24c2743dece1f649949eed2fae989b58694313bd",
+      "bytes": 882
+    },
+    {
+      "file": "node26/43---test.log",
+      "sha256": "d9a18ab7c9a0077eca5fcf43e47b4645a08ec5d3564d75aef77ea8464b981013",
+      "bytes": 1395
+    },
+    {
+      "file": "node26/43---test.time",
+      "sha256": "6ac698d51096a7ee65fd22b1f55a85ab0b6823d4734bbd575be004f768dda335",
+      "bytes": 904
+    },
+    {
+      "file": "node26/44-development_rmtx-a06_scoped-inspect.cjs.log",
+      "sha256": "a20839ec9d774a019808689887a4c42fec1b7ca05786b6cdd7ed7ad163dd5560",
+      "bytes": 108
+    },
+    {
+      "file": "node26/44-development_rmtx-a06_scoped-inspect.cjs.time",
+      "sha256": "dea4cf0131f81a2d360229e0b23900038ff907033586935207e99e56b34e924f",
+      "bytes": 879
+    },
+    {
+      "file": "node26/45---test.log",
+      "sha256": "282075e9053d3c28cbabff63e65e91c5faad1c78954e7b744d29b1db3a5c900e",
+      "bytes": 956
+    },
+    {
+      "file": "node26/45---test.time",
+      "sha256": "3d96a25c88c5d751ad909dcdce615370635d27d57060786e2c727c6db6d7dc34",
+      "bytes": 900
+    },
+    {
+      "file": "node26/46-scripts_sync_xtend_package_versions.js.log",
+      "sha256": "89763b0f67e53b6eb84d3c7c08e6b7148b36a0a7de433744fb5f502b5ff84706",
+      "bytes": 48
+    },
+    {
+      "file": "node26/46-scripts_sync_xtend_package_versions.js.time",
+      "sha256": "5e6fb327ea33d578e14fe9c41dd1c82e34b476ad87e50399e929821a73d130db",
+      "bytes": 871
+    },
+    {
+      "file": "node26/47-scripts_release_feature-scope.cjs.log",
+      "sha256": "5fdc661954317c86540f703c3535989aaf3bdb913fc7da3e874dd8113afa792a",
+      "bytes": 4341
+    },
+    {
+      "file": "node26/47-scripts_release_feature-scope.cjs.time",
+      "sha256": "aa7bf7e68bb66cf7297cc60eb2b03430473b5615635c33076e0c10c5f6c66d7c",
+      "bytes": 871
+    },
+    {
+      "file": "inputs-before.json",
+      "sha256": "97bc670ecb639e5f4b67ee5fc6f1f8c335dcdaa0540b6cc38bf779e3aa83c79c",
+      "bytes": 347327
+    },
+    {
+      "file": "input-conservation.json",
+      "sha256": "8ce660f480e48a41fc2e73828db3f2cb682014a1b134a737ae9a7425a8365ab7",
+      "bytes": 207
+    },
+    {
+      "file": "procedures-before.json",
+      "sha256": "a490d0d9ff68a134cb763b8fe35d6007db54d5af7b2aeab72f02e5ee1f5eb016",
+      "bytes": 470
+    },
+    {
+      "file": "procedures/final-preparation.py",
+      "sha256": "54bb3fb54a7b3e30e6db3fad787099e97bb99f53e9d73cd76b55e77d95e6ad4a",
+      "bytes": 839
+    },
+    {
+      "file": "procedures/gates.py",
+      "sha256": "2a296b42493af81ce577f8264e19fc448d86535ef49a6c1d522159e991a17f2e",
+      "bytes": 2623
+    },
+    {
+      "file": "procedures/bind-preparation-final.py",
+      "sha256": "55256a35abca33bbf3915f8003d3b1c3cb102987b909d5823178e48ba6021125",
+      "bytes": 1740
+    },
+    {
+      "file": "procedures/collect-final-preparation.py",
+      "sha256": "b7bbfee17224c0ca1c93c84038e3812014ca130a5c2d7e0ad7384f137019429b",
+      "bytes": 8096
+    },
+    {
+      "file": "phases/refresh-final24.log",
+      "sha256": "792ca379dfa84f1a853b8ce2b5c7087e59a6d0b2bf93433b2300ed805f785d2f",
+      "bytes": 9867
+    },
+    {
+      "file": "phases/bind-before.log",
+      "sha256": "991291b82fc31a2f0cbea7bb3537c1117effb8cafb2373e068b31ff4017d83de",
+      "bytes": 5
+    },
+    {
+      "file": "phases/check-final24.log",
+      "sha256": "7bc8ee4a06591b8a543447cc69fd920b6c66826785fdd25a66a62e1cfc289403",
+      "bytes": 18664
+    },
+    {
+      "file": "phases/check-final26.log",
+      "sha256": "3331d714662fd47676b15d0586f311c600d29eb26e82b6f0101a78ee795775a5",
+      "bytes": 18667
+    },
+    {
+      "file": "phases/bind-after.log",
+      "sha256": "4f9b560e051c2d79e6f88918947073ecc31fa158dc4758bd1eed09fb974f7431",
+      "bytes": 193
+    }
+  ],
+  "resourceScope": "Individual external time-v process RSS; not an aggregated concurrent process-group or Chromium measurement."
+}

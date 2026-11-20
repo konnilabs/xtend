@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "node": "v24.22.2",
+  "typescript": "5.9.3",
+  "consumerModes": [
+    "cts",
+    "mts"
+  ],
+  "module": "Node16",
+  "moduleResolution": "Node16",
+  "strict": true,
+  "skipLibCheck": false,
+  "diagnostics": 0
+}

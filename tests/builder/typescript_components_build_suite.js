@@ -15,7 +15,7 @@ const {
   syntaxCheckFile
 } = require('../utils/process');
 
-const TYPESCRIPT_COMPONENTS_SCHEMA = 'xtend.typescript.components-build.v1';
+const TYPESCRIPT_COMPONENTS_SCHEMA = 'xtend.typescript.components-build.v2';
 const TYPESCRIPT_COMPONENTS_LOCAL_GATE = 'node scripts/run_xtend_tests.js typescript-components --json';
 
 function assertFileExists(context, relativePath, rootDir, message) {
@@ -46,7 +46,7 @@ function runTypeScriptComponentsBuildSuite(options = {}) {
   context.assert(source.includes('xtendFormControlUxProfile'), 'x-toggle source declares Form Control UX profile');
   context.assert(source.includes('xtend.rmt.component-contract.v1'), 'x-toggle source declares RMT contract');
 
-  context.assert(packageManifest.devDependencies && packageManifest.devDependencies.typescript, 'Package declares TypeScript dev dependency');
+  context.assert(readJson('tools/package.json', rootDir).dependencies.typescript === '5.9.3', 'Compiler workspace owns the pinned TypeScript build dependency');
   context.assert(packageManifest.scripts['build:components'] === 'tsc -p tsconfig.components.json && node scripts/finalize_component_build.js', 'Package exposes component build script');
   context.assert(packageManifest.scripts['test:typescript-components'] === 'node scripts/run_xtend_tests.js typescript-components', 'Package exposes TypeScript component gate');
   context.assert(packageManifest.xtend && packageManifest.xtend.typescriptComponentSource && packageManifest.xtend.typescriptComponentSource.productiveCompilerIntroduced === true, 'Package metadata marks component compiler productive');
@@ -71,8 +71,11 @@ function runTypeScriptComponentsBuildSuite(options = {}) {
 
   const runtime = readText('components/xtoggle.js', rootDir);
   const types = readText('components/xtoggle.d.ts', rootDir);
-  context.assert(runtime.includes("from './xtend-state.js'"), 'Generated runtime import is finalized to local XTend State');
-  context.assert(runtime.includes("customElements.define('x-toggle'"), 'Generated runtime defines x-toggle');
+  const definition=readText('components/xtoggle.definition.js',rootDir);
+  context.assert(definition.includes('class XToggle')&&definition.includes('markManagedComponentClass(XToggle')&&!definition.includes('customElements.define'), 'TypeScript emits the pure shared managed class without registration');
+  context.assert(runtime.includes('xtoggle.definition.js')&&!runtime.includes('class XToggle'), 'The finalizer preserves the Classic wrapper instead of generating a competing implementation');
+  context.assert(definition.includes("from './xtend-state.definition.js'"), 'Generated shared definition imports the pure local XTend State definition');
+  context.assert(runtime.includes('defineManagedComponent(\"x-toggle\", XToggle)'), 'Generated Classic wrapper registers the shared x-toggle class');
   context.assert(types.includes("'x-toggle': XToggleElement"), 'Generated declaration augments HTMLElementTagNameMap');
   context.assert(types.includes('XToggleEventMap'), 'Generated declaration exposes event map');
 
@@ -81,7 +84,7 @@ function runTypeScriptComponentsBuildSuite(options = {}) {
       schema: TYPESCRIPT_COMPONENTS_SCHEMA,
       localGate: TYPESCRIPT_COMPONENTS_LOCAL_GATE,
       buildStatus: build.status,
-      artifacts: ['components/xtoggle.js', 'components/xtoggle.d.ts']
+      artifacts: ['components/xtoggle.js', 'components/xtoggle.definition.js', 'components/xtoggle.d.ts']
     }
   });
 }

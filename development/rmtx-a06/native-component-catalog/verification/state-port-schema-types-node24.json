@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "node": "v24.22.2",
+  "typescript": "5.9.3",
+  "publicSubpath": "@ccslabs/xtend/components/native-services",
+  "consumerModes": [
+    "cts",
+    "mts"
+  ],
+  "module": "Node16",
+  "strict": true,
+  "skipLibCheck": false,
+  "stateSchema": "xtend.native-services.state-port.v1",
+  "aggregateSchema": "xtend.native-services.port.v1",
+  "stateMethods": 7,
+  "diagnostics": 0
+}

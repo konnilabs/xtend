@@ -1,4 +1,6 @@
-export const RMT_EVENT_ROUTING_API_VERSION: '4.0.0';
+export const RMT_EVENT_ROUTING_API_VERSION: '4.1.0';
+/** The same closed evaluator used by routed events; malformed or missing reads fail closed. */
+export function evaluateRmtEventCondition(condition:unknown,context:{modelReader?:{snapshot():unknown};event?:unknown;[key:string]:unknown}):boolean;
 export const RMT_EVENT_ROUTING_DIAGNOSTIC_SCHEMA: 'xtend.epic18.rmt-event-routing-diagnostic.v1';
 export const RMT_EVENT_ROUTING_RUNTIME_SCHEMA: 'xtend.epic18.rmt-event-routing-runtime.v2';
 export const RMT_EVENT_ROUTING_RUNTIME_SCHEMA_V3: 'xtend.epic18.rmt-event-routing-runtime.v3';

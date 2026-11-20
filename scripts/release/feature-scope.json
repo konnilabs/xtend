@@ -1,5 +1,5 @@
 {
-  "schema": "xtend.release.feature-scope.v1",
+  "schema": "xtend.release.feature-scope.v2",
   "targetVersion": "0.9.0",
   "releaseTrain": "0.9",
   "state": "preparing",
@@ -31,6 +31,30 @@
         "Declaration, manifest, build/provider, host instance and cleanup chain",
         "Framework ownership, SSR/adoption, restore-before-replay and explicit fallback"
       ],
+      "testProfile": null,
+      "executionEvidence": null
+    }
+  ],
+  "nativeCatalog": {
+    "required": true,
+    "productiveEntries": 46,
+    "demoEntries": 1,
+    "manifest": "components/manifest.json",
+    "catalog": "tools/rmt-language/rmtx-native-components-v2.json",
+    "acceptance": "development/rmtx-a06/native-component-catalog/matrix.v2.json"
+  },
+  "milestones": [
+    {
+      "id": "A06.5",
+      "required": true,
+      "status": "preparing",
+      "testProfile": null,
+      "executionEvidence": null
+    },
+    {
+      "id": "A06.6",
+      "required": true,
+      "status": "preparing",
       "testProfile": null,
       "executionEvidence": null
     }

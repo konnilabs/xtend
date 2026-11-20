@@ -37,7 +37,7 @@ async function inspect({ write = false, check = false } = {}) {
       assert.equal(profile.schema, 'xtend.rmtx.operator-profile.v2'); assert.equal(profile.apiVersion, '2.0.0');
       assert.equal(Object.keys(profile.operators).length, 16);
       // Global module capability; the explicit Source3/4 contracts above remain unchanged.
-      assert.equal(require('../../../tools/rmt-language/rmtx').RMTX_AUTHORING_API_VERSION, '7.0.0');
+      assert.equal(require('../../../tools/rmt-language/rmtx').RMTX_AUTHORING_API_VERSION, '8.0.0');
     });
     await verify('source host scopes supplement the static Classic AST without native repeat clauses', () => {
       assert.equal(compiled.parserResult.hostScopes.schema, 'xtend.rmtx.host-scopes.v1');

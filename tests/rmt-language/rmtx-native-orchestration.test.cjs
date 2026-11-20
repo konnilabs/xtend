@@ -75,7 +75,10 @@ test('Captured metadata cannot be supplied or widened by a callsite and empty ca
  assert.throws(()=>metadata.validateRmtxNativeComponents([{...captured,attributes:[...captured.attributes,'onclick']}]));
  assert.throws(()=>metadata.validateRmtxNativeComponents([{...captured,slots:[...captured.slots,'injected']}]));
  assert.throws(()=>metadata.validateRmtxNativeComponents([{...captured,sha256:'0'.repeat(64)}]));
- assert.equal(fs.readFileSync(path.resolve(__dirname,'../../components/xheader.js'),'utf8').includes('attachShadow'),true);
+ const classic=fs.readFileSync(path.resolve(__dirname,'../../components/xheader.js'),'utf8');
+ assert.match(classic,/import \{ XHeader \} from ["']\.\/xheader\.definition\.js["']/);
+ assert.match(classic,/defineManagedComponent\("x-header", XHeader\)/);
+ assert.equal(fs.readFileSync(path.resolve(__dirname,'../../components/xheader.definition.js'),'utf8').includes('attachShadow'),true);
 });
 
 test('Source7 allows nested native shell scopes and keeps provider roots exclusive',()=>{

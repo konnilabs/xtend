@@ -7,7 +7,7 @@
   "sourceManifest": {
     "path": "xtendrmt/kernel/rmt-kernel-sources.json",
     "schema": "xtend.rmt.kernel-sources.v2",
-    "sha256": "c9b248e592d618b90e246c289bdc10aa5f12c60bc40aaa740ccc59207804e6be"
+    "sha256": "0ade83b3cebd7edbccba78fc45624c3a74df51a0c27b8921eba8ccb9f16a6a67"
   },
   "architecture": {
     "pattern": "mvc",
@@ -19,7 +19,7 @@
     "compatibilityComposerCount": 0,
     "globalMirrorCompatibilityCount": 0
   },
-  "sourceModuleCount": 79,
+  "sourceModuleCount": 80,
   "bundledModuleCount": 41,
   "standaloneModuleCount": 36,
   "legacyBundleModuleCount": 0,
@@ -102,6 +102,7 @@
     "xtendrmt/kernel/modules/rmt-server-prerender-runtime.js",
     "xtendrmt/kernel/modules/rmt-product-surface.js",
     "xtend-maraca/plan-runtime.mjs",
+    "xtend-maraca/native-platform-host.mjs",
     "xtend-maraca/browser-host-adapter.mjs",
     "xtend-maraca/browser-composition-runtime.mjs",
     "xtendrmt/rmt-ssr-stream-host.js",
@@ -118,13 +119,13 @@
   "domCommitSource": {
     "renderer": {
       "path": "xtendrmt/rmt-dom-descriptor-renderer.js",
-      "sha256": "c4a368798a6d2d182f816b61357331072ab17af55a37d3739a16025a3372cebd",
-      "byteCount": 163511
+      "sha256": "cb9d0c144b2454431533ac989a826697c295b68f89c2527c6cff357d3e78615f",
+      "byteCount": 206598
     },
     "types": {
       "path": "xtendrmt/rmt-dom-descriptor-renderer.d.ts",
-      "sha256": "a92a802595da11bd8737e0f8874eb82ee40c4d89d5ff13690bba5ab8bcd3b518",
-      "byteCount": 12032
+      "sha256": "3df4cc127bf9e1688f3b3f1f0084316778d9b7e7ed525e29de663a25f33c6175",
+      "byteCount": 14598
     },
     "modulePath": "modules/rmt-dom-descriptor-renderer.js",
     "factory": "createRmtDomDescriptorRenderer",
@@ -169,21 +170,21 @@
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-browser-runtime",
             "functionName": "isTemplateRequestLike",
-            "line": 30102,
+            "line": 30810,
             "byteCount": 597
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-worker-prerender-runtime",
             "functionName": "isTemplateRequestLike",
-            "line": 31156,
+            "line": 31864,
             "byteCount": 597
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-server-prerender-runtime",
             "functionName": "isTemplateRequestLike",
-            "line": 31423,
+            "line": 32131,
             "byteCount": 597
           }
         ]
@@ -220,49 +221,49 @@
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-input-routing-controller",
             "functionName": "toPlainObject",
-            "line": 13744,
+            "line": 14452,
             "byteCount": 150
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-xtend-component-adapter",
             "functionName": "toPlainObject",
-            "line": 14197,
+            "line": 14905,
             "byteCount": 150
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-surface-adapter",
             "functionName": "toPlainObject",
-            "line": 15367,
+            "line": 16075,
             "byteCount": 150
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-state-telemetry-adapter",
             "functionName": "toPlainObject",
-            "line": 16897,
+            "line": 17605,
             "byteCount": 150
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-template-binding-model",
             "functionName": "toPlainObject",
-            "line": 18128,
+            "line": 18836,
             "byteCount": 126
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-template-execution-model",
             "functionName": "toPlainObject",
-            "line": 25865,
+            "line": 26573,
             "byteCount": 126
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-template-interaction-adapter",
             "functionName": "toPlainObject",
-            "line": 26189,
+            "line": 26897,
             "byteCount": 126
           }
         ]
@@ -277,28 +278,28 @@
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-input-routing-controller",
             "functionName": "normalizeScheduleReference",
-            "line": 13756,
+            "line": 14464,
             "byteCount": 269
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-xtend-component-adapter",
             "functionName": "normalizeScheduleReference",
-            "line": 14209,
+            "line": 14917,
             "byteCount": 269
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-surface-adapter",
             "functionName": "normalizeScheduleReference",
-            "line": 15379,
+            "line": 16087,
             "byteCount": 269
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-state-telemetry-adapter",
             "functionName": "normalizeScheduleReference",
-            "line": 16909,
+            "line": 17617,
             "byteCount": 269
           }
         ]
@@ -313,21 +314,21 @@
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-browser-runtime",
             "functionName": "resolveDocumentTarget",
-            "line": 30014,
+            "line": 30722,
             "byteCount": 264
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-worker-prerender-runtime",
             "functionName": "resolveDocumentTarget",
-            "line": 31124,
+            "line": 31832,
             "byteCount": 264
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-server-prerender-runtime",
             "functionName": "resolveDocumentTarget",
-            "line": 31391,
+            "line": 32099,
             "byteCount": 264
           }
         ]
@@ -342,28 +343,28 @@
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-input-routing-controller",
             "functionName": "uniqueValues",
-            "line": 13750,
+            "line": 14458,
             "byteCount": 167
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-xtend-component-adapter",
             "functionName": "uniqueValues",
-            "line": 14203,
+            "line": 14911,
             "byteCount": 167
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-surface-adapter",
             "functionName": "uniqueValues",
-            "line": 15373,
+            "line": 16081,
             "byteCount": 167
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-state-telemetry-adapter",
             "functionName": "uniqueValues",
-            "line": 16903,
+            "line": 17611,
             "byteCount": 167
           }
         ]
@@ -378,21 +379,21 @@
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-dom-compat-view-adapter",
             "functionName": "normalizeOwnershipMode",
-            "line": 28565,
+            "line": 29273,
             "byteCount": 222
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-public-island-controller",
             "functionName": "normalizeOwnershipMode",
-            "line": 28755,
+            "line": 29463,
             "byteCount": 222
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-public-api",
             "functionName": "normalizeOwnershipMode",
-            "line": 29034,
+            "line": 29742,
             "byteCount": 222
           }
         ]
@@ -436,14 +437,14 @@
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-template-compiler",
             "functionName": "stableStringify",
-            "line": 18389,
+            "line": 19097,
             "byteCount": 399
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-template-artifacts",
             "functionName": "stableStringify",
-            "line": 18791,
+            "line": 19499,
             "byteCount": 399
           }
         ]
@@ -487,28 +488,28 @@
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-template-compiler",
             "functionName": "isObjectLike",
-            "line": 18379,
+            "line": 19087,
             "byteCount": 89
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-browser-runtime",
             "functionName": "isObjectLike",
-            "line": 30006,
+            "line": 30714,
             "byteCount": 89
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-worker-prerender-runtime",
             "functionName": "isObjectLike",
-            "line": 31116,
+            "line": 31824,
             "byteCount": 89
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-server-prerender-runtime",
             "functionName": "isObjectLike",
-            "line": 31383,
+            "line": 32091,
             "byteCount": 89
           }
         ]
@@ -523,14 +524,14 @@
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-template-compiler",
             "functionName": "hashString",
-            "line": 18399,
+            "line": 19107,
             "byteCount": 346
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-template-artifacts",
             "functionName": "hashString",
-            "line": 18801,
+            "line": 19509,
             "byteCount": 346
           }
         ]
@@ -545,21 +546,21 @@
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-format",
             "functionName": "toPlainObject",
-            "line": 12638,
+            "line": 13346,
             "byteCount": 143
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-template-registry",
             "functionName": "toPlainObject",
-            "line": 17734,
+            "line": 18442,
             "byteCount": 143
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-template-runtime-renderer",
             "functionName": "toPlainObject",
-            "line": 22112,
+            "line": 22820,
             "byteCount": 143
           }
         ]
@@ -596,14 +597,14 @@
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-template-execution-path",
             "functionName": "resolveFactory",
-            "line": 26939,
+            "line": 27647,
             "byteCount": 231
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-dom-compat-view-adapter",
             "functionName": "resolveFactory",
-            "line": 28572,
+            "line": 29280,
             "byteCount": 231
           }
         ]
@@ -618,14 +619,14 @@
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-template-binding-model",
             "functionName": "normalizeBindingKind",
-            "line": 18132,
+            "line": 18840,
             "byteCount": 227
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-template-runtime-renderer",
             "functionName": "normalizeBindingKind",
-            "line": 22119,
+            "line": 22827,
             "byteCount": 227
           }
         ]
@@ -640,14 +641,14 @@
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-template-binding-model",
             "functionName": "normalizeSlotKind",
-            "line": 18137,
+            "line": 18845,
             "byteCount": 225
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-template-runtime-renderer",
             "functionName": "normalizeSlotKind",
-            "line": 22124,
+            "line": 22832,
             "byteCount": 225
           }
         ]
@@ -684,14 +685,14 @@
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-template-binding-model",
             "functionName": "normalizeBindings",
-            "line": 18218,
+            "line": 18926,
             "byteCount": 213
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-template-runtime-renderer",
             "functionName": "normalizeBindings",
-            "line": 23312,
+            "line": 24020,
             "byteCount": 229
           }
         ]
@@ -706,14 +707,14 @@
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-format",
             "functionName": "normalizeOwnershipMode",
-            "line": 12669,
+            "line": 13377,
             "byteCount": 207
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-surface-adapter",
             "functionName": "normalizeOwnershipMode",
-            "line": 15387,
+            "line": 16095,
             "byteCount": 207
           }
         ]
@@ -728,21 +729,21 @@
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-browser-runtime",
             "functionName": "buildTemplateInvocation",
-            "line": 30115,
+            "line": 30823,
             "byteCount": 99
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-worker-prerender-runtime",
             "functionName": "buildTemplateInvocation",
-            "line": 31169,
+            "line": 31877,
             "byteCount": 99
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-server-prerender-runtime",
             "functionName": "buildTemplateInvocation",
-            "line": 31436,
+            "line": 32144,
             "byteCount": 99
           }
         ]
@@ -757,14 +758,14 @@
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-template-binding-model",
             "functionName": "normalizeSlots",
-            "line": 18266,
+            "line": 18974,
             "byteCount": 192
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-template-runtime-renderer",
             "functionName": "normalizeSlots",
-            "line": 23370,
+            "line": 24078,
             "byteCount": 208
           }
         ]
@@ -779,21 +780,21 @@
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-browser-runtime",
             "functionName": "buildPrerenderInvocation",
-            "line": 30136,
+            "line": 30844,
             "byteCount": 89
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-worker-prerender-runtime",
             "functionName": "buildPrerenderInvocation",
-            "line": 31190,
+            "line": 31898,
             "byteCount": 89
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-server-prerender-runtime",
             "functionName": "buildPrerenderInvocation",
-            "line": 31457,
+            "line": 32165,
             "byteCount": 89
           }
         ]
@@ -852,28 +853,28 @@
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-input-routing-controller",
             "functionName": "emitDiagnostic",
-            "line": 14080,
+            "line": 14788,
             "byteCount": 34
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-xtend-component-adapter",
             "functionName": "emitDiagnostic",
-            "line": 15249,
+            "line": 15957,
             "byteCount": 34
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-surface-adapter",
             "functionName": "emitDiagnostic",
-            "line": 16803,
+            "line": 17511,
             "byteCount": 34
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-state-telemetry-adapter",
             "functionName": "emitDiagnostic",
-            "line": 17216,
+            "line": 17924,
             "byteCount": 34
           }
         ]
@@ -888,21 +889,21 @@
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-browser-runtime",
             "functionName": "mergeRequestDefaults",
-            "line": 30041,
+            "line": 30749,
             "byteCount": 47
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-worker-prerender-runtime",
             "functionName": "mergeRequestDefaults",
-            "line": 31139,
+            "line": 31847,
             "byteCount": 47
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-server-prerender-runtime",
             "functionName": "mergeRequestDefaults",
-            "line": 31406,
+            "line": 32114,
             "byteCount": 47
           }
         ]
@@ -917,21 +918,21 @@
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-browser-runtime",
             "functionName": "normalizeDefaults",
-            "line": 30021,
+            "line": 30729,
             "byteCount": 45
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-worker-prerender-runtime",
             "functionName": "normalizeDefaults",
-            "line": 31131,
+            "line": 31839,
             "byteCount": 45
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-server-prerender-runtime",
             "functionName": "normalizeDefaults",
-            "line": 31398,
+            "line": 32106,
             "byteCount": 45
           }
         ]
@@ -946,21 +947,21 @@
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-template-transport-adapters",
             "functionName": "hydrateResponse",
-            "line": 27587,
+            "line": 28295,
             "byteCount": 43
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-worker-prerender-runtime",
             "functionName": "hydrateResponse",
-            "line": 31281,
+            "line": 31989,
             "byteCount": 43
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-server-prerender-runtime",
             "functionName": "hydrateResponse",
-            "line": 31548,
+            "line": 32256,
             "byteCount": 43
           }
         ]
@@ -975,21 +976,21 @@
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-browser-runtime",
             "functionName": "withDefaults",
-            "line": 30612,
+            "line": 31320,
             "byteCount": 39
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-worker-prerender-runtime",
             "functionName": "withDefaults",
-            "line": 31315,
+            "line": 32023,
             "byteCount": 39
           },
           {
             "artifactPath": "xtendrmt/rmt-core.esm.js",
             "moduleId": "rmt-server-prerender-runtime",
             "functionName": "withDefaults",
-            "line": 31568,
+            "line": 32276,
             "byteCount": 39
           }
         ]
@@ -1137,9 +1138,9 @@
       "path": "xtendrmt/rmt-core.esm.js",
       "kind": "esm",
       "exists": true,
-      "byteCount": 1503173,
-      "lineCount": 32028,
-      "sha256": "eadb09bdec2aa40ed47ccae0231e2f67d4d4047f3fd1f377f7822dbaafafb510",
+      "byteCount": 1549056,
+      "lineCount": 32736,
+      "sha256": "16cb2bff00f41756bd054d90ed6fc07e5db80e0b7dcb8da70dbad92723ca3538",
       "moduleCount": 41,
       "publicExports": [
         "createRmtBrowserHostAdapter",
@@ -1191,9 +1192,9 @@
       "path": "xtendrmt/rmt-runtime.esm.js",
       "kind": "esm",
       "exists": true,
-      "byteCount": 1503176,
-      "lineCount": 32028,
-      "sha256": "29ecf6d24a4d2079fcbfdbf3378f6a1f986993aa4bc65452a2d161c4039bd994",
+      "byteCount": 1549059,
+      "lineCount": 32736,
+      "sha256": "effa5d3a25352e7500c0177dada54fb4b30ca2a9c9176cf1e1b496860cc40716",
       "moduleCount": 41,
       "publicExports": [
         "createRmtBrowserHostAdapter",
@@ -1245,9 +1246,9 @@
       "path": "xtendrmt/rmt-runtime.browser.js",
       "kind": "browser",
       "exists": true,
-      "byteCount": 1499324,
-      "lineCount": 31989,
-      "sha256": "cd3cb7cd7ce03c5bd6fd5cad2d1ac424dd47ec767d4846154a0ec7a7d15a06ef",
+      "byteCount": 1545207,
+      "lineCount": 32697,
+      "sha256": "5c1507ad2b42a491738945bd0abaf90f4d158fb06bbaf52addfe3ad0bf2a1124",
       "moduleCount": 41,
       "publicExports": [],
       "legacyAliases": [],
@@ -1260,9 +1261,9 @@
       "path": "xtendrmt/rmt-core.d.ts",
       "kind": "types",
       "exists": true,
-      "byteCount": 190574,
-      "lineCount": 4707,
-      "sha256": "50a36e6ddaffafebd1e503e55e4a64b9e47d64f23928b30c7b6a5bfa02f36a24",
+      "byteCount": 193140,
+      "lineCount": 4717,
+      "sha256": "3dff6c49e8bfc01ae6e9c3e67cc5f763679dc1c534061bc822148a701cac847e",
       "moduleCount": 0,
       "publicExports": [],
       "legacyAliases": [],
@@ -1845,8 +1846,8 @@
       "registerName": "registerRmtDomDescriptorRendererModule",
       "artifactPath": "xtendrmt/rmt-core.esm.js",
       "classification": "keep",
-      "byteCount": 177664,
-      "lineCount": 3856,
+      "byteCount": 223547,
+      "lineCount": 4564,
       "factories": [
         "RMT_DOM_COMMIT_RESULT_SCHEMA",
         "RMT_DOM_DESCRIPTOR_RENDERER_DIAGNOSTIC_SCHEMA",
@@ -1867,7 +1868,7 @@
       "droppedSymbols": [],
       "sourcePath": "xtendrmt/rmt-dom-descriptor-renderer.js",
       "sourceMode": "canonical",
-      "sourceSha256": "c4a368798a6d2d182f816b61357331072ab17af55a37d3739a16025a3372cebd",
+      "sourceSha256": "cb9d0c144b2454431533ac989a826697c295b68f89c2527c6cff357d3e78615f",
       "mvcRole": "view",
       "adapterDirection": null,
       "provides": [
@@ -1893,6 +1894,7 @@
       "observedCapabilities": [
         "dom.read",
         "dom.write",
+        "event.listen",
         "global.read",
         "global.write"
       ],
@@ -3441,7 +3443,7 @@
       "id": "rmt-dom-descriptor-renderer",
       "sourcePath": "xtendrmt/rmt-dom-descriptor-renderer.js",
       "sourceMode": "canonical",
-      "sourceSha256": "c4a368798a6d2d182f816b61357331072ab17af55a37d3739a16025a3372cebd",
+      "sourceSha256": "cb9d0c144b2454431533ac989a826697c295b68f89c2527c6cff357d3e78615f",
       "mvcRole": "view",
       "adapterDirection": null,
       "provides": [
@@ -3467,6 +3469,7 @@
       "observedCapabilities": [
         "dom.read",
         "dom.write",
+        "event.listen",
         "global.read",
         "global.write"
       ],
@@ -3694,7 +3697,7 @@
       "id": "rmt-event-routing-runtime-source",
       "sourcePath": "xtendrmt/rmt-event-routing-runtime.js",
       "sourceMode": "canonical",
-      "sourceSha256": "7da9757eb83fcd4a74e2c54d09520f513aff9e8c76fbf14c55fca3ca61c79d1d",
+      "sourceSha256": "0e629eeee2ab8e5b5bdecaea5ccfb2ded0201d7756dd189cdd7c628d1bbd6f66",
       "mvcRole": "adapter",
       "adapterDirection": "input",
       "provides": [
@@ -6021,7 +6024,7 @@
       "id": "xtend-maraca-plan-runtime",
       "sourcePath": "xtend-maraca/plan-runtime.mjs",
       "sourceMode": "canonical",
-      "sourceSha256": "6dcfb6887486f1a77842ccb5450e514130cd3c176f54d95976a9004c9d564dbc",
+      "sourceSha256": "a719d3de35d3ea58a065a71e2b193e8fa10a3bb81db76d766ca0507314057b5c",
       "mvcRole": "controller",
       "adapterDirection": null,
       "provides": [
@@ -6052,10 +6055,49 @@
       ]
     },
     {
+      "id": "xtend-maraca-native-platform-host",
+      "sourcePath": "xtend-maraca/native-platform-host.mjs",
+      "sourceMode": "canonical",
+      "sourceSha256": "e1223d2f6a828019c256b1e557b0a9737895ab796e227eee79c06efb07adad7d",
+      "mvcRole": "adapter",
+      "adapterDirection": "host",
+      "provides": [
+        "createMaracaNativePlatformHost"
+      ],
+      "consumes": [],
+      "dependsOn": [],
+      "observedDependencies": [],
+      "ports": [
+        "RmtSurfaceLifecyclePort",
+        "RmtDomCommitPort",
+        "RmtModelReader",
+        "MaracaNativeComponentCommandPort",
+        "MaracaRouterHostPort"
+      ],
+      "declaredCapabilities": [
+        "dom.read",
+        "dom.write",
+        "state.read",
+        "event.listen"
+      ],
+      "observedCapabilities": [
+        "dom.read",
+        "dom.write",
+        "event.listen"
+      ],
+      "compatibility": null,
+      "ownershipDomains": [
+        "host.maraca-native-platform"
+      ],
+      "targets": [
+        "maraca"
+      ]
+    },
+    {
       "id": "xtend-maraca-browser-host-adapter",
       "sourcePath": "xtend-maraca/browser-host-adapter.mjs",
       "sourceMode": "canonical",
-      "sourceSha256": "5991203b7d82a38ec75b7331bac1465d04e64417cf4f030aa7e96afc2cf23133",
+      "sourceSha256": "3bb1c433b2a098bc999b26074f6be300d88431cb8a1b0c5ddf2e63de5fc8f0b6",
       "mvcRole": "adapter",
       "adapterDirection": "host",
       "provides": [
@@ -6101,7 +6143,7 @@
       "id": "xtend-maraca-browser-composition-runtime",
       "sourcePath": "xtend-maraca/browser-composition-runtime.mjs",
       "sourceMode": "canonical",
-      "sourceSha256": "23f65a714e5c816728b498023c97ecf95863bd2822aa7ecf064e0db2deff98ca",
+      "sourceSha256": "9b6a88f4d84b0e4dc00ed3d4fe7befea2a186b22a2eed0a66b1a30b489292807",
       "mvcRole": "composition",
       "adapterDirection": null,
       "provides": [

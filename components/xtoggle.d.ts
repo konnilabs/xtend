@@ -229,6 +229,7 @@ declare class XToggle extends HTMLElement {
     private syncFormValue;
     private publishState;
 }
+export declare const nativeDependencies: readonly (readonly [string, CustomElementConstructor])[];
 export { XToggle };
 export default XToggle;
 declare global {

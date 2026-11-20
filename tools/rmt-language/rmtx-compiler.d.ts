@@ -3,9 +3,9 @@ import type { RmtVNextCoreDocument } from './vnext-compiler';
 import type { XTensionStateBindingArtifact } from '../xtensions/state-binding-artifact';
 import type { RmtxParseResult, RmtxParseResultV2, RmtxParseResultV3, RmtxParserOptions, RmtxParserOptionsV2, RmtxParserOptionsV3, RMTX_SOURCE_PROFILE, RMTX_SELECTOR_SOURCE_PROFILE, RMTX_KEYED_SOURCE_PROFILE } from './rmtx-parser';
 import type { RmtxSelectorDependencyReport, RmtxSelectorDependencyReportV2 } from './rmtx-selector-dependencies';
-import type { RmtxParserOptionsV4, RmtxParserOptionsV5, RmtxParserOptionsV6, RmtxParserOptionsV7 } from './rmtx-parser';
+import type { RmtxParserOptionsV4, RmtxParserOptionsV5, RmtxParserOptionsV6, RmtxParserOptionsV7,RmtxParserOptionsV8 } from './rmtx-parser';
 /** Module capability API; individual profiles retain their own result version. */
-export declare const RMTX_COMPILER_API_VERSION: '7.0.0';
+export declare const RMTX_COMPILER_API_VERSION: '8.0.0';
 export declare const RMTX_COMPILE_RESULT_SCHEMA: 'xtend.rmtx.compile-result.v1';
 export declare const RMTX_COMPILE_RESULT_SCHEMA_V2: 'xtend.rmtx.compile-result.v2';
 export declare const RMTX_COMPILE_RESULT_SCHEMA_V3: 'xtend.rmtx.compile-result.v3';
@@ -201,3 +201,23 @@ export function createRmtxCompiler(options:RmtxCompilerOptionsV7):Readonly<RmtxC
 
 export function compileRmtxSource(input:unknown,options:RmtxCompilerOptions|RmtxCompilerOptionsV2|RmtxCompilerOptionsV3|RmtxCompilerOptionsV4|RmtxCompilerOptionsV5|RmtxCompilerOptionsV6|RmtxCompilerOptionsV7):RmtxCompileResult|RmtxCompileResultV2|RmtxCompileResultV3|RmtxCompileResultV4|RmtxCompileResultV5|RmtxCompileResultV6|RmtxCompileResultV7;
 export function createRmtxCompiler(options:RmtxCompilerOptions|RmtxCompilerOptionsV2|RmtxCompilerOptionsV3|RmtxCompilerOptionsV4|RmtxCompilerOptionsV5|RmtxCompilerOptionsV6|RmtxCompilerOptionsV7):Readonly<RmtxCompiler|RmtxCompilerV2|RmtxCompilerV3|RmtxCompilerV4|RmtxCompilerV5|RmtxCompilerV6|RmtxCompilerV7>;
+
+export const RMTX_COMPILE_RESULT_SCHEMA_V8:'xtend.rmtx.compile-result.v8';
+export interface RmtxCompilerOptionsV8 extends RmtxParserOptionsV8 {componentInterfaceCatalog?:import('./rmtx-component-bindings').RmtxComponentCatalog;xtensionBindings?:never;contractVersion?:'1.0.0'}
+export interface RmtxCompileResultV8 extends Omit<RmtxCompileResultV7,'schema'|'apiVersion'|'sourceProfile'|'parserResult'|'selectorDependencies'|'nativeDependencies'|'lifecycleDependencies'|'xtensionBindings'|'xtensionComposition'|'componentDependencies'|'orchestrationArtifacts'>{
+ schema:typeof RMTX_COMPILE_RESULT_SCHEMA_V8;apiVersion:'8.0.0';sourceProfile:typeof import('./rmtx-parser').RMTX_MANAGED_NATIVE_SOURCE_PROFILE;parserResult:import('./rmtx-parser').RmtxParseResultV8;
+ selectorDependencies:import('./rmtx-selector-dependencies').RmtxSelectorDependencyReportV7|null;nativeDependencies:import('./rmtx-native-view').RmtxManagedNativeDependencyReport|null;lifecycleDependencies:import('./rmtx-native-lifecycle').RmtxManagedNativeLifecycleDependencyReport|null;
+ orchestrationArtifacts:import('../xtensions/native-managed-view-projection').NativeManagedViewProgram|null;
+ xtensionBindings?:import('../xtensions/state-binding-artifact').XTensionManagedStateBindingArtifact|null;xtensionComposition?:ReturnType<typeof import('./rmtx-component-bindings').projectRmtxManagedComponents>['xtensionComposition']|null;componentDependencies?:import('./rmtx-component-bindings').RmtxComponentDependencyReportV5|null;
+}
+export interface RmtxCompilerV8 {
+ name:'RMTX';apiVersion:'8.0.0';schema:typeof RMTX_COMPILE_RESULT_SCHEMA_V8;sourceProfile:typeof import('./rmtx-parser').RMTX_MANAGED_NATIVE_SOURCE_PROFILE;
+ compileSource(input?:unknown):RmtxCompileResultV8;
+ compileSource(input:unknown,options:Omit<RmtxCompilerOptionsV8,'syntaxVersion'>&{syntaxVersion?:'8.0.0'}):RmtxCompileResultV8;
+ compileSource(input:unknown,options:RmtxCompilerOptionsV8):RmtxCompileResultV8;
+ compileSource(input:unknown,options:RmtxCompilerOptionsV7):RmtxCompileResultV7;compileSource(input:unknown,options:RmtxCompilerOptionsV6):RmtxCompileResultV6;compileSource(input:unknown,options:RmtxCompilerOptionsV5):RmtxCompileResultV5;compileSource(input:unknown,options:RmtxCompilerOptionsV4):RmtxCompileResultV4;compileSource(input:unknown,options:RmtxCompilerOptionsV3):RmtxCompileResultV3;compileSource(input:unknown,options:RmtxCompilerOptionsV2):RmtxCompileResultV2;compileSource(input:unknown,options:RmtxCompilerOptions&{syntaxVersion:'1.0.0'}):RmtxCompileResult;
+}
+export function compileRmtxSource(input:unknown,options:RmtxCompilerOptionsV8):RmtxCompileResultV8;
+export function createRmtxCompiler(options:RmtxCompilerOptionsV8):Readonly<RmtxCompilerV8>;
+export function compileRmtxSource(input:unknown,options:RmtxCompilerOptions|RmtxCompilerOptionsV2|RmtxCompilerOptionsV3|RmtxCompilerOptionsV4|RmtxCompilerOptionsV5|RmtxCompilerOptionsV6|RmtxCompilerOptionsV7|RmtxCompilerOptionsV8):RmtxCompileResult|RmtxCompileResultV2|RmtxCompileResultV3|RmtxCompileResultV4|RmtxCompileResultV5|RmtxCompileResultV6|RmtxCompileResultV7|RmtxCompileResultV8;
+export function createRmtxCompiler(options:RmtxCompilerOptions|RmtxCompilerOptionsV2|RmtxCompilerOptionsV3|RmtxCompilerOptionsV4|RmtxCompilerOptionsV5|RmtxCompilerOptionsV6|RmtxCompilerOptionsV7|RmtxCompilerOptionsV8):Readonly<RmtxCompiler|RmtxCompilerV2|RmtxCompilerV3|RmtxCompilerV4|RmtxCompilerV5|RmtxCompilerV6|RmtxCompilerV7|RmtxCompilerV8>;

@@ -100,6 +100,10 @@
     "./native-surface-graph": {
       "types": "./native-surface-graph.d.ts",
       "default": "./native-surface-graph.mjs"
+    },
+    "./native-managed-runtime": {
+      "types": "./native-managed-runtime.d.ts",
+      "default": "./native-managed-runtime.mjs"
     }
   },
   "files": [
@@ -175,7 +179,14 @@
     "native-orchestration-runtime.mjs",
     "native-orchestration-runtime.d.ts",
     "native-surface-graph.mjs",
-    "native-surface-graph.d.ts"
+    "native-surface-graph.d.ts",
+    "native-managed-runtime.mjs",
+    "native-managed-runtime.d.ts",
+    "native-platform-host.mjs",
+    "native-platform-host.d.ts",
+    "native-data-literal.js",
+    "native-orchestration-core.mjs",
+    "native-surface-graph-core.mjs"
   ],
   "engines": {
     "node": ">=24"

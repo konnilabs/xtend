@@ -276,7 +276,7 @@ test('closed attributes reject AST, DSL text, wrong primitive kinds, duplicate c
 
 test('source4 contracts, all authoring names and declarations are immutable data and closed types', () => {
   const profile = getRmtxOperatorProfile('4.0.0'), authoring = require('../../tools/rmt-language/rmtx');
-  assert.equal(authoring.RMTX_AUTHORING_API_VERSION, '7.0.0');
+  assert.equal(authoring.RMTX_AUTHORING_API_VERSION, '8.0.0');
   assert.deepEqual(Object.keys(authoring.RMT), Object.keys(getRmtxOperatorProfile('7.0.0').operators));
   assert(Object.keys(profile.operators).every(name => Object.hasOwn(authoring.RMT, name)));
   assert(Object.isFrozen(profile)); assert(Object.isFrozen(rules)); assert(Object.isFrozen(coverage));

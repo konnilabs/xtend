@@ -1,0 +1,17 @@
+{
+  "schema": "xtend.local.native-state-port-fix-binding.v1",
+  "files": {
+    "components/native-services.js": "93f9e0e2f54d253cdfd6d0e4f39537fb3c5b28c1219cea6d4369b9d2a0e4f79d",
+    "components/native-services.d.ts": "8ffb4cd75c0447b5ffd887ba92e22156eff4a94d5e6991369e88368f9329d4a9",
+    "tests/components/native-platform-services.test.mjs": "eb13cc3fec78fccbcd5f142cc9b988049df70b9154c767def53ba84357a4e8df"
+  },
+  "coldProof": {
+    "file": "development/rmtx-a06/native-component-catalog/verification/catalog-cold-browser-final.json",
+    "sha256": "5055a7c958d289703ab26aa372cdbe655623e8e7ef6e67a43faee9da3e88b725",
+    "boundEntries": 1196,
+    "uniqueFiles": 114,
+    "changed": []
+  },
+  "runnerSha256": "f99c39d055ab0b6806cbdc1ffe251a2f9ec4f4b0ac98ccf66cfce9a96aacd21d",
+  "gateProcedureSha256": "2a296b42493af81ce577f8264e19fc448d86535ef49a6c1d522159e991a17f2e"
+}

@@ -1,0 +1,15 @@
+✔ pure native imports do not bootstrap globals, CE registration, listeners or i18n patches (1.284678ms)
+✔ managed State reuses the existing adapter with isolated keys and owned cleanup (8.540458ms)
+✔ managed i18n labels stay data, preserve Light DOM and reject foreign roots (9.747084ms)
+✔ scoped Theme uses the shared manager, restores owned values and preserves host writes (50.415294ms)
+✔ borrowed services are not disposed, missing transition/platform capabilities fail (14.188785ms)
+✔ owned Utils effects complete through the actual transition Renderer port and disposal revokes held or late work (28.890928ms)
+✔ managed Surface region delegates to the real controller and releases once without ancestor writes (11.216354ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 682.719461

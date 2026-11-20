@@ -14,7 +14,7 @@ async function inspect(){
   for(const framework of ['react','vue','mixed'])await check(`${framework}: actual complete graph seals under unchanged reference ceilings`,async()=>{
    const build=await maraca.buildMaracaBundleAsync(reference.withDeliveryProfile(reference.createBuildInput(framework,path.join(temp,'build-'+framework),{profile:framework==='vue'?'max':'production'})),{rootDir:root});assert(build.ok);builds[framework]=build;
    const value={schema:'xtend.maraca.xtension-deployment-config.v1',build,application,publicPath:'/sealed/',outputDir:path.join(temp,'sealed-'+framework)};
-   const result=api.buildMaracaXTensionDeployment(value);assert.equal(api.XTENSION_COMPOSITION_BUILD_API_VERSION,'16.0.0');assert.equal(api.XTENSION_DEPLOYMENT_API_VERSION,'3.0.0');assert.equal(result.apiVersion,'1.0.0');assert.equal(result.runtimeExecutionVerified,false);
+   const result=api.buildMaracaXTensionDeployment(value);assert.equal(api.XTENSION_COMPOSITION_BUILD_API_VERSION,'17.0.0');assert.equal(api.XTENSION_DEPLOYMENT_API_VERSION,'3.0.0');assert.equal(result.apiVersion,'1.0.0');assert.equal(result.runtimeExecutionVerified,false);
    assert(result.accounting.withinBudget);assert(result.accounting.frameworkBytes<=2200000);assert(result.accounting.xtensionRuntimeBytes<=240000);assert.equal(result.accounting.xtensionRuntimeBytes,build.sizeBudgetReport.xtensions.runtimeBytes);
    assert.equal(result.accounting.applicationBytes,fs.statSync(path.join(appRoot,'bootstrap.mjs')).size+fs.statSync(path.join(appRoot,'vendor.mjs')).size);
    const html=fs.readFileSync(path.join(result.outputDir,result.manifest.documentFile),'utf8'),map=JSON.parse(html.match(/<script type="importmap">(.*?)<\/script>/s)[1]);
