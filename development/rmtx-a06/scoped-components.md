@@ -1,5 +1,7 @@
 # Folgeabschnitte – Key-Scopes und Komponenten-SSR v2
 
+**Aktuelle Einordnung vom 21. November 2026:** Dieses weiterhin erhaltene SSR-v2-Profil ist die implementierte Grundlage für signierten Restore, React-/Vue-Adoption und Provider-Intent-Replay. Die [Syntaxentscheidung](syntax-decision.md), die produktiven RMTX-Quellprofile und [A06.5 – Projekt-/Editorintegration](project-tooling/implementation.md) sind inzwischen umgesetzt und lokal geprüft. Die neuen Sourceprofile 4–8 werden damit nicht für SSR/Adoption freigegeben. Die noch offene sourcegetreue RMTX-Zielabnahme, Rollenabnahme und formale Releasebindung stehen in [A06.6](release-acceptance/implementation.md).
+
 Stand: **15. November 2026**. Die Folgeabschnitte sind implementiert: Das neue Komponentenprofil unterstützt verschachtelte Wiederholungen mit typisierten Schlüsseln sowie signiertes Node-SSR, Restore, native React-/Vue-Adoption und Provider-Intent-Replay. [Statisches Profil](automatic-composition.md) und bisheriges SSR v1 bleiben eigenständige Kompatibilitätspfade.
 
 ## Versionen
@@ -60,4 +62,4 @@ XTENSIONS_TEST_PEERS=/pfad/zum/peer-harness CHROME_BIN=/pfad/zu/chromium node de
 
 [Statischer Nachweis](scoped-evidence.json) und [Laufzeitnachweis](scoped-runtime-evidence.json) binden die Ergebnisse an die geprüften Quellen. Die absoluten Komponenten-Referenzlimits von **280.000 Bytes XTension-Dateien** und **2.200.000 Bytes Framework-Anteil** bleiben bestehen; das relative Produktionsbudget wird weiterhin strikt gegen die erfassten Quellen und Ausgabebytes geprüft. Auch die bisherigen A04-Limits werden nicht angehoben.
 
-Diese beiden Folgeabschnitte schließen die zuletzt benannten Integrationslücken für das begrenzte Komponentenprofil. RMTX-Frontend/Syntaxentscheidung, allgemeine Ausdrucksprojektionen, Plattform-Lade-/Fallback-/Layoutpolicy und die vollständige 0.9-Feature-Abnahme bleiben eigenständige Arbeiten.
+Diese beiden Folgeabschnitte schließen die damals benannten Integrationslücken für das begrenzte Komponentenprofil. Die später angenommene Syntaxentscheidung, das produktive RMTX-Frontend einschließlich geschlossener Ausdrucksprojektionen und die Projekt-/Editorintegration A06.5 sind umgesetzt. Offen bleiben die in [A06.6](release-acceptance/implementation.md) geführten unterstützten Zielkombinationen, die ausdrückliche Lade-/Fallback-/Layoutpolicy und die gemeinsame 0.9-Feature-Abnahme. Die oben genannten historischen Ausführungsnachweise behalten ihre ursprüngliche Reichweite.

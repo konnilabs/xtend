@@ -1,5 +1,7 @@
 # A06 Vertiefung der RMT Operatorsemantik und TSX Machbarkeit
 
+**Aktuelle Einordnung vom 21. November 2026:** Dieser Bericht bleibt eine historische Entscheidungsvorbereitung vom 15. November. Inzwischen ist die [TSX-nahe deklarative RMTX-Syntax](syntax-decision.md) angenommen, der produktive Frontend-/Operatorumfang ist implementiert und [A06.5 – Projekt-/Editorintegration](project-tooling/implementation.md) ist umgesetzt und lokal geprüft. Die nachfolgend diskutierten Gegenkandidaten und offenen Syntaxfragen sind deshalb keine heutigen Architekturentscheidungen. Den noch offenen gemeinsamen Ziel- und Releaseabschluss beschreibt [A06.6](release-acceptance/implementation.md). Historische Probes, Fehlerbeobachtungen und Quellenpins behalten ihren ursprünglichen Stand; Source 4–8 bleibt für SSR/Adoption gesperrt.
+
 Stand: **15. November 2026**. Geprüfter Ausgangscommit: `02dcd815ebe4ddca196e82163191fe7360b95a05`. **Entscheidungsvorbereitung; keine beschlossene RMTX-Syntax und keine Änderung produktiver Sprach- oder Runtimeverträge.**
 
 **Nachtrag:** Die nachfolgend dokumentierten Backendfehler und Knowledge-Lücken beschreiben den Prüfstand vor der Korrektur. Die [Backend-Patches](operator-backend-fixes.md) und das [lokale MCP-Update](../mcp-local-update.md) schließen diese Befunde; die TSX-Empfehlung und ihre Abnahmekriterien bleiben bestehen. Historische Runtimebeobachtungen stehen im [Before-Fix-Nachweis](operator-runtime-evidence.before-fix.json), aktuelle Regressionen im Patchbericht.

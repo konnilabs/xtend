@@ -1,0 +1,1512 @@
+{
+  "schema": "xtend.rmtx.release-targets.v1",
+  "apiVersion": "1.0.0",
+  "targetVersion": "0.9.0",
+  "decision": {
+    "status": "scope-selected",
+    "date": "2026-11-21",
+    "userConfirmed": true
+  },
+  "releaseAcceptance": {
+    "status": "pending",
+    "acceptedForRelease": false,
+    "executionEvidence": null,
+    "milestone": "A06.6"
+  },
+  "entrypoints": [
+    {
+      "id": "rmtx-compiler8",
+      "path": "tools/rmt-language/rmtx-compiler.js",
+      "symbol": "compileRmtxSource",
+      "apiVersion": "8.0.0",
+      "versionSymbol": "RMTX_COMPILER_API_VERSION",
+      "scope": "authoring"
+    },
+    {
+      "id": "rmt-project1",
+      "path": "tools/rmt-language/rmt-project.js",
+      "symbol": "compileRmtProjectSource",
+      "apiVersion": "1.0.0",
+      "versionSymbol": "RMT_PROJECT_API_VERSION",
+      "scope": "authoring"
+    },
+    {
+      "id": "maraca-project1",
+      "path": "xtend-maraca/project-build.js",
+      "symbol": "buildMaracaProjectBundleAsync",
+      "apiVersion": "1.0.0",
+      "versionSymbol": "MARACA_PROJECT_API_VERSION",
+      "scope": "authoring"
+    },
+    {
+      "id": "retained-ssr-server2",
+      "path": "xtend-maraca/xtension-ssr.js",
+      "symbol": "renderMaracaXTensionSSR",
+      "apiVersion": "2.0.0",
+      "versionSymbol": "XTENSION_SSR_API_VERSION",
+      "scope": "retained-legacy-scoped-only"
+    },
+    {
+      "id": "retained-ssr-browser2",
+      "path": "xtend-maraca/xtension-ssr-runtime.mjs",
+      "symbol": "createMaracaXTensionSSRSession",
+      "apiVersion": "2.0.0",
+      "versionSymbol": "XTENSION_SSR_API_VERSION",
+      "scope": "retained-legacy-scoped-only"
+    }
+  ],
+  "sourceProfiles": [
+    {
+      "version": "1.0.0",
+      "compileSchema": "xtend.rmtx.compile-result.v1",
+      "composition": {
+        "manifestVersion": 6,
+        "artifactVersion": 7,
+        "csrPortVersion": 3,
+        "ssrStatus": "static-composition-blocked",
+        "referencePath": "development/rmtx-a06/automatic-reference.cjs"
+      },
+      "csrCoveragePath": "development/rmtx-a06/frontend/runtime-test.cjs"
+    },
+    {
+      "version": "2.0.0",
+      "compileSchema": "xtend.rmtx.compile-result.v2",
+      "composition": {
+        "manifestVersion": 6,
+        "artifactVersion": 7,
+        "csrPortVersion": 3,
+        "ssrStatus": "static-composition-blocked",
+        "referencePath": "development/rmtx-a06/automatic-reference.cjs"
+      },
+      "csrCoveragePath": "development/rmtx-a06/selector-profile/runtime-test.cjs"
+    },
+    {
+      "version": "3.0.0",
+      "compileSchema": "xtend.rmtx.compile-result.v3",
+      "composition": {
+        "manifestVersion": 7,
+        "artifactVersion": 8,
+        "csrPortVersion": 4,
+        "ssrStatus": "source-parity-pending",
+        "referencePath": "development/rmtx-a06/keyed-profile/reference.cjs"
+      },
+      "csrCoveragePath": "development/rmtx-a06/keyed-profile/runtime-test.cjs"
+    },
+    {
+      "version": "4.0.0",
+      "compileSchema": "xtend.rmtx.compile-result.v4",
+      "composition": {
+        "manifestVersion": 8,
+        "artifactVersion": 9,
+        "csrPortVersion": 6,
+        "ssrStatus": "guarded",
+        "referencePath": "development/rmtx-a06/orchestration-profile/reference.cjs"
+      },
+      "csrCoveragePath": "development/rmtx-a06/orchestration-profile/runtime-test.cjs"
+    },
+    {
+      "version": "5.0.0",
+      "compileSchema": "xtend.rmtx.compile-result.v5",
+      "composition": {
+        "manifestVersion": 9,
+        "artifactVersion": 10,
+        "csrPortVersion": 7,
+        "ssrStatus": "guarded",
+        "referencePath": "development/rmtx-a06/native-view-profile/reference.cjs"
+      },
+      "csrCoveragePath": "development/rmtx-a06/native-view-profile/runtime-test.cjs"
+    },
+    {
+      "version": "6.0.0",
+      "compileSchema": "xtend.rmtx.compile-result.v6",
+      "composition": {
+        "manifestVersion": 10,
+        "artifactVersion": 11,
+        "csrPortVersion": 8,
+        "ssrStatus": "guarded",
+        "referencePath": "development/rmtx-a06/lifecycle-profile/reference.cjs"
+      },
+      "csrCoveragePath": "development/rmtx-a06/lifecycle-profile/runtime-test.cjs"
+    },
+    {
+      "version": "7.0.0",
+      "compileSchema": "xtend.rmtx.compile-result.v7",
+      "composition": {
+        "manifestVersion": 11,
+        "artifactVersion": 12,
+        "csrPortVersion": 9,
+        "ssrStatus": "guarded",
+        "referencePath": "development/rmtx-a06/native-orchestration-profile/reference.cjs"
+      },
+      "csrCoveragePath": "development/rmtx-a06/native-orchestration-profile/runtime-test.cjs"
+    },
+    {
+      "version": "8.0.0",
+      "compileSchema": "xtend.rmtx.compile-result.v8",
+      "composition": {
+        "manifestVersion": 12,
+        "artifactVersion": 13,
+        "csrPortVersion": 10,
+        "ssrStatus": "guarded",
+        "referencePath": "development/rmtx-a06/native-component-catalog/reference.cjs"
+      },
+      "csrCoveragePath": "development/rmtx-a06/native-component-catalog/runtime-test.cjs"
+    }
+  ],
+  "targets": [
+    {
+      "projectModes": [
+        "standalone",
+        "project-rmtx-entry",
+        "project-classic-entry-effective-rmtx"
+      ],
+      "entrypointIds": [
+        "rmtx-compiler8",
+        "rmt-project1",
+        "maraca-project1"
+      ],
+      "selection": "selected-for-0.9",
+      "acceptance": "pending",
+      "id": "framework-csr",
+      "mode": "csr",
+      "frameworks": [
+        "react",
+        "vue"
+      ],
+      "sourceProfiles": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "implementation": "csr-present",
+      "capabilities": [
+        "client-restore",
+        "controlled-props",
+        "validated-intents",
+        "kernel-fabric"
+      ],
+      "positiveCases": [
+        "csr-source-1",
+        "csr-source-2",
+        "csr-source-3",
+        "csr-source-4",
+        "csr-source-5",
+        "csr-source-6",
+        "csr-source-7",
+        "csr-source-8",
+        "project-classic-entry-rmtx-dependency",
+        "project-rmtx-entry-classic-action"
+      ],
+      "negativeCases": [
+        "csr-invalid-boundary",
+        "project-pin-mismatch",
+        "extra-framework-denied"
+      ]
+    },
+    {
+      "projectModes": [
+        "standalone",
+        "project-rmtx-entry",
+        "project-classic-entry-effective-rmtx"
+      ],
+      "entrypointIds": [
+        "rmtx-compiler8",
+        "rmt-project1",
+        "maraca-project1"
+      ],
+      "selection": "selected-for-0.9",
+      "acceptance": "pending",
+      "id": "native-csr",
+      "mode": "csr",
+      "frameworks": [
+        "native"
+      ],
+      "sourceProfiles": [
+        5,
+        6,
+        7,
+        8
+      ],
+      "implementation": "csr-present",
+      "capabilities": [
+        "native-view",
+        "client-restore",
+        "kernel-fabric",
+        "managed-client-activation"
+      ],
+      "positiveCases": [
+        "csr-source-5",
+        "csr-source-6",
+        "csr-source-7",
+        "csr-source-8",
+        "kernel-fabric-admission"
+      ],
+      "negativeCases": [
+        "csr-invalid-boundary",
+        "csr-hydrate-not-adoption"
+      ]
+    },
+    {
+      "projectModes": [
+        "standalone",
+        "project-rmtx-entry",
+        "project-classic-entry-effective-rmtx"
+      ],
+      "entrypointIds": [
+        "rmtx-compiler8",
+        "rmt-project1",
+        "maraca-project1",
+        "retained-ssr-server2",
+        "retained-ssr-browser2"
+      ],
+      "selection": "selected-for-0.9",
+      "acceptance": "pending",
+      "id": "framework-node-ssr",
+      "mode": "node-ssr-sync",
+      "frameworks": [
+        "react",
+        "vue"
+      ],
+      "sourceProfiles": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "implementation": "pending-versioned-handoff",
+      "capabilities": [
+        "signed-restore",
+        "dom-identity-adoption",
+        "declared-provider-intent-replay",
+        "limited-mount-fallback",
+        "kernel-fabric"
+      ],
+      "positiveCases": [
+        "ssr-native-react-vue",
+        "ssr-restore-adopt-replay",
+        "ssr-typed-nested-keys",
+        "ssr-intent-dedupe",
+        "ssr-limited-mount-fallback",
+        "project-classic-entry-rmtx-dependency",
+        "project-rmtx-entry-classic-action",
+        "classic-compatibility",
+        "ssr-source-1",
+        "ssr-source-2",
+        "ssr-source-3",
+        "ssr-source-4",
+        "ssr-source-5",
+        "ssr-source-6",
+        "ssr-source-7",
+        "ssr-source-8"
+      ],
+      "negativeCases": [
+        "ssr-invalid-signature-expiry",
+        "ssr-identity-mismatch",
+        "ssr-shell-container-tamper",
+        "ssr-invalid-replay-batch",
+        "ssr-cancel-no-late-work",
+        "ssr-old-wire-not-upgraded",
+        "ssr-async-streaming-denied",
+        "portable-rmtx-node-php-denied",
+        "ssr-adoption-error-no-fallback"
+      ]
+    },
+    {
+      "projectModes": [
+        "standalone",
+        "project-rmtx-entry",
+        "project-classic-entry-effective-rmtx"
+      ],
+      "entrypointIds": [
+        "rmtx-compiler8",
+        "rmt-project1",
+        "maraca-project1",
+        "retained-ssr-server2",
+        "retained-ssr-browser2"
+      ],
+      "selection": "selected-for-0.9",
+      "acceptance": "pending",
+      "id": "native-node-ssr",
+      "mode": "node-ssr-sync",
+      "frameworks": [
+        "native"
+      ],
+      "sourceProfiles": [
+        5,
+        6,
+        7,
+        8
+      ],
+      "implementation": "pending-versioned-handoff",
+      "capabilities": [
+        "native-light-dom",
+        "stable-managed-host-shells",
+        "signed-restore",
+        "managed-client-activation",
+        "kernel-fabric"
+      ],
+      "positiveCases": [
+        "ssr-native-react-vue",
+        "ssr-typed-nested-keys",
+        "ssr-restore-adopt-replay",
+        "ssr-source-5",
+        "ssr-source-6",
+        "ssr-source-7",
+        "ssr-source-8"
+      ],
+      "negativeCases": [
+        "ssr-identity-mismatch",
+        "ssr-shell-container-tamper",
+        "native-event-replay-denied",
+        "native-shadow-ssr-denied",
+        "csr-hydrate-not-adoption"
+      ]
+    }
+  ],
+  "policies": [
+    {
+      "id": "authority",
+      "rules": {
+        "ownerChain": [
+          "model",
+          "kernel",
+          "fabric",
+          "surface"
+        ],
+        "parallelController": false,
+        "restoreBeforeAdoption": true,
+        "adoptionBeforeProviderReplay": true
+      },
+      "positiveCases": [
+        "kernel-fabric-admission",
+        "ssr-restore-adopt-replay"
+      ],
+      "negativeCases": [
+        "csr-invalid-boundary",
+        "ssr-identity-mismatch"
+      ]
+    },
+    {
+      "id": "lanes",
+      "rules": {
+        "names": [
+          "user-blocking",
+          "visible",
+          "transition",
+          "idle",
+          "background",
+          "diagnostics"
+        ],
+        "source6Mount": [
+          "visible"
+        ],
+        "source7And8Mount": "all-six",
+        "meaning": "kernel-priority",
+        "strategy": "separate",
+        "viewportActivation": false,
+        "noAdmission": "remain-unmounted"
+      },
+      "positiveCases": [
+        "lane-forwarding"
+      ],
+      "negativeCases": [
+        "lane-invalid-retained-source6",
+        "no-admission-no-load"
+      ]
+    },
+    {
+      "id": "loading",
+      "rules": {
+        "provider": "on-admitted-mount",
+        "chain": [
+          "kernel",
+          "fabric",
+          "provider",
+          "peers",
+          "synchronous-factory",
+          "root"
+        ],
+        "peerProfiles": "retain-versioned-contracts",
+        "cancellation": "revoke-continuations-not-esm-transport",
+        "timeout": "explicit-timeoutMs-only",
+        "retry": "new-authorized-attempt-only",
+        "declarativeErrorTimeoutRetryUI": false,
+        "providerInternalCsrUI": true
+      },
+      "positiveCases": [
+        "kernel-fabric-admission",
+        "shared-import-cancel",
+        "explicit-retry"
+      ],
+      "negativeCases": [
+        "no-admission-no-load",
+        "timeout-no-retry-ui",
+        "ssr-cancel-no-late-work"
+      ]
+    },
+    {
+      "id": "ssr",
+      "rules": {
+        "server": "node",
+        "frameworks": [
+          "react",
+          "vue"
+        ],
+        "render": "synchronous-precompiled",
+        "streaming": false,
+        "nativeView": "light-dom-and-stable-managed-host-shells",
+        "managedInternals": "client-owned",
+        "replay": "declared-provider-intents-only",
+        "projectIdentity": "source-and-composition-and-project",
+        "newHandoff": "new-explicit-contract-version",
+        "legacyWire": "retain-unmodified"
+      },
+      "positiveCases": [
+        "ssr-native-react-vue",
+        "ssr-typed-nested-keys",
+        "ssr-intent-dedupe",
+        "classic-compatibility"
+      ],
+      "negativeCases": [
+        "ssr-async-streaming-denied",
+        "ssr-old-wire-not-upgraded",
+        "native-event-replay-denied",
+        "native-shadow-ssr-denied"
+      ]
+    },
+    {
+      "id": "fallback",
+      "rules": {
+        "default": "reject",
+        "optIn": "mount",
+        "allowedMismatch": "framework-subtree-only",
+        "requires": [
+          "valid-signed-unexpired-snapshot",
+          "exact-source-project-state-provider-interface-artifact-pins",
+          "current-owner-generation",
+          "unchanged-shell-exclusive-container"
+        ],
+        "replacementReport": "fallback-mounted",
+        "replacementPreservesDomIdentity": false
+      },
+      "positiveCases": [
+        "ssr-limited-mount-fallback"
+      ],
+      "negativeCases": [
+        "ssr-invalid-signature-expiry",
+        "ssr-identity-mismatch",
+        "ssr-shell-container-tamper",
+        "ssr-adoption-error-no-fallback"
+      ]
+    },
+    {
+      "id": "layout",
+      "rules": {
+        "owner": "author-container-and-styles",
+        "platformClsGuarantee": false,
+        "implicitReservation": false,
+        "byteBudgetsAreLayoutBudgets": false
+      },
+      "positiveCases": [
+        "author-owned-layout"
+      ],
+      "negativeCases": [
+        "no-implicit-layout-guarantee"
+      ]
+    },
+    {
+      "id": "provider-boundary",
+      "rules": {
+        "schemaOwner": "provider",
+        "liveIntentValidation": "each-intent-before-model-command",
+        "replayValidation": "whole-batch-before-first-model-command",
+        "crossOwnership": false,
+        "localUiState": "provider-local-under-host-lifetime",
+        "controlledModelStateAuthority": "model",
+        "deepLinkedState": "xtend-state",
+        "slots": "declared-owned-slots-only",
+        "automaticDeploymentMigration": false
+      },
+      "positiveCases": [
+        "provider-schema-authority",
+        "ssr-intent-dedupe"
+      ],
+      "negativeCases": [
+        "csr-invalid-boundary",
+        "ssr-invalid-replay-batch",
+        "cross-owner-slot-denied",
+        "deployment-migration-denied"
+      ]
+    }
+  ],
+  "exclusions": [
+    {
+      "id": "additional-frameworks",
+      "reason": "Zusätzliche Adapter benötigen eigene versionierte Folgeprofile.",
+      "negativeCases": [
+        "extra-framework-denied"
+      ]
+    },
+    {
+      "id": "streaming-async-ssr",
+      "reason": "0.9 wählt synchrones Node-SSR mit vorkompilierten Providern.",
+      "negativeCases": [
+        "ssr-async-streaming-denied"
+      ]
+    },
+    {
+      "id": "portable-rmtx-pages",
+      "reason": "Portable RMTX-Page-Ausgabe für Node/PHP bleibt ausgeschlossen; vorhandene Classic-Ausgabe bleibt erhalten.",
+      "negativeCases": [
+        "portable-rmtx-node-php-denied"
+      ]
+    },
+    {
+      "id": "cross-owner-slots-portals",
+      "reason": "Keine implizite Besitzübertragung zwischen Frameworks.",
+      "negativeCases": [
+        "cross-owner-slot-denied"
+      ]
+    },
+    {
+      "id": "isolated-untrusted-hosts",
+      "reason": "Trusted Provider sind keine Fremdcode-Sandbox.",
+      "negativeCases": [
+        "isolated-host-denied"
+      ]
+    },
+    {
+      "id": "automatic-deployment-migration",
+      "reason": "Resume braucht exakte versionierte Formen und Pins.",
+      "negativeCases": [
+        "deployment-migration-denied"
+      ]
+    },
+    {
+      "id": "arbitrary-ssr-pwa-services",
+      "reason": "Keine pauschale Freigabe sämtlicher Plattformkombinationen.",
+      "negativeCases": [
+        "arbitrary-platform-combinations-denied"
+      ]
+    },
+    {
+      "id": "universal-native-event-replay",
+      "reason": "Der bestehende Replaykanal transportiert deklarierte Providerintents.",
+      "negativeCases": [
+        "native-event-replay-denied"
+      ]
+    },
+    {
+      "id": "automatic-error-timeout-retry-ui",
+      "reason": "Plattformweite deklarative Ersatzdarstellung ist ausgeschlossen; providerinternes CSR-UI bleibt möglich.",
+      "negativeCases": [
+        "timeout-no-retry-ui"
+      ]
+    },
+    {
+      "id": "platform-layout-guarantee",
+      "reason": "Layoutreservierung ist Authorverantwortung.",
+      "negativeCases": [
+        "no-implicit-layout-guarantee"
+      ]
+    },
+    {
+      "id": "server-managed-internals",
+      "reason": "Native RMTX-Light-DOM und stabile verwaltete Host-Shells; kein serverseitiges Ausführen nativer Custom-Element-/Shadow-DOM-/Serviceinternas.",
+      "negativeCases": [
+        "native-shadow-ssr-denied"
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "id": "csr-source-1",
+      "kind": "positive",
+      "status": "planned",
+      "phase": "A06.6.4",
+      "expectation": "Eine produktive Source1-Quelle behält ihr versioniertes CSR-Verhalten, kontrollierte Daten und Cleanup; kein Skip ersetzt den Lauf. Der Pflichtfall läuft je ausgewähltem Framework und in allen drei Projektmodi; vorhandene Teilfixtures belegen diese Gesamtabdeckung noch nicht. Beide Frameworks in Standalone, RMTX-Projekteinstieg und Classic-Projekteinstieg mit effektivem RMTX-Profil prüfen; ab Source5 zusätzlich die native View.",
+      "referencePaths": [
+        "development/rmtx-a06/frontend/runtime-test.cjs"
+      ],
+      "coverage": {
+        "targetIds": [
+          "framework-csr"
+        ],
+        "sourceProfiles": [
+          1
+        ],
+        "frameworks": [
+          "react",
+          "vue"
+        ],
+        "projectModes": [
+          "standalone",
+          "project-rmtx-entry",
+          "project-classic-entry-effective-rmtx"
+        ]
+      }
+    },
+    {
+      "id": "csr-source-2",
+      "kind": "positive",
+      "status": "planned",
+      "phase": "A06.6.4",
+      "expectation": "Eine produktive Source2-Quelle behält ihr versioniertes CSR-Verhalten, kontrollierte Daten und Cleanup; kein Skip ersetzt den Lauf. Der Pflichtfall läuft je ausgewähltem Framework und in allen drei Projektmodi; vorhandene Teilfixtures belegen diese Gesamtabdeckung noch nicht. Beide Frameworks in Standalone, RMTX-Projekteinstieg und Classic-Projekteinstieg mit effektivem RMTX-Profil prüfen; ab Source5 zusätzlich die native View.",
+      "referencePaths": [
+        "development/rmtx-a06/selector-profile/runtime-test.cjs"
+      ],
+      "coverage": {
+        "targetIds": [
+          "framework-csr"
+        ],
+        "sourceProfiles": [
+          2
+        ],
+        "frameworks": [
+          "react",
+          "vue"
+        ],
+        "projectModes": [
+          "standalone",
+          "project-rmtx-entry",
+          "project-classic-entry-effective-rmtx"
+        ]
+      }
+    },
+    {
+      "id": "csr-source-3",
+      "kind": "positive",
+      "status": "planned",
+      "phase": "A06.6.4",
+      "expectation": "Eine produktive Source3-Quelle behält ihr versioniertes CSR-Verhalten, kontrollierte Daten und Cleanup; kein Skip ersetzt den Lauf. Der Pflichtfall läuft je ausgewähltem Framework und in allen drei Projektmodi; vorhandene Teilfixtures belegen diese Gesamtabdeckung noch nicht. Beide Frameworks in Standalone, RMTX-Projekteinstieg und Classic-Projekteinstieg mit effektivem RMTX-Profil prüfen; ab Source5 zusätzlich die native View.",
+      "referencePaths": [
+        "development/rmtx-a06/keyed-profile/runtime-test.cjs"
+      ],
+      "coverage": {
+        "targetIds": [
+          "framework-csr"
+        ],
+        "sourceProfiles": [
+          3
+        ],
+        "frameworks": [
+          "react",
+          "vue"
+        ],
+        "projectModes": [
+          "standalone",
+          "project-rmtx-entry",
+          "project-classic-entry-effective-rmtx"
+        ]
+      }
+    },
+    {
+      "id": "csr-source-4",
+      "kind": "positive",
+      "status": "planned",
+      "phase": "A06.6.4",
+      "expectation": "Eine produktive Source4-Quelle behält ihr versioniertes CSR-Verhalten, kontrollierte Daten und Cleanup; kein Skip ersetzt den Lauf. Der Pflichtfall läuft je ausgewähltem Framework und in allen drei Projektmodi; vorhandene Teilfixtures belegen diese Gesamtabdeckung noch nicht. Beide Frameworks in Standalone, RMTX-Projekteinstieg und Classic-Projekteinstieg mit effektivem RMTX-Profil prüfen; ab Source5 zusätzlich die native View.",
+      "referencePaths": [
+        "development/rmtx-a06/orchestration-profile/runtime-test.cjs"
+      ],
+      "coverage": {
+        "targetIds": [
+          "framework-csr"
+        ],
+        "sourceProfiles": [
+          4
+        ],
+        "frameworks": [
+          "react",
+          "vue"
+        ],
+        "projectModes": [
+          "standalone",
+          "project-rmtx-entry",
+          "project-classic-entry-effective-rmtx"
+        ]
+      }
+    },
+    {
+      "id": "csr-source-5",
+      "kind": "positive",
+      "status": "planned",
+      "phase": "A06.6.4",
+      "expectation": "Eine produktive Source5-Quelle behält ihr versioniertes CSR-Verhalten, kontrollierte Daten und Cleanup; kein Skip ersetzt den Lauf. Der Pflichtfall läuft je ausgewähltem Framework und in allen drei Projektmodi; vorhandene Teilfixtures belegen diese Gesamtabdeckung noch nicht. Beide Frameworks in Standalone, RMTX-Projekteinstieg und Classic-Projekteinstieg mit effektivem RMTX-Profil prüfen; ab Source5 zusätzlich die native View.",
+      "referencePaths": [
+        "development/rmtx-a06/native-view-profile/runtime-test.cjs"
+      ],
+      "coverage": {
+        "targetIds": [
+          "framework-csr",
+          "native-csr"
+        ],
+        "sourceProfiles": [
+          5
+        ],
+        "frameworks": [
+          "react",
+          "vue",
+          "native"
+        ],
+        "projectModes": [
+          "standalone",
+          "project-rmtx-entry",
+          "project-classic-entry-effective-rmtx"
+        ]
+      }
+    },
+    {
+      "id": "csr-source-6",
+      "kind": "positive",
+      "status": "planned",
+      "phase": "A06.6.4",
+      "expectation": "Eine produktive Source6-Quelle behält ihr versioniertes CSR-Verhalten, kontrollierte Daten und Cleanup; kein Skip ersetzt den Lauf. Der Pflichtfall läuft je ausgewähltem Framework und in allen drei Projektmodi; vorhandene Teilfixtures belegen diese Gesamtabdeckung noch nicht. Beide Frameworks in Standalone, RMTX-Projekteinstieg und Classic-Projekteinstieg mit effektivem RMTX-Profil prüfen; ab Source5 zusätzlich die native View.",
+      "referencePaths": [
+        "development/rmtx-a06/lifecycle-profile/runtime-test.cjs"
+      ],
+      "coverage": {
+        "targetIds": [
+          "framework-csr",
+          "native-csr"
+        ],
+        "sourceProfiles": [
+          6
+        ],
+        "frameworks": [
+          "react",
+          "vue",
+          "native"
+        ],
+        "projectModes": [
+          "standalone",
+          "project-rmtx-entry",
+          "project-classic-entry-effective-rmtx"
+        ]
+      }
+    },
+    {
+      "id": "csr-source-7",
+      "kind": "positive",
+      "status": "planned",
+      "phase": "A06.6.4",
+      "expectation": "Eine produktive Source7-Quelle behält ihr versioniertes CSR-Verhalten, kontrollierte Daten und Cleanup; kein Skip ersetzt den Lauf. Der Pflichtfall läuft je ausgewähltem Framework und in allen drei Projektmodi; vorhandene Teilfixtures belegen diese Gesamtabdeckung noch nicht. Beide Frameworks in Standalone, RMTX-Projekteinstieg und Classic-Projekteinstieg mit effektivem RMTX-Profil prüfen; ab Source5 zusätzlich die native View.",
+      "referencePaths": [
+        "development/rmtx-a06/native-orchestration-profile/runtime-test.cjs"
+      ],
+      "coverage": {
+        "targetIds": [
+          "framework-csr",
+          "native-csr"
+        ],
+        "sourceProfiles": [
+          7
+        ],
+        "frameworks": [
+          "react",
+          "vue",
+          "native"
+        ],
+        "projectModes": [
+          "standalone",
+          "project-rmtx-entry",
+          "project-classic-entry-effective-rmtx"
+        ]
+      }
+    },
+    {
+      "id": "csr-source-8",
+      "kind": "positive",
+      "status": "planned",
+      "phase": "A06.6.4",
+      "expectation": "Eine produktive Source8-Quelle behält ihr versioniertes CSR-Verhalten, kontrollierte Daten und Cleanup; kein Skip ersetzt den Lauf. Der Pflichtfall läuft je ausgewähltem Framework und in allen drei Projektmodi; vorhandene Teilfixtures belegen diese Gesamtabdeckung noch nicht. Beide Frameworks in Standalone, RMTX-Projekteinstieg und Classic-Projekteinstieg mit effektivem RMTX-Profil prüfen; ab Source5 zusätzlich die native View.",
+      "referencePaths": [
+        "development/rmtx-a06/native-component-catalog/runtime-test.cjs"
+      ],
+      "coverage": {
+        "targetIds": [
+          "framework-csr",
+          "native-csr"
+        ],
+        "sourceProfiles": [
+          8
+        ],
+        "frameworks": [
+          "react",
+          "vue",
+          "native"
+        ],
+        "projectModes": [
+          "standalone",
+          "project-rmtx-entry",
+          "project-classic-entry-effective-rmtx"
+        ]
+      }
+    },
+    {
+      "id": "csr-invalid-boundary",
+      "kind": "negative",
+      "status": "planned",
+      "phase": "A06.6.4",
+      "expectation": "Fremde Owner, alte Generationen sowie nicht deklarierte Props/Intents bewirken weder Rootarbeit noch Modelkommando.",
+      "referencePaths": [
+        "tests/xtensions/component-interface.test.cjs"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "project-classic-entry-rmtx-dependency",
+      "kind": "positive",
+      "status": "planned",
+      "phase": "A06.6.4",
+      "expectation": "Classic-Einstieg mit transitiver RMTX-Abhängigkeit bewahrt effektives RMTX-Profil, Quellenidentität und Providerpins.",
+      "referencePaths": [
+        "tests/rmt-language/rmt-project-integrations.test.cjs"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "project-rmtx-entry-classic-action",
+      "kind": "positive",
+      "status": "planned",
+      "phase": "A06.6.4",
+      "expectation": "RMTX-Einstieg verwendet importierte Classic-Action im selben Model- und Kernelvertrag.",
+      "referencePaths": [
+        "development/rmtx-a06/project-tooling/runtime/runtime-test.cjs"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "project-pin-mismatch",
+      "kind": "negative",
+      "status": "planned",
+      "phase": "A06.6.4",
+      "expectation": "Eine veraltete Quell-/Projekt-/Provideridentität wird vor Providerarbeit zurückgewiesen.",
+      "referencePaths": [
+        "tests/rmt-language/rmt-project.test.cjs"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "classic-compatibility",
+      "kind": "positive",
+      "status": "planned",
+      "phase": "A06.6.4",
+      "expectation": "Erhaltene Classic-CSR- und Komponenten-SSR-v1/v2-Wege behalten ihre eigenen Versionen und Wirkung.",
+      "referencePaths": [
+        "scripts/test_xtensions_ssr.cjs",
+        "development/rmtx-a06/scoped-ssr-test.cjs"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "ssr-native-react-vue",
+      "kind": "positive",
+      "status": "planned",
+      "phase": "A06.6.2",
+      "expectation": "Gemischtes Produktionsprojekt rendert native Light-DOM-View und getrennte React-/Vue-Hosts synchron unter Node; der Browser übernimmt Frameworkknoten und aktiviert native Besitzer erst nach Restore. Verwaltete Komponenten erhalten stabile Host-Shells; ihre Shadow-DOM-Interna laufen nicht auf dem Server.",
+      "referencePaths": [
+        "development/rmtx-a06/project-tooling/runtime/runtime-test.cjs",
+        "scripts/test_xtensions_ssr.cjs"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "ssr-restore-adopt-replay",
+      "kind": "positive",
+      "status": "planned",
+      "phase": "A06.6.2",
+      "expectation": "Signatur/Identität verifiziert → Model vollständig restauriert → alle Hostziele übernommen → validierter Providerintentbatch ausgeführt; tatsächliche DOM-Identität messen.",
+      "referencePaths": [
+        "xtend-maraca/xtension-ssr-runtime.mjs",
+        "scripts/test_xtensions_ssr.cjs"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "ssr-typed-nested-keys",
+      "kind": "positive",
+      "status": "planned",
+      "phase": "A06.6.2",
+      "expectation": "Zahlen- und Stringkeys bleiben verschieden; verschachtelte Presence/Repeats, Reordering, Reinkarnation und leere Hostmengen behalten die richtige Besitzer-/Generationsidentität.",
+      "referencePaths": [
+        "development/rmtx-a06/keyed-profile/reference.cjs",
+        "scripts/test_xtensions_ssr.cjs"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "ssr-intent-dedupe",
+      "kind": "positive",
+      "status": "planned",
+      "phase": "A06.6.2",
+      "expectation": "Deklarierte Providerintents werden als kompletter Batch validiert, dedupliziert und mit während Adoption gehaltenen Liveintents geordnet freigegeben.",
+      "referencePaths": [
+        "scripts/test_xtensions_ssr.cjs"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "ssr-limited-mount-fallback",
+      "kind": "positive",
+      "status": "planned",
+      "phase": "A06.6.2",
+      "expectation": "Nur gültiger Snapshot plus abweichender Frameworkunterbaum plus ausdrückliches mount erlaubt Ersatz; Bericht fallback-mounted ohne DOM-Identitätsbehauptung.",
+      "referencePaths": [
+        "scripts/test_xtensions_ssr.cjs"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "ssr-invalid-signature-expiry",
+      "kind": "negative",
+      "status": "planned",
+      "phase": "A06.6.2",
+      "expectation": "Falsche Signatur, Herkunft oder abgelaufener Snapshot scheitern vor Restore und Providerimport/Peerarbeit.",
+      "referencePaths": [
+        "scripts/test_xtensions_ssr.cjs"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "ssr-identity-mismatch",
+      "kind": "negative",
+      "status": "planned",
+      "phase": "A06.6.2",
+      "expectation": "Quell-/Projekt-/State-/Provider-/Interface-/Artefaktpins, Host-/Intentgeneration oder eine vom vertrauenswürdigen Verifier abgelehnte Snapshotgeneration scheitern vor Frameworkarbeit. Kein eingebauter globaler Latest-Snapshot-Schutz wird behauptet.",
+      "referencePaths": [
+        "scripts/test_xtensions_ssr.cjs"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "ssr-shell-container-tamper",
+      "kind": "negative",
+      "status": "planned",
+      "phase": "A06.6.2",
+      "expectation": "Überlappende, fremde oder nach Prüfung mutierte Shells/Container erhalten keine Adoption oder Fallbackrechte.",
+      "referencePaths": [
+        "scripts/test_xtensions_ssr.cjs"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "ssr-invalid-replay-batch",
+      "kind": "negative",
+      "status": "planned",
+      "phase": "A06.6.2",
+      "expectation": "Ein ungültiger Eintrag oder widersprüchliche identische Intent-ID verhindert den gesamten Batch vor dem ersten Modelkommando.",
+      "referencePaths": [
+        "scripts/test_xtensions_ssr.cjs"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "ssr-cancel-no-late-work",
+      "kind": "negative",
+      "status": "planned",
+      "phase": "A06.6.2",
+      "expectation": "Abbruch während Restore/Adoption/Loader verhindert späte Root-, DOM-, Ressourcen- und Modelwirkung.",
+      "referencePaths": [
+        "scripts/test_xtensions_ssr.cjs"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "ssr-old-wire-not-upgraded",
+      "kind": "negative",
+      "status": "planned",
+      "phase": "A06.6.2",
+      "expectation": "Alte Source-/SSR-v1/v2-Daten erhalten keine neue Fähigkeit durch still erweiterte Felder oder gelockerte Guards.",
+      "referencePaths": [
+        "xtend-maraca/plan-runtime.mjs",
+        "xtend-maraca/xtension-composition-runtime.mjs"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "ssr-async-streaming-denied",
+      "kind": "negative",
+      "status": "planned",
+      "phase": "A06.6.2",
+      "expectation": "Explizite Streaming-/asynchrone Render-/Adoptionsprofile und bekannte asynchrone Root-/Suspense-/Teleportformen scheitern im synchronen Vertrag. Asynchrone Provider-/Peerloader bleiben erlaubt; keine vollständige Analyse beliebiger trusted Providerprogramme wird behauptet.",
+      "referencePaths": [
+        "development/rmtx-a05/README.md"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "csr-hydrate-not-adoption",
+      "kind": "negative",
+      "status": "planned",
+      "phase": "A06.6.4",
+      "expectation": "Source7/8-Hydrate als Contentaktivierung erzeugt weder SSR-Adoption noch universelles natives Ereignisreplay.",
+      "referencePaths": [
+        "development/rmtx-a06/native-orchestration-profile/runtime-test.cjs"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "portable-rmtx-node-php-denied",
+      "kind": "negative",
+      "status": "planned",
+      "phase": "A06.6.4",
+      "expectation": "Portable Page-Ausgabe verweigert .rmtx sowie Classic-Einstieg mit effektiver RMTX-Abhängigkeit unter Node und PHP.",
+      "referencePaths": [
+        "tools/rmt-language/page-build.js",
+        "tests/rmt-language/rmt-project-integrations.test.cjs"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "kernel-fabric-admission",
+      "kind": "positive",
+      "status": "planned",
+      "phase": "A06.6.4",
+      "expectation": "Ein zugelassener echter Kerneljob delegiert durch Fabric; erfolgreicher Render aktiviert aktuelle Ressourcen und benannte Arbeit.",
+      "referencePaths": [
+        "tests/xtensions/kernel-runtime-acceptance.js"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "lane-forwarding",
+      "kind": "positive",
+      "status": "planned",
+      "phase": "A06.6.4",
+      "expectation": "Source7/8 geben jede der sechs erlaubten Lanes unverändert an Kernel/Plattform weiter; Strategie bleibt separat.",
+      "referencePaths": [
+        "tools/rmt-language/rmtx-native-lifecycle.js",
+        "xtend-maraca/native-orchestration-core.mjs"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "lane-invalid-retained-source6",
+      "kind": "negative",
+      "status": "planned",
+      "phase": "A06.6.4",
+      "expectation": "Unbekannte Lane scheitert; retained Source6 erlaubt weiterhin nur visible für Mount.",
+      "referencePaths": [
+        "tools/rmt-language/rmtx-parser.js",
+        "tools/xtensions/native-lifecycle.js"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "no-admission-no-load",
+      "kind": "negative",
+      "status": "planned",
+      "phase": "A06.6.4",
+      "expectation": "Ohne tatsächliche Admission bleibt der Host ungemountet; kein Providerimport, Lanewechsel oder implizites Ersatz-UI.",
+      "referencePaths": [
+        "tests/xtensions/kernel-runtime-acceptance.js"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "shared-import-cancel",
+      "kind": "positive",
+      "status": "planned",
+      "phase": "A06.6.4",
+      "expectation": "Geschwister dürfen denselben laufenden Providerimport teilen; Dispose eines Wartenden widerruft ausschließlich dessen Fortsetzung.",
+      "referencePaths": [
+        "development/rmtx-a04/loading.md"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "explicit-retry",
+      "kind": "positive",
+      "status": "planned",
+      "phase": "A06.6.4",
+      "expectation": "Ein später neu autorisierter Versuch darf nach Fehlerbereinigung denselben vertrauenswürdigen Loader erneut aufrufen.",
+      "referencePaths": [
+        "development/rmtx-a04/loading.md"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "timeout-no-retry-ui",
+      "kind": "negative",
+      "status": "planned",
+      "phase": "A06.6.4",
+      "expectation": "Explizites timeoutMs führt zu timeout_exceeded ohne automatischen Retry, Cachebuster, Integritätswechsel oder UI-Erfolgsbericht; ESM-Transport gilt nicht als rückwirkend abgebrochen.",
+      "referencePaths": [
+        "xtendrmt/rmt-kernel-scheduler.js",
+        "development/rmtx-a04/loading.md"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "author-owned-layout",
+      "kind": "positive",
+      "status": "planned",
+      "phase": "A06.6.4",
+      "expectation": "Authorcontainer und Styles definieren Layout und eine gegebenenfalls benötigte Reservierung; Größenbudgets bleiben Bytebudgets.",
+      "referencePaths": [
+        "development/rmtx-a06/native-view-profile/README.md"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "no-implicit-layout-guarantee",
+      "kind": "negative",
+      "status": "planned",
+      "phase": "A06.6.4",
+      "expectation": "Keine Lane, kein Hydrate und kein Bytebudget werden als plattformweite CLS- oder Reservierungsgarantie ausgegeben.",
+      "referencePaths": [
+        "development/rmtx-a04/loading.md"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "provider-schema-authority",
+      "kind": "positive",
+      "status": "planned",
+      "phase": "A06.6.4",
+      "expectation": "Provider besitzt versionierte Prop-/Intentschemata; validiertes Mapping führt über bestehendes Model und Kernel/Fabric.",
+      "referencePaths": [
+        "development/rmtx-a06/component-interface.md"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "cross-owner-slot-denied",
+      "kind": "negative",
+      "status": "planned",
+      "phase": "A06.6.4",
+      "expectation": "Nicht deklarierte Slots/Props/Intents, fremde Container und Cross-Framework-Portale erhalten keine zusätzlichen Grants.",
+      "referencePaths": [
+        "tests/xtensions/component-interface.test.cjs"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "extra-framework-denied",
+      "kind": "negative",
+      "status": "planned",
+      "phase": "A06.6.4",
+      "expectation": "Ein weiterer Adapter wie Angular, Vanilla oder OpenUI5 wird nicht als React-/Vue-Releaseziel akzeptiert.",
+      "referencePaths": [
+        "development/rmtx-a06/component-interface.md"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "isolated-host-denied",
+      "kind": "negative",
+      "status": "planned",
+      "phase": "A06.6.4",
+      "expectation": "Der vertrauenswürdige Providerpfad wird nicht als Sandbox für untrusted oder isolierte Fremdcodehosts ausgegeben.",
+      "referencePaths": [
+        "development/rmtx-a06/component-interface.md"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "deployment-migration-denied",
+      "kind": "negative",
+      "status": "planned",
+      "phase": "A06.6.2",
+      "expectation": "Ein Deploymentwechsel migriert alte Snapshot-/Propformen und Pins nicht automatisch.",
+      "referencePaths": [
+        "development/rmtx-a05/README.md"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "arbitrary-platform-combinations-denied",
+      "kind": "negative",
+      "status": "planned",
+      "phase": "A06.6.4",
+      "expectation": "Die Zielwahl behauptet keine beliebige Kombination von SSR, PWA und AppServices oder serverseitiger Service-I/O.",
+      "referencePaths": [
+        "development/rmtx-a06/native-component-catalog/matrix.v2.json"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "native-event-replay-denied",
+      "kind": "negative",
+      "status": "planned",
+      "phase": "A06.6.2",
+      "expectation": "Framework-Providerintentreplay ist kein Replay beliebiger nativer DOM-Events oder nativer Commands.",
+      "referencePaths": [
+        "xtend-maraca/xtension-ssr-runtime.mjs"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "native-shadow-ssr-denied",
+      "kind": "negative",
+      "status": "planned",
+      "phase": "A06.6.2",
+      "expectation": "Native Custom-Element-Klassen und deren interne Shadow-DOM-/Serviceausführung werden nicht implizit auf dem Server ausgeführt.",
+      "referencePaths": [
+        "development/rmtx-a06/native-component-catalog/implementation.md"
+      ],
+      "coverage": null
+    },
+    {
+      "id": "ssr-source-1",
+      "kind": "positive",
+      "status": "planned",
+      "phase": "A06.6.2",
+      "expectation": "Produktive Source1-Quelle durch synchronen Node-SSR-Handoff, verifizierten Restore, tatsächliche Browserübernahme und deklarierten Providerintentreplay führen; je ausgewähltem Framework in Standalone, RMTX-Projekteinstieg und Classic-Projekteinstieg mit effektivem RMTX-Profil. Source-/Kompositions-/Projektidentität getrennt prüfen; kein anderer Sourcefall ersetzt diesen Nachweis.",
+      "referencePaths": [
+        "development/rmtx-a06/frontend/runtime-test.cjs",
+        "scripts/test_xtensions_ssr.cjs",
+        "development/rmtx-a06/scoped-ssr-test.cjs"
+      ],
+      "coverage": {
+        "targetIds": [
+          "framework-node-ssr"
+        ],
+        "sourceProfiles": [
+          1
+        ],
+        "frameworks": [
+          "react",
+          "vue"
+        ],
+        "projectModes": [
+          "standalone",
+          "project-rmtx-entry",
+          "project-classic-entry-effective-rmtx"
+        ]
+      }
+    },
+    {
+      "id": "ssr-source-2",
+      "kind": "positive",
+      "status": "planned",
+      "phase": "A06.6.2",
+      "expectation": "Produktive Source2-Quelle durch synchronen Node-SSR-Handoff, verifizierten Restore, tatsächliche Browserübernahme und deklarierten Providerintentreplay führen; je ausgewähltem Framework in Standalone, RMTX-Projekteinstieg und Classic-Projekteinstieg mit effektivem RMTX-Profil. Source-/Kompositions-/Projektidentität getrennt prüfen; kein anderer Sourcefall ersetzt diesen Nachweis.",
+      "referencePaths": [
+        "development/rmtx-a06/selector-profile/runtime-test.cjs",
+        "scripts/test_xtensions_ssr.cjs",
+        "development/rmtx-a06/scoped-ssr-test.cjs"
+      ],
+      "coverage": {
+        "targetIds": [
+          "framework-node-ssr"
+        ],
+        "sourceProfiles": [
+          2
+        ],
+        "frameworks": [
+          "react",
+          "vue"
+        ],
+        "projectModes": [
+          "standalone",
+          "project-rmtx-entry",
+          "project-classic-entry-effective-rmtx"
+        ]
+      }
+    },
+    {
+      "id": "ssr-source-3",
+      "kind": "positive",
+      "status": "planned",
+      "phase": "A06.6.2",
+      "expectation": "Produktive Source3-Quelle durch synchronen Node-SSR-Handoff, verifizierten Restore, tatsächliche Browserübernahme und deklarierten Providerintentreplay führen; je ausgewähltem Framework in Standalone, RMTX-Projekteinstieg und Classic-Projekteinstieg mit effektivem RMTX-Profil. Source-/Kompositions-/Projektidentität getrennt prüfen; kein anderer Sourcefall ersetzt diesen Nachweis.",
+      "referencePaths": [
+        "development/rmtx-a06/keyed-profile/runtime-test.cjs",
+        "scripts/test_xtensions_ssr.cjs",
+        "development/rmtx-a06/scoped-ssr-test.cjs"
+      ],
+      "coverage": {
+        "targetIds": [
+          "framework-node-ssr"
+        ],
+        "sourceProfiles": [
+          3
+        ],
+        "frameworks": [
+          "react",
+          "vue"
+        ],
+        "projectModes": [
+          "standalone",
+          "project-rmtx-entry",
+          "project-classic-entry-effective-rmtx"
+        ]
+      }
+    },
+    {
+      "id": "ssr-source-4",
+      "kind": "positive",
+      "status": "planned",
+      "phase": "A06.6.2",
+      "expectation": "Produktive Source4-Quelle durch synchronen Node-SSR-Handoff, verifizierten Restore, tatsächliche Browserübernahme und deklarierten Providerintentreplay führen; je ausgewähltem Framework in Standalone, RMTX-Projekteinstieg und Classic-Projekteinstieg mit effektivem RMTX-Profil. Source-/Kompositions-/Projektidentität getrennt prüfen; kein anderer Sourcefall ersetzt diesen Nachweis.",
+      "referencePaths": [
+        "development/rmtx-a06/orchestration-profile/runtime-test.cjs",
+        "scripts/test_xtensions_ssr.cjs",
+        "development/rmtx-a06/scoped-ssr-test.cjs"
+      ],
+      "coverage": {
+        "targetIds": [
+          "framework-node-ssr"
+        ],
+        "sourceProfiles": [
+          4
+        ],
+        "frameworks": [
+          "react",
+          "vue"
+        ],
+        "projectModes": [
+          "standalone",
+          "project-rmtx-entry",
+          "project-classic-entry-effective-rmtx"
+        ]
+      }
+    },
+    {
+      "id": "ssr-source-5",
+      "kind": "positive",
+      "status": "planned",
+      "phase": "A06.6.2",
+      "expectation": "Produktive Source5-Quelle durch synchronen Node-SSR-Handoff, verifizierten Restore, tatsächliche Browserübernahme und deklarierten Providerintentreplay führen; je ausgewähltem Framework in Standalone, RMTX-Projekteinstieg und Classic-Projekteinstieg mit effektivem RMTX-Profil. Source-/Kompositions-/Projektidentität getrennt prüfen; kein anderer Sourcefall ersetzt diesen Nachweis.",
+      "referencePaths": [
+        "development/rmtx-a06/native-view-profile/runtime-test.cjs",
+        "scripts/test_xtensions_ssr.cjs",
+        "development/rmtx-a06/scoped-ssr-test.cjs"
+      ],
+      "coverage": {
+        "targetIds": [
+          "framework-node-ssr",
+          "native-node-ssr"
+        ],
+        "sourceProfiles": [
+          5
+        ],
+        "frameworks": [
+          "react",
+          "vue",
+          "native"
+        ],
+        "projectModes": [
+          "standalone",
+          "project-rmtx-entry",
+          "project-classic-entry-effective-rmtx"
+        ]
+      }
+    },
+    {
+      "id": "ssr-source-6",
+      "kind": "positive",
+      "status": "planned",
+      "phase": "A06.6.2",
+      "expectation": "Produktive Source6-Quelle durch synchronen Node-SSR-Handoff, verifizierten Restore, tatsächliche Browserübernahme und deklarierten Providerintentreplay führen; je ausgewähltem Framework in Standalone, RMTX-Projekteinstieg und Classic-Projekteinstieg mit effektivem RMTX-Profil. Source-/Kompositions-/Projektidentität getrennt prüfen; kein anderer Sourcefall ersetzt diesen Nachweis.",
+      "referencePaths": [
+        "development/rmtx-a06/lifecycle-profile/runtime-test.cjs",
+        "scripts/test_xtensions_ssr.cjs",
+        "development/rmtx-a06/scoped-ssr-test.cjs"
+      ],
+      "coverage": {
+        "targetIds": [
+          "framework-node-ssr",
+          "native-node-ssr"
+        ],
+        "sourceProfiles": [
+          6
+        ],
+        "frameworks": [
+          "react",
+          "vue",
+          "native"
+        ],
+        "projectModes": [
+          "standalone",
+          "project-rmtx-entry",
+          "project-classic-entry-effective-rmtx"
+        ]
+      }
+    },
+    {
+      "id": "ssr-source-7",
+      "kind": "positive",
+      "status": "planned",
+      "phase": "A06.6.2",
+      "expectation": "Produktive Source7-Quelle durch synchronen Node-SSR-Handoff, verifizierten Restore, tatsächliche Browserübernahme und deklarierten Providerintentreplay führen; je ausgewähltem Framework in Standalone, RMTX-Projekteinstieg und Classic-Projekteinstieg mit effektivem RMTX-Profil. Source-/Kompositions-/Projektidentität getrennt prüfen; kein anderer Sourcefall ersetzt diesen Nachweis.",
+      "referencePaths": [
+        "development/rmtx-a06/native-orchestration-profile/runtime-test.cjs",
+        "scripts/test_xtensions_ssr.cjs",
+        "development/rmtx-a06/scoped-ssr-test.cjs"
+      ],
+      "coverage": {
+        "targetIds": [
+          "framework-node-ssr",
+          "native-node-ssr"
+        ],
+        "sourceProfiles": [
+          7
+        ],
+        "frameworks": [
+          "react",
+          "vue",
+          "native"
+        ],
+        "projectModes": [
+          "standalone",
+          "project-rmtx-entry",
+          "project-classic-entry-effective-rmtx"
+        ]
+      }
+    },
+    {
+      "id": "ssr-source-8",
+      "kind": "positive",
+      "status": "planned",
+      "phase": "A06.6.2",
+      "expectation": "Produktive Source8-Quelle durch synchronen Node-SSR-Handoff, verifizierten Restore, tatsächliche Browserübernahme und deklarierten Providerintentreplay führen; je ausgewähltem Framework in Standalone, RMTX-Projekteinstieg und Classic-Projekteinstieg mit effektivem RMTX-Profil. Source-/Kompositions-/Projektidentität getrennt prüfen; kein anderer Sourcefall ersetzt diesen Nachweis.",
+      "referencePaths": [
+        "development/rmtx-a06/native-component-catalog/runtime-test.cjs",
+        "scripts/test_xtensions_ssr.cjs",
+        "development/rmtx-a06/scoped-ssr-test.cjs"
+      ],
+      "coverage": {
+        "targetIds": [
+          "framework-node-ssr",
+          "native-node-ssr"
+        ],
+        "sourceProfiles": [
+          8
+        ],
+        "frameworks": [
+          "react",
+          "vue",
+          "native"
+        ],
+        "projectModes": [
+          "standalone",
+          "project-rmtx-entry",
+          "project-classic-entry-effective-rmtx"
+        ]
+      }
+    },
+    {
+      "id": "ssr-adoption-error-no-fallback",
+      "kind": "negative",
+      "status": "planned",
+      "phase": "A06.6.2",
+      "expectation": "Tatsächlich fehlgeschlagene Framework-/Hydrationsübernahme bleibt auch bei fallback:mount ein Fehler; kein fallback-mounted-Erfolg und kein Replay nach fehlgeschlagener Adoption.",
+      "referencePaths": [
+        "scripts/test_xtensions_ssr.cjs"
+      ],
+      "coverage": null
+    }
+  ]
+}

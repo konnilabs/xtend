@@ -1,6 +1,8 @@
 # A06.4.2.1 – bedingte native Mount-Zulassung
 
-Stand: **19. November 2026**. Das explizite **Syntaxprofil6** ergänzt bedingtes `RMT.Mount` für statische native Surfaces. Dies ist der erste implementierte Teil von A06.4.2; weitere Lifecycleoperationen, native Surface-Wiederholungen und öffentliche Komponenten-/Slotverträge bleiben offen.
+**Statusfortschreibung vom 21. November 2026:** Der weitere native Lifecycleumfang einschließlich Surface-Repeats und geprüfter öffentlicher Slots ist inzwischen in [Source7](../native-orchestration-profile/README.md) implementiert; Source8 ergänzt den verwalteten Katalog. [A06.5](../project-tooling/implementation.md) ist implementiert und lokal geprüft. Nächster Gesamtabschnitt ist die gemeinsame Ziel-/Releaseabnahme [A06.6](../release-acceptance/implementation.md); formale Releasebelege bleiben offen. Maßgeblich ist der [zentrale Arbeitsstand](../../XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md). Dieser Bericht behält den geschlossenen Source6-Umfang.
+
+Stand des Source6-Vertrags: **19. November 2026**. Das explizite **Syntaxprofil6** ergänzt bedingtes `RMT.Mount` für statische native Surfaces. Dies ist der erste implementierte Teil von A06.4.2. Weitere Lifecycleoperationen, native Surface-Wiederholungen und geprüfte öffentliche Komponenten-/Slotverträge sind inzwischen im getrennten Source7-Profil implementiert und erweitern Source6 nicht rückwirkend.
 
 ```tsx
 import { RMT, model } from '@ccslabs/xtend/rmt-language/rmtx';
@@ -49,7 +51,7 @@ Manuelle Integrationen verwenden den eigenen Einstieg `createMaracaNativeLifecyc
 
 Die Compiler-, Protokoll-, Kompositions- und Laufzeittests prüfen geschlossene Versionen, Guardvalidierung, tatsächliche Model-/Surface-/Eventarbeit, unveränderte Controllergenerationen, Close/Resume, verspätete Jobs sowie Destroy/Kompaktion/Recreate. Der zugehörige Versuchsaufbau prüft den regulären Build und die Providergrenze. Statische Inspektion und ausgeführte Laufzeitbelege werden getrennt geführt.
 
-**Nicht freigegeben:** weitere bedingte Lifecycleoperationen und Lanes, native Surface-Repeats/Keys, allgemeine Slots/Customkomponenten, Source4–6-SSR/Adoption, semantische Projekt-/Editorintegration A06.5 und die gemeinsame Releaseabnahme A06.6. RMTX und XTensions2.0 bleiben Releasefeatures in Vorbereitung.
+**Nicht im Source6-Vertrag freigegeben:** weitere bedingte Lifecycleoperationen und Lanes, native Surface-Repeats/Keys sowie allgemeine Slots/Customkomponenten. Source4–6-SSR/Adoption bleibt gesperrt. Die inzwischen implementierte semantische Projekt-/Editorintegration A06.5 ist ein eigener äußerer Vertrag; sie erteilt keine zusätzliche SSR-Freigabe. Die gemeinsame Releaseabnahme A06.6 bleibt offen. RMTX und XTensions2.0 bleiben Releasefeatures in Vorbereitung.
 
 Die ausgeführten, quellgebundenen [Node24](verification/runtime-node24.json)-, [Node26](verification/runtime-node26.json)- und [Chromium](verification/runtime-browser.json)-Belege enthalten jeweils191 Quellfingerabdrücke. [Die vollständige Ergebniszuordnung](execution-evidence.json) trennt diese Ausführung von der statischen Inspektion. Die zusätzliche Runtimeregression deckt auch legale Surface-IDs wie `undefined` und fehlende optionale Ownerreferenzen ab.
 

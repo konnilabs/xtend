@@ -1,5 +1,7 @@
 # A06.4.2 – native Operatoren, Surface-Repeats und öffentliche Slots
 
+**Statusfortschreibung vom 21. November 2026:** Source8 erweitert den hier erhaltenen Source7-Vertrag um den verwalteten nativen Katalog. [A06.5](../project-tooling/implementation.md) ist implementiert und lokal geprüft. Die gemeinsame Ziel-/Releaseabnahme [A06.6](../release-acceptance/implementation.md) ist der nächste Gesamtabschnitt; vollständige Rollenabnahme und formale Evidenzbindung bleiben offen. Maßgeblich ist der [zentrale Arbeitsstand](../../XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md).
+
 Stand: 19. November 2026. Das explizite Syntaxprofil **7.0.0** führt den nativen A06.4.2-Umfang im bestehenden Worktree fort. Default1 und Quellprofile1–6 behalten ihre geschlossenen Verträge. Auswahl: `createRmtxCompiler({syntaxVersion:'7.0.0'})` beziehungsweise Maraca `rmtxSyntaxVersion:'7.0.0'`; gespeicherte Konfigurationen verwenden Config11. [Produktive Referenz](source.rmtx).
 
 ## Operationen und Autorität
@@ -63,7 +65,7 @@ Manuelle Integrationen verwenden `NATIVE_ORCHESTRATION_VIEW_RUNTIME`, `ORCHESTRA
 
 Die [statische Inspektion](inspect.cjs) und [ausgeführte Runtimeabnahme](runtime-test.cjs) sind getrennte Prüfschritte. Runtimeabnahmen führen die produktive Quelle mit echten React-/Vue-Providern durch den regulären Produktionsbuild; die Browserlane verwendet eine versiegelte ESM-Auslieferung. Die [Abbruchdiagnose und Wiederaufnahme](crash-resumption.md) hält die OOM-Befunde getrennt von Vermutungen fest. Schwere lokale Läufe werden nach dem OOM-Abbruch einzeln mit Heaplimit, Timeout und RSS-Messung ausgeführt. Der unveränderte Legacy-Delivery-Cap beträgt240000 Runtimebytes; der Produktionsprinter kürzt private lexikalische Bindungen bei erhaltenen Funktions-/Klassen- und Propertynamen.
 
-A06.5 (semantische Projekt-/Editorintegration) und A06.6 (gemeinsame Ziel-/Releaseabnahme) bleiben offen. Source4–7-SSR/Adoption und allgemeine Cross-Ownership-Slots sind nicht freigegeben. Beide Releasefeatures bleiben `preparing`.
+A06.5 (semantische Projekt-/Editorintegration) ist implementiert und lokal geprüft; seine formale Releaseevidenz bleibt gesondert zu binden. A06.6 (gemeinsame Ziel-/Releaseabnahme) bleibt offen. Source4–8-SSR/Adoption und allgemeine Cross-Ownership-Slots sind nicht freigegeben. Beide Releasefeatures bleiben `preparing`.
 
 Der [quellgebundene Ausführungsbeleg](execution-evidence.json) enthält je10 Runtimefälle und10 tatsächlich ausgeführte Compile-Gegenproben unter Node24, Node26 und sealed Chromium. Die drei [Verifikationsdateien](verification/) binden jeweils224 Quellen. Die zusätzliche Source7-Gatesuite besteht70 Fälle je Node-Lane, einschließlich Portalretention, unabhängigem Child-Detach sowie Cleanup nach Dispose, Membership-Verlust und externem Destroy; weitere Releaseprüfungen werden gesondert gebunden.
 

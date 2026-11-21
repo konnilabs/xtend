@@ -1,5 +1,7 @@
 # Geprüfte native Komponenten für Source7
 
+**Aktuelle Einordnung vom 21. November 2026:** Diese Seite bleibt die geschlossene Header-/Button-Teilmenge von Source7 und Katalog1. Der spätere [verwaltete Source8-Katalog2](../native-component-catalog/implementation.md) und [A06.5 – Projekt-/Editorintegration](../project-tooling/implementation.md) sind implementiert. Source8-Tags oder zusätzliche Fähigkeiten werden dadurch nicht in die folgenden Source7-Listen übernommen. Vollständige Rollenabnahme, unterstützte SSR-/Adoptionsziele und gemeinsame Releasebindung bleiben in [A06.6](../release-acceptance/implementation.md) offen.
+
 Stand: 19. November 2026. Der Katalog1 beschreibt eine **explizit geprüfte Capability-Teilmenge** vorhandener XTend-Komponenten. Ein `ShadowRoot` oder ein statischer öffentlicher Setter reicht für die Aufnahme nicht aus. Die bisherigen Classic-Komponenten werden durch diese RMTX-Freigabe nicht verändert.
 
 | Tag | Attribute | Properties | Native Slots |

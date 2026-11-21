@@ -1,8 +1,18 @@
 # VS-Code-Update für RMT Classic und RMTX
 
+## Aktueller Stand nach A06.5 – 21. November 2026
+
+Der zuletzt nachgewiesene lokale Installationsstand ist **0.3.0**. [A06.5](project-tooling/implementation.md) implementiert den semantischen RMTX-Sprachservice, gemischte Classic-/RMTX-Projekte und die ursprünglichen Dateien/Ranges für Diagnosen, Completion, Definitionen, Referenzen und Rename. Die gepackte Erweiterung enthält TypeScript 5.9.3 und LanguageClient 9; die Sprachserver- und Diagnoseverträge verwenden v2 und der gebündelte MCP Paketversion 0.2.0. Der [A06.5-Ausführungsbericht](project-tooling/execution-summary.md) verknüpft die tatsächlichen Paket- und Extension-Host-Prüfungen.
+
+Das geprüfte VSIX `xtend-rmt-language-0.3.0-r06b.vsix` wurde am **21. November 2026 um 00:31 Uhr (Europe/Berlin)** über die lokale VS-Code-CLI installiert. Der lokale Receipt `.xtend-test-results/rmtx-a065-install/installation-receipt.json` bestätigt Installations-Exit 0, Version 0.3.0, die registrierte Installation und vier bytegleich geprüfte zentrale Dateien. Die SHA-256 des installierten Ausgangspakets ist `3d65f3c6381fe09f8954739b8a366bdecc04a6452b55668bce61fe5bf60e3485`. Der Receipt weist `activationProven:false` aus; eine Aktivierung im bereits laufenden Benutzerhost wird daraus nicht abgeleitet. Lokale Artefakte sind keine im Checkout vorausgesetzten Releasebelege.
+
+A06.5 ist implementiert und lokal geprüft; die formale Releasebindung und die gemeinsame Freigabe beider Features bleiben [A06.6](release-acceptance/implementation.md). Dieser Dokumentationsabgleich installiert die Erweiterung nicht erneut und erzeugt keine neue Ausführungsevidenz.
+
+## Historischer Updatebericht – 15. November 2026
+
 Stand: **15. November 2026**. Lokale Erweiterung **0.2.3**, installiert über die offizielle CLI von **VS Code 1.145.2**. Das Update übernimmt die korrigierte native Surface-/View-Lifecycle-Runtime einschließlich des Fixes für vor dem Lifecycle-Publish getrimmte Controllerhistorie, die regulär neu erzeugten öffentlichen Kerneloutputs sowie das aktualisierte AI-Kit und Knowledge-Paket. [Der vollständige Nachweis](vscode-rmtx-update.json) bindet Paket, tatsächliche Installation, Backendquellen und Editorprüfungen.
 
-Die [Syntaxentscheidung](syntax-decision.md) bleibt angenommen. RMTX-Sprachmodus, TSX-Highlighting, Snippets und die eigenen RMT-/RMTX-Dateiicons bleiben erhalten. Das allgemeine produktive RMTX-Frontend und dessen semantischer Language Server sind mit diesem Editorupdate noch nicht implementiert.
+Die [Syntaxentscheidung](syntax-decision.md) bleibt angenommen. RMTX-Sprachmodus, TSX-Highlighting, Snippets und die eigenen RMT-/RMTX-Dateiicons bleiben erhalten. Das produktive RMTX-Frontend und dessen semantischer Language Server waren mit diesem damaligen Editorupdate 0.2.3 noch nicht implementiert; den späteren Abschluss durch A06.5 beschreibt der aktuelle Status oben.
 
 ## Paket und Installation
 
@@ -41,9 +51,9 @@ Zusätzlich sind grün:
 
 Die Dateiicons bleiben über **`contributes.languages[].icon`** eingebunden. Der echte Testhost bestätigt `vs-seti`; es wurden **keine User-/Workspace-Settings und kein Theme geändert**. Eine zusätzliche manuelle Explorer-Pixelabnahme wird nicht behauptet. Der offizielle [Language-default-icon-Vertrag](https://code.visualstudio.com/api/extension-guides/file-icon-theme#language-default-icons) beschreibt diesen Ergänzungsweg.
 
-## Bereits laufende Instanz
+## Bereits laufende Instanz – historischer Stand vom 15. November
 
-**Installiert und im isolierten echten Host aktiviert ist 0.2.3. Der laufende Benutzerhost wurde nicht durch den Agenten neu gestartet.** Der zuvor vom Nutzer ausgelöste Neustart und die Aktivierung von 0.2.1 um **21:38:09** wurden separat beobachtet. Für die nun installierte Version 0.2.3 wird keine Aktivierung in dieser laufenden Codex-Sitzung vorweggenommen.
+**Am 15. November war 0.2.3 installiert und im isolierten echten Host aktiviert. Der laufende Benutzerhost wurde dafür nicht durch den Agenten neu gestartet.** Der zuvor vom Nutzer ausgelöste Neustart und die Aktivierung von 0.2.1 um **21:38:09** wurden separat beobachtet. Für die damals installierte Version 0.2.3 wurde keine Aktivierung in der laufenden Codex-Sitzung vorweggenommen. Die spätere lokale Installation 0.3.0 ist oben getrennt dokumentiert.
 
 Wenn der aktualisierte Code in der laufenden Instanz übernommen werden soll, steht der Updatebutton **Restart Extensions** oder folgende Befehlspalettenaktion zur Verfügung:
 

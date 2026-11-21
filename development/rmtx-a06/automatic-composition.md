@@ -1,6 +1,8 @@
 # A04-Restabschnitt – Automatische Komponentenkomposition
 
-**Aktualisierung der Folgeabschnitte:** [Key-Scopes und Komponenten-SSR v2](scoped-components.md) sind inzwischen in einem eigenen neuen Profil implementiert. Der nachfolgende Text dokumentiert den jeweiligen vorherigen, weiterhin reproduzierbaren Vertragsstand.
+**Aktuelle Einordnung vom 21. November 2026:** [Key-Scopes und Komponenten-SSR v2](scoped-components.md) schließen die damaligen Folgeabschnitte in einem eigenen Profil. Die [Syntaxentscheidung](syntax-decision.md) ist angenommen; [A06.5](project-tooling/implementation.md) verbindet produktive Classic-/RMTX-Module und semantisches Editor-/CLI-/MCP-Tooling. Die gemeinsame Zielabnahme und die noch fehlende formale Releaseevidenz führt [A06.6](release-acceptance/implementation.md). Source 4–8 bleiben für SSR/Adoption gesperrt.
+
+**Historischer Vertragsstand:** Die nachfolgenden Versions- und Ausführungsangaben bleiben dem 15. November zugeordnet. Der damals offene A05-Handoff wird nicht erneut als heutige Implementierungslücke dieses Gesamtvorhabens geführt; die geschlossene v6-Vertragsgrenze selbst bleibt erhalten.
 
 Stand: **15. November 2026**. Der Zwei-Host-Fall wird jetzt durch den regulären Maraca-Build und den erzeugten Browser-Einstieg ausgeführt. React-Galerie und Vue-Bewertungen besitzen getrennte Renderziele und dieselbe owning Surface `product-details`. Provider-Interfaces, Intent-Mapping und Runtime-Guards aus A06 sind Bestandteil dieses automatischen Profils. Der A05-Handoff dieses Profils bleibt offen.
 
@@ -52,9 +54,9 @@ Die Framework-Fälle wurden unter Node 24.18.0 und 26.5.0 als native Dateimodule
 
 ## Anschluss
 
-Der nächste Abschnitt ist der **versionierte A05-Handoff für dieses Profil**: Interface-Herkunft und getrennte Owner-/Renderziel-Zuordnung müssen in Snapshot, Composition-Digest, SSR-Shell, Adoption und Replay nachgewiesen werden. Ein SSR-Aufruf am neuen Browser-/Kompositionsprofil wird bis dahin ausdrücklich abgewiesen. Bestehendes A05-SSR wird dadurch nicht erweitert oder als Nachweis für diesen Fall ausgegeben.
+Der am 15. November benannte nächste Abschnitt war der **versionierte A05-Handoff für dieses Profil**: Interface-Herkunft und getrennte Owner-/Renderziel-Zuordnung waren in Snapshot, Composition-Digest, SSR-Shell, Adoption und Replay nachzuweisen. Dieser Anschluss ist im gesonderten [Komponenten-SSR-v2-Profil](scoped-components.md) umgesetzt. Das hier beschriebene v6-Profil erhält dadurch keine stillschweigende SSR-Freigabe. Der noch offene gemeinsame RMTX-Zielabschluss ist in [A06.6](release-acceptance/implementation.md) abgegrenzt.
 
-Danach folgen Key-Scope-Unterstützung dieses Profils und das tatsächliche RMTX-Frontend. RMTX-Grammatik, plattformweite Lade-/Fallback-/Layoutpolicy, Deployment-Migration und die vollständige 0.9-Feature-Abnahme bleiben offen. Die bisherigen expliziten A06-Dateien bleiben als eigenständige Referenz erhalten.
+Die damals folgenden Key-Scopes, das produktive RMTX-Frontend und die Syntaxentscheidung sind inzwischen in ihren eigenen Folgeprofilen umgesetzt. Die heutige Restplanung führt die Lade-/Fallback-/Layoutentscheidung, den ausdrücklich festzulegenden Deploymentumfang und die vollständige gemeinsame 0.9-Abnahme unter [A06.6](release-acceptance/implementation.md). Die bisherigen expliziten A06-Dateien bleiben eigenständige Referenzen und erhalten keine rückwirkende Vertragserweiterung.
 
 ## Schema-Governance
 

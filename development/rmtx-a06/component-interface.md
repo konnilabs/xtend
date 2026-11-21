@@ -1,6 +1,8 @@
 # A06.1b – Providerseitige Komponentenschnittstelle
 
-**Aktualisierung der Folgeabschnitte:** [Key-Scopes und Komponenten-SSR v2](scoped-components.md) sind inzwischen in einem eigenen neuen Profil implementiert. Der nachfolgende Text dokumentiert den jeweiligen vorherigen, weiterhin reproduzierbaren Vertragsstand.
+**Aktuelle Einordnung vom 21. November 2026:** [Key-Scopes und Komponenten-SSR v2](scoped-components.md) sind in einem eigenen Profil implementiert; die [Syntaxentscheidung](syntax-decision.md) ist angenommen. [A06.5](project-tooling/implementation.md) implementiert und prüft inzwischen gemischte Classic-/RMTX-Projekte sowie semantisches Editor-, CLI- und MCP-Tooling. Dessen formale Releasebindung und die gemeinsame Abnahme bleiben in [A06.6](release-acceptance/implementation.md) offen. Die aktuellen Sourceprofile 4–8 haben weiterhin keine SSR-/Adoptionsfreigabe.
+
+**Historischer Vertragsstand:** Der nachfolgende Text beschreibt den weiterhin reproduzierbaren Stand vom 15. November. Seine damals offenen A05-/Frontend-Folgearbeiten sind keine heutige Gesamtliste der Restarbeiten. Versionen, Prüfungen und Quellenbezüge werden dadurch nicht auf den A06.5-Stand umgedeutet.
 
 Stand: **15. November 2026**. Der providerseitige Vertrag, seine Byte-Erfassung, die Binding-Absenkung, Runtime-Guards und die generierte Provider-Typmap sind implementiert. Zusätzlich zur expliziten A06-Referenz bindet der [automatische A04-Pfad](automatic-composition.md) jetzt statische Deklarationen mit getrenntem Owner/Renderziel ein. Der A05-Handoff dieses Profils bleibt ein Folgeabschnitt. RMTX-Syntax und 0.9-Feature-Abnahme bleiben offen.
 

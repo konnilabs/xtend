@@ -1,12 +1,14 @@
 # Nativer Komponentenkatalog für Source8
 
+**Statusabgleich: 21. November 2026.** [A06.5 – Projekt- und Editorintegration](../project-tooling/implementation.md) ist implementiert und lokal geprüft. Gemischte Classic-/RMTX-Projekte, semantische Diagnosen, Completion und Navigation sind damit vorhanden. Die formale Releasebindung von A06.5 sowie die vollständige Rollen-, Ziel- und gemeinsame 0.9-Abnahme bleiben offen; der nächste Gesamtabschnitt ist [A06.6](../release-acceptance/implementation.md).
+
 Der Katalog2 erfasst genau die 47 Einträge aus `components/manifest.json`: 36 UI-Komponenten, sechs Plattformkomponenten, vier Dienste und ein Demo. Die 46 produktiven Rollen und die Demo-Abnahme sind Bestandteil des harten Release-Gates für XTend 0.9. Ein vorhandener ShadowRoot oder ein erfolgreiches Laden eines Tags ist keine Abnahme.
 
 `catalog.cjs` ist die explizit kuratierte Freigabeliste. Sie beschreibt typisierte Attribute, strukturierte JSON-Properties, kanonische Ereignisse, Befehlsargumente und Ergebnisse, kontrollierten Zustand, flüchtigen UI-Zustand, Slots, DOM-Schreibbereiche und benötigte Fähigkeiten. Neue öffentliche Methoden oder `observedAttributes` erweitern diesen Vertrag nicht automatisch. Dienste sind keine CustomElements. Plattformelemente behalten ihre bisherigen Surface-/Router-Ports; sie erhalten keine parallele Befehlsautorität.
 
 Der generierte Katalog liegt unter `tools/rmt-language/rmtx-native-components-v2.json`. `module` benennt den Manifest-Einstieg, `managedModule` die gemeinsame, nebenwirkungsfreie Definition. Beide und ihre statisch referenzierten lokalen Abhängigkeiten werden durch SHA-256 gebunden. Der generierte Katalog selbst ist von seinem eigenen Abhängigkeitsgraphen ausgeschlossen. Laufzeitcode und Build-Verträge binden ihre Code-Abschlüsse gesondert. Ein Hash ist keine Ausführungsfreigabe für beliebige Aufrufstellen.
 
-Der Generator erzeugt außerdem einen Browser-tauglichen CJS-Capture und `rmtx-native-components-v2.generated.d.ts`. Die Typmap bindet Tag, Attribute, Properties, Event-DTOs und Befehle an dieselben kuratierten ValueRules. Die generische Source8-Authoring-Funktion prüft dadurch Literalwerte und fremde Properties pro Tag. Dynamische Model-/Input-/Selector-Pfade bleiben ausdrücklich untypisierte Authoring-Marker; ihre fachlichen Typen und Pfade prüfen Compiler und Laufzeit. Eine vollständige Model-Typableitung oder JSX-Kindinferenz für lexikalische Events wird dadurch nicht behauptet.
+Der Generator erzeugt außerdem einen Browser-tauglichen CJS-Capture und `rmtx-native-components-v2.generated.d.ts`. Die Typmap bindet Tag, Attribute, Properties, Event-DTOs und Befehle an dieselben kuratierten ValueRules. Die generische Source8-Authoring-Funktion prüft dadurch Literalwerte und fremde Properties pro Tag. Diese Typmap allein lässt dynamische Model-/Input-/Selector-Pfade als untypisierte Authoring-Marker stehen. Der zusätzliche semantische A06.5-Sprachservice verwendet dagegen belegbare Typen aus literalem State, Selektoren, Repeat-Scopes und Actioneingaben sowie die vertrauenswürdigen Komponentenregeln. Compiler und Runtime prüfen ihre geschlossenen Pfad-/DTO-Verträge weiterhin. Eine beliebige TypeScript-Modelinferenz oder freie JSX-Ausführung wird dadurch nicht eingeführt.
 
 ```sh
 node development/rmtx-a06/native-component-catalog/generate.cjs --check
@@ -35,7 +37,7 @@ Ein erfolgreicher eigener Plattformbefehl `close`, `minimize` oder `collapse` da
 
 Die isolierten Vertragsprüfungen liegen in `tests/rmt-language/native-component-catalog-v2.test.cjs`. `tests/maraca/native-platform-managed.test.mjs` prüft alle sechs Plattformrollen am tatsächlichen Controller-/Graph-/Kernel-/Fabric-Aufbau einschließlich fremder, geliehener Ressourcen und abgewiesener Besitzerwechsel. Komponenten-, Browser-, Service- und Build-Prüfungen liefern ergänzende, eigenständige Evidenz. Eine Freigabe für SSR wird durch Source8-CSR-Unterstützung nicht impliziert.
 
-Die aktuellen Komponentenbelege nach den abschließenden Text-/Style-Sinkkorrekturen stehen unter getrennten Dateinamen. Frühere erfolgreiche Reports bleiben als historische Zwischenstände erhalten; ihre Quellhashes werden dadurch nicht nachträglich auf den aktuellen Code umgedeutet.
+Die folgenden Komponentenbelege dokumentieren ihre jeweiligen Ausführungsstände vom 20. November 2026 nach den Text-/Style-Sinkkorrekturen. Frühere erfolgreiche Reports bleiben als historische Zwischenstände erhalten; ihre Quellhashes werden dadurch nicht nachträglich auf den aktuellen Code umgedeutet. Jüngere produktive Source7-/Source8-, Paket- und Editorläufe sind im [A06.5-Ausführungsbericht](../project-tooling/execution-summary.md) gesondert verknüpft. Auch diese Belege ersetzen die noch offene vollständige Rollenabnahme und Source8-SSR-/Restore-/Replayabnahme nicht.
 
 | Aktueller Beleg | Tatsächlich ausgeführter Umfang |
 | --- | --- |

@@ -1,5 +1,7 @@
 # A06: Native Headerprüfung und Lifecyclekorrektur
 
+**Aktuelle Einordnung vom 21. November 2026:** Der nachfolgende Headerbericht bleibt der konkrete Nachweis vom 15. November. Produktives RMTX-Frontend und [A06.5 – Projekt-/Editorintegration](project-tooling/implementation.md) sind inzwischen implementiert und lokal geprüft. Der zuletzt nachgewiesene lokale Editorstand ist [VSIX 0.3.0](vscode-rmtx-update.md); die Installation belegt keine Aktivierung im bereits laufenden Benutzerhost. Die gemeinsame Zielmatrix, Rollenabnahme und formale Releasebindung führt [A06.6](release-acceptance/implementation.md). Source 4–8 erhalten aus dem Headernachweis keine SSR-/Adoptionsfreigabe.
+
 Stand: **15. November 2026**. Akzeptanzprofil **1.1.0**, neue native View-/Lifecyclevereinbarung **1.0.0**. Die vollständige Headerprüfung ist jetzt **grün: 21 von 21 Erwartungen je Quellvariante unter Node 24, Node 26 und Chromium**. Damit ist dieses konkrete Gate für den Beginn der beschlossenen RMTX-Frontendimplementierung geschlossen. Eine vollständige RMTX-/0.9-Releaseabnahme wird daraus nicht abgeleitet.
 
 ## Behobene Kanten
@@ -42,7 +44,7 @@ Zusätzlich bestehen **98 gezielte Tests je Node 24 und 26**, darunter Compiler-
 
 Die reale Rückwegmatrix umfasst außerdem den bisherigen Zwei-Host-Fall mit 13, automatische Komposition mit acht und Scoped CSR mit sechs Fällen in jsdom unter beiden Node-Lanes sowie Chromium. Scoped SSR besteht 35 Fälle je Node-Lane mit tatsächlichem Chromium. Diese 14 sauberen Läufe halten die Produktions-/Runner-/Providerquellen während der Ausführung unverändert. Die strikten Größenbudgets werden durch die bestehenden Inspektoren unverändert geprüft.
 
-Der [zusammengeführte Reparaturnachweis](native-lifecycle-fix-evidence.json) bindet diese Ergebnisse, die Gateprüfung und die offiziellen Buildoutputs. Das mitgelieferte [Editor-/MCP-Paket](vscode-rmtx-update.md) ist wegen der enthaltenen Backendmodule konsistent auf **0.2.3** aktualisiert; die vorherige 0.2.1-Installation bleibt historisch dokumentiert.
+Der [zusammengeführte Reparaturnachweis](native-lifecycle-fix-evidence.json) bindet diese Ergebnisse, die Gateprüfung und die offiziellen Buildoutputs. Das damalige [Editor-/MCP-Paket](vscode-rmtx-update.md#historischer-updatebericht--15-november-2026) wurde wegen der enthaltenen Backendmodule konsistent auf **0.2.3** aktualisiert; die vorherige 0.2.1-Installation bleibt historisch dokumentiert. Der spätere A06.5-Installationsstand 0.3.0 ist auf derselben Updateübersicht separat abgegrenzt.
 
 ## Reproduktion
 
@@ -55,4 +57,4 @@ npm run check:release-preparation
 node scripts/verify_xtendrmt_artifact_parity.js --json
 ```
 
-Der Header-Runner liefert jetzt **Exitcode 0**. Der Editor wird durch diese Backendkorrektur nicht zu einem vollständigen RMTX-Language-Server; auch der allgemeine produktive RMTX-Compiler bleibt der folgende Implementierungsabschnitt. `nativeHeaderAccepted: true` und `acceptedForRelease: false` unterscheiden die bestandene konkrete Abnahme von der vollständigen Plattformfreigabe.
+Der Header-Runner lieferte im hier dokumentierten Lauf **Exitcode 0**. Diese Backendkorrektur allein war noch kein produktiver RMTX-Compiler oder semantischer Language Server. Die späteren Frontendabschnitte und A06.5 sind inzwischen implementiert und lokal geprüft; offen bleibt die gemeinsame Abnahme A06.6. `nativeHeaderAccepted: true` und `acceptedForRelease: false` unterscheiden weiterhin die bestandene konkrete Headerabnahme von der vollständigen Plattformfreigabe.

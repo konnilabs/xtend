@@ -1,5 +1,7 @@
 # A06 – Bewertung der Syntaxentwürfe und von JSX-Sideloading
 
+**Aktuelle Einordnung vom 21. November 2026:** Dieser Bericht und seine datierten Nachträge dokumentieren die frühere Entscheidungsfindung. Die [angenommene Syntaxentscheidung](syntax-decision.md) legt inzwischen deklaratives RMTX mit TSX-Grammatik, `.rmtx` und `RMT.<Operator>` fest. Produktive Quellprofile und [A06.5 – gemischte Projekte und semantisches Tooling](project-tooling/implementation.md) sind implementiert und lokal geprüft. Die unten als offen bezeichnete Syntaxwahl und der Classic-plus-TSX-Gegenkandidat bleiben historische Bewertungen. Aktuelle Restarbeiten stehen in [A06.6](release-acceptance/implementation.md); insbesondere folgt aus den bestehenden CSR- oder älteren Komponenten-SSR-Belegen keine SSR-/Adoptionsfreigabe für Source 4–8. Frühere Zahlen, Versionen und Quellbindungen werden nicht als neue Ausführungen ausgegeben.
+
 Stand: **13. November 2026**. Bezugsstand der Codeprüfung: Commit `e73d30c681973f29ff7f736dceb4a3141aab5183`. Status: **Entscheidungsvorbereitung, kein beschlossener Syntax- oder API-Vertrag**.
 
 ## 1. Ergebnis für die Plattformentscheidung

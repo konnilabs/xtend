@@ -1,8 +1,10 @@
 # A06.3.1 – Operatorvertrag, Selektoren und statische Readsets
 
-> Aktueller Folgeabschnitt: [A06.3.2](../keyed-profile/README.md) ergänzt opt-in Syntax3. Parser-/Compiler-/Authoring-Capability ist jetzt 3.0.0; Syntax1/2-Daten bleiben erhalten. Die nachfolgenden Versions- und Ausführungsangaben dokumentieren den datierten A06.3.1-Stand. Der damalige Suchindexbefund wurde separat behoben.
+**Statusfortschreibung vom 21. November 2026:** Die späteren Source3-/Source4- und Native-View-Profile sind inzwischen implementiert. [A06.5](../project-tooling/implementation.md) ergänzt die lokal geprüfte semantische Projekt-/Editorintegration. Nächster Gesamtabschnitt ist die gemeinsame Ziel- und Releaseabnahme [A06.6](../release-acceptance/implementation.md); ihre formale Evidenzbindung bleibt offen. Der [zentrale Arbeitsstand](../../XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md) ist für die heutige Reihenfolge maßgeblich. Der folgende Bericht behält den datierten Source2-Umfang.
 
-Stand: **16. November 2026**. Dieser erste Abschnitt von A06.3 ist implementiert: ein maschinenlesbarer Operator-/Attribut-/Kindvertrag sowie fünf zusätzliche Selektoroperatoren mit geschlossenem Prädikatprofil. **A06.3 als Ganzes bleibt in Arbeit.** Bedingungen an Surfaces/Events, Wiederholungen/Keys, weitere Actions/Policies und Inline-Providerdeklarationen sind Folgeabschnitte; natives JSX-UI und semantisches Editor-/Projekttooling bleiben A06.4/A06.5.
+> Historischer Folgeabschnitt dieses Source2-Berichts: [A06.3.2](../keyed-profile/README.md) ergänzt opt-in Syntax3 mit Parser-/Compiler-/Authoring-Capability3. Syntax1/2-Daten bleiben erhalten. Die nachfolgenden Versions- und Ausführungsangaben dokumentieren den datierten A06.3.1-Stand. Der damalige Suchindexbefund wurde separat behoben.
+
+Stand des Source2-Teilabschlusses: **16. November 2026**. Dieser erste Abschnitt von A06.3 implementiert einen maschinenlesbaren Operator-/Attribut-/Kindvertrag sowie fünf zusätzliche Selektoroperatoren mit geschlossenem Prädikatprofil. Die damals folgenden Bedingungen, Wiederholungen, Actions/Policies und Inline-Providerdeklarationen sind inzwischen in den getrennten Source3-/Source4-Profilen implementiert; native Views und semantisches Projekt-/Editorwerkzeug in den Folgeprofilen und A06.5. Die hier beschriebenen Source2-Grenzen bleiben erhalten.
 
 ## Versionen und Kompatibilität
 
@@ -49,7 +51,7 @@ Der Getter liefert tiefgefrorene deklarative Daten. Der Parser verwendet daraus 
 | `Sort` | `by` erforderlich; `direction` optional `asc`/`desc`, Default `asc` | höchstens einmal pro Selector |
 | `Output` | `type` erforderlich | höchstens einmal pro Selector; Metadatum, kein Runtime-Typeguard |
 
-Die bestehenden neun Operatoren bleiben erhalten. Neue Authoring-Attributtypen schließen unbekannte Felder und falsche Enum-/Pflichtattribute; der benannte Legacy-Namespace-Typ bleibt verfügbar. Modell-/Item-Feldtypen werden daraus nicht erfunden. Markerpfade bleiben ohne generierte Modelltypen im gewöhnlichen TS-Checker unbestimmt; numerische Objektfeldvergleiche sind keine vollständig typgeprüfte TypeScript-Modelinferenz. Der RMTX-Compiler prüft selbst den Ausdrucksumfang, Scopes und referenzierbare Symbole. Virtuelle TS-Dateien und vollständige Feldnavigation folgen A06.5.
+Die bestehenden neun Operatoren bleiben erhalten. Neue Authoring-Attributtypen schließen unbekannte Felder und falsche Enum-/Pflichtattribute; der benannte Legacy-Namespace-Typ bleibt verfügbar. Modell-/Item-Feldtypen werden daraus nicht erfunden. Die Marker des erhaltenen Authoringprofils sind allein kein vollständiger Modeltypnachweis im gewöhnlichen TS-Checker. Der RMTX-Compiler prüft selbst den Ausdrucksumfang, Scopes und referenzierbare Symbole. [A06.5](../project-tooling/implementation.md) ergänzt inzwischen einen eigenen semantischen Sprachservice mit virtuellen TSX-Dateien, belegbaren Model-/Selector-/Item-/Inputtypen und Navigation in ursprüngliche Quelldateien.
 
 ## Selektoren und Scopes
 
@@ -119,7 +121,7 @@ Auch bei einem syntaktisch kurzgeschlossenen Zweig werden dessen Referenzen stat
 
 **Der Report verändert die Runtime nicht.** Das Model berechnet Selectorwerte weiter nach seinem bestehenden Snapshot-/Select-Verfahren. `runtimeTracking`, `incrementalRecomputation` und `parametersForwardedToDependencies` sind ausdrücklich `false`. Die Readsets sind Grundlage für spätere geprüfte Projektionen und Planung; sie behaupten weder neue Subscriptions noch granulare Dirty-only-Recomputation oder ein allgemeines Props-Ausdrucksprofil.
 
-## Abnahme und nächster Abschnitt
+## Abnahme und Einordnung des Teilabschlusses
 
 Der [v2-Zwei-Host-Fall](two-host.rmtx) und [Runtime-Runner](runtime-test.cjs) verwenden die echte RMTX-Datei über `createRmtxCompiler({ syntaxVersion: '2.0.0' }).compileSource`, den regulären Maraca-Build und bestehende Providerinterfaces/Binding-Sidecars. Neben den bisherigen acht Frameworkfällen prüfen drei neue Fälle **Selector → Action → Model → React-Props**, erhaltene Vue-Rootidentität, Liveänderungen an Source/Query sowie Close/Resume-Staging. Kein zweiter Modelwriter oder fallspezifischer Sourceübersetzer ist hinzugekommen.
 
@@ -135,6 +137,6 @@ npm run check:release-preparation
 
 **59 neue Nodefälle je unterstützter Lane** prüfen Katalog/Typen, Readsets, echte Modelauswertung, Sourceparität und Gegenfälle. Die Runtimeabnahme besteht **11/11 unter Node 24, Node 26 und Chromium**. Vertrags-/Inspectorprüfungen sind im Vorbereitungsgate enthalten, die neue Frameworkabnahme im verpflichtenden XTensions-Runtimegate und den Default-/Migration-/Nightly-Reportpfaden. [Statischer Beleg](evidence.json), [Runtime-Rohbelege](runtime-evidence.json) und [Ausführungs-/Regressionsnachweis](execution-evidence.json) halten Umfang und Quellenbindung fest.
 
-**A06.3.1 ist damit ein Teilabschluss von A06.3.** Als nächster zusammenhängender Abschnitt bieten sich Bedingungen, Wiederholungen und stabile typisierte Key-Scopes im RMTX-Frontend an. Weitere Actions/Events/Policies, Inline-XTension-Bindings und allgemeine Ausdrucksprojektionen bleiben offen. Beide 0.9-Features bleiben `preparing`; natives UI und Editor-/Projektintegration folgen weiterhin A06.4/A06.5.
+**A06.3.1 bleibt der erhaltene Source2-Teilabschluss.** Die damals vorgesehenen Bedingungen, Wiederholungen und stabilen typisierten Key-Scopes sind in Source3 implementiert; weitere Actions/Events/Policies, Inline-XTension-Bindings und geschlossene Props-Ausdrücke in Source4. Native Views und weitere native Profile sowie A06.5 sind inzwischen implementiert. Beide 0.9-Features bleiben bis zur gemeinsamen [A06.6-Abnahme](../release-acceptance/implementation.md) `preparing`.
 
 Der separat dokumentierte Docs-Suchindex-Budget-/Freshnessfehler aus A06.2 bleibt ein eigener Ausgangsbefund. Budgets und Suchsemantik werden in diesem Sprachabschnitt nicht verändert; aktuelle Inspector-/Compiler-/Runtimebelege sind von einer vollständigen Repository-/0.9-Abnahme zu unterscheiden.

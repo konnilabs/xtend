@@ -12,17 +12,24 @@
 
 ## Zweck
 
-### Erweiterung durch A06.5 (20. November 2026)
+### Aktueller Anschluss durch A06.5 (Abgleich vom 21. November 2026)
 
 Der aktuelle Sprachserver verwendet `xtend.rmt.language-server.v2` und
 `xtend.rmt.language-server-report.v2`. Der bestehende Classic-Pfad bleibt
 erhalten. `.rmtx` erhält einen eigenen semantischen Sprachservice mit virtuellen
 TSX-Dateien, Typprüfung und Navigation auf ursprüngliche Quellranges. Der
-Projektvertrag1 verbindet `.rmt`- und `.rmtx`-Importe für Compiler, CLI, Watch,
+Projektvertrag 1 verbindet `.rmt`- und `.rmtx`-Importe für Compiler, CLI, Watch,
 Maraca, Hydrangea und MCP. Normale `.tsx`-Provider sind keine deklarativen
 Projektmodule. Die folgenden WP-E14-Abschnitte dokumentieren weiterhin ihre
 historischen Vertragsstände; den aktuellen Umfang beschreibt
-[A06.5](rmtx-a06/project-tooling/implementation.md).
+[A06.5](rmtx-a06/project-tooling/implementation.md). Die Implementierung und die
+lokalen Paket-/Editorprüfungen sind abgeschlossen. Die lokale VSIX 0.3.0 enthält
+TypeScript 5.9.3 und LanguageClient 9; der gebündelte MCP steht auf 0.2.0. Der
+[Ausführungsbericht](rmtx-a06/project-tooling/execution-summary.md) trennt diese
+Nachweise von der noch offenen formalen Releaseevidenz. Die gemeinsame
+CSR-/unterstützte SSR-/Restore-/Replay- und 0.9-Abnahme bleibt
+[A06.6](rmtx-a06/release-acceptance/implementation.md). Source 4–8 erhalten aus
+diesem Toolinganschluss keine SSR-/Adoptionsfreigabe.
 
 Dieses Dokument friert die Architektur fuer den nativen RMT-Linter und den spaeteren RMT Language Server ein. Es definiert die Paketgrenzen, das Diagnosemodell, die ersten Regeln und die Reihenfolge, in der der Sprachkern aufgebaut wird.
 

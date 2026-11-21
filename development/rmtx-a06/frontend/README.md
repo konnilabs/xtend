@@ -1,12 +1,14 @@
 # A06.2 – Produktiver RMTX-Frontendeinstieg
 
+**Statusfortschreibung vom 21. November 2026:** [A06.5 – Projekt- und Editorintegration](../project-tooling/implementation.md) ist implementiert und lokal geprüft. Die gemeinsame Ziel- und Releaseabnahme [A06.6](../release-acceptance/implementation.md) bleibt offen; die formalen Releaseprofile und Ausführungsbindungen sind noch zu vervollständigen. Der [zentrale Arbeitsstand](../../XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md) führt die heutige Reihenfolge. Die folgenden Daten und Nachweise beschreiben weiterhin das erhaltene Source1-Profil.
+
 **Historische Fortschreibung A06.3.1:** Die Parser-/Compiler-Module hatten dort Capability-API **2.0.0**, der gemeinsame Backend-Eingang **4.3.0 / 1.4.0**. Die hier beschriebenen v1-Defaults und v1-Resultdaten bleiben erhalten. Das zusätzliche [Selektorprofil 2.0.0](../selector-profile/README.md) ist ausdrücklich wählbar; die folgenden API-1-/Backend-4.2-/1.3-Angaben beschreiben den ursprünglichen A06.2-Prüfstand.
 
-> Aktueller Folgeabschnitt: [A06.3.2](../keyed-profile/README.md), Capability3/Backend4.4 bzw.1.5. Die nachstehenden datierten Einstiegsversionen bleiben historische Kompatibilitätsnachweise.
+> Historischer Folgeabschnitt dieses Source1-Berichts: [A06.3.2](../keyed-profile/README.md), Capability3/Backend4.4 bzw.1.5. Die nachstehenden datierten Einstiegsversionen bleiben historische Kompatibilitätsnachweise.
 
 Stand: **16. November 2026**. Das erste geschlossene produktive Syntaxprofil **1.0.0** ist implementiert. Es parst `.rmtx` als TSX, senkt direkt in den validierten gemeinsamen Classic-AST ab und nutzt dieselbe semantische Prüfung und Artefaktgenerierung. Es erzeugt keinen Classic-Quelltext und führt weder Quellimporte noch Templateausdrücke als JavaScript aus.
 
-Die [Syntaxentscheidung](../syntax-decision.md) bleibt verbindlich. Dieses Profil implementiert einen begrenzten Teil davon. Der [zentrale Arbeitsplan](../../XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md) führt A06.3–A06.6 für den Sprach-/UI-/Toolingausbau und die vollständige 0.9-Abnahme weiter. Beide Features bleiben `preparing`.
+Die [Syntaxentscheidung](../syntax-decision.md) bleibt verbindlich. Dieses Profil implementiert einen begrenzten Teil davon. Der [zentrale Arbeitsplan](../../XTend-0.9-RMTX-und-XTensions-2.0-Bestandsaufnahme.md) dokumentiert die inzwischen implementierten Folgeprofile und A06.5; als nächster Gesamtabschnitt bleibt A06.6 für die gemeinsame Ziel- und 0.9-Abnahme. Beide Features bleiben `preparing`.
 
 ## Öffentliche Einstiege und Versionen
 
@@ -94,7 +96,7 @@ Auch Source-Text plus `virtualSourcePath` funktioniert. Maraca bewahrt das RMTX-
 
 Die [RMTX-Referenz](two-host.rmtx) und ihr [Classic-Gegenstück](two-host.rmt) beschreiben dieselben States, Actions und Surfaces. Der neue [Runtime-Runner](runtime-test.cjs) baut tatsächlich die `.rmtx`-Datei über diesen Compilerport und die automatische Komponentenkomposition. Er verwendet die vorhandenen unabhängig erfassten Providerinterfaces und validierten Binding-Sidecars. Die unveränderte reale React-/Vue-Abnahmesuite prüft Kernel/Fabric, Events/Model/XTend State, gemeinsame Owner, getrennte Renderziele, Close/Resume, Presence/Reinkarnation, ungültige Props/Payloads und Cleanup/Cancellation.
 
-Inline-`RMT.XTension`-Deklarationen, automatische `.rmtx`-Discovery im Classic-CLI, gemischte Importgraphen, Native-UI-/Slotgrammatik, neue Editorsemantik, MCP-Quellrouting und ein neuer installierter VSIX sind damit noch nicht eingeführt. Sie bleiben den nachfolgenden Abschnitten zugeordnet. Der vorhandene native Header-/Lifecyclefall bleibt ein separater Regressionsanker; seine fallspezifische Headerabsenkung wird erst in A06.4 durch das allgemeine UI-Profil ersetzt.
+Dieser ursprüngliche Source1-Abschnitt führte Inline-`RMT.XTension`-Deklarationen, gemischte Importgraphen, Native-UI-/Slotgrammatik und semantisches Editor-/MCP-Routing noch nicht ein. Diese Fähigkeiten sind inzwischen in den getrennten Folgeprofilen beziehungsweise [A06.5](../project-tooling/implementation.md) implementiert; CLI-Projektaufrufe wählen ihre Quellsprache ausdrücklich. Die getestete VSIX0.3.0 wurde beim A06.5-Abschluss lokal installiert; die Aktivierung eines bereits laufenden Benutzerhosts bleibt eine eigene Beobachtung. Der native Header-/Lifecyclefall bleibt ein separater Regressionsanker; das allgemeine native Viewprofil wird in den Source5–8-Verträgen beschrieben. Keiner dieser Folgeabschnitte erweitert rückwirkend das geschlossene Source1-Profil.
 
 ## Prüfung und Nachweise
 
