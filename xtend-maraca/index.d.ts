@@ -204,6 +204,19 @@ export interface MaracaProjectBuildResult {
 export function createMaracaProjectBuildPlan(input?:MaracaProjectBuildInput,options?:MaracaProjectRunOptions):MaracaProjectBuildPlan;
 export function buildMaracaProjectBundle(input?:MaracaProjectBuildInput,options?:MaracaProjectRunOptions):MaracaProjectBuildResult;
 export function buildMaracaProjectBundleAsync(input?:MaracaProjectBuildInput,options?:MaracaProjectRunOptions):Promise<MaracaProjectBuildResult>;
+/** Explicit synchronous Node-SSR handoff builder; retained raw compiler/plans remain unchanged. */
+export const MARACA_RMTX_SSR_BUILD_API_VERSION:'1.0.0';
+export interface MaracaRmtxSSRBuildRequest {
+  readonly schema:'xtend.maraca.rmtx-ssr-build-options.v1';
+  readonly input:Omit<MaracaProjectBuildInput,'rmtxSyntaxVersion'> & {readonly rmtxSyntaxVersion?:'1.0.0'|'2.0.0'|'3.0.0'|'4.0.0'|'5.0.0'|'6.0.0'|'7.0.0'|'8.0.0'};
+}
+export interface MaracaRmtxSSRBuildResult extends Omit<MaracaProjectBuildResult,'schema'|'apiVersion'|'build'> {
+  readonly schema:'xtend.maraca.rmtx-ssr-build-result.v1';readonly apiVersion:'1.0.0';
+  readonly build:(Omit<NonNullable<MaracaProjectBuildResult['build']>,'plan'> & {readonly plan:MaracaComponentBuildPlan|MaracaScopedComponentBuildPlan|MaracaRmtxBuildPlan|NativeRmtxBuildPlan9|LifecycleRmtxBuildPlan10|OrchestratedRmtxBuildPlan11|ManagedRmtxBuildPlan12})|null;
+  readonly sourceIdentity:import('./xtension-rmtx-ssr-contract.mjs').RmtxSSRSourceIdentity|null;
+}
+export function buildMaracaRmtxSSRBundleAsync(request:MaracaRmtxSSRBuildRequest,options?:MaracaProjectRunOptions):Promise<MaracaRmtxSSRBuildResult>;
+
 
 export interface MaracaDiagnostic {
   code: string;

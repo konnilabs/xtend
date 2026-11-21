@@ -58,27 +58,27 @@
   ],
   "sizes": {
     "react": {
-      "frameworkBytes": 1684703,
-      "xtensionRuntimeBytes": 175651
+      "frameworkBytes": 1711712,
+      "xtensionRuntimeBytes": 180242
     },
     "vue": {
-      "frameworkBytes": 1683205,
-      "xtensionRuntimeBytes": 174446
+      "frameworkBytes": 1710214,
+      "xtensionRuntimeBytes": 179037
     },
     "mixed": {
-      "frameworkBytes": 1728142,
-      "xtensionRuntimeBytes": 193724
+      "frameworkBytes": 1755151,
+      "xtensionRuntimeBytes": 198315
     }
   },
   "sources": {
     "xtend-maraca/xtension-provider-graph.js": "d8357cf34d0e1d616c8890f36765d7b19f45b1fff824045746474c9ca90afcdf",
     "xtend-maraca/xtension-composition.js": "2993a3229d76a4f4cb275d7e82033b1269d5b11157116bc05117bea4eca2aa15",
     "xtend-maraca/xtension-composition-contract.mjs": "362f901e3ab0a1bf783fe76426d3f6db31b06678a865db1e976c82c6a938f918",
-    "xtend-maraca/xtension-composition-runtime.mjs": "ea55a429902a52c785016d50aa1c120e8da105e5b6b70d83e684746106a44863",
+    "xtend-maraca/xtension-composition-runtime.mjs": "adcaa75c87fcb20bec7f8bfbdbbb0c2da11351baaf9afd301cf004006d7e5add",
     "xtend-maraca/xtension-size-budget.js": "61f22885757a9015fc9c74e5de6a4dc4b7763770b9d29a454604b35ed1992767",
     "xtend-maraca/xtension-composition.d.ts": "96e17c6feba12a9f1a725e11df78bb5d6bde2c0ec6035df54b5981d83fc3fd2a",
-    "xtend-maraca/xtension-composition-runtime.d.ts": "81edafd48804f25e60403e2b5516ae31b3f8d03150fb158428fe837a64b71d08",
-    "xtend-maraca/package.json": "bee88ce77e5bdd0b288450b3ec3d8bbda26ec877d18f7920282da85e4b538e35",
+    "xtend-maraca/xtension-composition-runtime.d.ts": "f43d892fb5217d6a7e0d91f9d8316ef759a4c8d7f6e382a2a3f02f1d68ac94b7",
+    "xtend-maraca/package.json": "0377adab97226fcb905ee3b9984ef5e2a0de9226bdc3505ca448806b2bbdefde",
     "development/rmtx-a04/graph-inspect.cjs": "9d350c2561218cd97f7fcfc47381d71afb16bb26fd22d44b7d5c332f99bc504b",
     "development/rmtx-a04/integration-reference.cjs": "58ff4d03422edf792c84ba9166830de20c412b12aabe802b223f346c1f4773a8",
     "development/rmtx-a04/providers/graph/controlled-react-component.mjs": "b292d8c28f6182f99bccccdd3959102ef14378be65d38f0c58e55477c46636b3",

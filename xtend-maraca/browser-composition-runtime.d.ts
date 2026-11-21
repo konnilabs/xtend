@@ -3,6 +3,8 @@ import type { MaracaPlanRuntime, MaracaPlanRuntimeOptions, MaracaPlanRuntimeSnap
 export const COMPONENT_COMMAND_SCHEMA: 'xtend.rmt.component-command.v1';
 export const COMPONENT_COMMAND_RESULT_SCHEMA: 'xtend.maraca.component-command-result.v1';
 export const MARACA_BROWSER_API_VERSION: '5.0.0';
+// Keep declared boundary fields when refining an extensible boot option record.
+type DeclaredBootFields<T> = {[K in keyof T as string extends K ? never : number extends K ? never : K]:T[K]};
 export const LEGACY_BROWSER_COMPOSITION_SCHEMA: 'xtend.maraca.browser-composition-root.v1';
 
 export interface MaracaBrowserFacade {
@@ -167,7 +169,7 @@ export interface BrowserNativeComponentRoot extends Omit<BrowserProjectionCompon
 }
 
 /** Source6 uses a distinct factory and View API2; its lifecycle integration stays private. */
-export interface LifecycleComponentBootOptions extends Omit<NativeComponentBootOptions, 'nativeViewRuntimePort' | 'urlStateRuntime'> {
+export interface LifecycleComponentBootOptions extends Record<string,unknown>, Omit<DeclaredBootFields<NativeComponentBootOptions>, 'nativeViewRuntimePort' | 'urlStateRuntime'> {
   readonly nativeViewRuntimePort?: import('./plan-runtime').LifecycleNativeViewRuntimePort;
   readonly urlStateRuntime?: typeof import('@ccslabs/xtend/xtensions/url-state').LIFECYCLE_URL_STATE_RUNTIME;
 }
@@ -193,7 +195,7 @@ export function createMaracaBrowserCompositionRoot(configuration: Readonly<Recor
 }): BrowserLifecycleComponentRoot;
 
 /** Source7 uses a distinct factory and View API3; its lifecycle integration stays private. */
-export interface OrchestratedComponentBootOptions extends Omit<NativeComponentBootOptions, 'nativeViewRuntimePort' | 'urlStateRuntime'> {
+export interface OrchestratedComponentBootOptions extends Record<string,unknown>, Omit<DeclaredBootFields<NativeComponentBootOptions>, 'nativeViewRuntimePort' | 'urlStateRuntime'> {
   readonly nativeViewRuntimePort?: typeof import('@ccslabs/xtend/xtensions/native-surface-projection').NATIVE_ORCHESTRATION_VIEW_RUNTIME;
   readonly urlStateRuntime?: typeof import('@ccslabs/xtend/xtensions/url-state').ORCHESTRATED_URL_STATE_RUNTIME;
 }
@@ -220,7 +222,7 @@ export function createMaracaBrowserCompositionRoot(configuration: Readonly<Recor
 
 export const MARACA_MANAGED_BROWSER_API_VERSION: '14.0.0';
 /** Source8 uses a distinct factory and View API4; its lifecycle integration stays private. */
-export interface ManagedComponentBootOptions extends Omit<NativeComponentBootOptions, 'nativeViewRuntimePort' | 'urlStateRuntime'> {
+export interface ManagedComponentBootOptions extends Record<string,unknown>, Omit<DeclaredBootFields<NativeComponentBootOptions>, 'nativeViewRuntimePort' | 'urlStateRuntime'> {
   readonly nativeViewRuntimePort?: typeof import('@ccslabs/xtend/xtensions/native-managed-view-projection').NATIVE_MANAGED_VIEW_RUNTIME;
   readonly urlStateRuntime?: typeof import('@ccslabs/xtend/xtensions/url-state-managed').MANAGED_URL_STATE_RUNTIME;
   readonly nativeServices?: import('@ccslabs/xtend/components/native-services', {with: {'resolution-mode': 'import'}}).ManagedNativeServices;
@@ -247,3 +249,39 @@ export function createMaracaBrowserCompositionRoot(configuration: Readonly<Recor
   readonly nativeViewRuntimePort: typeof import('@ccslabs/xtend/xtensions/native-managed-view-projection').NATIVE_MANAGED_VIEW_RUNTIME;
   readonly createManagedPlanRuntime: typeof import('./native-managed-runtime').createMaracaNativeManagedRuntime;
 }): BrowserManagedComponentRoot;
+
+export const MARACA_RMTX_SSR_BROWSER_API_VERSION:'1.0.0';
+export interface RmtxSSRBootOptions extends Record<string,unknown>, Omit<DeclaredBootFields<MaracaXTensionBootOptions>,'xtensions'|'adoptExisting'> {
+  readonly adoptExisting?:never;readonly ssr?:never;readonly ssrResponse?:never;
+  readonly fabric:MaracaXTensionBootOptions['fabric'] & {runFiber:(...args:any[])=>unknown};
+  readonly xtensions:MaracaXTensionBootOptions['xtensions'] & {readonly ssr:import('./xtension-ssr').RmtxSSRServerOptions|import('./xtension-ssr').RmtxSSRClientOptions};
+}
+export interface RmtxSSRBrowserFacade extends Omit<MaracaBrowserFacade,'apiVersion'|'schema'|'boot'|'snapshot'|'orchestration'|'subscribe'> {
+  readonly apiVersion:'1.0.0';readonly schema:'xtend.maraca.rmtx-ssr-browser-root.v1';readonly orchestration:RmtxSSRBrowserFacade;
+  boot(options:RmtxSSRBootOptions):Promise<Readonly<Record<string,unknown>>>;
+  snapshot():import('./plan-runtime').RmtxSSRPlanRuntimeSnapshot18;subscribe(listener:(snapshot:import('./plan-runtime').RmtxSSRPlanRuntimeSnapshot18)=>void):()=>void;
+  captureXTensionSSR():Promise<import('./xtension-ssr').RmtxSSRResponse>;
+}
+export interface RmtxSSRBrowserRoot extends Omit<MaracaBrowserCompositionRoot,'apiVersion'|'schema'|'facade'|'boot'> {
+  readonly apiVersion:'1.0.0';readonly schema:'xtend.maraca.rmtx-ssr-browser-root.v1';readonly facade:RmtxSSRBrowserFacade;
+  boot(options:RmtxSSRBootOptions):ReturnType<RmtxSSRBrowserFacade['boot']>;
+}
+export interface NativeOnlyRmtxSSRBootOptions extends Record<string,unknown>,Omit<DeclaredBootFields<RmtxSSRBootOptions>,'xtensions'> {
+  readonly xtensions:{readonly grants:Readonly<Record<string,never>>;readonly ssr:import('./xtension-ssr').RmtxSSRServerOptions|import('./xtension-ssr').RmtxSSRClientOptions;readonly loadPeers?:never;readonly loadPeerGroup?:never};
+}
+export interface NativeOnlyRmtxSSRBrowserFacade extends Omit<RmtxSSRBrowserFacade,'boot'|'orchestration'> {
+  readonly orchestration:NativeOnlyRmtxSSRBrowserFacade;
+  boot(options:NativeOnlyRmtxSSRBootOptions):Promise<Readonly<Record<string,unknown>>>;
+}
+export interface NativeOnlyRmtxSSRBrowserRoot extends Omit<RmtxSSRBrowserRoot,'facade'|'boot'> {
+  readonly facade:NativeOnlyRmtxSSRBrowserFacade;
+  boot(options:NativeOnlyRmtxSSRBootOptions):ReturnType<NativeOnlyRmtxSSRBrowserFacade['boot']>;
+}
+export type NativeOnlyRmtxSSRConfiguration=Readonly<Record<string,unknown>> & {readonly xtensionComposition?:never} & (
+  | {readonly schema:'xtend.maraca.browser-composition-root.v11';readonly buildPlanSchema:'xtend.maraca.build-plan.v9'}
+  | {readonly schema:'xtend.maraca.browser-composition-root.v12';readonly buildPlanSchema:'xtend.maraca.build-plan.v10'}
+  | {readonly schema:'xtend.maraca.browser-composition-root.v13';readonly buildPlanSchema:'xtend.maraca.build-plan.v11'}
+  | {readonly schema:'xtend.maraca.browser-composition-root.v14';readonly buildPlanSchema:'xtend.maraca.build-plan.v12'}
+);
+export function createMaracaRmtxSSRCompositionRoot(configuration:Readonly<{schema:'xtend.maraca.rmtx-ssr-browser-root.v1';sourceIdentity:import('./xtension-rmtx-ssr-contract.mjs').RmtxSSRSourceIdentity;configuration:NativeOnlyRmtxSSRConfiguration}>,dependencies:Readonly<Record<string,unknown>>):NativeOnlyRmtxSSRBrowserRoot;
+export function createMaracaRmtxSSRCompositionRoot(configuration:Readonly<{schema:'xtend.maraca.rmtx-ssr-browser-root.v1';sourceIdentity:import('./xtension-rmtx-ssr-contract.mjs').RmtxSSRSourceIdentity;configuration:Readonly<Record<string,unknown>>}>,dependencies:Readonly<Record<string,unknown>>):RmtxSSRBrowserRoot;

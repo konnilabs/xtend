@@ -1,0 +1,21 @@
+{
+  "node": "v24.18.0",
+  "officialWriters": 9,
+  "reviewedOutputs": 18,
+  "changedOutputs": [
+    {
+      "file": "development/rmtx-a01/inventory.json",
+      "oldSha256": "41f3e41b197a6a96185e93836eb47aa107471e8f41edee803d6640fc35123d8b",
+      "newSha256": "423a8924d70553a2882d36a29f152100df86452e5db58ca772e48602ed64da9f",
+      "inputSourcePinChanges": 2,
+      "newImplementationIdentifiers": {
+        "RMT_DOM_SSR_SHELL_REQUEST_SCHEMA": "xtend.rmt.dom-ssr-shell.v1",
+        "RMT_DOM_ADOPTION_REQUEST_SCHEMA": "xtend.rmt.dom-adoption.v1"
+      },
+      "linePositionChanges": 53
+    }
+  ],
+  "unchangedCompiledAndContractOutputs": 17,
+  "corpusAndAcceptanceObservationsUnchanged": true,
+  "protectedHistoryChanged": false
+}

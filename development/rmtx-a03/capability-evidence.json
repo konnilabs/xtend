@@ -40,12 +40,12 @@
     "tools/xtensions/vue-runtime-adapter.d.ts": "f441bed2550894206df776eec5d3cbfece18adb92c1432060494b38bc80d699f",
     "tools/xtensions/state-binding.js": "6c2db5ef127540d95b2ba99bdd64e353f54ce25e40752df7edd39c2d312ad34b",
     "tools/xtensions/state-binding.d.ts": "c107f80208183fced3c5031c3a9a9c9d4dc2ab95ee5b27070de88454d1b48810",
-    "tools/package.json": "b74c11a4250e6df52ebab577eba0f7ceccca55c92ca1090f5e7cd82eb989f674",
-    "xtend-maraca/plan-runtime.d.ts": "85fa3bc56032ab6ce3e13e151bf1b41f5f79cfaf66c3167e9bf374e41223fb57",
+    "tools/package.json": "05b600248508118d8d29b43f0c71aa1b07649277d30aa2d2016f660bfe31e101",
+    "xtend-maraca/plan-runtime.d.ts": "07737eef3bb457ce776162e53211499bc1ef3df967c216e4dfb363e505809690",
     "tests/xtensions/capability-negotiation-acceptance.js": "9652752c186e6aae55a400ac3587060a9c7588f979f6d66521e2bf0f6408caaf",
     "tests/xtensions/capability-negotiation-maraca-acceptance.js": "3a42e8a9fe380882ac6c5a42c7ea854f5ebbc44473c1b757fbe65c1d973f150c",
     "tests/types/xtensions_capability_negotiation.mts": "9c6373428ecdd1c71df8be31ed130ad49b2bd6c3e45259be7db1bfaa2bd95648",
-    "tests/xtensions/xtensions_runtime_gate_suite.js": "4a05bba2c09bb14754c42c183bba7a86ca6161447abc93887ca8dcfb56e953ed",
+    "tests/xtensions/xtensions_runtime_gate_suite.js": "57fa5396efbe58a213494b8e3c94740c4f8c98d3779e193265dfdc21f36074c4",
     "tests/xtensions/xtensions_consumer_package_suite.js": "70830eff9f88790b5c7d46d6b710ae03719976d6c26f5076a9c98a5b83e19ffd"
   }
 }

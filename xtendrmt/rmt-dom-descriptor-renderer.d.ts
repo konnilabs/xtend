@@ -1,4 +1,6 @@
-export const RMT_DOM_DESCRIPTOR_RENDERER_API_VERSION: '2.4.0';
+export const RMT_DOM_DESCRIPTOR_RENDERER_API_VERSION: '2.5.0';
+export const RMT_DOM_SSR_SHELL_REQUEST_SCHEMA: 'xtend.rmt.dom-ssr-shell.v1';
+export const RMT_DOM_ADOPTION_REQUEST_SCHEMA: 'xtend.rmt.dom-adoption.v1';
 export const RMT_DOM_DESCRIPTOR_RENDERER_DIAGNOSTIC_SCHEMA: 'xtend.epic18.rmt-dom-renderer-diagnostic.v2';
 export const RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA: 'xtend.epic18.rmt-dom-descriptor-renderer.v2';
 export const RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA: 'xtend.epic18.rmt-dom-descriptor-renderer.v1';
@@ -291,6 +293,16 @@ export interface NativeSlotPresentationItem {readonly key:string|number;readonly
 export interface NativeSlotPresentation {readonly kind:'tabs'|'masonry';readonly items:readonly NativeSlotPresentationItem[];readonly selectedKey?:string|number|null;readonly order?:readonly (string|number)[];readonly collapsed?:readonly (string|number)[]}
 export interface NativeTooltipAnchorLease {isCurrent():boolean;measure():Readonly<{x:number;y:number;left:number;right:number;top:number;bottom:number;width:number;height:number;viewportWidth:number;viewportHeight:number}>;getRect():ReturnType<NativeTooltipAnchorLease['measure']>;describe(text:string):null;subscribe(handlers:Partial<Record<'enter'|'leave'|'mouseenter'|'mouseleave'|'focus'|'blur'|'reposition',(event:{source:string})=>void>>):()=>void;release():boolean}
 export interface NativeSlotPresentationLease {linkControl(key:string|number,button:HTMLElement,panel:HTMLElement,slot:HTMLSlotElement):Readonly<{controlId:string;panelId:string;slot:string}>;project(dto:Partial<NativeSlotPresentation>):Readonly<{count:number}>;measure(ref:string,keys?:readonly (string|number)[]):Readonly<{x:number;y:number;width:number;height:number}>;focus(ref:string,keys?:readonly (string|number)[]):null;release():boolean}
+export interface RmtDomNativeSsrRequest {
+  schema: typeof RMT_DOM_SSR_SHELL_REQUEST_SCHEMA | typeof RMT_DOM_ADOPTION_REQUEST_SCHEMA;
+  target: Element;
+  /** Already materialized native descriptors; omitted children designate an opaque provider container. */
+  descriptors: unknown[];
+  context?: RmtDomDescriptorRenderOptions;
+  ownership?: RmtDomCommitRequest['ownership'];
+  metadata?: unknown;
+}
+
 export interface RmtDomDescriptorRenderer {
   createNativeOverlayLease(element:Element,request:{open:boolean;modal:boolean},options:{root:Element;owner:{surfaceId:string};isCurrent():boolean;signal?:AbortSignal}):{release():boolean};
   focusNativeComponent(element:Element,request:{part?:'root'|'input'|'control'|'surface'|'close'|'menu';restore?:boolean;ref?:string;keys?:readonly (string|number)[];operation?:'scroll-past'|'tooltip-anchor';slot?:'default';item?:number;describedBy?:string;allowMissing?:boolean},options:{isCurrent():boolean;signal?:AbortSignal}):null|NativeTooltipAnchorLease;
@@ -298,6 +310,10 @@ export interface RmtDomDescriptorRenderer {
   schema: typeof RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA;
   trustedDomBoundary: typeof TRUSTED_DOM_BOUNDARY;
   commit(request: RmtDomCommitRequest): RmtDomCommitResult;
+  /** Initial server-only shell: metadata validation, no custom-element execution or managed preparation. */
+  renderSsrShell(request: RmtDomNativeSsrRequest & {schema: typeof RMT_DOM_SSR_SHELL_REQUEST_SCHEMA}): RmtDomCommitResult;
+  /** Authenticate snapshot and restore Model before calling; validates the complete owned native tree before preparation. */
+  adoptChildren(request: RmtDomNativeSsrRequest & {schema: typeof RMT_DOM_ADOPTION_REQUEST_SCHEMA}): RmtDomCommitResult;
   /** Pure shared validation; optional for pre-2.3 injected renderer ports. */
   preflight?(request: RmtDomCommitRequest): true;
   dispose(target?: Node, options?: { clearOwnedDom?: boolean }): void;

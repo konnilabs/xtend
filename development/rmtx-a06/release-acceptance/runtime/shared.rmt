@@ -1,0 +1,35 @@
+template release.shared {
+  state catalog type object initial { items [
+    { id 1; title "Numeric"; images ["front" "back"]; selectedImageId "front"; sort "recent"; enabled true }
+    { id "1"; title "Text"; images ["front" "back"]; selectedImageId "back"; sort "recent"; enabled true }
+  ] }
+  state ui type object initial { mount true; hydrate true }
+  state capture type object initial { productId null; value ""; kind "" }
+  action catalog.replace {
+    input catalog object
+    reduce state.catalog = input.catalog
+  }
+  action image.select {
+    input productId json
+    input imageId string
+    reduce state.capture.productId = input.productId
+    reduce state.capture.value = input.imageId
+    reduce state.capture.kind = "image"
+  }
+  action reviews.sort {
+    input productId json
+    input sort string
+    reduce state.capture.productId = input.productId
+    reduce state.capture.value = input.sort
+    reduce state.capture.kind = "reviews"
+  }
+  action native.select {
+    input productId json
+    reduce state.capture.productId = input.productId
+    reduce state.capture.kind = "native"
+  }
+  action native.only {
+    input value string
+    reduce state.capture.kind = input.value
+  }
+}

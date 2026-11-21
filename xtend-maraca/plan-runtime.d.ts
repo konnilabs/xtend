@@ -609,3 +609,21 @@ export type ManagedRmtxRuntimeOptions17 = ManagedRmtxRuntimeBaseOptions17 & (
   | { plan: import('./index').ManagedRmtxOnlyBuildPlan12; xtensionCompositionPort?: never }
   | { plan: import('./index').ManagedRmtxBuildPlan12; xtensionCompositionPort: import('./xtension-composition-runtime').ManagedComponentPort }
 );
+
+/** New prepared handoff capability; legacy runtime entrypoints reject it. */
+export const RMTX_SSR_PLAN_RUNTIME_API_VERSION:'1.0.0';
+export interface RmtxSSRHandoffOptions {
+  readonly rmtxSSRSession:Readonly<{schema:'xtend.maraca.xtension-ssr-session.v3';mode:'server'|'client';[key:string]:unknown}>;
+  readonly rmtxSSRBindingAdmission:(snapshot:Readonly<Record<string,unknown>>)=>Readonly<Record<string,boolean>>|undefined;
+}
+export interface RmtxSSRPlanRuntimeSnapshot18 extends Omit<MaracaPlanRuntimeSnapshot,'schema'> {
+  readonly schema:'xtend.maraca.plan-runtime.v18';readonly xtensionSSR:import('./xtension-ssr').RmtxSSRReport|null;
+}
+export interface RmtxSSRPlanRuntime18 extends Omit<MaracaPlanRuntime,'schema'|'boot'|'snapshot'|'subscribe'> {
+  readonly schema:'xtend.maraca.plan-runtime.v18';
+  boot():Promise<RmtxSSRPlanRuntimeSnapshot18>;snapshot():RmtxSSRPlanRuntimeSnapshot18;subscribe(listener:(snapshot:RmtxSSRPlanRuntimeSnapshot18)=>void):()=>void;
+  captureXTensionSSR():Promise<import('./xtension-ssr').RmtxSSRResponse>;
+}
+export function createMaracaRmtxSSRPlanRuntime(options:Omit<MaracaPlanRuntimeOptions,'xtensionCompositionPort'> & RmtxSSRHandoffOptions):RmtxSSRPlanRuntime18;
+
+export function createMaracaRmtxSSRModelSnapshot(program:Readonly<Record<string,unknown>>,states:Readonly<Record<string,unknown>>,stateApi:Readonly<Record<string,unknown>>):Readonly<Record<string,unknown>>;

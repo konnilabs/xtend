@@ -17,7 +17,7 @@ export function createNativeOrchestrationIntegration(program,hooks,ports) {
   const plan=lifecycle.validateNativeOrchestrationLifecyclePlan(program), definitions=new Map(program.surfaces.map(row=>[row.id,row]));
   const tags=declarationTags(program), states=new Map(), last=new Map(), parked=new Map(), controlLifetimes=new Map(), history=[];
   const explicitHydrate=new Set(plan.operations.filter(row=>row.op==='hydrate').map(row=>row.ownerSurface));
-  let disposed=false, materialization=null, lastGraphKey=null, lastGraphReport=null, working=false, pendingAuthorityRefresh=false, rendererRegistryCache=null, rendererRegistrySource=null;
+  let disposed=false, materialization=null, lastGraphKey=null, lastGraphReport=null, working=false, pendingAuthorityRefresh=false, rendererRegistryCache=null, rendererRegistrySource=null, initialSSRStatePrepared=false;
   const platform=()=>hooks.platform(), snapshot=()=>platform().runtimes.state.snapshot();
   const modelStamp=value=>JSON.stringify({states:value.states,selectors:value.selectors||{}});
   const authority=()=>hooks.readAuthority();
@@ -123,23 +123,55 @@ export function createNativeOrchestrationIntegration(program,hooks,ports) {
     for(const row of next)if(!states.has(row.id))states.set(row.id,defaultState(row));
     lastGraphKey=key;lastGraphReport=report;return report;
   }
+  const operationPriority={prewarm:0,suspend:1,detach:2,dispose:3,recycle:4,reattach:5,resume:6,invalidate:7,hydrate:8};
+  // The same phase transition is used after real CSR work and to derive the
+  // initial SSR content frame. It grants no Controller or Kernel authority.
+  function applyPhaseOperation(op,row,evaluated) {
+    const phase=states.get(row.id);
+    if(op.op==='suspend')phase.suspended=true;
+    else if(op.op==='resume')phase.suspended=false;
+    else if(op.op==='detach')phase.detached=true;
+    else if(op.op==='reattach')phase.detached=false;
+    else if(op.op==='dispose')phase.disposed=true;
+    else if(op.op==='recycle'){
+      Object.assign(phase,defaultState(row));
+      for(const other of evaluated.operations.filter(item=>item.surfaceId===row.id&&item.id!==op.id))last.delete(other.id);
+    } else if(op.op==='invalidate'){
+      phase.hydrated=!explicitHydrate.has(row.surfaceId);
+      for(const other of evaluated.operations.filter(item=>item.surfaceId===row.id&&item.op==='hydrate'))last.delete(other.id);
+    }
+  }
+  function initializeSSRState(evaluated) {
+    if(initialSSRStatePrepared)return;
+    const session=platform().options.rmtxSSRSession;
+    if(session?.schema!=='xtend.maraca.xtension-ssr-session.v3')return;
+    const list=evaluated.scopes.instances,index=new Map(list.map(row=>[row.id,row]));
+    const commands=evaluated.operations.filter(op=>op.enabled&&!['mount','hydrate','prewarm'].includes(op.op)).sort((a,b)=>operationPriority[a.op]-operationPriority[b.op]);
+    for(const op of commands){const row=index.get(op.surfaceId);if(!row||!eligible(row,list))continue;applyPhaseOperation(op,row,evaluated);last.set(op.id,true);}
+    // Hydrate is still actual client activation after adoption. Initial
+    // Prewarm still needs actual client Kernel/Fabric admission after restore.
+    // Destructive edges have already shaped the signed shell, so consuming
+    // them again against the preserved client DOM would erase that shell.
+    initialSSRStatePrepared=true;
+  }
   async function beforeCommit(value,metadata={}) {
     if(disposed)return false;const evaluated=frame(value), stamp=modelStamp(value);working=true;
     try{
       const report=await prepareSurfaceMembership(value,metadata);if(report?.status==='superseded'||report?.ok===false||modelStamp(snapshot())!==stamp)return false;
+      initializeSSRState(evaluated);
+      if(platform().options.rmtxSSRSession?.mode==='server')return synchronize(value);
       const list=evaluated.scopes.instances,index=new Map(list.map(row=>[row.id,row]));
       for(const op of evaluated.operations)if(!op.enabled)last.set(op.id,false);
-      const priority={prewarm:0,suspend:1,detach:2,dispose:3,recycle:4,reattach:5,resume:6,invalidate:7,hydrate:8};
-      const commands=evaluated.operations.filter(op=>op.op!=='mount'&&op.op!=='hydrate'&&op.enabled&&last.get(op.id)!==true).sort((a,b)=>priority[a.op]-priority[b.op]);
-      for(const op of commands){const row=index.get(op.surfaceId);if(!row||!eligible(row,list))continue;const phase=states.get(row.id);
+      const commands=evaluated.operations.filter(op=>op.op!=='mount'&&op.op!=='hydrate'&&op.enabled&&last.get(op.id)!==true).sort((a,b)=>operationPriority[a.op]-operationPriority[b.op]);
+      for(const op of commands){const row=index.get(op.surfaceId);if(!row||!eligible(row,list))continue;
         const accepted=await schedule(op,row,list,async(token)=>{
           if(op.op==='prewarm'){if(!await ensureTags([...(tags.get(row.surfaceId)||[])],token))return false;const p=platform(),foreign=p.bindingArtifact?.bindings.some(entry=>entry.ownerSurface===row.surfaceId||entry.surface===row.surfaceId);if(foreign&&typeof p.createXTensionHost?.prewarm!=='function')throw new TypeError('Prewarm requires the captured provider namespace prewarm port.');if(p.createXTensionHost?.prewarm)await p.createXTensionHost.prewarm({surfaceIds:[row.surfaceId],signal:token.boundary.signal,isCurrent:()=>leaseCurrent(token)});}
-          else if(op.op==='suspend'){await suspendBindings(row.id,list,'rmtx-suspend');if(!leaseCurrent(token))return;phase.suspended=true;hooks.boundary(row.id).setActive(false,'rmtx-suspend');}
-          else if(op.op==='resume'){phase.suspended=false;synchronize(value);await resumeBindings(row.id,list,'rmtx-resume');}
-          else if(op.op==='detach'){await suspendBindings(row.id,list,'rmtx-detach');if(!leaseCurrent(token))return;phase.detached=true;parkNodes(row.id,list);hooks.boundary(row.id).setActive(false,'rmtx-detach');platform().reindexSurfaces();}
-          else if(op.op==='reattach'){if(!reattachNodes(row.id))return false;phase.detached=false;platform().reindexSurfaces();synchronize(value);await resumeBindings(row.id,list,'rmtx-reattach');}
-          else if(op.op==='dispose'||op.op==='recycle'){await retire(row.id,list,'rmtx-'+op.op);if(!leaseCurrent(token))return;hooks.boundary(row.id).invalidate('rmtx-'+op.op);clearNode(row.id,list);if(op.op==='dispose')phase.disposed=true;else{Object.assign(phase,defaultState(row));for(const other of evaluated.operations.filter(item=>item.surfaceId===row.id&&item.id!==op.id))last.delete(other.id);}}
-          else if(op.op==='invalidate'){await suspendBindings(row.id,list,'rmtx-invalidate');await disposeControls(row.id);if(!leaseCurrent(token))return;hooks.boundary(row.id).invalidate('rmtx-invalidate');phase.hydrated=!explicitHydrate.has(row.surfaceId);for(const other of evaluated.operations.filter(item=>item.surfaceId===row.id&&item.op==='hydrate'))last.delete(other.id);synchronize(value);await resumeBindings(row.id,list,'rmtx-invalidate');}
+          else if(op.op==='suspend'){await suspendBindings(row.id,list,'rmtx-suspend');if(!leaseCurrent(token))return;applyPhaseOperation(op,row,evaluated);hooks.boundary(row.id).setActive(false,'rmtx-suspend');}
+          else if(op.op==='resume'){applyPhaseOperation(op,row,evaluated);synchronize(value);await resumeBindings(row.id,list,'rmtx-resume');}
+          else if(op.op==='detach'){await suspendBindings(row.id,list,'rmtx-detach');if(!leaseCurrent(token))return;applyPhaseOperation(op,row,evaluated);parkNodes(row.id,list);hooks.boundary(row.id).setActive(false,'rmtx-detach');platform().reindexSurfaces();}
+          else if(op.op==='reattach'){if(!reattachNodes(row.id))return false;applyPhaseOperation(op,row,evaluated);platform().reindexSurfaces();synchronize(value);await resumeBindings(row.id,list,'rmtx-reattach');}
+          else if(op.op==='dispose'||op.op==='recycle'){await retire(row.id,list,'rmtx-'+op.op);if(!leaseCurrent(token))return;hooks.boundary(row.id).invalidate('rmtx-'+op.op);clearNode(row.id,list);applyPhaseOperation(op,row,evaluated);}
+          else if(op.op==='invalidate'){await suspendBindings(row.id,list,'rmtx-invalidate');await disposeControls(row.id);if(!leaseCurrent(token))return;hooks.boundary(row.id).invalidate('rmtx-invalidate');applyPhaseOperation(op,row,evaluated);synchronize(value);await resumeBindings(row.id,list,'rmtx-invalidate');}
         });
         if(accepted)last.set(op.id,true);else if(modelStamp(snapshot())!==stamp)return false;
       }

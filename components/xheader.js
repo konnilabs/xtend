@@ -1,4 +1,4 @@
-// Native shared-definition closure sha256: 345a226944c6edc9d585847407950a7a53f81b5f7083243f531f407a4ee3acc6
+// Native shared-definition closure sha256: 9089dc504c2a7db9c9df56ad5ac3055e39a1bc823bb968c04e43da68a114ea36
 // Classic bootstrap. Native RMT loads the shared pure definition directly.
 import './xtend-state.js';
 import { defineManagedComponent } from './native-managed.js';

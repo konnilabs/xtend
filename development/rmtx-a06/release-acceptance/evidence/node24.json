@@ -1,0 +1,2395 @@
+{
+  "schema": "xtend.rmtx.ssr-runtime-acceptance.v1",
+  "format": 1,
+  "stage": "A06.6.2-versioned-rmtx-ssr",
+  "node": "v24.18.0",
+  "browser": "145.0.7632.6",
+  "browserExecutableOverride": true,
+  "toolchain": {
+    "typescript": "5.9.3",
+    "rollup": "4.60.4",
+    "esbuild": "0.28.2",
+    "terser": "5.51.4",
+    "jsdom": "30.1.2",
+    "playwright": "1.56.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "vue": "3.5.43"
+  },
+  "passed": true,
+  "cases": 50,
+  "names": [
+    "explicit production SSR build retains Source8 and the linked Classic project identity",
+    "real Node SSR renders native Light-DOM and four typed React/Vue roots through Kernel/Fabric",
+    "empty native and framework collections retain their declared source contract",
+    "serialized build reports cannot grant SSR authority",
+    "modified captured platform bytes fail before loading framework peers",
+    "real sealed RMTX SSR browser: resume",
+    "real sealed RMTX SSR browser: replay",
+    "real sealed RMTX SSR browser: duplicate",
+    "real sealed RMTX SSR browser: image-replay",
+    "real sealed RMTX SSR browser: held",
+    "real sealed RMTX SSR browser: live",
+    "real sealed RMTX SSR browser: native",
+    "real sealed RMTX SSR browser: reorder",
+    "real sealed RMTX SSR browser: renew",
+    "real sealed RMTX SSR browser: fallback",
+    "real sealed RMTX SSR browser: empty",
+    "real sealed RMTX SSR browser: signed-owner",
+    "real sealed RMTX SSR browser: signed-owner-instance",
+    "real sealed RMTX SSR browser: signed-interface",
+    "real sealed RMTX SSR browser: signed-provider",
+    "real sealed RMTX SSR browser: signed-props",
+    "real sealed RMTX SSR browser: signed-key-type",
+    "real sealed RMTX SSR browser: signed-project",
+    "real sealed RMTX SSR browser: signed-source-profile",
+    "real sealed RMTX SSR browser: signed-state",
+    "real sealed RMTX SSR browser: signed-expired",
+    "real sealed RMTX SSR browser: signature",
+    "real sealed RMTX SSR browser: source",
+    "real sealed RMTX SSR browser: old-wire",
+    "real sealed RMTX SSR browser: shell",
+    "real sealed RMTX SSR browser: native-tamper",
+    "real sealed RMTX SSR browser: dom-reject",
+    "real sealed RMTX SSR browser: mount-invalid-identity",
+    "real sealed RMTX SSR browser: cancel",
+    "real sealed RMTX SSR browser: wrong-payload",
+    "real sealed RMTX SSR browser: bad-key",
+    "real sealed RMTX SSR browser: bad-generation",
+    "real sealed RMTX SSR browser: conflict",
+    "real sealed RMTX SSR browser: invalid-batch",
+    "real sealed RMTX SSR browser: late-container",
+    "real sealed RMTX SSR browser: hydrate-error",
+    "native-only production SSR keeps its real project and has no synthetic framework composition",
+    "native-only Node SSR signs restored Light-DOM with no framework hosts or server custom-element execution",
+    "native-only sealed browser: resume",
+    "native-only sealed browser: click",
+    "native-only sealed browser: signature",
+    "native-only sealed browser: old-wire",
+    "native-only sealed browser: shell",
+    "native-only sealed browser: native-tamper",
+    "native-only sealed browser: cancel"
+  ],
+  "sources": {
+    "source.rmtx": "3f473759aa4dea0045cbbea73008e0747c2d2a70df627bcafa21446fe00a9d71",
+    "native-only.rmtx": "679310cbfa732f6779a21c6b0979680b91917dacb7861a4229522ade7d145390",
+    "shared.rmt": "cb9bd2a0c6c406533aa35ce5193dbde7b8d5d4ebc7dff76c8990a3176909f43c",
+    "reference.cjs": "fd30213f70cd7123339bce2ad57206e09c3a2239eba95317f75b8ddcfbd8c1e8",
+    "bootstrap.mjs": "48fa25e1aac5dbd0aebd933f25471cb57fea551446fcdd8fe080f7a76c78ff26",
+    "runtime-test.cjs": "8f6fd12ac90739e20f5d5a288bd03a1cfd7fe9c6e1bfe9015f1cdc4bd9fde8f5",
+    "native-only-test.cjs": "2e7244eddec2464735c11ef772f903319946c57ecf6ef1987cf50ad91ef53a09"
+  },
+  "sourceIdentity": {
+    "schema": "xtend.maraca.rmtx-ssr-source-identity.v1",
+    "sourceProfile": {
+      "syntax": "rmtx",
+      "version": "8.0.0"
+    },
+    "sourceHash": "3f473759aa4dea0045cbbea73008e0747c2d2a70df627bcafa21446fe00a9d71",
+    "project": {
+      "schema": "xtend.rmt.project-report.v1",
+      "apiVersion": "1.0.0",
+      "identity": "3eaff4e0b0be701e8b43b57cfd427c0896058f4c86784bef9d2af3d3a0345c26",
+      "sourceSyntax": "rmtx"
+    }
+  },
+  "nativeSealedJavaScript": true,
+  "trustedServerComposedDocument": true,
+  "ssrWireVersion": 3,
+  "realClassicActionExecutionVerified": true,
+  "realKernelFabricVerified": true,
+  "results": {
+    "resume": {
+      "report": {
+        "schema": "xtend.maraca.xtension-ssr-report.v3",
+        "apiVersion": "3.0.0",
+        "mode": "client",
+        "generation": "rmtx-mixed-request",
+        "status": "resumed",
+        "hosts": [
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-gallery",
+              "keys": [
+                1
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "react",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          },
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-gallery",
+              "keys": [
+                "1"
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "react",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          },
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-reviews",
+              "keys": [
+                1
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "vue",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          },
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-reviews",
+              "keys": [
+                "1"
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "vue",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          }
+        ],
+        "replayedIntents": 0,
+        "phases": [
+          "verified",
+          "restored",
+          "adopted",
+          "replayed"
+        ]
+      },
+      "loads": 2,
+      "admissions": 4,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": true,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": true,
+      "preserved": true,
+      "firstPreserved": true,
+      "siblingPreserved": true,
+      "nativePreserved": true,
+      "unchanged": false,
+      "capture": {
+        "productId": null,
+        "value": "",
+        "kind": ""
+      },
+      "catalog": {
+        "items": [
+          {
+            "id": 1,
+            "title": "Server numeric",
+            "images": [
+              "front",
+              "back"
+            ],
+            "selectedImageId": "back",
+            "sort": "recent",
+            "enabled": true
+          },
+          {
+            "id": "1",
+            "title": "Text",
+            "images": [
+              "front",
+              "back"
+            ],
+            "selectedImageId": "back",
+            "sort": "recent",
+            "enabled": true
+          }
+        ]
+      },
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 4,
+      "remainingFramework": 0,
+      "remainingNative": 4
+    },
+    "replay": {
+      "report": {
+        "schema": "xtend.maraca.xtension-ssr-report.v3",
+        "apiVersion": "3.0.0",
+        "mode": "client",
+        "generation": "rmtx-mixed-request",
+        "status": "resumed",
+        "hosts": [
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-gallery",
+              "keys": [
+                1
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "react",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          },
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-gallery",
+              "keys": [
+                "1"
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "react",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          },
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-reviews",
+              "keys": [
+                1
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "vue",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          },
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-reviews",
+              "keys": [
+                "1"
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "vue",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          }
+        ],
+        "replayedIntents": 1,
+        "phases": [
+          "verified",
+          "restored",
+          "adopted",
+          "replayed"
+        ]
+      },
+      "loads": 2,
+      "admissions": 4,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": true,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": true,
+      "preserved": true,
+      "firstPreserved": true,
+      "siblingPreserved": true,
+      "nativePreserved": true,
+      "unchanged": false,
+      "capture": {
+        "productId": "1",
+        "value": "rating",
+        "kind": "reviews"
+      },
+      "catalog": {
+        "items": [
+          {
+            "id": 1,
+            "title": "Server numeric",
+            "images": [
+              "front",
+              "back"
+            ],
+            "selectedImageId": "back",
+            "sort": "recent",
+            "enabled": true
+          },
+          {
+            "id": "1",
+            "title": "Text",
+            "images": [
+              "front",
+              "back"
+            ],
+            "selectedImageId": "back",
+            "sort": "recent",
+            "enabled": true
+          }
+        ]
+      },
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 4,
+      "remainingFramework": 0,
+      "remainingNative": 4
+    },
+    "duplicate": {
+      "report": {
+        "schema": "xtend.maraca.xtension-ssr-report.v3",
+        "apiVersion": "3.0.0",
+        "mode": "client",
+        "generation": "rmtx-mixed-request",
+        "status": "resumed",
+        "hosts": [
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-gallery",
+              "keys": [
+                1
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "react",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          },
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-gallery",
+              "keys": [
+                "1"
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "react",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          },
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-reviews",
+              "keys": [
+                1
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "vue",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          },
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-reviews",
+              "keys": [
+                "1"
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "vue",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          }
+        ],
+        "replayedIntents": 1,
+        "phases": [
+          "verified",
+          "restored",
+          "adopted",
+          "replayed"
+        ]
+      },
+      "loads": 2,
+      "admissions": 4,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": true,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": true,
+      "preserved": true,
+      "firstPreserved": true,
+      "siblingPreserved": true,
+      "nativePreserved": true,
+      "unchanged": false,
+      "capture": {
+        "productId": "1",
+        "value": "rating",
+        "kind": "reviews"
+      },
+      "catalog": {
+        "items": [
+          {
+            "id": 1,
+            "title": "Server numeric",
+            "images": [
+              "front",
+              "back"
+            ],
+            "selectedImageId": "back",
+            "sort": "recent",
+            "enabled": true
+          },
+          {
+            "id": "1",
+            "title": "Text",
+            "images": [
+              "front",
+              "back"
+            ],
+            "selectedImageId": "back",
+            "sort": "recent",
+            "enabled": true
+          }
+        ]
+      },
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 4,
+      "remainingFramework": 0,
+      "remainingNative": 4
+    },
+    "image-replay": {
+      "report": {
+        "schema": "xtend.maraca.xtension-ssr-report.v3",
+        "apiVersion": "3.0.0",
+        "mode": "client",
+        "generation": "rmtx-mixed-request",
+        "status": "resumed",
+        "hosts": [
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-gallery",
+              "keys": [
+                1
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "react",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          },
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-gallery",
+              "keys": [
+                "1"
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "react",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          },
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-reviews",
+              "keys": [
+                1
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "vue",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          },
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-reviews",
+              "keys": [
+                "1"
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "vue",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          }
+        ],
+        "replayedIntents": 1,
+        "phases": [
+          "verified",
+          "restored",
+          "adopted",
+          "replayed"
+        ]
+      },
+      "loads": 2,
+      "admissions": 4,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": true,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": true,
+      "preserved": true,
+      "firstPreserved": true,
+      "siblingPreserved": true,
+      "nativePreserved": true,
+      "unchanged": false,
+      "capture": {
+        "productId": 1,
+        "value": "front",
+        "kind": "image"
+      },
+      "catalog": {
+        "items": [
+          {
+            "id": 1,
+            "title": "Server numeric",
+            "images": [
+              "front",
+              "back"
+            ],
+            "selectedImageId": "back",
+            "sort": "recent",
+            "enabled": true
+          },
+          {
+            "id": "1",
+            "title": "Text",
+            "images": [
+              "front",
+              "back"
+            ],
+            "selectedImageId": "back",
+            "sort": "recent",
+            "enabled": true
+          }
+        ]
+      },
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 4,
+      "remainingFramework": 0,
+      "remainingNative": 4
+    },
+    "held": {
+      "report": {
+        "schema": "xtend.maraca.xtension-ssr-report.v3",
+        "apiVersion": "3.0.0",
+        "mode": "client",
+        "generation": "rmtx-mixed-request",
+        "status": "resumed",
+        "hosts": [
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-gallery",
+              "keys": [
+                1
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "react",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          },
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-gallery",
+              "keys": [
+                "1"
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "react",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          },
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-reviews",
+              "keys": [
+                1
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "vue",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          },
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-reviews",
+              "keys": [
+                "1"
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "vue",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          }
+        ],
+        "replayedIntents": 1,
+        "phases": [
+          "verified",
+          "restored",
+          "adopted",
+          "replayed"
+        ]
+      },
+      "loads": 2,
+      "admissions": 4,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": true,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": true,
+      "preserved": true,
+      "firstPreserved": true,
+      "siblingPreserved": true,
+      "nativePreserved": true,
+      "unchanged": false,
+      "capture": {
+        "productId": 1,
+        "value": "rating",
+        "kind": "reviews"
+      },
+      "catalog": {
+        "items": [
+          {
+            "id": 1,
+            "title": "Server numeric",
+            "images": [
+              "front",
+              "back"
+            ],
+            "selectedImageId": "back",
+            "sort": "recent",
+            "enabled": true
+          },
+          {
+            "id": "1",
+            "title": "Text",
+            "images": [
+              "front",
+              "back"
+            ],
+            "selectedImageId": "back",
+            "sort": "recent",
+            "enabled": true
+          }
+        ]
+      },
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 4,
+      "remainingFramework": 0,
+      "remainingNative": 4
+    },
+    "live": {
+      "report": {
+        "schema": "xtend.maraca.xtension-ssr-report.v3",
+        "apiVersion": "3.0.0",
+        "mode": "client",
+        "generation": "rmtx-mixed-request",
+        "status": "resumed",
+        "hosts": [
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-gallery",
+              "keys": [
+                1
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "react",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          },
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-gallery",
+              "keys": [
+                "1"
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "react",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          },
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-reviews",
+              "keys": [
+                1
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "vue",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          },
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-reviews",
+              "keys": [
+                "1"
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "vue",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          }
+        ],
+        "replayedIntents": 0,
+        "phases": [
+          "verified",
+          "restored",
+          "adopted",
+          "replayed"
+        ]
+      },
+      "loads": 2,
+      "admissions": 4,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": true,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": true,
+      "preserved": true,
+      "firstPreserved": true,
+      "siblingPreserved": true,
+      "nativePreserved": true,
+      "unchanged": false,
+      "capture": {
+        "productId": 1,
+        "value": "rating",
+        "kind": "reviews"
+      },
+      "catalog": {
+        "items": [
+          {
+            "id": 1,
+            "title": "Server numeric",
+            "images": [
+              "front",
+              "back"
+            ],
+            "selectedImageId": "back",
+            "sort": "recent",
+            "enabled": true
+          },
+          {
+            "id": "1",
+            "title": "Text",
+            "images": [
+              "front",
+              "back"
+            ],
+            "selectedImageId": "back",
+            "sort": "recent",
+            "enabled": true
+          }
+        ]
+      },
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 4,
+      "remainingFramework": 0,
+      "remainingNative": 4
+    },
+    "native": {
+      "report": {
+        "schema": "xtend.maraca.xtension-ssr-report.v3",
+        "apiVersion": "3.0.0",
+        "mode": "client",
+        "generation": "rmtx-mixed-request",
+        "status": "resumed",
+        "hosts": [
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-gallery",
+              "keys": [
+                1
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "react",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          },
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-gallery",
+              "keys": [
+                "1"
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "react",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          },
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-reviews",
+              "keys": [
+                1
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "vue",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          },
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-reviews",
+              "keys": [
+                "1"
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "vue",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          }
+        ],
+        "replayedIntents": 0,
+        "phases": [
+          "verified",
+          "restored",
+          "adopted",
+          "replayed"
+        ]
+      },
+      "loads": 2,
+      "admissions": 4,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": true,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": true,
+      "preserved": true,
+      "firstPreserved": true,
+      "siblingPreserved": true,
+      "nativePreserved": true,
+      "unchanged": false,
+      "capture": {
+        "productId": 1,
+        "value": "",
+        "kind": "native"
+      },
+      "catalog": {
+        "items": [
+          {
+            "id": 1,
+            "title": "Server numeric",
+            "images": [
+              "front",
+              "back"
+            ],
+            "selectedImageId": "back",
+            "sort": "recent",
+            "enabled": true
+          },
+          {
+            "id": "1",
+            "title": "Text",
+            "images": [
+              "front",
+              "back"
+            ],
+            "selectedImageId": "back",
+            "sort": "recent",
+            "enabled": true
+          }
+        ]
+      },
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 4,
+      "remainingFramework": 0,
+      "remainingNative": 4
+    },
+    "reorder": {
+      "report": {
+        "schema": "xtend.maraca.xtension-ssr-report.v3",
+        "apiVersion": "3.0.0",
+        "mode": "client",
+        "generation": "rmtx-mixed-request",
+        "status": "resumed",
+        "hosts": [
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-gallery",
+              "keys": [
+                1
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "react",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          },
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-gallery",
+              "keys": [
+                "1"
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "react",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          },
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-reviews",
+              "keys": [
+                1
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "vue",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          },
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-reviews",
+              "keys": [
+                "1"
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "vue",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          }
+        ],
+        "replayedIntents": 0,
+        "phases": [
+          "verified",
+          "restored",
+          "adopted",
+          "replayed"
+        ]
+      },
+      "loads": 2,
+      "admissions": 4,
+      "reordered": true,
+      "renewed": false,
+      "nativeActivated": true,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": true,
+      "preserved": true,
+      "firstPreserved": true,
+      "siblingPreserved": true,
+      "nativePreserved": true,
+      "unchanged": false,
+      "capture": {
+        "productId": null,
+        "value": "",
+        "kind": ""
+      },
+      "catalog": {
+        "items": [
+          {
+            "id": "1",
+            "title": "Text",
+            "images": [
+              "front",
+              "back"
+            ],
+            "selectedImageId": "back",
+            "sort": "recent",
+            "enabled": true
+          },
+          {
+            "id": 1,
+            "title": "Server numeric",
+            "images": [
+              "front",
+              "back"
+            ],
+            "selectedImageId": "back",
+            "sort": "recent",
+            "enabled": true
+          }
+        ]
+      },
+      "nativeTitles": [
+        "Text",
+        "Server numeric"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 4,
+      "remainingFramework": 0,
+      "remainingNative": 4
+    },
+    "renew": {
+      "report": {
+        "schema": "xtend.maraca.xtension-ssr-report.v3",
+        "apiVersion": "3.0.0",
+        "mode": "client",
+        "generation": "rmtx-mixed-request",
+        "status": "resumed",
+        "hosts": [
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-gallery",
+              "keys": [
+                1
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "react",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          },
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-gallery",
+              "keys": [
+                "1"
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "react",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          },
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-reviews",
+              "keys": [
+                1
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "vue",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          },
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-reviews",
+              "keys": [
+                "1"
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "vue",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          }
+        ],
+        "replayedIntents": 0,
+        "phases": [
+          "verified",
+          "restored",
+          "adopted",
+          "replayed"
+        ]
+      },
+      "loads": 2,
+      "admissions": 6,
+      "reordered": false,
+      "renewed": true,
+      "nativeActivated": true,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": true,
+      "preserved": false,
+      "firstPreserved": false,
+      "siblingPreserved": false,
+      "nativePreserved": false,
+      "unchanged": false,
+      "capture": {
+        "productId": null,
+        "value": "",
+        "kind": ""
+      },
+      "catalog": {
+        "items": [
+          {
+            "id": 1,
+            "title": "Server numeric",
+            "images": [
+              "front",
+              "back"
+            ],
+            "selectedImageId": "back",
+            "sort": "recent",
+            "enabled": true
+          },
+          {
+            "id": "1",
+            "title": "Text",
+            "images": [
+              "front",
+              "back"
+            ],
+            "selectedImageId": "back",
+            "sort": "recent",
+            "enabled": true
+          }
+        ]
+      },
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 4,
+      "remainingFramework": 0,
+      "remainingNative": 4
+    },
+    "fallback": {
+      "report": {
+        "schema": "xtend.maraca.xtension-ssr-report.v3",
+        "apiVersion": "3.0.0",
+        "mode": "client",
+        "generation": "rmtx-mixed-request",
+        "status": "fallback-mounted",
+        "hosts": [
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-gallery",
+              "keys": [
+                1
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "react",
+              "status": "fallback-mounted",
+              "nodeIdentityPreserved": false
+            }
+          },
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-gallery",
+              "keys": [
+                "1"
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "react",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          },
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-reviews",
+              "keys": [
+                1
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "vue",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          },
+          {
+            "address": {
+              "documentId": "release.ssr",
+              "declarationId": "product-reviews",
+              "keys": [
+                "1"
+              ]
+            },
+            "result": {
+              "schema": "xtend.xtensions.framework-ssr-result.v1",
+              "framework": "vue",
+              "status": "resumed",
+              "nodeIdentityPreserved": true
+            }
+          }
+        ],
+        "replayedIntents": 0,
+        "phases": [
+          "verified",
+          "restored",
+          "adopted",
+          "replayed"
+        ]
+      },
+      "loads": 2,
+      "admissions": 4,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": true,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": true,
+      "preserved": false,
+      "firstPreserved": false,
+      "siblingPreserved": true,
+      "nativePreserved": true,
+      "unchanged": false,
+      "capture": {
+        "productId": null,
+        "value": "",
+        "kind": ""
+      },
+      "catalog": {
+        "items": [
+          {
+            "id": 1,
+            "title": "Server numeric",
+            "images": [
+              "front",
+              "back"
+            ],
+            "selectedImageId": "back",
+            "sort": "recent",
+            "enabled": true
+          },
+          {
+            "id": "1",
+            "title": "Text",
+            "images": [
+              "front",
+              "back"
+            ],
+            "selectedImageId": "back",
+            "sort": "recent",
+            "enabled": true
+          }
+        ]
+      },
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 4,
+      "remainingFramework": 0,
+      "remainingNative": 4
+    },
+    "empty": {
+      "report": {
+        "schema": "xtend.maraca.xtension-ssr-report.v3",
+        "apiVersion": "3.0.0",
+        "mode": "client",
+        "generation": "rmtx-empty-request",
+        "status": "resumed",
+        "hosts": [],
+        "replayedIntents": 0,
+        "phases": [
+          "verified",
+          "restored",
+          "adopted",
+          "replayed"
+        ]
+      },
+      "loads": 0,
+      "admissions": 0,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": true,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": false,
+      "preserved": true,
+      "firstPreserved": false,
+      "siblingPreserved": false,
+      "nativePreserved": true,
+      "unchanged": true,
+      "capture": {
+        "productId": null,
+        "value": "",
+        "kind": ""
+      },
+      "catalog": {
+        "items": []
+      },
+      "nativeTitles": [],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 0,
+      "remainingFramework": 0,
+      "remainingNative": 0
+    },
+    "signed-owner": {
+      "error": "SSR component owner, target or interface provenance differs from the captured declaration.",
+      "loads": 0,
+      "admissions": 0,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": false,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": false,
+      "preserved": true,
+      "firstPreserved": true,
+      "siblingPreserved": true,
+      "nativePreserved": true,
+      "unchanged": true,
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 8,
+      "remainingFramework": 4,
+      "remainingNative": 4
+    },
+    "signed-owner-instance": {
+      "error": "SSR component owner, target or interface provenance differs from the captured declaration.",
+      "loads": 0,
+      "admissions": 0,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": false,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": false,
+      "preserved": true,
+      "firstPreserved": true,
+      "siblingPreserved": true,
+      "nativePreserved": true,
+      "unchanged": true,
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 8,
+      "remainingFramework": 4,
+      "remainingNative": 4
+    },
+    "signed-interface": {
+      "error": "SSR component owner, target or interface provenance differs from the captured declaration.",
+      "loads": 0,
+      "admissions": 0,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": false,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": false,
+      "preserved": true,
+      "firstPreserved": true,
+      "siblingPreserved": true,
+      "nativePreserved": true,
+      "unchanged": true,
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 8,
+      "remainingFramework": 4,
+      "remainingNative": 4
+    },
+    "signed-provider": {
+      "error": "SSR host identity differs from the compiled provider/binding.",
+      "loads": 0,
+      "admissions": 0,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": false,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": false,
+      "preserved": true,
+      "firstPreserved": true,
+      "siblingPreserved": true,
+      "nativePreserved": true,
+      "unchanged": true,
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 8,
+      "remainingFramework": 4,
+      "remainingNative": 4
+    },
+    "signed-props": {
+      "error": "Signed SSR props do not match the restored Model.",
+      "loads": 0,
+      "admissions": 0,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": false,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": false,
+      "preserved": true,
+      "firstPreserved": true,
+      "siblingPreserved": true,
+      "nativePreserved": true,
+      "unchanged": true,
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 8,
+      "remainingFramework": 4,
+      "remainingNative": 4
+    },
+    "signed-key-type": {
+      "error": "SSR host identity differs from the compiled provider/binding.",
+      "loads": 0,
+      "admissions": 0,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": false,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": false,
+      "preserved": true,
+      "firstPreserved": true,
+      "siblingPreserved": true,
+      "nativePreserved": true,
+      "unchanged": true,
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 8,
+      "remainingFramework": 4,
+      "remainingNative": 4
+    },
+    "signed-project": {
+      "error": "SSR source/project profile provenance differs from the compiled handoff.",
+      "loads": 0,
+      "admissions": 0,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": false,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": false,
+      "preserved": true,
+      "firstPreserved": true,
+      "siblingPreserved": true,
+      "nativePreserved": true,
+      "unchanged": true,
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 8,
+      "remainingFramework": 4,
+      "remainingNative": 4
+    },
+    "signed-source-profile": {
+      "error": "SSR source/project profile provenance differs from the compiled handoff.",
+      "loads": 0,
+      "admissions": 0,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": false,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": false,
+      "preserved": true,
+      "firstPreserved": true,
+      "siblingPreserved": true,
+      "nativePreserved": true,
+      "unchanged": true,
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 8,
+      "remainingFramework": 4,
+      "remainingNative": 4
+    },
+    "signed-state": {
+      "error": "Invalid restored Model state fields.",
+      "loads": 0,
+      "admissions": 0,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": false,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": false,
+      "preserved": true,
+      "firstPreserved": true,
+      "siblingPreserved": true,
+      "nativePreserved": true,
+      "unchanged": true,
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 8,
+      "remainingFramework": 4,
+      "remainingNative": 4
+    },
+    "signed-expired": {
+      "error": "SSR snapshot identity or lifetime is invalid.",
+      "loads": 0,
+      "admissions": 0,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": false,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": false,
+      "preserved": true,
+      "firstPreserved": true,
+      "siblingPreserved": true,
+      "nativePreserved": true,
+      "unchanged": true,
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 8,
+      "remainingFramework": 4,
+      "remainingNative": 4
+    },
+    "signature": {
+      "error": "SSR signature verification failed.",
+      "loads": 0,
+      "admissions": 0,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": false,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": false,
+      "preserved": true,
+      "firstPreserved": true,
+      "siblingPreserved": true,
+      "nativePreserved": true,
+      "unchanged": true,
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 8,
+      "remainingFramework": 4,
+      "remainingNative": 4
+    },
+    "source": {
+      "error": "SSR snapshot identity or lifetime is invalid.",
+      "loads": 0,
+      "admissions": 0,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": false,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": false,
+      "preserved": true,
+      "firstPreserved": true,
+      "siblingPreserved": true,
+      "nativePreserved": true,
+      "unchanged": true,
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 8,
+      "remainingFramework": 4,
+      "remainingNative": 4
+    },
+    "old-wire": {
+      "error": "SSR snapshot identity or lifetime is invalid.",
+      "loads": 0,
+      "admissions": 0,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": false,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": false,
+      "preserved": true,
+      "firstPreserved": true,
+      "siblingPreserved": true,
+      "nativePreserved": true,
+      "unchanged": true,
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 8,
+      "remainingFramework": 4,
+      "remainingNative": 4
+    },
+    "shell": {
+      "error": "SSR shell ownership does not match the signed snapshot.",
+      "loads": 0,
+      "admissions": 0,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": false,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": false,
+      "preserved": true,
+      "firstPreserved": true,
+      "siblingPreserved": true,
+      "nativePreserved": true,
+      "unchanged": true,
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 8,
+      "remainingFramework": 4,
+      "remainingNative": 4
+    },
+    "native-tamper": {
+      "error": "SSR shell ownership does not match the signed snapshot.",
+      "loads": 0,
+      "admissions": 0,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": false,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": false,
+      "preserved": true,
+      "firstPreserved": true,
+      "siblingPreserved": true,
+      "nativePreserved": true,
+      "unchanged": true,
+      "nativeTitles": [
+        "untrusted native text",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 8,
+      "remainingFramework": 4,
+      "remainingNative": 4
+    },
+    "dom-reject": {
+      "error": "SSR framework DOM differs from the signed snapshot.",
+      "loads": 0,
+      "admissions": 0,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": false,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": false,
+      "preserved": true,
+      "firstPreserved": true,
+      "siblingPreserved": true,
+      "nativePreserved": true,
+      "unchanged": true,
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 8,
+      "remainingFramework": 4,
+      "remainingNative": 4
+    },
+    "mount-invalid-identity": {
+      "error": "SSR component owner, target or interface provenance differs from the captured declaration.",
+      "loads": 0,
+      "admissions": 0,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": false,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": false,
+      "preserved": true,
+      "firstPreserved": true,
+      "siblingPreserved": true,
+      "nativePreserved": true,
+      "unchanged": true,
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 8,
+      "remainingFramework": 4,
+      "remainingNative": 4
+    },
+    "cancel": {
+      "error": "XTend Maraca app disposed.",
+      "loads": 0,
+      "admissions": 0,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": false,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": false,
+      "preserved": true,
+      "firstPreserved": true,
+      "siblingPreserved": true,
+      "nativePreserved": true,
+      "unchanged": true,
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 8,
+      "remainingFramework": 4,
+      "remainingNative": 4
+    },
+    "wrong-payload": {
+      "error": "Provider intent payload fields must match the declaration exactly.",
+      "loads": 2,
+      "admissions": 4,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": false,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": true,
+      "preserved": false,
+      "firstPreserved": false,
+      "siblingPreserved": false,
+      "nativePreserved": true,
+      "unchanged": false,
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 4,
+      "remainingFramework": 0,
+      "remainingNative": 4
+    },
+    "bad-key": {
+      "error": "SSR v2 accepts provider payloads for a restored host only.",
+      "loads": 2,
+      "admissions": 4,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": false,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": true,
+      "preserved": false,
+      "firstPreserved": false,
+      "siblingPreserved": false,
+      "nativePreserved": true,
+      "unchanged": false,
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 4,
+      "remainingFramework": 0,
+      "remainingNative": 4
+    },
+    "bad-generation": {
+      "error": "SSR replay intent is not bound to this restored generation.",
+      "loads": 2,
+      "admissions": 4,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": false,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": true,
+      "preserved": false,
+      "firstPreserved": false,
+      "siblingPreserved": false,
+      "nativePreserved": true,
+      "unchanged": false,
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 4,
+      "remainingFramework": 0,
+      "remainingNative": 4
+    },
+    "conflict": {
+      "error": "SSR intent ID was reused with different data.",
+      "loads": 2,
+      "admissions": 4,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": false,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": true,
+      "preserved": false,
+      "firstPreserved": false,
+      "siblingPreserved": false,
+      "nativePreserved": true,
+      "unchanged": false,
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 4,
+      "remainingFramework": 0,
+      "remainingNative": 4
+    },
+    "invalid-batch": {
+      "error": "Provider intent payload.order does not match its declared type.",
+      "loads": 2,
+      "admissions": 4,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": false,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": true,
+      "preserved": false,
+      "firstPreserved": false,
+      "siblingPreserved": false,
+      "nativePreserved": true,
+      "unchanged": false,
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 4,
+      "remainingFramework": 0,
+      "remainingNative": 4
+    },
+    "late-container": {
+      "error": "Runtime host rejected the binding delivery (failed).",
+      "loads": 1,
+      "admissions": 1,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": false,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": true,
+      "preserved": true,
+      "firstPreserved": true,
+      "siblingPreserved": true,
+      "nativePreserved": true,
+      "unchanged": false,
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 8,
+      "remainingFramework": 4,
+      "remainingNative": 4
+    },
+    "hydrate-error": {
+      "error": "deliberate adoption failure",
+      "loads": 1,
+      "admissions": 2,
+      "reordered": false,
+      "renewed": false,
+      "nativeActivated": false,
+      "nativePreActivated": false,
+      "nativeInternalsPresent": true,
+      "preserved": false,
+      "firstPreserved": false,
+      "siblingPreserved": true,
+      "nativePreserved": true,
+      "unchanged": false,
+      "nativeTitles": [
+        "Server numeric",
+        "Text"
+      ],
+      "postDisposeCommandRejected": true,
+      "postDisposeStateUnchanged": true,
+      "postDisposeFibersUnchanged": true,
+      "remaining": 6,
+      "remainingFramework": 2,
+      "remainingNative": 4
+    }
+  },
+  "nativeOnly": {
+    "schema": "xtend.rmtx.native-only-ssr-runtime-acceptance.v1",
+    "node": "v24.18.0",
+    "passed": true,
+    "cases": 9,
+    "names": [
+      "native-only production SSR keeps its real project and has no synthetic framework composition",
+      "native-only Node SSR signs restored Light-DOM with no framework hosts or server custom-element execution",
+      "native-only sealed browser: resume",
+      "native-only sealed browser: click",
+      "native-only sealed browser: signature",
+      "native-only sealed browser: old-wire",
+      "native-only sealed browser: shell",
+      "native-only sealed browser: native-tamper",
+      "native-only sealed browser: cancel"
+    ],
+    "sourceIdentity": {
+      "schema": "xtend.maraca.rmtx-ssr-source-identity.v1",
+      "sourceProfile": {
+        "syntax": "rmtx",
+        "version": "8.0.0"
+      },
+      "sourceHash": "679310cbfa732f6779a21c6b0979680b91917dacb7861a4229522ade7d145390",
+      "project": {
+        "schema": "xtend.rmt.project-report.v1",
+        "apiVersion": "1.0.0",
+        "identity": "98ed05240c6075777f10646c5f1f196189c37c742f1f0af2f5c64f41c0992332",
+        "sourceSyntax": "rmtx"
+      }
+    },
+    "results": {
+      "resume": {
+        "report": {
+          "schema": "xtend.maraca.xtension-ssr-report.v3",
+          "apiVersion": "3.0.0",
+          "mode": "client",
+          "generation": "native-only-request",
+          "status": "resumed",
+          "hosts": [],
+          "replayedIntents": 0,
+          "phases": [
+            "verified",
+            "restored",
+            "adopted",
+            "replayed"
+          ]
+        },
+        "nativePreActivated": false,
+        "nativeActive": true,
+        "preserved": true,
+        "unchanged": false,
+        "kind": "native-server",
+        "text": "native-server",
+        "frameworkBindings": 0,
+        "postDisposeCommandRejected": true,
+        "postDisposeStateUnchanged": true,
+        "postDisposeFibersUnchanged": true,
+        "remaining": 2
+      },
+      "click": {
+        "report": {
+          "schema": "xtend.maraca.xtension-ssr-report.v3",
+          "apiVersion": "3.0.0",
+          "mode": "client",
+          "generation": "native-only-request",
+          "status": "resumed",
+          "hosts": [],
+          "replayedIntents": 0,
+          "phases": [
+            "verified",
+            "restored",
+            "adopted",
+            "replayed"
+          ]
+        },
+        "nativePreActivated": false,
+        "nativeActive": true,
+        "preserved": true,
+        "unchanged": false,
+        "kind": "click",
+        "text": "click",
+        "frameworkBindings": 0,
+        "postDisposeCommandRejected": true,
+        "postDisposeStateUnchanged": true,
+        "postDisposeFibersUnchanged": true,
+        "remaining": 2
+      },
+      "signature": {
+        "error": "SSR signature verification failed.",
+        "nativePreActivated": false,
+        "nativeActive": false,
+        "preserved": true,
+        "unchanged": true,
+        "text": "native-server",
+        "frameworkBindings": null,
+        "postDisposeCommandRejected": true,
+        "postDisposeStateUnchanged": true,
+        "postDisposeFibersUnchanged": true,
+        "remaining": 2
+      },
+      "old-wire": {
+        "error": "SSR snapshot identity or lifetime is invalid.",
+        "nativePreActivated": false,
+        "nativeActive": false,
+        "preserved": true,
+        "unchanged": true,
+        "text": "native-server",
+        "frameworkBindings": null,
+        "postDisposeCommandRejected": true,
+        "postDisposeStateUnchanged": true,
+        "postDisposeFibersUnchanged": true,
+        "remaining": 2
+      },
+      "shell": {
+        "error": "SSR shell ownership does not match the signed snapshot.",
+        "nativePreActivated": false,
+        "nativeActive": false,
+        "preserved": true,
+        "unchanged": true,
+        "text": "native-server",
+        "frameworkBindings": null,
+        "postDisposeCommandRejected": true,
+        "postDisposeStateUnchanged": true,
+        "postDisposeFibersUnchanged": true,
+        "remaining": 2
+      },
+      "native-tamper": {
+        "error": "SSR shell ownership does not match the signed snapshot.",
+        "nativePreActivated": false,
+        "nativeActive": false,
+        "preserved": true,
+        "unchanged": true,
+        "text": "unexpected",
+        "frameworkBindings": null,
+        "postDisposeCommandRejected": true,
+        "postDisposeStateUnchanged": true,
+        "postDisposeFibersUnchanged": true,
+        "remaining": 2
+      },
+      "cancel": {
+        "error": "XTend Maraca app disposed.",
+        "nativePreActivated": false,
+        "nativeActive": false,
+        "preserved": true,
+        "unchanged": true,
+        "text": "native-server",
+        "frameworkBindings": null,
+        "postDisposeCommandRejected": true,
+        "postDisposeStateUnchanged": true,
+        "postDisposeFibersUnchanged": true,
+        "remaining": 2
+      }
+    },
+    "acceptedForRelease": false
+  },
+  "files": [
+    {
+      "fileName": "xtend.maraca.mjs",
+      "bytes": 417428,
+      "sha256": "a339c82167909a591659486694a1cddc47f37eabb20b1f8c734466d76f73f757"
+    },
+    {
+      "fileName": "chunks/xbutton.definition-DKt9b4RW.mjs",
+      "bytes": 42896,
+      "sha256": "84c64b67b7f6355d53e847b2cfdabe5c21e2efef489c5fa98b4085d0a642f983"
+    },
+    {
+      "fileName": "chunks/xheader.definition-Dl4OtoIE.mjs",
+      "bytes": 55057,
+      "sha256": "a95ef80b38acd647c23595aa71730f34f3551469a8fdd600dfcb71f83936fc9a"
+    },
+    {
+      "fileName": "chunks/xtend-state.definition-Hql0RU_t.mjs",
+      "bytes": 56834,
+      "sha256": "0ffcd653cb199ea105149eba438fe2954bdcb11fb5eb4ee1814e2616cf012124"
+    },
+    {
+      "fileName": "runtime/xtendrmt-kernel-orchestration-controller.mjs",
+      "bytes": 24153,
+      "sha256": "ce12a44bcb8ec69617f4e8042cd6927798fb0eb673185c82e1a27a9245e628ee"
+    },
+    {
+      "fileName": "runtime/rmt-kernel-scheduler.mjs",
+      "bytes": 14630,
+      "sha256": "79ecb4354ba216851a8d827807a1f637bd61f539d7095aa1b5eba069d2e9882e"
+    },
+    {
+      "fileName": "runtime/xtendrmt-runtime.esm.mjs",
+      "bytes": 635990,
+      "sha256": "a549ddd829421c461610c22187ddaa3db222bad56390f4ce5c070b2c633c1c3a"
+    },
+    {
+      "fileName": "runtime/rmt-resume-runtime.mjs",
+      "bytes": 1740,
+      "sha256": "4db0820a9aea68cca814d083942c65fb326cd3127d7cddf49798e46037c9dcdf"
+    },
+    {
+      "fileName": "runtime/rmt-resume-protocol.mjs",
+      "bytes": 2011,
+      "sha256": "415bdc80a14b2ba50cf12c210961f2aa81c58c1e48e1ccd16faa3577deb84625"
+    },
+    {
+      "fileName": "runtime/rmt-resume-capture-adapter.mjs",
+      "bytes": 2565,
+      "sha256": "e516b2c1168c2df82d596f60c4a6036c33be86e4ceb4394131d8174882503832"
+    },
+    {
+      "fileName": "runtime/rmt-resume-host-adapter.mjs",
+      "bytes": 2133,
+      "sha256": "99139db8984975a59f05ffc840f1ae2f50e7d616c6702edc3c1407e8251675bb"
+    },
+    {
+      "fileName": "runtime/rmt-resume-command-adapter.mjs",
+      "bytes": 2428,
+      "sha256": "61942e8cc910987a620d880961a23402df7adc0d09977a3fab0de1e318686b97"
+    },
+    {
+      "fileName": "runtime/rmt-resume-command-controller.mjs",
+      "bytes": 7957,
+      "sha256": "27f7ec3e9b0c092705bc74cfaf2bfa642b270657bbeab131d4d7afd223634519"
+    },
+    {
+      "fileName": "runtime/xtend-maraca-plan-runtime.mjs",
+      "bytes": 108689,
+      "sha256": "a19d44a2587bb9f56181d3d72838200a44d662bc069b7414a6e7d9268968142f"
+    },
+    {
+      "fileName": "runtime/xtend-maraca-native-view.mjs",
+      "bytes": 181301,
+      "sha256": "ecca228721abdcb59d9465cb7187bc4de3f0e47f27d5a5cf672c6f2fedbaacd9"
+    },
+    {
+      "fileName": "runtime/xtend-maraca-native-managed-ssr-runtime.mjs",
+      "bytes": 72103,
+      "sha256": "e6b839b59de2c64ffa08bb10c42f200ccd6932ce3cadbf6620f1ecd818965e78"
+    },
+    {
+      "fileName": "runtime/abort-boundary.mjs",
+      "bytes": 1812,
+      "sha256": "865b43ff893a4815c44f427598f73342fc7e30dda8251c35f2d89e9d3aad0016"
+    },
+    {
+      "fileName": "runtime/fastpass-contract.js",
+      "bytes": 2528,
+      "sha256": "a4e5dd96043a53ee3cb6ff397ddbdd96a17bf0f0d91c0241748e820a1f88fa38"
+    },
+    {
+      "fileName": "runtime/fastpass.mjs",
+      "bytes": 2560,
+      "sha256": "5f5272273116dc0d5014f380f8ebd9af0f5eb192e4ab2440579c1d9384d72cc8"
+    },
+    {
+      "fileName": "runtime/fastpass.schema.json",
+      "bytes": 2395,
+      "sha256": "69c49eda370805216edfd5acaf795b4c2c7f39300c3429b551e458f3ebd91946"
+    },
+    {
+      "fileName": "runtime/xtend-maraca-browser-composition-runtime.mjs",
+      "bytes": 32980,
+      "sha256": "1097516a3d7f8d1e3f8c2ecf988a5ce015be260ac9ea00c3cc14cc4c044a1a42"
+    },
+    {
+      "fileName": "runtime/browser-host-adapter.mjs",
+      "bytes": 17373,
+      "sha256": "9c5e4623caa06ae7549630535f72fc323ea4bed60e50fca202180a5ae531f651"
+    },
+    {
+      "fileName": "providers/modules/development/rmtx-a06/providers/react-gallery.mjs-9846140e741d787f0feef302fb3ca3ef75e7519dd54a7fc1f0fd9448cb07df37.mjs",
+      "bytes": 849,
+      "sha256": "9846140e741d787f0feef302fb3ca3ef75e7519dd54a7fc1f0fd9448cb07df37"
+    },
+    {
+      "fileName": "providers/modules/development/rmtx-a06/providers/vue-reviews.mjs-71e48dfdb1e797493aba0748e9777b9cb3afdbee6faf90c217df3f88aa239db8.mjs",
+      "bytes": 883,
+      "sha256": "71e48dfdb1e797493aba0748e9777b9cb3afdbee6faf90c217df3f88aa239db8"
+    },
+    {
+      "fileName": "interfaces/react-product-gallery-65c45087e78ef676c76068060cb85b6fedbe6b97e3791a37d1485b91a72d58a7.json",
+      "bytes": 1382,
+      "sha256": "65c45087e78ef676c76068060cb85b6fedbe6b97e3791a37d1485b91a72d58a7"
+    },
+    {
+      "fileName": "interfaces/vue-product-reviews-30de14608052cdd250f1f56b06fa0b5c7df8dda73803d5d5daa96355e5a6f1e4.json",
+      "bytes": 835,
+      "sha256": "30de14608052cdd250f1f56b06fa0b5c7df8dda73803d5d5daa96355e5a6f1e4"
+    },
+    {
+      "fileName": "xtend.xtensions-c797de0c548b6096dd005f290ce37f4108e37e209ea4cea6eb3a773863225531.mjs",
+      "bytes": 50170,
+      "sha256": "8dc9230d599861688db78c4cd4f4edc84cc25045d443adbeab9ffb1ead65f41e"
+    },
+    {
+      "fileName": "xtend.xtensions.delivery-863795a018a0cc3e2edfe72b18c8e9828babbbe60915262c2d1cafad9ff4d343.json",
+      "bytes": 1566,
+      "sha256": "863795a018a0cc3e2edfe72b18c8e9828babbbe60915262c2d1cafad9ff4d343"
+    },
+    {
+      "fileName": "runtime/xtension-platform.mjs",
+      "bytes": 215014,
+      "sha256": "7b93a3210961092c794a0597c73b7901679781f8a1619c82d096a2dc1b6b4041"
+    },
+    {
+      "fileName": "xtend.xtensions.report.json",
+      "bytes": 198918,
+      "sha256": "9c54d443242a6af85387ceeb149a4814027526cfe87bfa94ada0979c1800f084"
+    },
+    {
+      "fileName": "index.html",
+      "bytes": 433,
+      "sha256": "1b99bcb14a93a12c8bd9c78342585d68e75def0ff5c6d4d6b156822dbfed495b"
+    }
+  ],
+  "acceptedForRelease": false
+}

@@ -435,3 +435,88 @@ export interface ManagedComponentArtifact extends Omit<OrchestratedComponentArti
   readonly plan: { readonly schema: 'xtend.maraca.build-plan.v12'; readonly sourceHash: string; readonly program: import('@ccslabs/xtend/xtensions/native-managed-view-projection').NativeManagedViewProgram; readonly bindings: import('@ccslabs/xtend/xtensions/state-binding-managed').XTensionManagedStateBindingArtifact; readonly compositionManifest: ManagedComponentManifest };
 }
 export interface ManagedComponentPort extends Omit<OrchestratedComponentPort, 'schema' | 'bindingsRuntime'> { readonly schema: 'xtend.maraca.xtension-composition-port.v10'; readonly bindingsRuntime: typeof import('@ccslabs/xtend/xtensions/state-binding-managed').MANAGED_STATE_BINDING_RUNTIME }
+
+/** A06.6.2 is a separate entrypoint. Existing CSR ports and SSR v1/v2 retain
+ * their exact declarations, artifacts and capability versions. */
+export const RMTX_SSR_COMPOSITION_API_VERSION:'1.0.0';
+export interface RmtxSSRModelSnapshot {
+  readonly states:Readonly<Record<string,unknown>>;
+  readonly selectors?:Readonly<Record<string,unknown>>;
+}
+export type RmtxSSRBinding = import('@ccslabs/xtend-compiler/xtensions/state-binding').XTensionStateBinding|import('@ccslabs/xtend-compiler/xtensions/state-binding').XTensionProjectionStateBinding;
+export interface RmtxSSRMaterializedBinding {
+  readonly surface:string;readonly hostSurface:string;readonly ownerSurface?:string;readonly binding:RmtxSSRBinding;
+}
+export type RmtxSSRHostContext=Omit<XTensionCompositionHostContext,'binding'> & {readonly hostSurface:string;readonly binding:RmtxSSRBinding};
+export interface MaracaRmtxSSRSession extends Omit<MaracaXTensionSSRSession,'schema'|'gate'|'bind'|'shouldAdopt'|'finish'|'capture'|'getReport'> {
+  readonly schema:'xtend.maraca.xtension-ssr-session.v3';
+  gate(context:RmtxSSRHostContext,normalizeEvent:(event:Parameters<XTensionBindingHostContext['onEvent']>[0])=>Parameters<XTensionBindingHostContext['onEvent']>[0]):XTensionBindingHostContext['onEvent'];
+  bind(entry:{readonly binding:RmtxSSRBinding},instance:import('@ccslabs/xtend-compiler/xtensions/state-binding').XTensionResumeBoundInstance):void;
+  shouldAdopt(entry:{readonly binding:RmtxSSRBinding}):boolean;
+  finish():Promise<import('./xtension-ssr').RmtxSSRReport>;
+  capture(snapshot:RmtxSSRModelSnapshot):Promise<import('./xtension-ssr').RmtxSSRResponse>;
+  getReport():import('./xtension-ssr').RmtxSSRReport|null;
+}
+export interface MaracaRmtxSSRResumeBindingRuntime extends MaracaXTensionResumeBindingRuntime {
+  readonly XTENSION_RMTX_RESUME_STATE_BINDING_API_VERSION:'4.0.0';
+  readonly createXTensionRMTXResumeStateRegistry:typeof import('@ccslabs/xtend-compiler/xtensions/state-binding-resume').createXTensionRMTXResumeStateRegistry;
+  createRMTXSSRBindingAdmission(program:unknown,snapshot:RmtxSSRModelSnapshot):Readonly<Record<string,boolean>>|undefined;
+  typed(value:unknown,spec:Readonly<{type:string;[key:string]:unknown}>,label:string):void;
+  propsFrom(snapshot:RmtxSSRModelSnapshot,binding:RmtxSSRBinding):Readonly<Record<string,unknown>>;
+}
+type LegacyRmtxSSRBindingRuntime=XTensionCompositionBindingRuntime & Pick<typeof import('@ccslabs/xtend-compiler/xtensions/state-binding'),'materializeStateBindingArtifact'>;
+type RmtxSSRProfileTypes =
+  | {readonly artifact:ComponentXTensionCompositionArtifact;readonly plan:ComponentXTensionHostCompositionOptions['plan'];readonly bindingsRuntime:LegacyRmtxSSRBindingRuntime}
+  | {readonly artifact:ScopedComponentArtifact;readonly plan:ScopedComponentHostOptions['plan'];readonly bindingsRuntime:LegacyRmtxSSRBindingRuntime}
+  | {readonly artifact:ProjectionComponentArtifact;readonly plan:ProjectionComponentHostOptions['plan'];readonly bindingsRuntime:ProjectionComponentBindingRuntime}
+  | {readonly artifact:NativeComponentArtifact;readonly plan:NativeComponentHostOptions['plan'];readonly bindingsRuntime:NativeComponentBindingRuntime}
+  | {readonly artifact:LifecycleComponentArtifact;readonly plan:LifecycleComponentHostOptions['plan'];readonly bindingsRuntime:LifecycleComponentBindingRuntime}
+  | {readonly artifact:OrchestratedComponentArtifact;readonly plan:OrchestratedComponentHostOptions['plan'];readonly bindingsRuntime:OrchestratedComponentBindingRuntime}
+  | {readonly artifact:ManagedComponentArtifact;readonly plan:Omit<import('./index').ManagedRmtxBuildPlan12,'xtensionComposition'> & {readonly xtensionComposition:ManagedComponentManifest|ManagedComponentArtifact};readonly bindingsRuntime:typeof import('@ccslabs/xtend-compiler/xtensions/state-binding-managed').MANAGED_STATE_BINDING_RUNTIME};
+export type RmtxSSRCompositionArtifact=RmtxSSRProfileTypes['artifact'];
+export interface RmtxSSRCompositionAdapter extends XTensionCompositionAdapter {
+  createReactSSRRuntimeAdapter?(options:import('@ccslabs/xtend-compiler/xtensions/react-runtime-adapter').SSRRuntimeHostOptions):import('@ccslabs/xtend-compiler/xtensions/react-runtime-adapter').SSRRuntimeHostController;
+  createVueSSRRuntimeAdapter?(options:import('@ccslabs/xtend-compiler/xtensions/vue-runtime-adapter').SSRRuntimeHostOptions):import('@ccslabs/xtend-compiler/xtensions/vue-runtime-adapter').SSRRuntimeHostController;
+  normalizeReactSSRPeers?(peers:unknown):unknown;
+  normalizeVueSSRPeers?(peers:unknown):unknown;
+}
+export interface RmtxSSRHostFactory {
+  (context:RmtxSSRHostContext):import('@ccslabs/xtend-compiler/xtensions/react-runtime-adapter').SSRRuntimeHostController;
+  prewarm?:OrchestratedComponentHostFactory['prewarm'];
+}
+type RmtxSSRHostCapabilities=Omit<SharedXTensionHostCompositionOptions,'artifact'|'plan'|'bindingsRuntime'|'adapters'> & {
+  readonly adapters:{readonly react?:RmtxSSRCompositionAdapter;readonly vue?:RmtxSSRCompositionAdapter};
+  readonly componentInterfaceRuntime:typeof import('@ccslabs/xtend-compiler/xtensions/component-interface');
+  readonly ssrSession:MaracaRmtxSSRSession;
+};
+type RmtxSSRHostProfile<T=RmtxSSRProfileTypes> = T extends RmtxSSRProfileTypes ? T & (T['artifact'] extends ComponentXTensionCompositionArtifact
+  ? {resolveHostBinding?:never}
+  : {resolveHostBinding(address:XTensionBindingHostContext['identity']['address']):RmtxSSRMaterializedBinding|null|undefined}) : never;
+export type RmtxSSRHostCompositionOptions=RmtxSSRHostProfile & RmtxSSRHostCapabilities;
+type RmtxSSRPortProfile<T=RmtxSSRProfileTypes> = T extends RmtxSSRProfileTypes ? {
+  readonly plan:Omit<T['plan'],'xtensionComposition'> & {readonly xtensionComposition:T['artifact']};
+  readonly bindingsRuntime:T['bindingsRuntime'];
+  readonly companion:{readonly artifact:T['artifact'];createHostFactory(ports:RmtxSSRHostCompositionOptions):RmtxSSRHostFactory};
+} : never;
+export type RmtxSSRCompositionPortOptions=RmtxSSRPortProfile & {
+  readonly sourceIdentity:import('./xtension-rmtx-ssr-contract.mjs').RmtxSSRSourceIdentity;
+  createModelSnapshot(states:Readonly<Record<string,unknown>>):RmtxSSRModelSnapshot;
+  bindingAdmission?(snapshot:RmtxSSRModelSnapshot):Readonly<Record<string,boolean>>|undefined;
+  readonly componentInterfaceRuntime:typeof import('@ccslabs/xtend-compiler/xtensions/component-interface');
+  readonly resumeBindingsRuntime:MaracaRmtxSSRResumeBindingRuntime;
+  readonly ssr:import('./xtension-ssr').RmtxSSRServerOptions|import('./xtension-ssr').RmtxSSRClientOptions;
+  readonly ssrRuntime:{createMaracaXTensionSSRSession(options:unknown):MaracaRmtxSSRSession};
+  readonly adapters:{readonly react?:RmtxSSRCompositionAdapter;readonly vue?:RmtxSSRCompositionAdapter};
+  readonly grants:XTensionHostCompositionOptions['grants'];
+  readonly loadPeers?:never;
+  loadPeerGroup(context:Readonly<{group:XTensionPeerGroup;signal:AbortSignal}>):unknown|Promise<unknown>;
+};
+export interface MaracaRmtxSSRCompositionPort {
+  readonly schema:'xtend.maraca.xtension-composition-port.v11';
+  readonly bindingsRuntime:RmtxSSRProfileTypes['bindingsRuntime'];
+  readonly ssrSession:MaracaRmtxSSRSession;
+  readonly resumeBindingsRuntime:MaracaRmtxSSRResumeBindingRuntime;
+  bind(ports:Pick<XTensionHostCompositionOptions,'fabric'|'kernelWork'|'resourceGraph'> & {readonly plan:RmtxSSRProfileTypes['plan'];resolveHostBinding(address:XTensionBindingHostContext['identity']['address']):RmtxSSRMaterializedBinding|null|undefined}):RmtxSSRHostFactory;
+}
+export function createMaracaRmtxSSRCompositionPort(options:RmtxSSRCompositionPortOptions):MaracaRmtxSSRCompositionPort;
+export function createMaracaRmtxSSRHostFactory(options:RmtxSSRHostCompositionOptions):RmtxSSRHostFactory;

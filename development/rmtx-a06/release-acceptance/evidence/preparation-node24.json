@@ -1,0 +1,51 @@
+{
+  "node": "v24.18.0",
+  "command": [
+    "node",
+    "--max-old-space-size=1024",
+    "scripts/check_release_preparation.cjs"
+  ],
+  "runnerSourceSha256": "d6667be24c15f80e8d02c71e0b44fd97acd455136fa88865a9ec4e396547b699",
+  "exitCode": 0,
+  "completedCommands": 52,
+  "completedTestGroups": 17,
+  "testGroups": [
+    65,
+    30,
+    56,
+    61,
+    56,
+    171,
+    140,
+    59,
+    70,
+    44,
+    124,
+    25,
+    16,
+    9,
+    73,
+    14,
+    44
+  ],
+  "tests": {
+    "tests": 1057,
+    "pass": 1057,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "elapsed": "7:54.03",
+  "maximumResidentSetSizeKiB": 719184,
+  "rawLog": {
+    "file": "/tmp/xtend-a0662/preparation-node24.log",
+    "bytes": 164215,
+    "sha256": "3e174b3ebb4781b8fac5fb0e83714fc69474e04982d9bb0f78c33fe509920c03"
+  },
+  "readiness": {
+    "planValid": true,
+    "ready": false
+  },
+  "historicalExecutionEvidenceChanged": false
+}

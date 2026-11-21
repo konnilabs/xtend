@@ -51,10 +51,10 @@
   "sources": {
     "xtend-maraca/xtension-composition-contract.mjs": "362f901e3ab0a1bf783fe76426d3f6db31b06678a865db1e976c82c6a938f918",
     "xtend-maraca/xtension-composition.js": "2993a3229d76a4f4cb275d7e82033b1269d5b11157116bc05117bea4eca2aa15",
-    "xtend-maraca/xtension-composition-runtime.mjs": "ea55a429902a52c785016d50aa1c120e8da105e5b6b70d83e684746106a44863",
+    "xtend-maraca/xtension-composition-runtime.mjs": "adcaa75c87fcb20bec7f8bfbdbbb0c2da11351baaf9afd301cf004006d7e5add",
     "xtend-maraca/xtension-composition.d.ts": "96e17c6feba12a9f1a725e11df78bb5d6bde2c0ec6035df54b5981d83fc3fd2a",
-    "xtend-maraca/xtension-composition-runtime.d.ts": "81edafd48804f25e60403e2b5516ae31b3f8d03150fb158428fe837a64b71d08",
-    "xtend-maraca/package.json": "bee88ce77e5bdd0b288450b3ec3d8bbda26ec877d18f7920282da85e4b538e35",
+    "xtend-maraca/xtension-composition-runtime.d.ts": "f43d892fb5217d6a7e0d91f9d8316ef759a4c8d7f6e382a2a3f02f1d68ac94b7",
+    "xtend-maraca/package.json": "0377adab97226fcb905ee3b9984ef5e2a0de9226bdc3505ca448806b2bbdefde",
     "development/rmtx-a04/reference.cjs": "82f369fc789e991dc3f2dfe72b2b27ac651780a922e5e4c27a19fd4bd72085e0",
     "development/rmtx-a04/providers/react-panel.mjs": "2fdf0c08bc913cf4d93a9586ee5c4dbcb50a191b1f5432704bd53e3e2e7dea86",
     "development/rmtx-a04/providers/vue-panel.mjs": "5a971750223744c69381f36200352e94efdce782a81cef208c560c8a9d2fd171",
@@ -63,6 +63,6 @@
     "tests/xtensions/composition-maraca-acceptance.js": "8996a43c0225ee153398e6d955d87426f084ddccf7083c19ee775f7b9246854c",
     "tests/types/xtensions_composition.mts": "5e3058f477545bdb65a6474ea4d4f804e6bc804ea49f5118a418220c7945cb89",
     "scripts/test_xtensions_runtime_adapters.cjs": "d9df3dfd883ea4e46c87bb94359b4728602ca15d1c535205fcaa5755a42a39b8",
-    "tests/xtensions/xtensions_runtime_gate_suite.js": "4a05bba2c09bb14754c42c183bba7a86ca6161447abc93887ca8dcfb56e953ed"
+    "tests/xtensions/xtensions_runtime_gate_suite.js": "57fa5396efbe58a213494b8e3c94740c4f8c98d3779e193265dfdc21f36074c4"
   }
 }

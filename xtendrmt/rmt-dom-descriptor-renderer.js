@@ -1,5 +1,8 @@
 (function attachRmtDomDescriptorRenderer(globalTarget) {
-  const RMT_DOM_DESCRIPTOR_RENDERER_API_VERSION = '2.4.0';
+  const RMT_DOM_DESCRIPTOR_RENDERER_API_VERSION = '2.5.0';
+  const RMT_DOM_SSR_SHELL_REQUEST_SCHEMA = 'xtend.rmt.dom-ssr-shell.v1';
+  const RMT_DOM_ADOPTION_REQUEST_SCHEMA = 'xtend.rmt.dom-adoption.v1';
+  const NATIVE_SSR_PENDING_ATTRIBUTE = 'data-rmtx-native-pending';
   const RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA = 'xtend.epic18.rmt-dom-descriptor-renderer.v2';
   const RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA = 'xtend.epic18.rmt-dom-descriptor-renderer.v1';
   const RMT_DOM_DESCRIPTOR_RENDERER_DIAGNOSTIC_SCHEMA = 'xtend.epic18.rmt-dom-renderer-diagnostic.v2';
@@ -2225,6 +2228,13 @@
   }
 
   function applyElementValues(element, descriptor, context) {
+      if (context.nativeSsrShells) {
+          applyAttributes(element, descriptor.attributes || {}, descriptor, context);
+          // A server shell never invokes custom-element property setters or
+          // managed component preparation. Its internals remain client-owned.
+          if (!elementTagName(element).includes('-')) applyProperties(element, descriptor.properties || descriptor.props || {}, descriptor, context);
+          return;
+      }
       if (descriptor.nativeBinding) {
           managedComponentRegistry(descriptor, context).updateNativeComponent(element, descriptor, context, nativeComponentValues(descriptor, context));
           markChanged(context);
@@ -2246,11 +2256,12 @@
       : context.documentTarget.createElement(tag);
     markChanged(context, true);
     if (context.rendererState) context.rendererState.trackedNodes.add(element);
-    if (descriptor.nativeBinding) {
+    if (descriptor.nativeBinding && !context.nativeSsrShells) {
       const handle = managedComponentRegistry(descriptor,context).prepareNativeComponent(element,{tag},descriptor,context);
       if (!handle || typeof handle.dispose !== 'function') throw createRendererError('rmt.dom.component.preparation-invalid','Managed preparation must return a disposable handle.',descriptor,context);
       context.rendererState.preparedComponents.set(element,handle);
     }
+    if (context.nativeSsrShells && (descriptor.nativeBinding || descriptor.component && tag.includes('-'))) setAttributeSafe(element, NATIVE_SSR_PENDING_ATTRIBUTE, 'v1', descriptor, context);
     if (descriptor.id) setAttributeSafe(element, 'data-rmt-node', descriptor.id, descriptor, context);
     if (descriptor.key) setAttributeSafe(element, 'data-rmt-key', resolveValue(descriptor.key, context, context.item), descriptor, context);
     rememberNativeRef(element,descriptor,context);
@@ -2270,6 +2281,17 @@
     }
     if (descriptor.children && domainAllowed(context, 'structure')) {
       materializeChildren(element, descriptor.children, context, context.item);
+    }
+    if (context.nativeSsrShells && !tag.includes('-')) {
+      Object.entries(objectRecord(descriptor.properties || descriptor.props)).forEach(([name, expression]) => {
+        const value = resolveValue(expression, context, context.item);
+        if (name === 'indeterminate') return; // There is no corresponding HTML state.
+        if (name === 'value' && tag === 'textarea') {
+          element.textContent = value == null ? '' : String(value);
+        } else {
+          setAttributeSafe(element, name === 'readOnly' ? 'readonly' : name === 'tabIndex' ? 'tabindex' : name, value, descriptor, context);
+        }
+      });
     }
     rememberOwnedFields(element, descriptor, context);
     return element;
@@ -2315,6 +2337,7 @@
   }
 
   function applyComponentBinding(element, component, descriptor, context) {
+    if (context.nativeSsrShells) return;
     const rendererState = context.rendererState;
     const registry = context.componentRegistry;
     const previous = rendererState && rendererState.componentBindings.get(element);
@@ -2357,6 +2380,15 @@
     markChanged(context);
   }
 
+  function finishPendingComponentAdoption(element, descriptor, context) {
+    if (!context.nativeSsrShells && attributeValue(element, NATIVE_SSR_PENDING_ATTRIBUTE) === 'v1') {
+      // The existing node has already been upgraded while its Classic
+      // callbacks were inert. Preparation and controlled values now exist.
+      setAttributeSafe(element, NATIVE_SSR_PENDING_ATTRIBUTE, null, descriptor, context);
+      if (element.isConnected && typeof element.connectedCallback === 'function') element.connectedCallback();
+    }
+  }
+
   function renderComponent(descriptor, context) {
     const effective = effectiveElementDescriptor(descriptor, context);
     const component = effective.component;
@@ -2365,6 +2397,7 @@
       setAttributeSafe(element, 'data-rmt-bindings', toArray(descriptor.bindings).join(' '), descriptor, context);
     }
     applyComponentBinding(element, component, descriptor, context);
+    finishPendingComponentAdoption(element, descriptor, context);
     rememberOwnedFields(element, effective.descriptor, context);
     return element;
   }
@@ -3164,6 +3197,7 @@
     if (next.nativeBinding) applyElementValues(element,next,context);
     if (effective.component) {
       applyComponentBinding(element, effective.component, descriptor, context);
+      finishPendingComponentAdoption(element, next, context);
     } else if (context.reconcileMode && context.rendererState) {
       const previousBinding = context.rendererState.componentBindings.get(element);
       if (previousBinding) {
@@ -4231,7 +4265,7 @@
 
     // Both public preflight and commit use the same pure validation path.
     // Preparing a descriptor never creates nodes or changes ownership.
-    function prepareDescriptor(request, operation) {
+    function prepareDescriptor(request, operation, internalOptions = {}) {
       const tracker = {
         changed: false,
         structural: false
@@ -4243,6 +4277,8 @@
         reconcileMode: operation === 'reconcile-children' || operation === 'reconcile-element'
       };
       const context = createRenderContext(documentTarget, contextOptions, diagnosticsRecorder, rendererState);
+      // Only the explicit shell method sets this mode; request.context cannot.
+      context.nativeSsrShells = internalOptions.nativeSsrShells === true;
       // Only the trusted commit envelope supplies structural ownership.
       // Descriptor fields, attributes and request.context confer none.
       context.structuralOwner = clampString(request.ownership && request.ownership.owner, 'descriptor-renderer');
@@ -4288,7 +4324,7 @@
           ? []
           : collectApplicationBindings(request.target ? [request.target] : []);
         const diagnosticsStart = diagnosticsRecorder.diagnostics.length;
-        const { context, tracker } = prepareDescriptor(request, operation);
+        const { context, tracker } = prepareDescriptor(request, operation, internalOptions);
         let nodes = [];
         if(request.target)rendererState.pendingRoots.add(request.target);
         try {
@@ -4389,6 +4425,200 @@
       });
     }
 
+    function ssrRequest(input, schema) {
+      if (!input || typeof input !== 'object' || Array.isArray(input) || input.schema !== schema
+        || Object.keys(input).some(key => !['schema', 'target', 'descriptors', 'context', 'ownership', 'metadata'].includes(key))
+        || !Array.isArray(input.descriptors)) {
+        throw createRendererError('rmt.dom.ssr.request-invalid', 'Native SSR requires its closed, explicitly versioned request.');
+      }
+      const { schema: ignored, ...request } = input;
+      const visit = descriptor => {
+        if (Array.isArray(descriptor)) { descriptor.forEach(visit); return; }
+        if (!descriptor || typeof descriptor !== 'object' || !['fragment', 'element', 'component', 'text'].includes(descriptor.type)) {
+          throw createRendererError('rmt.dom.ssr.descriptor-invalid', 'Native SSR requires already materialized native descriptors.');
+        }
+        if (descriptor.type === 'fragment') { toArray(descriptor.children).forEach(visit); return; }
+        if (descriptor.children) toArray(descriptor.children).forEach(visit);
+      };
+      request.descriptors.forEach(visit);
+      request.operation = 'reconcile-children';
+      validateCommitRequest(request);
+      return request;
+    }
+
+    function textMarker(key) {
+      let encoded = '';
+      for (let index = 0; index < key.length; index++) encoded += key.charCodeAt(index).toString(16).padStart(4, '0');
+      return 'rmt-text:' + encoded;
+    }
+
+    function renderSsrShell(input) {
+      const request = ssrRequest(input, RMT_DOM_SSR_SHELL_REQUEST_SCHEMA);
+      if (getChildren(request.target).length) throw createRendererError('rmt.dom.ssr.target-not-empty', 'Initial native SSR requires an empty request-owned root.');
+      if (typeof documentTarget.createComment !== 'function') throw createRendererError('rmt.dom.ssr.comments-unavailable', 'Native SSR requires DOM comment support for typed text identities.');
+      const assertInert = descriptor => {
+        const tag = descriptor.tag || descriptor.component || '';
+        if (tag.includes('-') && documentTarget.defaultView?.customElements?.get(tag)) throw createRendererError('rmt.dom.ssr.custom-element-defined', 'Native SSR requires inert custom-element shells without registered client classes.');
+        toArray(descriptor.children).forEach(assertInert);
+      };
+      request.descriptors.forEach(assertInert);
+      const report = commit(request, { nativeSsrShells: true });
+      const textNodes = [];
+      const collectText = parent => getChildren(childContainerFor(parent)).forEach(node => {
+        if (node.nodeType === 3) textNodes.push(node);
+        else if (node.nodeType === 1) collectText(node);
+      });
+      collectText(request.target);
+      for (const node of textNodes) {
+        const key = rendererState.nodeKeys.get(node);
+        if (node.nodeType !== 3 || !key || !node.parentNode || !isWithinTarget(node, request.target)
+          || ['textarea', 'title'].includes(elementTagName(node.parentNode))) continue;
+        const parent = node.parentNode, after = node.nextSibling;
+        parent.insertBefore(documentTarget.createComment(textMarker(String(key))), node);
+        parent.insertBefore(documentTarget.createComment('rmt-text-end'), after);
+      }
+      return report;
+    }
+
+    function prepareAdoption(request) {
+      const prepared = prepareDescriptor(request, 'reconcile-children'), { context } = prepared;
+      const records = [], textGroups = [];
+      const mismatch = message => { throw createRendererError('rmt.dom.adoption.mismatch', message, {}, context); };
+      const readAttribute = (element, name) => {
+        // Pending reviewed classes deliberately hide authored input from
+        // constructor reads. Validation reads the actual DOM, never that view.
+        const getter = element?.ownerDocument?.defaultView?.Element?.prototype?.getAttribute;
+        return typeof getter === 'function' ? getter.call(element, name) : attributeValue(element, name);
+      };
+      function checkAttribute(element, name, raw) {
+        const value = resolveAttributeValue(raw, context, context.item);
+        const normalized = name.toLowerCase();
+        let expected = value === null || value === undefined || value === false ? null : value === true ? '' : String(value);
+        if (typeof value === 'boolean' && isAriaAttribute(normalized)) expected = String(value);
+        else if (value === false && EXPLICIT_FALSE_ATTRIBUTE_NAMES.has(normalized)) expected = 'false';
+        if (readAttribute(element, name) !== expected) mismatch('Native SSR attribute differs from its restored descriptor: ' + name);
+      }
+      function checkElement(node, entry) {
+        const effective = effectiveElementDescriptor(entry.descriptor, entry.context), descriptor = effective.descriptor;
+        if (!sameNodeKind(node, descriptor, entry.context) || foreignStructuralRoot(node, context)) mismatch('Native SSR tag, namespace or ownership differs.');
+        const ctx = entry.context;
+        if (descriptor.nativeBinding || effective.component && descriptor.tag.includes('-')
+          ? readAttribute(node, NATIVE_SSR_PENDING_ATTRIBUTE) !== 'v1' : readAttribute(node, NATIVE_SSR_PENDING_ATTRIBUTE) !== null) mismatch('Native SSR preparation marker differs from its exact host binding.');
+        for (const attribute of Array.from(node.attributes || [])) {
+          if (!isSafeAttributeName(attribute.name) || URL_ATTRIBUTE_NAMES.has(attribute.name.toLowerCase()) && !isSafeUrl(attribute.value)) mismatch('Native SSR contains an unsafe attribute.');
+        }
+        for (const [name, raw] of Object.entries(objectRecord(descriptor.attributes))) {
+          if (name.toLowerCase() === 'style') {
+            for (const [property, value] of Object.entries(raw)) if (node.style?.getPropertyValue(property) !== String(resolveValue(value, ctx, ctx.item) ?? '')) mismatch('Native SSR style differs.');
+          } else checkAttribute(node, name, raw);
+        }
+        if (descriptor.id) checkAttribute(node, 'data-rmt-node', descriptor.id);
+        if (entry.key) checkAttribute(node, 'data-rmt-key', { op: 'literal', value: entry.key });
+        else if (readAttribute(node, 'data-rmt-key') !== null) mismatch('Unexpected native SSR key.');
+        if (descriptor.bindings) checkAttribute(node, 'data-rmt-bindings', toArray(descriptor.bindings).join(' '));
+        const classes = normalizeClassTokens([descriptor.class, descriptor.className, descriptor.classes], ctx, ctx.item);
+        if (classes.length && readAttribute(node, 'class') !== [...new Set(classes)].join(' ')) mismatch('Native SSR classes differ.');
+        const parts = normalizePartTokens([descriptor.part, descriptor.parts], ctx, ctx.item);
+        if (parts.length && readAttribute(node, 'part') !== [...new Set(parts)].join(' ')) mismatch('Native SSR parts differ.');
+        if (!elementTagName(node).includes('-')) {
+          for (const [name, raw] of Object.entries(objectRecord(descriptor.properties || descriptor.props))) {
+            if (name === 'indeterminate') continue;
+            const value = resolveValue(raw, ctx, ctx.item);
+            if (name === 'value' && elementTagName(node) === 'textarea') {
+              if (node.textContent !== String(value ?? '')) mismatch('Native SSR textarea value differs.');
+            } else checkAttribute(node, name === 'readOnly' ? 'readonly' : name === 'tabIndex' ? 'tabindex' : name, { op: 'literal', value });
+          }
+        }
+        records.push({ node, entry, descriptor, effective });
+        const container = childContainerFor(node);
+        if (Object.prototype.hasOwnProperty.call(descriptor, 'text')) {
+          const value = String(resolveValue(descriptor.text, ctx, ctx.item) ?? '');
+          if (node.textContent !== value || getChildren(container).some(child => child.nodeType !== 3)) mismatch('Native SSR element text differs.');
+        } else if (Object.prototype.hasOwnProperty.call(descriptor, 'children')
+          && !(elementTagName(node) === 'textarea' && Object.hasOwn(objectRecord(descriptor.properties), 'value'))) {
+          walk(container, descriptor.children, ctx);
+        }
+        // An absent children field is the foreign provider's exclusive root.
+      }
+      function walk(parent, descriptors, ctx) {
+        const entries = expandChildEntries(descriptors, ctx), actual = getChildren(parent);
+        let cursor = 0;
+        for (let index = 0; index < entries.length; index++) {
+          const entry = entries[index];
+          if (entry.descriptor?.type !== 'text') {
+            if (!actual[cursor]) mismatch('Native SSR is missing an expected element.');
+            checkElement(actual[cursor++], entry); continue;
+          }
+          const key = entry.key, start = actual[cursor];
+          if (key && start?.nodeType === 8 && start.data === textMarker(key)) {
+            const text = actual[cursor + 1], hasText = text?.nodeType === 3, end = actual[cursor + (hasText ? 2 : 1)];
+            const value = String(resolveValue(entry.descriptor.text, entry.context, entry.context.item) ?? '');
+            if (end?.nodeType !== 8 || end.data !== 'rmt-text-end' || (hasText ? text.data : '') !== value) mismatch('Native SSR keyed text differs.');
+            textGroups.push({ parent, start, end, node: hasText ? text : null, entries: [entry] });
+            cursor += hasText ? 3 : 2; continue;
+          }
+          // RCDATA (textarea) cannot contain comment delimiters. Also retain
+          // correct identities if an HTML serializer coalesced adjacent text.
+          const group = [entry];
+          while (entries[index + 1]?.descriptor?.type === 'text') group.push(entries[++index]);
+          const value = group.map(row => String(resolveValue(row.descriptor.text, row.context, row.context.item) ?? '')).join('');
+          const node = actual[cursor]?.nodeType === 3 ? actual[cursor++] : null;
+          if ((node?.data || '') !== value) mismatch('Native SSR text content differs.');
+          if (key && !['textarea', 'title'].includes(elementTagName(parent))) mismatch('Native SSR keyed text delimiter is missing.');
+          textGroups.push({ parent, start: null, end: actual[cursor] || null, node, entries: group });
+        }
+        if (cursor !== actual.length) mismatch('Native SSR contains unexpected owned children.');
+      }
+      walk(request.target, request.descriptors, context);
+      return { records, textGroups, context };
+    }
+
+    function adoptChildren(input) {
+      const request = ssrRequest(input, RMT_DOM_ADOPTION_REQUEST_SCHEMA);
+      if (rendererState.roots.has(request.target)) throw createRendererError('rmt.dom.adoption.already-owned', 'Native SSR adoption cannot replace an existing live renderer lifetime.');
+      // Complete pure validation before metadata, managed preparation or DOM
+      // changes. Caller must first authenticate its snapshot and restore Model.
+      const { records, textGroups, context } = prepareAdoption(request);
+      const preparedHandles = [];
+      try {
+        for (const row of records) {
+          const { node, descriptor, entry } = row;
+          rendererState.trackedNodes.add(node);
+          if (entry.key) rendererState.nodeKeys.set(node, entry.key);
+          if (descriptor.nativeBinding) {
+            const handle = managedComponentRegistry(descriptor, entry.context).prepareNativeComponent(node, { tag: descriptor.tag }, descriptor, entry.context);
+            if (!handle || typeof handle.dispose !== 'function') throw createRendererError('rmt.dom.component.preparation-invalid', 'Native adoption requires disposable managed preparation.');
+            rendererState.preparedComponents.set(node, handle); preparedHandles.push({ node, handle });
+          }
+        }
+        for (const group of textGroups) {
+          let node = group.node;
+          for (let index = 0; index < group.entries.length; index++) {
+            const entry = group.entries[index], value = String(resolveValue(entry.descriptor.text, entry.context, entry.context.item) ?? '');
+            let current = node;
+            if (!current) { current = documentTarget.createTextNode(''); group.parent.insertBefore(current, group.end); }
+            else if (index < group.entries.length - 1) node = current.splitText(value.length);
+            else node = null;
+            if (entry.key) rendererState.nodeKeys.set(current, entry.key);
+            rendererState.trackedNodes.add(current);
+          }
+          if (group.start) { group.parent.removeChild(group.start); group.parent.removeChild(group.end); }
+        }
+        return commit(request);
+      } catch (error) {
+        for (const { node, handle } of preparedHandles) {
+          const binding = rendererState.componentBindings.get(node);
+          if (binding) {
+            rendererState.componentBindings.delete(node);
+            disposeHandle(binding.handle, rendererState, node, 'native-adoption-binding');
+          }
+          rendererState.preparedComponents.delete(node);
+          disposeHandle(handle, rendererState, node, 'native-adoption');
+        }
+        throw error;
+      }
+    }
+
     function dispose(target, options = {}) {
       const clearOwnedDom = Boolean(options && options.clearOwnedDom);
       if (target) {
@@ -4426,7 +4656,9 @@
       createNativeOverlayLease,
       schema: rendererSchema,
       trustedDomBoundary: TRUSTED_DOM_BOUNDARY,
-      commit,
+      commit(request) { return commit(request); },
+      renderSsrShell,
+      adoptChildren,
       dispose,
       render(root, descriptor, options = {}) {
         if (!root || typeof root.replaceChildren !== 'function') {
@@ -4531,6 +4763,8 @@
 
   const api = {
     RMT_DOM_DESCRIPTOR_RENDERER_API_VERSION,
+    RMT_DOM_SSR_SHELL_REQUEST_SCHEMA,
+    RMT_DOM_ADOPTION_REQUEST_SCHEMA,
     RMT_DOM_DESCRIPTOR_RENDERER_DIAGNOSTIC_SCHEMA,
     RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA,
     RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA,
@@ -4553,6 +4787,8 @@
 const __XTEND_RMT_DOM_DESCRIPTOR_RENDERER_API__ = globalThis.XTendRmtDomDescriptorRenderer;
 
 export const RMT_DOM_DESCRIPTOR_RENDERER_API_VERSION = __XTEND_RMT_DOM_DESCRIPTOR_RENDERER_API__.RMT_DOM_DESCRIPTOR_RENDERER_API_VERSION;
+export const RMT_DOM_SSR_SHELL_REQUEST_SCHEMA = __XTEND_RMT_DOM_DESCRIPTOR_RENDERER_API__.RMT_DOM_SSR_SHELL_REQUEST_SCHEMA;
+export const RMT_DOM_ADOPTION_REQUEST_SCHEMA = __XTEND_RMT_DOM_DESCRIPTOR_RENDERER_API__.RMT_DOM_ADOPTION_REQUEST_SCHEMA;
 export const RMT_DOM_DESCRIPTOR_RENDERER_DIAGNOSTIC_SCHEMA = __XTEND_RMT_DOM_DESCRIPTOR_RENDERER_API__.RMT_DOM_DESCRIPTOR_RENDERER_DIAGNOSTIC_SCHEMA;
 export const RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA = __XTEND_RMT_DOM_DESCRIPTOR_RENDERER_API__.RMT_DOM_DESCRIPTOR_RENDERER_SCHEMA;
 export const RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA = __XTEND_RMT_DOM_DESCRIPTOR_RENDERER_API__.RMT_DOM_DESCRIPTOR_RENDERER_LEGACY_SCHEMA;

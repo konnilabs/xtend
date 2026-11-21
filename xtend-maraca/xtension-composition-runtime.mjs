@@ -2,6 +2,7 @@
 import { validateArtifact, canonical, freeze, copy, name, json, INTEGRATED_ARTIFACT_SCHEMA, GRAPH_ARTIFACT_SCHEMA, DEFERRED_ARTIFACT_SCHEMA, SHARED_ARTIFACT_SCHEMA, DELIVERY_ARTIFACT_SCHEMA, COMPONENT_ARTIFACT_SCHEMA, SCOPED_COMPONENT_ARTIFACT_SCHEMA, PROJECTION_COMPONENT_ARTIFACT_SCHEMA, NATIVE_COMPONENT_ARTIFACT_SCHEMA, LIFECYCLE_COMPONENT_ARTIFACT_SCHEMA, ORCHESTRATED_COMPONENT_ARTIFACT_SCHEMA, MANAGED_COMPONENT_ARTIFACT_SCHEMA, MANAGED_COMPONENT_MANIFEST_SCHEMA } from './xtension-composition-contract.mjs';
 import { validateComponentBindings } from './xtension-component-binding.mjs';
 export const XTENSION_COMPOSITION_API_VERSION = '14.0.0';
+export const RMTX_SSR_COMPOSITION_API_VERSION = '1.0.0';
 // Shared profile membership is private immutable data; artifact validation still
 // establishes the exact plan/manifest/program pair before any runtime work.
 const sharedArtifactSchemas = Object.freeze([SHARED_ARTIFACT_SCHEMA, DELIVERY_ARTIFACT_SCHEMA, COMPONENT_ARTIFACT_SCHEMA, SCOPED_COMPONENT_ARTIFACT_SCHEMA, PROJECTION_COMPONENT_ARTIFACT_SCHEMA, NATIVE_COMPONENT_ARTIFACT_SCHEMA, LIFECYCLE_COMPONENT_ARTIFACT_SCHEMA, ORCHESTRATED_COMPONENT_ARTIFACT_SCHEMA, MANAGED_COMPONENT_ARTIFACT_SCHEMA]);
@@ -73,12 +74,15 @@ function createSharedPeers(groups, providers, load) {
 
 /** Captures application policy before asynchronous boot. Only Maraca binds the
  * resulting port to its real controller/root and internally created Surfaces. */
-export function createMaracaXTensionCompositionPort(options) {
+export function createMaracaXTensionCompositionPort(options) { return createCompositionPort(options, false); }
+export function createMaracaRmtxSSRCompositionPort(options) { return createCompositionPort(options, true); }
+function createCompositionPort(options, rmtxSSR) {
   const artifact = validateArtifact(options.companion?.artifact, options.plan, options.bindingsRuntime);
   if (!integratedArtifactSchemas.includes(artifact.schema) || canonical(artifact) !== canonical(options.plan.xtensionComposition)) throw new TypeError('Integrated boot requires its exact versioned composition artifact.');
   const managed = artifact.schema === MANAGED_COMPONENT_ARTIFACT_SCHEMA, orchestrated = managed || artifact.schema === ORCHESTRATED_COMPONENT_ARTIFACT_SCHEMA, lifecycle = orchestrated || artifact.schema === LIFECYCLE_COMPONENT_ARTIFACT_SCHEMA, native = lifecycle || artifact.schema === NATIVE_COMPONENT_ARTIFACT_SCHEMA, projected = native || artifact.schema === PROJECTION_COMPONENT_ARTIFACT_SCHEMA, scoped = projected || artifact.schema === SCOPED_COMPONENT_ARTIFACT_SCHEMA, component = scoped || artifact.schema === COMPONENT_ARTIFACT_SCHEMA;
-  if (projected && options.ssr !== undefined) throw new TypeError(native ? 'Source5 has no SSR/adoption acceptance contract.' : 'Source4 has no SSR/adoption acceptance contract.');
-  if (component && !scoped && options.ssr !== undefined) throw new TypeError('Component ownership v7 requires a separate A05 SSR handoff.');
+  if (!rmtxSSR && projected && options.ssr !== undefined) throw new TypeError(native ? 'Source5 has no SSR/adoption acceptance contract.' : 'Source4 has no SSR/adoption acceptance contract.');
+  if (!rmtxSSR && component && !scoped && options.ssr !== undefined) throw new TypeError('Component ownership v7 requires a separate A05 SSR handoff.');
+  if (rmtxSSR && (!component || options.ssr?.schema !== 'xtend.maraca.xtension-ssr-options.v3' || options.resumeBindingsRuntime?.XTENSION_RMTX_RESUME_STATE_BINDING_API_VERSION !== '4.0.0')) throw new TypeError('RMTX SSR requires its component profile, v3 options and resume API4.');
   const componentInterfaceRuntime = component ? Object.freeze({ ...options.componentInterfaceRuntime }) : null;
   if (component) validateComponentBindings(artifact, componentInterfaceRuntime);
   const createHostFactory = options.companion.createHostFactory;
@@ -88,12 +92,12 @@ export function createMaracaXTensionCompositionPort(options) {
   const grants = Object.freeze(Object.fromEntries([...policies].map(([id, policy]) => [id, Object.freeze({ ...policy.data, authorize: policy.authorize, validateProps: policy.validateProps })])));
   const adapters = Object.freeze(Object.fromEntries(Object.entries(options.adapters || {}).map(([id, api]) => [id, Object.freeze({ ...api })])));
   const plan = freeze(copy(options.plan)), bindingsRuntime = options.bindingsRuntime;
-  const ssrSession = options.ssr === undefined ? null : options.ssrRuntime.createMaracaXTensionSSRSession({ artifact, bindingsRuntime, resumeBindingsRuntime: options.resumeBindingsRuntime, options: options.ssr, ...(scoped ? { componentInterfaceRuntime } : {}) });
-  return Object.freeze({ schema: managed ? 'xtend.maraca.xtension-composition-port.v10' : orchestrated ? 'xtend.maraca.xtension-composition-port.v9' : lifecycle ? 'xtend.maraca.xtension-composition-port.v8' : native ? 'xtend.maraca.xtension-composition-port.v7' : projected ? 'xtend.maraca.xtension-composition-port.v6' : scoped ? ssrSession ? 'xtend.maraca.xtension-composition-port.v5' : 'xtend.maraca.xtension-composition-port.v4' : component ? 'xtend.maraca.xtension-composition-port.v3' : ssrSession ? 'xtend.maraca.xtension-composition-port.v2' : 'xtend.maraca.xtension-composition-port.v1', bindingsRuntime, ...(ssrSession ? { ssrSession, resumeBindingsRuntime: options.resumeBindingsRuntime } : {}),
+  const ssrSession = options.ssr === undefined ? null : options.ssrRuntime.createMaracaXTensionSSRSession({ artifact, bindingsRuntime, resumeBindingsRuntime: options.resumeBindingsRuntime, options: options.ssr, ...(rmtxSSR ? {sourceIdentity:options.sourceIdentity,createModelSnapshot:options.createModelSnapshot,bindingAdmission:options.bindingAdmission} : {}), ...(scoped || rmtxSSR ? { componentInterfaceRuntime } : {}) });
+  return Object.freeze({ schema: rmtxSSR ? 'xtend.maraca.xtension-composition-port.v11' : managed ? 'xtend.maraca.xtension-composition-port.v10' : orchestrated ? 'xtend.maraca.xtension-composition-port.v9' : lifecycle ? 'xtend.maraca.xtension-composition-port.v8' : native ? 'xtend.maraca.xtension-composition-port.v7' : projected ? 'xtend.maraca.xtension-composition-port.v6' : scoped ? ssrSession ? 'xtend.maraca.xtension-composition-port.v5' : 'xtend.maraca.xtension-composition-port.v4' : component ? 'xtend.maraca.xtension-composition-port.v3' : ssrSession ? 'xtend.maraca.xtension-composition-port.v2' : 'xtend.maraca.xtension-composition-port.v1', bindingsRuntime, ...(ssrSession ? { ssrSession, resumeBindingsRuntime: options.resumeBindingsRuntime } : {}),
     bind(ports) {
       validateArtifact(artifact, ports.plan, bindingsRuntime);
       return createHostFactory({ ...ports, plan, bindingsRuntime, adapters, ...(component ? { componentInterfaceRuntime } : {}), ...loaders, grants, ...(ssrSession ? { ssrSession } : {}),
-        compositionRuntime: Object.freeze({ createMaracaXTensionHostFactory }) });
+        compositionRuntime: Object.freeze({ createMaracaXTensionHostFactory: rmtxSSR ? createMaracaRmtxSSRHostFactory : createMaracaXTensionHostFactory }) });
     }
   });
 }
@@ -111,13 +115,16 @@ function waitForProvider(promise, signal) {
 
 /** Platform ports and loaded provider namespaces are trusted application inputs.
  * This composer neither fetches executable code nor treats a JSON hash as proof. */
-export function createMaracaXTensionHostFactory(options) {
+export function createMaracaXTensionHostFactory(options) { return createHostFactory(options, false); }
+export function createMaracaRmtxSSRHostFactory(options) { return createHostFactory(options, true); }
+function createHostFactory(options, rmtxSSR) {
   const artifact = validateArtifact(options.artifact, options.plan, options.bindingsRuntime);
   const shared = sharedArtifactSchemas.includes(artifact.schema), deferred = shared || artifact.schema === DEFERRED_ARTIFACT_SCHEMA;
   if ((deferred && options.providers !== undefined) || (!deferred && options.loadProviders !== undefined)) throw new TypeError('Provider namespace/loader ports must match the artifact version.');
   const managed = artifact.schema === MANAGED_COMPONENT_ARTIFACT_SCHEMA, orchestrated = managed || artifact.schema === ORCHESTRATED_COMPONENT_ARTIFACT_SCHEMA, lifecycle = orchestrated || artifact.schema === LIFECYCLE_COMPONENT_ARTIFACT_SCHEMA, native = lifecycle || artifact.schema === NATIVE_COMPONENT_ARTIFACT_SCHEMA, projected = native || artifact.schema === PROJECTION_COMPONENT_ARTIFACT_SCHEMA, scoped = projected || artifact.schema === SCOPED_COMPONENT_ARTIFACT_SCHEMA, componentProfile = scoped || artifact.schema === COMPONENT_ARTIFACT_SCHEMA;
-  if (projected && options.ssrSession) throw new TypeError(native ? 'Source5 cannot use legacy SSR sessions.' : 'Source4 cannot use legacy SSR sessions.');
-  if (componentProfile && !scoped && options.ssrSession) throw new TypeError('Component ownership v7 requires a separate A05 SSR handoff.');
+  if (!rmtxSSR && projected && options.ssrSession) throw new TypeError(native ? 'Source5 cannot use legacy SSR sessions.' : 'Source4 cannot use legacy SSR sessions.');
+  if (!rmtxSSR && componentProfile && !scoped && options.ssrSession) throw new TypeError('Component ownership v7 requires a separate A05 SSR handoff.');
+  if (rmtxSSR && options.ssrSession?.schema !== 'xtend.maraca.xtension-ssr-session.v3') throw new TypeError('The RMTX host entry requires the prepared SSR session v3.');
   const componentInterfaceRuntime = componentProfile ? Object.freeze({ ...options.componentInterfaceRuntime }) : null;
   const components = componentProfile ? validateComponentBindings(artifact, componentInterfaceRuntime) : null;
   const loaders = capturePeerLoader(options, artifact), providerLoads = new Map();
@@ -178,7 +185,7 @@ export function createMaracaXTensionHostFactory(options) {
       if (!route || event.payloadSchema !== route.payloadSchema) throw new TypeError('Unknown captured component intent.');
       return { ...event, payload: (projected ? componentInterfaceRuntime.mapProjectedComponentIntent : componentInterfaceRuntime.mapComponentIntent)(componentContract.definition, event.event, event.payload, route.payload) };
     } : event => event;
-    const onEvent = scoped && options.ssrSession ? options.ssrSession.gate(context,normalizeEvent)
+    const onEvent = (scoped || rmtxSSR) && options.ssrSession ? options.ssrSession.gate(context,normalizeEvent)
       : options.ssrSession ? options.ssrSession.gate(context) : event => context.onEvent(normalizeEvent(event));
     return provider.create({ container: context.container, hostId: context.hostId, surfaceId: context.surfaceId, xtensionId: context.xtensionId,
       onEvent, component: proxy, fabric,

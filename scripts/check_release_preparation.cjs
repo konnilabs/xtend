@@ -54,6 +54,7 @@ const CHECKS = Object.freeze([
   ['scripts/sync_xtend_package_versions.js', '--check'],
   ['--test', '--test-concurrency=1', 'tests/rmt-language/rmt-project.test.cjs', 'tests/rmt-language/rmtx-language-service.test.cjs', 'tests/rmt-language/rmtx-language-server.test.cjs', 'tests/rmt-language/rmtx-editor.test.cjs', 'tests/rmt-language/rmt-project-integrations.test.cjs'],
   ['--test', '--test-concurrency=1', 'tests/release/rmtx-target-contract.test.cjs'],
+  ['--test', '--test-concurrency=1', 'tests/xtensions/rmtx-ssr-handoff.test.cjs', 'tests/rmt/renderer-native-ssr.test.cjs', 'tests/maraca/rmtx-ssr-entry.test.cjs', 'tests/maraca/rmtx-ssr-captured-esm.test.cjs', 'tests/maraca/rmtx-ssr-native-initial.test.mjs', 'tests/xtensions/rmtx-ssr-types.test.cjs', 'tests/xtensions/rmtx-ssr-gate.test.cjs'],
   ['development/rmtx-a06/release-acceptance/inspect.cjs', '--check'],
   ['scripts/release/feature-scope.cjs', '--check-plan']
 ].map(command => Object.freeze(command)));

@@ -233,7 +233,7 @@ export function createMaracaBrowserHostAdapter(configuration = {}, dependencies 
   }
 
   function inspectServerShell(root, suppliedPayload) {
-    const shell = root && typeof root.querySelector === 'function' && (root.getAttribute?.('data-rmt-resume-root') === 'true'
+    const shell = root && typeof root.querySelector === 'function' && (root.hasAttribute?.('data-maraca-ssr-shell') || root.getAttribute?.('data-rmt-resume-root') === 'true'
       ? root : root.querySelector('[data-rmt-resume-root="true"], [data-maraca-ssr-shell]'));
     const payload = suppliedPayload === undefined ? readResumePayload() : suppliedPayload;
     return freeze({ active: Boolean(shell), hasPayload: payload !== null && payload !== undefined });

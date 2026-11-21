@@ -1,0 +1,14 @@
+import { RMT, model } from '@ccslabs/xtend/rmt-language/rmtx';
+export default <RMT.Program id="release.native.ssr">
+  <RMT.Import path="./shared.rmt" />
+  <RMT.Surface id="native" component="section">
+    <RMT.Lane name="visible"><RMT.Mount target="native" /><RMT.Hydrate target="native" /></RMT.Lane>
+    <RMT.View>
+      <RMT.Component tag="x-header" ref="heading" properties={{ title: model.capture.kind }} />
+      <RMT.Component tag="x-button" ref="trigger" attributes={{ label: 'Native only' }}>
+        <RMT.On event="button-interaction" action="native.only" payload={{ value: 'detail.type' }} />
+      </RMT.Component>
+      <RMT.Element tag="output" attributes={{ 'data-native-only': 'true' }}><RMT.Text value={model.capture.kind} /></RMT.Element>
+    </RMT.View>
+  </RMT.Surface>
+</RMT.Program>;

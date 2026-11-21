@@ -37,13 +37,13 @@
     "development/rmtx-a06/frontend/two-host.rmtx": "c3fc93e6982969a03a7d4b839f3733348be9b390b8ae267d2708e896fdb1cca5",
     "package-lock.json": "a075dd8343897d4b6e9a5a52c2caa23b1ec0700b40a6fe69467d61b776d7324e",
     "package.json": "48be4acdbc5077fe7e63c6a2ce4e28894d29ca2c56ad820c87e2fc63f856a8cf",
-    "scripts/check_release_preparation.cjs": "61c1234db4ba912fd97e9dcfe1df454e614cb6b03fcba8cef11a19102dac5501",
-    "tests/release/preparation-gates.test.cjs": "d1bdf4aa8bbf411567b56ba05eda499f91b9fdcc28af66a29205b716dab1b59a",
+    "scripts/check_release_preparation.cjs": "d6667be24c15f80e8d02c71e0b44fd97acd455136fa88865a9ec4e396547b699",
+    "tests/release/preparation-gates.test.cjs": "7916e500547b14437fe3cc858351eab8b64428e2620826079f803e486bd53c6a",
     "tests/rmt-language/backend-ast-result.test.cjs": "42a0f3a7b56c698dbc7492eab5010d48a6a769ffb190eea174a2d32054017b17",
     "tests/rmt-language/rmtx-frontend.test.cjs": "ee3912e8a2ac05dc87d7dc1013e22b7a8a1a8a9939fdb3fcd19a8fb14466e0dc",
     "tests/rmt-language/rmtx-maraca-integration.test.cjs": "f854dc895241c34de4db80bcacac3e8f3e611807a7705a04571d27e5ae55592f",
-    "tests/xtensions/xtensions_runtime_gate_suite.js": "4a05bba2c09bb14754c42c183bba7a86ca6161447abc93887ca8dcfb56e953ed",
-    "tools/package.json": "b74c11a4250e6df52ebab577eba0f7ceccca55c92ca1090f5e7cd82eb989f674",
+    "tests/xtensions/xtensions_runtime_gate_suite.js": "57fa5396efbe58a213494b8e3c94740c4f8c98d3779e193265dfdc21f36074c4",
+    "tools/package.json": "05b600248508118d8d29b43f0c71aa1b07649277d30aa2d2016f660bfe31e101",
     "tools/rmt-language/classic-ast-contract.js": "3e17596b6615c7ca5528bb5a72551143e1d3403d8a8c606cf83569d71a3c79d4",
     "tools/rmt-language/classic-ast-rules.js": "269c0ad5d14ba86a149e33877e7db28b3a4004d0217b8c6b829b26931a327b0d",
     "tools/rmt-language/classic-compiler.d.ts": "964abe83eea301b40ebb1e1c4e8458535e687c2edd5ab366bb4a7942ee45b435",
@@ -60,7 +60,7 @@
     "tools/rmt-language/vnext-compiler.d.ts": "aaeb02549ba52984b0131ba633238deb917162b2a622e0df14d24bbbb7770212",
     "tools/rmt-language/vnext-compiler.js": "f6ce4b76cffaffa8a5c3261b131d6a9f74499a181ff4391ec205a985f9eda642",
     "tools/xtensions/state-binding-artifact.js": "fd4435ffb4b1034adb76cda66a2dea7cfb439cd76ad947a128fa698d6735f907",
-    "xtend-maraca/index.d.ts": "3f3756ca963dc9be0e6e8f7ad5b2f13492e329c54ce44ae46b86b70326a1ef75",
-    "xtend-maraca/index.js": "c6a2703caab64128c18f91ded281a766ea28915b657bd845ab82771aadbf889c"
+    "xtend-maraca/index.d.ts": "4a515a42ce12586303a7fc464852dfc329d74ca54ee02e0a24f722ffe9c44dd3",
+    "xtend-maraca/index.js": "d7e11a641a07fa1377a0008ff148ff575fc62d853f22c8e286f900a4aeae9e75"
   }
 }

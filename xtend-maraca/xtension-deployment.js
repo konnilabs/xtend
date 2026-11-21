@@ -21,6 +21,7 @@ function record(fileName, bytes) { return { fileName, sha256: hash(bytes), bytes
 function graph(files) {
   if([...files.values()].reduce((sum,bytes)=>sum+bytes.length,0)>256*1024*1024)throw new TypeError('Deployment inventory exceeds its byte bound.');
   const { parseAst } = require('rollup/parseAst');
+  let hasModuleMetadata = false;
   for (const [fileName, bytes] of files) {
     if (!script(fileName)) continue;
     function edge(specifier) {
@@ -30,12 +31,14 @@ function graph(files) {
     }
     function walk(node) {
       if (!node || typeof node !== 'object') return;
+      if (node.type === 'MetaProperty' && node.meta?.name === 'import' && node.property?.name === 'meta') hasModuleMetadata = true;
       if (['ImportDeclaration', 'ExportNamedDeclaration', 'ExportAllDeclaration'].includes(node.type) && node.source) edge(node.source.value);
       if (node.type === 'ImportExpression') edge(node.source.type === 'Literal' ? node.source.value : null);
       for (const value of Object.values(node)) if (Array.isArray(value)) value.forEach(walk); else if (value && typeof value === 'object') walk(value);
     }
     walk(parseAst(new TextDecoder('utf-8', { fatal: true }).decode(bytes)));
   }
+  return hasModuleMetadata;
 }
 function envelope(publicPath, files, bootstrap, context) {
   const pwa = context?.runtime?.pwa === 'verified-static-cache';
@@ -49,16 +52,20 @@ function envelope(publicPath, files, bootstrap, context) {
 /** Private registration from the successful regular build, before it returns.
  * Neither serialized build reports nor caller-supplied digests create this brand. */
 function registerBuild(result) {
-  if (!result.ok || !['xtend.maraca.xtension-composition-manifest.v5', 'xtend.maraca.xtension-composition-manifest.v6','xtend.maraca.xtension-composition-manifest.v7','xtend.maraca.xtension-composition-manifest.v8','xtend.maraca.xtension-composition-manifest.v9','xtend.maraca.xtension-composition-manifest.v10','xtend.maraca.xtension-composition-manifest.v11','xtend.maraca.xtension-composition-manifest.v12'].includes(result.plan.xtensionComposition?.schema)) return;
-  const root = fs.realpathSync(result.plan.outputDir), rows = result.sizeBudgetReport.accounting.files;
+  const rmtx = require('./rmtx-ssr-build-context.cjs').getRmtxSSRPlanContext(result.plan);
+  if (!result.ok || !rmtx && !['xtend.maraca.xtension-composition-manifest.v5', 'xtend.maraca.xtension-composition-manifest.v6','xtend.maraca.xtension-composition-manifest.v7','xtend.maraca.xtension-composition-manifest.v8','xtend.maraca.xtension-composition-manifest.v9','xtend.maraca.xtension-composition-manifest.v10','xtend.maraca.xtension-composition-manifest.v11','xtend.maraca.xtension-composition-manifest.v12'].includes(result.plan.xtensionComposition?.schema)) return;
+  const root = fs.realpathSync(result.plan.outputDir);
+  const rows = result.sizeBudgetReport.accounting?.files || (rmtx && !result.plan.xtensionComposition
+    ? result.bundleReport.bundleFiles.map(row => record(row.fileName, readFile(root, row.fileName))) : null);
+  if (!Array.isArray(rows) || !rows.length) throw new TypeError('SSR registration requires the actual bounded build inventory.');
   const capture = rows.map(row => { const bytes = fs.readFileSync(path.join(root, row.fileName)); if (hash(bytes) !== row.sha256 || bytes.length !== row.bytes) throw new TypeError('Actual build bytes changed before deployment registration.'); return { ...row }; });
   const services = result.plan.services, pwa = result.plan.pwa;
   const privateRows = services?.enabled ? (result.serviceBuildReport?.files || []).map(file => {
     const fileName = path.relative(path.resolve(result.plan.outputDir), path.resolve(file)).split(path.sep).join('/');
     return record(fileName, fs.readFileSync(file));
   }) : [];
-  builds.set(result, { root, rows: capture, host: path.basename(result.plan.outputs.host), budget: copy(result.sizeBudgetReport), ssrEntry: path.basename(result.plan.outputs.entry), ssrLazy: result.plan.lazy,
-    compositionSchema: result.plan.xtensionComposition.schema, incompatible: !!pwa?.enabled || !!services?.enabled, services: !!services?.enabled, privateRows,
+  builds.set(result, { root, rows: capture, host: path.basename(result.plan.outputs.host), budget: copy(result.sizeBudgetReport), ssrEntry: path.basename(result.plan.outputs.entry), ssrLazy: result.plan.lazy, ssrCss: result.plan.css,
+    compositionSchema: result.plan.xtensionComposition?.schema || null, rmtxSSRSourceIdentity: rmtx?.sourceIdentity || null, incompatible: !!pwa?.enabled || !!services?.enabled, services: !!services?.enabled, privateRows,
     servicePath: services?.enabled ? services.transport.basePath : null,
     pwa: pwa?.enabled ? { manifest: path.basename(pwa.outputs.manifest), worker: path.basename(pwa.outputs.serviceWorker), report: path.basename(pwa.outputs.report),
       offline: pwa.outputs.offlineFallback ? path.basename(pwa.outputs.offlineFallback) : null,
@@ -200,10 +207,16 @@ function buildMaracaXTensionDeployment(options) {
   const overheadBytes = bytes-capture.rows.reduce((sum,row)=>sum+row.bytes,0)-applicationBytes;
   const frameworkBytes = capture.budget.framework.bytes+overheadBytes;
   const serverBytes=[...privateFiles.values()].reduce((sum,value)=>sum+value.length,0);
+  const nativeOnlySSR = capture.compositionSchema === null && capture.rmtxSSRSourceIdentity !== null;
+  // Native-only SSR is registered by its own genuine build context. Its whole
+  // emitted runtime remains in the actual framework budget; no XTension
+  // composition or synthetic XTension budget exists for that application.
+  const xtensionRuntimeBytes = nativeOnlySSR ? 0 : capture.budget.xtensions.runtimeBytes;
+  const capturedWithinBudget = nativeOnlySSR ? capture.budget.ok && capture.budget.framework.withinBudget : capture.budget.xtensions.withinBudget;
   const accounting = { totalBytes:bytes+(v2?serverBytes:0),applicationBytes,envelopeBytes:overheadBytes,frameworkBytes,frameworkBaselineBytes:capture.budget.framework.baselineBytes,
     ...(v3 ? {retainedBytes:retained.bytes,hostedBytes:bytes+serverBytes+retained.bytes} : {}),
     ...(v2 ? {publicBytes:bytes,serverBytes,pwaWorkerBytes:manifest.pwa ? files.get(manifest.pwa.workerFile).length : 0} : {}),
-    xtensionRuntimeBytes:capture.budget.xtensions.runtimeBytes,withinBudget:frameworkBytes<capture.budget.framework.baselineBytes && capture.budget.xtensions.withinBudget };
+    xtensionRuntimeBytes,withinBudget:frameworkBytes<capture.budget.framework.baselineBytes && capturedWithinBudget };
   if (!accounting.withinBudget) throw new TypeError('Sealed deployment exceeds the unchanged captured framework budget.');
   const output = path.resolve(options.outputDir), relative = path.relative(capture.root,output);
   if (!relative || !relative.startsWith('..'+path.sep) && relative !== '..' && !path.isAbsolute(relative) || output === appRoot) throw new TypeError('Deployment output must be separate from build and application inputs.');
@@ -321,12 +334,16 @@ function createMaracaXTensionDeploymentHandler(result) {
     response.writeHead(200,{'Content-Type':result.manifest.pwa?.manifestFile===file?'application/manifest+json':type,'Content-Length':value.length});response.end(request.method==='HEAD'?undefined:Buffer.from(value));return true;
   };
 }
-function captureSSRBuild(build) {
+function captureSSRBuild(build, options = {}) {
+  fields(options, ['rmtx'], 'SSR build capture options');
+  if (options.rmtx !== undefined && options.rmtx !== true) throw new TypeError('The new SSR handoff requires explicit rmtx:true.');
   const capture = builds.get(build);
   if (!capture || capture.incompatible || capture.ssrLazy !== 'none') throw new TypeError('SSR requires an actual successful delivery-profile build with lazy:none and separate PWA/AppServices composition.');
+  if (!!capture.rmtxSSRSourceIdentity !== (options.rmtx === true)) throw new TypeError('RMTX SSR requires its genuine separately registered build and explicit v3 handoff.');
   const files = new Map(capture.rows.filter(row => script(row.fileName)).map(row => { const bytes = readFile(capture.root, row.fileName); if (hash(bytes) !== row.sha256 || bytes.length !== row.bytes) throw new Error('SSR build bytes changed.'); return [row.fileName, bytes.toString('utf8')]; }));
-  graph(new Map([...files].map(([name, source]) => [name, Buffer.from(source)])));
+  const moduleMetadata = graph(new Map([...files].map(([name, source]) => [name, Buffer.from(source)])));
   if (!files.has(capture.ssrEntry)) throw new Error('SSR entry is outside the captured build.');
-  return { entry: capture.ssrEntry, files, componentProfile: capture.compositionSchema === 'xtend.maraca.xtension-composition-manifest.v7' };
+  return { entry: capture.ssrEntry, files, componentProfile: capture.compositionSchema === 'xtend.maraca.xtension-composition-manifest.v7',
+    ...(options.rmtx ? { rmtxSSR: true, sourceIdentity: capture.rmtxSSRSourceIdentity, nativeOnly: capture.compositionSchema === null, requiresModuleBaseURL: capture.ssrCss === 'external' || moduleMetadata } : {}) };
 }
 module.exports={captureSSRBuild,XTENSION_DEPLOYMENT_API_VERSION,buildMaracaXTensionDeployment,loadMaracaXTensionDeployment,loadMaracaXTensionDeploymentSnapshot,createMaracaXTensionDeploymentHandler,registerBuild};

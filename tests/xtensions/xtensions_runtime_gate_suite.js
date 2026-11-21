@@ -6,6 +6,28 @@ const { createSuiteContext } = require('../utils/assertions');
 const { prepareXTensionsTestPeers, npmCommand } = require('../../scripts/prepare_xtensions_test_peers');
 const { findExecutable } = require('../../tools/browser-hypervisor');
 
+function validateRmtxSSRRuntimeReport(report, node = process.version) {
+  try {
+    const normalize = require('../../xtend-maraca/xtension-rmtx-ssr-contract.mjs').normalizeRmtxSSRSourceIdentity;
+    if (!report || report.schema !== 'xtend.rmtx.ssr-runtime-acceptance.v1' || report.format !== 1 || report.stage !== 'A06.6.2-versioned-rmtx-ssr'
+      || report.passed !== true || report.node !== node || typeof report.browser !== 'string' || !report.browser
+      || report.ssrWireVersion !== 3 || report.nativeSealedJavaScript !== true || report.trustedServerComposedDocument !== true
+      || report.realClassicActionExecutionVerified !== true || report.realKernelFabricVerified !== true || report.acceptedForRelease !== false
+      || !Array.isArray(report.names) || report.names.length !== report.cases || report.cases < 50 || new Set(report.names).size !== report.names.length || report.names.some(name => typeof name !== 'string' || !name.trim())) return false;
+    normalize(report.sourceIdentity);
+    for (const scenario of ['resume', 'replay', 'duplicate', 'held', 'native', 'reorder', 'renew', 'fallback', 'empty', 'signed-project', 'signed-source-profile', 'signature', 'invalid-batch', 'cancel']) {
+      if (!report.names.includes('real sealed RMTX SSR browser: ' + scenario)) return false;
+    }
+    const native = report.nativeOnly;
+    if (native?.schema !== 'xtend.rmtx.native-only-ssr-runtime-acceptance.v1' || native.node !== node || native.passed !== true
+      || native.acceptedForRelease !== false || !Array.isArray(native.names) || native.names.length !== native.cases || native.cases < 9
+      || new Set(native.names).size !== native.names.length || native.names.some(name => typeof name !== 'string' || !name.trim() || !report.names.includes(name))
+      || !['resume', 'click', 'signature', 'old-wire', 'shell', 'native-tamper', 'cancel'].every(scenario => native.names.includes('native-only sealed browser: ' + scenario))) return false;
+    normalize(native.sourceIdentity);
+    return true;
+  } catch { return false; }
+}
+
 function runXTensionsRuntimeGate({ rootDir, browser = false } = {}) {
   const id = browser ? 'xtensions-runtime-browser' : 'xtensions-runtime';
   const context = createSuiteContext({id,label:`Actual XTensions ${browser ? 'Chromium' : 'jsdom'} acceptance`});
@@ -240,6 +262,14 @@ function runXTensionsRuntimeGate({ rootDir, browser = false } = {}) {
       context.assert(!ssrExecution.error && ssrExecution.status === 0, `Actual Node SSR/native adoption passes: ${ssrExecution.stderr || ssrExecution.stdout || ssrExecution.error || ''}`);
       const ssr = JSON.parse(fs.readFileSync(ssrArtifact, 'utf8'));
       context.assert(ssr.schema === 'xtend.xtensions.ssr-acceptance-report.v1' && ssr.ok && ssr.node === process.version && ssr.checks >= 84 && ssr.cases.every(row => row.passed), 'Actual SSR/restore/adoption/replay and separately reported fallback are mandatory');
+      const rmtxSSRArtifact = path.join(rootDir, '.xtend-test-results', 'xtend-rmtx-ssr-runtime-report.json');
+      fs.rmSync(rmtxSSRArtifact, { force: true });
+      const rmtxSSRExecution = spawnSync(process.execPath, ['--max-old-space-size=1024', 'development/rmtx-a06/release-acceptance/runtime/runtime-test.cjs', '--output', rmtxSSRArtifact],
+        { cwd: rootDir, env, encoding: 'utf8', timeout: 180000, maxBuffer: 16 * 1024 * 1024 });
+      context.assert(!rmtxSSRExecution.error && rmtxSSRExecution.status === 0,
+        `Actual versioned RMTX Node SSR/native adoption passes: ${rmtxSSRExecution.stderr || rmtxSSRExecution.stdout || rmtxSSRExecution.error || ''}`);
+      const rmtxSSR = JSON.parse(fs.readFileSync(rmtxSSRArtifact, 'utf8'));
+      context.assert(validateRmtxSSRRuntimeReport(rmtxSSR), 'RMTX wire3 requires actual mixed and native-only production Node/Chromium acceptance with signed source identity, restore/adoption/replay and negative cases');
       context.assert(Object.values(ssr.sizes).every(row => Number.isFinite(row.frameworkBytes) && row.frameworkBytes <= 2200000 && row.runtimeBytes <= 240000), 'SSR JavaScript stays fully inside the unchanged framework/runtime ceilings');
       context.assert(ssr.signedSnapshotRequired && ssr.restoreBeforeReplay && ssr.ownership === 'exclusive-container' && ssr.releaseAccepted === false, 'SSR retains signature, restore and bounded ownership contracts');
       const deliveryArtifact = path.join(rootDir,'.xtend-test-results','xtend-xtensions-delivery-report.json');
@@ -282,4 +312,4 @@ function runXTensionsRuntimeGate({ rootDir, browser = false } = {}) {
   } catch (error) { context.fail(error.stack || String(error)); }
   return context.result();
 }
-module.exports = { runXTensionsRuntimeGate };
+module.exports = { runXTensionsRuntimeGate, validateRmtxSSRRuntimeReport };

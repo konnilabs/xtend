@@ -1,0 +1,1352 @@
+{"nodeTypes":122,"outputs":["tools/rmt-language/contracts/classic-ast.v1.schema.json","tools/rmt-language/classic-ast-types.d.ts"]}
+{
+  "ok": true,
+  "manifest": "tools/rmt-language/vendor/manifest.json",
+  "manifestFresh": true,
+  "copies": [
+    {
+      "canonical": "xtend-maraca/fastpass-contract.js",
+      "vendored": "tools/rmt-language/vendor/fastpass-contract.js",
+      "sha256": "af8e26104243deea58ccf3a334d67ecb3286617146257074a29eeb7866a3b1a3",
+      "vendoredSha256": "af8e26104243deea58ccf3a334d67ecb3286617146257074a29eeb7866a3b1a3",
+      "fresh": true
+    }
+  ]
+}
+✔ regular Maraca plans preserve string, zero, false and null State initial values (1501.979537ms)
+✔ managed reducers resolve State and Selector values against previous reductions without confusing literal reference spellings (58.889165ms)
+✔ qualified State symbols resolve their longest declared owner before the field path (40.354775ms)
+✔ managed references work through the existing Model reader contract without an optional resolve method (42.787551ms)
+✔ unmarked managed artifact values retain the legacy input/result versus literal State/error distinction (40.934301ms)
+✔ success handlers commit atomically and emissions publish once only after Model and View commit (54.932612ms)
+✔ error handlers resolve errors, emit only their error phase and render danger overlays through the native graph (125.765115ms)
+✔ nested emit templates resolve reference leaves while keeping literal strings unchanged (37.306611ms)
+✔ a failed Model typeguard rolls all reductions back and publishes no event (35.942047ms)
+✔ disposing during a datasource prevents late handlers, commits, and publications (42.403886ms)
+✔ the direct Action executor executes result phases and uses only its explicit publication adapter (2.960062ms)
+✔ the direct Action executor applies only error handlers after a failed datasource (2.259054ms)
+✔ direct publications reject unsafe templates and missing publication authority (0.425494ms)
+✔ direct unmarked values keep the previous dollar-reference syntax and unknown value kinds fail closed (0.596517ms)
+✔ unsafe overlay tones are rejected before native lifecycle or DOM mutation (29.223375ms)
+✔ result overlays reject a declared portal outside the owned app root (39.043421ms)
+✔ native overlay portal resolution rejects ambiguous targets before mounting anything (25.607946ms)
+✔ compiler API versions identify the restored Action/Event semantics without changing the input AST (15.799351ms)
+✔ all result phases survive lowering as closed execution data, including overlay options (10.140529ms)
+✔ literal reference spellings and actual references retain distinct execution metadata (3.492507ms)
+✔ nested Emit payloads retain explicit reference leaves instead of ambiguous strings (3.240904ms)
+✔ compiler rejects unknown phase before producing executable artifacts (1.8709ms)
+✔ compiler rejects unknown operation before producing executable artifacts (1.966071ms)
+✔ compiler rejects unresolved overlay before producing executable artifacts (1.914391ms)
+✔ compiler rejects unknown overlay option before producing executable artifacts (2.077703ms)
+✔ compiler rejects duplicate overlay option before producing executable artifacts (1.563777ms)
+✔ compiler rejects unknown overlay tone before producing executable artifacts (2.489656ms)
+✔ compiler rejects unknown emitted input before producing executable artifacts (2.039622ms)
+✔ compiler rejects duplicate emitted field before producing executable artifacts (1.381785ms)
+✔ compiler rejects unsafe emitted field before producing executable artifacts (1.939911ms)
+✔ compiler rejects unsafe nested field before producing executable artifacts (1.907651ms)
+✔ compiler rejects unsafe nested reference before producing executable artifacts (1.268594ms)
+✔ compiler rejects nonfinite numeric reducer before producing executable artifacts (1.257893ms)
+✔ compiler condition reaches the event artifact and false blocks before payload or DOM governance (24.688356ms)
+✔ compound compiled guards read live Model, Selector, detail and target values (12.752437ms)
+✔ Classic negation precedence and strict equality survive Core expression evaluation (22.963687ms)
+✔ logical RHS values inside comparisons match the compiled Model selector semantics (25.922899ms)
+✔ compiled event guards read native input value and dataset through actual DOM events (471.560149ms)
+✔ longest declared Model symbol wins; explicit namespaces disambiguate State and Selector (0.663358ms)
+✔ one snapshot supplies the whole guard and short circuit does not read an unused event getter (4.61478ms)
+✔ boolean guards and the when alias preserve false rather than normalizing it away (0.644957ms)
+✔ legacy equality, falsy, includes and keyboard guard records retain their behavior (0.90379ms)
+✔ unsupported or malformed guards fail closed, including an invalid unused logical branch (0.850669ms)
+✔ guard AST accessors and plain event-data getters are never invoked (0.443184ms)
+✔ invalid or failing Model ports cannot grant an event and module API declares the new behavior (0.533116ms)
+✔ Kernel MVC declares the Event Router Model reader without granting state writes (1097.370609ms)
+✔ parent reconciliation retains a trusted owner root, its focused subtree and DOM identity (153.380841ms)
+✔ replace-children leaves foreign owner roots connected instead of replacing or reattaching them (22.883986ms)
+✔ ordinary DOM and forged source or attribute ownership markers receive no reservation (11.575144ms)
+✔ same-owner removal cleans its reservation instead of preserving its own old nodes (9.810586ms)
+✔ a matching key never lets a parent reuse or patch a different owners node (13.545666ms)
+✔ disposing a node or the renderer releases private reservations (9.199329ms)
+✔ only returned create-node roots are reserved, not arbitrary descendants moved out of that scope (9.25579ms)
+✔ text replacement and stale-content cleanup preserve another owner root inside a reused element (19.160126ms)
+✔ a parent reconcile retains a native ancestor of a deeply nested private foreign root (18.821552ms)
+✔ replace-children does not indirectly detach a foreign root through its native ancestor (19.838573ms)
+✔ text replacement and stale native content cleanup preserve a nested foreign branch (26.974921ms)
+✔ normal native wrapper updates reconcile in place without accumulating protected duplicates (15.196024ms)
+✔ a new authoritative generation key creates a new wrapper while its old foreign branch stays anchored (14.257034ms)
+✔ same-owner cleanup and explicit resource disposal release protected native ancestors (16.614939ms)
+✔ private foreign roots inside an open shadow tree protect the native host ancestry (13.625596ms)
+✔ hide and restore preserve an existing inline display priority within one restore commit (9.114828ms)
+✔ temporary style-priority preservation does not outlive its commit (7.163357ms)
+✔ a removed native branch retains only its foreign root shell, clearing ordinary native text and controls (15.412546ms)
+✔ pruning a retained native branch stops at private roots and preserves their own complete subtree (14.166892ms)
+ℹ tests 65
+ℹ suites 0
+ℹ pass 65
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5327.507828
+✔ native close/commit/resume preserves identity, current Model and unrelated roots (1442.616328ms)
+✔ direct Destroy from open synchronously fences the old command before Model writes (33.249628ms)
+✔ unscoped commands after Destroy update Model without resurrecting its native view (32.789114ms)
+✔ explicit recreation authorizes a new native generation and never revives old tokens (38.562655ms)
+✔ a recreated native key retains evaluation of the original structured Model expression (36.638735ms)
+✔ model hidden state survives a close/resume lifecycle overlay and subsequent Model updates (43.113554ms)
+✔ legacy v1 ViewProjectionPort remains accepted while complete lifecycle authority fences tokens (33.192208ms)
+✔ a claimed v2 View port missing lifecycle projection is rejected before boot (32.386199ms)
+✔ a failed native Model commit restores the closed lifecycle overlay in finally (36.24219ms)
+✔ deep foreign roots survive native Destroy and do not become a recreated owner view (127.25137ms)
+✔ atomic multi-Surface Destroy revokes scopes whose tombstones were evicted before publication (29.171034ms)
+✔ trimmed owner disappearance retires its registry binding before later Model delivery (33.521011ms)
+✔ v2 is explicit and opt-in v1 retains its original port and schema (74.028808ms)
+✔ close, minimized and collapsed hide only the native owner and preserve nodes on resume (24.518414ms)
+✔ original visibility and ARIA survive close/resume including inline style priority (11.724566ms)
+✔ prepare/project phases retain Model visibility changes made while closed (11.13919ms)
+✔ restore does not overwrite an intervening presentation writer (10.707565ms)
+✔ destroy cleans native subtree and index without touching a sibling or external root (10.823486ms)
+✔ destroy preserves privately reserved foreign roots and their wrappers until owner disposal (87.882967ms)
+✔ native descendants of a retained retired owner are excluded from lifecycle lookup (11.021139ms)
+✔ old generation cannot resurrect a destroyed view while a new generation can index a new view (10.663575ms)
+✔ an application root remains a shell and can host a new authoritative surface generation (11.989889ms)
+✔ bad batches and missing renderer authority fail before any lifecycle mutation (10.845356ms)
+✔ disposed adapter rejects lifecycle and cannot touch retained nodes (9.015027ms)
+✔ managed materialization preserves a destroyed lifetime and its tombstone while retaining live siblings (13.065841ms)
+✔ the legacy standalone default still rematerializes a destroyed surface (1.88329ms)
+✔ an explicit trusted recreate permits a new lifetime without reviving the old generation (1.750928ms)
+✔ preserving destroyed keyed instances does not freeze their live siblings (0.92004ms)
+✔ invalid preserveDestroyed values fail before lifecycle mutation (0.366614ms)
+✔ compacted tombstones remain revoked and explicit recreation advances the cached authoritative generation (0.745188ms)
+ℹ tests 30
+ℹ suites 0
+ℹ pass 30
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3272.345274
+✔ full AST result uses the shared Source pipeline and leaves the declarative input unchanged (16.437017ms)
+✔ RMTX source profile reaches Core, AppPlatform and orchestration before artifact serialization (6.605321ms)
+✔ lowered AST ranges and RMTX URI survive semantic errors and source maps without reparsing Classic text (1.204573ms)
+✔ new AST result validates structure and rejects executable data before producing plans (2.486487ms)
+✔ unsupported source profiles fail closed and do not execute accessor metadata (8.491732ms)
+✔ legacy Source and Core-only AST APIs retain their Classic identity and throwing contract (4.565899ms)
+✔ the standalone result APIs do not expand the existing compiler factory ports (4.585639ms)
+✔ full AST result retains valid binding sidecars and rejects invalid bindings before use (30.934943ms)
+✔ the productive frontend lowers the complete reference through the same compiler and plans (50.744927ms)
+✔ namespace and model/input aliases resolve from canonical imports rather than tag spelling (3.841462ms)
+✔ JSON literal values preserve strings, nested values, falsy scalars and source string escapes (3.889532ms)
+✔ JSX string entities are explicit and unsupported entities cannot silently change values (1.615707ms)
+✔ closed profile rejects source statements before producing executable artifacts (1.039981ms)
+✔ closed profile rejects call expression before producing executable artifacts (0.522426ms)
+✔ closed profile rejects IIFE before producing executable artifacts (1.187043ms)
+✔ closed profile rejects dynamic import before producing executable artifacts (0.429144ms)
+✔ closed profile rejects spread attributes before producing executable artifacts (0.512845ms)
+✔ closed profile rejects duplicate attributes before producing executable artifacts (0.487575ms)
+✔ closed profile rejects unknown attributes before producing executable artifacts (0.432884ms)
+✔ closed profile rejects unknown operators before producing executable artifacts (0.323103ms)
+✔ closed profile rejects unqualified UI before producing executable artifacts (0.299803ms)
+✔ closed profile rejects native text before producing executable artifacts (0.282693ms)
+✔ closed profile rejects function children before producing executable artifacts (0.594287ms)
+✔ closed profile rejects type arguments before producing executable artifacts (0.571896ms)
+✔ closed profile rejects computed fields before producing executable artifacts (0.450865ms)
+✔ closed profile rejects object accessors before producing executable artifacts (0.569947ms)
+✔ closed profile rejects duplicate fields before producing executable artifacts (0.356484ms)
+✔ closed profile rejects unsafe field before producing executable artifacts (0.393484ms)
+✔ closed profile rejects unsafe path before producing executable artifacts (0.448234ms)
+✔ closed profile rejects optional path before producing executable artifacts (0.489315ms)
+✔ closed profile rejects computed path before producing executable artifacts (0.592307ms)
+✔ closed profile rejects nonfinite literal before producing executable artifacts (0.338524ms)
+✔ closed profile rejects sparse array before producing executable artifacts (0.398784ms)
+✔ closed profile rejects illegal context before producing executable artifacts (0.290654ms)
+✔ closed profile rejects unknown reference before producing executable artifacts (1.377075ms)
+✔ closed profile rejects unknown input before producing executable artifacts (0.733618ms)
+✔ closed profile rejects malformed JSX before producing executable artifacts (0.568906ms)
+✔ unsupported syntax versions and source extensions fail explicitly (0.94234ms)
+✔ diagnostics retain RMTX URI and point at the offending original expression (0.351204ms)
+✔ factory defaults preserve frontend profile and unsupported authoring runtime execution fails (1.191193ms)
+✔ RMTX builds a real Maraca plan through the explicit compiler port and existing XTension sidecar (1284.523504ms)
+✔ Maraca preserves the injected frontend result schema when it revalidates a binding sidecar (23.630255ms)
+✔ bad RMTX syntax and invalid XTension bindings block the plan before runtime work (17.512248ms)
+✔ Classic defaults remain Classic and an extension does not silently select a different compiler (6.409239ms)
+✔ actual root and compiler tarballs expose typed RMTX entrypoints and declare their parser dependency (41814.110906ms)
+✔ packed frontend declarations accept the existing Maraca compiler port in both public packages (619.935496ms)
+✔ separate actual Root/compiler/Maraca tarballs share genuine project sessions in both directions (3061.26757ms)
+✔ generated RMTX dependency closure runs the actual packed standalone CLI without checkout fallbacks (1494.005231ms)
+✔ the compiler tarball alone carries the complete opt-in Source4 frontend and input contracts (69.156215ms)
+✔ the actual Maraca tarball builds Source4 Plan8 through the explicit packed compiler port (41.516597ms)
+✔ packed Source4 and standalone Maraca declarations preserve legacy results and discriminate opt-in types (1188.926125ms)
+✔ the compiler tarball alone includes Source5 native lowering, the projector and shared typed-key engine (74.874787ms)
+✔ actual standalone Maraca and compiler tarballs compile Source5 native-only plan9 without sidecars (26.569186ms)
+✔ packed Source5 native URL/browser/composition types are strict and preserve the Source4 namespace (1082.764311ms)
+✔ actual packed Source6 compiler and Maraca retain explicit lifecycle plan and public entrypoints (60.739744ms)
+✔ packed Source6 declarations reject older projection and runtime capabilities (1052.00087ms)
+ℹ tests 56
+ℹ suites 0
+ℹ pass 56
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 52961.824118
+{"passed":true,"stage":"A06.2-productive-frontend","sourceProfile":{"syntax":"rmtx","version":"1.0.0"},"sources":33}
+✔ default v1 contract retains exactly the original operators, imports and expression scopes (1.156433ms)
+✔ v2 declares selector admission, field rules and strict boolean semantics independently of v1 (0.247622ms)
+✔ new profile capability preserves exact v1 and v2 wire contracts (0.474595ms)
+✔ v3 closes host repeat, boolean presence and event conditions without enabling native repeat or Mount conditions (0.262253ms)
+✔ profile records are immutable plain data and mutable clones cannot alter compiler contracts (9.2766ms)
+✔ unsupported versions fail without coercing or executing supplied metadata (0.262003ms)
+✔ catalog references remain coherent and do not claim dynamic tracking or runtime source execution (0.402005ms)
+✔ authoring names follow the v7 catalog and all operator/helper calls require compilation (0.709918ms)
+✔ strict authoring types reject unknown attributes and enums while preserving the named legacy type (1140.403793ms)
+✔ the new source profile is additive and retains both existing factory forms (19.320848ms)
+✔ only explicit source versions are accepted without executing profile accessors (1.124562ms)
+✔ dependency owners come from semantic facts and use the longest declared symbol prefix (20.41466ms)
+✔ all static branches are included while literal reference-looking strings are excluded (8.973146ms)
+✔ the actual compiled plan determines topological order and transitive State reads (6.55624ms)
+✔ whole row and whole parameter reads retain an empty segment list (1.355825ms)
+✔ parameter metadata does not pretend that runtime arguments flow to dependent selectors (5.293137ms)
+✔ dependency summaries are deterministic and frozen without changing compile results (5.191076ms)
+✔ invalid or incomplete results never become a successful dependency report (4.828622ms)
+✔ an empty successful profile has an empty dependency order (1.061351ms)
+✔ legacy source-profile option types remain v1 while separate overloads accept v2 (607.391381ms)
+✔ RMTX public types retain default v1 results and discriminate explicit v2 results and factories (301.059932ms)
+✔ v2 is explicit and produces separate parser/compiler contracts while default and v1 remain unchanged (25.10109ms)
+✔ RMTX selector fixture has the same effective executable state/selector/reducer plans as Classic (43.349037ms)
+✔ static readsets include all branches, row/parameter paths and transitive selector sources (6.797583ms)
+✔ longest declared symbol resolution stays consistent in dependency facts and actual Model reads (2.056153ms)
+✔ bare row values and strict equality preserve zero, false and empty-string Find results (2.186994ms)
+✔ contains follows existing case-sensitive String conversion rather than Array membership (2.052902ms)
+✔ parameters apply to the requested selector and are not silently forwarded through selector dependencies (1.791899ms)
+✔ canonical import aliases bind selectors, item, params and contains without executing source imports (1.347234ms)
+✔ v2 rejects bare item truthiness without executable artifacts (0.725448ms)
+✔ v2 rejects numeric truthiness without executable artifacts (0.631247ms)
+✔ v2 rejects truthy logical operand without executable artifacts (0.635347ms)
+✔ v2 rejects unparenthesized negation without executable artifacts (0.552356ms)
+✔ v2 rejects negation/comparison precedence without executable artifacts (0.545576ms)
+✔ v2 rejects loose equality without executable artifacts (0.563667ms)
+✔ v2 rejects loose inequality without executable artifacts (0.520665ms)
+✔ v2 rejects arithmetic without executable artifacts (0.529325ms)
+✔ v2 rejects comparison chain without executable artifacts (0.835259ms)
+✔ v2 rejects conditional expression without executable artifacts (0.606337ms)
+✔ v2 rejects method call without executable artifacts (0.480025ms)
+✔ v2 rejects unbound helper without executable artifacts (0.490805ms)
+✔ v2 rejects helper arity without executable artifacts (0.503635ms)
+✔ v2 rejects helper type arguments without executable artifacts (0.631617ms)
+✔ v2 rejects nested arbitrary calls without executable artifacts (0.569936ms)
+✔ v2 rejects computed path without executable artifacts (0.689687ms)
+✔ v2 rejects optional path without executable artifacts (0.540315ms)
+✔ v2 rejects action input in selector without executable artifacts (0.506225ms)
+✔ v2 rejects prototype path without executable artifacts (0.508756ms)
+✔ v2 rejects unknown model reference even in skipped branch without executable artifacts (1.150802ms)
+✔ v2 rejects unknown attribute without executable artifacts (1.026991ms)
+✔ v2 rejects invalid sort direction without executable artifacts (0.436755ms)
+✔ v2 rejects sort model scope without executable artifacts (0.429504ms)
+✔ v2 rejects sort bare row without executable artifacts (0.402714ms)
+✔ v2 rejects unsafe sort field without executable artifacts (0.423325ms)
+✔ v2 rejects multiple Find without executable artifacts (0.88784ms)
+✔ v2 rejects multiple Sort without executable artifacts (0.97077ms)
+✔ v2 rejects multiple Output without executable artifacts (0.96384ms)
+✔ Selector source must be a whole declared symbol; item and params cannot escape their contexts (1.606747ms)
+✔ selector cycles and unknown dependencies are rejected by the common semantic backend (1.624837ms)
+✔ all static branches count as dependencies while reference-looking literals do not (1.705808ms)
+✔ predicate diagnostics retain original URI and exact offending equality operator range (0.490366ms)
+ℹ tests 61
+ℹ suites 0
+ℹ pass 61
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2723.545683
+{"passed":true,"stage":"A06.3.1-selector-profile","sources":31,"operators":14}
+✔ explicit profile3 has own result and source contracts while defaults and profile2 retain their data shapes (20.023216ms)
+✔ nested source scopes flatten only static AST hosts and project into the existing validated v3 binding (15.464927ms)
+✔ source key tuples retain identity through reorder and presence removes exactly the selected typed row (6.995285ms)
+✔ empty root and nested collections retain declared scopes without inventing runtime hosts (6.347978ms)
+✔ matching existing sidecar scopes are accepted independently of object member order; conflicts are rejected (9.501032ms)
+✔ scoped host syntax cannot silently compile without its binding or with another artifact version (11.455263ms)
+✔ initial invalid keys, duplicate siblings, and non-boolean presence clear every executable artifact (14.551696ms)
+✔ typed zero keys remain valid and unsafe sidecar values cannot be erased by a projection clone (6.352798ms)
+✔ Model-root resolution uses the longest declared symbol in scope and presence paths (0.637877ms)
+✔ closed source scopes reject missing key (0.839419ms)
+✔ closed source scopes reject computed key (0.757718ms)
+✔ closed source scopes reject index key (0.581537ms)
+✔ closed source scopes reject whole item key (0.546156ms)
+✔ closed source scopes reject optional key (0.688357ms)
+✔ closed source scopes reject unsafe key (0.547195ms)
+✔ closed source scopes reject root item scope (0.525555ms)
+✔ closed source scopes reject nested Model scope (0.564076ms)
+✔ closed source scopes reject unknown state (0.483225ms)
+✔ closed source scopes reject presence call (0.765559ms)
+✔ closed source scopes reject presence comparison (0.736638ms)
+✔ closed source scopes reject presence input (0.575306ms)
+✔ closed source scopes reject native key attribute (0.543685ms)
+✔ v1/v2 reject all new operators and fields instead of dropping orchestration (0.878629ms)
+✔ source-scoped parser errors retain original document URI and offending range (0.640387ms)
+✔ On.when uses actual event routing and reads live Model before dispatch (12.776908ms)
+✔ On condition rejects model.absent.ready === true (0.675948ms)
+✔ On condition rejects item.ready === true (0.508045ms)
+✔ On condition rejects input.ready === true (0.446494ms)
+✔ On condition rejects model.app.ready (0.444734ms)
+✔ On condition rejects model.app.count == 2 (0.518915ms)
+✔ On condition rejects !model.app.ready (0.471426ms)
+✔ On condition rejects contains(model.app.ready, "true") (0.448345ms)
+✔ unsupported Lifecycle conditions cannot appear as successful ignored guards (0.341924ms)
+✔ On rejects invalid payload map {} (0.455885ms)
+✔ On rejects invalid payload map {id: 1} (0.413414ms)
+✔ On rejects invalid payload map {id: "detail.constructor"} (0.434454ms)
+✔ On rejects invalid payload map {id: "global.secret"} (0.403825ms)
+✔ On rejects invalid payload map {id: "detail[0]"} (0.433285ms)
+✔ source presence outside repeats projects a strictly boolean root Model path (2.633818ms)
+✔ public profile3 types preserve distinct legacy results and accurately expose source scopes and dependencies (967.687392ms)
+✔ On payload fields must exactly match the declared Action inputs (2.522967ms)
+✔ scoped XTension templates cannot bypass provider intents through native On bindings (1.034831ms)
+✔ Maraca reparses productive v3 source scopes before revalidating the projected existing sidecar (1244.289401ms)
+✔ empty source collections remain valid host declarations with no materialized instances (13.695177ms)
+✔ forged callback parser scope metadata is ignored in favor of the actual source (19.720553ms)
+✔ callback success cannot bypass source errors, absent bindings or contradictory source scopes (27.313705ms)
+✔ matching source scopes are idempotent while final validation still rejects malformed keys and accessors (23.822687ms)
+✔ the source scope bridge requires both v3 result schema and v3 source profile (50.516504ms)
+✔ profile3 without source host scopes does not require an invented binding sidecar (9.33023ms)
+✔ native On reaches the actual owning DOM surface, Action and Model while false guards precede payload mapping (588.433787ms)
+✔ source profile3 is additive without altering established Core, plan or factory ports (42.815871ms)
+✔ profile3 preserves strict plain metadata validation without running accessors (3.788681ms)
+✔ profile3 emits a distinct dependency contract while profile2 retains its complete v1 data (6.796993ms)
+✔ profile3 dependency reports retain empty programs, validation failures and metadata precedence (4.307836ms)
+✔ unchanged compiled event guards read live Model values and fail closed for unavailable paths (25.10425ms)
+✔ new backend/dependency types discriminate profile3 without widening legacy interfaces (1115.872948ms)
+ℹ tests 56
+ℹ suites 0
+ℹ pass 56
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4933.327572
+{"passed":true,"stage":"A06.3.2-keyed-profile","checks":10,"sources":42}
+✔ the closed compiler contract binds every Action and supports JSON types, typed arrays and no-input Actions (3.007372ms)
+✔ source metadata is complete, safe and type-bound rather than an alternate Action declaration (0.839249ms)
+✔ defaults apply only to missing fields and nullable/default rules are checked before runtime startup (1.456435ms)
+✔ runtime policy validation requires complete Actions and their actual declared input types (1.106762ms)
+✔ invalid direct Action input is rejected before run allocation, resources, effects or Model writes (1.973372ms)
+✔ accepted Action input is frozen, defaulted and exposed only by the opt-in result schema (0.803439ms)
+✔ typed array and opaque object validation uses finite JSON without coercion or inferred nested schemas (0.614067ms)
+✔ native invalid input blocks before preventDefault, confirmation and dispatch (5.110265ms)
+✔ a false native Model guard skips input reads and validation before DOM governance (0.450155ms)
+✔ native mappings dispatch validated JSON and no-input mappings ignore unrelated event detail (1.503166ms)
+✔ native mapping construction fails closed on schema, reference, fields and accessor paths (1.201993ms)
+✔ native missing optional mappings use declared defaults and reject event detail accessors without reading them (0.734858ms)
+✔ unmapped native event detail cannot inject command metadata or execute getters (0.846119ms)
+✔ strict consumers distinguish legacy and opt-in native runtime factories and result schemas (1059.294408ms)
+✔ closed template lowering is explicitly Source4 opt-in and legacy helper results stay byte identical (37.1366ms)
+✔ runEffect is a trusted host effect port and cannot start or bypass an Action (0.819139ms)
+✔ Source4 dollar paths execute through the real Model and publication port while legacy references remain closed (12.769697ms)
+✔ all 122 Classic nodes have exactly one explicit source, helper or native UI classification (3.808021ms)
+✔ source4 additions preserve complete byte-equivalent catalog data for profiles 1, 2 and 3 (0.570157ms)
+✔ every extended tag closes its attributes and requires an explicit source4 opt-in (100.351241ms)
+✔ closed DataSource attributes lower to formal RmtDataSourceDeclaration (2.458137ms)
+✔ closed DataSourceMode attributes lower to formal RmtDataSourceModeClause (1.278474ms)
+✔ closed DataSourceMethod attributes lower to formal RmtDataSourceMethodClause (0.604706ms)
+✔ closed DataSourceContract attributes lower to formal RmtDataSourceContractClause (0.585776ms)
+✔ closed DataSourceResult attributes lower to formal RmtDataSourceResultClause (0.589777ms)
+✔ closed DataSourceFallback attributes lower to formal RmtDataSourceFallbackClause (0.627047ms)
+✔ closed Status attributes lower to formal RmtActionStatusClause (0.698787ms)
+✔ closed Execution attributes lower to formal RmtActionExecutionClause (0.488245ms)
+✔ closed InputPolicy attributes lower to formal RmtActionInputPolicy (0.632117ms)
+✔ closed Effect attributes lower to formal RmtEffectStatement (0.465695ms)
+✔ closed Recipe attributes lower to formal RmtReducerRecipeStatement (0.652837ms)
+✔ closed Emit attributes lower to formal RmtEmitStatement (0.639977ms)
+✔ closed ResultHandler attributes lower to formal RmtActionResultHandler (0.713837ms)
+✔ closed Validation attributes lower to formal RmtValidationDeclaration (0.355344ms)
+✔ closed ValidationMode attributes lower to formal RmtValidationModeClause (0.436294ms)
+✔ closed ValidationTarget attributes lower to formal RmtValidationTargetClause (0.452034ms)
+✔ closed ValidationField attributes lower to formal RmtValidationFieldClause (0.393354ms)
+✔ closed ValidationRule attributes lower to formal RmtValidationRule (0.483585ms)
+✔ closed ValidationInclude attributes lower to formal RmtValidationIncludeClause (0.415844ms)
+✔ closed Animation attributes lower to formal RmtAnimationDeclaration (0.462365ms)
+✔ closed AnimationPreset attributes lower to formal RmtAnimationPresetClause (0.569606ms)
+✔ closed AnimationEffect attributes lower to formal RmtAnimationEffectClause (0.503476ms)
+✔ closed AnimationDuration attributes lower to formal RmtAnimationDurationClause (0.414414ms)
+✔ closed AnimationEasing attributes lower to formal RmtAnimationEasingClause (0.434115ms)
+✔ closed AnimationAllowFilter attributes lower to formal RmtAnimationAllowFilterClause (0.485546ms)
+✔ closed AnimationReducedMotion attributes lower to formal RmtAnimationReducedMotionClause (0.424184ms)
+✔ closed AnimationSpring attributes lower to formal RmtAnimationSpringClause (0.462715ms)
+✔ closed AnimationKeyframe attributes lower to formal RmtAnimationKeyframeClause (0.381624ms)
+✔ closed AnimationTimeline attributes lower to formal RmtAnimationTimelineClause (0.494156ms)
+✔ closed AnimationTimelineStep attributes lower to formal RmtAnimationTimelineStep (0.487825ms)
+✔ closed TransitionTimeline attributes lower to formal RmtTransitionTimelineClause (0.473175ms)
+✔ closed TransitionTimelineStep attributes lower to formal RmtTransitionTimelineStep (0.424514ms)
+✔ closed Transition attributes lower to formal RmtTransitionDeclaration (0.729148ms)
+✔ closed TransitionTrigger attributes lower to formal RmtTransitionTriggerClause (0.418715ms)
+✔ closed TransitionFrom attributes lower to formal RmtTransitionFromClause (0.506596ms)
+✔ closed TransitionTo attributes lower to formal RmtTransitionToClause (0.500005ms)
+✔ closed TransitionDuration attributes lower to formal RmtTransitionDurationClause (0.633126ms)
+✔ closed TransitionEasing attributes lower to formal RmtTransitionEasingClause (0.394354ms)
+✔ closed TransitionLayoutKey attributes lower to formal RmtTransitionLayoutKeyClause (0.391434ms)
+✔ closed TransitionEffect attributes lower to formal RmtTransitionEffectClause (0.342673ms)
+✔ closed TransitionLane attributes lower to formal RmtTransitionLaneClause (0.379585ms)
+✔ closed TransitionUseAnimation attributes lower to formal RmtTransitionUseAnimationClause (0.388754ms)
+✔ closed TransitionInterrupt attributes lower to formal RmtTransitionInterruptClause (0.400105ms)
+✔ closed TransitionReducedMotion attributes lower to formal RmtTransitionReducedMotionClause (0.331203ms)
+✔ closed Portal attributes lower to formal RmtPortalDeclaration (0.349573ms)
+✔ closed Overlay attributes lower to formal RmtOverlayDeclaration (0.298253ms)
+✔ closed PortalPolicy attributes lower to formal RmtPortalPolicyClause (0.599176ms)
+✔ closed OverlayPolicy attributes lower to formal RmtOverlayPolicyClause (0.385804ms)
+✔ closed Resource attributes lower to formal RmtResourceDeclaration (0.282743ms)
+✔ closed ResourceImport attributes lower to formal RmtResourceImportClause (0.430605ms)
+✔ closed ResourceSource attributes lower to formal RmtResourceSourceClause (0.485445ms)
+✔ closed ResourceDispose attributes lower to formal RmtResourceDisposeClause (0.405574ms)
+✔ closed SurfaceSource attributes lower to formal RmtSurfaceSourceClause (0.417975ms)
+✔ closed SurfaceBounds attributes lower to formal RmtSurfaceBoundsClause (0.369174ms)
+✔ closed SurfacePreserve attributes lower to formal RmtSurfacePreserveClause (0.327854ms)
+✔ closed SurfaceDestroy attributes lower to formal RmtSurfaceDestroyClause (0.346234ms)
+✔ closed SearchSource attributes lower to formal RmtSearchSourceDeclaration (0.330614ms)
+✔ closed SearchQuery attributes lower to formal RmtSearchQueryClause (0.418525ms)
+✔ closed SearchResource attributes lower to formal RmtSearchResourceClause (0.356734ms)
+✔ closed SearchFallbackResource attributes lower to formal RmtSearchFallbackResourceClause (0.323113ms)
+✔ closed SearchWeight attributes lower to formal RmtSearchWeightClause (0.401544ms)
+✔ closed SearchValue attributes lower to formal RmtSearchValueClause (0.398214ms)
+✔ closed Mount attributes lower to formal RmtLifecycleStatement (0.666387ms)
+✔ closed Hydrate attributes lower to formal RmtLifecycleStatement (0.446865ms)
+✔ closed Suspend attributes lower to formal RmtLifecycleStatement (0.472505ms)
+✔ closed Resume attributes lower to formal RmtLifecycleStatement (1.314585ms)
+✔ closed Invalidate attributes lower to formal RmtLifecycleStatement (0.465685ms)
+✔ closed Dispose attributes lower to formal RmtLifecycleStatement (0.454715ms)
+✔ closed Prewarm attributes lower to formal RmtLifecycleStatement (0.491405ms)
+✔ closed Recycle attributes lower to formal RmtLifecycleStatement (0.461265ms)
+✔ closed Detach attributes lower to formal RmtLifecycleStatement (0.450145ms)
+✔ closed Reattach attributes lower to formal RmtLifecycleStatement (0.576236ms)
+✔ closed Stream attributes lower to formal RmtStreamStatement (0.694708ms)
+✔ closed Source attributes lower to formal RmtSourceClause (0.443885ms)
+✔ closed Policy attributes lower to formal RmtPolicyBlock (0.437505ms)
+✔ closed Slot attributes lower to formal RmtSlotDeclaration (0.463475ms)
+✔ closed TrustBoundary attributes lower to formal RmtTrustBoundaryPolicy (0.457165ms)
+✔ closed Sanitize attributes lower to formal RmtSanitizePolicy (0.434534ms)
+✔ closed Hydration attributes lower to formal RmtHydrationPolicy (0.654737ms)
+✔ closed Resumability attributes lower to formal RmtResumabilityPolicy (0.592506ms)
+✔ closed Isolation attributes lower to formal RmtIsolationPolicy (0.531356ms)
+✔ closed RemoteSurface attributes lower to formal RmtRemoteSurfaceDeclaration (0.296224ms)
+✔ closed RemoteOwner attributes lower to formal RmtRemoteOwnerClause (0.338783ms)
+✔ closed RemoteVersion attributes lower to formal RmtRemoteVersionClause (0.318793ms)
+✔ closed RemoteOrigin attributes lower to formal RmtRemoteOriginClause (0.326694ms)
+✔ closed RemoteEventPayload attributes lower to formal RmtRemoteEventPayloadClause (0.391084ms)
+✔ closed RemoteIntegrity attributes lower to formal RmtRemoteIntegrityClause (0.331773ms)
+✔ closed RemoteTrustBoundary attributes lower to formal RmtRemoteTrustBoundaryClause (0.319704ms)
+✔ closed RemoteFallback attributes lower to formal RmtRemoteFallbackClause (0.367064ms)
+✔ closed RemoteExpose attributes lower to formal RmtRemoteExposeClause (0.413035ms)
+✔ closed RemoteEvent attributes lower to formal RmtRemoteEventClause (0.346574ms)
+✔ closed RemoteEventDirection attributes lower to formal RmtRemoteEventDirectionClause (1.033731ms)
+✔ closed RemoteEventLane attributes lower to formal RmtRemoteEventLaneClause (0.370684ms)
+✔ closed RemoteEventFrom attributes lower to formal RmtRemoteEventFromClause (0.427255ms)
+✔ closed Import attributes lower to formal RmtImportDeclaration (0.292233ms)
+✔ DataSource, Effects, Emit and result handlers reach actual backend artifacts (15.078322ms)
+✔ Validation, Animation and Transition compile structured configuration and generated timeline tokens (9.359711ms)
+✔ Portal, Overlay, Resource and Surface contracts generate data without admitting source text (5.918634ms)
+✔ SearchSource closes references, numeric settings and field weights through the existing backend (2.79791ms)
+✔ remote declarations hoist into the document and retain real cross-surface target contracts (3.902312ms)
+✔ generated Recipe and result-handler text preserves nested reference trees and escaped literals (4.009883ms)
+✔ multi-attribute policy syntax lowers one formal clause per policy value including false (1.007441ms)
+✔ source4 safe dollar symbols survive generated nested values, recipes and result operations (3.010593ms)
+✔ closed attributes reject AST, DSL text, wrong primitive kinds, duplicate clauses and lifecycle when (3.492447ms)
+✔ source4 contracts, all authoring names and declarations are immutable data and closed types (422.725493ms)
+✔ inline declarations produce pinned manifests and bindings without host sidecars (1323.487384ms)
+✔ props readsets include all conditional branches and transitive selector state reads (15.925211ms)
+✔ inline source rejects unsupported capabilities, expressions and ownership before build (86.194588ms)
+✔ Maraca captures exact provider bytes and reparses actual source before authorizing inline hosts (78.99502ms)
+✔ pinned source registries require the new config and frontend profile (15.463536ms)
+✔ profile4 publishes separate source, input, orchestration and event contracts (1227.819484ms)
+✔ the source4 ingress derives input rules from actual source rather than caller reports (48.718765ms)
+✔ source4 factories preserve their default for undefined overrides and omit only optional Event inputs (14.115852ms)
+✔ closed reducer templates and source action helpers lower into the existing shared backend (5.087395ms)
+✔ typed native ingress validates before DOM governance, Action execution and Model mutation (587.316975ms)
+✔ closed action templates are executed by the real Model transaction path (67.112523ms)
+✔ source4 dollar identifiers remain consistent across values, templates, handlers and the managed runtime (38.591576ms)
+✔ legacy manifest profiles expose no projection capability and capture only its fail-closed guard (1193.561705ms)
+✔ legacy platform still materializes typed nested binding3 hosts and rejects Source4 projection data (1576.944524ms)
+✔ only manifest8 captures the real evaluator and materializes actual Source4 selector projections (203.248449ms)
+✔ Source7 retains its actual orchestrated binding runtime instead of a legacy guard (217.630324ms)
+✔ Source8 retains its explicit managed binding runtime and excludes the legacy guard (215.654663ms)
+✔ closed projections evaluate objects, arrays, typed arithmetic and boolean branches without JS coercion (2.176374ms)
+✔ static traversal sees all branches while evaluation retains boolean short circuit (0.201612ms)
+✔ projection inputs reject executable, unsafe and unbounded declarations without evaluating accessors (0.654447ms)
+✔ provider-owned optional/default props apply only to omitted source fields (2.001491ms)
+✔ legacy interface data remains exact and does not admit optional/default fields (0.704517ms)
+✔ provider payloads are fully typed before safe nested projection and renaming (1.747449ms)
+✔ the existing materializer resolves typed keys inside projection paths and enforces orchestration versions (2.973392ms)
+✔ selector value validation uses the actual runtime snapshot rather than an invented compile-time evaluator (1.171752ms)
+✔ projection bindings require their explicit registry while legacy registries retain their data version (0.623167ms)
+✔ provider intent rules respect required, optional/default and nested typed-array Action inputs (1.675188ms)
+✔ formal provider interface v2 advertises optional/default data while v1 remains closed (0.93181ms)
+✔ projection URL profile is explicit and frozen while legacy module keeps API1 (4.976834ms)
+✔ four URL2 wire schemas preserve legacy shapes with explicit schema IDs and token prefix2 (1.596387ms)
+✔ canonical URL2 capture roundtrips typed keys and omits private fields and default values (6.450409ms)
+✔ URL2 writes both typed addresses atomically through the existing Model port and keeps provenance (3.227405ms)
+✔ URL2 deferred missing keys cause no partial writes and stable key lookup survives reordering (3.089014ms)
+✔ URL2 retains Model drift, navigation, abort, serialized-plan and lifetime fences (3.909182ms)
+✔ URL2 History requires settled restore and actual View/Props commit (2.647578ms)
+✔ URL2 grants reject computed, selector, literal, provider-default, omitted and nonscalar writers (1.912441ms)
+✔ URL2 key and alias writes remain rejected before atomic Model mutation (1.211243ms)
+✔ query helpers preserve unrelated router data and isolate token profiles (0.450025ms)
+✔ URL profile selection rejects getters on inputs, bindings and program without execution (0.297523ms)
+✔ route-owner factories keep legacy API1 closed and expose the explicit API2 host (67.674918ms)
+✔ projection history host delegates restore/publication and preserves route-owned URL bytes (16.569488ms)
+✔ projection hash host delegates restore/publication and preserves route-owned URL bytes (10.395892ms)
+✔ route departure, owner retirement and superseded navigation revoke pending URL2 authority (25.334112ms)
+✔ deferred URL2 navigation publishes nothing until explicit retry succeeds (9.335891ms)
+✔ disposing URL2 listeners revokes callbacks and preserves route-owner state (14.025431ms)
+✔ actual x-router connectURLState chooses the API2 route host and delegates query navigation (58.41166ms)
+ℹ tests 171
+ℹ suites 0
+ℹ pass 171
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10526.410191
+{"passed":true,"stage":"A06.3-orchestration-profile","checks":11,"sources":133}
+✔ native-only synchronous builds budget every actual delivered file, including the native projector (2295.885587ms)
+ℹ {"nativeAsset":"runtime/xtend-maraca-native-view.mjs","bytes":101930,"sha256":"c5c6ae59892dcdbed8654b7c31c0b63bb8541adc77508e1ce6e70c1b54ff4a76"}
+✔ native Action result data is validated before managed result reducers can clone negative zero (942.972155ms)
+✔ the native profile discriminator rejects schema accessors and normalization profile changes (725.783417ms)
+✔ source5 is explicit, carries its native contract and names the unchanged Action subprofile (57.732832ms)
+✔ source5 fixes implicit Surface kind and component without rewriting source4 defaults (8.582822ms)
+✔ Source5 preserves ordinary zero through State, Action defaults and native scalar serialization (7.736203ms)
+✔ Source5 rejects negative zero in initial typed key before JSON erases its sign (1.339084ms)
+✔ Source5 rejects negative zero in Action default before JSON erases its sign (1.156253ms)
+✔ Source5 rejects negative zero in native text before JSON erases its sign (1.344495ms)
+✔ Source5 rejects negative zero in parenthesized native text before JSON erases its sign (1.458576ms)
+✔ Source5 rejects negative zero in native attribute before JSON erases its sign (1.196413ms)
+✔ Source5 rejects negative zero in native property before JSON erases its sign (1.098852ms)
+✔ Source5 rejects negative zero in nested initial underflow before JSON erases its sign (0.94877ms)
+✔ literal text and attribute spellings cannot turn into Model lookups or interpolation (6.791113ms)
+✔ native property DOM ids use the canonical static Portal target before Surface composition (6.693492ms)
+✔ a null property DOM id is canonicalized without inventing a static target (5.526329ms)
+✔ native DOM identity rejects two source id sinks ("same", "same") (1.314574ms)
+✔ native DOM identity rejects two source id sinks ("one", "two") (0.840379ms)
+✔ native DOM identity rejects two source id sinks (null, "target") (0.793679ms)
+✔ native DOM identity rejects two source id sinks ("target", null) (0.789479ms)
+✔ native DOM identity rejects two source id sinks (null, null) (0.751848ms)
+✔ nested native repeats retain the complete typed parent-key scope and structural declarations (5.891184ms)
+✔ native readsets include selectors, all conditional branches, keys and transitive State reads (6.149526ms)
+✔ canonical lowering rejects forged scope markers and foreign Model symbols (1.601897ms)
+✔ Source5 rejects unqualified HTML before producing runtime artifacts (0.722538ms)
+✔ Source5 rejects free JSX expression before producing runtime artifacts (0.696018ms)
+✔ Source5 rejects raw native text before producing runtime artifacts (0.666937ms)
+✔ Source5 rejects event handler child before producing runtime artifacts (0.770688ms)
+✔ Source5 rejects provider child before producing runtime artifacts (0.722948ms)
+✔ Source5 rejects Surface child before producing runtime artifacts (0.675217ms)
+✔ Source5 rejects unknown View field before producing runtime artifacts (0.714968ms)
+✔ Source5 rejects duplicate View before producing runtime artifacts (0.586337ms)
+✔ Source5 rejects View outside Surface before producing runtime artifacts (0.623047ms)
+✔ Source5 rejects View on repeated host before producing runtime artifacts (0.680857ms)
+✔ Source5 rejects View on provider host before producing runtime artifacts (0.642947ms)
+✔ Source5 rejects View on conditional host before producing runtime artifacts (0.650837ms)
+✔ Source5 rejects unsafe Surface kind before producing runtime artifacts (0.575516ms)
+✔ Source5 rejects unsafe Surface wrapper style before producing runtime artifacts (0.550136ms)
+✔ Source5 rejects unsafe Surface wrapper script before producing runtime artifacts (0.525516ms)
+✔ Source5 rejects unsafe Surface wrapper svg before producing runtime artifacts (0.515886ms)
+✔ Source5 rejects unsafe Surface wrapper template before producing runtime artifacts (0.533136ms)
+✔ Source5 rejects unsafe Surface wrapper iframe before producing runtime artifacts (0.524466ms)
+✔ Source5 rejects unsafe Surface wrapper unknown before producing runtime artifacts (0.568976ms)
+✔ Source5 rejects unsafe Surface wrapper x-custom before producing runtime artifacts (0.545866ms)
+✔ Source5 rejects script before producing runtime artifacts (0.607296ms)
+✔ Source5 rejects style before producing runtime artifacts (0.580527ms)
+✔ Source5 rejects custom unregistered element before producing runtime artifacts (0.584626ms)
+✔ Source5 rejects void children before producing runtime artifacts (0.609717ms)
+✔ Source5 rejects unknown native property before producing runtime artifacts (0.634537ms)
+✔ Source5 rejects event attribute before producing runtime artifacts (0.590247ms)
+✔ Source5 rejects inline style before producing runtime artifacts (0.705077ms)
+✔ Source5 rejects internal identity attribute before producing runtime artifacts (0.597816ms)
+✔ Source5 rejects internal transition attribute before producing runtime artifacts (0.575427ms)
+✔ Source5 rejects dynamic attributes object before producing runtime artifacts (0.527546ms)
+✔ Source5 rejects object text before producing runtime artifacts (1.554037ms)
+✔ Source5 rejects array property before producing runtime artifacts (0.713337ms)
+✔ Source5 rejects numeric condition before producing runtime artifacts (0.629256ms)
+✔ Source5 rejects missing item scope before producing runtime artifacts (0.516705ms)
+✔ Source5 rejects unknown Model before producing runtime artifacts (0.513265ms)
+✔ Source5 rejects computed path before producing runtime artifacts (0.778679ms)
+✔ Source5 rejects optional path before producing runtime artifacts (0.596347ms)
+✔ Source5 rejects call expression before producing runtime artifacts (1.140542ms)
+✔ Source5 rejects spread map before producing runtime artifacts (0.723747ms)
+✔ Source5 rejects missing native key before producing runtime artifacts (0.611876ms)
+✔ Source5 rejects empty native Repeat before producing runtime artifacts (0.592857ms)
+✔ Source5 rejects repeated DOM id before producing runtime artifacts (0.654237ms)
+✔ Source5 rejects dynamic DOM id before producing runtime artifacts (0.772879ms)
+✔ Source5 rejects unsafe DOM id punctuation before producing runtime artifacts (0.700078ms)
+✔ Source5 rejects native tags in host Repeat before producing runtime artifacts (0.572846ms)
+✔ closed native expressions cannot execute source code (1.187723ms)
+✔ provider composition remains on the existing typed materializer in Source5 (30.741821ms)
+✔ shared renderer preflight validates without creating or mutating DOM nodes (72.055746ms)
+✔ preflight and commit reject the same unsafe URL before a mutation (11.317572ms)
+✔ preflight and commit reject the same unsafe property before a mutation (9.392001ms)
+✔ preflight and commit reject the same unsafe event attribute before a mutation (8.546122ms)
+✔ preflight and commit reject the same unsafe tag before a mutation (9.469522ms)
+✔ preflight and commit reject the same duplicate key before a mutation (9.190369ms)
+✔ actual Source5 compilation builds captured native manifest9/artifact10 through the existing provider graph (296.608575ms)
+✔ native composition profile requires registry4 and refuses every mixed plan/artifact/manifest pair (17.219505ms)
+✔ native port7 uses the captured provider interface and rejects SSR before constructing provider hosts (28.505937ms)
+✔ only native manifest9 exposes registry4; manifest8 keeps projection3 and neither captures the native projector (511.192016ms)
+✔ deferred projection/native provider graphs reject namespace then before emitting any code (0.93244ms)
+✔ native-only browser11 keeps its profile without composition and older browser5 stays unchanged (72.914965ms)
+✔ native browser rejects explicit and implicit SSR before renderer or DOM metadata mutation (457.162024ms)
+✔ native browser forwards plan9/native-view/Fabric ports without inventing a composition (47.852105ms)
+✔ native host adapter exposes read-only SSR inspection and forwards the same Fabric scheduler authority (17.808692ms)
+✔ Native BindingArtifact5 requires Program3 while Source4 artifact4 remains strictly Program2 (5.519029ms)
+✔ native header provenance and Binding3 remain closed without importing Native View IR into legacy bindings (0.952731ms)
+✔ native bindings share exact typed-key materialization and stable props with the existing projection profile (3.874402ms)
+✔ shared scope extraction preserves depth-first legacy error ordering (1.724819ms)
+✔ native binding presence, malformed collections and duplicated typed keys reject through the existing validator (3.649459ms)
+✔ serialized artifacts require real revalidation and Model getters cannot cross the boundary (1.222083ms)
+✔ Native Registry advertises API4 and leaves the existing factories and Binding3 data unchanged (3.383376ms)
+✔ Native Registry validates raw Model snapshots before projection cloning without changing the legacy reader contract (0.294883ms)
+✔ native URL capability3 is explicit, frozen, and keeps legacy/projection profile pairs closed (6.054895ms)
+✔ native and projection capabilities produce identical URL2 wires for the same logical state (7.951305ms)
+✔ native restore commits typed keys atomically through the original Model port and keeps URL2 provenance (3.507247ms)
+✔ native restore retains deferred missing-key and stable reordering behavior without partial writes (1.826959ms)
+✔ native restore keeps navigation, abort, Model drift, serialization and contract-session fences (4.555689ms)
+✔ native History still requires settled restore and the actual View/Props commit (1.882641ms)
+✔ native capability cannot turn computed, selector, omitted, default or nonscalar props into URL writers (1.911601ms)
+✔ native capability retains key-field, alias-write and accessor defenses (0.989801ms)
+✔ native route-host3 keeps both older host factories closed and retains their port shape (445.267316ms)
+✔ native history route host preserves route-owned bytes and URL2 History (16.849962ms)
+✔ native hash route host preserves route-owned bytes and URL2 History (10.499783ms)
+✔ native route retirement and disposal revoke pending URL authority (11.476764ms)
+✔ actual x-router selects native host3 while query navigation preserves content identity (55.102793ms)
+✔ Native View requires Program3 and returns an immutable copy without touching source data (6.588841ms)
+✔ materialization emits only ordinary literal descriptors and preserves literal-looking text in real DOM (93.018522ms)
+✔ typed keys, nested parents, reordering and property updates retain the actual element and text nodes (93.183783ms)
+✔ boolean presence removes only its branch and empty collections render no placeholder identities (21.139618ms)
+✔ both native projection and XTension materialization share the same depth-first typed scope traversal (0.302754ms)
+✔ invalid duplicate keys fails before any shared-renderer mutation (17.126325ms)
+✔ invalid missing key fails before any shared-renderer mutation (16.430647ms)
+✔ invalid negative key fails before any shared-renderer mutation (15.019012ms)
+✔ invalid negative zero key fails before any shared-renderer mutation (19.174127ms)
+✔ invalid padded key fails before any shared-renderer mutation (12.516315ms)
+✔ invalid empty key fails before any shared-renderer mutation (12.708107ms)
+✔ invalid wrong collection fails before any shared-renderer mutation (12.850978ms)
+✔ invalid nonboolean guard fails before any shared-renderer mutation (12.643286ms)
+✔ invalid object text fails before any shared-renderer mutation (11.980099ms)
+✔ invalid unknown Model path fails before any shared-renderer mutation (19.163676ms)
+✔ validation rejects malformed scope chains, undeclared symbols, duplicate declarations and raw projection escapes (3.078714ms)
+✔ compiled and snapshot accessors are rejected without running their getters (1.511796ms)
+✔ reserved attributes, executable sinks, unsupported properties/tags and repeated DOM ids are closed (5.406869ms)
+✔ boolean/native-property sinks reject coercion and scalar failures before committing anything (6.905314ms)
+✔ native root projection preserves source mutability and existing static portal/Surface descriptors (2.81732ms)
+✔ oversized encoded keys reject instead of truncating or aliasing DOM identities (1.428905ms)
+✔ native DOM ids are static selector-safe tokens and null explicitly means no id (3.7219ms)
+✔ compiled Native ids have only the attributes.id channel after source-level canonicalization (3.937492ms)
+✔ forged Surface wrappers and untracked legacy descriptor escapes cannot bypass the native HTML grammar (5.437208ms)
+✔ canonical Native data rejects raw negative zero before JSON cloning can hide its sign (0.786098ms)
+✔ canonical Native data rejects getters before reading them and preserves legacy data policy (0.321674ms)
+✔ canonical zero and optional in-memory compiler fields remain accepted in the explicit Native port (0.157402ms)
+✔ canonical Native data accepts genuine cross-realm JSON objects and nested arrays without changing the originals (1.099042ms)
+✔ cross-realm Native data never reads an accessor while inspecting its descriptors (0.607897ms)
+✔ foreign native prototypes cannot introduce an inherited JSON normalization hook or accessor (1.104132ms)
+✔ cross-realm Native data does not admit class, DOM or forged native prototypes (8.785645ms)
+✔ cross-realm Native adaptation preserves negative zero and rejects cycles and sparse JSON arrays (1.679788ms)
+✔ the actual regular Native-only build plan enters the public PlanRuntime without a serialized DTO workaround (6495.82515ms)
+ℹ tests 140
+ℹ suites 0
+ℹ pass 140
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 15253.083548
+{"passed":true,"stage":"A06.4.1-native-html-view","checks":11,"sources":173}
+✔ Source6 requires the explicit entry and keeps older native factories closed (1523.776811ms)
+✔ initialfalse has a Controller shell but no content or events; re-admission preserves Controller generation and kills old tokens (199.64445ms)
+✔ prospective invalid guards and accessors reject before the actual Model or DOM changes (81.914262ms)
+✔ guard true does not reopen an inactive Owner and explicit Surface resume admits fresh content (122.233516ms)
+✔ actual queued render work cannot write after Close and a compacted Destroy never returns through a true guard (77.207861ms)
+✔ a reentrant Controller close during own admission invalidation is never recaptured as a fresh grant (74.928227ms)
+✔ portal-owned React hosts have independent typed keys, no false loader, and retire before their native owner disappears (156.406654ms)
+✔ actual URL2 restore changes lifecycle guards through the shared Model/View barrier in both directions (99.786095ms)
+✔ a blocked legal undefined Surface never captures missing owner references of independent real providers (94.296905ms)
+✔ Source6 composes explicit Action4/View5 and lowers a guard through the exact unchanged Classic AST mapping (58.127086ms)
+✔ Lifecycle reads retain every branch, longest declared Model prefix and transitive Selector State reads (11.811367ms)
+✔ Static independent owners have distinct operation identities; unguarded Source6 has an explicit empty lifecycle plan (16.469687ms)
+✔ Source6 rejects unsupported guard: nonboolean literal (1.668988ms)
+✔ Source6 rejects unsupported guard: string literal (1.348704ms)
+✔ Source6 rejects unsupported guard: array (1.489526ms)
+✔ Source6 rejects unsupported guard: object (2.578288ms)
+✔ Source6 rejects unsupported guard: computed path (1.264893ms)
+✔ Source6 rejects unsupported guard: optional path (1.075761ms)
+✔ Source6 rejects unsupported guard: method call (1.636547ms)
+✔ Source6 rejects unsupported guard: unknown model (0.94307ms)
+✔ Source6 rejects unsupported guard: unknown selector (0.901439ms)
+✔ Source6 rejects unsupported guard: item scope (0.885129ms)
+✔ Source6 rejects unsupported guard: Action input (0.787059ms)
+✔ Source6 rejects unsupported guard: negative zero (1.061702ms)
+✔ Source6 rejects unsupported guard: loose equality (0.839169ms)
+✔ Source6 rejects unsupported lifecycle placement: different target (0.86404ms)
+✔ Source6 rejects unsupported lifecycle placement: missing native View (0.95106ms)
+✔ Source6 rejects unsupported lifecycle placement: multiple guarded Mounts (0.952941ms)
+✔ Source6 rejects unsupported lifecycle placement: idle lane (0.97747ms)
+✔ Source6 rejects unsupported lifecycle placement: user-blocking lane (0.840439ms)
+✔ Source6 rejects unsupported lifecycle placement: Source child (0.775598ms)
+✔ Source6 rejects unsupported lifecycle placement: Policy child (0.751548ms)
+✔ Source6 rejects unsupported lifecycle placement: conditional host (0.727618ms)
+✔ Source6 rejects unsupported lifecycle placement: repeated host (1.332934ms)
+✔ Source6 rejects unsupported lifecycle placement: other lifecycle operation (0.598907ms)
+✔ Source6 rejects unsupported lifecycle placement: nested Policy slot (0.970631ms)
+✔ Source1–5 reject guarded Mount while their operator profiles and View-only When keep their own meaning (7.698433ms)
+✔ Backend rejects forged AST joins and altered operation semantics without a partial program (16.605979ms)
+✔ Raw source contract accessors are rejected before they can execute and backend requires explicit subprofiles (1.062292ms)
+✔ Browser12 requires its explicit lifecycle factory and API2 while preserving the Browser11 instance contract (71.51514ms)
+✔ Browser12 validates raw configuration without executing getters before clone or host work (6.273747ms)
+✔ Browser12 rejects SSR and invalid initial data before renderer creation or metadata writes (456.473306ms)
+✔ Browser12 forwards Plan10/API2/Fabric only to the explicit factory and never exposes its private integration port (23.866187ms)
+✔ BrowserHost4 retains pure SSR inspection and the exact Fabric/Kernel scheduler handles (10.14787ms)
+✔ actual Source6 compiles and captures exact Manifest10/Artifact11 with unchanged provider contracts (352.364785ms)
+✔ Plan10 requires the named Binder6 and Registry5 without widening old Native profile pairs (71.921775ms)
+✔ Source6 provider interface pinning fails before output writes (42.110903ms)
+✔ Source6 deferred providers reject namespace then before emitting a companion (0.581216ms)
+✔ Source6 projection API2 is separate and both Native program capabilities remain closed (8.037697ms)
+✔ guard and authoritative parent restriction filter complete Surface subtrees before sink evaluation (7.055586ms)
+✔ bad guard values, accessors and malformed plan provenance are rejected before projection (7.492361ms)
+✔ lifecycle admission reads only own restrictions and supports ordinary Object prototype names (1.339425ms)
+✔ BindingArtifact6 is exact Program4 and retains independently typed host keys and Binding3 (3.879492ms)
+✔ Artifact6 skips denied host collections and props before expansion while active data remains validated (1.435615ms)
+✔ Registry5 preserves the older Registry4 capability and rejects unsafe Model data before subscription (0.674557ms)
+✔ URL capability4 accepts only Program4/Binding6 while preserving URL2 token bytes and typed keys (4.920883ms)
+✔ URL4 restores independently typed keys through the actual atomic Model writer (5.178266ms)
+✔ Router4 owns the existing URL2 route lifetime and rejects every older codec (480.155011ms)
+✔ actual x-router selects host4 and retains content while navigating a URL2 query (55.208685ms)
+ℹ tests 59
+ℹ suites 0
+ℹ pass 59
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5380.304607
+{"schema":"xtend.rmtx.native-lifecycle-evidence.v1","version":"1.0.0","stage":"A06.4.2.1-static-native-lifecycle","passed":true,"checks":7,"names":["Source6 composes explicit unchanged View5/Action4 through formal Classic AST1","Program4 lifecycle retains exact owning operation provenance and closed Scalar IR3","initialfalse whole-group admission excludes native owner and every provider subtree","unsupported guard capabilities reject before productive artifacts","regular mixed FullBuild emits Plan10 and separate lifecycle runtime asset","Artifact11/Manifest10 keep captured provider interfaces and exact output byte pins","independent native-only FullBuild uses the same Plan10 with no provider composition"],"compileChecks":{"passed":true,"checks":7,"names":["Source5 cannot opt into lifecycle guards","a guard cannot target an inner DOM node","lifecycle guards cannot execute source calls","nonboolean literal guards fail before artifacts","guarded content admission uses the visible lane","guarded Mount has no Source child","provider interfaces stay captured"]},"sources":{".github/workflows/xtend-default-gates.yml":"62a07a007e0a5c37760d78edb2baf6920ab635589a26d2a23580dc7d6349488f",".github/workflows/xtend-migration-completion.yml":"01ab431cd6c2658a4e346a59bda0cd6117aab169addf580b026bd33d1265d659",".github/workflows/xtend-nightly-build.yml":"aaf6d91b4b772aadfaec7e134faa93c4e44e00b5385302688f0108173ccc21a7","components/xrouter-url-state.d.ts":"bef2540943207c9d074ce45c1480e06bef32cbf8dd226194334b5bef9b7838c2","components/xrouter-url-state.js":"60baa9404481e9117e0914f445bbaf0be66e31d52a4a202d9786c4e5a09f7c08","components/xrouter.d.ts":"761f8ff71d1b89a8d8db795f7a558866ebaa0667ed2162665194305ce60f8259","components/xrouter.js":"d329cfb8ceb067f5babefcd2a3270f390bef65303fd0ff7c459b03fecdf16256","components/xsurfacemanager-controller.js":"a747e5a4bd9d4c1205dc464d046eb5bc65531acc74d083d78e10d5c614afa7a5","development/rmtx-a06/automatic-reference.cjs":"5d12d3ba201ce94ce8330058fc08e854f5018cec84536eacc73e5c4e040e302a","development/rmtx-a06/keyed-profile/runtime-acceptance.mjs":"384a5c861f0a080051d1003097bf5faa98f904e24d8379662d3e5104ac9cd081","development/rmtx-a06/lifecycle-profile/inspect.cjs":"fba67f84ca2efc5081c888692269da899c0bd04c415f6e615eaaa222d513e9ab","development/rmtx-a06/lifecycle-profile/native-only.rmtx":"e5712a0e75c157a8ec9128f9b97bf154ef1e13faba72eec1229424045676c75c","development/rmtx-a06/lifecycle-profile/reference.cjs":"1661e780f82f5c1da759bd168fb86cd32482938bc241445b3f199e4a5177a479","development/rmtx-a06/lifecycle-profile/runtime-acceptance.mjs":"4bb45d6ae23b1529036c0bfde7de66c026d25be54c846f46c54169bfa2f0c3f0","development/rmtx-a06/lifecycle-profile/runtime-test.cjs":"bf5b8b2ad47cc8fd52673def7712a458473a29a33870704d4fc9566ff7ec04a1","development/rmtx-a06/lifecycle-profile/source.rmtx":"fac7b7db05921de68a8788125fa51df2f48b096060362aef6b5ff6686ceadb3c","development/rmtx-a06/native-view-profile/inspect.cjs":"e0de8216dfea91b8b7440472293b9d3e77a825810f74ab5e5e4c32a32b00b735","development/rmtx-a06/native-view-profile/native-only.rmtx":"5d69d3ad510ecbcf172a324fc675bb191e538f8948d08f360972c08bd767f2fd","development/rmtx-a06/native-view-profile/reference.cjs":"210fa46a015303fbc1b47aa176736efa705d6277d3407d34246fa56ecdd74b88","development/rmtx-a06/native-view-profile/runtime-acceptance.mjs":"1f0023fdead36c3b4f78b8e6d3c1ff19763e66fdb473875905c697bb1f39666f","development/rmtx-a06/native-view-profile/runtime-test.cjs":"c2925c36eaa463685166c866bb9f11bb5a950269fb0860eda0c2c1b9ad8aa66d","development/rmtx-a06/native-view-profile/source.rmtx":"771aedd82258310a1c0d769e01a38dbd604bc5f4494586cd10b69c90b1f00e33","development/rmtx-a06/orchestration-profile/inspect.cjs":"e7dd84690664ff028d0505b5f2246b934431d57e20d0542a41b9cef58ad3526b","development/rmtx-a06/orchestration-profile/providers.json":"9b627f3f6acf823912da5311fb15b61889f2a6e6084ddfcb540382cbc01c8408","development/rmtx-a06/orchestration-profile/react.interface.v2.json":"65c45087e78ef676c76068060cb85b6fedbe6b97e3791a37d1485b91a72d58a7","development/rmtx-a06/orchestration-profile/reference.cjs":"ea8e4fa32a63f279cc31041f879c48a5a14a10ebd861e351ca3c3bfdf929367a","development/rmtx-a06/orchestration-profile/runtime-acceptance.mjs":"39e860284e097e0a0a9167f2fad1a947f9407792340a0fda4032d73841f79082","development/rmtx-a06/orchestration-profile/runtime-test.cjs":"31b96655074dbbdb9948b4e6d500d72aa4f796cae78f29b98725703b0e2a6765","development/rmtx-a06/orchestration-profile/source.rmtx":"0e7099ef1954239748bd3a0d3c867a1731fa2555a99ab5f13272ceae783e2b16","development/rmtx-a06/providers/vue.interface.json":"30de14608052cdd250f1f56b06fa0b5c7df8dda73803d5d5daa96355e5a6f1e4","development/rmtx-a06/scoped-fixture.mjs":"b159ad2f50fc3ceb115442ab645e30a4222b27dd69cf13fd9dcb84fc414aaef2","development/rmtx-a06/scoped-model.cjs":"3427a835bb6d21a45eac29830ecd762296b836c0201c381ccdd2a92bf185a0d8","development/rmtx-a06/scoped-reference.cjs":"23a6501789126f50650f41bd67075a97391746b960097203874f00090365bf19","development/rmtx-a06/two-host-reference.cjs":"64084cf748ed44586bb0eecd3a8e15fcbc4b7e967ca0c4e1b96ad00b3c7fcc08","fabric/xtend-fabric.js":"ea7fa64431048e724a336ecd3117c90c6bb8a0ab2871e1ba618d8381ed3f822d","package.json":"48be4acdbc5077fe7e63c6a2ce4e28894d29ca2c56ad820c87e2fc63f856a8cf","scripts/check_release_preparation.cjs":"d6667be24c15f80e8d02c71e0b44fd97acd455136fa88865a9ec4e396547b699","scripts/sync_rmt_compiler_contracts.cjs":"1764f0adb1e20edde7979fae5dce6784bd01b08772df48c3acd1c309033412cc","scripts/test-runner/catalog.json":"1ad3b24a2dd1682430b4d400f6a006cea3caa3e03c90f9deb5c8907d131bf75c","tests/maraca/rmtx-lifecycle.test.mjs":"ffc9507839f857126b98d9c88eb95ce9bcdc44127d6829e811b17075b823239e","tests/maraca/rmtx-native-boundaries.test.mjs":"4d0504d1a94109a96cf1abdcf08ee21ff2d5674ac5fa2fd8d1078f48f32914cc","tests/release/preparation-gates.test.cjs":"7916e500547b14437fe3cc858351eab8b64428e2620826079f803e486bd53c6a","tests/rmt-language/action-input-contract.test.cjs":"b3a2bf518adb2bf03836224d5537872e1a316d9f8a41f71922706cfd4f7cc27d","tests/rmt-language/fixtures/rmtx-host-scopes-consumer.ts":"e6baa9ecd6005848764d20b35fba324606ee30583f44a928d8d7cc4d31994a56","tests/rmt-language/rmtx-extended-operators.test.cjs":"526e78ba7560cf44e4218932c98ef770c084a8b8e353296ead94c417ef41bfa2","tests/rmt-language/rmtx-inline-components.test.cjs":"d66011cef63bba174d902817e3e237462f28b784c1a73762ded7885368a4f743","tests/rmt-language/rmtx-lifecycle.test.cjs":"7534a57982b623e3cfe412bfb68b079a9bbeb474a10eef14daf119814442c178","tests/rmt-language/rmtx-maraca-integration.test.cjs":"f854dc895241c34de4db80bcacac3e8f3e611807a7705a04571d27e5ae55592f","tests/rmt-language/rmtx-native-view.test.cjs":"5f22012ce4f75e63171399fa9857116ec1164c51ba1d3fc968665343dd585185","tests/rmt-language/rmtx-operator-profiles.test.cjs":"c3af3164ca9818ca5de7d24730a77af289f054be922440180299cec40ddba1cb","tests/rmt-language/rmtx-orchestration.test.cjs":"b95d92df75056d67cfa915acb068192048353c3863cfa141d74512712ce5b1b3","tests/rmt/renderer-preflight.test.cjs":"ce9fff768d662f090dc53d6cfeef05b7dc926fedd01b7e7884095b60e4993f0f","tests/xtensions/compiled-state-binding-compiler.cjs":"e7469e80758c496ba8903184d7c327130af690411120cad654d435fccfc9c06c","tests/xtensions/lifecycle-browser-profile.test.cjs":"07eaf69a161111a344a620094f44e4f82b863e97f61421d4b8a694bb2e159d97","tests/xtensions/lifecycle-composition-profile.test.cjs":"4070bd26838861396d78a3a410760c5607262a36148f1b708d546574e0613f74","tests/xtensions/native-composition-profile.test.cjs":"c350c61993e13372e0002af6b347d7b56949ae194486e34f9a516e52e4f2217d","tests/xtensions/native-lifecycle-protocol.test.cjs":"2e0007f8039cf0013c48ff2c1f1eac7aa74e5f86547723d96d1c2c432cd84e1f","tests/xtensions/native-state-binding.test.cjs":"5c8bcdf3c44c7a8848c8bd9b344d59b87d824a04634f087657e8e520e353150e","tests/xtensions/native-url-state.test.cjs":"bff593eec0133463842ad749087bbabbbc5eda51fea929a7912890a392974927","tests/xtensions/native-view-projection.test.cjs":"3aa687d7f821d031fb3bfd53d4000e3752a020cb92e83f0a0f55ddcf042eb92f","tests/xtensions/platform-projection-profile.test.cjs":"ad59e1c04e174170c6f2f9b4c37362c3292b2bde5ced39cd25fe492d26fb44ed","tests/xtensions/projected-state-binding.test.cjs":"7b054b947bf7cd92c5bcfc83f4beb744c3395d95f10c55fa7c2db853d036d9f1","tests/xtensions/projected-url-state.test.cjs":"981faaecd02a2e5157a3cb958ff65b222834491f0701f94e38bcbecf4eaa2e9c","tests/xtensions/projected-xrouter-url-state.test.cjs":"ebbc9abd0453ca5c32cbbb326fe5e191438cb7d0d2aed682023d1afb21e1748c","tests/xtensions/runtime-adapter-exports.cjs":"271bd4ac5b90e14141721b844c98d119a386d8dda3877daefc64915edcf4c785","tests/xtensions/xtensions_runtime_gate_suite.js":"57fa5396efbe58a213494b8e3c94740c4f8c98d3779e193265dfdc21f36074c4","tools/package.json":"05b600248508118d8d29b43f0c71aa1b07649277d30aa2d2016f660bfe31e101","tools/rmt-language/action-execution-lowering.js":"661647a20aaadf2c1f2bdcfacbfbb2a5de992cc6069b56002e187f2b0e91948e","tools/rmt-language/action-input-contract.d.ts":"a5b4c57524be6c4aa2f777afdc4ea5db4855793e90c0c65a0a03bcc3bef05242","tools/rmt-language/action-input-contract.js":"a2587bf7f380b3759747d7752a407e8cbdcd4f40ff7a854f8a23ab9bc3b408f5","tools/rmt-language/classic-compiler.d.ts":"964abe83eea301b40ebb1e1c4e8458535e687c2edd5ab366bb4a7942ee45b435","tools/rmt-language/classic-compiler.js":"aab7fa9cce452e9cfcb969b425e726fb0f0b98876484644c8a00d3ff451a4c8a","tools/rmt-language/classic-semantic-rules.js":"09e7a8706201958104fbebee8eea749d3f7b78de4b491eed0d0d79c2f4451549","tools/rmt-language/contracts/action-input-contract.v1.schema.json":"269ae86ff73fa9b4baaa18fe3273b3a090eb50a51b5c130923530521ef26e7cf","tools/rmt-language/contracts/classic-ast.v1.schema.json":"2f0b45c8c05dbc38adb7355fcc3ae36bbf8eb2f3b26c4ec024b71ed04fb2b457","tools/rmt-language/rmtx-compiler.d.ts":"8f2ed558b8d6a2abebef8c7d402b13a61d0d9e77d9a9d819ea5425670c950d6e","tools/rmt-language/rmtx-compiler.js":"0a53430dd7c70d36ec1b36c6ba1f3f10a2470bc33e853d27e54edf40c61db3c9","tools/rmt-language/rmtx-component-bindings.d.ts":"ac99b0655d1e6a29aeeca27d00c8dc0542b293977d6d3c34719a7fe78d4c1782","tools/rmt-language/rmtx-component-bindings.js":"928c94e02699049395b9f3cfa32e6cec34bc6e16586248cff7cef10a49b8cd1f","tools/rmt-language/rmtx-extended-operators.js":"a27401ee8dde2d89db66c64ca9fdf087219154a148a2c47d198de325763f4f2e","tools/rmt-language/rmtx-host-scopes.js":"cb56b867e74e87bf6bb796b3ae1c36675b9030d9a45a550f97d3553a885c7d2f","tools/rmt-language/rmtx-native-lifecycle.d.ts":"488439b153ce8d213fb4886cfc8b70967883758f045bdfbb83a44e3c03067186","tools/rmt-language/rmtx-native-lifecycle.js":"3af7912b5bd2747a280567a13556a904e0ce3f2c87badec242d9c7ac1f7fd76c","tools/rmt-language/rmtx-native-view.d.ts":"73c548f1585e53faa0803d9f923eb31a9817b3cd6c7eff92957b268f8dd80c8a","tools/rmt-language/rmtx-native-view.js":"2c70a425f78795c5ac6abf7a492dbee772e367d089b3aa2462fb33ee8976cac6","tools/rmt-language/rmtx-operator-coverage.js":"c4742d000786d1679dbfa375b223499567dc93ef55649b6cd7589a033cf05f94","tools/rmt-language/rmtx-operator-coverage.json":"38a39759c35f6bcd1e85eb46d4e24680761da48779f3766520f43bed675ca17c","tools/rmt-language/rmtx-operator-profiles.d.ts":"242966aaba13e37dac28c16f963e6cf980d14a59777e307e0cfa59a7f47566a9","tools/rmt-language/rmtx-operator-profiles.js":"4fc42347933f3f22083e4d111d18624e5efd3c1d551d4d3bc64845c25eaf724e","tools/rmt-language/rmtx-parser.d.ts":"2ed4184e4edd5b3e856a1a67231ad1f72805cd675761b3f034a1254686c1c4f3","tools/rmt-language/rmtx-parser.js":"e50d78a1d5df9adc10a8bc62cbdd6108170ba8cc7ace7e35431fc6203ab0fb10","tools/rmt-language/rmtx-selector-dependencies.d.ts":"3cbb5431317afe92c33ce54995d49f6f11c0a72ba64941ae21d1482632449ee7","tools/rmt-language/rmtx-selector-dependencies.js":"3d57fa5655787c60cfc1a495321292286cb9583adb4ebe95f539eb0de81f03e5","tools/rmt-language/rmtx.d.ts":"41cff4edfa316c51db52ec2d35ae1e90b89188bc977b8eb45c40c4ecb1906834","tools/rmt-language/rmtx.js":"bcad67886a2b47f91cdc78041b7f86744343185372c1b20bd37ed8f0c5b08d4e","tools/rmt-language/scheduler-lanes.js":"a0d76615b3cfbe2639a96af01179f987407554040acce54aa9b4dd99516f9b76","tools/rmt-language/semantic-graph.js":"c641e0675f0f327bf76728ad2da3bf3d4a7b84437ba11f4d9cbeb8752f871df2","tools/rmt-language/vendor/fastpass-contract.js":"af8e26104243deea58ccf3a334d67ecb3286617146257074a29eeb7866a3b1a3","tools/rmt-language/vendor/manifest.json":"588c8d474ac376cb59b6787cbd4e5460e746c61a9d5e5b211ae92ab631d58218","tools/rmt-language/vnext-compiler.d.ts":"aaeb02549ba52984b0131ba633238deb917162b2a622e0df14d24bbbb7770212","tools/rmt-language/vnext-compiler.js":"f6ce4b76cffaffa8a5c3261b131d6a9f74499a181ff4391ec205a985f9eda642","tools/xtensions/component-interface-build.js":"8a9fbbccf7b12b68f054f5a2a5a62b4aefe726eec2f598bf1b173d91ecd9af9a","tools/xtensions/component-interface.d.ts":"4fb0bb4ab3163c856c0ef7d78d6a888b3a1d94b35c4dbaf0172aef6a8a61dc3c","tools/xtensions/component-interface.js":"9c0b45fdea6f8dc98563144a9bc000c997800a2f0f57f433b9e352539cdbcae2","tools/xtensions/component-interface.v1.schema.json":"ee6e3c40c66f69e2b39ecf6b7031a9bd16afc576fc5e0884e286eade49399f36","tools/xtensions/component-interface.v2.schema.json":"db772ecb0e874e73ba21406eadbcf6577302648d0eea13a5f41a1c992b6542e1","tools/xtensions/cooperative-resource-scope.js":"ba8f05d9f5ce605512c95d45b3b563c6184e88a2dab5874ffdcee2c1836174ab","tools/xtensions/framework-ssr.js":"6b4c457f2ac54762afcfda78314e788ea9e119e939e93ed9d63355991e31a700","tools/xtensions/host-capability-negotiation.js":"762751a35c6e99eccb66cbad3b0d885098dbd949ed4b5a774a3671a5bac02373","tools/xtensions/host-controller-contract.d.ts":"5137df09aa1173e3eb7172da2073c659c3a7d5ab9324b60866c1d8418f644989","tools/xtensions/host-controller-contract.js":"fc168ff8cec8a95375942f9ef2871ed3cdbf74cede192c708dd374efc14278b7","tools/xtensions/host-resource-cleanup-record.js":"631ba35928b8e8a990dd05b245cd61333984197b866f4c46e0821221404a4a6e","tools/xtensions/kernel-work-scope.js":"2bc544e13567898f8c4eefd973c66e62c29f616477c103e21b28a0f39a716dc8","tools/xtensions/native-data.js":"3fbd1e9f29e1b133f3042106a46eaaede2107f38fc71851c566a998f0b397684","tools/xtensions/native-lifecycle.d.ts":"dceafcd21e056e4dfd1a006c430f9f3a9689d86b11dbbfc4cf2e087c6437a55c","tools/xtensions/native-lifecycle.js":"b1d3419d077ab63b8add830a735f16b6c70b53ca92afe46a7c50ab9f0c6e7562","tools/xtensions/native-view-projection.d.ts":"c3f4cf877575c9f8eb79a17cf85e54495dec685cd364f2be09b4fbfdd8b81ca5","tools/xtensions/native-view-projection.js":"d4af727f82b66f0c757062cf6c696490f53df135aeb4471e462b0dadae58cc89","tools/xtensions/react-payload-boundary.js":"a63f4bdc1d39813d81f07623316e5e1814ff44e5cc29f93a17145683385ddb5c","tools/xtensions/react-runtime-adapter.d.ts":"10700c9d08f2e94a79168e89a57d0a77eba223c89491aaf6d50ebb1bc33074c0","tools/xtensions/react-runtime-adapter.js":"e780ccdfcc00ca7d75bec3b2bdebb383e3caa2fc40d3bfdaf4bfe85995a0308a","tools/xtensions/react-runtime-boundary.js":"647575e8da3f01a63df9ee6cefe1d0dfd61f056633972fbe46e9ceed5d617596","tools/xtensions/repeat-scopes.js":"52a2860132aacc6da0ed95cac68128193180ebaeff91794d77a1a8b8764599d4","tools/xtensions/resource-graph-binding.js":"0488d4da2eed0c8689d4ec7c49860665873cfcbc433bf52f458575384edf67e2","tools/xtensions/runtime-host-controller.d.ts":"b88df57206eae655721549bd699e8054e48189eea46e40c39f7bfc615a993e9b","tools/xtensions/runtime-host-controller.js":"9627d38ad20200c2c846a7eb057dec28f93cc012f63b76fa0c5a86de785a4574","tools/xtensions/signal-bridge-contract.js":"63d56f44011907554c7b7e6b336daf115bee90f29847debf6e088a5a03f60e1e","tools/xtensions/state-binding-artifact.d.ts":"7af9eba63333fd6dc684b8b383656c6f56e1436ca4fa55c9ae4385686aba92bf","tools/xtensions/state-binding-artifact.js":"fd4435ffb4b1034adb76cda66a2dea7cfb439cd76ad947a128fa698d6735f907","tools/xtensions/state-binding-contract.js":"857867ed26115ea9aa966b7c3e74099675c890f5bb3bbc4c890dfa5d581af2b6","tools/xtensions/state-binding-projection-disabled.js":"c0bfee6ef6138a4a14d9f95526d1cf97ff04d57a77dd10c6769f9fb60d4137b5","tools/xtensions/state-binding-projection.js":"62d116bb6a8fcdeccdd0426d5c6a21537d3e01c952393b4cc82f1f88b0aea739","tools/xtensions/state-binding.d.ts":"c107f80208183fced3c5031c3a9a9c9d4dc2ab95ee5b27070de88454d1b48810","tools/xtensions/state-binding.js":"6c2db5ef127540d95b2ba99bdd64e353f54ce25e40752df7edd39c2d312ad34b","tools/xtensions/url-state-contracts/history-proposal.v1.schema.json":"63aadd491141cd781ebcacaf4a903421e079cdedae89689531efd41c65d8f1b0","tools/xtensions/url-state-contracts/history-proposal.v2.schema.json":"2b63c3eedfcf9220a609ea04b67d9b588fa8e034db78b7aef46ecacaf78cba0b","tools/xtensions/url-state-contracts/policy.v1.schema.json":"bcc9335779f6cb9f2752800dc9054184a1121bcf8b08af923c0218d7f292067d","tools/xtensions/url-state-contracts/policy.v2.schema.json":"9ec44bb834471bdf94b55f43c01f76e0922a0eb68861263fd2d8a40bc0f29c6a","tools/xtensions/url-state-contracts/restore-plan.v1.schema.json":"57d5ea6e30f2378a66f418e5d601e201ac2bc552b719be1bd8d94d03877aeab0","tools/xtensions/url-state-contracts/restore-plan.v2.schema.json":"3f952e46330a5379fa9a323132e9969608f6ff01f30612df149f12e336ba0ddf","tools/xtensions/url-state-contracts/state.v1.schema.json":"8a569847a037c463aa26b8cfa46f660a20b3a0afc7ede5de1dbd57bfa32a57d8","tools/xtensions/url-state-contracts/state.v2.schema.json":"d9a2f1b973f43bc5adc7b2a49c0e84a473af0968cda3e6a1d720f0cff02fd442","tools/xtensions/url-state.d.ts":"35f6de4b4e0d17742991073f1a689b9bdd4827a1240a968442e9accada759d0c","tools/xtensions/url-state.js":"d4d35ddf7bf40de80acc161cd99abf3a8ecb21bac18ad4830c6a31f183e3fd72","tools/xtensions/vue-payload-boundary.js":"e5b7b619251e63bf1937b42ffe346d33b742843e24ef267c680f264dac54e80c","tools/xtensions/vue-runtime-adapter.d.ts":"f441bed2550894206df776eec5d3cbfece18adb92c1432060494b38bc80d699f","tools/xtensions/vue-runtime-adapter.js":"d68a72b9782be8c3d705d10af40ca4a6576c3cc0e3a9884c8db02073c8b9745c","tools/xtensions/vue-runtime-boundary.js":"f1b28462c543f0e8b0d8a8ee59e48b15e1c213cf8381e100677b02e59f03aeed","tools/xtensions/work-budget-policy.js":"e3223e4e46ee792259b321a6fe6c82086c420c239316a04fd8bf77bdbc896779","xtend-maraca/browser-composition-runtime.d.ts":"6f38ba25dd82b60091fbd7a3c79005fd578f35ad41658bbe22b12bccb1df217a","xtend-maraca/browser-composition-runtime.mjs":"64be74d76654c82a6a2b8dece7c70223e060d30f2244686cbeed88fbc20a00a1","xtend-maraca/browser-host-adapter.d.ts":"338d75c28e89f80d0009a252cccdf7a93700ec06e4699ff589fdd494dedd69e2","xtend-maraca/browser-host-adapter.mjs":"0968244bd1c44c0372f6b921438f14f46731b3ad9404b59c8ae58e98fb38eaf9","xtend-maraca/fastpass-contract.js":"af8e26104243deea58ccf3a334d67ecb3286617146257074a29eeb7866a3b1a3","xtend-maraca/index.d.ts":"4a515a42ce12586303a7fc464852dfc329d74ca54ee02e0a24f722ffe9c44dd3","xtend-maraca/index.js":"d7e11a641a07fa1377a0008ff148ff575fc62d853f22c8e286f900a4aeae9e75","xtend-maraca/native-lifecycle-runtime.d.ts":"f99abd455f3c7860734b1f23d6277f361a3f6abf6ec379f3f091add13db7000a","xtend-maraca/native-lifecycle-runtime.mjs":"7264946de304ad9ec2543b36eac5f70ac16eae9d606309cd517cd1e5451b64b8","xtend-maraca/package.json":"0377adab97226fcb905ee3b9984ef5e2a0de9226bdc3505ca448806b2bbdefde","xtend-maraca/plan-runtime.d.ts":"07737eef3bb457ce776162e53211499bc1ef3df967c216e4dfb363e505809690","xtend-maraca/plan-runtime.mjs":"d1e0cb46f64eb9e1c63d120a53df71d10f3c6dc54c5b450bec6dc9b81512e6c5","xtend-maraca/xtension-component-binding-disabled.mjs":"58a1ba6f8560ab5b94bcab77985f6d172cc6796f6e4c0e3bc62a90faf48dd191","xtend-maraca/xtension-component-binding.mjs":"ff33ba2d928a632e9924a1ffa669dd0e2be84d0cf72a43b1790820f231d728fa","xtend-maraca/xtension-composition-contract.mjs":"362f901e3ab0a1bf783fe76426d3f6db31b06678a865db1e976c82c6a938f918","xtend-maraca/xtension-composition-runtime.d.ts":"f43d892fb5217d6a7e0d91f9d8316ef759a4c8d7f6e382a2a3f02f1d68ac94b7","xtend-maraca/xtension-composition-runtime.mjs":"adcaa75c87fcb20bec7f8bfbdbbb0c2da11351baaf9afd301cf004006d7e5add","xtend-maraca/xtension-composition.d.ts":"96e17c6feba12a9f1a725e11df78bb5d6bde2c0ec6035df54b5981d83fc3fd2a","xtend-maraca/xtension-composition.js":"2993a3229d76a4f4cb275d7e82033b1269d5b11157116bc05117bea4eca2aa15","xtend-maraca/xtension-deployment.js":"5af715278000c4a104e4e43e8c26da10d78279bb314d7f725e3966c6a37d2228","xtend-maraca/xtension-platform-build.js":"cdc0598ed6dfc67ab3cbdfdaa2f64f416232716881c459e7f2837c9a26d2635a","xtend-maraca/xtension-platform-esm.js":"880d5b42b762d39af50bc7b54d790328a3fefd4964f5256016927f18682bbbbe","xtend-maraca/xtension-provider-graph.js":"d8357cf34d0e1d616c8890f36765d7b19f45b1fff824045746474c9ca90afcdf","xtend-maraca/xtension-size-budget.js":"61f22885757a9015fc9c74e5de6a4dc4b7763770b9d29a454604b35ed1992767","xtend-maraca/xtension-ssr-runtime.mjs":"14914d4061e1cebd2e871c381f252ee1e0dd71874baa2531cd239fa4d1047e2f","xtendrmt/rmt-action-effect-runtime.js":"455995d274cf2d12e92be4d1567b154769fc5369b4fb3f7b7886075b2839a4d9","xtendrmt/rmt-core.d.ts":"3dff6c49e8bfc01ae6e9c3e67cc5f763679dc1c534061bc822148a701cac847e","xtendrmt/rmt-core.esm.js":"16cb2bff00f41756bd054d90ed6fc07e5db80e0b7dcb8da70dbad92723ca3538","xtendrmt/rmt-dom-descriptor-renderer.d.ts":"54ebf99fb77527c9ab0f55c9a998238c0ec14a21c8783fa300388be20e14e432","xtendrmt/rmt-dom-descriptor-renderer.js":"7f80dc3f645869cfc13154852163dd0052dc43389045637c468b3816ba262389","xtendrmt/rmt-event-routing-runtime.js":"0e629eeee2ab8e5b5bdecaea5ccfb2ded0201d7756dd189cdd7c628d1bbd6f66","xtendrmt/rmt-kernel-module-manifest.json":"1700a95b58cbec80a78262f3b561894c7b00dafc7b3fe0b2ac0779fb3b68156a","xtendrmt/rmt-kernel-orchestration-controller.js":"b4ce03f075831a483f388cec00e4b1ff458b84dc640645a04e44fb904954af10","xtendrmt/rmt-kernel-scheduler.js":"cb6968fa9b5a784f93e6c941e4a634bdd527525247a1f4653f9c7b204829e766","xtendrmt/rmt-maraca-view-projection-adapter.d.ts":"6b59fb671624728cd9b3bcb9b4b846aa7cc784d4385d7649529036828851c887","xtendrmt/rmt-maraca-view-projection-adapter.js":"ee09855bee0e3973cfd8ec521c6b661256c3f1be7e4e8b6e782dd323ffb313be","xtendrmt/rmt-runtime.browser.js":"5c1507ad2b42a491738945bd0abaf90f4d158fb06bbaf52addfe3ad0bf2a1124","xtendrmt/rmt-runtime.esm.js":"effa5d3a25352e7500c0177dada54fb4b30ca2a9c9176cf1e1b496860cc40716","xtendrmt/rmt-state-selector-runtime.d.ts":"62922d37860e756f5c3ba931a8701bb55f6aabe4faa103ac1bbf2a8e4f232756","xtendrmt/rmt-state-selector-runtime.js":"150f5ae1a279cf7457be54fc7a466afeb1a2a026a911ab1cb1d16ae5da2a669d","xtendrmt/rmt-surface-resource-graph-runtime.d.ts":"774dbe5de8411937b84ec0f0d64eaca9deab5123bd4152ae6bfd8949c63fb589","xtendrmt/rmt-surface-resource-graph-runtime.js":"9344b64339e1e08d4bd64933fabe5c14a12fadd24cd546b787cf727de469f446"},"runtimeExecutionVerified":false,"completeA064Implemented":false,"acceptedForRelease":false,"ssrAcceptancePerformed":false}
+✔ Source7 exposes its explicit runtime and all ten actual compiled lifecycle operations (1895.711677ms)
+✔ Suspend/Resume gates native events while retaining mounted native identity and local input state (504.497143ms)
+✔ Detach/Reattach parks the real native subtree and restores the same outer and nested nodes (395.55545ms)
+✔ Dispose is content-terminal until Recycle without changing Controller generation (467.518795ms)
+✔ Prewarm runs under a live Controller shell while Mount is false (282.24196ms)
+✔ atomic conflicting lifecycle guards fail before Model and DOM writes (293.090496ms)
+✔ paused and detached provider controllers preserve their mounted React root and resume latest props (797.068385ms)
+✔ explicit Hydrate gates native events and provider imports until its CSR edge (384.228218ms)
+✔ captured Shadow controls remain the same through Detach and receive scoped Dispose cleanup once (588.203165ms)
+✔ provider Dispose finishes before native removal and explicit Recycle creates a fresh foreign root (617.47495ms)
+✔ provider Invalidate refreshes authority and controlled props without replacing native or foreign nodes (397.452971ms)
+✔ closed Controller keeps a rising command pending until an authoritative Open notification (439.306002ms)
+✔ scoped control hooks survive Model updates, pause for Detach and retire their own signal on cleanup (574.583588ms)
+✔ global disposal awaits native control cleanup before clearing its DOM and resolves the shared idle boundary (232.599455ms)
+✔ explicit pending Hydrate is independent of View reads when repeated native content enters (473.620941ms)
+✔ implicit control initialization is independent of View reads when repeated native content enters (440.354152ms)
+✔ new conditional controls inherit explicit CSR activation and retire independently (512.041415ms)
+✔ new conditional controls inherit implicit CSR activation and retire independently (478.785287ms)
+✔ native control repeats retain reordered target hooks and retire only removed typed targets (508.362415ms)
+✔ destroyed repeat tombstones do not suppress later Model commands or typed provider reentry after Recycle (1683.41819ms)
+✔ asynchronous definition completes before a mounted public control receives a prototype property setter (300.043382ms)
+✔ the default Source7 renderer derives exact property capabilities from captured metadata (303.208066ms)
+✔ Detach retains a logically owned provider portal outside its native owning subtree (527.967037ms)
+✔ nested native control hooks remain paused rather than disposed inside a detached parent (483.180614ms)
+✔ reattaching a parent preserves an independently detached child until its own Reattach (686.511154ms)
+✔ dispose retires provider portals and control hooks while their parent is detached (747.797664ms)
+✔ external-destroy retires provider portals and control hooks while their parent is detached (635.247922ms)
+✔ leaving repeat membership clears every parked portal of only the removed logical owner (1473.778463ms)
+✔ Graph3 feeds exact opaque typed keys to actual Graph2 and registers closed records without opening (88.234081ms)
+✔ committed repeat exit/reinsert increments actual Controller generation after tombstone compaction (41.490627ms)
+✔ external Destroy remains terminal across model removal, compaction and a returning typed key (39.033151ms)
+✔ external repeated Destroy of an own tombstone revokes repeat-return permission (36.955528ms)
+✔ destroyed parent blocks new child registrations and retires descendants until trusted parent generation advances (41.214294ms)
+✔ reentrant Controller writes during registration supersede the exact own revision fence (21.31693ms)
+✔ resource leases receive the actual Graph2 and its shared authoritative Controller port (24.388593ms)
+✔ open repeated native parents and nested host scopes reenter the actual strict Graph2 with fresh Controller generations (41.362065ms)
+✔ Source7 is explicit and preserves the closed Source6 operator catalog (15.312445ms)
+✔ Source7 captures all ten own-Surface lifecycle commands with exact repeat and lane context (18.529379ms)
+✔ Native Surface repeats share one Header2 authority and extend stable typed item scopes (6.552921ms)
+✔ Public controls capture shipped metadata; named/default slots remain explicit native nodes (21.532862ms)
+✔ Captured metadata cannot be supplied or widened by a callsite and empty captures need no library lookup (10.045148ms)
+✔ Source7 allows nested native shell scopes and keeps provider roots exclusive (2.065412ms)
+✔ Complete Source7 backend emits Program5, Header2, plan2 and trusted native event-key joins (37.843027ms)
+✔ Public component field whitelists retain global sink and raw slot defenses (14.588788ms)
+✔ Captured component source bytes and realpath containment are checked before build execution (1.138382ms)
+✔ Shipped x-header receives direct native slotted elements in source order without universal wrappers (874.010323ms)
+✔ Lexical nested native Surfaces lower to legal flat Classic AST1 with Header2 parent authority (22.29931ms)
+✔ Source7 CSR lifecycle commands never infer legacy SSR resume or duplicate hydration work (23.24298ms)
+✔ Source7 native Views without authored Mount desugar a real CSR default through AST1, source-map and Kernel (17.370988ms)
+✔ Source7 default Mount keeps nested typed repeat scopes and preserves explicit false admission (49.782946ms)
+✔ Source7 public control capture excludes existing light-DOM writers and authored host/slot portals (2.420827ms)
+✔ Source7 component capability capture is an exact reviewed subset with no inherited/data/ARIA fallthrough (33.48346ms)
+✔ a default native Header cannot clear another body modality lease while legacy modal Headers retain their own behavior (165.795145ms)
+✔ Binding7 preserves typed logical addresses and binds each target to its concrete owning Surface (43.960934ms)
+✔ Binding7 rejects forged scope ancestry and raw accessors before invocation (30.540849ms)
+✔ URL5 keeps URL2 token bytes and independent numeric/string restore keys (36.491333ms)
+✔ Browser13 requires Port3 and its named factory before any host work (13.284593ms)
+✔ Composer Source7 Prewarm loads verified namespace and peers once without factories, DOM or resource work (440.911808ms)
+✔ Composer Prewarm rejects obsolete authority before namespace or peer work (36.579104ms)
+✔ Composer Prewarm abort during namespace await fences late imports before peers and factories (39.196802ms)
+✔ Composer Prewarm abort during verified-peer await cannot continue into a provider lifetime (44.055164ms)
+✔ actual Surface repeats preserve number/string keys and scope projections through reorder (97.129846ms)
+✔ nested Surface scopes inherit typed parent identities and absent parents short-circuit descendants (60.35528ms)
+✔ true Mount guards cannot be raised by caller admission and propagate to child scopes (45.961645ms)
+✔ public named slots retain direct element/control children and wrap only named text (28.573948ms)
+✔ repeated native events derive trusted typed keys without accepting spoofed detail or getters (20.585142ms)
+✔ Source7 validation is exact and rejects accessor plans before executing getters (14.530176ms)
+✔ provider-owned roots remain opaque to real renderer commits and repeated owner reorders (734.828164ms)
+✔ Source7 component registry grants only compiled metadata and forwards trusted hooks without freezing their owner (66.250454ms)
+✔ Header2 cannot forge a component tag, source hash or wider reviewed sinks to grant Renderer capabilities (34.528932ms)
+ℹ tests 70
+ℹ suites 0
+ℹ pass 70
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 22432.45803
+{"components":2,"tags":["x-button","x-header"]}
+{"schema":"xtend.rmtx.native-orchestration-evidence.v1","version":"1.0.0","stage":"A06.4.2-native-orchestration","passed":true,"checks":8,"names":["explicit Source7 compiles the real nested native/React/Vue reference through unchanged formal Classic AST1","shared typed scope materialization separates numeric and string keys for native owners and provider hosts","Binding7 joins concrete provider targets and owning Surface instances without changing logical Binding3 addresses","retained legacy ports remain closed to Source7 contracts","all ten native content lifecycle operations retain exact compiler provenance","public Shadow DOM metadata is pinned to actual shipped component bytes","ten unsupported authoring cases reject before productive artifacts","regular production build emits Plan11, Artifact12 and separate versioned lifecycle projection assets"],"compileChecks":{"passed":true,"checks":10,"names":["Source6 remains closed to Source7 controls and Surface repeats","Surface repeats require an explicit stable key","Mount admission requires a Boolean guard","Native keys cannot name an absent repeat level","Component tags must be in the captured shipped catalog","Slots must be offered by the captured component","Native components cannot acquire event-handler sinks","Props projections cannot execute source methods","Providers must be captured by the pinned interface catalog","Repeated native views cannot duplicate DOM ids"]},"sources":{".github/workflows/xtend-default-gates.yml":"62a07a007e0a5c37760d78edb2baf6920ab635589a26d2a23580dc7d6349488f",".github/workflows/xtend-migration-completion.yml":"01ab431cd6c2658a4e346a59bda0cd6117aab169addf580b026bd33d1265d659",".github/workflows/xtend-nightly-build.yml":"aaf6d91b4b772aadfaec7e134faa93c4e44e00b5385302688f0108173ccc21a7","components/xheader.js":"ba451353384888fd04ac3eeb55037ff09e4129d480b79e484ff97f8490ce755b","components/xrouter-url-state.d.ts":"bef2540943207c9d074ce45c1480e06bef32cbf8dd226194334b5bef9b7838c2","components/xrouter-url-state.js":"60baa9404481e9117e0914f445bbaf0be66e31d52a4a202d9786c4e5a09f7c08","components/xrouter.d.ts":"761f8ff71d1b89a8d8db795f7a558866ebaa0667ed2162665194305ce60f8259","components/xrouter.js":"d329cfb8ceb067f5babefcd2a3270f390bef65303fd0ff7c459b03fecdf16256","components/xsurfacemanager-controller.js":"a747e5a4bd9d4c1205dc464d046eb5bc65531acc74d083d78e10d5c614afa7a5","development/rmtx-a06/automatic-reference.cjs":"5d12d3ba201ce94ce8330058fc08e854f5018cec84536eacc73e5c4e040e302a","development/rmtx-a06/keyed-profile/runtime-acceptance.mjs":"384a5c861f0a080051d1003097bf5faa98f904e24d8379662d3e5104ac9cd081","development/rmtx-a06/lifecycle-profile/inspect.cjs":"fba67f84ca2efc5081c888692269da899c0bd04c415f6e615eaaa222d513e9ab","development/rmtx-a06/lifecycle-profile/native-only.rmtx":"e5712a0e75c157a8ec9128f9b97bf154ef1e13faba72eec1229424045676c75c","development/rmtx-a06/lifecycle-profile/reference.cjs":"1661e780f82f5c1da759bd168fb86cd32482938bc241445b3f199e4a5177a479","development/rmtx-a06/lifecycle-profile/runtime-acceptance.mjs":"4bb45d6ae23b1529036c0bfde7de66c026d25be54c846f46c54169bfa2f0c3f0","development/rmtx-a06/lifecycle-profile/runtime-test.cjs":"bf5b8b2ad47cc8fd52673def7712a458473a29a33870704d4fc9566ff7ec04a1","development/rmtx-a06/lifecycle-profile/source.rmtx":"fac7b7db05921de68a8788125fa51df2f48b096060362aef6b5ff6686ceadb3c","development/rmtx-a06/native-components/generate.cjs":"87120570e947ffa14730cb65242aab5b346c49115efd1230b46a1b7821d124a5","development/rmtx-a06/native-orchestration-profile/inspect.cjs":"d9fa6dff6b9e0d76a282a2ab0bb3e19d804cba21c60d19967c8abce42218e114","development/rmtx-a06/native-orchestration-profile/reference.cjs":"c11849bdfb7f95d54aa21cf78d412d648a9d61a3891f69cb065b4cf2d011ef33","development/rmtx-a06/native-orchestration-profile/runtime-acceptance.mjs":"8d2e6de33e92aa08429982322f5f77534c082f1dd86cf419766e92f4b1179876","development/rmtx-a06/native-orchestration-profile/runtime-test.cjs":"43da0889e6610a2cb07bd04b906c2526c95a24dce4804f5a1d9f61fd3b384cb9","development/rmtx-a06/native-orchestration-profile/source.rmtx":"c5aeba99729358926d0a1a5841b1ac0e6f55ec591aa2ab2f3657d6d0a2b7c731","development/rmtx-a06/native-view-profile/inspect.cjs":"e0de8216dfea91b8b7440472293b9d3e77a825810f74ab5e5e4c32a32b00b735","development/rmtx-a06/native-view-profile/native-only.rmtx":"5d69d3ad510ecbcf172a324fc675bb191e538f8948d08f360972c08bd767f2fd","development/rmtx-a06/native-view-profile/reference.cjs":"210fa46a015303fbc1b47aa176736efa705d6277d3407d34246fa56ecdd74b88","development/rmtx-a06/native-view-profile/runtime-acceptance.mjs":"1f0023fdead36c3b4f78b8e6d3c1ff19763e66fdb473875905c697bb1f39666f","development/rmtx-a06/native-view-profile/runtime-test.cjs":"c2925c36eaa463685166c866bb9f11bb5a950269fb0860eda0c2c1b9ad8aa66d","development/rmtx-a06/native-view-profile/source.rmtx":"771aedd82258310a1c0d769e01a38dbd604bc5f4494586cd10b69c90b1f00e33","development/rmtx-a06/orchestration-profile/inspect.cjs":"e7dd84690664ff028d0505b5f2246b934431d57e20d0542a41b9cef58ad3526b","development/rmtx-a06/orchestration-profile/providers.json":"9b627f3f6acf823912da5311fb15b61889f2a6e6084ddfcb540382cbc01c8408","development/rmtx-a06/orchestration-profile/react.interface.v2.json":"65c45087e78ef676c76068060cb85b6fedbe6b97e3791a37d1485b91a72d58a7","development/rmtx-a06/orchestration-profile/reference.cjs":"ea8e4fa32a63f279cc31041f879c48a5a14a10ebd861e351ca3c3bfdf929367a","development/rmtx-a06/orchestration-profile/runtime-acceptance.mjs":"39e860284e097e0a0a9167f2fad1a947f9407792340a0fda4032d73841f79082","development/rmtx-a06/orchestration-profile/runtime-test.cjs":"31b96655074dbbdb9948b4e6d500d72aa4f796cae78f29b98725703b0e2a6765","development/rmtx-a06/orchestration-profile/source.rmtx":"0e7099ef1954239748bd3a0d3c867a1731fa2555a99ab5f13272ceae783e2b16","development/rmtx-a06/providers/vue.interface.json":"30de14608052cdd250f1f56b06fa0b5c7df8dda73803d5d5daa96355e5a6f1e4","development/rmtx-a06/scoped-fixture.mjs":"b159ad2f50fc3ceb115442ab645e30a4222b27dd69cf13fd9dcb84fc414aaef2","development/rmtx-a06/scoped-model.cjs":"3427a835bb6d21a45eac29830ecd762296b836c0201c381ccdd2a92bf185a0d8","development/rmtx-a06/scoped-reference.cjs":"23a6501789126f50650f41bd67075a97391746b960097203874f00090365bf19","development/rmtx-a06/two-host-reference.cjs":"64084cf748ed44586bb0eecd3a8e15fcbc4b7e967ca0c4e1b96ad00b3c7fcc08","fabric/xtend-fabric.js":"ea7fa64431048e724a336ecd3117c90c6bb8a0ab2871e1ba618d8381ed3f822d","package.json":"48be4acdbc5077fe7e63c6a2ce4e28894d29ca2c56ad820c87e2fc63f856a8cf","scripts/check_release_preparation.cjs":"d6667be24c15f80e8d02c71e0b44fd97acd455136fa88865a9ec4e396547b699","scripts/sync_rmt_compiler_contracts.cjs":"1764f0adb1e20edde7979fae5dce6784bd01b08772df48c3acd1c309033412cc","scripts/test-runner/catalog.json":"1ad3b24a2dd1682430b4d400f6a006cea3caa3e03c90f9deb5c8907d131bf75c","tests/maraca/rmtx-lifecycle.test.mjs":"ffc9507839f857126b98d9c88eb95ce9bcdc44127d6829e811b17075b823239e","tests/maraca/rmtx-native-boundaries.test.mjs":"4d0504d1a94109a96cf1abdcf08ee21ff2d5674ac5fa2fd8d1078f48f32914cc","tests/maraca/rmtx-orchestration.test.mjs":"b81d16152d0cb333d7cf465dbd6ca411fecd1d60360c3f45d18c2dabfe064662","tests/maraca/rmtx-surface-graph.test.mjs":"355a6fe67a1c13a70bcbc9d1698c252929836b6abd8ffffc2c77abb98474a0f8","tests/release/preparation-gates.test.cjs":"7916e500547b14437fe3cc858351eab8b64428e2620826079f803e486bd53c6a","tests/rmt-language/action-input-contract.test.cjs":"b3a2bf518adb2bf03836224d5537872e1a316d9f8a41f71922706cfd4f7cc27d","tests/rmt-language/fixtures/rmtx-host-scopes-consumer.ts":"e6baa9ecd6005848764d20b35fba324606ee30583f44a928d8d7cc4d31994a56","tests/rmt-language/rmtx-extended-operators.test.cjs":"526e78ba7560cf44e4218932c98ef770c084a8b8e353296ead94c417ef41bfa2","tests/rmt-language/rmtx-inline-components.test.cjs":"d66011cef63bba174d902817e3e237462f28b784c1a73762ded7885368a4f743","tests/rmt-language/rmtx-lifecycle.test.cjs":"7534a57982b623e3cfe412bfb68b079a9bbeb474a10eef14daf119814442c178","tests/rmt-language/rmtx-maraca-integration.test.cjs":"f854dc895241c34de4db80bcacac3e8f3e611807a7705a04571d27e5ae55592f","tests/rmt-language/rmtx-native-orchestration.test.cjs":"042a480eeddb0d0af01dadeab5884d33cc887936efb9fb6466497b7af47b2ed2","tests/rmt-language/rmtx-native-view.test.cjs":"5f22012ce4f75e63171399fa9857116ec1164c51ba1d3fc968665343dd585185","tests/rmt-language/rmtx-operator-profiles.test.cjs":"c3af3164ca9818ca5de7d24730a77af289f054be922440180299cec40ddba1cb","tests/rmt-language/rmtx-orchestration.test.cjs":"b95d92df75056d67cfa915acb068192048353c3863cfa141d74512712ce5b1b3","tests/rmt/renderer-preflight.test.cjs":"ce9fff768d662f090dc53d6cfeef05b7dc926fedd01b7e7884095b60e4993f0f","tests/types/xtensions_native_orchestration.mts":"322e5220f631505de14b6165153c2c1f29eb8d2462093b992a4a2b707631824e","tests/xtensions/compiled-state-binding-compiler.cjs":"e7469e80758c496ba8903184d7c327130af690411120cad654d435fccfc9c06c","tests/xtensions/lifecycle-browser-profile.test.cjs":"07eaf69a161111a344a620094f44e4f82b863e97f61421d4b8a694bb2e159d97","tests/xtensions/lifecycle-composition-profile.test.cjs":"4070bd26838861396d78a3a410760c5607262a36148f1b708d546574e0613f74","tests/xtensions/native-composition-profile.test.cjs":"c350c61993e13372e0002af6b347d7b56949ae194486e34f9a516e52e4f2217d","tests/xtensions/native-lifecycle-protocol.test.cjs":"2e0007f8039cf0013c48ff2c1f1eac7aa74e5f86547723d96d1c2c432cd84e1f","tests/xtensions/native-orchestrated-contracts.test.cjs":"610b6b73c64858262205858f014bf024e378c270a83b9d31771dcda1c7e727f7","tests/xtensions/native-orchestrated-prewarm.test.cjs":"79ecb18b179c9b365d769dd3a6ab285961dcd5b76c58118c42d574a8e9a304c4","tests/xtensions/native-state-binding.test.cjs":"5c8bcdf3c44c7a8848c8bd9b344d59b87d824a04634f087657e8e520e353150e","tests/xtensions/native-surface-projection.test.cjs":"afebbda61f554d9817e1bade91cb497271478eb16237629a30ecd788a88efb00","tests/xtensions/native-url-state.test.cjs":"bff593eec0133463842ad749087bbabbbc5eda51fea929a7912890a392974927","tests/xtensions/native-view-projection.test.cjs":"3aa687d7f821d031fb3bfd53d4000e3752a020cb92e83f0a0f55ddcf042eb92f","tests/xtensions/platform-projection-profile.test.cjs":"ad59e1c04e174170c6f2f9b4c37362c3292b2bde5ced39cd25fe492d26fb44ed","tests/xtensions/projected-state-binding.test.cjs":"7b054b947bf7cd92c5bcfc83f4beb744c3395d95f10c55fa7c2db853d036d9f1","tests/xtensions/projected-url-state.test.cjs":"981faaecd02a2e5157a3cb958ff65b222834491f0701f94e38bcbecf4eaa2e9c","tests/xtensions/projected-xrouter-url-state.test.cjs":"ebbc9abd0453ca5c32cbbb326fe5e191438cb7d0d2aed682023d1afb21e1748c","tests/xtensions/runtime-adapter-exports.cjs":"271bd4ac5b90e14141721b844c98d119a386d8dda3877daefc64915edcf4c785","tests/xtensions/xtensions_runtime_gate_suite.js":"57fa5396efbe58a213494b8e3c94740c4f8c98d3779e193265dfdc21f36074c4","tools/package.json":"05b600248508118d8d29b43f0c71aa1b07649277d30aa2d2016f660bfe31e101","tools/rmt-language/action-execution-lowering.js":"661647a20aaadf2c1f2bdcfacbfbb2a5de992cc6069b56002e187f2b0e91948e","tools/rmt-language/action-input-contract.d.ts":"a5b4c57524be6c4aa2f777afdc4ea5db4855793e90c0c65a0a03bcc3bef05242","tools/rmt-language/action-input-contract.js":"a2587bf7f380b3759747d7752a407e8cbdcd4f40ff7a854f8a23ab9bc3b408f5","tools/rmt-language/classic-compiler.d.ts":"964abe83eea301b40ebb1e1c4e8458535e687c2edd5ab366bb4a7942ee45b435","tools/rmt-language/classic-compiler.js":"aab7fa9cce452e9cfcb969b425e726fb0f0b98876484644c8a00d3ff451a4c8a","tools/rmt-language/classic-semantic-rules.js":"09e7a8706201958104fbebee8eea749d3f7b78de4b491eed0d0d79c2f4451549","tools/rmt-language/contracts/action-input-contract.v1.schema.json":"269ae86ff73fa9b4baaa18fe3273b3a090eb50a51b5c130923530521ef26e7cf","tools/rmt-language/contracts/classic-ast.v1.schema.json":"2f0b45c8c05dbc38adb7355fcc3ae36bbf8eb2f3b26c4ec024b71ed04fb2b457","tools/rmt-language/rmtx-compiler.d.ts":"8f2ed558b8d6a2abebef8c7d402b13a61d0d9e77d9a9d819ea5425670c950d6e","tools/rmt-language/rmtx-compiler.js":"0a53430dd7c70d36ec1b36c6ba1f3f10a2470bc33e853d27e54edf40c61db3c9","tools/rmt-language/rmtx-component-bindings.d.ts":"ac99b0655d1e6a29aeeca27d00c8dc0542b293977d6d3c34719a7fe78d4c1782","tools/rmt-language/rmtx-component-bindings.js":"928c94e02699049395b9f3cfa32e6cec34bc6e16586248cff7cef10a49b8cd1f","tools/rmt-language/rmtx-extended-operators.js":"a27401ee8dde2d89db66c64ca9fdf087219154a148a2c47d198de325763f4f2e","tools/rmt-language/rmtx-host-scopes.js":"cb56b867e74e87bf6bb796b3ae1c36675b9030d9a45a550f97d3553a885c7d2f","tools/rmt-language/rmtx-native-components.d.ts":"551082895743ea1c6fe2ed32e2381e64370cad21d3c0e6c0a46c8bd21bee5cab","tools/rmt-language/rmtx-native-components.generated.d.ts":"8e9eac047e1c9eb737f8145566fd76ebc7e4d568841bb737a0cd21169bf8589b","tools/rmt-language/rmtx-native-components.js":"fcaf5a54f193fc5baaa78d508bcffed9e647c212e28361814c638d264722787e","tools/rmt-language/rmtx-native-components.v1.json":"869b9c20f577301da36ade9b125f4d524ada539dbf986e8d33afb7030ed0f0a1","tools/rmt-language/rmtx-native-lifecycle.d.ts":"488439b153ce8d213fb4886cfc8b70967883758f045bdfbb83a44e3c03067186","tools/rmt-language/rmtx-native-lifecycle.js":"3af7912b5bd2747a280567a13556a904e0ce3f2c87badec242d9c7ac1f7fd76c","tools/rmt-language/rmtx-native-view.d.ts":"73c548f1585e53faa0803d9f923eb31a9817b3cd6c7eff92957b268f8dd80c8a","tools/rmt-language/rmtx-native-view.js":"2c70a425f78795c5ac6abf7a492dbee772e367d089b3aa2462fb33ee8976cac6","tools/rmt-language/rmtx-operator-coverage.js":"c4742d000786d1679dbfa375b223499567dc93ef55649b6cd7589a033cf05f94","tools/rmt-language/rmtx-operator-coverage.json":"38a39759c35f6bcd1e85eb46d4e24680761da48779f3766520f43bed675ca17c","tools/rmt-language/rmtx-operator-profiles.d.ts":"242966aaba13e37dac28c16f963e6cf980d14a59777e307e0cfa59a7f47566a9","tools/rmt-language/rmtx-operator-profiles.js":"4fc42347933f3f22083e4d111d18624e5efd3c1d551d4d3bc64845c25eaf724e","tools/rmt-language/rmtx-parser.d.ts":"2ed4184e4edd5b3e856a1a67231ad1f72805cd675761b3f034a1254686c1c4f3","tools/rmt-language/rmtx-parser.js":"e50d78a1d5df9adc10a8bc62cbdd6108170ba8cc7ace7e35431fc6203ab0fb10","tools/rmt-language/rmtx-selector-dependencies.d.ts":"3cbb5431317afe92c33ce54995d49f6f11c0a72ba64941ae21d1482632449ee7","tools/rmt-language/rmtx-selector-dependencies.js":"3d57fa5655787c60cfc1a495321292286cb9583adb4ebe95f539eb0de81f03e5","tools/rmt-language/rmtx.d.ts":"41cff4edfa316c51db52ec2d35ae1e90b89188bc977b8eb45c40c4ecb1906834","tools/rmt-language/rmtx.js":"bcad67886a2b47f91cdc78041b7f86744343185372c1b20bd37ed8f0c5b08d4e","tools/rmt-language/scheduler-lanes.js":"a0d76615b3cfbe2639a96af01179f987407554040acce54aa9b4dd99516f9b76","tools/rmt-language/semantic-graph.js":"c641e0675f0f327bf76728ad2da3bf3d4a7b84437ba11f4d9cbeb8752f871df2","tools/rmt-language/vendor/fastpass-contract.js":"af8e26104243deea58ccf3a334d67ecb3286617146257074a29eeb7866a3b1a3","tools/rmt-language/vendor/manifest.json":"588c8d474ac376cb59b6787cbd4e5460e746c61a9d5e5b211ae92ab631d58218","tools/rmt-language/vnext-compiler.d.ts":"aaeb02549ba52984b0131ba633238deb917162b2a622e0df14d24bbbb7770212","tools/rmt-language/vnext-compiler.js":"f6ce4b76cffaffa8a5c3261b131d6a9f74499a181ff4391ec205a985f9eda642","tools/xtensions/component-interface-build.js":"8a9fbbccf7b12b68f054f5a2a5a62b4aefe726eec2f598bf1b173d91ecd9af9a","tools/xtensions/component-interface.d.ts":"4fb0bb4ab3163c856c0ef7d78d6a888b3a1d94b35c4dbaf0172aef6a8a61dc3c","tools/xtensions/component-interface.js":"9c0b45fdea6f8dc98563144a9bc000c997800a2f0f57f433b9e352539cdbcae2","tools/xtensions/component-interface.v1.schema.json":"ee6e3c40c66f69e2b39ecf6b7031a9bd16afc576fc5e0884e286eade49399f36","tools/xtensions/component-interface.v2.schema.json":"db772ecb0e874e73ba21406eadbcf6577302648d0eea13a5f41a1c992b6542e1","tools/xtensions/cooperative-resource-scope.js":"ba8f05d9f5ce605512c95d45b3b563c6184e88a2dab5874ffdcee2c1836174ab","tools/xtensions/framework-ssr.js":"6b4c457f2ac54762afcfda78314e788ea9e119e939e93ed9d63355991e31a700","tools/xtensions/host-capability-negotiation.js":"762751a35c6e99eccb66cbad3b0d885098dbd949ed4b5a774a3671a5bac02373","tools/xtensions/host-controller-contract.d.ts":"5137df09aa1173e3eb7172da2073c659c3a7d5ab9324b60866c1d8418f644989","tools/xtensions/host-controller-contract.js":"fc168ff8cec8a95375942f9ef2871ed3cdbf74cede192c708dd374efc14278b7","tools/xtensions/host-resource-cleanup-record.js":"631ba35928b8e8a990dd05b245cd61333984197b866f4c46e0821221404a4a6e","tools/xtensions/kernel-work-scope.js":"2bc544e13567898f8c4eefd973c66e62c29f616477c103e21b28a0f39a716dc8","tools/xtensions/native-component-catalog.js":"b48662af4bfcd473c40f4ef56d72a069c9904e6368232bfe50f3538194c2d9da","tools/xtensions/native-component-contract.d.ts":"e58503b02f4759d42189138ae1ee1d91279f1cf48793ede65c413902d83d7421","tools/xtensions/native-component-contract.js":"757d4ff5cbe02ee63bd2ba32bb2bdf5bab24c0dc377d949465baca0a23af835b","tools/xtensions/native-data.js":"3fbd1e9f29e1b133f3042106a46eaaede2107f38fc71851c566a998f0b397684","tools/xtensions/native-lifecycle.d.ts":"dceafcd21e056e4dfd1a006c430f9f3a9689d86b11dbbfc4cf2e087c6437a55c","tools/xtensions/native-lifecycle.js":"b1d3419d077ab63b8add830a735f16b6c70b53ca92afe46a7c50ab9f0c6e7562","tools/xtensions/native-orchestration-lifecycle.d.ts":"3441597c8e842d620d24593eff7c4189aae2a6be4ab7d63e084c125107734797","tools/xtensions/native-orchestration-lifecycle.js":"99378013ad40a3f48b1cc51a0aeceac4279f5d5cf2cd363f61605491178c72d7","tools/xtensions/native-sink-contract.js":"59089b6fce9afb48785ecb98c243a66086fed31bf5a7e09083714b3c993ea3cd","tools/xtensions/native-surface-projection.d.ts":"3bf8086cdc250dfe79e10cb839f35290f56019eda131bb6aadd15a6601e3e533","tools/xtensions/native-surface-projection.js":"24d81d71027d3c30919a08b8d3ce35a19eb73660b2e0048ac3cb4f17dd3c1945","tools/xtensions/native-surface-scopes.d.ts":"ac84f887e28fc58c4f18e6d6fa42608d4f693aa459b894a30de9c9e304295696","tools/xtensions/native-surface-scopes.js":"83fcfc57293036530d7ae3f4d911d0769655bfed433221171815eaa9cb3cf3d2","tools/xtensions/native-view-projection.d.ts":"c3f4cf877575c9f8eb79a17cf85e54495dec685cd364f2be09b4fbfdd8b81ca5","tools/xtensions/native-view-projection.js":"d4af727f82b66f0c757062cf6c696490f53df135aeb4471e462b0dadae58cc89","tools/xtensions/react-payload-boundary.js":"a63f4bdc1d39813d81f07623316e5e1814ff44e5cc29f93a17145683385ddb5c","tools/xtensions/react-runtime-adapter.d.ts":"10700c9d08f2e94a79168e89a57d0a77eba223c89491aaf6d50ebb1bc33074c0","tools/xtensions/react-runtime-adapter.js":"e780ccdfcc00ca7d75bec3b2bdebb383e3caa2fc40d3bfdaf4bfe85995a0308a","tools/xtensions/react-runtime-boundary.js":"647575e8da3f01a63df9ee6cefe1d0dfd61f056633972fbe46e9ceed5d617596","tools/xtensions/repeat-scopes.js":"52a2860132aacc6da0ed95cac68128193180ebaeff91794d77a1a8b8764599d4","tools/xtensions/resource-graph-binding.js":"0488d4da2eed0c8689d4ec7c49860665873cfcbc433bf52f458575384edf67e2","tools/xtensions/runtime-host-controller.d.ts":"b88df57206eae655721549bd699e8054e48189eea46e40c39f7bfc615a993e9b","tools/xtensions/runtime-host-controller.js":"9627d38ad20200c2c846a7eb057dec28f93cc012f63b76fa0c5a86de785a4574","tools/xtensions/signal-bridge-contract.js":"63d56f44011907554c7b7e6b336daf115bee90f29847debf6e088a5a03f60e1e","tools/xtensions/state-binding-artifact.d.ts":"7af9eba63333fd6dc684b8b383656c6f56e1436ca4fa55c9ae4385686aba92bf","tools/xtensions/state-binding-artifact.js":"fd4435ffb4b1034adb76cda66a2dea7cfb439cd76ad947a128fa698d6735f907","tools/xtensions/state-binding-contract.js":"857867ed26115ea9aa966b7c3e74099675c890f5bb3bbc4c890dfa5d581af2b6","tools/xtensions/state-binding-orchestrated.js":"25576e92eb149ad9bcad2f32dd63d3ae98c8f619873f4ce7765d00fa636a617a","tools/xtensions/state-binding-projection-disabled.js":"c0bfee6ef6138a4a14d9f95526d1cf97ff04d57a77dd10c6769f9fb60d4137b5","tools/xtensions/state-binding-projection.js":"62d116bb6a8fcdeccdd0426d5c6a21537d3e01c952393b4cc82f1f88b0aea739","tools/xtensions/state-binding.d.ts":"c107f80208183fced3c5031c3a9a9c9d4dc2ab95ee5b27070de88454d1b48810","tools/xtensions/state-binding.js":"6c2db5ef127540d95b2ba99bdd64e353f54ce25e40752df7edd39c2d312ad34b","tools/xtensions/url-state-contracts/history-proposal.v1.schema.json":"63aadd491141cd781ebcacaf4a903421e079cdedae89689531efd41c65d8f1b0","tools/xtensions/url-state-contracts/history-proposal.v2.schema.json":"2b63c3eedfcf9220a609ea04b67d9b588fa8e034db78b7aef46ecacaf78cba0b","tools/xtensions/url-state-contracts/policy.v1.schema.json":"bcc9335779f6cb9f2752800dc9054184a1121bcf8b08af923c0218d7f292067d","tools/xtensions/url-state-contracts/policy.v2.schema.json":"9ec44bb834471bdf94b55f43c01f76e0922a0eb68861263fd2d8a40bc0f29c6a","tools/xtensions/url-state-contracts/restore-plan.v1.schema.json":"57d5ea6e30f2378a66f418e5d601e201ac2bc552b719be1bd8d94d03877aeab0","tools/xtensions/url-state-contracts/restore-plan.v2.schema.json":"3f952e46330a5379fa9a323132e9969608f6ff01f30612df149f12e336ba0ddf","tools/xtensions/url-state-contracts/state.v1.schema.json":"8a569847a037c463aa26b8cfa46f660a20b3a0afc7ede5de1dbd57bfa32a57d8","tools/xtensions/url-state-contracts/state.v2.schema.json":"d9a2f1b973f43bc5adc7b2a49c0e84a473af0968cda3e6a1d720f0cff02fd442","tools/xtensions/url-state.d.ts":"35f6de4b4e0d17742991073f1a689b9bdd4827a1240a968442e9accada759d0c","tools/xtensions/url-state.js":"d4d35ddf7bf40de80acc161cd99abf3a8ecb21bac18ad4830c6a31f183e3fd72","tools/xtensions/vue-payload-boundary.js":"e5b7b619251e63bf1937b42ffe346d33b742843e24ef267c680f264dac54e80c","tools/xtensions/vue-runtime-adapter.d.ts":"f441bed2550894206df776eec5d3cbfece18adb92c1432060494b38bc80d699f","tools/xtensions/vue-runtime-adapter.js":"d68a72b9782be8c3d705d10af40ca4a6576c3cc0e3a9884c8db02073c8b9745c","tools/xtensions/vue-runtime-boundary.js":"f1b28462c543f0e8b0d8a8ee59e48b15e1c213cf8381e100677b02e59f03aeed","tools/xtensions/work-budget-policy.js":"e3223e4e46ee792259b321a6fe6c82086c420c239316a04fd8bf77bdbc896779","xtend-maraca/browser-composition-runtime.d.ts":"6f38ba25dd82b60091fbd7a3c79005fd578f35ad41658bbe22b12bccb1df217a","xtend-maraca/browser-composition-runtime.mjs":"64be74d76654c82a6a2b8dece7c70223e060d30f2244686cbeed88fbc20a00a1","xtend-maraca/browser-host-adapter.d.ts":"338d75c28e89f80d0009a252cccdf7a93700ec06e4699ff589fdd494dedd69e2","xtend-maraca/browser-host-adapter.mjs":"0968244bd1c44c0372f6b921438f14f46731b3ad9404b59c8ae58e98fb38eaf9","xtend-maraca/fastpass-contract.js":"af8e26104243deea58ccf3a334d67ecb3286617146257074a29eeb7866a3b1a3","xtend-maraca/index.d.ts":"4a515a42ce12586303a7fc464852dfc329d74ca54ee02e0a24f722ffe9c44dd3","xtend-maraca/index.js":"d7e11a641a07fa1377a0008ff148ff575fc62d853f22c8e286f900a4aeae9e75","xtend-maraca/native-lifecycle-runtime.d.ts":"f99abd455f3c7860734b1f23d6277f361a3f6abf6ec379f3f091add13db7000a","xtend-maraca/native-lifecycle-runtime.mjs":"7264946de304ad9ec2543b36eac5f70ac16eae9d606309cd517cd1e5451b64b8","xtend-maraca/native-orchestration-runtime.d.ts":"ed1a648b21eaf190c6381fc1fc24b5dbc6799e9f61fe70775395a70c49b28c6e","xtend-maraca/native-orchestration-runtime.mjs":"2748451fc5f4c507cb7b58e6f15dd4b8c314a2e3b8cfee065d15370892d43b21","xtend-maraca/native-surface-graph.d.ts":"0551105f43ba4e88f7f067b6447db9dbe8bf3bb55b8a17eeed80df7bd69c838f","xtend-maraca/native-surface-graph.mjs":"cf26d8cadb47471abbcd7ba3b6564020c1f88862732095ffbe96127c69583cf9","xtend-maraca/package.json":"0377adab97226fcb905ee3b9984ef5e2a0de9226bdc3505ca448806b2bbdefde","xtend-maraca/plan-runtime.d.ts":"07737eef3bb457ce776162e53211499bc1ef3df967c216e4dfb363e505809690","xtend-maraca/plan-runtime.mjs":"d1e0cb46f64eb9e1c63d120a53df71d10f3c6dc54c5b450bec6dc9b81512e6c5","xtend-maraca/xtension-component-binding-disabled.mjs":"58a1ba6f8560ab5b94bcab77985f6d172cc6796f6e4c0e3bc62a90faf48dd191","xtend-maraca/xtension-component-binding.mjs":"ff33ba2d928a632e9924a1ffa669dd0e2be84d0cf72a43b1790820f231d728fa","xtend-maraca/xtension-composition-contract.mjs":"362f901e3ab0a1bf783fe76426d3f6db31b06678a865db1e976c82c6a938f918","xtend-maraca/xtension-composition-runtime.d.ts":"f43d892fb5217d6a7e0d91f9d8316ef759a4c8d7f6e382a2a3f02f1d68ac94b7","xtend-maraca/xtension-composition-runtime.mjs":"adcaa75c87fcb20bec7f8bfbdbbb0c2da11351baaf9afd301cf004006d7e5add","xtend-maraca/xtension-composition.d.ts":"96e17c6feba12a9f1a725e11df78bb5d6bde2c0ec6035df54b5981d83fc3fd2a","xtend-maraca/xtension-composition.js":"2993a3229d76a4f4cb275d7e82033b1269d5b11157116bc05117bea4eca2aa15","xtend-maraca/xtension-deployment.js":"5af715278000c4a104e4e43e8c26da10d78279bb314d7f725e3966c6a37d2228","xtend-maraca/xtension-platform-build.js":"cdc0598ed6dfc67ab3cbdfdaa2f64f416232716881c459e7f2837c9a26d2635a","xtend-maraca/xtension-platform-esm.js":"880d5b42b762d39af50bc7b54d790328a3fefd4964f5256016927f18682bbbbe","xtend-maraca/xtension-provider-graph.js":"d8357cf34d0e1d616c8890f36765d7b19f45b1fff824045746474c9ca90afcdf","xtend-maraca/xtension-size-budget.js":"61f22885757a9015fc9c74e5de6a4dc4b7763770b9d29a454604b35ed1992767","xtend-maraca/xtension-ssr-runtime.mjs":"14914d4061e1cebd2e871c381f252ee1e0dd71874baa2531cd239fa4d1047e2f","xtendrmt/rmt-action-effect-runtime.js":"455995d274cf2d12e92be4d1567b154769fc5369b4fb3f7b7886075b2839a4d9","xtendrmt/rmt-core.d.ts":"3dff6c49e8bfc01ae6e9c3e67cc5f763679dc1c534061bc822148a701cac847e","xtendrmt/rmt-core.esm.js":"16cb2bff00f41756bd054d90ed6fc07e5db80e0b7dcb8da70dbad92723ca3538","xtendrmt/rmt-dom-descriptor-renderer.d.ts":"54ebf99fb77527c9ab0f55c9a998238c0ec14a21c8783fa300388be20e14e432","xtendrmt/rmt-dom-descriptor-renderer.js":"7f80dc3f645869cfc13154852163dd0052dc43389045637c468b3816ba262389","xtendrmt/rmt-event-routing-runtime.js":"0e629eeee2ab8e5b5bdecaea5ccfb2ded0201d7756dd189cdd7c628d1bbd6f66","xtendrmt/rmt-kernel-module-manifest.json":"1700a95b58cbec80a78262f3b561894c7b00dafc7b3fe0b2ac0779fb3b68156a","xtendrmt/rmt-kernel-orchestration-controller.js":"b4ce03f075831a483f388cec00e4b1ff458b84dc640645a04e44fb904954af10","xtendrmt/rmt-kernel-scheduler.js":"cb6968fa9b5a784f93e6c941e4a634bdd527525247a1f4653f9c7b204829e766","xtendrmt/rmt-maraca-view-projection-adapter.d.ts":"6b59fb671624728cd9b3bcb9b4b846aa7cc784d4385d7649529036828851c887","xtendrmt/rmt-maraca-view-projection-adapter.js":"ee09855bee0e3973cfd8ec521c6b661256c3f1be7e4e8b6e782dd323ffb313be","xtendrmt/rmt-runtime.browser.js":"5c1507ad2b42a491738945bd0abaf90f4d158fb06bbaf52addfe3ad0bf2a1124","xtendrmt/rmt-runtime.esm.js":"effa5d3a25352e7500c0177dada54fb4b30ca2a9c9176cf1e1b496860cc40716","xtendrmt/rmt-state-selector-runtime.d.ts":"62922d37860e756f5c3ba931a8701bb55f6aabe4faa103ac1bbf2a8e4f232756","xtendrmt/rmt-state-selector-runtime.js":"150f5ae1a279cf7457be54fc7a466afeb1a2a026a911ab1cb1d16ae5da2a669d","xtendrmt/rmt-surface-resource-graph-runtime.d.ts":"774dbe5de8411937b84ec0f0d64eaca9deab5123bd4152ae6bfd8949c63fb589","xtendrmt/rmt-surface-resource-graph-runtime.js":"9344b64339e1e08d4bd64933fabe5c14a12fadd24cd546b787cf727de469f446"},"runtimeExecutionVerified":false,"acceptedForRelease":false,"ssrAcceptancePerformed":false}
+Native catalog2 source/dependency capture matches. Verification status remains explicit.
+✔ Source8 compiles into exact Program6/Header3 and closed Port4 while Source7 rejects it (117.714657ms)
+✔ private platform validator has no instance bridge or Renderer registry dependency (1.230103ms)
+✔ ordinary Surface On retains its HTML component while lexical native On cannot become a sibling delegate (45.355389ms)
+✔ structured component values stay literal data and typecheck before descriptor writes (61.125539ms)
+✔ Source8 tab selection uses typed selectedKey and rejects the Classic positional attribute (41.816541ms)
+✔ managed attribute types remain metadata-closed while ordinary HTML retains its Boolean rules (89.656456ms)
+✔ native refs preserve full typed Surface plus View repeat identities (53.958782ms)
+✔ lexical On keys use the full View repeat tuple without becoming Surface delegates (48.600103ms)
+✔ named component slots retain exact compiler ownership without widening slot attributes (89.360183ms)
+✔ native command source joins an actual Effect and resolves exact current target (42.547248ms)
+✔ native HTML refs are versioned and scoped through the same stable key engine (30.107635ms)
+✔ Source8 generated tag contracts check literals and keep all older profile overloads closed (1007.41428ms)
+✔ catalog2 classifies the exact manifest rather than approving every ShadowRoot (3.617529ms)
+✔ captured metadata cannot grant extra global attributes, setters, commands or a replacement class (1.891791ms)
+✔ declared structured props are typed while attributes stay scalar and closed (0.507085ms)
+✔ platform metadata exposes actual UI flags and assertions, while Controller state requires commands (3.266395ms)
+✔ Model-controlled header, keymap and lightbox focus paths carry their explicit owner capability (3.664669ms)
+✔ every reviewed runtime request path has its own tag grant, while unknown requests fail before dispatch (27.241163ms)
+✔ calendar controlled civil dates reject invalid days before any setter regardless of timezone (0.375354ms)
+✔ prepare precedes all author properties and a whole update validates before any setter (0.93263ms)
+✔ events use canonical declared DTO projections and immutable typed owner keys (1.553016ms)
+✔ property updates never echo user intents (0.871169ms)
+✔ compiled lexical event guards use a required exact live Model gate with strict Boolean results (2.063872ms)
+✔ distinct compiled On routes share one DOM listener and each evaluate their own condition exactly once (1.463156ms)
+✔ refs retain full typed key tuples and commands dispatch through the actual authority port (1.90863ms)
+✔ commands reject missing sidecars, unsupported operations and authority no-ops (0.674047ms)
+✔ async commands and capability results are fenced by the original lifetime (1.091981ms)
+✔ suspension preserves handles but blocks business events and commands until resumed (0.739878ms)
+✔ a resumed component cannot accept results from the previous aborted activation (1.488816ms)
+✔ only genuine private platform terminal receipts may finish after their own deactivation (1.508306ms)
+✔ File objects cross as scoped handles and cannot be resolved after disposal or by another component (1.261633ms)
+✔ a held File lease stays revoked after Suspend/Resume while a fresh lease can resolve the same lifetime File (0.787168ms)
+✔ lifetime admits passive Model projection while activation separately releases and reacquires UI work (0.722118ms)
+✔ removed controlled fields restore their original baselines inside the same echo-suppressed transaction (0.592086ms)
+✔ cross-property projection validates final DTO before setters and commits once after the transaction (0.769168ms)
+✔ source verification captures helper bytes, not only manifest entry hashes (6.52609ms)
+✔ the actual renderer prepares before attributes, routes a single lexical intent and silently patches controlled props (254.720223ms)
+✔ Renderer-owned tabs project exact original children and restore authored visibility on release (122.349907ms)
+✔ Renderer-owned masonry reorders originals by typed keys and rejects foreign or missing refs atomically (96.046954ms)
+✔ lexical native On conditions read the live Model and cannot fall through a Surface delegate (89.657496ms)
+✔ owned Hero scroll and Menu keyboard navigation use real Renderer ports (170.641068ms)
+✔ owned Tooltip anchor leases preserve other descriptions and release callbacks on Suspend (69.535149ms)
+✔ actual modal leases inert only owned app siblings, trap focus, track Model changes and release on Suspend (255.357591ms)
+✔ conditional Tooltip anchors retire their listeners and rebind the same ref to its new owned lifetime (123.890765ms)
+ℹ tests 44
+ℹ suites 0
+ℹ pass 44
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4207.379834
+✔ source inspection follows actual shared definitions and deduplicates reexports (3.338156ms)
+✔ source inspection follows an explicit dynamic Theme definition import (0.337914ms)
+✔ source inspection rejects paths outside component sources (1.407065ms)
+✔ custom-element reference keeps the established direct registration witness (1.194902ms)
+✔ managed registration resolves a real named constructor and authenticates all three sources (8.36876ms)
+✔ managed registration follows explicit registrar aliases and default class exports (1.527566ms)
+✔ managed registration resolves the actual public XKeymap bootstrap and shared class (28.088162ms)
+✔ managed registration rejects same-named local fake (0.839079ms)
+✔ managed registration rejects foreign registrar import (0.517196ms)
+✔ managed registration rejects type-only registrar import (0.547946ms)
+✔ managed registration rejects foreign explicit registry argument (0.439784ms)
+✔ managed registration rejects uninvoked function body (0.455405ms)
+✔ managed registration rejects unreachable conditional call (0.416584ms)
+✔ managed registration rejects call after unconditional throw (0.440674ms)
+✔ managed registration rejects mere comment and string tokens (0.375635ms)
+✔ managed registration rejects wrong literal tag (0.395354ms)
+✔ managed registration rejects nonliteral tag (0.417405ms)
+✔ managed registration rejects local constructor instead of imported shared class (0.436535ms)
+✔ managed registration rejects different definition import (0.501485ms)
+✔ managed registration rejects function exported as constructor (0.557656ms)
+✔ managed registration rejects unexported constructor (0.568426ms)
+✔ managed registration rejects class marked with a different tag (0.589047ms)
+✔ managed registration rejects foreign marker import (0.592786ms)
+✔ managed registration rejects uninvoked marker body (0.541925ms)
+✔ managed registration rejects duplicate registrar binding (0.457625ms)
+✔ managed registration rejects reassigned registrar import (0.423214ms)
+✔ managed registration rejects reassigned constructor import (0.404374ms)
+✔ managed registration rejects reassigned exported class (0.544746ms)
+✔ managed registration rejects destructuring replacement of exported class (0.770149ms)
+✔ managed registration rejects reassigned marker import (0.545296ms)
+✔ managed registration rejects updated exported class (0.663817ms)
+✔ managed registration rejects marker before class initialization (0.512636ms)
+✔ managed registration rejects evaluated default export before class initialization (0.471735ms)
+✔ managed registration rejects missing actual trusted helper export (0.584147ms)
+✔ managed registration propagates provider read failures instead of falling back (0.821509ms)
+✔ the demo remains an actual Classic CSR lifecycle and author-slot reference, not a productive native grant (63.175061ms)
+✔ all 36 UI imports are pure and export the exact managed-compatible shared class (2.117313ms)
+✔ every UI class mounts and releases without writing the Classic store or moving its host (414.920399ms)
+✔ input property updates are silent; input gestures deliver one normalized intent and reconnect releases listeners (6.55789ms)
+✔ radio changes never uncheck another managed or Classic instance (6.624321ms)
+✔ code, hero, masonry, menu and tabs preserve author element identity and attributes (27.820029ms)
+✔ managed dismissals request state transitions while retaining the host (6.299578ms)
+✔ writer sanitizes model HTML and delegates saving/export to the injected owner ports (15.136334ms)
+✔ managed Modal title stays text and cannot create executable or resource-bearing markup (11.635265ms)
+✔ Dialog dimensions reject stylesheet injection before the first write and preserve valid updates atomically (19.590881ms)
+✔ typed multiple selection and date constraints survive Model projection (68.410227ms)
+✔ controlled commands require a Model Action and never mutate the projected value themselves (7.40899ms)
+✔ Model-owned overlay open and checkbox checked remain authoritative after gestures (8.691694ms)
+✔ file DTOs contain scoped opaque handles; arbitrary File-like objects are rejected (5.274727ms)
+✔ sanitized modal HTML and declarative actions never execute callback fields (11.955799ms)
+✔ functional profile x-alert: projection, event, command, lifecycle and shared Classic class (15.607248ms)
+✔ functional profile x-button: projection, event, command, lifecycle and shared Classic class (7.172377ms)
+✔ functional profile x-calendar: projection, event, command, lifecycle and shared Classic class (56.846483ms)
+✔ functional profile x-cards: projection, event, command, lifecycle and shared Classic class (2.841821ms)
+✔ functional profile x-checkbox: projection, event, command, lifecycle and shared Classic class (4.730951ms)
+✔ functional profile x-code: projection, event, command, lifecycle and shared Classic class (10.23642ms)
+✔ functional profile x-dialog: projection, event, command, lifecycle and shared Classic class (16.198655ms)
+✔ functional profile x-drawer: projection, event, command, lifecycle and shared Classic class (6.628272ms)
+✔ functional profile x-footer: projection, event, command, lifecycle and shared Classic class (4.417418ms)
+✔ functional profile x-form: projection, event, command, lifecycle and shared Classic class (3.789421ms)
+✔ functional profile x-header: projection, event, command, lifecycle and shared Classic class (76.351463ms)
+✔ functional profile x-hero: projection, event, command, lifecycle and shared Classic class (14.221363ms)
+✔ functional profile x-icon: projection, event, command, lifecycle and shared Classic class (3.978823ms)
+✔ functional profile x-input: projection, event, command, lifecycle and shared Classic class (5.160686ms)
+✔ functional profile x-keymap: projection, event, command, lifecycle and shared Classic class (9.704005ms)
+✔ functional profile x-lightbox: projection, event, command, lifecycle and shared Classic class (4.460588ms)
+✔ functional profile x-link: projection, event, command, lifecycle and shared Classic class (3.981193ms)
+✔ functional profile x-masonry: projection, event, command, lifecycle and shared Classic class (4.431437ms)
+✔ functional profile x-menu: projection, event, command, lifecycle and shared Classic class (6.219307ms)
+✔ functional profile x-modal: projection, event, command, lifecycle and shared Classic class (19.091096ms)
+✔ functional profile x-player: projection, event, command, lifecycle and shared Classic class (19.224037ms)
+✔ functional profile x-popover: projection, event, command, lifecycle and shared Classic class (9.137048ms)
+✔ functional profile x-progress: projection, event, command, lifecycle and shared Classic class (6.039135ms)
+✔ functional profile x-radio: projection, event, command, lifecycle and shared Classic class (4.494169ms)
+✔ functional profile x-section: projection, event, command, lifecycle and shared Classic class (4.221335ms)
+✔ functional profile x-select: projection, event, command, lifecycle and shared Classic class (7.540761ms)
+✔ functional profile x-spinner: projection, event, command, lifecycle and shared Classic class (4.936863ms)
+✔ functional profile x-status: projection, event, command, lifecycle and shared Classic class (10.755236ms)
+✔ functional profile x-summary: projection, event, command, lifecycle and shared Classic class (4.129864ms)
+✔ functional profile x-tabs: projection, event, command, lifecycle and shared Classic class (6.744423ms)
+✔ functional profile x-textarea: projection, event, command, lifecycle and shared Classic class (10.449113ms)
+✔ functional profile x-toast: projection, event, command, lifecycle and shared Classic class (14.947041ms)
+✔ functional profile x-toggle: projection, event, command, lifecycle and shared Classic class (5.743752ms)
+✔ functional profile x-tooltip: projection, event, command, lifecycle and shared Classic class (4.869592ms)
+✔ functional profile x-type: projection, event, command, lifecycle and shared Classic class (3.647189ms)
+✔ functional profile x-writer: projection, event, command, lifecycle and shared Classic class (9.661044ms)
+✔ tabs use original Renderer refs, typed key intents, registered selection command and suspension leases (378.264874ms)
+✔ masonry collapse and reorder controls emit typed Model requests while Renderer owns all originals (100.961637ms)
+✔ calendar civil days, localized labels and controlled viewports are independent of the process time zone (26.900339ms)
+✔ removing optional collection controls restores default presentation without undefined author data (176.149337ms)
+✔ calendar keyboard focus stays local while Enter/Space emit bounded civil-date intents, including RTL (125.798355ms)
+✔ native menu arrows focus actual Renderer-owned enabled items and preserve authored roles (96.555949ms)
+✔ managed modal admission retains one actual lease, releases on Suspend, and reacquires unchanged Model open on Resume (5.174316ms)
+✔ Model-open header, keymap and lightbox admit their exact owner focus capabilities (19.927855ms)
+✔ managed dialog and modal use a modal owner lease independently of the visual backdrop (10.571164ms)
+✔ managed Hero style values reject markup and alternate URL forms before setters and admit one actual image URL before writes (12.212031ms)
+✔ managed Section and Spinner colors reject image functions atomically and consume variable tokens only as colors (16.989333ms)
+✔ pure native imports do not bootstrap globals, CE registration, listeners or i18n patches (0.91259ms)
+✔ managed State reuses the existing adapter with isolated keys and owned cleanup (4.295326ms)
+✔ managed i18n labels stay data, preserve Light DOM and reject foreign roots (9.755905ms)
+✔ scoped Theme uses the shared manager, restores owned values and preserves host writes (61.541693ms)
+✔ borrowed services are not disposed, missing transition/platform capabilities fail (14.231073ms)
+✔ owned Utils effects complete through the actual transition Renderer port and disposal revokes held or late work (30.363617ms)
+✔ managed Surface region delegates to the real controller and releases once without ancestor writes (13.221532ms)
+✔ Source8 data printer preserves complete JSON values and owns no decoder requirement (3.353066ms)
+✔ data printer retains own prototype-named JSON fields and rejects cycles (0.835849ms)
+✔ Source7 regular native-only emission boots without a companion and keeps equal JSON states independent (3160.522709ms)
+✔ all six platform tags bind to actual Controller/Graph and command fibers rather than local managers (2937.193894ms)
+✔ real platform UI flags project false to true to false without changing Controller authority (736.976237ms)
+✔ all six released platform bindings stay revoked after Suspend and a fresh activation (1701.226573ms)
+✔ Surface platform gestures commit bounds and state through the real graph and preserve foreign records (1001.032871ms)
+✔ a genuine component-command Effect invokes the actual scoped platform handler inside its exact Kernel job (261.82937ms)
+✔ close, minimize and collapse return only genuine Controller receipts after their own scope deactivation (871.140472ms)
+✔ native Router delegates the captured local destination to the injected History host and publishes its Model intent (244.718996ms)
+✔ Portal projection retains the exact declared existing Portal and rejects policy replacement (159.132984ms)
+✔ forged authority-valued platform attributes and route data fail before managed host mutation (626.201354ms)
+✔ Source7 public native modules preserve their versioned baseline export sets (1.154032ms)
+✔ retained Source6 and Source8 modules preserve their independent CSR export sets (0.154491ms)
+✔ new SSR entries expose their API1 handoff without private integration hooks (0.564866ms)
+✔ Source8 plan/config use explicit versions and Source7 refuses managed interfaces (1605.571202ms)
+✔ Source8 real input emits validated Action and model updates preserve the controlled host (457.128953ms)
+✔ Source8 focus Effect uses exact Kernel sidecar and Suspend retains lifetime identity (456.432636ms)
+✔ Source8 explicit Hydrate=false keeps real controls inactive until its compiled Hydrate is admitted (338.226393ms)
+✔ Source8 lexical On.when evaluates the live Model before its validated Action (321.837476ms)
+ℹ tests 124
+ℹ suites 0
+ℹ pass 124
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 20650.777192
+{"fixtures":15,"compiled":15,"declaredAstTypes":122,"observedAstTypes":122,"unobservedAstTypes":0,"coreDomains":23,"output":"development/rmtx-a01/inventory.json"}
+A02: static, conditional and repeated Source/AST parity and strict Maraca binding artifacts verified.
+A02.5.1: 70 URL/History contract checks; A02.5.2 integration is checked separately.
+A02.5.2: four unchanged v1 wire contracts, versioned Router/Maraca ports and integration gate sources verified.
+A03.1: 20 Kernel/Fabric contract checks; real React/Vue execution remains mandatory in Runtime gates.
+A03.2: 19 native Surface/Kernel resource checks; real framework execution remains mandatory in Runtime gates.
+A03.3: 14 native pressure/budget checks; actual React/Vue and Maraca acceptance remains mandatory.
+A03.4: 19 native capability checks; actual React/Vue and Maraca execution remains mandatory.
+A04.1: 36 build/contract checks; actual React/Vue and Kernel/Fabric execution is a separate mandatory gate.
+A04.2: 27 regular-build/contract checks; actual generated-browser execution has a separate mandatory gate.
+A04.3.1: 44 graph/build/contract checks; actual browser execution has a separate mandatory gate.
+A04.3.2: 25 deferred-load/build/contract checks; actual native imports have a separate mandatory runtime gate.
+A04.3.3: 26 shared-peer/build/contract checks; real host lifetimes have a separate mandatory runtime gate.
+A04.3.4: 18 delivery/build/contract checks; real CSP/HTTP execution is a separate mandatory browser gate.
+A04.3.5: 30 sealed deployment checks; 23 actual native browser cases are a separate mandatory gate.
+A04.3.6: 24 deployment runtime checks; 10 actual browser/HTTP cases are a separate mandatory gate.
+A04.3.7: 29 update/revision checks; 64 real browser cases are a separate mandatory gate.
+A05: 14 contract checks; native Node SSR/Chromium evidence remains mandatory.
+A06.1b: 26 contract/compiler/provider checks; automatic shared-owner composition remains open.
+✔ provider interfaces produce immutable versioned catalog entries independent of call-site data (1354.356316ms)
+✔ catalog rejects unknown provider (0.334834ms)
+✔ catalog rejects wrong interface version (0.157281ms)
+✔ catalog rejects wrong interface hash (0.139161ms)
+✔ catalog rejects old component version (0.167972ms)
+✔ provider contract rejects added title attribute (0.243513ms)
+✔ provider contract rejects caller-defined prop type (0.164212ms)
+✔ provider contract rejects missing required prop (0.150952ms)
+✔ provider contract rejects unknown event (0.234403ms)
+✔ provider contract rejects caller-defined intent fields (0.425105ms)
+✔ provider contract rejects unknown mapped source (0.266762ms)
+✔ provider contract rejects duplicate mapped source (0.170172ms)
+✔ Vue payload mapping derives Action field types from provider fields (0.93319ms)
+✔ runtime prop guard rejects undeclared attributes and malformed nested values (0.332004ms)
+✔ interface rejects grants (0.319174ms)
+✔ interface rejects native children (0.179142ms)
+✔ interface rejects capability prop (0.204522ms)
+✔ interface rejects unbounded attributes (0.145021ms)
+✔ interface rejects peer/framework mismatch (0.111692ms)
+✔ interface rejects unknown value type (0.156042ms)
+✔ interface accessors are rejected without executing them (0.159151ms)
+✔ formal declaration and runtime validator identify the same closed v1 profile (0.498195ms)
+✔ generated provider map typechecks actual providers, actual TSX candidate and negative call-sites (673.873708ms)
+✔ archived case v1 cannot silently acquire interface v2 semantics (0.805319ms)
+✔ capture binds metadata and code bytes; post-capture source replacement cannot change a factory (3.057593ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2138.776385
+A04 component ownership: 6 regular-build checks; actual native browser execution remains separately required.
+✔ component manifest v6 keeps declared owner and render target distinct without changing binding v2 (1345.831415ms)
+✔ component tune/config roundtrip requires v6 and cannot reinterpret a v5 configuration (59.260988ms)
+✔ manifest rejects missing owner (27.274814ms)
+✔ manifest rejects wrong render target (18.6503ms)
+✔ manifest rejects missing interface pin (25.93487ms)
+✔ manifest rejects duplicate interface provider (19.246167ms)
+✔ manifest rejects changed interface reference (22.474742ms)
+✔ manifest rejects caller grant (25.370903ms)
+✔ manifest rejects legacy reinterpretation (29.034153ms)
+✔ build rejects untrusted sidecar pin before output mutation (22.540703ms)
+✔ build rejects caller-added prop before output mutation (32.788753ms)
+✔ build rejects unknown raw payload field before output mutation (28.207244ms)
+✔ build rejects forged provider metadata before output mutation (33.046666ms)
+✔ captured component artifact v7 binds source files, mapping and native delivery; v6 data keeps its own semantics (36.479923ms)
+✔ ESM bridge distinguishes metadata property names from unresolved CommonJS operations (1.971841ms)
+✔ new interfaces typecheck through public compiler/Maraca ports without widening Legacy profile types (694.835353ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2583.901349
+Scoped components: 7 regular-build checks; native SSR/adoption/replay evidence remains separately required.
+✔ v7 plan/config and v8 artifact preserve old static profile rejection of repeats (1477.765686ms)
+✔ provider rules validate every declaration even when the Model collection has no active hosts (4.755522ms)
+✔ shared materializer retains nested numeric/string address identity and rejects duplicate or absent keys (2.993602ms)
+✔ runtime refuses forged key scope before creating a framework host (11.261641ms)
+✔ runtime refuses wrong target before creating a framework host (12.745817ms)
+✔ runtime refuses absent address before creating a framework host (8.29827ms)
+✔ scoped SSR refuses v1 options and requires the independent interface runtime (1.742119ms)
+✔ scoped public build/runtime/SSR types remain discriminated from old wire formats (717.041313ms)
+✔ component SSR port v5 cannot omit its required v2 session (9.709495ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2364.312334
+XTend package versions already synced at 0.9.0.
+✔ legacy compilation session retains exact counters and readonly facts (12.927499ms)
+✔ project cache rechecks transitive contents and language/version identity (1068.512378ms)
+✔ content watcher observes unchanged graphs, edits, missing files and renames (694.003934ms)
+✔ bridge v1 remains legacy and v2 runs typed project compilation (222.728459ms)
+✔ bridge diagnostics and compile share original semantic errors without a disable bypass (516.869937ms)
+✔ MCP selects explicit RMTX, rejects provider TSX and preserves dependency locations (7.340148ms)
+✔ inline MCP project tooling requires an explicit workspace instead of reading the process CWD (218.848247ms)
+✔ RMTX scaffold writes an explicit native project config and actually compiles (318.057485ms)
+✔ Maraca project plans preserve the native wire contract and used imported declarations (1536.152514ms)
+✔ explicit inline RMTX uses the same synthetic identity for graph and actual native compilation (448.858604ms)
+✔ Maraca project plans share genuine same-root session facts and reject foreign callbacks (244.442843ms)
+✔ CLI project check and watch-once return the same source-bound graph (1504.963948ms)
+✔ CLI and MCP report identical imported compiler codes and original ranges (338.570646ms)
+✔ CLI, MCP and Maraca share the selected provider registry without executing provider code (2458.168915ms)
+✔ default provider registries capture interface and module pins without execution (49.536743ms)
+✔ explicit provider registry selection and inline pins use the same captured metadata (4.673201ms)
+✔ bad provider registry paths and pins are structured project failures (1.729789ms)
+✔ invalid provider metadata does not hide editor import discovery (4.231086ms)
+✔ a standalone project retains the raw Source8 compiler result (35.661145ms)
+✔ untitled documents keep distinct project identities and close their original overlays (32.379649ms)
+✔ project fusion never lends missing authoring bindings to imported module bodies (1.510666ms)
+✔ RMTX imports are linked into one executable Model and Action plan (18.203896ms)
+✔ aliased authoring imports keep their field names and original identity (11.337722ms)
+✔ classic declarations imported by RMTX participate in the same program (13.577526ms)
+✔ a Classic entry imports a real RMTX view under an explicit effective profile (20.052135ms)
+✔ dependency-only bytes, deletion, rename and glob membership affect identity (5.105445ms)
+✔ open overlays are linked and closing restores actual disk data (20.816394ms)
+✔ errors from a dependency map back through aliases, CRLF and astral UTF16 (3.222804ms)
+✔ project fails closed for provider TSX entry (0.477085ms)
+✔ project fails closed for provider import (0.972861ms)
+✔ project fails closed for cycle (1.370265ms)
+✔ project fails closed for executable statements (0.823789ms)
+✔ project fails closed for foreign source import (0.579656ms)
+✔ project fails closed for lexical boundary (0.798448ms)
+✔ project fails closed for forged public parser context (1.830489ms)
+✔ physical symlink imports cannot cross the project root (1.061281ms)
+✔ recursive globs include nested disk and unsaved modules with stable ordering (21.756765ms)
+✔ a dangling glob symlink is a structured diagnostic, not an uncaught exception (1.248463ms)
+✔ per-call document overlays override stale defaults and in-memory buffers (11.099869ms)
+✔ Classic-only dependency errors and source witnesses retain the actual imported file (2.027802ms)
+✔ mapped errors span the complete expression after an authoring alias replacement (2.123173ms)
+✔ semantic type errors clear every successful backend artifact and demand (496.937592ms)
+✔ the public snapshot is a serializable DTO, never a TypeScript parent graph (1.90183ms)
+✔ Classic-only imports build one real state/action plan and retain both source files (2.820511ms)
+✔ editor recovery retains trusted imports without accepting incomplete JSX as a build (3.666889ms)
+✔ RMTX registers its own extension and depends explicitly on the maintained TSX grammar (1.337054ms)
+✔ every declared RMTX contribution is a real local packaged file (0.486215ms)
+✔ RMTX snippets distinguish self-closing from paired operators and configuration supports TSX comments (0.291083ms)
+✔ LanguageClient selects Classic and RMTX explicitly, without claiming provider TSX files (0.887519ms)
+✔ direct Classic code actions reject RMTX before constructing a server: rmtx /tmp/editor.rmtx (1.228333ms)
+✔ direct Classic code actions reject RMTX before constructing a server: rmt /tmp/mislabeled.rmtx (0.113361ms)
+✔ direct Classic code actions reject RMTX before constructing a server: rmtx /tmp/mislabeled.rmt (0.105991ms)
+✔ direct Classic code actions reject RMTX before constructing a server: rmtx null (0.106651ms)
+✔ active-document Classic experience preserves the unsupported result without requesting an LSP (0.331054ms)
+✔ Classic lint and debug paths reject RMTX while project build check and write route to the real CLI (2.008902ms)
+✔ actual activation registers a shared dispatcher, provider metadata watcher and bundled Node client (3.015762ms)
+✔ LSP routes RMTX to semantic tooling and invalidates open consumers on Classic dependency edits (1274.943161ms)
+✔ actual stdio server supplies original-file diagnostics, completion and navigation (1148.636311ms)
+✔ independent workspace roots retain separate models, original navigation and folder-change overlays (1318.624442ms)
+✔ virtual TSX checks model fields and native properties against actual authoring types (508.413295ms)
+✔ repeated item and nested repeated item follow their lexical collection types (291.757563ms)
+✔ action inputs remain distinct between actions and model dynamic markers have no any fallback (237.177015ms)
+✔ selectors preserve the source row fields, including item lookup and closed path validation (235.174892ms)
+✔ Classic imported states produce original-file model definitions and field rename edits (261.478806ms)
+✔ CRLF and UTF16 positions map diagnostics and field completions to real RMTX source (458.65611ms)
+✔ unsaved imported RMTX state overlays invalidate model types before disk save (482.167883ms)
+✔ provider props use the same captured provider value rules as the compiler (196.463866ms)
+✔ file-based provider metadata reaches semantic props without executing provider code (261.345574ms)
+✔ qualified State IDs and chained selectors obey longest declared prefixes independent of declaration order (214.747813ms)
+✔ Action, State and native component references navigate and rename on original source strings (10.357491ms)
+✔ nullable selector results narrow inside declarative When guards without executing source (206.395433ms)
+✔ references from an imported declaration include unsaved open consumers in its real project (268.410371ms)
+✔ navigation never pins a closed disk dependency as a stale editor overlay (559.151772ms)
+ℹ tests 73
+ℹ suites 0
+ℹ pass 73
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 19588.100025
+✔ 0.9 target contract selects scope without granting release acceptance (24.605835ms)
+✔ target contract rejects unknown versions, malformed objects and undeclared fields (24.17284ms)
+✔ malformed nested records and reserved identities return invalid reports (3.871651ms)
+✔ assertion errors expose the invalid target report (1.033701ms)
+✔ missing and malformed target files return invalid reports (1.046521ms)
+✔ inspection CLI rejects invalid roots and flags without writing files (123.208187ms)
+✔ selected release scope cannot silently grow or lose targets and Source profiles (18.51822ms)
+✔ required cases must exist and match their positive or negative reference (18.385778ms)
+✔ selected policies and explicit exclusions cannot be weakened or omitted (22.583914ms)
+✔ policy-specific obligations cannot be replaced with unrelated existing cases (4.223485ms)
+✔ planned cases retain every selected Framework, Source and project-mode combination (3.553178ms)
+✔ scope selection cannot claim release readiness or substitute execution evidence (4.255246ms)
+✔ source references reject traversal, absolute paths and missing files (8.021756ms)
+✔ inspection CLI validates a complete source fixture and leaves every file unchanged (111.495961ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 445.339636
+✔ captured SSR preserves native dynamic import timing without browser globals (14.003691ms)
+✔ one captured graph retains shared module identity and dynamic-to-entry edges (2.062972ms)
+✔ request factories own independent state while native module state is explicit (1.953771ms)
+✔ unknown, external and nonliteral imports fail before entry execution (0.848079ms)
+✔ static cycles and malformed graph membership fail closed (0.455855ms)
+✔ captured source and nested data URL expansion have hard byte limits (171.79407ms)
+✔ trusted module bases are explicit stable HTTP(S) entry URLs (0.486605ms)
+✔ import.meta.url retains original captured asset folders after code splitting (57.907824ms)
+✔ one immutable build reuses its namespace and cannot change deployment bases (0.413075ms)
+✔ SSR builder rejects missing, unknown or widened request versions before compiling (18.684791ms)
+✔ retained browser entry rejects SSRv3 and direct adoption before host work (4.362707ms)
+✔ explicit browser wrapper and v3 options cannot be substituted by old wire or caller adoption (0.93148ms)
+✔ a retained Plan runtime cannot accept the new prepared handoff (5.291947ms)
+✔ native CSR preflight recognizes an SSR marker on its own root (478.059019ms)
+✔ Source7 SSR initial dispose preserves its derived shell and consumes initial destructive edges once (2196.337795ms)
+✔ Source7 SSR initial detach preserves its derived shell and consumes initial destructive edges once (421.628901ms)
+✔ Source7 SSR initial recycle preserves its derived shell and consumes initial destructive edges once (612.193623ms)
+✔ Source7 SSR initial suspend preserves its derived shell and consumes initial destructive edges once (407.752381ms)
+✔ Source7 SSR initial mount-false preserves its derived shell and consumes initial destructive edges once (486.59262ms)
+✔ Source7 SSR initial hydrate-false preserves its derived shell and consumes initial destructive edges once (394.897673ms)
+✔ Source7 SSR initial prewarm-mount-false preserves its derived shell and consumes initial destructive edges once (407.57938ms)
+✔ Source8 SSR initial dispose preserves its derived shell and consumes initial destructive edges once (443.232554ms)
+✔ Source8 SSR initial detach preserves its derived shell and consumes initial destructive edges once (421.871144ms)
+✔ Source8 SSR initial recycle preserves its derived shell and consumes initial destructive edges once (609.126501ms)
+✔ Source8 SSR initial suspend preserves its derived shell and consumes initial destructive edges once (415.147121ms)
+✔ Source8 SSR initial mount-false preserves its derived shell and consumes initial destructive edges once (509.514208ms)
+✔ Source8 SSR initial hydrate-false preserves its derived shell and consumes initial destructive edges once (405.184784ms)
+✔ Source8 SSR initial prewarm-mount-false preserves its derived shell and consumes initial destructive edges once (441.346464ms)
+✔ native SSR keeps typed keyed text, empty nodes and ordinary DOM identity across HTML transport (101.584314ms)
+✔ native adoption preserves opaque framework children and rejects owned mismatches before effects (26.091101ms)
+✔ native managed server shells never prepare, bind or invoke custom property setters (11.715956ms)
+✔ managed adoption validates the entire owned subtree before preparation and prepares before first update (22.838416ms)
+✔ native SSR requires its request version and rejects registered client custom elements before construction (10.676945ms)
+✔ a failed native managed adoption releases preparations and already bound component handles (26.811929ms)
+✔ real custom-element upgrade defers Classic callbacks until authenticated managed preparation and controlled values (34.35355ms)
+✔ retained Source7-style custom components defer Classic connection until native adoption finishes controlled props (18.338398ms)
+✔ the real Footer constructor cannot project SSR resource attributes before managed owner admission (65.581317ms)
+✔ runtime gate rejects missing, old, incomplete or foreign RMTX SSR reports (3.126074ms)
+✔ actual browser owner runs the v3 fixture separately while preserving old report contracts (0.278783ms)
+✔ RMTX SSR provenance closes versions, hashes and project source identity independently of old artifacts (1.85271ms)
+✔ resume API4 adopts controlled projections and typed intents through the existing Model boundary (3.167994ms)
+✔ initial SSR binding admission uses the compiled lifecycle guards and closed ancestors (345.38287ms)
+✔ native-only v3 signs an independent native handoff and verifies before Model preview (510.919323ms)
+✔ RMTX SSR API1, wire3, port11 and resume4 retain closed typed entrypoints (1302.292026ms)
+ℹ tests 44
+ℹ suites 0
+ℹ pass 44
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 13021.836207
+{
+  "schema": "xtend.rmtx.release-target-check.v1",
+  "apiVersion": "1.0.0",
+  "valid": true,
+  "errors": [],
+  "selectedTargets": 4,
+  "sourceProfiles": 8,
+  "requiredCases": 53,
+  "acceptedForRelease": false
+}
+{
+  "schema": "xtend.release.feature-readiness.v2",
+  "targetVersion": "0.9.0",
+  "applicable": true,
+  "state": "preparing",
+  "planValid": true,
+  "ready": false,
+  "errors": [],
+  "blockers": [
+    "RMTX: preparing; implementation and acceptance evidence pending.",
+    "XTensions 2.0: preparing; implementation and acceptance evidence pending.",
+    "x-alert: complete native functional acceptance evidence pending.",
+    "x-button: complete native functional acceptance evidence pending.",
+    "x-calendar: complete native functional acceptance evidence pending.",
+    "x-cards: complete native functional acceptance evidence pending.",
+    "x-checkbox: complete native functional acceptance evidence pending.",
+    "x-code: complete native functional acceptance evidence pending.",
+    "x-dialog: complete native functional acceptance evidence pending.",
+    "x-drawer: complete native functional acceptance evidence pending.",
+    "x-footer: complete native functional acceptance evidence pending.",
+    "x-form: complete native functional acceptance evidence pending.",
+    "x-header: complete native functional acceptance evidence pending.",
+    "x-hero: complete native functional acceptance evidence pending.",
+    "x-icon: complete native functional acceptance evidence pending.",
+    "x-input: complete native functional acceptance evidence pending.",
+    "x-keymap: complete native functional acceptance evidence pending.",
+    "x-lightbox: complete native functional acceptance evidence pending.",
+    "x-link: complete native functional acceptance evidence pending.",
+    "x-masonry: complete native functional acceptance evidence pending.",
+    "x-menu: complete native functional acceptance evidence pending.",
+    "x-modal: complete native functional acceptance evidence pending.",
+    "x-player: complete native functional acceptance evidence pending.",
+    "x-popover: complete native functional acceptance evidence pending.",
+    "x-progress: complete native functional acceptance evidence pending.",
+    "x-radio: complete native functional acceptance evidence pending.",
+    "x-rmt-lifecycle-demo-build: complete native functional acceptance evidence pending.",
+    "x-router: complete native functional acceptance evidence pending.",
+    "x-section: complete native functional acceptance evidence pending.",
+    "x-select: complete native functional acceptance evidence pending.",
+    "x-side-panel: complete native functional acceptance evidence pending.",
+    "x-spinner: complete native functional acceptance evidence pending.",
+    "x-status: complete native functional acceptance evidence pending.",
+    "x-summary: complete native functional acceptance evidence pending.",
+    "x-surface-manager: complete native functional acceptance evidence pending.",
+    "x-surface-portal: complete native functional acceptance evidence pending.",
+    "x-surface-region: complete native functional acceptance evidence pending.",
+    "x-surface-window: complete native functional acceptance evidence pending.",
+    "x-tabs: complete native functional acceptance evidence pending.",
+    "x-textarea: complete native functional acceptance evidence pending.",
+    "x-theme: complete native functional acceptance evidence pending.",
+    "x-toast: complete native functional acceptance evidence pending.",
+    "x-toggle: complete native functional acceptance evidence pending.",
+    "x-tooltip: complete native functional acceptance evidence pending.",
+    "x-type: complete native functional acceptance evidence pending.",
+    "x-utils: complete native functional acceptance evidence pending.",
+    "x-writer: complete native functional acceptance evidence pending.",
+    "xtend-i18n: complete native functional acceptance evidence pending.",
+    "xtend-state: complete native functional acceptance evidence pending.",
+    "Native catalog: bound execution evidence and release test profile are required.",
+    "A06.5: verified execution evidence pending.",
+    "A06.6: verified execution evidence pending."
+  ],
+  "features": [
+    {
+      "id": "rmtx",
+      "name": "RMTX",
+      "status": "preparing",
+      "required": true,
+      "targetVersion": "0.9.0"
+    },
+    {
+      "id": "xtensions-2",
+      "name": "XTensions 2.0",
+      "status": "preparing",
+      "required": true,
+      "targetVersion": "0.9.0"
+    }
+  ]
+}
+	Command being timed: "/home/konni/.npm/_npx/387698761821791d/node_modules/node/bin/node --max-old-space-size=1024 scripts/check_release_preparation.cjs"
+	User time (seconds): 677.94
+	System time (seconds): 34.39
+	Percent of CPU this job got: 150%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 7:54.03
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 719184
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 9286556
+	Voluntary context switches: 365661
+	Involuntary context switches: 11732
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

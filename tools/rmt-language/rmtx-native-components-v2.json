@@ -30,7 +30,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-ui-profiles.js",
@@ -268,7 +268,7 @@
       "tag": "x-button",
       "module": "components/xbutton.js",
       "managedModule": "components/xbutton.definition.js",
-      "sha256": "363b22fd65decd6e4265c331a8025a708db6927927b7de799166b73dc64ed759",
+      "sha256": "c158dfd54ffc41d111a90d204b9c1781d61c491c67b3da4b9f3a2034112673af",
       "dependencies": [
         {
           "module": "components/icon-dom.js",
@@ -288,7 +288,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-ui-profiles.js",
@@ -713,7 +713,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-ui-profiles.js",
@@ -933,7 +933,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-ui-profiles.js",
@@ -1056,7 +1056,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-ui-profiles.js",
@@ -1331,7 +1331,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-ui-profiles.js",
@@ -1487,7 +1487,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-style-values.js",
@@ -1712,7 +1712,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-ui-profiles.js",
@@ -1996,7 +1996,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-ui-profiles.js",
@@ -2188,7 +2188,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-ui-profiles.js",
@@ -2387,7 +2387,7 @@
       "tag": "x-header",
       "module": "components/xheader.js",
       "managedModule": "components/xheader.definition.js",
-      "sha256": "9b25d3ca7287a7b4c6b158bac87da369867ccc69cf466c9341e0de292211b8e2",
+      "sha256": "ba451353384888fd04ac3eeb55037ff09e4129d480b79e484ff97f8490ce755b",
       "dependencies": [
         {
           "module": "components/native-collection-layout.js",
@@ -2395,7 +2395,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-ui-profiles.js",
@@ -3083,7 +3083,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-style-values.js",
@@ -3336,7 +3336,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-ui-profiles.js",
@@ -3597,7 +3597,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-ui-profiles.js",
@@ -3871,7 +3871,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-ui-profiles.js",
@@ -4180,7 +4180,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-ui-profiles.js",
@@ -4355,7 +4355,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-ui-profiles.js",
@@ -4573,7 +4573,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-ui-profiles.js",
@@ -4789,7 +4789,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-ui-profiles.js",
@@ -5181,7 +5181,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-style-values.js",
@@ -5482,7 +5482,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-ui-profiles.js",
@@ -6181,7 +6181,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-ui-profiles.js",
@@ -6418,7 +6418,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-ui-profiles.js",
@@ -6640,7 +6640,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-ui-profiles.js",
@@ -6900,7 +6900,7 @@
       "dependencies": [
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "tools/xtensions/native-component-contract-v2.js",
@@ -6961,7 +6961,7 @@
       "dependencies": [
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-platform.js",
@@ -7137,7 +7137,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-style-values.js",
@@ -7280,7 +7280,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-ui-profiles.js",
@@ -7557,7 +7557,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-platform.js",
@@ -7947,7 +7947,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-style-values.js",
@@ -8242,7 +8242,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-ui-profiles.js",
@@ -8480,7 +8480,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-ui-profiles.js",
@@ -8650,7 +8650,7 @@
       "dependencies": [
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-platform.js",
@@ -8752,7 +8752,7 @@
       "dependencies": [
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-platform.js",
@@ -8879,7 +8879,7 @@
       "dependencies": [
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-platform.js",
@@ -9106,7 +9106,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-platform.js",
@@ -9445,7 +9445,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-ui-profiles.js",
@@ -9632,7 +9632,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-ui-profiles.js",
@@ -10038,7 +10038,7 @@
       "dependencies": [
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-services.js",
@@ -10127,7 +10127,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-ui-profiles.js",
@@ -10343,7 +10343,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-ui-profiles.js",
@@ -10611,7 +10611,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-ui-profiles.js",
@@ -10836,7 +10836,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-ui-profiles.js",
@@ -11031,7 +11031,7 @@
       "dependencies": [
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-services.js",
@@ -11112,7 +11112,7 @@
         },
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-ui-profiles.js",
@@ -11447,7 +11447,7 @@
       "dependencies": [
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-services.js",
@@ -11525,7 +11525,7 @@
       "dependencies": [
         {
           "module": "components/native-managed.js",
-          "sha256": "c2597126e3ba9279f099b9ca7ffcc35c1a3e9e0fb30f325b7980f8e2504b31c1"
+          "sha256": "c3a1f0215ccb2a024c04fb6066d31503192a649994ddc370856113dcfdd844c8"
         },
         {
           "module": "components/native-services.js",

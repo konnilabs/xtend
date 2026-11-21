@@ -4,7 +4,7 @@ const NATIVE_COMPONENT_CATALOG = [
   {
     "tag": "x-button",
     "module": "components/xbutton.js",
-    "sha256": "363b22fd65decd6e4265c331a8025a708db6927927b7de799166b73dc64ed759",
+    "sha256": "c158dfd54ffc41d111a90d204b9c1781d61c491c67b3da4b9f3a2034112673af",
     "ownership": "shadow",
     "attributes": [
       "disabled",
@@ -21,7 +21,7 @@ const NATIVE_COMPONENT_CATALOG = [
   {
     "tag": "x-header",
     "module": "components/xheader.js",
-    "sha256": "9b25d3ca7287a7b4c6b158bac87da369867ccc69cf466c9341e0de292211b8e2",
+    "sha256": "ba451353384888fd04ac3eeb55037ff09e4129d480b79e484ff97f8490ce755b",
     "ownership": "shadow",
     "attributes": [
       "title"

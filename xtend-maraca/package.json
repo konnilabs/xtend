@@ -93,9 +93,17 @@
       "types": "./native-lifecycle-runtime.d.ts",
       "default": "./native-lifecycle-runtime.mjs"
     },
+    "./native-lifecycle-ssr-runtime": {
+      "types": "./native-lifecycle-ssr-runtime.d.ts",
+      "default": "./native-lifecycle-ssr-runtime.mjs"
+    },
     "./native-orchestration-runtime": {
       "types": "./native-orchestration-runtime.d.ts",
       "default": "./native-orchestration-runtime.mjs"
+    },
+    "./native-orchestration-ssr-runtime": {
+      "types": "./native-orchestration-ssr-runtime.d.ts",
+      "default": "./native-orchestration-ssr-runtime.mjs"
     },
     "./native-surface-graph": {
       "types": "./native-surface-graph.d.ts",
@@ -104,6 +112,10 @@
     "./native-managed-runtime": {
       "types": "./native-managed-runtime.d.ts",
       "default": "./native-managed-runtime.mjs"
+    },
+    "./native-managed-ssr-runtime": {
+      "types": "./native-managed-ssr-runtime.d.ts",
+      "default": "./native-managed-ssr-runtime.mjs"
     }
   },
   "files": [
@@ -187,7 +199,21 @@
     "native-platform-host.d.ts",
     "native-data-literal.js",
     "native-orchestration-core.mjs",
-    "native-surface-graph-core.mjs"
+    "native-surface-graph-core.mjs",
+    "rmtx-ssr-build-context.cjs",
+    "rmtx-ssr-contract.mjs",
+    "xtension-rmtx-ssr-contract.mjs",
+    "xtension-rmtx-ssr-contract.d.mts",
+    "server-captured-esm.cjs",
+    "native-lifecycle-integration.mjs",
+    "native-lifecycle-ssr-runtime.mjs",
+    "native-lifecycle-ssr-runtime.d.ts",
+    "native-orchestration-integration.mjs",
+    "native-orchestration-ssr-runtime.mjs",
+    "native-orchestration-ssr-runtime.d.ts",
+    "native-managed-integration.mjs",
+    "native-managed-ssr-runtime.mjs",
+    "native-managed-ssr-runtime.d.ts"
   ],
   "engines": {
     "node": ">=24"

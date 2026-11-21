@@ -29,3 +29,6 @@ export declare function componentListen(element:HTMLElement,target:EventTarget,t
 export declare function cleanupManagedComponent(element:HTMLElement):void;
 export declare function markManagedComponentClass<Constructor extends CustomElementConstructor>(constructor:Constructor,tag:string,profile?:NativeManagedProfileV2<InstanceType<Constructor>>):Constructor;
 export declare function defineManagedComponent<Constructor extends CustomElementConstructor>(tag:string,constructor:Constructor,registry?:CustomElementRegistry):Constructor;
+/** Pending SSR markup suppresses Classic fallback and grants no authority. */
+export const NATIVE_COMPONENT_SSR_ADOPTION_API_VERSION: '1.0.0';
+export const NATIVE_COMPONENT_SSR_PENDING_ATTRIBUTE: 'data-rmtx-native-pending';

@@ -1,0 +1,200 @@
+{
+  "node": "v24.18.0",
+  "officialWriters": 24,
+  "reviewedOutputs": 32,
+  "changedOutputs": [
+    {
+      "file": "development/rmtx-a02/url-history/integration-evidence.json",
+      "officialWriter": "development/rmtx-a02/url-history/integration-inspect.cjs",
+      "oldSha256": "ceef06fab711e4d1052c5d3a7039add9e389ad03195cf85fae3dac3f43c56618",
+      "newSha256": "6cd625a10fd12f0bea25e34f078bced5cea23c13061357c265646bb9f6383dcc",
+      "sourcePinChanges": 5,
+      "measuredByteChanges": 0
+    },
+    {
+      "file": "development/rmtx-a03/evidence.json",
+      "officialWriter": "development/rmtx-a03/inspect.cjs",
+      "oldSha256": "dbf1b12d19778d07c53cc378d186640215603b416a9a93fb1250b0fd782a0ea0",
+      "newSha256": "268e1008d2830bb0239df021a078bb97a1545870161131d95ef547fece4b21a6",
+      "sourcePinChanges": 2,
+      "measuredByteChanges": 0
+    },
+    {
+      "file": "development/rmtx-a03/graph-evidence.json",
+      "officialWriter": "development/rmtx-a03/graph-inspect.cjs",
+      "oldSha256": "256a08ff00e32b8edd4ea27dc7f6fe5db6058bb2c7cc36e190ee068b680c3ed8",
+      "newSha256": "85d7060da986d59e0f4b62f35095324a9a4332b800b6bbee262011f6d1d72120",
+      "sourcePinChanges": 2,
+      "measuredByteChanges": 0
+    },
+    {
+      "file": "development/rmtx-a03/budget-evidence.json",
+      "officialWriter": "development/rmtx-a03/budget-inspect.cjs",
+      "oldSha256": "ca8bf3126973fdb56ab57cb613890e95ed6f94a33c10621e4ebc63c91621ce5f",
+      "newSha256": "a79775ba1db9f4477291d568fe2023126b9d9d0a78e91451612cc69172697f24",
+      "sourcePinChanges": 3,
+      "measuredByteChanges": 0
+    },
+    {
+      "file": "development/rmtx-a03/capability-evidence.json",
+      "officialWriter": "development/rmtx-a03/capability-inspect.cjs",
+      "oldSha256": "2031ad0c9130db3bdc8fc39037a454a697e7a86c57ef8b98a0f1192b48a42537",
+      "newSha256": "d9d27bc45be735cfbabc432eeb7abd53bcd7a1926ad33668a9dfa8638404eb6d",
+      "sourcePinChanges": 3,
+      "measuredByteChanges": 0
+    },
+    {
+      "file": "development/rmtx-a04/evidence.json",
+      "officialWriter": "development/rmtx-a04/inspect.cjs",
+      "oldSha256": "00de6fc37efe383751e6c725e45ab436faab51b3e35fa8e8f36bb458f6c85388",
+      "newSha256": "53ef712939b24d5a029ca81b01f72e330f5347354f5cc67f3ad069d1ee438e1c",
+      "sourcePinChanges": 4,
+      "measuredByteChanges": 0
+    },
+    {
+      "file": "development/rmtx-a04/integration-evidence.json",
+      "officialWriter": "development/rmtx-a04/integration-inspect.cjs",
+      "oldSha256": "d78b870c2da480f95f2fa204a2517fdddf238bc12b9bd4145cec376813d283fb",
+      "newSha256": "dc6e40aab9e12785818bd5c0c3bd2f8e5965a4ccd876ac44720388b10c0e4713",
+      "sourcePinChanges": 14,
+      "measuredByteChanges": 12
+    },
+    {
+      "file": "development/rmtx-a04/graph-evidence.json",
+      "officialWriter": "development/rmtx-a04/graph-inspect.cjs",
+      "oldSha256": "71496517b7013f327a54a642343dc5bfa7c22052411920d7c856935b8fdfb0a5",
+      "newSha256": "772a4ea116c762ed99308675a0008460d15459126de9c53c514a90f20f79ea5b",
+      "sourcePinChanges": 3,
+      "measuredByteChanges": 6
+    },
+    {
+      "file": "development/rmtx-a04/loading-evidence.json",
+      "officialWriter": "development/rmtx-a04/loading-inspect.cjs",
+      "oldSha256": "8bb7cd1b7c197c4acbc3c174cf09bf4ce76387c1a6f607791598b89c39601a1f",
+      "newSha256": "ca72dfbe4b1130c9ed64fe980e4a002d32be650bb0f449d562c1c4d2b8508057",
+      "sourcePinChanges": 5,
+      "measuredByteChanges": 6
+    },
+    {
+      "file": "development/rmtx-a04/peer-evidence.json",
+      "officialWriter": "development/rmtx-a04/peer-inspect.cjs",
+      "oldSha256": "ff1e56048f74540d57ad124c1edbd62432d46aad77401768d16e46d20cea3818",
+      "newSha256": "675034c590226b457d114230cde600d05dfe6742ab56376df475788c90173acc",
+      "sourcePinChanges": 7,
+      "measuredByteChanges": 6
+    },
+    {
+      "file": "development/rmtx-a04/delivery-evidence.json",
+      "officialWriter": "development/rmtx-a04/delivery-inspect.cjs",
+      "oldSha256": "40b8ef5d1e9992227011ced153c02c2cfa5fd2f4fc253ae8a093100955826e83",
+      "newSha256": "c8bccfccb7d9c99ddbfa66225ace01eac5f301fed70c26d5461586aa54b80695",
+      "sourcePinChanges": 9,
+      "measuredByteChanges": 6
+    },
+    {
+      "file": "development/rmtx-a04/integrity-evidence.json",
+      "officialWriter": "development/rmtx-a04/integrity-inspect.cjs",
+      "oldSha256": "87d61f9f16a3a2115fb0a673fa313be954899b3680add3de256da4e2600a44f7",
+      "newSha256": "de793c4aa033bc6edccc0dfffb2bce4f1d5b3d9aa6ee2030fc100c42261a4935",
+      "sourcePinChanges": 6,
+      "measuredByteChanges": 12
+    },
+    {
+      "file": "development/rmtx-a04/runtime-evidence.json",
+      "officialWriter": "development/rmtx-a04/runtime-inspect.cjs",
+      "oldSha256": "38595693a158ee07f1fa28b4eb6c3a50e4cbe978cf2f8f15f9eb1cd3d46a0ad0",
+      "newSha256": "1de9b0cef6655c49517f1dd194da7ac7c6380758dd3ca58d77c5b32aa6367928",
+      "sourcePinChanges": 5,
+      "measuredByteChanges": 15
+    },
+    {
+      "file": "development/rmtx-a04/updates-evidence.json",
+      "officialWriter": "development/rmtx-a04/updates-inspect.cjs",
+      "oldSha256": "d6aadf6c30b32ef02cc583f58e358a3e1abbfeb509a3a5459dc2fb91373234a7",
+      "newSha256": "70073b103afb8d56a11b140061d6640ecb4595fa17d070758d7bb9fdd2cc0fc3",
+      "sourcePinChanges": 5,
+      "measuredByteChanges": 21
+    },
+    {
+      "file": "development/rmtx-a05/evidence.json",
+      "officialWriter": "development/rmtx-a05/inspect.cjs",
+      "oldSha256": "f6079e0f5665f049cc33c66235b80a8205866ea9193405198365f9e7f7948d5e",
+      "newSha256": "78af18ec9f0c7f378271c97f99a9e4354f3a89ae60b26be97260d8fe82a9a563",
+      "sourcePinChanges": 17,
+      "measuredByteChanges": 0
+    },
+    {
+      "file": "development/rmtx-a06/selector-profile/evidence.json",
+      "officialWriter": "development/rmtx-a06/selector-profile/inspect.cjs",
+      "oldSha256": "c7d97c5e48d03baaee8ed880fa47cb65f859a44a0bc1c3eccddb5fbded004b71",
+      "newSha256": "9b4f3b294ed554d23a4c48ced13eed6d95dd0b55d511015d040931e438d86606",
+      "sourcePinChanges": 3,
+      "measuredByteChanges": 0
+    },
+    {
+      "file": "development/rmtx-a06/keyed-profile/evidence.json",
+      "officialWriter": "development/rmtx-a06/keyed-profile/inspect.cjs",
+      "oldSha256": "77e4e336a1c50721f738155dbf7238359d3900261b667bc0ab6ecc1c3a8e107d",
+      "newSha256": "6ce0d3c7c0a88fc2305addd614454958b6ca6d35e705ff0c18a2f5d2a613c7eb",
+      "sourcePinChanges": 6,
+      "measuredByteChanges": 0
+    },
+    {
+      "file": "development/rmtx-a06/orchestration-profile/evidence.json",
+      "officialWriter": "development/rmtx-a06/orchestration-profile/inspect.cjs",
+      "oldSha256": "60ce2d393dd8e8c3edc17a3b20d833d021aede2a6f132a93cd58ab6f4db69a88",
+      "newSha256": "524bdc696b0d931b6207a3df0f38bd1ee6ff566628c2dd022fad474e3f41d886",
+      "sourcePinChanges": 16,
+      "measuredByteChanges": 5
+    },
+    {
+      "file": "development/rmtx-a06/native-view-profile/evidence.json",
+      "officialWriter": "development/rmtx-a06/native-view-profile/inspect.cjs",
+      "oldSha256": "65b0972b454a54c9b0db64ccb97b33f1f33c392396f11eb22d732b5bad3b00f5",
+      "newSha256": "7e150ae971294704f192a99648ad7def2baf23190343ad047f6852e5e6ac11bc",
+      "sourcePinChanges": 19,
+      "measuredByteChanges": 0
+    },
+    {
+      "file": "development/rmtx-a06/lifecycle-profile/evidence.json",
+      "officialWriter": "development/rmtx-a06/lifecycle-profile/inspect.cjs",
+      "oldSha256": "cea6dddc74bff79ede7b13eab82b831a6d34c97aa2354de40497325f7968a4ce",
+      "newSha256": "c1910ea33d4c3eeddd5f8cad2fcf53d60a94ef067a2f016ded7277786519e10c",
+      "sourcePinChanges": 21,
+      "measuredByteChanges": 0
+    },
+    {
+      "file": "development/rmtx-a06/native-orchestration-profile/evidence.json",
+      "officialWriter": "development/rmtx-a06/native-orchestration-profile/inspect.cjs",
+      "oldSha256": "1ea706f9e33b307f29f903f2bee28ef43d8924af3bef4fe262b2ee93a0e5377b",
+      "newSha256": "6fcb1c5b1a33ecf0781b3239cd1dac29d10473f66cb1411cfe3268f124f26a47",
+      "sourcePinChanges": 26,
+      "measuredByteChanges": 0
+    },
+    {
+      "file": "development/rmtx-a06/two-host-evidence.json",
+      "officialWriter": "development/rmtx-a06/two-host-inspect.cjs",
+      "oldSha256": "bea0a1b6249752f88ef84957c73723cdc7e255810098f57d6a5d405394a4263d",
+      "newSha256": "84dd3e56127e67e4e2058e54e00b0fd1de8df3106cf0e75cef644fce49caf7cd",
+      "sourcePinChanges": 2,
+      "measuredByteChanges": 0
+    },
+    {
+      "file": "development/rmtx-a06/automatic-evidence.json",
+      "officialWriter": "development/rmtx-a06/automatic-inspect.cjs",
+      "oldSha256": "48c26a0a5ca637d7123fc314aa9cbec18efc80a9c7db4af42447a0d61a6a406c",
+      "newSha256": "bfc81c8cbf061fcaf0a97ea9eb2f2aa8c4b6c37da7c52ea81b6fecd04f7b1969",
+      "sourcePinChanges": 14,
+      "measuredByteChanges": 0
+    },
+    {
+      "file": "development/rmtx-a06/scoped-evidence.json",
+      "officialWriter": "development/rmtx-a06/scoped-inspect.cjs",
+      "oldSha256": "6f63bd2710c4ac85e8834f3ca8d17bbdfb52f35d87d3dc70d40f814d5275bb85",
+      "newSha256": "dfa43b62caf6d73fa62d9dbd3c455abc5322011efdf1a4445c54c682ff04d794",
+      "sourcePinChanges": 16,
+      "measuredByteChanges": 0
+    }
+  ],
+  "protectedHistoryChanged": false
+}

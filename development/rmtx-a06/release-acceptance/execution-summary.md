@@ -1,6 +1,8 @@
 # A06.6.1 – Lokaler Prüfstand des Ziel-/Policyvertrags
 
-Stand: **21. November 2026**, Dokumentrevision **1.0.0**. Basis: Commit `416cbdea` plus aktueller, nicht committeter Worktree. Dieser Bericht beschreibt die tatsächlich ausgeführte Plan-/Gateprüfung; die 53 in der [Zielmatrix v1](targets.v1.json) benannten Runtimefälle bleiben `planned`.
+Stand: **21. November 2026**, Dokumentrevision **1.1.0**. Basis: Commit `416cbdea` plus aktueller, nicht committeter Worktree. Dieser Bericht beschreibt die tatsächlich ausgeführte Plan-/Gateprüfung; die 53 in der [Zielmatrix v1](targets.v1.json) benannten Runtimefälle bleiben `planned`.
+
+**Historischer A06.6.1-Nachweis.** Der spätere produktive SSR-Anschluss A06.6.2 und seine tatsächlichen Läufe werden im eigenen [SSR-Prüfstand](ssr-execution-summary.md) geführt. Die folgenden Ergebnisse und damaligen Grenzen werden nicht auf dessen Quellenstand umdatiert.
 
 Der bestätigte 0.9-Umfang umfasst native RMTX-Inhalte und React/Vue für CSR sowie synchrones Node-SSR. Die [Arbeitsgliederung](implementation.md) führt A06.6.1 als implementiert und A06.6.2–6 weiterhin offen. Native SSR meint Light-DOM und stabile verwaltete Host-Shells mit clientseitigen Internas. Weitere Adapter, Streaming und portable RMTX-Page-Ausgabe unter Node/PHP sind ausgeschlossen.
 

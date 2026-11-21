@@ -137,5 +137,27 @@ async function buildMaracaProjectBundleAsync(input = {}, options = {}) {
   } catch (error) { return { ...failed(MARACA_PROJECT_BUILD_RESULT_SCHEMA, error), build: null }; }
   finally { context?.dispose(); }
 }
+const MARACA_RMTX_SSR_BUILD_API_VERSION = '1.0.0';
+async function buildMaracaRmtxSSRBundleAsync(request, options = {}) {
+  let context;
+  try {
+    if (!request || request.schema !== 'xtend.maraca.rmtx-ssr-build-options.v1'
+      || Object.keys(request).some(key => !['schema', 'input'].includes(key)) || !request.input || typeof request.input !== 'object' || Array.isArray(request.input)) {
+      throw new TypeError('Closed RMTX SSR build options v1 are required.');
+    }
+    context = createContext(request.input, options);
+    require('./rmtx-ssr-build-context.cjs').registerRmtxSSRCompiler(context.compile);
+    const build = await require('./index').buildMaracaBundleAsync(context.values, { ...options, rootDir: context.rootDir, compileSource: context.compile });
+    const captured = require('./rmtx-ssr-build-context.cjs').getRmtxSSRPlanContext(build.plan);
+    return { schema: 'xtend.maraca.rmtx-ssr-build-result.v1', apiVersion: MARACA_RMTX_SSR_BUILD_API_VERSION,
+      ok: build.ok, status: build.status, project: context.project, sourceIdentity: captured?.sourceIdentity || null,
+      diagnostics: build.diagnostics || build.plan?.diagnostics || [], build };
+  } catch (error) {
+    return { schema: 'xtend.maraca.rmtx-ssr-build-result.v1', apiVersion: MARACA_RMTX_SSR_BUILD_API_VERSION,
+      ok: false, status: 'rmtx_ssr_build_invalid', project: context?.project || null, sourceIdentity: null,
+      diagnostics: error.diagnostics || [{ code: 'xtend.maraca.rmtx_ssr_build.invalid', severity: 'error', message: error.message }], build: null };
+  } finally { context?.dispose(); }
+}
 module.exports = { MARACA_PROJECT_API_VERSION, MARACA_PROJECT_CONFIG_SCHEMA, MARACA_PROJECT_BUILD_PLAN_SCHEMA, MARACA_PROJECT_BUILD_RESULT_SCHEMA,
+  MARACA_RMTX_SSR_BUILD_API_VERSION, buildMaracaRmtxSSRBundleAsync,
   createMaracaProjectBuildPlan, buildMaracaProjectBundle, buildMaracaProjectBundleAsync, isMaracaProjectCompiler };

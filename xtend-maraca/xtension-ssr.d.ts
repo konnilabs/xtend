@@ -71,3 +71,34 @@ export interface ComponentSSRReport extends Omit<XTensionSSRReport,'schema'|'api
 export interface ComponentSSRResponse extends Omit<XTensionSSRResponse,'schema'|'apiVersion'|'snapshot'|'report'> {readonly schema:'xtend.maraca.xtension-ssr-response.v2';readonly apiVersion:'2.0.0';readonly snapshot:ComponentSSRSnapshot;readonly report:ComponentSSRReport}
 export interface ComponentNodeSSROptions extends Omit<MaracaXTensionNodeSSROptions,'build'> {readonly build:{readonly ok:boolean;readonly plan:import('./index').MaracaScopedComponentBuildPlan;readonly [key:string]:unknown}}
 export function renderMaracaXTensionSSR(options:ComponentNodeSSROptions):Promise<ComponentSSRResponse>;
+
+/** Separate RMTX wire profile; no v1/v2 snapshot is widened implicitly. */
+export const RMTX_XTENSION_SSR_API_VERSION: '3.0.0';
+export type RmtxSSRSourceIdentity = import('./xtension-rmtx-ssr-contract.mjs').RmtxSSRSourceIdentity;
+export interface RmtxSSRIntent extends Omit<ComponentSSRIntent,'schema'> {readonly schema:'xtend.maraca.xtension-ssr-intent.v3'}
+export interface RmtxSSRHostSnapshot extends ComponentSSRHostSnapshot {readonly ownerInstance:string}
+export interface RmtxSSRPayload extends Omit<ComponentSSRPayload,'schema'|'hosts'> {
+  readonly schema:'xtend.maraca.xtension-ssr-payload.v3';readonly sourceIdentity:RmtxSSRSourceIdentity;readonly hosts:readonly RmtxSSRHostSnapshot[];
+}
+export interface RmtxSSRSnapshot extends Omit<ComponentSSRSnapshot,'schema'|'payload'> {readonly schema:'xtend.maraca.xtension-ssr-snapshot.v3';readonly payload:RmtxSSRPayload}
+export interface RmtxSSRServerOptions extends Omit<ComponentSSRServerOptions,'schema'> {readonly schema:'xtend.maraca.xtension-ssr-options.v3'}
+export interface RmtxSSRClientOptions extends Omit<ComponentSSRClientOptions,'schema'|'snapshot'|'intents'> {
+  readonly schema:'xtend.maraca.xtension-ssr-options.v3';readonly snapshot:RmtxSSRSnapshot;
+  readonly intents?:readonly RmtxSSRIntent[]|(()=>readonly RmtxSSRIntent[]);
+}
+export interface RmtxSSRReport extends Omit<ComponentSSRReport,'schema'|'apiVersion'> {readonly schema:'xtend.maraca.xtension-ssr-report.v3';readonly apiVersion:'3.0.0'}
+export interface RmtxSSRResponse extends Omit<ComponentSSRResponse,'schema'|'apiVersion'|'snapshot'|'report'> {
+  readonly schema:'xtend.maraca.xtension-ssr-response.v3';readonly apiVersion:'3.0.0';readonly snapshot:RmtxSSRSnapshot;readonly report:RmtxSSRReport;
+}
+export interface RmtxNodeSSROptions extends Omit<MaracaXTensionNodeSSROptions,'build'|'xtensions'|'fabric'> {
+  readonly schema:'xtend.maraca.xtension-ssr-render-options.v3';
+  /** Actual deployed entry URL; required for external CSS/import.meta.url.
+   * This authoritative HTTP(S) base stays fixed for the genuine build. */
+  readonly moduleBaseURL?:string;
+  /** Successful inner build from the separately registered RMTX SSR builder. */
+  readonly build:NonNullable<import('./index').MaracaRmtxSSRBuildResult['build']>;
+  readonly fabric:MaracaXTensionNodeSSROptions['fabric'] & {runFiber:(...args: any[])=>unknown};
+  /** Omitted only for a native-only build with no provider declarations. */
+  readonly xtensions?:MaracaXTensionNodeSSROptions['xtensions'] & {readonly ssr?:never};
+}
+export function renderMaracaXTensionSSR(options:RmtxNodeSSROptions):Promise<RmtxSSRResponse>;

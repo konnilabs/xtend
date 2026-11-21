@@ -5,14 +5,17 @@ const fs = require('node:fs'), path = require('node:path');
 // This bridge is deliberately limited to XTend's own CommonJS runtime closure.
 // Application providers retain their separate verified local ESM contract.
 async function buildXTensionPlatform(plan, rollup) {
-  const managedProfile = plan.xtensionComposition.schema === 'xtend.maraca.xtension-composition-manifest.v12';
-  const entries = Object.fromEntries(['state-binding', ...new Set(plan.xtensionComposition.providers.map(provider => provider.framework + '-runtime-adapter'))].map(name =>
+  const rmtxSSR = require('./rmtx-ssr-build-context.cjs').getRmtxSSRPlanContext(plan);
+  const composition = plan.xtensionComposition || { schema: `xtend.maraca.xtension-composition-manifest.v${Number(rmtxSSR?.sourceIdentity.sourceProfile.version[0]) + 4}`, providers: [] };
+  const ssrEnabled = !!rmtxSSR;
+  const managedProfile = composition.schema === 'xtend.maraca.xtension-composition-manifest.v12';
+  const entries = Object.fromEntries(['state-binding', ...new Set(composition.providers.map(provider => provider.framework + '-runtime-adapter'))].map(name =>
     [name, require.resolve('@ccslabs/xtend-compiler/xtensions/' + (name === 'state-binding' && managedProfile ? 'state-binding-managed' : name), { paths: [plan.rootDir, __dirname] })]));
   const compilerRoot = path.dirname(path.dirname(entries['state-binding']));
-  const orchestratedProfile = managedProfile || plan.xtensionComposition.schema === 'xtend.maraca.xtension-composition-manifest.v11';
-  const lifecycleProfile = orchestratedProfile || plan.xtensionComposition.schema === 'xtend.maraca.xtension-composition-manifest.v10';
-  const nativeProfile = lifecycleProfile || plan.xtensionComposition.schema === 'xtend.maraca.xtension-composition-manifest.v9';
-  const projectionProfile = nativeProfile || plan.xtensionComposition.schema === 'xtend.maraca.xtension-composition-manifest.v8';
+  const orchestratedProfile = managedProfile || composition.schema === 'xtend.maraca.xtension-composition-manifest.v11';
+  const lifecycleProfile = orchestratedProfile || composition.schema === 'xtend.maraca.xtension-composition-manifest.v10';
+  const nativeProfile = lifecycleProfile || composition.schema === 'xtend.maraca.xtension-composition-manifest.v9';
+  const projectionProfile = nativeProfile || composition.schema === 'xtend.maraca.xtension-composition-manifest.v8';
   const projectionModule = path.join(compilerRoot, 'xtensions/state-binding-projection.js');
   const disabledProjectionModule = path.join(compilerRoot, 'xtensions/state-binding-projection-disabled.js');
   const orchestratedModule = path.join(compilerRoot, 'xtensions/state-binding-orchestrated.js');
@@ -48,15 +51,31 @@ async function buildXTensionPlatform(plan, rollup) {
   const runtime = path.join(__dirname, 'xtension-composition-runtime.mjs');
   const bindingContract = require.resolve(path.join(compilerRoot, 'xtensions/state-binding-contract'));
   capture(bindingContract);
-  const componentProfile = ['xtend.maraca.xtension-composition-manifest.v6','xtend.maraca.xtension-composition-manifest.v7','xtend.maraca.xtension-composition-manifest.v8','xtend.maraca.xtension-composition-manifest.v9','xtend.maraca.xtension-composition-manifest.v10','xtend.maraca.xtension-composition-manifest.v11','xtend.maraca.xtension-composition-manifest.v12'].includes(plan.xtensionComposition.schema);
+  const componentProfile = ['xtend.maraca.xtension-composition-manifest.v6','xtend.maraca.xtension-composition-manifest.v7','xtend.maraca.xtension-composition-manifest.v8','xtend.maraca.xtension-composition-manifest.v9','xtend.maraca.xtension-composition-manifest.v10','xtend.maraca.xtension-composition-manifest.v11','xtend.maraca.xtension-composition-manifest.v12'].includes(composition.schema);
   const componentFile = path.join(compilerRoot, 'xtensions/component-interface.js');
   if (componentProfile) capture(componentFile);
+  const resumeFile = path.join(compilerRoot, 'xtensions/state-binding-resume.js');
+  if (ssrEnabled) capture(resumeFile);
+  // A source-selected pure preview avoids pulling other lifecycle profiles and
+  // their component metadata into every SSR target's runtime closure.
+  let admissionImports = '', admissionExpression = '() => undefined';
+  const sourceVersion = Number(rmtxSSR?.sourceIdentity.sourceProfile.version[0]);
+  if (ssrEnabled && sourceVersion >= 6) {
+    const admissionFile = path.join(compilerRoot, 'xtensions/state-binding-resume-admission.js');
+    const lifecycleFile = path.join(compilerRoot, 'xtensions/' + (sourceVersion === 6 ? 'native-lifecycle.js' : sourceVersion === 7 ? 'native-orchestration-lifecycle.js' : 'native-managed-lifecycle.js'));
+    capture(admissionFile); capture(lifecycleFile);
+    admissionImports = `import * as rmtxAdmissionRuntime from ${JSON.stringify(admissionFile)};\nimport * as rmtxLifecycleRuntime from ${JSON.stringify(lifecycleFile)};\n`;
+    const ports = sourceVersion === 6 ? 'nativeLifecycleAdmission:rmtxLifecycleRuntime.nativeLifecycleAdmission'
+      : sourceVersion === 7 ? 'validateLifecyclePlan:rmtxLifecycleRuntime.validateNativeOrchestrationLifecyclePlan,evaluateLifecyclePlan:rmtxLifecycleRuntime.evaluateNativeOrchestrationLifecyclePlan,nativeOrchestrationAdmission:rmtxLifecycleRuntime.nativeOrchestrationLifecycleAdmission'
+      : 'validateLifecyclePlan:rmtxLifecycleRuntime.validateNativeManagedLifecyclePlan,evaluateLifecyclePlan:rmtxLifecycleRuntime.evaluateNativeManagedLifecyclePlan,nativeOrchestrationAdmission:rmtxLifecycleRuntime.nativeManagedLifecycleAdmission';
+    admissionExpression = `rmtxAdmissionRuntime.createRMTXSSRBindingAdmissionRuntime({programSchema:"xtend.rmt.app-orchestration.v${sourceVersion - 2}",${ports}})`;
+  }
   const componentImport = componentProfile ? `import * as componentInterfaceRuntime from ${JSON.stringify(componentFile)};\n` : '';
   const projectionExports = projectionProfile ? ',XTENSION_PROJECTION_STATE_BINDING_API_VERSION:api0.XTENSION_PROJECTION_STATE_BINDING_API_VERSION,createXTensionProjectionStateRegistry:api0.createXTensionProjectionStateRegistry' : '';
   const nativeExports = nativeProfile ? ',XTENSION_NATIVE_STATE_BINDING_API_VERSION:api0.XTENSION_NATIVE_STATE_BINDING_API_VERSION,createXTensionNativeStateRegistry:api0.createXTensionNativeStateRegistry' : '';
   const lifecycleExports = lifecycleProfile ? ',XTENSION_LIFECYCLE_STATE_BINDING_API_VERSION:api0.XTENSION_LIFECYCLE_STATE_BINDING_API_VERSION,createXTensionLifecycleStateRegistry:api0.createXTensionLifecycleStateRegistry,validateLifecycleStateBindingArtifact:api0.validateLifecycleStateBindingArtifact' : '';
-  const source = componentImport + `import * as bindingContract from ${JSON.stringify(bindingContract)};\n` + (managedProfile ? '' : `import * as ssrRuntime from ${JSON.stringify(path.join(__dirname, 'xtension-ssr-runtime.mjs'))};\n`) + Object.entries(entries).map(([name, file], index) => `import * as api${index} from ${JSON.stringify(file)};`).join('\n') +
-    `\nimport * as compositionRuntime from ${JSON.stringify(runtime)};\nexport default Object.freeze({ bindingsRuntime: ${managedProfile ? 'api0.MANAGED_STATE_BINDING_RUNTIME' : orchestratedProfile ? 'api0.ORCHESTRATED_STATE_BINDING_RUNTIME' : `Object.freeze({XTENSION_STATE_BINDING_API_VERSION:api0.XTENSION_STATE_BINDING_API_VERSION,validateStateBindingArtifact:api0.${lifecycleProfile ? 'validateLifecycleStateBindingArtifact' : 'validateStateBindingArtifact'},materializeStateBindingArtifact:api0.materializeStateBindingArtifact,createXTensionStateRegistry:api0.createXTensionStateRegistry${projectionExports}${nativeExports}${lifecycleExports}})`}, compositionRuntime, ${managedProfile ? '' : 'ssrRuntime,'} ${componentProfile ? 'componentInterfaceRuntime,' : ''} ${managedProfile ? '' : 'resumeBindingsRuntime: Object.freeze({XTENSION_RESUME_STATE_BINDING_API_VERSION:api0.XTENSION_RESUME_STATE_BINDING_API_VERSION,createXTensionResumeStateRegistry:api0.createXTensionResumeStateRegistry,typed:bindingContract.typed,propsFrom:bindingContract.propsFrom}),'} adapters: Object.freeze({${Object.keys(entries).slice(1).map((name, index) => {const framework=name.split('-')[0],title=framework==='react'?'React':'Vue';return `${JSON.stringify(framework)}: Object.freeze({create${title}KernelRuntimeAdapter:api${index+1}.create${title}KernelRuntimeAdapter,normalize${title}Peers:api${index+1}.normalize${title}Peers${managedProfile ? '' : `,create${title}SSRRuntimeAdapter:api${index+1}.create${title}SSRRuntimeAdapter,normalize${title}SSRPeers:api${index+1}.normalize${title}SSRPeers`}})`;}).join(',')} }) });\n`;
+  const source = admissionImports + (ssrEnabled ? `import * as rmtxResumeRuntime from ${JSON.stringify(resumeFile)};\n` : '') + componentImport + `import * as bindingContract from ${JSON.stringify(bindingContract)};\n` + (managedProfile && !ssrEnabled ? '' : `import * as ssrRuntime from ${JSON.stringify(path.join(__dirname, 'xtension-ssr-runtime.mjs'))};\n`) + Object.entries(entries).map(([name, file], index) => `import * as api${index} from ${JSON.stringify(file)};`).join('\n') +
+    `\nimport * as compositionRuntime from ${JSON.stringify(runtime)};\nexport default Object.freeze({ bindingsRuntime: ${managedProfile ? 'api0.MANAGED_STATE_BINDING_RUNTIME' : orchestratedProfile ? 'api0.ORCHESTRATED_STATE_BINDING_RUNTIME' : `Object.freeze({XTENSION_STATE_BINDING_API_VERSION:api0.XTENSION_STATE_BINDING_API_VERSION,validateStateBindingArtifact:api0.${lifecycleProfile ? 'validateLifecycleStateBindingArtifact' : 'validateStateBindingArtifact'},materializeStateBindingArtifact:api0.materializeStateBindingArtifact,createXTensionStateRegistry:api0.createXTensionStateRegistry${projectionExports}${nativeExports}${lifecycleExports}})`}, compositionRuntime, ${managedProfile && !ssrEnabled ? '' : 'ssrRuntime,'} ${componentProfile ? 'componentInterfaceRuntime,' : ''} ${ssrEnabled ? `resumeBindingsRuntime: Object.freeze({XTENSION_RMTX_RESUME_STATE_BINDING_API_VERSION:rmtxResumeRuntime.XTENSION_RMTX_RESUME_STATE_BINDING_API_VERSION,XTENSION_RESUME_STATE_BINDING_API_VERSION:rmtxResumeRuntime.XTENSION_RESUME_STATE_BINDING_API_VERSION,createXTensionRMTXResumeStateRegistry:rmtxResumeRuntime.createXTensionRMTXResumeStateRegistry,createXTensionResumeStateRegistry:rmtxResumeRuntime.createXTensionResumeStateRegistry,createRMTXSSRBindingAdmission:${admissionExpression},typed:bindingContract.typed,propsFrom:bindingContract.propsFrom}),` : managedProfile ? '' : 'resumeBindingsRuntime: Object.freeze({XTENSION_RESUME_STATE_BINDING_API_VERSION:api0.XTENSION_RESUME_STATE_BINDING_API_VERSION,createXTensionResumeStateRegistry:api0.createXTensionResumeStateRegistry,typed:bindingContract.typed,propsFrom:bindingContract.propsFrom}),'} adapters: Object.freeze({${Object.keys(entries).slice(1).map((name, index) => {const framework=name.split('-')[0],title=framework==='react'?'React':'Vue';return `${JSON.stringify(framework)}: Object.freeze({create${title}KernelRuntimeAdapter:api${index+1}.create${title}KernelRuntimeAdapter,normalize${title}Peers:api${index+1}.normalize${title}Peers${managedProfile && !ssrEnabled ? '' : `,create${title}SSRRuntimeAdapter:api${index+1}.create${title}SSRRuntimeAdapter,normalize${title}SSRPeers:api${index+1}.normalize${title}SSRPeers`}})`;}).join(',')} }) });\n`;
   const bundle = await rollup.rollup({ input: virtual, plugins: [{
     name: 'xtend-owned-xtension-platform',
     resolveId(id, importer) {

@@ -239,6 +239,10 @@
       "types": "./xtensions/native-component-bindings.d.ts",
       "default": "./xtensions/native-component-bindings.js"
     },
+    "./xtensions/state-binding-resume": {
+      "types": "./xtensions/state-binding-resume.d.ts",
+      "default": "./xtensions/state-binding-resume.js"
+    },
     "./xtensions/state-binding-managed": {
       "types": "./xtensions/state-binding-managed.d.ts",
       "default": "./xtensions/state-binding-managed.js"

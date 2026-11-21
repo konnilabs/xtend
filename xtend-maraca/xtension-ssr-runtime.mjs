@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import { validateComponentBindings } from './xtension-component-binding.mjs';
+import { RMTX_XTENSION_SSR_API_VERSION, normalizeRmtxSSRSourceIdentity, validateRmtxSSRNativeArtifact } from './xtension-rmtx-ssr-contract.mjs';
+export { RMTX_XTENSION_SSR_API_VERSION } from './xtension-rmtx-ssr-contract.mjs';
+export { createRmtxSSRNativeArtifact } from './xtension-rmtx-ssr-contract.mjs';
 import { json, fields, canonical, copy, freeze, name } from './xtension-composition-contract.mjs';
 export const XTENSION_SSR_API_VERSION = '2.0.0';
 const limit = 1024 * 1024;
@@ -22,10 +25,29 @@ function exclusive(targets) {
 }
 /** The application supplies signature authority, peers and the trusted document.
  * Snapshot JSON never supplies executable ports, grants or command names. */
-export function createMaracaXTensionSSRSession({ artifact, bindingsRuntime, resumeBindingsRuntime, options, componentInterfaceRuntime }) {
-  const scoped = artifact.schema === 'xtend.maraca.xtension-composition-artifact.v8';
-  const wire = name => `xtend.maraca.xtension-ssr-${name}.v${scoped ? 2 : 1}`;
-  const components = scoped ? validateComponentBindings(artifact, componentInterfaceRuntime) : null;
+export function createMaracaXTensionSSRSession({ artifact, bindingsRuntime, resumeBindingsRuntime, options, componentInterfaceRuntime, sourceIdentity, createModelSnapshot, bindingAdmission }) {
+  const rmtx = options?.schema === 'xtend.maraca.xtension-ssr-options.v3';
+  const nativeOnly = artifact?.schema === 'xtend.maraca.rmtx-ssr-native-artifact.v1';
+  const projected = /^xtend\.maraca\.xtension-composition-artifact\.v(?:9|1[0-3])$/u.test(artifact?.schema || '');
+  const component = projected || ['xtend.maraca.xtension-composition-artifact.v7', 'xtend.maraca.xtension-composition-artifact.v8'].includes(artifact?.schema);
+  const scoped = artifact?.schema === 'xtend.maraca.xtension-composition-artifact.v8';
+  if (nativeOnly) artifact = validateRmtxSSRNativeArtifact(artifact);
+  if (rmtx ? !component && !nativeOnly : projected || nativeOnly) throw new TypeError('The RMTX SSR handoff requires its explicit v3 source/composition contract.');
+  const componentPayload = scoped || rmtx && component;
+  const wire = name => `xtend.maraca.xtension-ssr-${name}.v${rmtx ? 3 : scoped ? 2 : 1}`;
+  const components = componentPayload ? validateComponentBindings(artifact, componentInterfaceRuntime) : null;
+  const program = nativeOnly ? artifact.program : artifact.plan.program;
+  const manifest = nativeOnly ? { hosts: [], providers: [] } : artifact.manifest;
+  const sourceHash = nativeOnly ? artifact.sourceIdentity.sourceHash : artifact.plan.sourceHash;
+  const identity = rmtx ? normalizeRmtxSSRSourceIdentity(sourceIdentity, { sourceHash }) : null;
+  if (rmtx && (typeof createModelSnapshot !== 'function' || bindingAdmission !== undefined && typeof bindingAdmission !== 'function'
+    || resumeBindingsRuntime?.XTENSION_RMTX_RESUME_STATE_BINDING_API_VERSION !== '4.0.0')) throw new TypeError('RMTX SSR requires the explicit Model snapshot and resume binding API4 ports.');
+  if (nativeOnly && canonical(identity) !== canonical(artifact.sourceIdentity)) throw new TypeError('Native SSR source identity differs from its captured artifact.');
+  const snapshotFrom = states => {
+    const value = rmtx ? createModelSnapshot(freeze(copy(states))) : { states };
+    if (rmtx) { json(value); if (canonical(value?.states) !== canonical(states)) throw new TypeError('SSR Model preview must preserve the complete signed state.'); }
+    return value;
+  };
   if (!options || Object.keys(options).some(field => !['schema', 'mode', 'snapshot', 'verify', 'sign', 'generation', 'expiresInMs', 'fallback', 'intents', 'now'].includes(field)) || options.schema !== wire('options') || !['server', 'client'].includes(options.mode)) throw new TypeError('Versioned SSR options are required.');
   const mode = options.mode, fallback = options.fallback ?? 'reject', sign = options.sign, verify = options.verify, intentSource = options.intents, now = options.now || Date.now;
   if (!['reject', 'mount'].includes(fallback) || typeof now !== 'function' || mode === 'server' && (typeof sign !== 'function' || options.verify !== undefined || options.snapshot !== undefined || options.intents !== undefined || fallback !== 'reject') || mode === 'client' && (typeof verify !== 'function' || options.sign !== undefined || options.generation !== undefined || options.expiresInMs !== undefined)) throw new TypeError('SSR signing, verification and fallback authority must match the mode.');
@@ -35,13 +57,14 @@ export function createMaracaXTensionSSRSession({ artifact, bindingsRuntime, resu
   if (typeof generation !== 'string' || !/^[A-Za-z0-9_-]{1,96}$/.test(generation)) throw new TypeError('An explicit SSR generation is required.');
   const expiresInMs = options.expiresInMs ?? 60000;
   if (mode === 'server' && (!Number.isSafeInteger(expiresInMs) || expiresInMs < 1 || expiresInMs > 86400000)) throw new TypeError('SSR lifetime must be 1..86400000 ms.');
-  const validatedBindings = bindingsRuntime.validateStateBindingArtifact(artifact.plan.bindings, artifact.plan.program);
+  const validatedBindings = nativeOnly ? null : bindingsRuntime.validateStateBindingArtifact(artifact.plan.bindings, program);
+  const materialize = snapshot => nativeOnly ? [] : bindingsRuntime.materializeStateBindingArtifact(validatedBindings, snapshot, rmtx && bindingAdmission ? bindingAdmission(snapshot) : undefined);
   let root, prepared = false, restored = false, ready = false, sourceDigest, rootPrefix, state, initial = [], counter = 0, closing = false;
   const records = new Map(), instances = new Map(), held = [], replayed = new Set(), phases = [];
   let report = null;
   function componentIdentity(entry) {
-    const host=artifact.manifest.hosts.find(h=>h.declarationId===entry.binding.address.declarationId),provider=artifact.manifest.providers.find(p=>p.id===host.providerId);
-    return {ownerSurface:host.ownerSurface,targetSurface:host.targetSurface,interfaceVersion:host.interfaceVersion,interfaceSha256:host.interfaceSha256,moduleSha256:provider.integrity.sha256};
+    const host=manifest.hosts.find(h=>h.declarationId===entry.binding.address.declarationId),provider=manifest.providers.find(p=>p.id===host.providerId);
+    return {ownerSurface:host.ownerSurface,targetSurface:host.targetSurface,interfaceVersion:host.interfaceVersion,interfaceSha256:host.interfaceSha256,moduleSha256:provider.integrity.sha256,...(rmtx ? {ownerInstance:entry.ownerSurface || host.ownerSurface} : {})};
   }
   function active() { if (closing) throw new Error('SSR session is disposed.'); }
   async function prepare(target) {
@@ -55,24 +78,26 @@ export function createMaracaXTensionSSRSession({ artifact, bindingsRuntime, resu
     }
     fields(supplied, ['schema', 'payload', 'signature'], 'signed SSR snapshot');
     const payload = supplied.payload;
-    fields(payload, ['schema', 'generation', 'sourceHash', 'compositionSha256', 'rootId', 'issuedAt', 'expiresAt', 'state', 'hosts', 'shell'], 'SSR payload');
+    fields(payload, ['schema', 'generation', 'sourceHash', 'compositionSha256', 'rootId', 'issuedAt', 'expiresAt', 'state', 'hosts', 'shell', ...(rmtx ? ['sourceIdentity'] : [])], 'SSR payload');
     const time = now();
-    if (supplied.schema !== wire('snapshot') || payload.schema !== wire('payload') || payload.sourceHash !== artifact.plan.sourceHash || payload.compositionSha256 !== sourceDigest || payload.rootId !== root.id || !Number.isSafeInteger(time) || !Number.isSafeInteger(payload.issuedAt) || !Number.isSafeInteger(payload.expiresAt) || payload.issuedAt > time || payload.expiresAt <= time || payload.expiresAt - payload.issuedAt < 1 || payload.expiresAt - payload.issuedAt > 86400000 || !Array.isArray(payload.hosts) || payload.hosts.length > 1024) throw new Error('SSR snapshot identity or lifetime is invalid.');
+    if (supplied.schema !== wire('snapshot') || payload.schema !== wire('payload') || payload.sourceHash !== sourceHash || payload.compositionSha256 !== sourceDigest || payload.rootId !== root.id || !Number.isSafeInteger(time) || !Number.isSafeInteger(payload.issuedAt) || !Number.isSafeInteger(payload.expiresAt) || payload.issuedAt > time || payload.expiresAt <= time || payload.expiresAt - payload.issuedAt < 1 || payload.expiresAt - payload.issuedAt > 86400000 || !Array.isArray(payload.hosts) || payload.hosts.length > 1024) throw new Error('SSR snapshot identity or lifetime is invalid.');
+    if (rmtx && canonical(payload.sourceIdentity) !== canonical(identity)) throw new Error('SSR source/project profile provenance differs from the compiled handoff.');
     if (await verify(canonical(payload), supplied.signature) !== true) throw new Error('SSR signature verification failed.');
     active(); if (now() >= payload.expiresAt) throw new Error('SSR snapshot expired during verification.');
     state = payload.state;
-    const stateIds = artifact.plan.program.state.states.map(row => row.id);
+    const stateIds = program.state.states.map(row => row.id);
     fields(state, stateIds, 'restored Model state');
     if (Object.keys(state).length !== stateIds.length) throw new Error('SSR state must cover exactly the compiled Model states.');
-    initial = bindingsRuntime.materializeStateBindingArtifact(validatedBindings, { states: state });
+    const restoredPreview = snapshotFrom(state);
+    initial = materialize(restoredPreview);
     if (initial.length !== payload.hosts.length) throw new Error('SSR snapshot does not cover the restored keyed host set.');
     const targets = [];
     initial.forEach((entry, i) => {
-      const record = payload.hosts[i], provider = artifact.manifest.providers.find(row => row.id === artifact.manifest.hosts.find(row => row.declarationId === entry.binding.address.declarationId)?.providerId);
-      fields(record, ['address', 'hostSurface', 'surface', 'providerId', 'framework', 'version', 'peers', 'identifierPrefix', 'props', 'dom', ...(scoped ? ['ownerSurface','targetSurface','interfaceVersion','interfaceSha256','moduleSha256'] : [])], 'SSR host');
+      const record = payload.hosts[i], provider = manifest.providers.find(row => row.id === manifest.hosts.find(row => row.declarationId === entry.binding.address.declarationId)?.providerId);
+      fields(record, ['address', 'hostSurface', 'surface', 'providerId', 'framework', 'version', 'peers', 'identifierPrefix', 'props', 'dom', ...(componentPayload ? ['ownerSurface','targetSurface','interfaceVersion','interfaceSha256','moduleSha256', ...(rmtx ? ['ownerInstance'] : [])] : [])], 'SSR host');
       if (!provider || key(record.address) !== key(entry.binding.address) || record.hostSurface !== entry.hostSurface || record.surface !== entry.surface || record.providerId !== provider.id || record.framework !== provider.framework || record.version !== provider.version || canonical(record.peers) !== canonical(provider.peers) || record.identifierPrefix !== `xth-${generation}-${rootPrefix}-${i}-` || records.has(key(record.address))) throw new Error('SSR host identity differs from the compiled provider/binding.');
-      if (scoped && canonical(componentIdentity(entry)) !== canonical(Object.fromEntries(['ownerSurface','targetSurface','interfaceVersion','interfaceSha256','moduleSha256'].map(k=>[k,record[k]])))) throw new Error('SSR component owner, target or interface provenance differs from the captured declaration.');
-      if (canonical(resumeBindingsRuntime.propsFrom({ states: state }, entry.binding)) !== canonical(record.props)) throw new Error('Signed SSR props do not match the restored Model.');
+      if (componentPayload && canonical(componentIdentity(entry)) !== canonical(Object.fromEntries(['ownerSurface','targetSurface','interfaceVersion','interfaceSha256','moduleSha256', ...(rmtx ? ['ownerInstance'] : [])].map(k=>[k,record[k]])))) throw new Error('SSR component owner, target or interface provenance differs from the captured declaration.');
+      if (canonical(resumeBindingsRuntime.propsFrom(restoredPreview, entry.binding)) !== canonical(record.props)) throw new Error('Signed SSR props do not match the restored Model.');
       const target = targetFor(root, entry.hostSurface); targets.push(target); records.set(key(record.address), { record, target, anchor: shape(target, new Set([target])), claimed: false });
     });
     exclusive(targets);
@@ -84,7 +109,7 @@ export function createMaracaXTensionSSRSession({ artifact, bindingsRuntime, resu
   function confirmRestored(snapshot) {
     active(); if (!prepared || restored) throw new Error('SSR restore order is invalid.');
     if (mode === 'client' && canonical(snapshot.states) !== canonical(state)) throw new Error('The Model was not restored before adoption.');
-    initial = bindingsRuntime.materializeStateBindingArtifact(validatedBindings, snapshot);
+    initial = materialize(snapshot);
     restored = true; phases.push('restored');
   }
   function hostContext(context, provider) {
@@ -111,11 +136,11 @@ export function createMaracaXTensionSSRSession({ artifact, bindingsRuntime, resu
   function gate(context, normalizeEvent) {
     return event => {
       if (closing || mode === 'server') return false;
-      if (scoped && typeof normalizeEvent !== 'function') throw new Error('Component SSR requires its provider payload normalizer.');
-      const normalized = scoped ? normalizeEvent(event) : event;
+      if (componentPayload && typeof normalizeEvent !== 'function') throw new Error('Component SSR requires its provider payload normalizer.');
+      const normalized = componentPayload ? normalizeEvent(event) : event;
       if (ready) return context.onEvent(normalized);
       if (held.length >= 128) throw new Error('SSR held-intent limit exceeded.');
-      held.push({ schema: wire('intent'), id: `held-${held.length}`, generation, address: context.identity.address, event: event.event, payload: event.payload, ...(scoped ? {payloadOrigin:'provider'} : {}) });
+      held.push({ schema: wire('intent'), id: `held-${held.length}`, generation, address: context.identity.address, event: event.event, payload: event.payload, ...(componentPayload ? {payloadOrigin:'provider'} : {}) });
       return false;
     };
   }
@@ -125,14 +150,14 @@ export function createMaracaXTensionSSRSession({ artifact, bindingsRuntime, resu
     input = bounded(input); if (!Array.isArray(input) || input.length > 128) throw new Error('SSR replay requires at most 128 structured intents.');
     const unique = new Map();
     for (const intent of input) {
-      fields(intent, ['schema', 'id', 'generation', 'address', 'event', 'payload', ...(scoped ? ['payloadOrigin'] : [])], 'SSR intent'); name(intent.id);
+      fields(intent, ['schema', 'id', 'generation', 'address', 'event', 'payload', ...(componentPayload ? ['payloadOrigin'] : [])], 'SSR intent'); name(intent.id);
       const bound = instances.get(key(intent.address)), spec = bound && Object.hasOwn(bound.entry.binding.intents,intent.event) && bound.entry.binding.intents[intent.event];
       let payload=intent.payload;
-      if (scoped) {
+      if (componentPayload) {
         if(intent.payloadOrigin!=='provider'||!bound) throw new Error('SSR v2 accepts provider payloads for a restored host only.');
         const component=components.get(bound.entry.binding.address.declarationId),route=Object.hasOwn(component.resolved.routes,intent.event)&&component.resolved.routes[intent.event];
         if(!route)throw new Error('Unknown SSR component intent.');
-        payload=componentInterfaceRuntime.mapComponentIntent(component.definition,intent.event,intent.payload,route.payload);
+        payload=(projected ? componentInterfaceRuntime.mapProjectedComponentIntent : componentInterfaceRuntime.mapComponentIntent)(component.definition,intent.event,intent.payload,route.payload);
       }
       if (intent.schema !== wire('intent') || intent.generation !== generation || !spec || !payload || typeof payload !== 'object' || Array.isArray(payload) || Object.keys(payload).length !== Object.keys(spec.fields).length) throw new Error('SSR replay intent is not bound to this restored generation.');
       for (const [field, type] of Object.entries(spec.fields)) {
@@ -165,7 +190,7 @@ export function createMaracaXTensionSSRSession({ artifact, bindingsRuntime, resu
       replayed.add(intent.id);
     }
     if (mode === 'client') phases.push('replayed');
-    report = freeze({ schema: wire('report'), apiVersion: scoped ? XTENSION_SSR_API_VERSION : '1.0.0', mode, generation,
+    report = freeze({ schema: wire('report'), apiVersion: rmtx ? RMTX_XTENSION_SSR_API_VERSION : scoped ? XTENSION_SSR_API_VERSION : '1.0.0', mode, generation,
       status: mode === 'server' ? 'server-rendered' : hosts.some(row => row.result.status === 'fallback-mounted') ? 'fallback-mounted' : 'resumed', hosts, replayedIntents: replayed.size, phases: [...phases] });
     return report;
   }
@@ -174,16 +199,16 @@ export function createMaracaXTensionSSRSession({ artifact, bindingsRuntime, resu
     const hosts = initial.map(entry => {
       const row = records.get(key(entry.binding.address)), instance = instances.get(key(entry.binding.address)).instance;
       return { address: entry.binding.address, hostSurface: entry.hostSurface, surface: entry.surface, providerId: row.provider.id, framework: row.provider.framework, version: row.provider.version, peers: row.provider.peers,
-        ...(scoped ? componentIdentity(entry) : {}), identifierPrefix: row.identifierPrefix, props: instance.snapshot().props, dom: children(row.target) };
+        ...(componentPayload ? componentIdentity(entry) : {}), identifierPrefix: row.identifierPrefix, props: instance.snapshot().props, dom: children(row.target) };
     });
     root.setAttribute('data-maraca-ssr-shell', '');
     const targets = initial.map(entry => records.get(key(entry.binding.address)).target); exclusive(targets);
     const issuedAt = now();
     if (!Number.isSafeInteger(issuedAt) || !Number.isSafeInteger(issuedAt + expiresInMs)) throw new Error('SSR clock must return safe integer milliseconds.');
-    const payload = bounded({ schema: wire('payload'), generation, sourceHash: artifact.plan.sourceHash, compositionSha256: sourceDigest, rootId: root.id, issuedAt, expiresAt: issuedAt + expiresInMs, state: snapshot.states, hosts, shell: shape(root, new Set(targets)) });
+    const payload = bounded({ schema: wire('payload'), generation, sourceHash, ...(rmtx ? {sourceIdentity: identity} : {}), compositionSha256: sourceDigest, rootId: root.id, issuedAt, expiresAt: issuedAt + expiresInMs, state: snapshot.states, hosts, shell: shape(root, new Set(targets)) });
     const html = root.outerHTML, signature = await sign(canonical(payload)); active();
     const signed = bounded({ schema: wire('snapshot'), payload, signature });
-    return freeze({ schema: wire('response'), apiVersion: scoped ? XTENSION_SSR_API_VERSION : '1.0.0', html, snapshot: signed, report });
+    return freeze({ schema: wire('response'), apiVersion: rmtx ? RMTX_XTENSION_SSR_API_VERSION : scoped ? XTENSION_SSR_API_VERSION : '1.0.0', html, snapshot: signed, report });
   }
   return Object.freeze({ schema: wire('session'), mode, prepare, confirmRestored, hostContext, gate, bind, retire, finish, capture,
     shouldAdopt: entry => mode === 'client' && !ready && records.has(key(entry.binding.address)),

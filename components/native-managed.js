@@ -1,6 +1,9 @@
 /** Trusted native component bridge. Importing this module has no browser side effects. */
 export const NATIVE_COMPONENT_CONTEXT = Symbol.for('xtend.native-component.managed.v2');
 export const NATIVE_COMPONENT_CLASS = Symbol.for('xtend.native-component.class.v2');
+/** An SSR marker only defers Classic behavior; it never supplies an owner. */
+export const NATIVE_COMPONENT_SSR_ADOPTION_API_VERSION = '1.0.0';
+export const NATIVE_COMPONENT_SSR_PENDING_ATTRIBUTE = 'data-rmtx-native-pending';
 const INSTALLED = Symbol('xtend.native-component.installed');
 const local = new WeakMap();
 const inherited = new WeakMap();
@@ -42,9 +45,36 @@ export function getManagedContext(element) {
 
 export const managedContext = getManagedContext;
 export const isManagedComponent = (element) => getManagedContext(element) !== null;
+function rawAttribute(element, name) {
+  const getter = element?.ownerDocument?.defaultView?.Element?.prototype?.getAttribute;
+  return typeof getter === 'function' ? getter.call(element, name) : null;
+}
+function pendingSsrComponent(element) {
+  if (getManagedContext(element)) return false;
+  const seen = new Set();
+  for (let owner = element; owner && !seen.has(owner); owner = owner.getRootNode?.()?.host) {
+    seen.add(owner);
+    if (rawAttribute(owner, NATIVE_COMPONENT_SSR_PENDING_ATTRIBUTE) === 'v1') return true;
+  }
+  return false;
+}
+function resumeSsrShadowConnections(element) {
+  const visit = root => {
+    for (const child of root?.children || []) {
+      const state = local.get(child);
+      if (state?.pendingSSRConnection && child.isConnected && !pendingSsrComponent(child)) {
+        state.pendingSSRConnection = false;
+        child.connectedCallback?.();
+      }
+      visit(child.shadowRoot);
+      visit(child);
+    }
+  };
+  visit(element.shadowRoot);
+}
 /** Managed components never read or write the Classic singleton. RMT owns business state. */
 export function componentState(element, legacyState) {
-  return isManagedComponent(element) ? detachedState : legacyState;
+  return isManagedComponent(element) || pendingSsrComponent(element) ? detachedState : legacyState;
 }
 export function managedLocal(element) {
   if (!local.has(element)) local.set(element, { cleanups: [], connected: false, updating: 0 });
@@ -79,6 +109,7 @@ export function onManagedCleanup(element, cleanup) {
 
 /** Global Classic listeners become listeners on the captured component owner, never the document. */
 export function componentListen(element, target, type, listener, options) {
+  if (pendingSsrComponent(element)) return () => {};
   if (!isManagedComponent(element)) { target.addEventListener(type, listener, options); return () => target.removeEventListener(type, listener, options); }
   const context = getManagedContext(element);
   const scoped = target === element.ownerDocument || target === element.ownerDocument?.body || target === element.ownerDocument?.defaultView ? element : target;
@@ -143,8 +174,21 @@ export function markManagedComponentClass(ctor, tag, profile = {}) {
   const disconnected = prototype.disconnectedCallback;
   const attributeChanged = prototype.attributeChangedCallback;
   const dispatch = prototype.dispatchEvent;
+  const getAttribute = prototype.getAttribute, hasAttribute = prototype.hasAttribute;
+  // During upgrade the server's attributes already exist, unlike ordinary
+  // createElement(). Constructors must see the same empty authored-input
+  // baseline until their captured owner and resource ports are installed.
+  prototype.getAttribute = function(name) {
+    if (![NATIVE_COMPONENT_SSR_PENDING_ATTRIBUTE, 'data-rmt-key'].includes(String(name).toLowerCase()) && pendingSsrComponent(this)) return null;
+    return getAttribute.call(this, name);
+  };
+  prototype.hasAttribute = function(name) {
+    if (![NATIVE_COMPONENT_SSR_PENDING_ATTRIBUTE, 'data-rmt-key'].includes(String(name).toLowerCase()) && pendingSsrComponent(this)) return false;
+    return hasAttribute.call(this, name);
+  };
   prototype.dispatchEvent = function(event) {
     const context = getManagedContext(this);
+    if (!context && pendingSsrComponent(this)) return true;
     if (!context) return dispatch.call(this, event);
     if (event.type === 'xtend-command') return true;
     if (!(context.isActive ? context.isActive() : context.isCurrent()) || context.signal.aborted || managedLocal(this).updating || context.isApplyingUpdate?.()) return true;
@@ -158,8 +202,10 @@ export function markManagedComponentClass(ctor, tag, profile = {}) {
   };
   prototype.connectedCallback = function() {
     const context = getManagedContext(this);
-    if (!context) return connected?.call(this);
+    if (!context && pendingSsrComponent(this)) { managedLocal(this).pendingSSRConnection = true; return; }
+    if (!context) { const result = connected?.call(this); resumeSsrShadowConnections(this); return result; }
     const state = managedLocal(this);
+    state.pendingSSRConnection = false;
     if (!context.isCurrent() || context.signal.aborted) return;
     // A queued disconnected reaction after an in-owner DOM move retains the same lifetime.
     state.connected = true;
@@ -198,9 +244,11 @@ export function markManagedComponentClass(ctor, tag, profile = {}) {
     }
     context.connect();
     if (!context.registerActivityHooks) state.resume();
+    resumeSsrShadowConnections(this);
   };
   prototype.disconnectedCallback = function() {
     const context = getManagedContext(this);
+    if (!context && pendingSsrComponent(this)) return;
     if (!context) return disconnected?.call(this);
     if (this.isConnected && context.isCurrent()) return;
     const state = managedLocal(this); state.connected = false;
@@ -210,11 +258,13 @@ export function markManagedComponentClass(ctor, tag, profile = {}) {
   };
   prototype.connectedMoveCallback = function() {
     const context = getManagedContext(this);
+    if (!context && pendingSsrComponent(this)) return;
     if (context && context.isCurrent()) return;
     if (!context) { disconnected?.call(this); connected?.call(this); }
   };
   prototype.attributeChangedCallback = function(name, oldValue, newValue) {
     const context = getManagedContext(this);
+    if (!context && pendingSsrComponent(this)) return;
     if (!context) return attributeChanged?.call(this, name, oldValue, newValue);
     if (!(context.isAlive ? context.isAlive() : context.isCurrent()) || context.signal.aborted || oldValue === newValue) return;
     if (!(context.isActive ? context.isActive() : context.isCurrent())) return;
